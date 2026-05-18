@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abdel Raouf | Harpy - Digital Agency Hub</title>
+    <meta name="description" content="مركز الوكالة الرقمية لعبد الرؤوف (Harpy). مطور Full-Stack وخبير أمن سيبراني يقدم المنيو الرقمي، كروت NFC، صفحات الهبوط وتدقيق الأمان.">
+    
+    <!-- Open Graph / SEO Meta Tags -->
+    <meta property="og:title" content="Abdel Raouf | Harpy - Digital Agency Hub">
+    <meta property="og:description" content="مطور Full-Stack وخبير أمن سيبراني يقدم المنيو الرقمي، كروت NFC، صفحات الهبوط وتدقيق الأمان.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://harpyminu.com/">
+    <meta name="theme-color" content="#07070b">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;800&family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Background Elements -->
+    <div class="cyber-grid"></div>
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="#" class="logo">
+                <span class="logo-text">&lt;Harpy/&gt;</span>
+            </a>
+            
+            <div class="menu-toggle" id="mobile-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+
+            <ul class="nav-links" id="nav-links">
+                <li><a href="#about" class="nav-link" data-i18n="nav_expert">الخبير</a></li>
+                <li><a href="#services" class="nav-link" data-i18n="nav_services">الخدمات</a></li>
+                <li><a href="#contact" class="nav-link" data-i18n="nav_contact">التواصل</a></li>
+            </ul>
+            
+            <div class="nav-actions">
+                <button id="langToggleBtn" class="btn btn-lang">English</button>
+                <a href="#contact" class="btn btn-primary cyber-glitch hide-mobile" data-i18n="nav_cta">تواصل معي</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container hero-container">
+            <div class="hero-content">
+                <div class="badge" data-i18n="hero_badge">مركز الوكالة الرقمية</div>
+                <h1 class="hero-title" data-i18n="hero_title">
+                    مرحباً، أنا <span class="highlight">عبد الرؤوف</span><br>
+                    المعروف بـ <span class="cyber-text">Harpy</span>
+                </h1>
+                <p class="hero-subtitle" data-i18n="hero_subtitle">
+                    مطور Full-Stack وخبير أمن سيبراني
+                </p>
+                <div class="hero-desc">
+                    <p data-i18n="hero_desc">بناء حلول رقمية متميزة وقابلة للتوسع مع ضمان أمان عالي المستوى. من القوائم التفاعلية إلى صفحات الهبوط عالية التحويل.</p>
+                </div>
+                <div class="hero-cta">
+                    <a href="#services" class="btn btn-primary" data-i18n="hero_cta_1">استكشف الخدمات <i class="fas fa-arrow-left" id="arrow-icon"></i></a>
+                    <a href="#about" class="btn btn-secondary" data-i18n="hero_cta_2">ملفي الشخصي</a>
+                </div>
+                <div class="tech-stack">
+                    <i class="fa-brands fa-html5"></i>
+                    <i class="fa-brands fa-css3-alt"></i>
+                    <i class="fa-brands fa-js"></i>
+                    <i class="fa-brands fa-python"></i>
+                    <i class="fa-brands fa-node-js"></i>
+                    <i class="fa-brands fa-github"></i>
+                </div>
+            </div>
+            <div class="hero-image-wrapper">
+                <div class="profile-card glass-panel">
+                    <div class="image-flipper" id="profileFlipper">
+                        <div class="flipper-inner">
+                            <div class="flipper-front">
+                                <img src="assets/images/harpy_ceo.jpg" alt="Abdel Raouf - CEO">
+                                <div class="image-label" data-i18n="label_exec">المدير التنفيذي</div>
+                            </div>
+                            <div class="flipper-back">
+                                <img src="assets/images/cyber_expert.png" alt="Abdel Raouf - Cyber Expert">
+                                <div class="image-label cyber-label" data-i18n="label_hacker">الهاكر</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-info">
+                        <h3>Abdel Raouf</h3>
+                        <p class="role-text" data-i18n="label_hover">مرر/اضغط لكشف الشخصية الأخرى</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <div class="section-header">
+                <h2 data-i18n="about_title">عن <span class="highlight">الخبير</span></h2>
+                <p data-i18n="about_desc">سد الفجوة بين الهندسة البرمجية القوية والأمن الهجومي.</p>
+            </div>
+            
+            <div class="about-grid">
+                <div class="about-content glass-panel">
+                    <h3 data-i18n="about_q">من هو Harpy؟</h3>
+                    <p data-i18n="about_p1">أنا محترف تقني متعدد التخصصات، حاصل على شهادات عالمية معتمدة في الأمن السيبراني، منها <strong>CEH (الهاكر الأخلاقي المعتمد)</strong> و <strong>OSCP (المحترف المعتمد في الأمن الهجومي)</strong>.</p>
+                    <p data-i18n="about_p2">في مجال تطوير البرمجيات، أتخصص كمطور Full-Stack، حيث أقوم ببناء أنظمة متكاملة ليست فقط رائعة بصرياً بل وآمنة من الأساس.</p>
+                    
+                    <div class="certifications">
+                        <div class="cert-badge">
+                            <i class="fas fa-shield-halved"></i>
+                            <span data-i18n="cert_ceh">معتمد كـ CEH</span>
+                        </div>
+                        <div class="cert-badge">
+                            <i class="fas fa-skull-crossbones"></i>
+                            <span data-i18n="cert_oscp">معتمد كـ OSCP</span>
+                        </div>
+                        <div class="cert-badge">
+                            <i class="fas fa-code"></i>
+                            <span data-i18n="cert_fullstack">مهندس Full-Stack</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="terminal-window">
+                    <div class="terminal-header">
+                        <span class="dot red"></span>
+                        <span class="dot yellow"></span>
+                        <span class="dot green"></span>
+                        <div class="terminal-title">harpy@system:~</div>
+                    </div>
+                    <div class="terminal-body" id="terminal-body">
+                        <!-- Content typed via JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="services">
+        <div class="container">
+            <div class="section-header">
+                <h2 data-i18n="services_title">أهم <span class="highlight">خدماتنا</span></h2>
+                <p data-i18n="services_desc">حلول تجارية مخصصة للشركات التي تطمح للتفوق الرقمي.</p>
+            </div>
+            
+            <div class="services-grid">
+                <!-- Service 1 -->
+                <div class="service-card glass-panel cyber-border">
+                    <div class="service-icon">
+                        <i class="fas fa-id-card"></i>
+                    </div>
+                    <h3 data-i18n="serv1_title">الكروت الرقمية الذكية</h3>
+                    <p data-i18n="serv1_desc">كروت أعمال من الجيل القادم تدمج تقنية NFC ورموز الاستجابة السريعة (QR Code). شارك هويتك المهنية بلمسة واحدة، بدون تلامس وصديقة للبيئة.</p>
+                </div>
+                
+                <!-- Service 2 -->
+                <div class="service-card glass-panel cyber-border">
+                    <div class="service-icon highlight-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <h3 data-i18n="serv2_title">المنيو الرقمي</h3>
+                    <p data-i18n="serv2_desc">قوائم طعام رقمية تفاعلية للمطاعم والكافيهات. أنظمة متكاملة مبنية على الدومين الخاص بنا <strong>harpymenu.com</strong> ومستضافة بأمان عبر مشاريع GitHub.</p>
+                </div>
+                
+                <!-- Service 3 -->
+                <div class="service-card glass-panel cyber-border">
+                    <div class="service-icon">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h3 data-i18n="serv3_title">صفحات الهبوط</h3>
+                    <p data-i18n="serv3_desc">صفحات تسويقية عالية التحويل وجذابة بصرياً. مبنية بهيكل HTML/CSS/JS نظيف وسريع جداً، ومجهزة للاستضافة على Hostinger و GitHub Pages.</p>
+                </div>
+                
+                <!-- Service 4 -->
+                <div class="service-card glass-panel cyber-border">
+                    <div class="service-icon cyber-icon">
+                        <i class="fas fa-user-secret"></i>
+                    </div>
+                    <h3 data-i18n="serv4_title">تدقيق الأمان البرمجي</h3>
+                    <p data-i18n="serv4_desc">فحص شامل للثغرات واختبار الاختراق. نقوم بفحص وتحديد وإغلاق الثغرات الأمنية لحماية تطبيقات الويب الخاصة بك من محاولات الاختراق الخبيثة.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact" class="footer">
+        <div class="container footer-container">
+            <div class="footer-brand">
+                <a href="#" class="logo">
+                    <span class="logo-text">&lt;Harpy/&gt;</span>
+                </a>
+                <p data-i18n="footer_rights">مركز الوكالة الرقمية &copy; 2026. جميع الحقوق محفوظة.</p>
+            </div>
+            <div class="footer-links">
+                <a href="https://www.facebook.com/share/1BLEmx9FRg/" target="_blank"><i class="fa-brands fa-facebook"></i> Facebook</a>
+                <a href="https://wa.me/201019971508" target="_blank"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>
+                <a href="#"><i class="fa-brands fa-linkedin"></i> LinkedIn</a>
+                <a href="#"><i class="fa-brands fa-github"></i> GitHub</a>
+            </div>
+            <div class="hosted-badge">
+                <span data-i18n="footer_badge">مستضاف عبر GitHub Pages و Hostinger</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/201019971508" class="floating-wa" target="_blank" aria-label="Chat on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- JS -->
+    <script src="js/main.js"></script>
+</body>
+</html>
