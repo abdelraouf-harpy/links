@@ -21,8 +21,14 @@
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- AOS Animation CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
     <!-- CSS -->
     <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/images/favicon.png">
 </head>
 <body>
     <!-- Background Elements -->
@@ -57,7 +63,7 @@
     <!-- Hero Section -->
     <section class="hero">
         <div class="container hero-container">
-            <div class="hero-content">
+            <div class="hero-content" data-aos="fade-right">
                 <div class="badge" data-i18n="hero_badge">مركز الوكالة الرقمية</div>
                 <h1 class="hero-title" data-i18n="hero_title">
                     مرحباً، أنا <span class="highlight">عبد الرؤوف</span><br>
@@ -82,7 +88,7 @@
                     <i class="fa-brands fa-github"></i>
                 </div>
             </div>
-            <div class="hero-image-wrapper">
+            <div class="hero-image-wrapper" data-aos="fade-left" data-aos-delay="200">
                 <div class="profile-card glass-panel">
                     <div class="image-flipper" id="profileFlipper">
                         <div class="flipper-inner">
@@ -108,13 +114,13 @@
     <!-- About Section -->
     <section id="about" class="about">
         <div class="container">
-            <div class="section-header">
+            <div class="section-header" data-aos="fade-up">
                 <h2 data-i18n="about_title">عن <span class="highlight">الخبير</span></h2>
                 <p data-i18n="about_desc">سد الفجوة بين الهندسة البرمجية القوية والأمن الهجومي.</p>
             </div>
             
             <div class="about-grid">
-                <div class="about-content glass-panel">
+                <div class="about-content glass-panel" data-aos="fade-up" data-aos-delay="100">
                     <h3 data-i18n="about_q">من هو Harpy؟</h3>
                     <p data-i18n="about_p1">أنا محترف تقني متعدد التخصصات، حاصل على شهادات عالمية معتمدة في الأمن السيبراني، منها <strong>CEH (الهاكر الأخلاقي المعتمد)</strong> و <strong>OSCP (المحترف المعتمد في الأمن الهجومي)</strong>.</p>
                     <p data-i18n="about_p2">في مجال تطوير البرمجيات، أتخصص كمطور Full-Stack، حيث أقوم ببناء أنظمة متكاملة ليست فقط رائعة بصرياً بل وآمنة من الأساس.</p>
@@ -135,7 +141,7 @@
                     </div>
                 </div>
                 
-                <div class="terminal-window">
+                <div class="terminal-window" data-aos="fade-up" data-aos-delay="300">
                     <div class="terminal-header">
                         <span class="dot red"></span>
                         <span class="dot yellow"></span>
@@ -153,14 +159,14 @@
     <!-- Services Section -->
     <section id="services" class="services">
         <div class="container">
-            <div class="section-header">
+            <div class="section-header" data-aos="fade-up">
                 <h2 data-i18n="services_title">أهم <span class="highlight">خدماتنا</span></h2>
                 <p data-i18n="services_desc">حلول تجارية مخصصة للشركات التي تطمح للتفوق الرقمي.</p>
             </div>
             
             <div class="services-grid">
                 <!-- Service 1 -->
-                <div class="service-card glass-panel cyber-border">
+                <div class="service-card glass-panel cyber-border" data-aos="fade-up" data-aos-delay="100">
                     <div class="service-icon">
                         <i class="fas fa-id-card"></i>
                     </div>
@@ -172,7 +178,7 @@
                 </div>
                 
                 <!-- Service 2 -->
-                <div class="service-card glass-panel cyber-border">
+                <div class="service-card glass-panel cyber-border" data-aos="fade-up" data-aos-delay="200">
                     <div class="service-icon highlight-icon">
                         <i class="fas fa-utensils"></i>
                     </div>
@@ -184,7 +190,7 @@
                 </div>
                 
                 <!-- Service 3 -->
-                <div class="service-card glass-panel cyber-border">
+                <div class="service-card glass-panel cyber-border" data-aos="fade-up" data-aos-delay="300">
                     <div class="service-icon">
                         <i class="fas fa-rocket"></i>
                     </div>
@@ -196,7 +202,7 @@
                 </div>
                 
                 <!-- Service 4 -->
-                <div class="service-card glass-panel cyber-border">
+                <div class="service-card glass-panel cyber-border" data-aos="fade-up" data-aos-delay="400">
                     <div class="service-icon cyber-icon">
                         <i class="fas fa-user-secret"></i>
                     </div>
@@ -213,14 +219,14 @@
     <!-- Platforms Section -->
     <section id="platforms" class="platforms">
         <div class="container">
-            <div class="section-header">
+            <div class="section-header" data-aos="fade-up">
                 <h2 data-i18n="platforms_title">تطوير المنصات <span class="highlight">المخصصة</span></h2>
                 <p data-i18n="platforms_desc">بناء أنظمة سحابية متكاملة (SaaS) تناسب قطاع عملك بأعلى معايير الأمان والسرعة.</p>
             </div>
             
             <div class="platforms-grid">
                 <!-- Platform 1 -->
-                <div class="platform-card glass-panel cyber-border">
+                <div class="platform-card glass-panel cyber-border" data-aos="fade-up" data-aos-delay="100">
                     <div class="platform-img">
                         <img src="assets/images/ecommerce_platform.png" alt="E-commerce Platform">
                     </div>
@@ -234,7 +240,7 @@
                 </div>
                 
                 <!-- Platform 2 -->
-                <div class="platform-card glass-panel cyber-border">
+                <div class="platform-card glass-panel cyber-border" data-aos="fade-up" data-aos-delay="200">
                     <div class="platform-img">
                         <img src="assets/images/medical_platform.png" alt="Medical Platform">
                     </div>
@@ -248,7 +254,7 @@
                 </div>
 
                 <!-- Platform 3 -->
-                <div class="platform-card glass-panel cyber-border">
+                <div class="platform-card glass-panel cyber-border" data-aos="fade-up" data-aos-delay="300">
                     <div class="platform-img">
                         <img src="assets/images/realestate_platform.png" alt="Real Estate Platform">
                     </div>
@@ -262,7 +268,7 @@
                 </div>
 
                 <!-- Platform 4 -->
-                <div class="platform-card glass-panel cyber-border">
+                <div class="platform-card glass-panel cyber-border" data-aos="fade-up" data-aos-delay="400">
                     <div class="platform-img">
                         <img src="assets/images/gym_platform.png" alt="Gym Platform">
                     </div>
@@ -299,12 +305,9 @@
         </div>
     </footer>
 
-    <!-- WhatsApp Floating Button -->
-    <a href="https://wa.me/201019971508" class="floating-wa" target="_blank" aria-label="Chat on WhatsApp">
-        <i class="fab fa-whatsapp"></i>
-    </a>
 
     <!-- JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>
