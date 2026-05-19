@@ -579,6 +579,8 @@ section {
     transition: var(--transition);
     position: relative;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 .cyber-border::before {
@@ -635,6 +637,37 @@ section {
 .service-card p {
     color: var(--text-muted);
     font-size: 0.95rem;
+    margin-bottom: 25px;
+    flex-grow: 1;
+}
+
+.btn-wa-order {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: linear-gradient(135deg, rgba(0, 243, 255, 0.15), rgba(37, 211, 102, 0.15));
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: var(--transition);
+    border: 1px solid rgba(0, 243, 255, 0.3);
+    margin-top: auto;
+}
+
+.btn-wa-order:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(37, 211, 102, 0.3);
+    background: linear-gradient(135deg, rgba(0, 243, 255, 0.3), rgba(37, 211, 102, 0.3));
+    border-color: #25d366;
+}
+
+.btn-wa-order i {
+    font-size: 1.2rem;
+    color: #25d366;
 }
 
 /* Platforms Section */
@@ -682,6 +715,8 @@ section {
 .platform-content {
     padding: 30px;
     flex-grow: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .platform-content h3 {
@@ -694,6 +729,8 @@ section {
     color: var(--text-muted);
     font-size: 0.95rem;
     line-height: 1.5;
+    margin-bottom: 25px;
+    flex-grow: 1;
 }
 
 /* Footer */
@@ -719,23 +756,32 @@ section {
 
 .footer-links {
     display: flex;
-    gap: 20px;
+    gap: 15px;
     flex-wrap: wrap;
     justify-content: center;
 }
 
 .footer-links a {
-    color: var(--text-muted);
+    color: var(--text-main);
     text-decoration: none;
-    font-size: 1.1rem;
+    font-size: 1rem;
     transition: var(--transition);
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 50px;
+    backdrop-filter: blur(5px);
 }
 
 .footer-links a:hover {
     color: var(--primary-cyan);
+    border-color: var(--primary-cyan);
+    background: rgba(0, 243, 255, 0.05);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 243, 255, 0.15);
 }
 
 .hosted-badge {

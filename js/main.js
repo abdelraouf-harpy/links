@@ -42,6 +42,7 @@ const translations = {
         plat3_desc: "معارض عقارية تفاعلية لعرض الفلل والشقق بأعلى جودة، وأنظمة بحث متقدمة للعملاء والوكلاء.",
         plat4_title: "إدارة الأندية الرياضية",
         plat4_desc: "منصة لإدارة اشتراكات الجيم والأعضاء، وتتبع الحضور، ودخول الأعضاء عبر الكروت الذكية.",
+        btn_wa_order: "اطلب عبر واتساب",
         footer_rights: "مركز الوكالة الرقمية &copy; 2026. جميع الحقوق محفوظة.",
         footer_badge: "مستضاف عبر GitHub Pages و Hostinger"
     },
@@ -87,6 +88,7 @@ const translations = {
         plat3_desc: "Interactive galleries to showcase luxury villas and apartments, featuring advanced search for clients and agents.",
         plat4_title: "Gym Management",
         plat4_desc: "Platforms to manage gym memberships, track attendance, and enable smart card access for members.",
+        btn_wa_order: "Order via WhatsApp",
         footer_rights: "Digital Agency Hub &copy; 2026. All rights reserved.",
         footer_badge: "Deployed via GitHub Pages & Hostinger"
     }
