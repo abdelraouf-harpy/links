@@ -134,14 +134,24 @@ document.querySelectorAll('.nav-link').forEach(link => {
 });
 
 // Navbar Scroll Effect
+const navbar = document.querySelector('.navbar');
+let lastScrollY = 0;
+let ticking = false;
+
 window.addEventListener('scroll', () => {
-    const navbar = document.querySelector('.navbar');
-    if (window.scrollY > 50) {
-        navbar.classList.add('scrolled');
-    } else {
-        navbar.classList.remove('scrolled');
+    lastScrollY = window.scrollY;
+    if (!ticking) {
+        window.requestAnimationFrame(() => {
+            if (lastScrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+            ticking = false;
+        });
+        ticking = true;
     }
-});
+}, { passive: true });
 
 // Terminal Typing Effect
 const terminalBody = document.getElementById('terminal-body');

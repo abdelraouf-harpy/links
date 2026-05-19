@@ -879,7 +879,21 @@ section {
         padding: 20px;
     }
 
-    .about-content {
-        padding: 20px;
+    /* Mobile Performance Optimizations */
+    .cyber-grid {
+        transform: none !important; /* Flatten 3D grid layout on mobile to save GPU cycles */
+        opacity: 0.12 !important;
+    }
+
+    .glow-orb {
+        animation: none !important; /* Stop animating large blur layers on mobile */
+        filter: blur(50px) !important; /* Reduce blur overhead */
+        opacity: 0.08 !important;
+    }
+
+    .glass-panel {
+        backdrop-filter: none !important; /* Disable expensive backdrop-filter on mobile browsers */
+        -webkit-backdrop-filter: none !important;
+        background: rgba(15, 15, 25, 0.95) !important; /* High-performance fallback */
     }
 }
