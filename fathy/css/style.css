@@ -821,6 +821,96 @@ h1, h2, h3, h4, h5, h6 {
 .service-action:hover svg {
     transform: translateX(-3px);
 }
+/* About Founder Section */
+.founder-section {
+    padding: 100px 0;
+    background-color: var(--bg-dark);
+    position: relative;
+    z-index: 10;
+}
+
+.founder-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr;
+    gap: 70px;
+    align-items: center;
+}
+
+.founder-image-wrapper {
+    position: relative;
+    padding: 20px;
+}
+
+.founder-gold-frame {
+    position: relative;
+    border: 1px solid rgba(197, 160, 89, 0.3);
+    padding: 15px;
+    background-color: rgba(0,0,0,0.2);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+    border-radius: 4px;
+}
+
+.founder-main-img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4/5;
+    object-fit: cover;
+    object-position: top;
+    border-radius: 2px;
+    display: block;
+    filter: contrast(1.05) saturate(1.1);
+}
+
+.frame-decor {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--primary-gold);
+}
+
+.frame-decor.top-right {
+    top: -5px;
+    right: -5px;
+    border-bottom: none;
+    border-left: none;
+}
+
+.frame-decor.bottom-left {
+    bottom: -5px;
+    left: -5px;
+    border-top: none;
+    border-right: none;
+}
+
+.founder-title-role {
+    font-size: 15px;
+    color: var(--primary-gold);
+    font-weight: 600;
+    margin-bottom: 25px;
+}
+
+.founder-expertise {
+    list-style: none;
+    margin-bottom: 35px;
+}
+
+.founder-expertise li {
+    font-size: 14px;
+    color: var(--text-light);
+    margin-bottom: 15px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    line-height: 1.6;
+}
+
+.founder-expertise li svg {
+    width: 20px;
+    height: 20px;
+    color: var(--primary-gold);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
 
 /* Interactive Document Checker */
 .checker-section {
@@ -1681,6 +1771,9 @@ footer {
     .contact-layout {
         grid-template-columns: 1fr;
     }
+    .founder-layout {
+        gap: 40px;
+    }
 }
 
 @media (max-width: 768px) {
@@ -2004,5 +2097,22 @@ footer {
         flex-direction: column;
         gap: 15px;
         text-align: center;
+    }
+
+    /* Founder Section Responsive */
+    .founder-layout {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    .founder-image-wrapper {
+        padding: 10px;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+    .founder-title-role {
+        font-size: 13.5px;
+    }
+    .founder-expertise li {
+        font-size: 13px;
     }
 }
