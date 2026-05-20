@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="مكتب المستشار فتحي عبد الرحمن نجدي للمحاماة والاستثمار - خدمات قانونية احترافية لتأسيس الشركات وتراخيص المصانع وتسجيل العلامات في مصر">
+    <title>مجموعة نجدي القانونية | المستشار فتحي عبد الرحمن نجدي</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Modular Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Header / Navigation -->
+    <nav class="premium-header" id="mainHeader">
+        <a href="#" class="identity-box">
+            <svg class="logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="45" stroke="#c5a059" stroke-width="1.5" fill="none"/>
+                <path d="M50 20 L50 80 M25 40 L75 40 M30 65 L50 40 L70 65" stroke="#c5a059" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="50" cy="40" r="4" fill="#c5a059"/>
+            </svg>
+            <div class="identity-titles">
+                <h1>مكتب الأستاذ فتحي نجدي</h1>
+                <p>NAGDY LEGAL GROUP FOR INVESTMENT</p>
+            </div>
+        </a>
+        <div class="nav-links">
+            <a href="#services">المنظومة القانونية</a>
+            <a href="#wizard">مستشار التأسيس</a>
+            <a href="#checker">فاحص المستندات</a>
+            <a href="#desk">المكتب الافتراضي</a>
+            <a href="#contact">حجز استشارة</a>
+        </div>
+        <a href="https://wa.me/201100631441" target="_blank" class="header-cta">
+            تواصل مباشرة
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+        </a>
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero-section">
+        <div class="hero-wrapper">
+            <span class="hero-badge">شريكك القانوني المعتمد للاستثمار في مصر</span>
+            <h2>لسنا مجرد مكتب محاماة، نحن <strong>شركاء نجاحك القانوني</strong></h2>
+            <p>نخبة من المستشارين المتخصصين في قوانين الاستثمار وتأسيس الشركات وتراخيص المصانع والمنشآت الكبرى. نتميز بالسرعة والانتشار الفوري لتغطية كافة فروع هيئة الاستثمار والتنمية الصناعية بمصر.</p>
+            <div class="hero-ctas">
+                <a href="#wizard" class="primary-cta">
+                    ابدأ تأسيس مشروعك الآن
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                </a>
+                <a href="#services" class="secondary-cta">
+                    استكشف خدماتنا الاستثمارية
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Quick stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-num" id="statIncorporated">0</div>
+                <div class="stat-label">كيان قانوني تم تأسيسه</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num" id="statFactories">0</div>
+                <div class="stat-label">ترخيص نشاط ومصنع كبير</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num" id="statCoverage">100%</div>
+                <div class="stat-label">تغطية فروع الاستثمار بمصر</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num" id="statTimeline">3-5</div>
+                <div class="stat-label">أيام متوسط تأسيس الشركات</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wizard Section (مستشار التأسيس الذكي) -->
+    <section class="wizard-section" id="wizard">
+        <div class="section-header">
+            <span class="section-tag">معالج التأسيس الذكي</span>
+            <h2 class="section-title">صمم كيانك الاستثماري في 3 خطوات</h2>
+            <p class="section-desc">أجب على الأسئلة للحصول على التوصية القانونية المخصصة والمستندات المطلوبة لمشروعك فوراً.</p>
+            <div class="divider-gold"></div>
+        </div>
+
+        <div class="wizard-container">
+            <div class="wizard-steps">
+                <div class="wizard-progress-bar" id="wizardProgress"></div>
+                <div class="step-indicator active" id="stepInd1">
+                    <div class="step-dot">1</div>
+                    <div class="step-label">نوع النشاط</div>
+                </div>
+                <div class="step-indicator" id="stepInd2">
+                    <div class="step-dot">2</div>
+                    <div class="step-label">الشكل القانوني</div>
+                </div>
+                <div class="step-indicator" id="stepInd3">
+                    <div class="step-dot">3</div>
+                    <div class="step-label">مقر المشروع</div>
+                </div>
+                <div class="step-indicator" id="stepInd4">
+                    <div class="step-dot">4</div>
+                    <div class="step-label">الملخص والتوصية</div>
+                </div>
+            </div>
+
+            <form id="wizardForm">
+                <!-- Step 1: Sector Selection -->
+                <div class="wizard-step-content active" id="stepContent1">
+                    <h3 class="wizard-step-title">اختر قطاع نشاط مشروعك الأساسي</h3>
+                    <div class="options-grid">
+                        <div class="option-card" onclick="selectWizardOption(1, 'صناعي / إنتاجي', 'صناعي')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="option-icon">
+                                <path d="M2 20h20M5 17V8l4-3v12m4 0V8l4-3v12m4 0V8l4-3v12"></path>
+                            </svg>
+                            <h4>صناعي / إنتاجي</h4>
+                            <p>مصانع، ورش عمل، مخازن، هيئة التنمية الصناعية</p>
+                        </div>
+                        <div class="option-card" onclick="selectWizardOption(1, 'تجاري / خدمي', 'تجاري')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="option-icon">
+                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0"></path>
+                            </svg>
+                            <h4>تجاري / خدمي</h4>
+                            <p>توريدات، مقاولات، استثمار عقاري، معارض ومطاعم</p>
+                        </div>
+                        <div class="option-card" onclick="selectWizardOption(1, 'تقني / برمجيات', 'تقني')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="option-icon">
+                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                                <line x1="8" y1="21" x2="16" y2="21"></line>
+                                <line x1="12" y1="17" x2="12" y2="21"></line>
+                            </svg>
+                            <h4>تقني / تكنولوجي</h4>
+                            <p>برمجيات، تسويق إلكتروني، منصات ويب وميديا</p>
+                        </div>
+                        <div class="option-card" onclick="selectWizardOption(1, 'طبي / تعليمي', 'طبي')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="option-icon">
+                                <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                                <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"></path>
+                            </svg>
+                            <h4>طبي / تعليمي</h4>
+                            <p>مراكز طبية، عيادات، صيدليات، مراكز تدريب ومعامل</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Legal Form Selection -->
+                <div class="wizard-step-content" id="stepContent2">
+                    <h3 class="wizard-step-title">اختر الكيان القانوني المناسب لمشروعك</h3>
+                    <div class="options-grid">
+                        <div class="option-card" onclick="selectWizardOption(2, 'شركة شخص واحد ذ.م.م', 'شخص_واحد')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="option-icon">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            <h4>شركة شخص واحد</h4>
+                            <p>مملوكة لمستثمر واحد فقط بمسؤولية محدودة</p>
+                        </div>
+                        <div class="option-card" onclick="selectWizardOption(2, 'شركة ذات مسؤولية محدودة (ذ.م.م)', 'محدودة')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="option-icon">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                            <h4>ذات مسؤولية محدودة</h4>
+                            <p>الخيار الأنسب للشركاء (شخصين على الأقل)</p>
+                        </div>
+                        <div class="option-card" onclick="selectWizardOption(2, 'شركة مساهمة مصرية (ش.م.م)', 'مساهمة')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="option-icon">
+                                <path d="M4 22V4c0-.5.2-1 .6-1.4C5 2.2 5.5 2 6 2h12c.5 0 1 .2 1.4.6.4.4.6.9.6 1.4v18M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                            </svg>
+                            <h4>شركة مساهمة</h4>
+                            <p>للمشاريع الكبرى وتطرح للاكتتاب العام أو الخاص</p>
+                        </div>
+                        <div class="option-card" onclick="selectWizardOption(2, 'منشأة فردية', 'فردية')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="option-icon">
+                                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                            </svg>
+                            <h4>منشأة فردية</h4>
+                            <p>الأبسط والأسرع في الإجراءات والتكاليف</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Location / Governorate Selection -->
+                <div class="wizard-step-content" id="stepContent3">
+                    <h3 class="wizard-step-title">اختر المحافظة المستهدفة لمشروعك</h3>
+                    <div class="options-grid">
+                        <div class="option-card" onclick="selectWizardOption(3, 'سوهاج (الوجه القبلي والصعيد)', 'سوهاج')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="option-icon">
+                                <path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                            <h4>سوهاج والصعيد</h4>
+                            <p>حوافز استثمارية وخدمة التأسيس بمركز الصعيد</p>
+                        </div>
+                        <div class="option-card" onclick="selectWizardOption(3, 'القاهرة والجيزة (العاصمة)', 'القاهرة')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="option-icon">
+                                <path d="M12 2L2 22h20L12 2z"></path>
+                                <path d="M12 2v20"></path>
+                            </svg>
+                            <h4>القاهرة والجيزة</h4>
+                            <p>هيئة الاستثمار الرئيسية ومراكز التراخيص الكبرى</p>
+                        </div>
+                        <div class="option-card" onclick="selectWizardOption(3, 'الإسكندرية والوجه البحري', 'الإسكندرية')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="option-icon">
+                                <path d="M12 5V21M5 12H19M12 5a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM5 12a7 7 0 0 0 14 0"></path>
+                            </svg>
+                            <h4>الإسكندرية والبحري</h4>
+                            <p>فرع هيئة الاستثمار والموانئ البحرية</p>
+                        </div>
+                        <div class="option-card" onclick="selectWizardOption(3, 'محافظة أخرى (نغطي كل مصر)', 'أخرى')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="option-icon">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                            </svg>
+                            <h4>محافظة أخرى</h4>
+                            <p>نغطي كافة محافظات الجمهورية وفروع هيئة الاستثمار</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Final Recommendation and WhatsApp CTA -->
+                <div class="wizard-step-content" id="stepContent4">
+                    <h3 class="wizard-step-title">التوصية والملخص المبدئي لمشروعك</h3>
+                    
+                    <div class="wizard-result-box">
+                        <div class="result-item">
+                            <span class="result-label">قطاع الاستثمار:</span>
+                            <span class="result-val" id="resSector">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">الكيان القانوني المقترح:</span>
+                            <span class="result-val" id="resLegal">-</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">موقع التأسيس:</span>
+                            <span class="result-val" id="resLocation">-</span>
+                        </div>
+                        <div class="result-item" style="border-top: 1px dashed rgba(197, 160, 89, 0.3); margin-top: 10px; padding-top: 15px;">
+                            <span class="result-label">مدة الإنجاز المتوقعة:</span>
+                            <span class="result-val" style="color: #25d366;" id="resTime">3 إلى 5 أيام عمل</span>
+                        </div>
+                    </div>
+
+                    <div class="wizard-input-group">
+                        <label for="wizardClientName">اسم المستثمر / الممثل القانوني للشركة</label>
+                        <input type="text" id="wizardClientName" class="wizard-input" placeholder="اكتب اسمك بالكامل هنا" required>
+                    </div>
+
+                    <p style="font-size: 12px; text-align: center; color: var(--text-muted); margin-bottom: 20px;">
+                        * سيتم نقل تفاصيل اختياراتك مباشرة إلى محادثة المستشار فتحي نجدي عبر الواتساب للبدء في الخطوات الفعلية للملف التأسيسي.
+                    </p>
+                </div>
+
+                <!-- Action buttons -->
+                <div class="wizard-actions">
+                    <button type="button" class="wizard-btn wizard-prev-btn" id="prevBtn" onclick="navigateWizard(-1)" style="visibility: hidden;">
+                        السابق
+                    </button>
+                    <button type="button" class="wizard-btn wizard-next-btn" id="nextBtn" onclick="navigateWizard(1)">
+                        التالي 
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services-section" id="services">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">منظومة الخدمات الاستثمارية</span>
+                <h2 class="section-title">التكامل والريادة في جميع الإجراءات</h2>
+                <p class="section-desc">مجموعتنا تقدم حلولاً قانونية متطورة تلائم احتياجات رجال الأعمال والمستثمرين محلياً ودولياً.</p>
+                <div class="divider-gold"></div>
+            </div>
+
+            <div class="services-tabs">
+                <button class="tab-btn active" onclick="filterServices('all')">كافة الخدمات</button>
+                <button class="tab-btn" onclick="filterServices('incorporation')">تأسيس الكيانات</button>
+                <button class="tab-btn" onclick="filterServices('licensing')">تراخيص التنمية الصناعية</button>
+                <button class="tab-btn" onclick="filterServices('documents')">المستندات والعلامات</button>
+            </div>
+
+            <div class="services-grid" id="servicesGrid">
+                
+                <!-- Service 1: Companies Setup -->
+                <div class="service-card" data-category="incorporation">
+                    <div class="service-icon">
+                        <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                    </div>
+                    <h3>تأسيس الكيانات القانونية</h3>
+                    <p>المستندات والعقود الرسمية لتأمين هيكل أعمالك وممتلكات الشركاء بشكل قاطع أمام القانون والهيئات الحكومية.</p>
+                    <ul class="service-features">
+                        <li>شركات الشخص الواحد والمسؤولية المحدودة</li>
+                        <li>الشركات المساهمة وصياغة لوائح الحوكمة</li>
+                        <li>شركات التضامن والتوصية البسيطة والمنشآت الفردية</li>
+                    </ul>
+                    <a class="service-action" onclick="openWizardWithConfig('محدودة')">
+                        تأسيس كيان قانوني الآن
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                    </a>
+                </div>
+
+                <!-- Service 2: Industrial Licensing -->
+                <div class="service-card" data-category="licensing">
+                    <div class="service-icon">
+                        <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                    <h3>تراخيص المصانع والأنشطة الكبرى</h3>
+                    <p>نحن وكلاؤك المعتمدون أمام هيئة التنمية الصناعية والدفاع المدني وشؤون البيئة لإصدار تراخيص التشغيل والمواصفات الفنية.</p>
+                    <ul class="service-features">
+                        <li>تراخيص مصانع الطوب، الجلود، الأخشاب والورق</li>
+                        <li>تراخيص المصانع البلاستيكية، التعبئة والمجمعات الكبرى</li>
+                        <li>تخليص التفتيش والموافقات البيئية والأمن الصناعي</li>
+                    </ul>
+                    <a class="service-action" onclick="openWizardWithConfig('صناعي')">
+                        طلب تراخيص النشاط
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                    </a>
+                </div>
+
+                <!-- Service 3: Trademark protection -->
+                <div class="service-card" data-category="documents">
+                    <div class="service-icon">
+                        <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                    </div>
+                    <h3>حماية العلامات التجارية والملكية الفكرية</h3>
+                    <p>تقنين كامل ومحكم لحماية هويتك التجارية برمز معترف به لضمان تفوقك وحمايتك من الاستنساخ والمنافسة غير الشريفة.</p>
+                    <ul class="service-features">
+                        <li>تسجيل وحماية العلامات التجارية داخل مصر وخارجها</li>
+                        <li>براءات الاختراع وحقوق النشر للبرمجيات والتطبيقات</li>
+                        <li>إجراءات النزاع القانوني لحماية الهوية وبناء البراند</li>
+                    </ul>
+                    <a class="service-action" onclick="openDirectWhatsApp('تسجيل علامة تجارية وحماية الهوية')">
+                        حماية علامتك التجارية
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                    </a>
+                </div>
+
+                <!-- Service 4: Official Documents extraction -->
+                <div class="service-card" data-category="documents">
+                    <div class="service-icon">
+                        <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <h3>استخراج المستندات والملفات الضريبية</h3>
+                    <p>تجهيز شامل لكافة المستندات والأوراق الرسمية التي تعد العمود الفقري لأي معاملة بنكية أو استثمارية بالجمهورية.</p>
+                    <ul class="service-features">
+                        <li>استخراج وتجديد السجل التجاري والبطاقة الضريبية</li>
+                        <li>تأسيس الملف الضريبي، القيمة المضافة، والفاتورة الإلكترونية</li>
+                        <li>شهادة مزاولة المهنة والتراخيص النقابية المتخصصة</li>
+                    </ul>
+                    <a class="service-action" onclick="openDirectWhatsApp('استخراج المستندات القانونية والضريبية')">
+                        استخراج أوراقك الآن
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                    </a>
+                </div>
+
+                <!-- Service 5: Service entities -->
+                <div class="service-card" data-category="incorporation">
+                    <div class="service-icon">
+                        <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                    </div>
+                    <h3>الشركات الخدمية والتجارية</h3>
+                    <p>هندسة قانونية دقيقة لشركات المقاولات، التوريدات، الاستثمار العقاري، الدعاية والإعلان، وشركات الأمن والحراسة المرخصة.</p>
+                    <ul class="service-features">
+                        <li>تأسيس وتصنيف شركات المقاولات بهيئة التشييد والبناء</li>
+                        <li>إصدار تراخيص شركات الأمن والحراسة الخاصة الفخمة</li>
+                        <li>تنظيم عقود التوريدات والمناقصات الحكومية والخاصة</li>
+                    </ul>
+                    <a class="service-action" onclick="openWizardWithConfig('تجاري')">
+                        تأسيس شركة خدمية
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                    </a>
+                </div>
+
+                <!-- Service 6: Tech & Startups -->
+                <div class="service-card" data-category="incorporation">
+                    <div class="service-icon">
+                        <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                    <h3>الشركات التقنية والناشئة</h3>
+                    <p>تقنين شامل ومواكب للمستقبل للشركات البرمجية، منصات التجارة الإلكترونية، شركات الميديا والإنتاج الفني والـ Startups.</p>
+                    <ul class="service-features">
+                        <li>تأسيس شركات البرمجيات والتسويق الرقمي وتصميم المواقع</li>
+                        <li>صياغة شروط الاستخدام وسياسة الخصوصية للمنصات الرقمية</li>
+                        <li>الامتثال الضريبي ومعايير المعاملات المالية والتجارة الرقمية</li>
+                    </ul>
+                    <a class="service-action" onclick="openWizardWithConfig('تقني')">
+                        تقنين شركة تقنية
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Document Checker Section -->
+    <section class="checker-section" id="checker">
+        <div class="container">
+            <div class="checker-container">
+                <div class="checker-info">
+                    <span class="section-tag">أداة الفحص التفاعلي</span>
+                    <h3>فاحص مستندات التأسيس الفوري</h3>
+                    <p>هل تود معرفة مدى جاهزيتك لتأسيس مشروعك؟ اختر الخدمة المطلوبة من القائمة الجانبية وحدد المستندات المتوفرة لديك حالياً. سنخبرك بنسبة الجاهزية التأسيسية والنواقص التي سيتولى مكتبنا تجهيزها نيابة عنك.</p>
+                    
+                    <div class="checker-select-group">
+                        <label for="checkerServiceSelect">اختر الخدمة التي تنوي بدءها</label>
+                        <select id="checkerServiceSelect" class="checker-select" onchange="loadCheckerDocuments()">
+                            <option value="single">تأسيس شركة شخص واحد (ذ.م.م)</option>
+                            <option value="llc">تأسيس شركة ذات مسؤولية محدودة (شريكان أو أكثر)</option>
+                            <option value="factory">استخراج رخصة تشغيل مصنع (التنمية الصناعية)</option>
+                            <option value="trademark">تسجيل علامة تجارية وحمايتها</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="checker-card">
+                    <div class="checker-header">
+                        <h4 id="checkerTitle">قائمة فحص المستندات</h4>
+                        <div class="checker-progress">
+                            <div class="checker-progress-bar">
+                                <div class="checker-progress-fill" id="checkerFill"></div>
+                            </div>
+                            <span class="checker-percent" id="checkerPercent">0%</span>
+                        </div>
+                    </div>
+
+                    <div class="checker-list" id="checkerList">
+                        <!-- Dynamic checklist items -->
+                    </div>
+
+                    <button class="checker-submit-btn" onclick="submitCheckerRequest()">
+                        تقديم الأوراق المتاحة والبدء مع المستشار ➔
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Virtual Office Section (مكتب المستشار فتحي نجدي) -->
+    <section class="desk-section" id="desk">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">مرحباً بك في مكتبنا</span>
+                <h2 class="section-title">المكتب الافتراضي للمستشار فتحي نجدي</h2>
+                <p class="section-desc">اضغط على أي عنصر على طاولة مكتب المستشار للتعرف على أسرار ونقاط قوتنا القانونية في مجال الاستثمار.</p>
+                <div class="divider-gold"></div>
+            </div>
+
+            <div class="desk-layout">
+                <!-- Virtual desk mockup build with CSS/SVG -->
+                <div class="interactive-desk">
+                    <div class="desk-wall">
+                        <!-- Founder picture Frame -->
+                        <div class="founder-photo-container">
+                            <img src="fathy_profile.jpg" alt="المستشار فتحي عبد الرحمن نجدي" class="founder-photo-placeholder" id="founderRealImg" onload="this.style.display='block'; document.getElementById('founderSvg').style.display='none';">
+                            <svg id="founderSvg" class="founder-photo-svg" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <div class="desk-wood-plate">
+                        <!-- Laptop -->
+                        <div class="desk-item item-laptop" onclick="showDeskTip('laptop')" title="بوابة التأسيس الإلكترونية">
+                            <div class="item-laptop-screen">
+                                <svg class="item-laptop-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 009 11V7a3 3 0 016 0v4c0 .873.07 1.73.203 2.565m-2.952 4.02a14.07 14.07 0 006.142-3.136.09.09 0 01.05-.091l.054-.09M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Nameplate -->
+                        <div class="desk-item item-nameplate" onclick="showDeskTip('nameplate')" title="لوحة الاسم">
+                            <h5>أ. فتحي عبدالرحمن</h5>
+                            <p>المستشار القانوني للاستثمار</p>
+                        </div>
+
+                        <!-- Law book -->
+                        <div class="desk-item item-book" onclick="showDeskTip('book')" title="قانون الاستثمار رقم 72 لسنة 2017">
+                            <div class="item-book-decor"></div>
+                        </div>
+
+                        <!-- Coffee Cup -->
+                        <div class="desk-item item-cup" onclick="showDeskTip('cup')" title="استراحة واستشارة"></div>
+                    </div>
+                </div>
+
+                <!-- Detail / Informational Pane -->
+                <div class="desk-info-pane" id="deskInfoPane">
+                    <div class="desk-tip-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary-gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:40px; height:40px;">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                    </div>
+                    <h4 class="desk-tip-title">اضغط على عناصر المكتب</h4>
+                    <p class="desk-tip-text">أهلاً بك في مكتبنا الافتراضي. نحن نؤمن بأن الاهتمام بالتفاصيل الصغيرة هو أساس نجاح الملفات القانونية الكبرى. اضغط على أي أداة من أدوات مكتب المستشار لتعرف كيف نقود مشروعك نحو بر الأمان الاستثماري وتأسيس الشركات.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Egypt Map Section -->
+    <section class="map-section">
+        <div class="container">
+            <div class="map-layout">
+                <div>
+                    <span class="section-tag">قوة الانتشار والوصول</span>
+                    <h3 style="font-size: 28px; margin-bottom: 20px;">نغطي كافة فروع هيئة الاستثمار بمصر</h3>
+                    <p style="color: var(--text-muted); font-size: 14px; line-height: 1.7; margin-bottom: 35px; font-weight: 300;">
+                        المقر الرئيسي للمكتب يقع في قلب صعيد مصر بمحافظة سوهاج لخدمة مستثمري قبلي والمدن الصناعية الجديدة، بالإضافة إلى انتشار شبكتنا القانونية لتغطية فروع الهيئة العامة للاستثمار والمناطق الحرة ووزارة الصناعة في كافة أنحاء جمهورية مصر العربية.
+                    </p>
+
+                    <div class="egypt-regions-list">
+                        <div class="region-card active" onclick="highlightRegion('sohag', this)">
+                            <h4>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"></path>
+                                    <circle cx="12" cy="10" r="3"></circle>
+                                </svg>
+                                صعيد مصر وسوهاج
+                            </h4>
+                            <p>المكتب الرئيسي، نغطي سوهاج الجديدة، أسيوط، قنا، وأسوان مع حوافز استثمارية كبرى.</p>
+                            <span class="office-coverage-badge">تغطية مباشرة مكثفة</span>
+                        </div>
+                        <div class="region-card" onclick="highlightRegion('cairo', this)">
+                            <h4>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M4 22V4c0-.5.2-1 .6-1.4C5 2.2 5.5 2 6 2h12c.5 0 1 .2 1.4.6.4.4.6.9.6 1.4v18M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                                </svg>
+                                القاهرة الكبرى والجيزة
+                            </h4>
+                            <p>هيئة الاستثمار بالمنطقة الحرة بمدينة نصر، الهيئة العامة للتنمية الصناعية بمصر الجديدة.</p>
+                        </div>
+                        <div class="region-card" onclick="highlightRegion('alex', this)">
+                            <h4>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 5v16M5 12h14M12 5a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM5 12a7 7 0 0 0 14 0"></path>
+                                </svg>
+                                الإسكندرية والساحل
+                            </h4>
+                            <p>فرع هيئة الاستثمار بالعامرية، خدمة موانئ الشحن والاستيراد والتصدير.</p>
+                        </div>
+                        <div class="region-card" onclick="highlightRegion('delta', this)">
+                            <h4>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                                </svg>
+                                الدلتا ومحافظات القناة
+                            </h4>
+                            <p>جمهورية مصر العربية بالكامل، الدقهلية، الغربية، الإسماعيلية، بورسعيد والسويس.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="map-visual">
+                    <!-- Egypt map schematic built via SVG for responsiveness -->
+                    <svg viewBox="0 0 400 400" width="100%" height="100%" style="max-width: 320px; filter: drop-shadow(0 0 15px rgba(197, 160, 89, 0.15));">
+                        <polygon points="50,50 350,50 350,350 50,350" fill="rgba(197,160,89,0.01)" stroke="rgba(197, 160, 89, 0.2)" stroke-width="2"/>
+                        <path d="M 280,350 L 280,300 L 290,260 L 260,220 L 280,180 L 290,130 L 275,50" fill="none" stroke="rgba(197, 160, 89, 0.15)" stroke-width="3"/>
+                        
+                        <!-- Sohag -->
+                        <circle id="mapDotSohag" cx="280" cy="240" r="10" fill="var(--primary-gold)" stroke="var(--bg-dark)" stroke-width="2" style="transition: var(--transition-smooth); cursor: pointer; filter: drop-shadow(0 0 8px var(--primary-gold));" onclick="regionDotClick('sohag')"/>
+                        <circle cx="280" cy="240" r="18" fill="none" stroke="var(--primary-gold)" stroke-width="1" style="animation: pulse-glow 2s infinite;"/>
+                        
+                        <!-- Cairo -->
+                        <circle id="mapDotCairo" cx="282" cy="120" r="7" fill="rgba(255,255,255,0.4)" stroke="var(--bg-dark)" stroke-width="1.5" style="transition: var(--transition-smooth); cursor: pointer;" onclick="regionDotClick('cairo')"/>
+                        
+                        <!-- Alex -->
+                        <circle id="mapDotAlex" cx="230" cy="78" r="7" fill="rgba(255,255,255,0.4)" stroke="var(--bg-dark)" stroke-width="1.5" style="transition: var(--transition-smooth); cursor: pointer;" onclick="regionDotClick('alex')"/>
+                        
+                        <!-- Delta -->
+                        <circle id="mapDotDelta" cx="290" cy="85" r="7" fill="rgba(255,255,255,0.4)" stroke="var(--bg-dark)" stroke-width="1.5" style="transition: var(--transition-smooth); cursor: pointer;" onclick="regionDotClick('delta')"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Us Section (لماذا تختارنا) -->
+    <section class="container" style="padding-top: 80px; padding-bottom: 80px;">
+        <div class="section-header">
+            <span class="section-tag">شريكك الموثوق</span>
+            <h2 class="section-title">لماذا تختار مجموعة نجدي القانونية؟</h2>
+            <p class="section-desc">مزايا حقيقية تمنحك الأمان القانوني الكامل وتضمن حماية ونمو أصول مشروعك الاستثماري.</p>
+            <div class="divider-gold"></div>
+        </div>
+
+        <div class="why-us-grid">
+            <div class="why-card">
+                <div class="why-num">01</div>
+                <h4>السرعة والإنجاز الفوري</h4>
+                <p>نحن نعلم أن وقت المستثمر هو رأس ماله الأول. ننتهي من إجراءات التأسيس والسجل التجاري في أسرع وقت وبكفاءة رقمية.</p>
+            </div>
+            <div class="why-card">
+                <div class="why-num">02</div>
+                <h4>التغطية والانتشار الجغرافي</h4>
+                <p>نغطي كافة فروع هيئة الاستثمار من الصعيد إلى العاصمة والقناة والدلتا والساحل دون تكبد المستثمر عناء السفر والتنقل.</p>
+            </div>
+            <div class="why-card">
+                <div class="why-num">03</div>
+                <h4>التسليم المتكامل للملف</h4>
+                <p>نسلمك ملفك التأسيسي متكاملاً وجاهزاً للعمل (عقد التأسيس، صحيفة الاستثمار، السجل التجاري، البطاقة الضريبية، والتأمينات).</p>
+            </div>
+            <div class="why-card">
+                <div class="why-num">04</div>
+                <h4>حماية الهوية والعلامات</h4>
+                <p>نحن لا نؤسس الأوراق فقط، بل نحمي فكرتك وعلامتك التجارية برمز معترف به لضمان أن يصبح اسم مشروعك براند معتمد ومحمي.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Banner -->
+    <div class="container">
+        <div class="cta-banner">
+            <h3>فكر في مشروعك.. ودع التفاصيل القانونية لنا</h3>
+            <p>معنا استثمارك في أمان تام، نقوم بتقنين وضعك وحماية أصولك بأعلى المعايير القانونية الدقيقة بالجمهورية.</p>
+            <a href="https://wa.me/201100631441?text=%D8%A3%D9%87%D9%84%D8%A7%D9%8B%20%D9%85%D8%B3%D8%AA%D8%B4%D8%A7%D8%B1%20%D9%81%D8%AA%D8%AD%D9%8A%D8%8C%20%D8%A3%D9%88%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20%D8%AA%D8%A3%D8%B3%D9%8A%D8%B3%20%D9%85%D8%B4%D8%B1%D9%88%D8%B9%20%D8%AC%D8%AF%D9%8A%D8%AF%20%D9%82%D8%A7%D9%86%D9%88%D9%86%D9%8A%D8%A7%D9%8B" class="primary-cta">
+                تواصل مع المستشار هاتفياً أو واتساب ➔
+            </a>
+        </div>
+    </div>
+
+    <!-- Booking / Contact Section -->
+    <section class="contact-section" id="contact">
+        <div class="container">
+            <div class="contact-layout">
+                <div class="contact-info">
+                    <span class="section-tag">بوابة التواصل المباشر</span>
+                    <h3 style="font-size: 28px;">دعنا نتناقش حول مستقبل أعمالك</h3>
+                    <p style="color: var(--text-muted); font-size: 14px; line-height: 1.7; font-weight: 300;">
+                        يمكنك حجز موعد استشارة تفصيلية بمقر المكتب، أو إرسال تفاصيل استشارتك مباشرة عبر البوابة الرقمية للمستشار وسنقوم بالرد عليك بكافة الأسانيد القانونية والخطوات المطلوبة فوراً.
+                    </p>
+
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                            </svg>
+                        </div>
+                        <div class="info-content">
+                            <h4>اتصال هاتفي مباشر (أو واتساب)</h4>
+                            <p><a href="tel:01100631441">01100631441</a></p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                        </div>
+                        <div class="info-content">
+                            <h4>البريد الإلكتروني المعتمد</h4>
+                            <p><a href="mailto:f.nagdy@gmail.com">f.nagdy@gmail.com</a></p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                        </div>
+                        <div class="info-content">
+                            <h4>تغطية فروع الهيئة العامة للاستثمار بمصر</h4>
+                            <p>المكتب الرئيسي: محافظة سوهاج | نغطي كافة الفروع على مستوى الجمهورية (القاهرة، الإسكندرية، الصعيد، الدلتا، القناة).</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-card">
+                    <h4 style="font-size: 17px; color: var(--primary-gold); margin-bottom: 25px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px;">حجز موعد أو استفسار قانوني استثماري</h4>
+                    <form onsubmit="handleContactSubmit(event)">
+                        <div class="form-row">
+                            <div class="field-group">
+                                <label for="cName">اسم المستثمر الكريم</label>
+                                <input type="text" id="cName" class="form-input" placeholder="اسمك بالكامل" required>
+                            </div>
+                            <div class="field-group">
+                                <label for="cPhone">رقم الهاتف (يفضل واتساب)</label>
+                                <input type="tel" id="cPhone" class="form-input" placeholder="01XXXXXXXXX" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="field-group">
+                                <label for="cType">نوع الخدمة المطلوبة</label>
+                                <select id="cType" class="form-select">
+                                    <option value="تأسيس شركة جديدة">تأسيس شركة جديدة</option>
+                                    <option value="استخراج تراخيص مصنع أو نشاط كبي">استخراج تراخيص مصنع أو نشاط كبير</option>
+                                    <option value="تسجيل علامة تجارية وحماية الهوية">تسجيل علامة تجارية وحماية الهوية</option>
+                                    <option value="استشارة استثمارية عامة">استشارة استثمارية عامة</option>
+                                    <option value="استخراج مستندات وتخليص ضريبي">استخراج مستندات وتخليص ضريبي</option>
+                                </select>
+                            </div>
+                            <div class="field-group">
+                                <label for="cRegion">المحافظة المستهدفة لمشروعك</label>
+                                <select id="cRegion" class="form-select">
+                                    <option value="سوهاج والصعيد">سوهاج (الوجه القبلي والصعيد)</option>
+                                    <option value="القاهرة والجيزة">القاهرة والجيزة</option>
+                                    <option value="الإسكندرية والوجه البحري">الإسكندرية والوجه البحري</option>
+                                    <option value="محافظة أخرى">محافظة أخرى</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="field-group">
+                            <label for="cMessage">تفاصيل مبدئية للمستشار</label>
+                            <textarea id="cMessage" class="form-textarea" placeholder="اكتب هنا أي تفاصيل أو استفسار تود إطلاع المستشار عليه مبدئياً لتسريع دراسة حالتك القانونية..."></textarea>
+                        </div>
+
+                        <button type="submit" class="form-submit-btn">
+                            إرسال الملف وبدء المحادثة القانونية فوراً
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Floating WhatsApp Widget -->
+    <div class="whatsapp-widget">
+        <div class="whatsapp-tooltip" id="waTooltip">تواصل مباشرة مع المستشار فتحي نجدي</div>
+        <a href="https://wa.me/201100631441?text=%D8%A3%D9%87%D9%84%D8%A7%D9%8B%20%D9%85%D8%B3%D8%AA%D8%B4%D8%A7%D8%B1%20%D9%81%D8%AA%D8%AD%D9%8A%D8%8C%20%D8%A3%D9%88%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20%D8%AA%D8%A3%D8%B3%D9%8A%D8%B3%20%D9%85%D8%B4%D8%B1%D9%88%D8%B9%20%D8%AC%D8%AF%D9%8A%D8%AF%20%D9%82%D8%A7%D9%86%D9%88%D9%86%D9%8A%D8%A7%D9%8B" target="_blank" class="whatsapp-bubble" aria-label="WhatsApp">
+            <svg viewBox="0 0 24 24">
+                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.262 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.733-1.455L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.625 1.451 5.403.002 9.803-4.394 9.805-9.805.001-2.621-1.02-5.086-2.871-6.938C16.302 1.995 13.845.975 11.233.974c-5.406 0-9.809 4.4-9.811 9.813-.001 1.513.393 2.993 1.144 4.3l-.994 3.63 3.71-.973zm13.04-6.843c-.27-.135-1.597-.788-1.845-.878-.247-.09-.427-.135-.607.135-.18.27-.697.878-.855 1.058-.158.18-.315.202-.585.067-.27-.135-1.139-.42-2.17-1.34-1.03-.92-1.74-2.05-1.942-2.39-.202-.34-.022-.524.148-.694.153-.153.337-.393.506-.59.169-.197.225-.337.338-.562.112-.225.056-.421-.028-.59-.084-.168-.607-1.53-.833-2.072-.22-.53-.443-.457-.607-.465-.157-.008-.337-.01-.517-.01-.18 0-.472.067-.72.337-.247.27-.945.922-.945 2.247s.965 2.6 1.1 2.782c.135.18 1.9 2.9 4.606 4.07.643.279 1.147.445 1.539.57.646.205 1.233.176 1.7.106.518-.077 1.597-.652 1.822-1.282.225-.63.225-1.17.157-1.282-.067-.113-.247-.18-.517-.315z"/>
+            </svg>
+        </a>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4 style="color: var(--text-light); font-weight: 700; display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 30px; height: 30px;">
+                        <circle cx="50" cy="50" r="45" stroke="#c5a059" stroke-width="1.5" fill="none"/>
+                        <path d="M50 20 L50 80 M25 40 L75 40 M30 65 L50 40 L70 65" stroke="#c5a059" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="50" cy="40" r="4" fill="#c5a059"/>
+                    </svg>
+                    مجموعة نجدي القانونية
+                </h4>
+                <p>مظلتك القانونية المحمية في جمهورية مصر العربية. نوفر الدعم والتقنين الشامل للاستثمارات المحلية والعالمية، تأسيس الشركات، وتراخيص المصانع الكبرى، وحماية الملكية الفكرية.</p>
+            </div>
+            
+            <div class="footer-col">
+                <h4>روابط سريعة</h4>
+                <ul class="footer-links">
+                    <li><a href="#services">المنظومة القانونية للخدمات</a></li>
+                    <li><a href="#wizard">مستشار التأسيس التفاعلي</a></li>
+                    <li><a href="#checker">أداة فحص المستندات والأوراق</a></li>
+                    <li><a href="#desk">المكتب الافتراضي للمستشار</a></li>
+                    <li><a href="#contact">حجز استشارة استثمارية</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>التغطية وفروع الاستثمار</h4>
+                <p>نغطي كافة المحافظات وفروع الهيئة العامة للاستثمار والتنمية الصناعية. المقر الرئيسي بصعيد مصر (محافظة سوهاج)، ونقدم خدماتنا في القاهرة، الجيزة، الإسكندرية، الدلتا ومحافظات القناة.</p>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="copyright-text">
+                حقوق النشر محفوظة لمكتب الأستاذ فتحي نجدي © <span id="currentYear">2026</span> | تطوير المنصة الرقمية برعاية <a href="https://facebook.com/share/1Cr8oeSUEP/" target="_blank">Harpy Tech</a>
+            </div>
+            <div style="color: var(--text-muted);">
+                تأسيس شركات | تراخيص مصانع | علامات تجارية ®
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modular JS scripts -->
+    <script src="js/wizard.js"></script>
+    <script src="js/checker.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
