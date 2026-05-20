@@ -1684,8 +1684,23 @@ footer {
 }
 
 @media (max-width: 768px) {
-    .premium-header {
-        padding: 15px 25px;
+    /* Header Responsive */
+    .premium-header, .premium-header.scrolled {
+        padding: 10px 15px;
+    }
+    .premium-header .header-cta {
+        display: none !important;
+    }
+    .logo-svg {
+        width: 35px;
+        height: 35px;
+    }
+    .identity-titles h1 {
+        font-size: 14px;
+    }
+    .identity-titles p {
+        font-size: 8px;
+        letter-spacing: 0.5px;
     }
     .nav-links {
         display: none;
@@ -1694,15 +1709,15 @@ footer {
         display: flex !important;
         flex-direction: column;
         position: fixed;
-        top: 70px;
+        top: 55px;
         left: 0;
         right: 0;
         background-color: rgba(9, 11, 14, 0.98);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         border-bottom: 1px solid var(--border-color);
-        padding: 30px;
-        gap: 20px;
+        padding: 25px;
+        gap: 15px;
         z-index: 999;
         align-items: center;
         box-shadow: 0 15px 30px rgba(0,0,0,0.6);
@@ -1715,44 +1730,272 @@ footer {
     .mobile-menu-btn {
         display: block;
     }
+
+    /* Hero Section Responsive */
+    .hero-section {
+        padding: 140px 15px 60px 15px;
+    }
     .hero-section h2 {
-        font-size: 32px;
+        font-size: 26px;
+        line-height: 1.4;
     }
     .hero-ctas {
         flex-direction: column;
         gap: 12px;
-        padding: 0 20px;
+        padding: 0 10px;
+        width: 100%;
+    }
+    .primary-cta, .secondary-cta {
+        width: 100%;
+        justify-content: center;
+        padding: 14px 24px;
+        font-size: 13.5px;
     }
     .hero-badge {
         font-size: 10px;
+        padding: 5px 12px;
+        margin-bottom: 20px;
     }
+
+    /* Global Container Padding */
+    .container {
+        padding: 40px 15px;
+    }
+    .section-header {
+        margin-bottom: 35px;
+    }
+    .section-title {
+        font-size: 22px;
+    }
+    .section-desc {
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    /* Stats Section Responsive */
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-top: -20px;
+        margin-bottom: 40px;
+    }
+    .stat-card {
+        padding: 15px 10px;
+    }
+    .stat-num {
+        font-size: 24px;
+    }
+    .stat-label {
+        font-size: 11px;
+    }
+
+    /* Setup Wizard Responsive */
     .wizard-container {
-        padding: 25px 15px;
+        padding: 20px 15px;
+    }
+    .wizard-steps {
+        margin-bottom: 30px;
+    }
+    .step-indicator {
+        width: 55px;
+    }
+    .step-dot {
+        width: 28px;
+        height: 28px;
+        font-size: 11px;
+    }
+    .step-label {
+        font-size: 8px;
+        margin-top: 6px;
+    }
+    .wizard-steps::before, .wizard-progress-bar {
+        top: 14px;
     }
     .options-grid {
         grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    .option-card {
+        padding: 15px 10px;
+    }
+    .option-icon {
+        margin-bottom: 8px;
+        width: 24px;
+        height: 24px;
+    }
+    .option-card h4 {
+        font-size: 13.5px;
+        margin-bottom: 4px;
+    }
+    .option-card p {
+        font-size: 11px;
     }
     .wizard-actions {
         flex-direction: column-reverse;
         gap: 12px;
+        margin-top: 20px;
+        padding-top: 20px;
     }
     .wizard-btn {
         width: 100%;
         justify-content: center;
+        padding: 12px 20px;
     }
+
+    /* Services Section Responsive */
     .services-grid {
         grid-template-columns: 1fr;
+        gap: 20px;
     }
     .services-tabs {
         flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 30px;
     }
+    .tab-btn {
+        padding: 8px 16px;
+        font-size: 12px;
+        flex-grow: 1;
+        text-align: center;
+    }
+    .service-card {
+        padding: 25px 20px;
+    }
+
+    /* Document Checker Responsive */
+    .checker-card {
+        padding: 20px 15px;
+    }
+    .checker-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+    }
+    .checker-progress {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .checker-progress-bar {
+        width: 70%;
+    }
+    .checker-list {
+        max-height: 250px;
+        margin-bottom: 20px;
+    }
+    .checker-item {
+        padding: 10px;
+    }
+
+    /* Virtual Office (Desk) Responsive */
+    .interactive-desk {
+        padding: 20px 10px;
+        aspect-ratio: 16 / 11;
+    }
+    .desk-wood-plate {
+        padding: 0 5px;
+    }
+    .item-laptop {
+        width: 60px;
+        height: 36px;
+    }
+    .item-nameplate {
+        width: 90px;
+        height: 26px;
+    }
+    .item-nameplate h5 {
+        font-size: 7px;
+    }
+    .item-nameplate p {
+        font-size: 5px;
+    }
+    .item-book {
+        width: 32px;
+        height: 42px;
+        border-left-width: 5px;
+    }
+    .item-cup {
+        width: 16px;
+        height: 20px;
+    }
+    .item-cup::after {
+        right: -4px;
+        top: 3px;
+        width: 5px;
+        height: 10px;
+        border-width: 1.5px;
+    }
+    .founder-photo-container {
+        width: 80px;
+        height: 100px;
+        border-width: 2px;
+    }
+    .founder-photo-svg {
+        width: 40px;
+        height: 40px;
+    }
+    .desk-info-pane {
+        padding: 25px 20px;
+        min-height: auto;
+    }
+
+    /* Egypt Map Responsive */
+    .map-visual {
+        padding: 15px;
+        aspect-ratio: 1.1;
+    }
+    .egypt-regions-list {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    .region-card {
+        padding: 15px;
+    }
+    .region-card h4 {
+        font-size: 13.5px;
+    }
+    .region-card p {
+        font-size: 11px;
+    }
+
+    /* Form Rows and Booking Responsive */
     .form-row {
         grid-template-columns: 1fr;
         gap: 15px;
     }
+    .contact-card {
+        padding: 25px 20px;
+    }
+
+    /* Why Us Section */
     .why-us-grid {
         grid-template-columns: 1fr;
+        gap: 15px;
     }
+    .why-card {
+        padding: 20px;
+    }
+
+    /* WhatsApp Widget Responsive */
+    .whatsapp-tooltip {
+        display: none !important;
+    }
+    .whatsapp-widget {
+        bottom: 20px;
+        left: 20px;
+    }
+    .whatsapp-bubble {
+        width: 50px;
+        height: 50px;
+        box-shadow: 0 8px 20px rgba(37, 211, 102, 0.3);
+    }
+    .whatsapp-bubble svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    /* Footer Responsive */
     .footer-grid {
         grid-template-columns: 1fr;
         gap: 40px;
