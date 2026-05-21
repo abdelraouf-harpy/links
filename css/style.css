@@ -274,6 +274,7 @@ h1, h2, h3, h4 {
 .nav-actions {
     display: flex;
     align-items: center;
+    gap: 8px;
 }
 
 .menu-toggle {
@@ -1037,13 +1038,46 @@ textarea.cyber-input {
 }
 
 @media (max-width: 768px) {
+    /* ── Navbar Mobile ── */
+    .navbar {
+        padding: 12px 0;
+    }
+
     .menu-toggle {
         display: block;
+        margin-inline-end: 4px;
+    }
+
+    /* إخفاء نص اللوجو - تبقى الأيقونة فقط */
+    .logo-text {
+        display: none;
+    }
+
+    /* تصغير أيقونة اللوجو قليلاً */
+    .logo-img {
+        width: 36px;
+        height: 36px;
+    }
+
+    /* إخفاء زرار تثبيت التطبيق نهائياً على الموبايل */
+    #pwaInstallBtn {
+        display: none !important;
+    }
+
+    /* تقليل المسافة في nav-actions */
+    .nav-actions {
+        gap: 6px;
+    }
+
+    .btn-lang {
+        padding: 7px 12px;
+        font-size: 0.82rem;
+        margin-inline-end: 0;
     }
 
     .nav-links {
         position: fixed;
-        top: 70px;
+        top: 62px;
         left: 0;
         width: 100%;
         background: rgba(7, 7, 11, 0.95);
