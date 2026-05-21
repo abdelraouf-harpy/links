@@ -256,7 +256,7 @@ let charIndex = 0;
 let isTyping = false;
 
 function typeTerminal() {
-    const currentCommands = terminalCommandsData[currentLang];
+    const currentCommands = terminalCommandsData['en'];
     
     if (commandIndex >= currentCommands.length) {
         // Add blinking cursor at the end
