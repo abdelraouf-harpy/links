@@ -44,6 +44,7 @@ const translations = {
         plat4_desc: "منصة لإدارة اشتراكات الجيم والأعضاء، وتتبع الحضور، ودخول الأعضاء عبر الكروت الذكية.",
         btn_wa_order: "اطلب عبر واتساب",
         footer_rights: "مركز الوكالة الرقمية &copy; 2026. جميع الحقوق محفوظة.",
+        nav_install: "تثبيت التطبيق",
         nav_products: "المنتجات",
         products_title: "المنتجات <span class='highlight'>الذكية</span>",
         products_desc: "قريباً.. ستتمكن من طلب منتجاتنا المادية المدمجة بأحدث تقنيات الـ NFC والـ QR Code لدعم أعمالك.",
@@ -121,6 +122,7 @@ const translations = {
         plat4_desc: "Platforms to manage gym memberships, track attendance, and enable smart card access for members.",
         btn_wa_order: "Order via WhatsApp",
         footer_rights: "Digital Agency Hub &copy; 2026. All rights reserved.",
+        nav_install: "Install App",
         nav_products: "Products",
         products_title: "Smart <span class='highlight'>Products</span>",
         products_desc: "Coming soon.. You'll be able to order our physical products integrated with the latest NFC and QR Code technologies to support your business.",
@@ -381,4 +383,42 @@ function sendWhatsAppMessage() {
     
     window.open(waLink, '_blank');
 }
+
+// PWA Installation Logic
+let deferredPrompt;
+const pwaInstallBtn = document.getElementById('pwaInstallBtn');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent the mini-infobar from appearing on mobile
+    e.preventDefault();
+    // Stash the event so it can be triggered later.
+    deferredPrompt = e;
+    // Update UI notify the user they can install the PWA
+    if (pwaInstallBtn) {
+        pwaInstallBtn.style.display = 'inline-block';
+    }
+});
+
+if (pwaInstallBtn) {
+    pwaInstallBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        // Show the install prompt
+        deferredPrompt.prompt();
+        // Wait for the user to respond to the prompt
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User response to the install prompt: ${outcome}`);
+        // We've used the prompt, and can't use it again
+        deferredPrompt = null;
+        // Hide the install button
+        pwaInstallBtn.style.display = 'none';
+    });
+}
+
+window.addEventListener('appinstalled', (event) => {
+    console.log('App was installed successfully.');
+    if (pwaInstallBtn) {
+        pwaInstallBtn.style.display = 'none';
+    }
+});
+
 

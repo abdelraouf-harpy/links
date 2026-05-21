@@ -1,9 +1,14 @@
-const CACHE_NAME = 'harpy-cache-v3';
+const CACHE_NAME = 'harpy-cache-v5';
 const urlsToCache = [
   './',
   './index.html',
   './css/style.css',
-  './js/main.js'
+  './js/main.js',
+  './manifest.json',
+  './assets/images/favicon.ico',
+  './assets/images/favicon_32x32.png',
+  './assets/images/favicon_192x192.png',
+  './assets/images/favicon_512x512.png'
 ];
 
 self.addEventListener('install', event => {
