@@ -1,4 +1,4 @@
-const CACHE_NAME = 'harpy-cache-v2';
+const CACHE_NAME = 'harpy-cache-v3';
 const urlsToCache = [
   './',
   './index.html',
