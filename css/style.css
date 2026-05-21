@@ -577,8 +577,25 @@ section {
     font-family: var(--font-mono);
     font-size: 0.95rem;
     color: var(--terminal-green);
-    flex-grow: 1;
     line-height: 1.5;
+    height: 300px;
+    overflow-y: auto;
+    /* Scrollbar styling - thin & themed */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 243, 255, 0.15) transparent;
+}
+
+.terminal-body::-webkit-scrollbar {
+    width: 4px;
+}
+
+.terminal-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.terminal-body::-webkit-scrollbar-thumb {
+    background: rgba(0, 243, 255, 0.2);
+    border-radius: 2px;
 }
 
 .cursor {

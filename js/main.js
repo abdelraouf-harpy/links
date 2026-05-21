@@ -298,6 +298,8 @@ function typeTerminal() {
     if (charIndex < currentCommand.text.length) {
         textContentElement.innerHTML += currentCommand.text.charAt(charIndex);
         charIndex++;
+        // Auto-scroll terminal internally — page position stays fixed
+        terminalBody.scrollTop = terminalBody.scrollHeight;
         // Random typing speed for realism
         const typingSpeed = currentCommand.text.startsWith('[+') || currentCommand.text.startsWith('[✔]') ? 10 : Math.random() * 50 + 20;
         setTimeout(typeTerminal, typingSpeed);
