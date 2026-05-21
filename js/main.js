@@ -357,3 +357,30 @@ if ('serviceWorker' in navigator) {
     });
 }
 
+// WhatsApp Form Submission Logic
+function sendWhatsAppMessage() {
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const service = document.getElementById('service');
+    const serviceText = service.options[service.selectedIndex].text;
+    const message = document.getElementById('message').value;
+
+    if (!name || !email || !message) {
+        alert(currentLang === 'ar' ? 'يرجى تعبئة جميع الحقول المطلوبة أولاً!' : 'Please fill in all required fields!');
+        return;
+    }
+
+    const phoneNumber = "201019971508";
+    
+    let waMessage = `*رسالة جديدة من الموقع الإلكتروني (Harpy)*\n\n`;
+    waMessage += `*الاسم:* ${name}\n`;
+    waMessage += `*البريد:* ${email}\n`;
+    waMessage += `*الخدمة المطلوبة:* ${serviceText}\n\n`;
+    waMessage += `*الرسالة:*\n${message}`;
+
+    const encodedMessage = encodeURIComponent(waMessage);
+    const waLink = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+    
+    window.open(waLink, '_blank');
+}
+
