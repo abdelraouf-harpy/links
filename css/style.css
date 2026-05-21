@@ -1064,9 +1064,10 @@ textarea.cyber-input {
         display: none !important;
     }
 
-    /* تقليل المسافة في nav-actions */
+    /* تقليل المسافة في nav-actions وإجبار الترتيب من اليسار لليمين */
     .nav-actions {
         gap: 6px;
+        direction: ltr; /* الهامبرجر (أول عنصر) يبقى دائماً أقصى الشمال */
     }
 
     .btn-lang {
