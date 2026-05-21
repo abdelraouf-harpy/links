@@ -53,12 +53,13 @@
             <ul class="nav-links" id="nav-links">
                 <li><a href="#about" class="nav-link" data-i18n="nav_expert">الخبير</a></li>
                 <li><a href="#services" class="nav-link" data-i18n="nav_services">الخدمات</a></li>
-                <li><a href="#contact" class="nav-link" data-i18n="nav_contact">التواصل</a></li>
+                <li><a href="#products" class="nav-link" data-i18n="nav_products">المنتجات</a></li>
+                <li><a href="#contact-section" class="nav-link" data-i18n="nav_contact">التواصل</a></li>
             </ul>
             
             <div class="nav-actions">
                 <button id="langToggleBtn" class="btn btn-lang">English</button>
-                <a href="#contact" class="btn btn-primary cyber-glitch hide-mobile" data-i18n="nav_cta">تواصل معي</a>
+                <a href="#contact-section" class="btn btn-primary cyber-glitch hide-mobile" data-i18n="nav_cta">تواصل معي</a>
             </div>
         </div>
     </nav>
@@ -282,6 +283,128 @@
                             <i class="fab fa-whatsapp"></i> <span data-i18n="btn_wa_order">اطلب عبر واتساب</span>
                         </a>
                     </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section (Coming Soon) -->
+    <section id="products" class="products">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2 data-i18n="products_title">المنتجات <span class="highlight">الذكية</span></h2>
+                <p data-i18n="products_desc">قريباً.. ستتمكن من طلب منتجاتنا المادية المدمجة بأحدث تقنيات الـ NFC والـ QR Code لدعم أعمالك.</p>
+            </div>
+            
+            <div class="products-grid">
+                <!-- Product 1 -->
+                <div class="product-card glass-panel cyber-border" data-aos="fade-up" data-aos-delay="100">
+                    <div class="coming-soon-badge" data-i18n="badge_coming_soon">قريباً</div>
+                    <div class="product-img">
+                        <img src="assets/images/nfc_card_mockup.png" alt="NFC Smart Card" onerror="this.src='https://via.placeholder.com/400x300/111/00f3ff?text=NFC+Card'">
+                    </div>
+                    <div class="product-content">
+                        <h3 data-i18n="prod1_title">كروت NFC الذكية</h3>
+                        <p data-i18n="prod1_desc">كروت أعمال بلاستيكية ومعدنية فاخرة مبرمجة لنقل بياناتك بلمسة واحدة للهاتف.</p>
+                        <div class="product-price" data-i18n="prod1_price">يُحدد قريباً</div>
+                        <button class="btn-product-disabled" disabled data-i18n="btn_coming_soon">غير متاح حالياً</button>
+                    </div>
+                </div>
+                
+                <!-- Product 2 -->
+                <div class="product-card glass-panel cyber-border" data-aos="fade-up" data-aos-delay="200">
+                    <div class="coming-soon-badge" data-i18n="badge_coming_soon">قريباً</div>
+                    <div class="product-img">
+                        <img src="assets/images/nfc_keychain.png" alt="NFC Keychain" onerror="this.src='https://via.placeholder.com/400x300/111/bc13fe?text=NFC+Keychain'">
+                    </div>
+                    <div class="product-content">
+                        <h3 data-i18n="prod2_title">ميداليات ذكية</h3>
+                        <p data-i18n="prod2_desc">ميداليات مفاتيح أنيقة وعصرية مدمجة بشريحة NFC كبديل عملي لكروت الأعمال.</p>
+                        <div class="product-price" data-i18n="prod2_price">يُحدد قريباً</div>
+                        <button class="btn-product-disabled" disabled data-i18n="btn_coming_soon">غير متاح حالياً</button>
+                    </div>
+                </div>
+
+                <!-- Product 3 -->
+                <div class="product-card glass-panel cyber-border" data-aos="fade-up" data-aos-delay="300">
+                    <div class="coming-soon-badge" data-i18n="badge_coming_soon">قريباً</div>
+                    <div class="product-img">
+                        <img src="assets/images/qr_sticker.png" alt="QR Stickers" onerror="this.src='https://via.placeholder.com/400x300/111/27c93f?text=QR+Stickers'">
+                    </div>
+                    <div class="product-content">
+                        <h3 data-i18n="prod3_title">ملصقات QR و NFC</h3>
+                        <p data-i18n="prod3_desc">ملصقات ذكية للمطاعم والمحلات والمكاتب، يمكن لصقها على الطاولات والواجهات.</p>
+                        <div class="product-price" data-i18n="prod3_price">يُحدد قريباً</div>
+                        <button class="btn-product-disabled" disabled data-i18n="btn_coming_soon">غير متاح حالياً</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Form Section -->
+    <section id="contact-section" class="contact-section">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2 data-i18n="contact_title">تواصل <span class="highlight">معي</span></h2>
+                <p data-i18n="contact_desc">هل أنت جاهز لنقل أعمالك للمستوى الرقمي القادم؟ اترك رسالتك وسأتواصل معك بأقرب وقت.</p>
+            </div>
+            
+            <div class="contact-wrapper">
+                <div class="contact-info glass-panel" data-aos="fade-up">
+                    <h3 data-i18n="contact_info_title">معلومات التواصل</h3>
+                    <div class="info-item">
+                        <i class="fab fa-whatsapp cyber-icon"></i>
+                        <div>
+                            <strong data-i18n="contact_wa">واتساب مباشر:</strong>
+                            <p>+20 101 997 1508</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-envelope highlight-icon"></i>
+                        <div>
+                            <strong data-i18n="contact_email">البريد الإلكتروني:</strong>
+                            <p>info@harpymenu.com</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-map-marker-alt" style="color:var(--text-muted)"></i>
+                        <div>
+                            <strong data-i18n="contact_loc">الموقع:</strong>
+                            <p data-i18n="contact_loc_text">القاهرة، جمهورية مصر العربية</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="contact-form-container glass-panel" data-aos="fade-up" data-aos-delay="200">
+                    <form class="contact-form" id="main-contact-form">
+                        <div class="form-group">
+                            <label for="name" data-i18n="form_name">الاسم بالكامل</label>
+                            <input type="text" id="name" required class="cyber-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="email" data-i18n="form_email">البريد الإلكتروني</label>
+                            <input type="email" id="email" required class="cyber-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="service" data-i18n="form_service">نوع الخدمة المطلوبة</label>
+                            <select id="service" class="cyber-input">
+                                <option value="digital_cards" data-i18n="form_opt_cards">الكروت الرقمية (NFC)</option>
+                                <option value="digital_menu" data-i18n="form_opt_menu">المنيو الرقمي</option>
+                                <option value="landing_pages" data-i18n="form_opt_landing">صفحات الهبوط</option>
+                                <option value="security" data-i18n="form_opt_security">تدقيق الأمان السيبراني</option>
+                                <option value="products" data-i18n="form_opt_products">المنتجات المادية (قريباً)</option>
+                                <option value="other" data-i18n="form_opt_other">استشارة / أخرى</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="message" data-i18n="form_msg">رسالتك</label>
+                            <textarea id="message" rows="4" required class="cyber-input"></textarea>
+                        </div>
+                        <button type="button" class="btn btn-primary cyber-glitch" onclick="alert('تم تجهيز النموذج برمجياً بنجاح، بانتظار ربط الـ Backend!')" style="width: 100%;">
+                            <i class="fas fa-paper-plane"></i> <span data-i18n="form_btn">إرسال الرسالة</span>
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>

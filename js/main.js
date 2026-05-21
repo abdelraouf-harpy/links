@@ -44,7 +44,39 @@ const translations = {
         plat4_desc: "منصة لإدارة اشتراكات الجيم والأعضاء، وتتبع الحضور، ودخول الأعضاء عبر الكروت الذكية.",
         btn_wa_order: "اطلب عبر واتساب",
         footer_rights: "مركز الوكالة الرقمية &copy; 2026. جميع الحقوق محفوظة.",
-        footer_badge: "مستضاف عبر GitHub Pages و Hostinger"
+        footer_badge: "مستضاف عبر GitHub Pages و Hostinger",
+        nav_products: "المنتجات",
+        products_title: "المنتجات <span class='highlight'>الذكية</span>",
+        products_desc: "قريباً.. ستتمكن من طلب منتجاتنا المادية المدمجة بأحدث تقنيات الـ NFC والـ QR Code لدعم أعمالك.",
+        badge_coming_soon: "قريباً",
+        btn_coming_soon: "غير متاح حالياً",
+        prod1_title: "كروت NFC الذكية",
+        prod1_desc: "كروت أعمال بلاستيكية ومعدنية فاخرة مبرمجة لنقل بياناتك بلمسة واحدة للهاتف.",
+        prod1_price: "يُحدد قريباً",
+        prod2_title: "ميداليات ذكية",
+        prod2_desc: "ميداليات مفاتيح أنيقة وعصرية مدمجة بشريحة NFC كبديل عملي لكروت الأعمال.",
+        prod2_price: "يُحدد قريباً",
+        prod3_title: "ملصقات QR و NFC",
+        prod3_desc: "ملصقات ذكية للمطاعم والمحلات والمكاتب، يمكن لصقها على الطاولات والواجهات.",
+        prod3_price: "يُحدد قريباً",
+        contact_title: "تواصل <span class='highlight'>معي</span>",
+        contact_desc: "هل أنت جاهز لنقل أعمالك للمستوى الرقمي القادم؟ اترك رسالتك وسأتواصل معك بأقرب وقت.",
+        contact_info_title: "معلومات التواصل",
+        contact_wa: "واتساب مباشر:",
+        contact_email: "البريد الإلكتروني:",
+        contact_loc: "الموقع:",
+        contact_loc_text: "القاهرة، جمهورية مصر العربية",
+        form_name: "الاسم بالكامل",
+        form_email: "البريد الإلكتروني",
+        form_service: "نوع الخدمة المطلوبة",
+        form_opt_cards: "الكروت الرقمية (NFC)",
+        form_opt_menu: "المنيو الرقمي",
+        form_opt_landing: "صفحات الهبوط",
+        form_opt_security: "تدقيق الأمان السيبراني",
+        form_opt_products: "المنتجات المادية (قريباً)",
+        form_opt_other: "استشارة / أخرى",
+        form_msg: "رسالتك",
+        form_btn: "إرسال الرسالة"
     },
     en: {
         nav_expert: "The Expert",
@@ -90,7 +122,39 @@ const translations = {
         plat4_desc: "Platforms to manage gym memberships, track attendance, and enable smart card access for members.",
         btn_wa_order: "Order via WhatsApp",
         footer_rights: "Digital Agency Hub &copy; 2026. All rights reserved.",
-        footer_badge: "Deployed via GitHub Pages & Hostinger"
+        footer_badge: "Deployed via GitHub Pages & Hostinger",
+        nav_products: "Products",
+        products_title: "Smart <span class='highlight'>Products</span>",
+        products_desc: "Coming soon.. You'll be able to order our physical products integrated with the latest NFC and QR Code technologies to support your business.",
+        badge_coming_soon: "Coming Soon",
+        btn_coming_soon: "Currently Unavailable",
+        prod1_title: "Smart NFC Cards",
+        prod1_desc: "Premium plastic and metal business cards programmed to transfer your data with a single tap.",
+        prod1_price: "TBD Soon",
+        prod2_title: "Smart Keychains",
+        prod2_desc: "Elegant and modern keychains embedded with an NFC chip as a practical alternative to business cards.",
+        prod2_price: "TBD Soon",
+        prod3_title: "NFC & QR Stickers",
+        prod3_desc: "Smart stickers for restaurants, shops, and offices. Can be placed on tables and storefronts.",
+        prod3_price: "TBD Soon",
+        contact_title: "Get In <span class='highlight'>Touch</span>",
+        contact_desc: "Are you ready to take your business to the next digital level? Leave a message and I'll get back to you shortly.",
+        contact_info_title: "Contact Information",
+        contact_wa: "Direct WhatsApp:",
+        contact_email: "Email Address:",
+        contact_loc: "Location:",
+        contact_loc_text: "Cairo, Egypt",
+        form_name: "Full Name",
+        form_email: "Email Address",
+        form_service: "Required Service",
+        form_opt_cards: "Digital Cards (NFC)",
+        form_opt_menu: "Digital Menu",
+        form_opt_landing: "Landing Pages",
+        form_opt_security: "Cyber Security Audit",
+        form_opt_products: "Physical Products (Soon)",
+        form_opt_other: "Consultation / Other",
+        form_msg: "Your Message",
+        form_btn: "Send Message"
     }
 };
 
@@ -156,32 +220,55 @@ window.addEventListener('scroll', () => {
 // Terminal Typing Effect
 const terminalBody = document.getElementById('terminal-body');
 
-const terminalCommands = [
-    { text: "nmap -sV -p- harpymenu.com", color: "white" },
-    { text: "[+] Starting Nmap 7.93...", color: "cyan" },
-    { text: "[+] Scanning targets...", color: "white" },
-    { text: "[+] Discovered open port 80/tcp", color: "green" },
-    { text: "[+] Discovered open port 443/tcp", color: "green" },
-    { text: "[+] Service Info: Host: secure.hostinger.com", color: "cyan" },
-    { text: "...", color: "white" },
-    { text: "Loading Full-Stack Capabilities...", color: "yellow" },
-    { text: "[✔] HTML/CSS/JS (Vanilla & Frameworks)", color: "green" },
-    { text: "[✔] WebSockets & Real-Time Data", color: "green" },
-    { text: "[✔] Payment Gateway Integrations", color: "green" },
-    { text: "System fully secured. No vulnerabilities found.", color: "cyan" }
-];
+const terminalCommandsData = {
+    en: [
+        { text: "nmap -sV -p- harpymenu.com", color: "white" },
+        { text: "[+] Starting Nmap 7.93...", color: "cyan" },
+        { text: "[+] Scanning targets...", color: "white" },
+        { text: "[+] Discovered open port 80/tcp", color: "green" },
+        { text: "[+] Discovered open port 443/tcp", color: "green" },
+        { text: "[+] Service Info: Host: secure.hostinger.com", color: "cyan" },
+        { text: "...", color: "white" },
+        { text: "Loading Full-Stack Capabilities...", color: "yellow" },
+        { text: "[✔] HTML/CSS/JS (Vanilla & Frameworks)", color: "green" },
+        { text: "[✔] WebSockets & Real-Time Data", color: "green" },
+        { text: "[✔] Payment Gateway Integrations", color: "green" },
+        { text: "System fully secured. No vulnerabilities found.", color: "cyan" }
+    ],
+    ar: [
+        { text: "nmap -sV -p- harpymenu.com", color: "white" },
+        { text: "[+] بدء فحص الشبكة Nmap 7.93...", color: "cyan" },
+        { text: "[+] جاري فحص الأهداف...", color: "white" },
+        { text: "[+] تم اكتشاف المنفذ المفتوح 80/tcp", color: "green" },
+        { text: "[+] تم اكتشاف المنفذ المفتوح 443/tcp", color: "green" },
+        { text: "[+] معلومات الخادم: Host: secure.hostinger.com", color: "cyan" },
+        { text: "...", color: "white" },
+        { text: "جاري تحميل مهارات الـ Full-Stack...", color: "yellow" },
+        { text: "[✔] تقنيات الواجهة الأمامية HTML/CSS/JS", color: "green" },
+        { text: "[✔] اتصالات WebSockets وبيانات الوقت الفعلي", color: "green" },
+        { text: "[✔] ربط بوابات الدفع الإلكترونية", color: "green" },
+        { text: "النظام مؤمن بالكامل. لم يتم العثور على ثغرات.", color: "cyan" }
+    ]
+};
 
 let commandIndex = 0;
 let charIndex = 0;
+let isTyping = false;
 
 function typeTerminal() {
-    if (commandIndex >= terminalCommands.length) {
+    const currentCommands = terminalCommandsData[currentLang];
+    
+    if (commandIndex >= currentCommands.length) {
         // Add blinking cursor at the end
-        terminalBody.innerHTML += '<span class="cursor"></span>';
+        if(!document.querySelector('.cursor')) {
+            terminalBody.innerHTML += '<span class="cursor"></span>';
+        }
+        isTyping = false;
         return;
     }
 
-    const currentCommand = terminalCommands[commandIndex];
+    isTyping = true;
+    const currentCommand = currentCommands[commandIndex];
     
     if (charIndex === 0) {
         // Create new line element
@@ -203,10 +290,13 @@ function typeTerminal() {
         terminalBody.appendChild(line);
     }
     
-    const lineElement = document.getElementById(`line-${commandIndex}`).querySelector('.text-content');
+    const lineElement = document.getElementById(`line-${commandIndex}`);
+    if(!lineElement) return; // safety check
+    
+    const textContentElement = lineElement.querySelector('.text-content');
     
     if (charIndex < currentCommand.text.length) {
-        lineElement.innerHTML += currentCommand.text.charAt(charIndex);
+        textContentElement.innerHTML += currentCommand.text.charAt(charIndex);
         charIndex++;
         // Random typing speed for realism
         const typingSpeed = currentCommand.text.startsWith('[+') || currentCommand.text.startsWith('[✔]') ? 10 : Math.random() * 50 + 20;
@@ -223,12 +313,12 @@ function typeTerminal() {
 const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
-            // Clear and start
-            terminalBody.innerHTML = '';
-            commandIndex = 0;
-            charIndex = 0;
-            setTimeout(typeTerminal, 500);
-            observer.unobserve(entry.target);
+            if(!isTyping) {
+                terminalBody.innerHTML = '';
+                commandIndex = 0;
+                charIndex = 0;
+                setTimeout(typeTerminal, 500);
+            }
         }
     });
 }, { threshold: 0.5 });
