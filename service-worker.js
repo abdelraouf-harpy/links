@@ -1,4 +1,4 @@
-const CACHE_NAME = 'harpy-cache-v1';
+const CACHE_NAME = 'harpy-cache-v2';
 const urlsToCache = [
   './',
   './index.html',
@@ -7,9 +7,27 @@ const urlsToCache = [
 ];
 
 self.addEventListener('install', event => {
+  // Force the new service worker to take over immediately
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(urlsToCache))
+  );
+});
+
+self.addEventListener('activate', event => {
+  // Delete old caches when the new service worker is activated
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheName !== CACHE_NAME) {
+            console.log('Service Worker: Clearing Old Cache', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    }).then(() => self.clients.claim()) // Take control of all clients immediately
   );
 });
 
