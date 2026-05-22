@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة المطبخ - {{ restaurant.name }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0f1e;
+            --surface: #111827;
+            --surface2: #1f2937;
+            --border: rgba(255,255,255,0.07);
+            --red: #ef4444;
+            --amber: #f59e0b;
+            --green: #22c55e;
+            --indigo: #6366f1;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg);
+            color: #f1f5f9;
+            min-height: 100vh;
+        }
+
+        /* ─── Header ─── */
+        .header-bar {
+            background: rgba(17, 24, 39, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        /* ─── Order Card ─── */
+        .order-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .order-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+        }
+        .order-card.pending::before  { background: linear-gradient(90deg, var(--red), #f97316); }
+        .order-card.cooking::before  { background: linear-gradient(90deg, var(--amber), #facc15); }
+        .order-card.verify::before   { background: linear-gradient(90deg, var(--indigo), #8b5cf6); }
+
+        .order-card:hover { transform: translateY(-4px); border-color: rgba(255,255,255,0.12); }
+
+        /* ─── Status Badge ─── */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 14px;
+            border-radius: 99px;
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .badge-pending  { background: rgba(239,68,68,0.15);  color: var(--red);    border: 1px solid rgba(239,68,68,0.2); }
+        .badge-cooking  { background: rgba(245,158,11,0.15); color: var(--amber);  border: 1px solid rgba(245,158,11,0.2); }
+        .badge-verify   { background: rgba(99,102,241,0.15); color: var(--indigo); border: 1px solid rgba(99,102,241,0.2); }
+
+        /* ─── Buttons ─── */
+        .btn-start {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 18px;
+            font-weight: 900;
+            font-size: 14px;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 8px 24px rgba(239,68,68,0.3);
+        }
+        .btn-start:hover  { transform: scale(1.02); box-shadow: 0 12px 32px rgba(239,68,68,0.4); }
+        .btn-start:active { transform: scale(0.96); }
+        .btn-start:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .btn-done {
+            background: linear-gradient(135deg, #16a34a, #22c55e);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 18px;
+            font-weight: 900;
+            font-size: 14px;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 8px 24px rgba(34,197,94,0.3);
+        }
+        .btn-done:hover  { transform: scale(1.02); }
+        .btn-done:active { transform: scale(0.96); }
+        .btn-done:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* ─── Timer Badge ─── */
+        .timer-badge {
+            font-size: 11px;
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+        }
+        .timer-urgent { color: var(--red); }
+        .timer-warning { color: var(--amber); }
+        .timer-ok { color: #64748b; }
+
+        /* ─── Entry animation ─── */
+        @keyframes cardIn {
+            from { opacity: 0; transform: scale(0.92) translateY(16px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .card-enter { animation: cardIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+        /* ─── Toast ─── */
+        #toast-wrap { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+        .toast {
+            background: #1e293b;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 16px;
+            font-weight: 900;
+            font-size: 13px;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+            animation: cardIn 0.3s ease;
+            white-space: nowrap;
+        }
+        .toast.success { background: linear-gradient(135deg, #16a34a, #22c55e); }
+        .toast.error   { background: linear-gradient(135deg, #dc2626, #ef4444); }
+
+        /* ─── Empty State ─── */
+        #empty-state { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; }
+
+        /* ─── Pulse for "verify" ─── */
+        @keyframes pulse2 { 0%,100% { opacity:1 } 50% { opacity:0.4 } }
+        .pulse-text { animation: pulse2 2s ease infinite; }
+    </style>
+</head>
+<body>
+
+    <!-- Toast Wrapper -->
+    <div id="toast-wrap"></div>
+
+    <!-- ─── Header ─── -->
+    <header class="header-bar px-6 py-4">
+        <div class="flex justify-between items-center">
+            <!-- Left: Restaurant Info -->
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl"
+                     style="background: linear-gradient(135deg, #ef4444, #f97316)">
+                    🔥
+                </div>
+                <div>
+                    <h1 class="text-lg font-black leading-tight">{{ restaurant.name }}</h1>
+                    <p class="text-[10px] text-slate-500 font-black uppercase tracking-widest">Kitchen Live</p>
+                </div>
+            </div>
+
+            <!-- Right: Stats -->
+            <div class="flex items-center gap-6">
+                <!-- Order Count -->
+                <div class="text-center">
+                    <p id="order-count" class="text-3xl font-black text-red-500 leading-none">0</p>
+                    <p class="text-[9px] text-slate-600 font-black uppercase mt-0.5">Active</p>
+                </div>
+
+                <div class="w-px h-10 bg-white/10"></div>
+
+                <!-- Pending Count -->
+                <div class="text-center">
+                    <p id="pending-count" class="text-xl font-black text-red-400 leading-none">0</p>
+                    <p class="text-[9px] text-slate-600 font-black uppercase mt-0.5">Pending</p>
+                </div>
+
+                <!-- Cooking Count -->
+                <div class="text-center">
+                    <p id="cooking-count" class="text-xl font-black text-amber-400 leading-none">0</p>
+                    <p class="text-[9px] text-slate-600 font-black uppercase mt-0.5">Cooking</p>
+                </div>
+
+                <div class="w-px h-10 bg-white/10"></div>
+
+                <button id="audio-toggle-btn" class="flex items-center gap-2 bg-slate-800 text-slate-400 px-3 py-1.5 rounded-full border border-slate-700 hover:text-white transition">
+                    <span>🔇</span>
+                    <span class="text-[10px] font-black uppercase">الصوت مغلق</span>
+                </button>
+                
+                <!-- Live Status -->
+                <div id="ws-status" class="flex items-center gap-2 bg-yellow-500/10 text-yellow-400 px-4 py-2 rounded-full border border-yellow-500/20">
+                    <span id="ws-dot" class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span>
+                    <span id="ws-text" class="text-[10px] font-black uppercase">Connecting...</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ─── Main Grid ─── -->
+    <main class="p-6">
+
+        <!-- Empty State -->
+        <div id="empty-state">
+            <div class="text-9xl mb-6 opacity-10">🍳</div>
+            <p class="text-xl font-black text-slate-600">المطبخ هادئ الآن</p>
+            <p class="text-sm text-slate-700 mt-2">لا يوجد طلبات نشطة</p>
+        </div>
+
+        <!-- Orders Grid -->
+        <div id="orders-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-5">
+            <!-- Cards injected here -->
+        </div>
+
+    </main>
+
+    <script>
+        const restaurantId = "{{ restaurant.id }}";
+        const ordersGrid   = document.getElementById('orders-grid');
+        const emptyState   = document.getElementById('empty-state');
+        let   activeOrders = [];
+        let   orderTimers  = {};   // { orderId: createdAt timestamp }
+
+        // ─── CSRF ───
+        function getCookie(name) {
+            let v = null;
+            if (document.cookie && document.cookie !== '') {
+                document.cookie.split(';').forEach(c => {
+                    const t = c.trim();
+                    if (t.startsWith(name + '=')) v = decodeURIComponent(t.substring(name.length + 1));
+                });
+            }
+            return v;
+        }
+
+        // ─── Toast ───
+        function showToast(msg, type = '') {
+            const wrap = document.getElementById('toast-wrap');
+            const t = document.createElement('div');
+            t.className = `toast ${type}`;
+            t.innerText = msg;
+            wrap.appendChild(t);
+            setTimeout(() => t.remove(), 3500);
+        }
+
+        // ─── Status Helpers ───
+        const STATUS_LABEL = {
+            'PENDING':        'جديد',
+            'PAYMENT_VERIFY': 'انتظار دفع',
+            'COOKING':        'يُحضَّر',
+            'READY':          'جاهز',
+            'DELIVERED':      'تم',
+            'CANCELLED':      'ملغي',
+        };
+
+        function getStatusLabel(s)       { return STATUS_LABEL[s] || s; }
+        function getCardClass(s)         { return s==='PENDING'?'pending':s==='COOKING'?'cooking':s==='PAYMENT_VERIFY'?'verify':''; }
+        function getBadgeClass(s)        { return s==='PENDING'?'badge-pending':s==='COOKING'?'badge-cooking':s==='PAYMENT_VERIFY'?'badge-verify':'badge-verify'; }
+        function getDotColor(s)          { return s==='PENDING'?'#ef4444':s==='COOKING'?'#f59e0b':'#6366f1'; }
+
+        // ─── Timer Formatter ───
+        function getElapsedLabel(createdAt) {
+            const mins = Math.floor((Date.now() - new Date(createdAt).getTime()) / 60000);
+            if (mins < 1)  return { text: 'الآن',       cls: 'timer-ok' };
+            if (mins < 10) return { text: `${mins} د`,  cls: 'timer-ok' };
+            if (mins < 20) return { text: `${mins} د ⚠️`, cls: 'timer-warning' };
+            return               { text: `${mins} د 🔴`, cls: 'timer-urgent' };
+        }
+
+        // ─── Format Time ───
+        function formatTime(ts) {
+            return new Date(ts).toLocaleTimeString('ar-EG', { hour:'2-digit', minute:'2-digit' });
+        }
+
+        // ─── Load Orders ───
+        async function loadOrders() {
+            try {
+                const res = await fetch('/api/kitchen/orders/');
+                if (!res.ok) throw new Error();
+                activeOrders = await res.json();
+                renderOrders();
+            } catch {
+                showToast('⚠️ تعذّر تحديث الطلبات', 'error');
+            }
+        }
+
+        // ─── Render Orders ───
+        function renderOrders() {
+            const count    = activeOrders.length;
+            const pending  = activeOrders.filter(o => o.status === 'PENDING').length;
+            const cooking  = activeOrders.filter(o => o.status === 'COOKING').length;
+
+            document.getElementById('order-count').innerText  = count;
+            document.getElementById('pending-count').innerText = pending;
+            document.getElementById('cooking-count').innerText = cooking;
+
+            if (count === 0) {
+                ordersGrid.innerHTML = '';
+                ordersGrid.style.display = 'none';
+                emptyState.style.display = 'flex';
+                return;
+            }
+            emptyState.style.display = 'none';
+            ordersGrid.style.display = 'grid';
+            ordersGrid.innerHTML = '';
+
+            activeOrders.forEach(order => {
+                const card = document.createElement('div');
+                card.className = `order-card card-enter ${getCardClass(order.status)} p-6 flex flex-col justify-between gap-4`;
+                card.id = `card-${order.id}`;
+
+                const timer = getElapsedLabel(order.created_at);
+
+                // Items list
+                const itemsHtml = order.items.map(item => `
+                    <div class="py-2.5 border-b last:border-0" style="border-color: rgba(255,255,255,0.05)">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1 min-w-0">
+                                <p class="font-black text-slate-100 text-sm leading-snug">
+                                    ${item.menu_item_name_ar}
+                                    <span class="text-red-400 mr-1">× ${item.quantity}</span>
+                                </p>
+                                ${item.selected_extras && item.selected_extras.length > 0 ? `
+                                    <div class="flex flex-wrap gap-1 mt-1">
+                                        ${item.selected_extras.map(e => `<span class="text-[9px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded-md font-bold">+ ${e.name_ar}</span>`).join('')}
+                                    </div>
+                                ` : ''}
+                                ${item.item_notes ? `
+                                    <p class="text-[10px] text-amber-400 font-black mt-1 bg-amber-500/10 px-2 py-1 rounded-lg">
+                                        ⚠️ ${item.item_notes}
+                                    </p>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Action buttons
+                let actionHtml = '';
+                if (order.status === 'PENDING') {
+                    actionHtml = `<button onclick="updateStatus(${order.id}, 'COOKING', this)" class="btn-start">▶ بدء التحضير</button>`;
+                } else if (order.status === 'COOKING') {
+                    actionHtml = `<button onclick="updateStatus(${order.id}, 'READY', this)" class="btn-done">✅ جاهز للتسليم</button>`;
+                } else if (order.status === 'PAYMENT_VERIFY') {
+                    actionHtml = `<p class="text-center text-[11px] font-black text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 p-3 rounded-2xl pulse-text">⏳ انتظار تأكيد الدفع...</p>`;
+                }
+
+                card.innerHTML = `
+                    <!-- Card Header -->
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-2xl font-black text-white">طاولة ${order.table_number}</h3>
+                            <p class="text-[10px] text-slate-600 font-bold mt-0.5">طلب #${order.id} • ${formatTime(order.created_at)}</p>
+                        </div>
+                        <div class="flex flex-col items-end gap-1.5">
+                            <span class="status-badge ${getBadgeClass(order.status)}">
+                                <span class="w-1.5 h-1.5 rounded-full" style="background:${getDotColor(order.status)}"></span>
+                                ${getStatusLabel(order.status)}
+                            </span>
+                            <span class="timer-badge ${timer.cls}">${timer.text}</span>
+                        </div>
+                    </div>
+
+                    <!-- Items -->
+                    <div class="flex-1 space-y-0.5">${itemsHtml}</div>
+
+                    <!-- Total + Payment -->
+                    <div class="flex justify-between items-center text-[10px] font-black text-slate-600 bg-white/5 rounded-2xl px-4 py-2.5">
+                        <span>${order.payment_method === 'CASH' ? '💵 كاش' : '📱 رقمي'}</span>
+                        <span class="text-white text-sm">${parseFloat(order.total_price).toFixed(2)} <span class="text-slate-500">ج.م</span></span>
+                    </div>
+
+                    <!-- Action -->
+                    <div>${actionHtml}</div>
+                `;
+
+                ordersGrid.appendChild(card);
+            });
+        }
+
+        // ─── Update Order Status ───
+        async function updateStatus(orderId, newStatus, btn) {
+            btn.disabled = true;
+            const originalText = btn.innerText;
+            btn.innerText = '...';
+
+            try {
+                const res = await fetch(`/api/order/${orderId}/update-status/`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+
+                if (res.ok) {
+                    const msg = newStatus === 'COOKING'
+                        ? '🔥 بدأ تحضير الطلب!'
+                        : '✅ الطلب جاهز للتسليم!';
+                    showToast(msg, 'success');
+                    SystemAudio.playTone('ready');
+                    await loadOrders();
+                } else {
+                    showToast('❌ حدث خطأ، حاول مرة أخرى', 'error');
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                }
+            } catch {
+                showToast('❌ تعذّر الاتصال بالسيرفر', 'error');
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
+        }
+
+        // ─── Live Timers (update every 30s) ───
+        setInterval(() => {
+            // Re-render to update elapsed times
+            if (activeOrders.length > 0) renderOrders();
+        }, 30000);
+
+        // ─── WebSocket ───
+        let wsRetryCount = 0;
+        function connectWS() {
+            const socket = new WebSocket(`ws://${window.location.host}/ws/kitchen/${restaurantId}/`);
+
+            socket.onopen = () => {
+                wsRetryCount = 0;
+                const el = document.getElementById('ws-status');
+                el.className = 'flex items-center gap-2 bg-green-500/10 text-green-400 px-4 py-2 rounded-full border border-green-500/20';
+                document.getElementById('ws-dot').className = 'w-2 h-2 bg-green-500 rounded-full animate-ping';
+                document.getElementById('ws-text').innerText = 'Live';
+            };
+
+            socket.onmessage = (e) => {
+                const data = JSON.parse(e.data);
+                if (data.type === 'new_order') {
+                    SystemAudio.playTone('new_order');
+                    showToast('🔔 طلب جديد وصل للمطبخ!', 'success');
+                    
+                    // Instant UI Update without waiting for API
+                    if (data.order && !activeOrders.find(o => o.id === data.order.id)) {
+                        activeOrders.push(data.order);
+                        renderOrders();
+                    } else {
+                        loadOrders();
+                    }
+                }
+            };
+
+            socket.onclose = () => {
+                const el = document.getElementById('ws-status');
+                el.className = 'flex items-center gap-2 bg-red-500/10 text-red-400 px-4 py-2 rounded-full border border-red-500/20';
+                document.getElementById('ws-dot').className = 'w-2 h-2 bg-red-500 rounded-full';
+                document.getElementById('ws-text').innerText = 'Offline';
+                
+                if (wsRetryCount < 5) {
+                    wsRetryCount++;
+                    setTimeout(connectWS, 3000 * wsRetryCount);
+                }
+            };
+
+            socket.onerror = () => socket.close();
+        }
+
+        
+        // ── Reliable Audio System ──
+        const SystemAudio = {
+            ctx: null,
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                }
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+            },
+            playTone(type) {
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                const now = this.ctx.currentTime;
+                if (type === 'new_order') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(880, now);
+                    osc.frequency.setValueAtTime(0, now + 0.1);
+                    osc.frequency.setValueAtTime(880, now + 0.15);
+                    gain.gain.setValueAtTime(0, now);
+                    gain.gain.linearRampToValueAtTime(0.5, now + 0.05);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'ready') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.setValueAtTime(554.37, now + 0.1);
+                    osc.frequency.setValueAtTime(659.25, now + 0.2);
+                    gain.gain.setValueAtTime(0, now);
+                    gain.gain.linearRampToValueAtTime(0.3, now + 0.05);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                    osc.start(now);
+                    osc.stop(now + 0.5);
+                }
+            }
+        };
+
+        // Audio UI Toggle
+        const audioBtn = document.getElementById('audio-toggle-btn');
+        let audioUnlocked = false;
+
+        audioBtn.addEventListener('click', () => {
+            SystemAudio.init();
+            audioUnlocked = true;
+            audioBtn.innerHTML = '<span>🔊</span><span class="text-[10px] font-black uppercase">الصوت مفعل</span>';
+            audioBtn.className = 'flex items-center gap-2 bg-green-500/20 text-green-400 px-3 py-1.5 rounded-full border border-green-500/30 transition';
+            // Play a test sound so the user knows it works
+            SystemAudio.playTone('ready');
+        });
+
+        // Fallback: also try to unlock on body click
+        document.body.addEventListener('click', () => {
+            if (!audioUnlocked) {
+                SystemAudio.init();
+                audioUnlocked = true;
+                audioBtn.innerHTML = '<span>🔊</span><span class="text-[10px] font-black uppercase">الصوت مفعل</span>';
+                audioBtn.className = 'flex items-center gap-2 bg-green-500/20 text-green-400 px-3 py-1.5 rounded-full border border-green-500/30 transition';
+            }
+        }, { once: true });
+
+        // ─── Init ───
+        loadOrders();
+        connectWS();
+
+        // Auto-refresh every 45s as backup
+        setInterval(loadOrders, 45000);
+    </script>
+</body>
+</html>

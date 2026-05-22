@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة النادل - {{ restaurant.name }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', sans-serif; background: linear-gradient(135deg, #f0f4ff 0%, #fafafa 100%); min-height: 100vh; }
+        
+        .glass { 
+            background: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(16px); 
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.6); 
+        }
+        
+        .card-shadow { box-shadow: 0 8px 32px -8px rgba(0,0,0,0.08), 0 2px 8px -2px rgba(0,0,0,0.04); }
+        
+        @keyframes slideInUp { 
+            from { transform: translateY(20px); opacity: 0; } 
+            to { transform: translateY(0); opacity: 1; } 
+        }
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .animate-slide-up { animation: slideInUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .pulse-ring { animation: pulse-ring 1.5s ease-out infinite; }
+        
+        .section-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 900;
+            padding: 4px 12px;
+            border-radius: 99px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 14px;
+            font-weight: 900;
+            font-size: 12px;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-primary:active { transform: scale(0.94); }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 14px;
+            font-weight: 900;
+            font-size: 12px;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-success:active { transform: scale(0.94); }
+
+        .btn-indigo {
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 14px;
+            font-weight: 900;
+            font-size: 12px;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-indigo:active { transform: scale(0.94); }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            color: #94a3b8;
+        }
+
+        /* Notification Toast */
+        #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+        .toast {
+            background: #1e293b;
+            color: white;
+            padding: 14px 24px;
+            border-radius: 18px;
+            font-weight: 700;
+            font-size: 14px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+            animation: slideInUp 0.3s ease;
+            white-space: nowrap;
+        }
+        .toast.success { background: linear-gradient(135deg, #16a34a, #22c55e); }
+        .toast.error { background: linear-gradient(135deg, #dc2626, #ef4444); }
+        .toast.info { background: linear-gradient(135deg, #4f46e5, #6366f1); }
+    </style>
+</head>
+<body class="pb-28">
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- Header -->
+    <header class="bg-slate-900 text-white px-6 pt-12 pb-8 rounded-b-[48px] shadow-2xl mb-8 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10" style="background: radial-gradient(circle at 80% 50%, #6366f1 0%, transparent 70%)"></div>
+        <div class="relative flex justify-between items-start">
+            <div>
+                <p class="text-slate-400 font-black uppercase tracking-widest text-[10px] mb-1">Waiter Live Panel</p>
+                <h1 class="text-2xl font-black">{{ restaurant.name }}</h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <button id="audio-toggle-btn" class="flex items-center gap-2 bg-slate-800 text-slate-400 px-3 py-1.5 rounded-full border border-slate-700 hover:text-white transition">
+                    <span>🔇</span>
+                    <span class="text-[10px] font-black uppercase">الصوت مغلق</span>
+                </button>
+                <div id="ws-status" class="flex items-center gap-2 bg-yellow-500/10 text-yellow-400 px-3 py-1.5 rounded-full border border-yellow-500/20">
+                    <span id="ws-dot" class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span>
+                    <span id="ws-text" class="text-[10px] font-black uppercase">Connecting...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats Row -->
+        <div class="relative flex gap-4 mt-8">
+            <div class="flex-1 bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-center border border-white/10">
+                <p id="stat-calls" class="text-3xl font-black text-red-400">0</p>
+                <p class="text-[10px] text-slate-400 font-bold mt-1">نداءات</p>
+            </div>
+            <div class="flex-1 bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-center border border-white/10">
+                <p id="stat-payments" class="text-3xl font-black text-indigo-400">0</p>
+                <p class="text-[10px] text-slate-400 font-bold mt-1">مدفوعات</p>
+            </div>
+            <div class="flex-1 bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-center border border-white/10">
+                <p id="stat-ready" class="text-3xl font-black text-green-400">0</p>
+                <p class="text-[10px] text-slate-400 font-bold mt-1">جاهزة</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="px-5 space-y-8">
+
+        <!-- ─── Section 1: Call Waiter Alerts ─── -->
+        <section id="section-calls">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-red-100 rounded-2xl flex items-center justify-center text-lg">🔔</div>
+                    <div>
+                        <h2 class="text-lg font-black text-slate-800">نداءات الطاولات</h2>
+                        <p class="text-[10px] text-slate-400 font-bold">طلبات تحتاج تدخل فوري</p>
+                    </div>
+                </div>
+                <span id="call-badge" class="section-badge bg-red-100 text-red-600">0 نداء</span>
+            </div>
+            <div id="calls-list" class="space-y-3">
+                <!-- Injected -->
+            </div>
+        </section>
+
+        <!-- ─── Section 2: Digital Payment Verification ─── -->
+        <section id="section-payments">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-indigo-100 rounded-2xl flex items-center justify-center text-lg">💳</div>
+                    <div>
+                        <h2 class="text-lg font-black text-slate-800">تأكيد الدفع الرقمي</h2>
+                        <p class="text-[10px] text-slate-400 font-bold">طلبات انتظار تحويل</p>
+                    </div>
+                </div>
+                <span id="payment-badge" class="section-badge bg-indigo-100 text-indigo-600">0 طلب</span>
+            </div>
+            <div id="payments-list" class="space-y-3">
+                <!-- Injected -->
+            </div>
+        </section>
+
+        <!-- ─── Section 3: Ready Orders ─── -->
+        <section id="section-ready">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-green-100 rounded-2xl flex items-center justify-center text-lg">🍱</div>
+                    <div>
+                        <h2 class="text-lg font-black text-slate-800">جاهزة للتسليم</h2>
+                        <p class="text-[10px] text-slate-400 font-bold">طلبات منتهية من المطبخ</p>
+                    </div>
+                </div>
+                <span id="ready-badge" class="section-badge bg-green-100 text-green-600">0 طلب</span>
+            </div>
+            <div id="ready-orders-list" class="space-y-3">
+                <!-- Injected -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Bottom Nav -->
+    <nav class="fixed bottom-0 left-0 right-0 glass border-t border-white/50 p-4 flex justify-around items-center rounded-t-[32px] shadow-2xl z-50">
+        <button onclick="loadData()" class="flex flex-col items-center gap-1 text-slate-500 hover:text-slate-900 transition active:scale-90">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            <span class="text-[10px] font-black">تحديث</span>
+        </button>
+        <div class="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center -mt-10 shadow-2xl border-4 border-white pulse-ring">
+            <span class="text-2xl">🙋</span>
+        </div>
+        {% if user_role == 'OWNER' or user_role == 'MANAGER' or user_role == 'SUPERUSER' %}
+        <a href="/kitchen/dashboard/" class="flex flex-col items-center gap-1 text-slate-500 hover:text-slate-900 transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"/></svg>
+            <span class="text-[10px] font-black">المطبخ</span>
+        </a>
+        {% endif %}
+    </nav>
+
+    <script>
+        const restaurantId = "{{ restaurant.id }}";
+
+        // ─── CSRF Helper ───
+        function getCookie(name) {
+            let v = null;
+            if (document.cookie && document.cookie !== '') {
+                document.cookie.split(';').forEach(c => {
+                    const t = c.trim();
+                    if (t.startsWith(name + '=')) v = decodeURIComponent(t.substring(name.length + 1));
+                });
+            }
+            return v;
+        }
+
+        // ─── Toast Notifications ───
+        function showToast(msg, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerText = msg;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
+        }
+
+        // ─── Format Time ───
+        function formatTime(ts) {
+            return new Date(ts).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // ─── Load All Data ───
+        async function loadData() {
+            try {
+                const res = await fetch('/api/waiter/dashboard/');
+                if (!res.ok) throw new Error('Server error');
+                const data = await res.json();
+
+                renderCalls(data.active_calls);
+                renderPayments(data.verifying_payments);
+                renderOrders(data.ready_orders);
+
+                // Update header stats
+                document.getElementById('stat-calls').innerText = data.active_calls.length;
+                document.getElementById('stat-payments').innerText = data.verifying_payments.length;
+                document.getElementById('stat-ready').innerText = data.ready_orders.length;
+            } catch (e) {
+                showToast('تعذّر الاتصال بالسيرفر', 'error');
+            }
+        }
+
+        // ─── Render: Waiter Calls ───
+        function renderCalls(calls) {
+            const list = document.getElementById('calls-list');
+            const badge = document.getElementById('call-badge');
+            badge.innerText = `${calls.length} نداء`;
+
+            if (calls.length === 0) {
+                list.innerHTML = `<div class="empty-state">
+                    <div class="text-5xl mb-3 opacity-30">🔕</div>
+                    <p class="font-bold text-sm">لا يوجد نداءات حالياً</p>
+                </div>`;
+                return;
+            }
+
+            list.innerHTML = '';
+            calls.forEach(call => {
+                const isUrgent = call.type === 'BILL';
+                const div = document.createElement('div');
+                div.className = `glass p-5 rounded-[24px] card-shadow flex justify-between items-center animate-slide-up border-r-4 ${isUrgent ? 'border-red-500' : 'border-amber-400'}`;
+                div.innerHTML = `
+                    <div>
+                        <span class="section-badge ${isUrgent ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-700'} mb-2 block w-fit">
+                            ${call.type === 'BILL' ? '🧾 طلب الفاتورة' : '🙋 طلب مساعدة'}
+                        </span>
+                        <h3 class="text-xl font-black text-slate-900">طاولة ${call.table}</h3>
+                        <p class="text-[10px] text-slate-400 font-bold mt-1">${formatTime(call.created_at)}</p>
+                    </div>
+                    <button onclick="resolveCall(${call.id}, this)" class="btn-primary">
+                        ✔ تم
+                    </button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        // ─── Render: Payments Waiting Verification ───
+        function renderPayments(payments) {
+            const list = document.getElementById('payments-list');
+            const badge = document.getElementById('payment-badge');
+            badge.innerText = `${payments.length} طلب`;
+
+            if (payments.length === 0) {
+                list.innerHTML = `<div class="empty-state">
+                    <div class="text-5xl mb-3 opacity-30">💳</div>
+                    <p class="font-bold text-sm">لا يوجد مدفوعات تنتظر تأكيد</p>
+                </div>`;
+                return;
+            }
+
+            list.innerHTML = '';
+            payments.forEach(order => {
+                const div = document.createElement('div');
+                div.className = 'glass p-5 rounded-[24px] card-shadow border-r-4 border-indigo-500 animate-slide-up';
+                div.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-[10px] font-black text-indigo-500 uppercase mb-1">انتظار تأكيد التحويل</p>
+                            <h3 class="text-xl font-black text-slate-900">طاولة ${order.table_number}</h3>
+                            <p class="text-2xl font-black text-indigo-600 mt-1">${parseFloat(order.total_price).toFixed(2)} <span class="text-sm text-slate-400">ج.م</span></p>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <button onclick="confirmPayment(${order.id}, this)" class="btn-indigo">
+                                ✅ تأكيد الدفع
+                            </button>
+                            <button onclick="updateStatus(${order.id}, 'CANCELLED', this)" class="text-[10px] text-red-400 font-bold text-center py-1">
+                                ✗ رفض
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-3 font-bold">الطلب #${order.id} • ${order.items ? order.items.length : '?'} أصناف</p>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        // ─── Render: Ready Orders ───
+        function renderOrders(orders) {
+            const list = document.getElementById('ready-orders-list');
+            const badge = document.getElementById('ready-badge');
+            badge.innerText = `${orders.length} طلب`;
+
+            if (orders.length === 0) {
+                list.innerHTML = `<div class="empty-state">
+                    <div class="text-5xl mb-3 opacity-30">🍽️</div>
+                    <p class="font-bold text-sm">لا يوجد طلبات جاهزة حالياً</p>
+                </div>`;
+                return;
+            }
+
+            list.innerHTML = '';
+            orders.forEach(order => {
+                const div = document.createElement('div');
+                div.className = 'glass p-5 rounded-[24px] card-shadow border-r-4 border-green-500 animate-slide-up';
+                div.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span class="section-badge bg-green-100 text-green-700 mb-2 block w-fit">🟢 جاهز للتسليم</span>
+                            <h3 class="text-xl font-black text-slate-900">طاولة ${order.table_number}</h3>
+                            <p class="text-[10px] text-slate-400 mt-1">${order.items ? order.items.length : 0} أصناف • ${formatTime(order.created_at)}</p>
+                        </div>
+                        <button onclick="updateStatus(${order.id}, 'DELIVERED', this)" class="btn-success">
+                            🚀 تم التسليم
+                        </button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        // ─── Resolve Call ───
+        async function resolveCall(id, btn) {
+            btn.disabled = true;
+            btn.innerText = '...';
+            try {
+                await fetch(`/api/waiter/call/${id}/resolve/`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': getCookie('csrftoken') }
+                });
+                showToast('✔ تم حل النداء', 'success');
+                loadData();
+            } catch {
+                showToast('حدث خطأ', 'error');
+                btn.disabled = false;
+                btn.innerText = '✔ تم';
+            }
+        }
+
+        // ─── Confirm Digital Payment (sends to COOKING) ───
+        async function confirmPayment(orderId, btn) {
+            btn.disabled = true;
+            btn.innerText = '...';
+            try {
+                const res = await fetch(`/api/order/${orderId}/update-status/`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ status: 'COOKING' })
+                });
+                if (res.ok) {
+                    showToast('💳 تم تأكيد الدفع، الطلب إلى المطبخ!', 'info');
+                    loadData();
+                } else {
+                    showToast('حدث خطأ في التأكيد', 'error');
+                    btn.disabled = false;
+                    btn.innerText = '✅ تأكيد الدفع';
+                }
+            } catch {
+                showToast('تعذّر الاتصال', 'error');
+                btn.disabled = false;
+                btn.innerText = '✅ تأكيد الدفع';
+            }
+        }
+
+        // ─── Update Order Status ───
+        async function updateStatus(id, status, btn) {
+            btn.disabled = true;
+            const originalText = btn.innerText;
+            btn.innerText = '...';
+            try {
+                const res = await fetch(`/api/order/${id}/update-status/`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')  // ✅ CSRF Fixed
+                    },
+                    body: JSON.stringify({ status })
+                });
+                if (res.ok) {
+                    showToast(status === 'DELIVERED' ? '🎉 تم تسليم الطلب!' : '✔ تم تحديث الحالة', 'success');
+                    if (status === 'DELIVERED') SystemAudio.playTone('ready');
+                    loadData();
+                } else {
+                    showToast('حدث خطأ', 'error');
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                }
+            } catch {
+                showToast('تعذّر الاتصال بالسيرفر', 'error');
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
+        }
+
+        // ─── WebSocket for Real-time Notifications ───
+        let wsRetryCount = 0;
+        function connectWS() {
+            const socket = new WebSocket(`ws://${window.location.host}/ws/notifications/${restaurantId}/`);
+
+            socket.onopen = () => {
+                wsRetryCount = 0;
+                const el = document.getElementById('ws-status');
+                el.className = 'flex items-center gap-2 bg-green-500/20 text-green-400 px-3 py-1.5 rounded-full border border-green-500/30';
+                el.innerHTML = '<span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span><span class="text-[10px] font-black uppercase">Live</span>';
+            };
+
+            socket.onmessage = (e) => {
+                const data = JSON.parse(e.data);
+                
+                // Smart sound + toast based on event type
+                if (data.type === 'waiter_call') {
+                    SystemAudio.playTone('new_order');
+                    showToast(`🔔 نداء من طاولة ${data.table_number}: ${data.call_type === 'BILL' ? 'طلب فاتورة' : 'طلب مساعدة'}`, 'error');
+                } else if (data.type === 'new_order_staff') {
+                    SystemAudio.playTone('new_order');
+                    showToast(`🛍️ طلب جديد من طاولة ${data.table}`, 'info');
+                } else if (data.type === 'payment_alert') {
+                    SystemAudio.playTone('new_order');
+                    showToast(`💳 تحويل رقمي جديد من طاولة ${data.table}`, 'info');
+                } else if (data.type === 'order_ready') {
+                    SystemAudio.playTone('ready');
+                    showToast(`🔥 الطلب جاهز للتسليم في طاولة ${data.table}!`, 'success');
+                }
+                
+                loadData();
+            };
+
+            socket.onclose = () => {
+                const el = document.getElementById('ws-status');
+                el.className = 'flex items-center gap-2 bg-red-500/20 text-red-400 px-3 py-1.5 rounded-full border border-red-500/30';
+                el.innerHTML = '<span class="w-2 h-2 bg-red-500 rounded-full"></span><span class="text-[10px] font-black uppercase">Offline</span>';
+                
+                // Auto-reconnect with backoff
+                if (wsRetryCount < 5) {
+                    wsRetryCount++;
+                    setTimeout(connectWS, 3000 * wsRetryCount);
+                }
+            };
+        }
+
+        // ── Reliable Audio System ──
+        const SystemAudio = {
+            ctx: null,
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                }
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+            },
+            playTone(type) {
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                const now = this.ctx.currentTime;
+                if (type === 'new_order') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(880, now);
+                    osc.frequency.setValueAtTime(0, now + 0.1);
+                    osc.frequency.setValueAtTime(880, now + 0.15);
+                    gain.gain.setValueAtTime(0, now);
+                    gain.gain.linearRampToValueAtTime(0.5, now + 0.05);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'ready') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.setValueAtTime(554.37, now + 0.1);
+                    osc.frequency.setValueAtTime(659.25, now + 0.2);
+                    gain.gain.setValueAtTime(0, now);
+                    gain.gain.linearRampToValueAtTime(0.3, now + 0.05);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                    osc.start(now);
+                    osc.stop(now + 0.5);
+                }
+            }
+        };
+        // Audio UI Toggle
+        const audioBtn = document.getElementById('audio-toggle-btn');
+        let audioUnlocked = false;
+
+        audioBtn.addEventListener('click', () => {
+            SystemAudio.init();
+            audioUnlocked = true;
+            audioBtn.innerHTML = '<span>🔊</span><span class="text-[10px] font-black uppercase">الصوت مفعل</span>';
+            audioBtn.className = 'flex items-center gap-2 bg-green-500/20 text-green-400 px-3 py-1.5 rounded-full border border-green-500/30 transition';
+            // Play a test sound so the user knows it works
+            SystemAudio.playTone('ready');
+        });
+
+        // Fallback: also try to unlock on body click
+        document.body.addEventListener('click', () => {
+            if (!audioUnlocked) {
+                SystemAudio.init();
+                audioUnlocked = true;
+                audioBtn.innerHTML = '<span>🔊</span><span class="text-[10px] font-black uppercase">الصوت مفعل</span>';
+                audioBtn.className = 'flex items-center gap-2 bg-green-500/20 text-green-400 px-3 py-1.5 rounded-full border border-green-500/30 transition';
+            }
+        }, { once: true });
+        
+        // ─── Auto Refresh every 30s ───
+        setInterval(loadData, 30000);
+
+        // ─── Init ───
+        loadData();
+        connectWS();
+    </script>
+</body>
+</html>
