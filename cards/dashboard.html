@@ -1,865 +1,1731 @@
 <!DOCTYPE html>
+
 <html lang="ar" dir="rtl">
+
 <head>
+
   <meta charset="UTF-8" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HARPY CARDS â€” Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ…</title>
+
+  <title>HARPY CARDS — لوحة التحكم</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
+
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
+
+
   <style>
+
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
+
+
     :root {
+
       --bg:           #05050f;
+
       --sidebar:      #08081a;
+
       --card:         rgba(255,255,255,0.035);
+
       --card-hover:   rgba(255,255,255,0.06);
+
       --border:       rgba(255,255,255,0.09);
+
       --primary:      #7c3aed;
+
       --primary-lt:   #a78bfa;
+
       --primary-glow: rgba(124,58,237,0.25);
+
       --pink:         #db2777;
+
       --text:         #f1f5f9;
+
       --muted:        #94a3b8;
+
       --dim:          #64748b;
+
       --success:      #10b981;
+
       --error:        #ef4444;
+
       --radius:       16px;
+
       --radius-sm:    10px;
+
       --sw:           260px;
+
       --ease:         cubic-bezier(0.4,0,0.2,1);
+
     }
+
+
 
     body {
+
       font-family:'Inter',-apple-system,'Segoe UI',sans-serif;
+
       background:var(--bg); color:var(--text);
+
       min-height:100vh;
+
     }
 
-    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• LOADING â•â•â• */
+
+
+/* ─── LOADING ─── */
+
     #loader {
+
       position:fixed; inset:0; background:var(--bg); z-index:9999;
+
       display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+
     }
+
     .loader-ring {
+
       width:50px; height:50px;
+
       border:3px solid var(--border);
+
       border-top-color:var(--primary);
+
       border-radius:50%; animation:spin .8s linear infinite;
+
     }
+
     @keyframes spin { to { transform:rotate(360deg); } }
 
-    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• LAYOUT â•â•â• */
+
+
+/* ─── LAYOUT ─── */
+
     .layout { display:flex; min-height:100vh; }
 
-    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• SIDEBAR â•â•â• */
+
+
+/* ─── SIDEBAR ─── */
+
     .sidebar {
+
       width:var(--sw); background:var(--sidebar);
+
       border-left:1px solid var(--border);
+
       position:fixed; top:0; right:0; height:100vh;
+
       display:flex; flex-direction:column; z-index:200;
+
       transition:transform .3s var(--ease);
+
     }
+
+
 
     /* brand */
+
     .sb-brand {
+
       padding:20px; border-bottom:1px solid var(--border);
+
       display:flex; align-items:center; gap:12px;
+
     }
+
     .sb-icon {
+
       width:38px; height:38px; border-radius:11px;
+
       background:linear-gradient(135deg,var(--primary),var(--pink));
+
       display:flex; align-items:center; justify-content:center; font-size:18px;
+
       box-shadow:0 0 20px var(--primary-glow);
+
     }
+
     .sb-brand-name {
+
       font-size:15px; font-weight:800; letter-spacing:-.5px;
+
       background:linear-gradient(135deg,var(--primary-lt),var(--pink));
+
       -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+
     }
+
+
 
     /* user info */
+
     .sb-user {
+
       padding:14px 18px; border-bottom:1px solid var(--border);
+
       display:flex; align-items:center; gap:12px;
+
     }
+
     .sb-avatar {
+
       width:42px; height:42px; border-radius:50%; flex-shrink:0;
+
       background:linear-gradient(135deg,var(--primary),var(--pink));
+
       display:flex; align-items:center; justify-content:center;
+
       font-size:16px; font-weight:700; overflow:hidden;
+
     }
+
     .sb-avatar img { width:100%; height:100%; object-fit:cover; }
+
     .sb-user-name  { font-size:14px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
     .sb-user-uname { font-size:12px; color:var(--muted); }
 
+
+
     /* nav */
+
     .sb-nav { flex:1; padding:10px; overflow-y:auto; }
+
     .nav-btn {
+
       width:100%; display:flex; align-items:center; gap:11px;
+
       padding:11px 14px; border:none; border-radius:10px;
+
       background:transparent; color:var(--muted);
+
       font-size:14px; font-weight:500; cursor:pointer;
+
       transition:.25s var(--ease); font-family:inherit;
+
       text-align:right; margin-bottom:2px; position:relative;
+
     }
+
     .nav-btn:hover { background:rgba(255,255,255,0.05); color:var(--text); }
+
     .nav-btn.active { background:rgba(124,58,237,.15); color:var(--primary-lt); }
+
     .nav-btn.active::after {
+
       content:''; position:absolute; right:0; top:50%;
+
       transform:translateY(-50%); width:3px; height:18px;
+
       background:var(--primary); border-radius:3px 0 0 3px;
+
     }
+
     .nav-icon { font-size:18px; }
 
+
+
     /* footer */
+
     .sb-footer { padding:14px; border-top:1px solid var(--border); }
+
     .btn-logout {
+
       width:100%; padding:10px; border:1px solid rgba(239,68,68,.25);
+
       background:rgba(239,68,68,.1); border-radius:10px;
+
       color:#f87171; font-size:13px; font-weight:600;
+
       cursor:pointer; transition:.25s; font-family:inherit;
+
       display:flex; align-items:center; justify-content:center; gap:8px;
+
     }
+
     .btn-logout:hover { background:rgba(239,68,68,.2); }
 
-    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• MAIN â•â•â• */
+
+
+/* ─── MAIN ─── */
+
     .main {
+
       margin-right:var(--sw); flex:1;
+
       padding:30px 32px; min-width:0;
+
     }
+
+
 
     /* mobile header */
+
     .mob-header {
+
       display:none; align-items:center; justify-content:space-between;
+
       padding:14px 16px; background:var(--sidebar);
+
       border-bottom:1px solid var(--border);
+
       position:sticky; top:0; z-index:100;
+
     }
+
     .mob-menu-btn {
+
       width:36px; height:36px; background:var(--card);
+
       border:1px solid var(--border); border-radius:8px;
+
       cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:18px;
+
     }
+
+
 
     /* overlay */
+
     .mob-overlay {
+
       display:none; position:fixed; inset:0;
+
       background:rgba(0,0,0,.55); backdrop-filter:blur(4px);
+
       z-index:199;
+
     }
+
     .mob-overlay.show { display:block; }
 
-    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• SECTIONS â•â•â• */
+
+
+/* ─── SECTIONS ─── */
+
     .section { display:none; }
+
     .section.active { display:block; }
 
+
+
     .sec-hd { margin-bottom:24px; }
+
     .sec-title { font-size:22px; font-weight:800; margin-bottom:4px; }
+
     .sec-sub   { font-size:14px; color:var(--muted); }
 
-    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• CARDS â•â•â• */
+
+
+/* ─── CARDS ─── */
+
     .card {
+
       background:var(--card); border:1px solid var(--border);
+
       border-radius:var(--radius); padding:22px; margin-bottom:18px;
+
       transition:.25s var(--ease);
-    }
-    .card:hover { border-color:rgba(255,255,255,.14); }
-    .card-title {
-      font-size:14px; font-weight:700; color:var(--text);
-      margin-bottom:18px; display:flex; align-items:center; gap:8px;
+
     }
 
-    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• PHOTO â•â•â• */
+    .card:hover { border-color:rgba(255,255,255,.14); }
+
+    .card-title {
+
+      font-size:14px; font-weight:700; color:var(--text);
+
+      margin-bottom:18px; display:flex; align-items:center; gap:8px;
+
+    }
+
+
+
+/* ─── PHOTO ─── */
+
     .photo-row { display:flex; align-items:center; gap:20px; margin-bottom:18px; }
+
     .photo-ring {
+
       width:90px; height:90px; border-radius:50%; flex-shrink:0;
+
       background:linear-gradient(135deg,var(--primary),var(--pink));
+
       border:3px solid var(--border); position:relative; cursor:pointer;
+
       display:flex; align-items:center; justify-content:center;
+
       font-size:38px; overflow:hidden;
+
     }
+
     .photo-ring img { width:100%; height:100%; object-fit:cover; display:none; }
+
     .photo-ring-overlay {
+
       position:absolute; inset:0; background:rgba(0,0,0,.6);
+
       display:flex; align-items:center; justify-content:center;
+
       opacity:0; transition:.25s; font-size:22px;
+
     }
+
     .photo-ring:hover .photo-ring-overlay { opacity:1; }
+
     .photo-info p { font-size:13px; color:var(--muted); margin-bottom:10px; }
 
+
+
     .btn-upload {
+
       padding:9px 16px; background:rgba(124,58,237,.15);
+
       border:1px solid rgba(124,58,237,.3); border-radius:9px;
+
       color:var(--primary-lt); font-size:13px; font-weight:600;
+
       cursor:pointer; transition:.25s; font-family:inherit;
+
       display:inline-flex; align-items:center; gap:6px;
-    }
-    .btn-upload:hover { background:rgba(124,58,237,.25); transform:translateY(-1px); }
-    .btn-upload.loading .upload-txt    { display:none; }
-    .btn-upload.loading .upload-spin   { display:block; }
-    .upload-spin {
-      width:14px; height:14px; border:2px solid rgba(255,255,255,.25);
-      border-top-color:white; border-radius:50%;
-      animation:spin .7s linear infinite; display:none;
+
     }
 
-    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• FORM â•â•â• */
+    .btn-upload:hover { background:rgba(124,58,237,.25); transform:translateY(-1px); }
+
+    .btn-upload.loading .upload-txt    { display:none; }
+
+    .btn-upload.loading .upload-spin   { display:block; }
+
+    .upload-spin {
+
+      width:14px; height:14px; border:2px solid rgba(255,255,255,.25);
+
+      border-top-color:white; border-radius:50%;
+
+      animation:spin .7s linear infinite; display:none;
+
+    }
+
+
+
+/* ─── FORM ─── */
+
     .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+
     .grid-2 .full { grid-column:1/-1; }
 
+
+
     .form-group { }
+
     .label {
+
       display:block; font-size:11px; font-weight:700;
+
       color:var(--muted); margin-bottom:6px;
+
       text-transform:uppercase; letter-spacing:.5px;
+
     }
+
     .input, .textarea, .select {
+
       width:100%; padding:11px 14px;
+
       background:rgba(255,255,255,0.04);
+
       border:1px solid var(--border);
+
       border-radius:9px; color:var(--text);
+
       font-size:14px; font-family:inherit;
+
       outline:none; transition:.25s var(--ease);
+
     }
+
     .textarea { min-height:88px; resize:vertical; }
+
     .input::placeholder, .textarea::placeholder { color:var(--dim); }
+
     .input:focus, .textarea:focus, .select:focus {
+
       border-color:var(--primary);
+
       background:rgba(124,58,237,.07);
+
       box-shadow:0 0 0 3px var(--primary-glow);
+
     }
+
     .select { cursor:pointer; }
+
     .select option { background:var(--sidebar); }
 
-    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• THEME PICKER â•â•â• */
+
+
+/* ─── THEME PICKER ─── */
+
     .theme-swatches { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:14px; }
+
     .swatch {
+
       width:40px; height:40px; border-radius:50%;
+
       border:3px solid transparent; cursor:pointer;
+
       transition:.25s; position:relative;
+
     }
+
     .swatch:hover { transform:scale(1.15); }
+
     .swatch.active {
+
       border-color:white;
+
       box-shadow:0 0 0 3px rgba(255,255,255,.25);
+
     }
+
     .swatch.active::after {
-      content:'âœ“'; position:absolute; inset:0;
+
+      content:'✓'; position:absolute; inset:0;
+
       display:flex; align-items:center; justify-content:center;
+
       color:white; font-size:16px; font-weight:800;
+
     }
+
     .color-row { display:flex; align-items:center; gap:10px; margin-top:10px; }
+
     input[type="color"] {
+
       width:44px; height:44px; border:2px solid var(--border);
+
       border-radius:10px; padding:3px; cursor:pointer; background:none;
+
     }
+
     .hex-input { width:120px; }
 
-    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• LANG TOGGLE â•â•â• */
+
+
+/* ─── LANG TOGGLE ─── */
+
     .lang-toggle {
+
       display:inline-flex; background:rgba(255,255,255,.05);
+
       border:1px solid var(--border); border-radius:10px; padding:4px; gap:4px;
-    }
-    .lang-btn {
-      padding:9px 22px; border:none; border-radius:8px;
-      background:transparent; color:var(--muted);
-      font-size:14px; font-weight:600; cursor:pointer;
-      transition:.25s; font-family:inherit;
-    }
-    .lang-btn.active {
-      background:linear-gradient(135deg,var(--primary),var(--pink));
-      color:white;
+
     }
 
-    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• QR / CARD INFO â•â•â• */
+    .lang-btn {
+
+      padding:9px 22px; border:none; border-radius:8px;
+
+      background:transparent; color:var(--muted);
+
+      font-size:14px; font-weight:600; cursor:pointer;
+
+      transition:.25s; font-family:inherit;
+
+    }
+
+    .lang-btn.active {
+
+      background:linear-gradient(135deg,var(--primary),var(--pink));
+
+      color:white;
+
+    }
+
+
+
+/* ─── QR / CARD INFO ─── */
+
     .card-center { text-align:center; padding:24px 16px; }
+
     .qr-box {
+
       display:inline-block; padding:16px; background:white;
+
       border-radius:14px; margin-bottom:20px;
+
     }
+
     .url-row {
+
       background:rgba(255,255,255,.04); border:1px solid var(--border);
+
       border-radius:9px; padding:11px 14px;
+
       display:flex; align-items:center; gap:10px; margin-bottom:14px;
+
     }
+
     .url-text {
+
       flex:1; font-size:13px; color:var(--muted);
+
       white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+
       direction:ltr; text-align:left;
+
     }
+
     .btn-copy {
+
       padding:6px 14px; background:rgba(124,58,237,.15);
+
       border:1px solid rgba(124,58,237,.3); border-radius:7px;
+
       color:var(--primary-lt); font-size:12px; font-weight:600;
+
       cursor:pointer; transition:.25s; font-family:inherit; white-space:nowrap;
+
     }
+
     .btn-copy:hover { background:rgba(124,58,237,.28); }
 
+
+
     .action-btns { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+
     .btn-action {
+
       padding:11px 22px;
+
       background:linear-gradient(135deg,var(--primary),var(--pink));
+
       border:none; border-radius:9px; color:white;
+
       font-size:13px; font-weight:700; cursor:pointer;
+
       transition:.25s; font-family:inherit; text-decoration:none;
+
       display:inline-flex; align-items:center; gap:6px;
+
     }
+
     .btn-action:hover { transform:translateY(-2px); box-shadow:0 8px 25px var(--primary-glow); }
+
     .btn-action.outline {
+
       background:transparent; border:1px solid var(--border);
+
       color:var(--muted);
+
     }
+
     .btn-action.outline:hover { background:var(--card-hover); color:var(--text); }
 
-    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• SAVE BAR â•â•â• */
+
+
+/* ─── SAVE BAR ─── */
+
     .save-bar {
+
       display:flex; justify-content:flex-end; gap:12px;
+
       margin-top:18px; padding-bottom:8px;
+
     }
+
     .btn-save {
+
       padding:12px 26px;
+
       background:linear-gradient(135deg,var(--primary),var(--pink));
+
       border:none; border-radius:10px; color:white;
+
       font-size:14px; font-weight:700; cursor:pointer;
+
       transition:.25s; font-family:inherit;
+
       display:flex; align-items:center; gap:8px;
+
       box-shadow:0 4px 20px var(--primary-glow);
+
     }
+
     .btn-save:hover { transform:translateY(-2px); box-shadow:0 10px 30px var(--primary-glow); }
+
     .btn-save:disabled { opacity:.65; cursor:not-allowed; transform:none; }
+
     .save-spin {
+
       width:16px; height:16px; border:2px solid rgba(255,255,255,.3);
+
       border-top-color:white; border-radius:50%;
+
       animation:spin .7s linear infinite; display:none;
+
     }
+
     .btn-save.loading .save-txt  { display:none; }
+
     .btn-save.loading .save-spin { display:block; }
 
+
+
     .btn-preview {
+
       padding:12px 18px; background:var(--card);
+
       border:1px solid var(--border); border-radius:10px;
+
       color:var(--muted); font-size:14px; font-weight:500;
+
       cursor:pointer; transition:.25s; font-family:inherit;
+
     }
+
     .btn-preview:hover { background:var(--card-hover); color:var(--text); }
 
-    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TOAST â•â•â• */
+
+
+/* ─── TOAST ─── */
+
     #toasts {
+
       position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+
       z-index:999; display:flex; flex-direction:column; gap:8px; align-items:center;
-    }
-    .toast {
-      padding:12px 22px; border-radius:10px; font-size:14px; font-weight:600;
-      color:white; backdrop-filter:blur(16px);
-      box-shadow:0 8px 28px rgba(0,0,0,.35);
-      animation:toastIn .3s var(--ease); min-width:240px; text-align:center;
-    }
-    .toast.success { background:rgba(16,185,129,.92); }
-    .toast.error   { background:rgba(239,68,68,.92); }
-    .toast.info    { background:rgba(124,58,237,.92); }
-    @keyframes toastIn {
-      from { opacity:0; transform:translateY(14px); }
-      to   { opacity:1; transform:translateY(0); }
+
     }
 
-    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• RESPONSIVE â•â•â• */
-    @media(max-width:768px) {
-      .sidebar { transform:translateX(100%); }
-      .sidebar.open { transform:translateX(0); }
-      .mob-header { display:flex; }
-      .main { margin-right:0; padding:18px 14px; }
-      .grid-2 { grid-template-columns:1fr; }
+    .toast {
+
+      padding:12px 22px; border-radius:10px; font-size:14px; font-weight:600;
+
+      color:white; backdrop-filter:blur(16px);
+
+      box-shadow:0 8px 28px rgba(0,0,0,.35);
+
+      animation:toastIn .3s var(--ease); min-width:240px; text-align:center;
+
     }
+
+    .toast.success { background:rgba(16,185,129,.92); }
+
+    .toast.error   { background:rgba(239,68,68,.92); }
+
+    .toast.info    { background:rgba(124,58,237,.92); }
+
+    @keyframes toastIn {
+
+      from { opacity:0; transform:translateY(14px); }
+
+      to   { opacity:1; transform:translateY(0); }
+
+    }
+
+
+
+/* ─── RESPONSIVE ─── */
+
+    @media(max-width:768px) {
+
+      .sidebar { transform:translateX(100%); }
+
+      .sidebar.open { transform:translateX(0); }
+
+      .mob-header { display:flex; }
+
+      .main { margin-right:0; padding:18px 14px; }
+
+      .grid-2 { grid-template-columns:1fr; }
+
+    }
+
+
 
     /* social grid */
+
     .social-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+
     @media(max-width:500px) { .social-grid { grid-template-columns:1fr; } }
 
+
+
     /* info card */
+
     .info-list { display:flex; flex-direction:column; gap:10px; font-size:13px; color:var(--muted); line-height:2; }
+
     .info-list code {
+
       background:rgba(255,255,255,.06); padding:2px 8px;
+
       border-radius:5px; color:var(--primary-lt); font-size:12px;
+
     }
+
   </style>
+
 </head>
+
 <body>
 
-<!-- â•â•â• LOADER â•â•â• -->
+
+
+<!-- ─── LOADER ─── -->
+
 <div id="loader">
+
   <div class="loader-ring"></div>
-  <p style="color:var(--muted);font-size:14px">Ø¬Ø§Ø±ÙŠ Ø§Ù„ØªØ­Ù…ÙŠÙ„...</p>
+
+  <p style="color:var(--muted);font-size:14px">جاري التحميل...</p>
+
 </div>
 
-<!-- â•â•â• MOBILE OVERLAY â•â•â• -->
+
+
+<!-- ─── MOBILE OVERLAY ─── -->
+
 <div class="mob-overlay" id="mob-overlay" onclick="closeSidebar()"></div>
 
-<!-- â•â•â• MOBILE HEADER â•â•â• -->
+
+
+<!-- ─── MOBILE HEADER ─── -->
+
 <div class="mob-header">
+
   <div style="display:flex;align-items:center;gap:10px">
-    <div class="sb-icon">ðŸ’³</div>
+
+    <div class="sb-icon">💳</div>
+
     <span style="font-size:14px;font-weight:800;background:linear-gradient(135deg,#a78bfa,#db2777);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">HARPY CARDS</span>
+
   </div>
-  <button class="mob-menu-btn" onclick="openSidebar()">â˜°</button>
+
+  <button class="mob-menu-btn" onclick="openSidebar()">☰</button>
+
 </div>
+
+
 
 <div class="layout">
 
-  <!-- â•â•â• SIDEBAR â•â•â• -->
+
+
+<!-- ─── SIDEBAR ─── -->
+
   <aside class="sidebar" id="sidebar">
+
     <div class="sb-brand">
-      <div class="sb-icon">ðŸ’³</div>
+
+      <div class="sb-icon">💳</div>
+
       <span class="sb-brand-name">HARPY CARDS</span>
+
     </div>
+
+
 
     <div class="sb-user">
+
       <div class="sb-avatar" id="sb-avatar">?</div>
+
       <div>
-        <div class="sb-user-name" id="sb-name">â€”</div>
-        <div class="sb-user-uname" id="sb-uname">@â€”</div>
+
+        <div class="sb-user-name" id="sb-name">—</div>
+
+        <div class="sb-user-uname" id="sb-uname">@—</div>
+
       </div>
+
     </div>
+
+
 
     <nav class="sb-nav" id="sb-nav-container">
+
       <button class="nav-btn active" id="nav-personal"   onclick="goTo('personal')">   <span class="nav-icon">👤</span> المعلومات الشخصية</button>
+
       <button class="nav-btn"        id="nav-contact"    onclick="goTo('contact')">    <span class="nav-icon">📞</span> بيانات التواصل</button>
+
       <button class="nav-btn"        id="nav-social"     onclick="goTo('social')">     <span class="nav-icon">📱</span> السوشيال ميديا</button>
+
       <button class="nav-btn"        id="nav-appearance" onclick="goTo('appearance')"> <span class="nav-icon">🎨</span> المظهر والثيم</button>
+
       <button class="nav-btn"        id="nav-mycard"     onclick="goTo('mycard')">     <span class="nav-icon">🔗</span> بطاقتي الرقمية</button>
+
     </nav>
 
+
+
     <div class="sb-footer">
-      <button class="btn-logout" onclick="doLogout()">ðŸšª ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø®Ø±ÙˆØ¬</button>
+
+      <button class="btn-logout" onclick="doLogout()">🚪 تسجيل الخروج</button>
+
     </div>
+
   </aside>
 
-  <!-- â•â•â• MAIN â•â•â• -->
+
+
+<!-- ─── MAIN ─── -->
+
   <main class="main">
 
-    <!-- â”€â”€â”€â”€â”€â”€ PERSONAL â”€â”€â”€â”€â”€â”€ -->
+
+
+    <!-- ────── PERSONAL ────── -->
+
     <div class="section active" id="sec-personal">
+
       <div class="sec-hd">
-        <h1 class="sec-title">Ø§Ù„Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ø´Ø®ØµÙŠØ©</h1>
-        <p class="sec-sub">Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù„ÙŠ Ù‡ØªØ¸Ù‡Ø± ÙÙŠ Ø¨Ø·Ø§Ù‚ØªÙƒ Ø§Ù„Ø±Ù‚Ù…ÙŠØ©</p>
+
+        <h1 class="sec-title">المعلومات الشخصية</h1>
+
+        <p class="sec-sub">البيانات اللي هتظهر في بطاقتك الرقمية</p>
+
       </div>
+
+
 
       <!-- Photo -->
+
       <div class="card">
-        <div class="card-title">ðŸ“¸ Ø§Ù„ØµÙˆØ±Ø© Ø§Ù„Ø´Ø®ØµÙŠØ©</div>
+
+        <div class="card-title">📸 الصورة الشخصية</div>
+
         <div class="photo-row">
+
           <div class="photo-ring" id="photo-ring" onclick="document.getElementById('photo-file').click()">
+
             <img id="photo-img" src="" alt="Photo" />
-            <span id="photo-emoji">ðŸ‘¤</span>
-            <div class="photo-ring-overlay">ðŸ“·</div>
+
+            <span id="photo-emoji">👤</span>
+
+            <div class="photo-ring-overlay">📷</div>
+
           </div>
+
           <div class="photo-info">
-            <p>Ø§Ø¶ØºØ· Ø¹Ù„Ù‰ Ø§Ù„ØµÙˆØ±Ø© Ø£Ùˆ Ø§Ù„Ø²Ø±Ø§Ø± Ø¹Ø´Ø§Ù† ØªØºÙŠÙ‘Ø±Ù‡Ø§</p>
+
+            <p>اضغط على الصورة أو الزرار عشان تغيّرها</p>
+
             <button class="btn-upload" id="upload-btn" onclick="document.getElementById('photo-file').click()">
-              <span class="upload-txt">ðŸ“¤ Ø±ÙØ¹ ØµÙˆØ±Ø©</span>
+
+            <span class="upload-txt">📤 رفع صورة</span>
+
               <div class="upload-spin"></div>
+
             </button>
+
             <input type="file" id="photo-file" accept="image/*" style="display:none" onchange="uploadPhoto(this.files[0])" />
+
           </div>
+
         </div>
+
       </div>
+
+
 
       <!-- Basic info -->
+
       <div class="card">
-        <div class="card-title">âœï¸ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø£Ø³Ø§Ø³ÙŠØ©</div>
+
+        <div class="card-title">📝 البيانات الأساسية</div>
+
         <div class="grid-2">
-          <div class="form-group"><label class="label">Ø§Ù„Ø§Ø³Ù… Ø§Ù„ÙƒØ§Ù…Ù„</label><input class="input" id="f-name"    type="text" placeholder="Ø£Ø­Ù…Ø¯ Ù…Ø­Ù…Ø¯" /></div>
-          <div class="form-group"><label class="label">Ø§Ù„Ù…Ø³Ù…Ù‰ Ø§Ù„ÙˆØ¸ÙŠÙÙŠ</label><input class="input" id="f-title"   type="text" placeholder="Ù…ØµÙ…Ù… Ø¬Ø±Ø§ÙÙŠÙƒ" /></div>
-          <div class="form-group"><label class="label">Ø§Ù„Ø´Ø±ÙƒØ© / Ø§Ù„Ø¬Ù‡Ø©</label><input class="input" id="f-company" type="text" placeholder="Ø´Ø±ÙƒØ© Ø¥Ø¨Ø¯Ø§Ø¹" /></div>
-          <div class="form-group full"><label class="label">ÙˆØµÙ Ù‚ØµÙŠØ± / Ø¨Ø§ÙŠÙˆ</label><textarea class="textarea" id="f-bio" placeholder="Ø§ÙƒØªØ¨ Ø¬Ù…Ù„Ø© Ø£Ùˆ Ø§ØªÙ†ÙŠÙ† Ø¹Ù†Ùƒ Ø£Ùˆ Ø¹Ù† Ø¨ÙŠØ²Ù†Ø³Ùƒ..."></textarea></div>
+
+          <div class="form-group"><label class="label">الاسم الكامل</label><input class="input" id="f-name"    type="text" placeholder="أحمد محمد" /></div>
+
+        <div class="form-group"><label class="label">المسمى الوظيفي</label><input class="input" id="f-title"   type="text" placeholder="مصمم جرافيك" /></div>
+
+        <div class="form-group"><label class="label">الشركة / الجهة</label><input class="input" id="f-company" type="text" placeholder="شركة إبداع" /></div>
+
+        <div class="form-group full"><label class="label">وصف قصير / بايو</label><textarea class="textarea" id="f-bio" placeholder="اكتب جملة أو اتنين عنك أو عن بيزنسك..."></textarea></div>
+
         </div>
+
       </div>
 
+
+
       <div class="save-bar">
-        <button class="btn-preview" onclick="previewCard()">ðŸ‘ï¸ Ù…Ø¹Ø§ÙŠÙ†Ø© Ø§Ù„Ø¨Ø·Ø§Ù‚Ø©</button>
+
+        <button class="btn-preview" onclick="previewCard()">👁️ معاينة البطاقة</button>
+
         <button class="btn-save" id="save-personal" onclick="saveSection('personal')">
-          <span class="save-txt">ðŸ’¾ Ø­ÙØ¸</span><div class="save-spin"></div>
+
+          <span class="save-txt">💾 حفظ</span><div class="save-spin"></div>
+
         </button>
+
       </div>
+
     </div>
 
-    <!-- â”€â”€â”€â”€â”€â”€ CONTACT â”€â”€â”€â”€â”€â”€ -->
+
+
+    <!-- ────── CONTACT ────── -->
+
     <div class="section" id="sec-contact">
+
       <div class="sec-hd">
-        <h1 class="sec-title">Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„ØªÙˆØ§ØµÙ„</h1>
-        <p class="sec-sub">ÙƒÙŠÙ ÙŠØªÙˆØ§ØµÙ„ Ù…Ø¹Ø§Ùƒ Ø§Ù„Ù†Ø§Ø³</p>
+
+        <h1 class="sec-title">بيانات التواصل</h1>
+
+        <p class="sec-sub">كيففيتواصل معاك الناس</p>
+
       </div>
+
       <div class="card">
-        <div class="card-title">ðŸ“ž ÙˆØ³Ø§Ø¦Ù„ Ø§Ù„ØªÙˆØ§ØµÙ„</div>
+
+        <div class="card-title">📞 وسائل التواصل</div>
+
         <div class="grid-2">
-          <div class="form-group"><label class="label">Ø±Ù‚Ù… Ø§Ù„Ù…ÙˆØ¨Ø§ÙŠÙ„</label><input class="input" id="f-mobile"   type="tel" placeholder="+20 123 456 7890" dir="ltr" /></div>
-          <div class="form-group"><label class="label">ÙˆØ§ØªØ³Ø§Ø¨</label><input class="input" id="f-whatsapp" type="tel" placeholder="+20 123 456 7890" dir="ltr" /></div>
-          <div class="form-group"><label class="label">Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ</label><input class="input" id="f-email"    type="email" placeholder="ahmed@email.com" dir="ltr" /></div>
-          <div class="form-group"><label class="label">Ø§Ù„Ù…ÙˆÙ‚Ø¹ / Ø§Ù„Ø¹Ù†ÙˆØ§Ù†</label><input class="input" id="f-location" type="text"  placeholder="Ø§Ù„Ù‚Ø§Ù‡Ø±Ø©ØŒ Ù…ØµØ±" /></div>
-          <div class="form-group full"><label class="label">Ø±Ø§Ø¨Ø· Ø§Ù„Ù…ÙˆÙ‚Ø¹ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ</label><input class="input" id="f-website"  type="url"  placeholder="https://mywebsite.com" dir="ltr" /></div>
+
+          <div class="form-group"><label class="label">رقم الموبايل</label><input class="input" id="f-mobile"   type="tel" placeholder="+20 123 456 7890" dir="ltr" /></div>
+
+          <div class="form-group"><label class="label">واتساب</label><input class="input" id="f-whatsapp" type="tel" placeholder="+20 123 456 7890" dir="ltr" /></div>
+
+          <div class="form-group"><label class="label">البريد الإلكتروني</label><input class="input" id="f-email"    type="email" placeholder="ahmed@email.com" dir="ltr" /></div>
+
+          <div class="form-group"><label class="label">الموقع / العنوان</label><input class="input" id="f-location" type="text"  placeholder="القاهرة، مصر" /></div>
+
+          <div class="form-group full"><label class="label">رابط الموقع الإلكتروني</label><input class="input" id="f-website"  type="url"  placeholder="https://mywebsite.com" dir="ltr" /></div>
+
         </div>
+
       </div>
+
       <div class="save-bar">
-        <button class="btn-preview" onclick="previewCard()">ðŸ‘ï¸ Ù…Ø¹Ø§ÙŠÙ†Ø© Ø§Ù„Ø¨Ø·Ø§Ù‚Ø©</button>
+
+        <button class="btn-preview" onclick="previewCard()">👁️ معاينة البطاقة</button>
+
         <button class="btn-save" id="save-contact" onclick="saveSection('contact')">
-          <span class="save-txt">ðŸ’¾ Ø­ÙØ¸</span><div class="save-spin"></div>
+
+          <span class="save-txt">💾 حفظ</span><div class="save-spin"></div>
+
         </button>
+
       </div>
+
     </div>
 
-    <!-- â”€â”€â”€â”€â”€â”€ SOCIAL â”€â”€â”€â”€â”€â”€ -->
+
+
+    <!-- ────── SOCIAL ────── -->
+
     <div class="section" id="sec-social">
+
       <div class="sec-hd">
-        <h1 class="sec-title">Ø§Ù„Ø³ÙˆØ´ÙŠØ§Ù„ Ù…ÙŠØ¯ÙŠØ§</h1>
-        <p class="sec-sub">Ø±ÙˆØ§Ø¨Ø· Ø­Ø³Ø§Ø¨Ø§ØªÙƒ</p>
+
+        <h1 class="sec-title">السوشيال ميديا</h1>
+
+        <p class="sec-sub">روابط حساباتك</p>
+
       </div>
+
       <div class="card">
-        <div class="card-title">ðŸŒ Ø§Ù„Ø­Ø³Ø§Ø¨Ø§Øª</div>
+
+        <div class="card-title">🔗 الحسابات</div>
+
         <div class="social-grid">
-          <div class="form-group"><label class="label">ðŸ“¸ Ø¥Ù†Ø³ØªØ§ØºØ±Ø§Ù…</label><input class="input" id="f-instagram" type="url" placeholder="https://instagram.com/username" dir="ltr" /></div>
-          <div class="form-group"><label class="label">ðŸ’¼ Ù„ÙŠÙ†ÙƒØ¯Ø¥Ù†</label><input class="input" id="f-linkedin"  type="url" placeholder="https://linkedin.com/in/username" dir="ltr" /></div>
-          <div class="form-group"><label class="label">ðŸŽµ ØªÙŠÙƒ ØªÙˆÙƒ</label><input class="input" id="f-tiktok"    type="url" placeholder="https://tiktok.com/@username" dir="ltr" /></div>
-          <div class="form-group"><label class="label">ðŸ¦ ØªÙˆÙŠØªØ± / X</label><input class="input" id="f-twitter"   type="url" placeholder="https://x.com/username" dir="ltr" /></div>
-          <div class="form-group"><label class="label">ðŸ‘» Ø³Ù†Ø§Ø¨ Ø´Ø§Øª</label><input class="input" id="f-snapchat"  type="url" placeholder="https://snapchat.com/add/username" dir="ltr" /></div>
-          <div class="form-group"><label class="label">â–¶ï¸ ÙŠÙˆØªÙŠÙˆØ¨</label><input class="input" id="f-youtube"   type="url" placeholder="https://youtube.com/@channel" dir="ltr" /></div>
+
+          <div class="form-group"><label class="label">📸 إنستاغرام</label><input class="input" id="f-instagram" type="url" placeholder="https://instagram.com/username" dir="ltr" /></div>
+
+          <div class="form-group"><label class="label">💼 لينكدإن</label><input class="input" id="f-linkedin"  type="url" placeholder="https://linkedin.com/in/username" dir="ltr" /></div>
+
+          <div class="form-group"><label class="label">🎵 تيك توك</label><input class="input" id="f-tiktok"    type="url" placeholder="https://tiktok.com/@username" dir="ltr" /></div>
+
+        <div class="form-group"><label class="label">🐦 تويتر / X</label><input class="input" id="f-twitter"   type="url" placeholder="https://x.com/username" dir="ltr" /></div>
+
+          <div class="form-group"><label class="label">👻 سناب شات</label><input class="input" id="f-snapchat"  type="url" placeholder="https://snapchat.com/add/username" dir="ltr" /></div>
+
+        <div class="form-group"><label class="label">▶️ يوتيوب</label><input class="input" id="f-youtube"   type="url" placeholder="https://youtube.com/@channel" dir="ltr" /></div>
+
         </div>
+
       </div>
+
       <div class="save-bar">
-        <button class="btn-preview" onclick="previewCard()">ðŸ‘ï¸ Ù…Ø¹Ø§ÙŠÙ†Ø© Ø§Ù„Ø¨Ø·Ø§Ù‚Ø©</button>
+
+        <button class="btn-preview" onclick="previewCard()">👁️ معاينة البطاقة</button>
+
         <button class="btn-save" id="save-social" onclick="saveSection('social')">
-          <span class="save-txt">ðŸ’¾ Ø­ÙØ¸</span><div class="save-spin"></div>
+
+          <span class="save-txt">💾 حفظ</span><div class="save-spin"></div>
+
         </button>
+
       </div>
+
     </div>
 
-    <!-- â”€â”€â”€â”€â”€â”€ APPEARANCE â”€â”€â”€â”€â”€â”€ -->
+
+
+    <!-- ────── APPEARANCE ────── -->
+
     <div class="section" id="sec-appearance">
+
       <div class="sec-hd">
-        <h1 class="sec-title">Ø§Ù„Ù…Ø¸Ù‡Ø± ÙˆØ§Ù„Ø«ÙŠÙ…</h1>
-        <p class="sec-sub">Ø®ØµÙ‘Øµ Ø´ÙƒÙ„ Ø¨Ø·Ø§Ù‚ØªÙƒ Ø§Ù„Ø±Ù‚Ù…ÙŠØ©</p>
+
+        <h1 class="sec-title">المظهر والثيم</h1>
+
+        <p class="sec-sub">خصّص شكل بطاقتك الرقمية</p>
+
       </div>
 
+
+
       <div class="card">
-        <div class="card-title">ðŸŽ¨ Ù„ÙˆÙ† Ø§Ù„Ø«ÙŠÙ…</div>
-        <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Ø§Ø®ØªØ§Ø± Ù„ÙˆÙ† Ø§Ù„Ø«ÙŠÙ… Ø§Ù„Ù„ÙŠ Ù‡ÙŠØ¸Ù‡Ø± ÙÙŠ Ø¨Ø·Ø§Ù‚ØªÙƒ</p>
+
+        <div class="card-title">🎨 لون الثيم</div>
+
+        <p style="font-size:13px;color:var(--muted);margin-bottom:14px">اختار لون الثيم اللي هيظهر في بطاقتك</p>
+
         <div class="theme-swatches" id="swatches">
+
           <div class="swatch active" style="background:#7c3aed" data-c="#7c3aed" onclick="pickColor(this)"></div>
+
           <div class="swatch" style="background:#db2777" data-c="#db2777" onclick="pickColor(this)"></div>
+
           <div class="swatch" style="background:#0891b2" data-c="#0891b2" onclick="pickColor(this)"></div>
+
           <div class="swatch" style="background:#059669" data-c="#059669" onclick="pickColor(this)"></div>
+
           <div class="swatch" style="background:#d97706" data-c="#d97706" onclick="pickColor(this)"></div>
+
           <div class="swatch" style="background:#dc2626" data-c="#dc2626" onclick="pickColor(this)"></div>
+
           <div class="swatch" style="background:#0f172a" data-c="#0f172a" onclick="pickColor(this)"></div>
+
           <div class="swatch" style="background:#1e3a8a" data-c="#1e3a8a" onclick="pickColor(this)"></div>
+
         </div>
+
         <div class="color-row">
-          <p style="font-size:13px;color:var(--muted)">Ù„ÙˆÙ† Ù…Ø®ØµØµ:</p>
+
+          <p style="font-size:13px;color:var(--muted)">لون مخصص:</p>
+
           <input type="color" id="f-color-picker" value="#7c3aed" oninput="onColorPicker(this.value)" />
+
           <input type="text"  class="input hex-input" id="f-color-hex" value="#7c3aed" placeholder="#7c3aed" oninput="onHexInput(this.value)" />
+
         </div>
+
       </div>
 
+
+
       <div class="card">
-        <div class="card-title">ðŸŒ Ù„ØºØ© Ø§Ù„Ø¨Ø·Ø§Ù‚Ø©</div>
-        <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Ø§Ù„Ù„ØºØ© Ø§Ù„Ù„ÙŠ Ù‡ÙŠØ´ÙˆÙÙ‡Ø§ Ø§Ù„Ù†Ø§Ø³ ÙÙŠ Ø¨Ø·Ø§Ù‚ØªÙƒ</p>
+
+        <div class="card-title">🌐 لغة البطاقة</div>
+
+        <p style="font-size:13px;color:var(--muted);margin-bottom:14px">اللغة اللي هيشوفها الناس في بطاقتك</p>
+
         <div class="lang-toggle">
-          <button class="lang-btn active" id="lang-ar" onclick="setLang('ar')">Ø¹Ø±Ø¨ÙŠ ðŸ‡¸ðŸ‡¦</button>
-          <button class="lang-btn"        id="lang-en" onclick="setLang('en')">English ðŸ‡ºðŸ‡¸</button>
+
+          <button class="lang-btn active" id="lang-ar" onclick="setLang('ar')">عربي 🇸🇦</button>
+
+          <button class="lang-btn"        id="lang-en" onclick="setLang('en')">English 🇺🇸</button>
+
         </div>
+
       </div>
+
+
 
       <div class="save-bar">
-        <button class="btn-preview" onclick="previewCard()">ðŸ‘ï¸ Ù…Ø¹Ø§ÙŠÙ†Ø© Ø§Ù„Ø¨Ø·Ø§Ù‚Ø©</button>
+
+        <button class="btn-preview" onclick="previewCard()">👁️ معاينة البطاقة</button>
+
         <button class="btn-save" id="save-appearance" onclick="saveSection('appearance')">
-          <span class="save-txt">ðŸ’¾ Ø­ÙØ¸</span><div class="save-spin"></div>
+
+          <span class="save-txt">💾 حفظ</span><div class="save-spin"></div>
+
         </button>
+
       </div>
+
     </div>
 
-    <!-- â”€â”€â”€â”€â”€â”€ MY CARD â”€â”€â”€â”€â”€â”€ -->
+
+
+    <!-- ────── MY CARD ────── -->
+
     <div class="section" id="sec-mycard">
+
       <div class="sec-hd">
-        <h1 class="sec-title">Ø¨Ø·Ø§Ù‚ØªÙŠ Ø§Ù„Ø±Ù‚Ù…ÙŠØ©</h1>
-        <p class="sec-sub">Ø±Ø§Ø¨Ø· ÙˆÙƒÙŠÙˆ Ø¢Ø± ÙƒÙˆØ¯ Ø§Ù„Ø¨Ø·Ø§Ù‚Ø©</p>
+
+        <h1 class="sec-title">بطاقتي الرقمية</h1>
+
+        <p class="sec-sub">رابط وكيو آر كود البطاقة</p>
+
       </div>
 
+
+
       <div class="card">
+
         <div class="card-center">
-          <p style="color:var(--muted);font-size:14px;margin-bottom:18px">QR Code Ø¨Ø·Ø§Ù‚ØªÙƒ â€” Ø§Ø·Ø¨Ø¹Ù‡ Ø£Ùˆ Ø­Ø·Ù‘Ù‡ Ø¹Ù„Ù‰ Ø§Ù„ÙƒØ§Ø±Øª</p>
+
+          <p style="color:var(--muted);font-size:14px;margin-bottom:18px">QR Code بطاقتك — اطبعه أو حطّه على الكارت</p>
+
           <div class="qr-box"><div id="qr-output"></div></div>
 
+
+
           <div class="url-row">
-            <span class="url-text" id="profile-url-text">â€”</span>
-            <button class="btn-copy" onclick="copyUrl()">ðŸ“‹ Ù†Ø³Ø®</button>
+
+            <span class="url-text" id="profile-url-text">—</span>
+
+            <button class="btn-copy" onclick="copyUrl()">📋 نسخ</button>
+
           </div>
+
+
 
           <div class="action-btns">
-            <a href="#" id="btn-view-card" target="_blank" class="btn-action">ðŸ‘ï¸ Ø´ÙˆÙ Ø¨Ø·Ø§Ù‚ØªÙƒ</a>
-            <button class="btn-action outline" onclick="downloadQR()">ðŸ“¥ ØªØ­Ù…ÙŠÙ„ QR</button>
+
+            <a href="#" id="btn-view-card" target="_blank" class="btn-action">👁️ شوف بطاقتك</a>
+
+            <button class="btn-action outline" onclick="downloadQR()">📥 تحميل QR</button>
+
           </div>
+
         </div>
+
       </div>
+
+
 
       <div class="card">
-        <div class="card-title">â„¹ï¸ Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ù…Ù‡Ù…Ø©</div>
+
+        <div class="card-title">ℹ️ معلومات مهمة</div>
+
         <div class="info-list">
-          <p>ðŸ”— Ø±Ø§Ø¨Ø·Ùƒ: <code id="info-url">â€”</code></p>
-          <p>ðŸ“¡ Ø­Ø· Ø§Ù„Ø±Ø§Ø¨Ø· ÙÙŠ ÙƒØ§Ø±Øª NFC Ø£Ùˆ Ø§Ø·Ø¨Ø¹ Ø§Ù„Ù€ QR Code</p>
-          <p>âœï¸ Ø£ÙŠ ØªØ¹Ø¯ÙŠÙ„ Ø¨ØªØ¹Ù…Ù„Ù‡ Ø¨ÙŠØ¸Ù‡Ø± ÙÙˆØ±Ø§Ù‹ Ø¹Ù„Ù‰ Ø§Ù„Ø¨Ø·Ø§Ù‚Ø©</p>
+
+          <p>🔗 رابطك: <code id="info-url">—</code></p>
+
+          <p>📡 حط الرابط في كارت NFC أو اطبع الـ QR Code</p>
+
+          <p>⚡ أي تعديل بتعمله بيظهر فوراً على البطاقة</p>
+
         </div>
+
       </div>
+
     </div>
 
+
+
   </main>
+
 </div>
+
+
 
 <div id="toasts"></div>
 
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• SCRIPT â•â•â• -->
+
+
+<!-- ─── SCRIPT ─── -->
+
 <script type="module">
+
 import { auth, db } from "./js/firebase-config.js";
+
 import { onAuthStateChanged, signOut }       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
 import { doc, getDoc, updateDoc }       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// âš ï¸ Ø¶Ø¹ Firebase config Ø§Ù„Ø®Ø§Øµ Ø¨Ùƒ Ù‡Ù†Ø§
+
+
+// ⚠️ ضع Firebase config الخاص بك هنا
+
+
+
 
 
 const IMGBB_KEY = '9716f16445d36094b2e16dd8682fc0c1';
+
 const BASE_URL  = 'https://harpymenu.com/cards';
 
 
 
+
+
+
+
 let currentUser = null;
+
 let userData    = null;
+
 let theme       = '#7c3aed';
+
 let lang        = 'ar';
 
-/* â”€â”€ helpers â”€â”€ */
+
+
+/* ── helpers ── */
+
 function toast(msg, type = 'info') {
+
   const c = document.getElementById('toasts');
+
   const t = document.createElement('div');
+
   t.className = `toast ${type}`; t.textContent = msg;
+
   c.appendChild(t);
+
   setTimeout(() => t.remove(), 3600);
-}
-function setBtnLoading(id, on) {
-  const b = document.getElementById(id);
-  if (!b) return;
-  b.classList.toggle('loading', on);
-  b.disabled = on;
+
 }
 
-/* â”€â”€ auth guard â”€â”€ */
+function setBtnLoading(id, on) {
+
+  const b = document.getElementById(id);
+
+  if (!b) return;
+
+  b.classList.toggle('loading', on);
+
+  b.disabled = on;
+
+}
+
+
+
+/* ── auth guard ── */
+
 onAuthStateChanged(auth, async user => {
+
   if (!user) { window.location.href = 'index.html'; return; }
+
   currentUser = user;
+
   await loadData();
+
   document.getElementById('loader').style.display = 'none';
+
 });
 
+
+
 async function loadData() {
+
   const snap = await getDoc(doc(db, 'users', currentUser.uid));
+
   userData = snap.data();
+
   fillUI(userData);
+
 }
 
+
+
 function fillUI(d) {
+
   /* sidebar */
-  document.getElementById('sb-name').textContent  = d.name     || 'â€”';
-  document.getElementById('sb-uname').textContent = '@' + (d.username || 'â€”');
+
+  document.getElementById('sb-name').textContent  = d.name     || '—';
+
+  document.getElementById('sb-uname').textContent = '@' + (d.username || '—');
+
   updateSidebarAvatar(d.photo, d.name);
 
+
+
   /* personal */
+
   document.getElementById('f-name').value    = d.name    || '';
+
   document.getElementById('f-title').value   = d.title   || '';
+
   document.getElementById('f-company').value = d.company || '';
+
   document.getElementById('f-bio').value     = d.bio     || '';
 
+
+
   /* photo */
+
   if (d.photo) {
+
     document.getElementById('photo-img').src         = d.photo;
+
     document.getElementById('photo-img').style.display  = 'block';
+
     document.getElementById('photo-emoji').style.display = 'none';
+
   }
 
+
+
   /* contact */
+
   document.getElementById('f-mobile').value   = d.mobile     || '';
+
   document.getElementById('f-whatsapp').value = d.whatsapp   || '';
+
   document.getElementById('f-email').value    = d.publicEmail || '';
+
   document.getElementById('f-location').value = d.location   || '';
+
   document.getElementById('f-website').value  = d.website    || '';
 
+
+
   /* social */
+
   document.getElementById('f-instagram').value = d.instagram || '';
+
   document.getElementById('f-linkedin').value  = d.linkedin  || '';
+
   document.getElementById('f-tiktok').value    = d.tiktok    || '';
+
   document.getElementById('f-twitter').value   = d.twitter   || '';
+
   document.getElementById('f-snapchat').value  = d.snapchat  || '';
+
   document.getElementById('f-youtube').value   = d.youtube   || '';
 
+
+
   /* appearance */
+
   theme = d.theme || '#7c3aed';
+
   lang  = d.lang  || 'ar';
+
   document.getElementById('f-color-picker').value = theme;
+
   document.getElementById('f-color-hex').value    = theme;
+
   document.querySelectorAll('.swatch').forEach(s => {
+
     s.classList.toggle('active', s.dataset.c === theme);
+
   });
+
   document.getElementById('lang-ar').classList.toggle('active', lang === 'ar');
+
   document.getElementById('lang-en').classList.toggle('active', lang === 'en');
 
+
+
   /* card URL + QR */
+
   const url = `${BASE_URL}/profile.html?u=${d.username}`;
+
   document.getElementById('profile-url-text').textContent = url;
+
   document.getElementById('info-url').textContent         = url;
-  document.getElementById('btn-view-card').href = `profile.html?u=${d.username}`;
+
+            <a href="#" id="btn-view-card" target="_blank" class="btn-action">👁️ شوف بطاقتك</a>
+
   buildQR(url);
 
 
+
+
+
 }
+
+
 
 function updateSidebarAvatar(photo, name) {
+
   const el = document.getElementById('sb-avatar');
+
   if (photo) {
+
     el.innerHTML = `<img src="${photo}" />`;
+
   } else {
+
     el.textContent = (name || 'U')[0].toUpperCase();
+
   }
+
 }
+
+
 
 function buildQR(url) {
+
   const el = document.getElementById('qr-output');
+
   el.innerHTML = '';
+
   if (typeof QRCode !== 'undefined') {
+
     new QRCode(el, { text: url, width: 180, height: 180,
+
       colorDark: '#000000', colorLight: '#ffffff',
+
       correctLevel: QRCode.CorrectLevel.H });
+
   }
+
 }
 
-/* â”€â”€ nav â”€â”€ */
+
+
+/* ── nav ── */
+
 window.goTo = function(sec) {
+
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
   document.getElementById(`sec-${sec}`).classList.add('active');
+
   document.getElementById(`nav-${sec}`).classList.add('active');
+
   if (window.innerWidth <= 768) closeSidebar();
+
 };
 
-/* â”€â”€ mobile sidebar â”€â”€ */
+
+
+/* ── mobile sidebar ── */
+
 window.openSidebar  = () => { document.getElementById('sidebar').classList.add('open');    document.getElementById('mob-overlay').classList.add('show'); };
+
 window.closeSidebar = () => { document.getElementById('sidebar').classList.remove('open'); document.getElementById('mob-overlay').classList.remove('show'); };
 
-/* â”€â”€ theme / lang â”€â”€ */
+
+
+/* ── theme / lang ── */
+
 window.pickColor = function(el) {
+
   document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+
   el.classList.add('active');
+
   theme = el.dataset.c;
+
   document.getElementById('f-color-picker').value = theme;
+
   document.getElementById('f-color-hex').value    = theme;
-};
-window.onColorPicker = val => {
-  theme = val;
-  document.getElementById('f-color-hex').value = val;
-  document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
-};
-window.onHexInput = val => {
-  if (/^#[0-9a-fA-F]{6}$/.test(val)) {
-    theme = val;
-    document.getElementById('f-color-picker').value = val;
-    document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
-  }
-};
-window.setLang = l => {
-  lang = l;
-  document.getElementById('lang-ar').classList.toggle('active', l === 'ar');
-  document.getElementById('lang-en').classList.toggle('active', l === 'en');
+
 };
 
-/* â”€â”€ photo upload (ImgBB) â”€â”€ */
+window.onColorPicker = val => {
+
+  theme = val;
+
+  document.getElementById('f-color-hex').value = val;
+
+  document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+
+};
+
+window.onHexInput = val => {
+
+  if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+
+    theme = val;
+
+    document.getElementById('f-color-picker').value = val;
+
+    document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+
+  }
+
+};
+
+window.setLang = l => {
+
+  lang = l;
+
+  document.getElementById('lang-ar').classList.toggle('active', l === 'ar');
+
+  document.getElementById('lang-en').classList.toggle('active', l === 'en');
+
+};
+
+
+
+/* ── photo upload (ImgBB) ── */
+
 window.uploadPhoto = async function(file) {
+
   if (!file) return;
+
   const btn = document.getElementById('upload-btn');
+
   btn.classList.add('loading'); btn.disabled = true;
+
   try {
+
     const fd = new FormData();
+
     fd.append('image', file);
+
     const res  = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: fd });
+
     const data = await res.json();
+
     if (!data.success) throw new Error('Upload failed');
 
+
+
     const url = data.data.display_url;
+
     await updateDoc(doc(db, 'users', currentUser.uid), { photo: url });
+
     userData.photo = url;
 
+
+
     document.getElementById('photo-img').src           = url;
+
     document.getElementById('photo-img').style.display  = 'block';
+
     document.getElementById('photo-emoji').style.display = 'none';
+
     updateSidebarAvatar(url, userData.name);
-    toast('ØªÙ… Ø±ÙØ¹ Ø§Ù„ØµÙˆØ±Ø© âœ“', 'success');
-  } catch { toast('ÙØ´Ù„ Ø±ÙØ¹ Ø§Ù„ØµÙˆØ±Ø©ØŒ Ø­Ø§ÙˆÙ„ ØªØ§Ù†ÙŠ', 'error'); }
+
+    toast('تم رفع الصورة ✓', 'success');
+
+  } catch { toast('فشل رفع الصورة، حاول تاني', 'error'); }
+
   finally  { btn.classList.remove('loading'); btn.disabled = false; }
+
 };
 
-/* â”€â”€ save section â”€â”€ */
+
+
+/* ── save section ── */
+
 window.saveSection = async function(sec) {
+
   setBtnLoading(`save-${sec}`, true);
+
   let d = { updatedAt: new Date().toISOString() };
 
+
+
   if (sec === 'personal') {
+
     d.name    = document.getElementById('f-name').value.trim();
+
     d.title   = document.getElementById('f-title').value.trim();
+
     d.company = document.getElementById('f-company').value.trim();
+
     d.bio     = document.getElementById('f-bio').value.trim();
-    document.getElementById('sb-name').textContent = d.name || 'â€”';
+
+    document.getElementById('sb-name').textContent = d.name || '—';
+
   }
+
   if (sec === 'contact') {
+
     d.mobile      = document.getElementById('f-mobile').value.trim();
+
     d.whatsapp    = document.getElementById('f-whatsapp').value.trim();
+
     d.publicEmail = document.getElementById('f-email').value.trim();
+
     d.location    = document.getElementById('f-location').value.trim();
+
     d.website     = document.getElementById('f-website').value.trim();
+
   }
+
   if (sec === 'social') {
+
     d.instagram = document.getElementById('f-instagram').value.trim();
+
     d.linkedin  = document.getElementById('f-linkedin').value.trim();
+
     d.tiktok    = document.getElementById('f-tiktok').value.trim();
+
     d.twitter   = document.getElementById('f-twitter').value.trim();
+
     d.snapchat  = document.getElementById('f-snapchat').value.trim();
+
     d.youtube   = document.getElementById('f-youtube').value.trim();
+
   }
+
   if (sec === 'appearance') { d.theme = theme; d.lang = lang; }
 
+
+
   try {
+
     await updateDoc(doc(db, 'users', currentUser.uid), d);
+
     userData = { ...userData, ...d };
-    toast('ØªÙ… Ø§Ù„Ø­ÙØ¸ âœ“', 'success');
-  } catch { toast('Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø­ÙØ¸', 'error'); }
+
+    toast('تم الحفظ ✓', 'success');
+
+  } catch { toast('خطأ في الحفظ', 'error'); }
+
   finally  { setBtnLoading(`save-${sec}`, false); }
+
 };
 
-/* â”€â”€ card actions â”€â”€ */
+
+
+/* ── card actions ── */
+
 window.previewCard = () => userData && window.open(`profile.html?u=${userData.username}`, '_blank');
+
 window.copyUrl = () => {
+
   const url = document.getElementById('profile-url-text').textContent;
-  navigator.clipboard.writeText(url).then(() => toast('ØªÙ… Ù†Ø³Ø® Ø§Ù„Ø±Ø§Ø¨Ø· âœ“', 'success'));
-};
-window.downloadQR = () => {
-  const canvas = document.querySelector('#qr-output canvas');
-  if (!canvas) { toast('Ø§Ù„Ù€ QR Ù…Ø´ Ù…ÙˆØ¬ÙˆØ¯', 'error'); return; }
-  const a = document.createElement('a');
-  a.href = canvas.toDataURL('image/png');
-  a.download = `harpy-card-${userData?.username || 'qr'}.png`;
-  a.click();
-  toast('ØªÙ… ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù€ QR âœ“', 'success');
+
+  navigator.clipboard.writeText(url).then(() => toast('تم نسخ الرابط ✓', 'success'));
+
 };
 
-/* â”€â”€ logout â”€â”€ */
+window.downloadQR = () => {
+
+  const canvas = document.querySelector('#qr-output canvas');
+
+  if (!canvas) { toast('الـ QR مش موجود', 'error'); return; }
+
+  const a = document.createElement('a');
+
+  a.href = canvas.toDataURL('image/png');
+
+  a.download = `harpy-card-${userData?.username || 'qr'}.png`;
+
+  a.click();
+
+  toast('تم تحميل الـ QR ✓', 'success');
+
+};
+
+
+
+/* ── logout ── */
+
 window.doLogout = async () => { await signOut(auth); window.location.href = 'index.html'; };
+
 </script>
+
 </body>
+
 </html>
+
+
+
 

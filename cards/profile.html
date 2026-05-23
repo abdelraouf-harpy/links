@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HARPY CARDS</title>
-  <meta name="description" content="Ø¨Ø·Ø§Ù‚Ø© Ø¨ÙŠØ²Ù†Ø³ Ø±Ù‚Ù…ÙŠØ©" />
+  <meta name="description" content="بطاقة بيزنس رقمية" />
   <meta property="og:type"        content="profile" />
   <meta property="og:site_name"   content="HARPY CARDS" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -36,7 +36,7 @@
       min-height: 100vh;
     }
 
-    /* â•â•â• LOADER â•â•â• */
+    /* --- LOADER --- */
     #loader {
       position: fixed; inset: 0; background: var(--bg); z-index: 999;
       display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
@@ -49,7 +49,7 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* â•â•â• 404 â•â•â• */
+    /* --- 404 --- */
     #not-found {
       display: none; min-height: 100vh;
       flex-direction: column; align-items: center; justify-content: center;
@@ -59,7 +59,7 @@
     #not-found h2 { font-size: 22px; font-weight: 700; }
     #not-found p  { color: var(--muted); font-size: 15px; max-width: 300px; }
 
-    /* â•â•â• MAIN â•â•â• */
+    /* --- MAIN --- */
     #profile {
       display: none;
       max-width: 480px;
@@ -68,12 +68,11 @@
       padding-bottom: 48px;
     }
 
-    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• HERO â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+    /* ─── HERO ─── */
     .hero {
       position: relative; overflow: hidden;
       padding: 64px 24px 90px;
       text-align: center;
-      /* gradient is set dynamically by JS */
       background: linear-gradient(145deg, var(--theme) 0%, #1a0a2e 100%);
     }
 
@@ -132,7 +131,7 @@
     }
     .save-btn:hover { transform: translateX(-50%) translateY(-3px); box-shadow: 0 16px 45px rgba(0,0,0,.45); }
 
-    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• CONTENT â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+    /* ─── CONTENT ─── */
     .content { padding: 46px 18px 0; }
 
     /* card wrapper */
@@ -204,7 +203,7 @@
       font-size: 14px; font-weight: 600; transition: .25s var(--ease);
     }
     .soc-btn:hover {
-      background: rgba(var(--theme-r),var(--theme-g),var(--theme-b),.1);
+      background: rgba(var(--theme-r),var(--theme-g),var(--theme-b),.1;
       border-color: rgba(var(--theme-r),var(--theme-g),var(--theme-b),.3);
       transform: translateY(-2px);
     }
@@ -217,7 +216,7 @@
     }
     .powered a { color: var(--theme); text-decoration: none; font-weight: 700; }
 
-    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• ANIMATIONS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+    /* ─── ANIMATIONS ─── */
     .fade-up { animation: fadeUp .55s var(--ease) both; }
     .d1 { animation-delay: .10s; }
     .d2 { animation-delay: .20s; }
@@ -237,40 +236,40 @@
 <!-- LOADER -->
 <div id="loader">
   <div class="ld-ring"></div>
-  <p style="color:var(--dim);font-size:14px">Ø¬Ø§Ø±ÙŠ Ø§Ù„ØªØ­Ù…ÙŠÙ„...</p>
+  <p style="color:var(--dim);font-size:14px">جاري التحميل...</p>
 </div>
 
 <!-- 404 -->
 <div id="not-found">
-  <div class="emoji">ðŸ˜•</div>
-  <h2>Ø§Ù„ÙƒØ§Ø±Øª Ù…Ø´ Ù…ÙˆØ¬ÙˆØ¯</h2>
-  <p>ØªØ£ÙƒØ¯ Ù…Ù† Ø§Ù„Ø±Ø§Ø¨Ø· Ø£Ùˆ ØªÙˆØ§ØµÙ„ Ù…Ø¹ ØµØ§Ø­Ø¨ Ø§Ù„ÙƒØ§Ø±Øª</p>
+  <div class="emoji">😕</div>
+  <h2>الكارت مش موجود</h2>
+  <p>تأكد من الرابط أو تواصل مع صاحب الكارت</p>
 </div>
 
 <!-- PROFILE -->
 <div id="profile">
 
-  <!-- â”€â”€ HERO â”€â”€ -->
+  <!-- ── HERO ── -->
   <div class="hero" id="hero">
     <div class="hero-orb hero-orb-1"></div>
     <div class="hero-orb hero-orb-2"></div>
 
     <div class="photo-wrap">
-      <div class="photo-circle" id="photo-el">ðŸ‘¤</div>
+      <div class="photo-circle" id="photo-el">👤</div>
       <div class="photo-ring-anim"></div>
     </div>
 
-    <h1 class="hero-name"    id="h-name">â€”</h1>
+    <h1 class="hero-name"    id="h-name">—</h1>
     <p  class="hero-title"   id="h-title"  style="display:none"></p>
     <p  class="hero-company" id="h-company" style="display:none"></p>
 
     <button class="save-btn" id="save-contact-btn" onclick="downloadVCard()">
-      <span>ðŸ’¾</span>
-      <span id="save-lbl">Ø­ÙØ¸ ÙÙŠ Ø¬Ù‡Ø§Øª Ø§Ù„Ø§ØªØµØ§Ù„</span>
+      <span>💾</span>
+      <span id="save-lbl">حفظ في جهات الاتصال</span>
     </button>
   </div>
 
-  <!-- â”€â”€ CONTENT â”€â”€ -->
+  <!-- ── CONTENT ── -->
   <div class="content">
 
     <!-- Bio -->
@@ -288,30 +287,25 @@
 
     <!-- Social media -->
     <div class="c-card fade-up d3" id="social-card" style="display:none">
-      <p class="sec-label" id="social-label">ØªØ§Ø¨Ø¹Ù†ÙŠ Ø¹Ù„Ù‰</p>
+      <p class="sec-label" id="social-label">تابعني على</p>
       <div class="socials" id="social-grid"></div>
     </div>
 
     <!-- Powered by -->
     <div class="powered fade-up d4">
-      Ø¨Ø·Ø§Ù‚Ø© Ø±Ù‚Ù…ÙŠØ© Ù…Ø¯Ø¹ÙˆÙ…Ø© Ù…Ù† <a href="https://harpymenu.com/cards" target="_blank">HARPY CARDS</a>
+      بطاقة رقمية مدعومة من <a href="https://harpymenu.com/cards" target="_blank">HARPY CARDS</a>
     </div>
   </div>
 </div>
 
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• SCRIPT â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- ─── SCRIPT ─── -->
 <script type="module">
 import { db } from "./js/firebase-config.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// âš ï¸ Ø¶Ø¹ Firebase config Ø§Ù„Ø®Ø§Øµ Ø¨Ùƒ Ù‡Ù†Ø§
-
-
-
-
 let profileData = null;
 
-/* â”€â”€ helpers â”€â”€ */
+/* ── helpers ── */
 function hexToRgb(hex) {
   const r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return r ? { r: parseInt(r[1],16), g: parseInt(r[2],16), b: parseInt(r[3],16) } : { r:124, g:58, b:237 };
@@ -325,7 +319,7 @@ function lighter(hex, pct = 0.25) {
   return `rgb(${Math.min(255,Math.floor(r+(255-r)*pct))},${Math.min(255,Math.floor(g+(255-g)*pct))},${Math.min(255,Math.floor(b+(255-b)*pct))})`;
 }
 
-/* â”€â”€ load â”€â”€ */
+/* ── load ── */
 async function load() {
   const params = new URLSearchParams(window.location.search);
   const uname  = params.get('u');
@@ -356,7 +350,7 @@ function showProfile() {
   document.getElementById('profile').style.display = 'block';
 }
 
-/* â”€â”€ render â”€â”€ */
+/* ── render ── */
 function render(d) {
   const isAr = d.lang !== 'en';
   const dir  = isAr ? 'rtl' : 'ltr';
@@ -380,9 +374,9 @@ function render(d) {
     `linear-gradient(145deg, ${lighter(themeHex, .1)} 0%, ${dark} 100%)`;
 
   /* page meta */
-  document.title = `${d.name || 'HARPY CARDS'} â€” HARPY CARDS`;
+  document.title = `${d.name || 'HARPY CARDS'} — HARPY CARDS`;
   setMeta('og:title',       d.name || 'HARPY CARDS');
-  setMeta('og:description', d.bio  || `Ø¨Ø·Ø§Ù‚Ø© Ø¨ÙŠØ²Ù†Ø³ Ø±Ù‚Ù…ÙŠØ©`);
+  setMeta('og:description', d.bio  || `بطاقة بيزنس رقمية`);
   if (d.photo) setMeta('og:image', d.photo);
 
   /* photo */
@@ -392,12 +386,12 @@ function render(d) {
   }
 
   /* name */
-  document.getElementById('h-name').textContent = d.name || 'â€”';
+  document.getElementById('h-name').textContent = d.name || '—';
   if (d.title)   { const el = document.getElementById('h-title');   el.textContent = d.title;   el.style.display='block'; }
   if (d.company) { const el = document.getElementById('h-company'); el.textContent = d.company; el.style.display='block'; }
 
   /* save contact label */
-  document.getElementById('save-lbl').textContent = isAr ? 'Ø­ÙØ¸ ÙÙŠ Ø¬Ù‡Ø§Øª Ø§Ù„Ø§ØªØµØ§Ù„' : 'Save Contact';
+  document.getElementById('save-lbl').textContent = isAr ? 'حفظ في جهات الاتصال' : 'Save Contact';
 
   /* bio */
   if (d.bio) {
@@ -407,9 +401,9 @@ function render(d) {
 
   /* action buttons */
   const acts = [];
-  if (d.mobile)      acts.push({ href:`tel:${d.mobile}`,                                    icon:'ðŸ“ž', lbl: isAr ? 'Ø§ØªØµØ§Ù„'   : 'Call'    });
-  if (d.whatsapp)    acts.push({ href:`https://wa.me/${d.whatsapp.replace(/\D/g,'')}`,      icon:'ðŸ’¬', lbl: 'WhatsApp',                    target:'_blank' });
-  if (d.publicEmail) acts.push({ href:`mailto:${d.publicEmail}`,                            icon:'âœ‰ï¸', lbl: isAr ? 'Ø¥ÙŠÙ…ÙŠÙ„'   : 'Email'   });
+  if (d.mobile)      acts.push({ href:`tel:${d.mobile}`,                                    icon:'📞', lbl: isAr ? 'اتصال'   : 'Call'    });
+  if (d.whatsapp)    acts.push({ href:`https://wa.me/${d.whatsapp.replace(/\D/g,'')}`,      icon:'💬', lbl: 'WhatsApp',                    target:'_blank' });
+  if (d.publicEmail) acts.push({ href:`mailto:${d.publicEmail}`,                            icon:'✉️', lbl: isAr ? 'إيميل'   : 'Email'   });
 
   const grid = document.getElementById('actions-grid');
   if (acts.length) {
@@ -427,12 +421,12 @@ function render(d) {
   const infoRows = [];
   if (d.location) infoRows.push({
     href:  `https://maps.google.com?q=${encodeURIComponent(d.location)}`,
-    icon: 'ðŸ“', lbl: isAr ? 'Ø§Ù„Ù…ÙˆÙ‚Ø¹' : 'Location', val: d.location, target:'_blank'
+    icon: '📍', lbl: isAr ? 'الموقع' : 'Location', val: d.location, target:'_blank'
   });
   if (d.website) {
     const clean = d.website.replace(/^https?:\/\//,'');
     const href  = d.website.startsWith('http') ? d.website : `https://${d.website}`;
-    infoRows.push({ href, icon:'ðŸŒ', lbl: isAr ? 'Ø§Ù„Ù…ÙˆÙ‚Ø¹ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ' : 'Website', val: clean, target:'_blank' });
+    infoRows.push({ href, icon:'🌐', lbl: isAr ? 'الموقع الإلكتروني' : 'Website', val: clean, target:'_blank' });
   }
 
   document.getElementById('info-rows').innerHTML = infoRows.map(r =>
@@ -442,23 +436,23 @@ function render(d) {
         `<div class="info-lbl">${r.lbl}</div>`+
         `<div class="info-val">${r.val}</div>`+
       `</div>`+
-      `<span class="info-arr">â†</span>`+
+      `<span class="info-arr">←</span>`+
     `</a>`
   ).join('');
 
   /* social */
   const platforms = [
-    { key:'instagram', icon:'ðŸ“¸', label:'Instagram' },
-    { key:'linkedin',  icon:'ðŸ’¼', label:'LinkedIn'  },
-    { key:'tiktok',    icon:'ðŸŽµ', label:'TikTok'    },
-    { key:'twitter',   icon:'ðŸ¦', label:'X / Twitter' },
-    { key:'snapchat',  icon:'ðŸ‘»', label:'Snapchat'  },
-    { key:'youtube',   icon:'â–¶ï¸', label:'YouTube'   },
+    { key:'instagram', icon:'📸', label:'Instagram' },
+    { key:'linkedin',  icon:'💼', label:'LinkedIn'  },
+    { key:'tiktok',    icon:'🎵', label:'TikTok'    },
+    { key:'twitter',   icon:'🐦', label:'X / Twitter' },
+    { key:'snapchat',  icon:'👻', label:'Snapchat'  },
+    { key:'youtube',   icon:'▶️', label:'YouTube'   },
   ];
   const active = platforms.filter(p => d[p.key]);
   if (active.length) {
     document.getElementById('social-card').style.display = 'block';
-    document.getElementById('social-label').textContent  = isAr ? 'ØªØ§Ø¨Ø¹Ù†ÙŠ Ø¹Ù„Ù‰' : 'Follow Me';
+    document.getElementById('social-label').textContent  = isAr ? 'تابعني على' : 'Follow Me';
     document.getElementById('social-grid').innerHTML = active.map(p =>
       `<a href="${d[p.key]}" class="soc-btn" target="_blank" rel="noopener">`+
         `<span class="soc-icon">${p.icon}</span>`+
@@ -476,7 +470,7 @@ function setMeta(property, content) {
   el.setAttribute('content', content);
 }
 
-/* â”€â”€ vCard download â”€â”€ */
+/* ── vCard download ── */
 window.downloadVCard = function() {
   if (!profileData) return;
   const d = profileData;
@@ -506,4 +500,3 @@ load();
 </script>
 </body>
 </html>
-
