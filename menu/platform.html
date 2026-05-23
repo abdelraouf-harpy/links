@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Platform Admin — QR Menu</title>
+  <link rel="stylesheet" href="./css/app.css">
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#6366f1">
+  <link rel="apple-touch-icon" href="./pwa-icon.png">
+  <style>
+    /* Platform-specific accent: pink/purple */
+    .platform-gradient { background: linear-gradient(135deg, #ec4899, #6366f1); }
+
+    .rest-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1.2fr 80px 140px;
+      align-items: center;
+      padding: 14px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      transition: background 0.15s;
+      gap: 12px;
+    }
+    .rest-row:hover { background: rgba(255,255,255,0.02); }
+    .rest-row:last-child { border-bottom: none; }
+    .rest-name { font-size: 14px; font-weight: 900; color: var(--text); }
+    .rest-meta { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+    .rest-actions { display: flex; gap: 6px; justify-content: flex-end; align-items: center; }
+
+    /* Mobile card view for small screens */
+    .rest-mobile-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 16px;
+      margin-bottom: 10px;
+    }
+    .rest-mc-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .rest-mc-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+
+    @media (min-width: 900px) { .rest-mobile-card { display: none; } }
+    @media (max-width: 899px) { .rest-row, .table-head { display: none !important; } }
+
+    .table-head {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1.2fr 80px 140px;
+      padding: 10px 20px;
+      background: rgba(255,255,255,0.02);
+      border-bottom: 1px solid var(--border);
+      gap: 12px;
+    }
+    .th { font-size: 10px; font-weight: 900; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; }
+
+    .form-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 520px) { .form-2col { grid-template-columns: 1fr; } }
+
+    .step-divider {
+      background: rgba(99,102,241,0.06);
+      border: 1px solid rgba(99,102,241,0.12);
+      border-radius: var(--r-md);
+      padding: 14px 16px;
+      margin: 16px 0;
+    }
+    .step-title { font-size: 11px; font-weight: 900; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+
+    .slug-preview-box {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .slug-preview-box .input { flex: 1; }
+    .slug-suffix { font-size: 11px; color: var(--text-3); font-weight: 700; white-space: nowrap; }
+  </style>
+</head>
+<body>
+
+<!-- Page Loader -->
+<div id="page-loader">
+  <div class="loader-logo">🌐</div>
+  <div class="loader-dots">
+    <div class="loader-dot"></div>
+    <div class="loader-dot"></div>
+    <div class="loader-dot"></div>
+  </div>
+</div>
+
+<!-- Header -->
+<header class="app-header">
+  <button class="sidebar-toggle" id="sidebar-toggle">☰</button>
+  <div class="brand-logo platform-gradient">🌐</div>
+  <div class="brand-text" style="flex:1;">
+    <div class="name">QR Menu Platform</div>
+    <div class="sub">Super Admin</div>
+  </div>
+  <div class="flex gap-2 items-center">
+    <span class="badge badge-pink hide-mobile" id="admin-badge">👑 أدمن</span>
+    <button class="btn btn-ghost btn-sm" id="logout-btn">خروج</button>
+  </div>
+</header>
+
+<div class="app-layout">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="app-sidebar">
+    <button class="nav-item active" data-nav="restaurants"><span class="nav-icon">🏪</span> المطاعم</button>
+    <button class="nav-item" data-nav="stats"><span class="nav-icon">📊</span> الإحصائيات</button>
+  </aside>
+
+  <main class="content-area">
+
+    <!-- ═══ KPIs ═══════════════════════════════════════════ -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-accent" style="background:linear-gradient(90deg,#ec4899,#6366f1);"></div>
+        <div class="kpi-icon">🏪</div>
+        <div class="kpi-val" id="kpi-total">—</div>
+        <div class="kpi-label">إجمالي المطاعم</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-accent" style="background:linear-gradient(90deg,#22c55e,#16a34a);"></div>
+        <div class="kpi-icon">✅</div>
+        <div class="kpi-val" id="kpi-active">—</div>
+        <div class="kpi-label">اشتراكات نشطة</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-accent" style="background:linear-gradient(90deg,#f59e0b,#d97706);"></div>
+        <div class="kpi-icon">⏳</div>
+        <div class="kpi-val" id="kpi-trial">—</div>
+        <div class="kpi-label">تجريبية</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-accent" style="background:linear-gradient(90deg,#ef4444,#dc2626);"></div>
+        <div class="kpi-icon">⛔</div>
+        <div class="kpi-val" id="kpi-inactive">—</div>
+        <div class="kpi-label">معطّلة</div>
+      </div>
+    </div>
+
+    <!-- ═══ RESTAURANTS TAB ═════════════════════════════════ -->
+    <section id="nav-restaurants" class="nav-section">
+
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <input class="input" type="text" id="search-q" placeholder="🔍 بحث باسم المطعم..." style="max-width:280px;" oninput="filterList()">
+        <select class="input" id="filter-plan" onchange="filterList()" style="width:auto;min-width:130px;">
+          <option value="">كل الخطط</option>
+          <option value="TRIAL">تجريبي</option>
+          <option value="MONTHLY">شهري</option>
+          <option value="ANNUAL">سنوي</option>
+          <option value="LIFETIME">مدى الحياة</option>
+        </select>
+        <select class="input" id="filter-status" onchange="filterList()" style="width:auto;min-width:120px;">
+          <option value="">كل الحالات</option>
+          <option value="active">نشط فقط</option>
+          <option value="inactive">معطّل فقط</option>
+        </select>
+        <div style="margin-right:auto;">
+          <button class="btn btn-accent" id="btn-add-rest">+ مطعم جديد</button>
+        </div>
+      </div>
+
+      <!-- Desktop Table -->
+      <div class="table-card">
+        <div class="table-head">
+          <div class="th">المطعم</div>
+          <div class="th">الخطة</div>
+          <div class="th">انتهاء الاشتراك</div>
+          <div class="th">الحالة</div>
+          <div class="th" style="text-align:left;">إجراءات</div>
+        </div>
+        <div id="rest-table-body"></div>
+      </div>
+
+      <!-- Mobile Cards -->
+      <div id="rest-mobile-list"></div>
+
+    </section>
+
+    <!-- ═══ STATS TAB ═══════════════════════════════════════ -->
+    <section id="nav-stats" class="nav-section hidden">
+      <div class="card">
+        <div class="section-title" style="margin-bottom:20px;">📊 إحصائيات المنصة</div>
+        <div id="stats-content" class="text-center" style="padding:40px;color:var(--text-3);">جاري التحميل...</div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ═══ MODAL: Add Restaurant ══════════════════════════════ -->
+<div class="modal-overlay" id="add-modal">
+  <div class="modal-bg" onclick="closeModal('add-modal')"></div>
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 class="modal-title">🏪 مطعم جديد</h3>
+      <button class="modal-close-btn" onclick="closeModal('add-modal')">✕</button>
+    </div>
+
+    <div class="alert alert-info">
+      💡 سيتم إنشاء حساب المدير تلقائياً مع إنشاء المطعم
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">اسم المطعم *</label>
+      <input class="input" type="text" id="a-name" placeholder="مطعم الأمير" oninput="autoSlug()">
+    </div>
+    <div class="field-group">
+      <label class="field-label">الـ Slug (رابط فريد) *</label>
+      <div class="slug-preview-box">
+        <input class="input" type="text" id="a-slug" placeholder="al-amir" oninput="onSlugInput()">
+        <span class="slug-suffix">menu.html?r=<strong id="slug-live">...</strong></span>
+      </div>
+    </div>
+    <div class="form-2col">
+      <div class="field-group">
+        <label class="field-label">الهاتف</label>
+        <input class="input" type="tel" id="a-phone" placeholder="010xxxxxxxx">
+      </div>
+      <div class="field-group">
+        <label class="field-label">خطة الاشتراك *</label>
+        <select class="input" id="a-plan">
+          <option value="TRIAL">تجريبي (30 يوم)</option>
+          <option value="MONTHLY">شهري</option>
+          <option value="ANNUAL">سنوي</option>
+          <option value="LIFETIME">مدى الحياة</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">العنوان</label>
+      <input class="input" type="text" id="a-address" placeholder="شارع، حي، مدينة">
+    </div>
+
+    <div class="step-divider">
+      <div class="step-title">🔐 بيانات حساب مدير المطعم</div>
+      <div class="form-2col">
+        <div class="field-group">
+          <label class="field-label">البريد الإلكتروني *</label>
+          <input class="input" type="email" id="a-email" placeholder="manager@email.com">
+        </div>
+        <div class="field-group">
+          <label class="field-label">كلمة المرور *</label>
+          <input class="input" type="text" id="a-pass" placeholder="كلمة مرور قوية">
+        </div>
+      </div>
+    </div>
+
+    <div class="flex gap-3">
+      <button class="btn btn-accent flex-1 btn-lg" id="btn-create-rest">✅ إنشاء المطعم</button>
+      <button class="btn btn-ghost btn-lg" onclick="closeModal('add-modal')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: Edit Restaurant ════════════════════════════ -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal-bg" onclick="closeModal('edit-modal')"></div>
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 class="modal-title">✏️ تعديل المطعم</h3>
+      <button class="modal-close-btn" onclick="closeModal('edit-modal')">✕</button>
+    </div>
+    <input type="hidden" id="e-id">
+    <div class="field-group">
+      <label class="field-label">اسم المطعم *</label>
+      <input class="input" type="text" id="e-name">
+    </div>
+    <div class="form-2col">
+      <div class="field-group">
+        <label class="field-label">الهاتف</label>
+        <input class="input" type="tel" id="e-phone">
+      </div>
+      <div class="field-group">
+        <label class="field-label">خطة الاشتراك</label>
+        <select class="input" id="e-plan">
+          <option value="TRIAL">تجريبي</option>
+          <option value="MONTHLY">شهري</option>
+          <option value="ANNUAL">سنوي</option>
+          <option value="LIFETIME">مدى الحياة</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">تاريخ انتهاء الاشتراك (YYYY-MM-DD)</label>
+      <input class="input" type="text" id="e-end" placeholder="2027-12-31">
+    </div>
+    <div class="field-group">
+      <label class="toggle-wrap">
+        <span id="toggle-active" class="toggle on"></span>
+        <span class="toggle-label">الاشتراك نشط</span>
+      </label>
+    </div>
+    <div class="step-divider">
+      <div class="step-title">🔐 تعديل كلمة مرور المدير (اترك فارغاً للإبقاء على الحالية)</div>
+      <div class="field-group">
+        <input class="input" type="text" id="e-pass" placeholder="كلمة مرور جديدة">
+      </div>
+    </div>
+    <div class="flex gap-3">
+      <button class="btn btn-primary flex-1 btn-lg" id="btn-update-rest">💾 حفظ</button>
+      <button class="btn btn-ghost btn-lg" onclick="closeModal('edit-modal')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module">
+import { auth, db, firebaseConfig } from './js/firebase.js';
+import {
+  onAuthStateChanged, signOut, createUserWithEmailAndPassword
+} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import {
+  getRestaurants, createRestaurant, updateRestaurant, deleteRestaurant,
+  getUserProfile, setUserProfile
+} from './js/db.js';
+import { toast, openModal, closeModal, hideLoader, initSidebar, PLAN_LABELS, PLAN_BADGES, formatDate } from './js/utils.js';
+
+let restaurants  = [];
+let editIsActive = true;
+
+// ── Auth Guard ─────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = './login.html'; return; }
+  const profile = await getUserProfile(user.uid);
+  if (!profile || profile.role !== 'ADMIN') {
+    window.location.href = './manager.html'; return;
+  }
+  document.getElementById('admin-badge').textContent = '👑 ' + user.email;
+  initPage();
+});
+
+// ── Init ──────────────────────────────────────────────────
+async function initPage() {
+  await loadRestaurants();
+  hideLoader();
+  initSidebar();
+  initNavigation();
+
+  document.getElementById('logout-btn').addEventListener('click', async () => {
+    await signOut(auth);
+    window.location.href = './login.html';
+  });
+
+  // Edit toggle
+  document.getElementById('toggle-active').addEventListener('click', function() {
+    editIsActive = !editIsActive;
+    this.className = 'toggle ' + (editIsActive ? 'on' : 'off');
+  });
+}
+
+function initNavigation() {
+  document.querySelectorAll('[data-nav]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.nav-section').forEach(s => s.classList.add('hidden'));
+      document.querySelectorAll('[data-nav]').forEach(b => b.classList.remove('active'));
+      document.getElementById('nav-' + btn.dataset.nav).classList.remove('hidden');
+      btn.classList.add('active');
+      document.getElementById('app-sidebar')?.classList.remove('open');
+      document.getElementById('sidebar-backdrop')?.classList.remove('open');
+      if (btn.dataset.nav === 'stats') renderStats();
+    });
+  });
+}
+
+// ── Load Restaurants ──────────────────────────────────────
+async function loadRestaurants() {
+  restaurants = await getRestaurants();
+  updateKPIs();
+  renderList(restaurants);
+}
+
+function updateKPIs() {
+  document.getElementById('kpi-total').textContent    = restaurants.length;
+  document.getElementById('kpi-active').textContent   = restaurants.filter(r => r.isActive !== false).length;
+  document.getElementById('kpi-trial').textContent    = restaurants.filter(r => r.plan === 'TRIAL').length;
+  document.getElementById('kpi-inactive').textContent = restaurants.filter(r => r.isActive === false).length;
+}
+
+function renderList(list) {
+  // Desktop table
+  const tbody = document.getElementById('rest-table-body');
+  // Mobile cards
+  const mlist = document.getElementById('rest-mobile-list');
+
+  if (!list.length) {
+    const empty = `<div class="empty-state" style="padding:48px;"><div class="empty-icon">🏪</div><div class="empty-title">لا توجد مطاعم</div><div class="empty-text">أضف أول مطعم في المنصة</div></div>`;
+    tbody.innerHTML = empty; mlist.innerHTML = ''; return;
+  }
+
+  tbody.innerHTML = list.map(r => `
+    <div class="rest-row">
+      <div>
+        <div class="rest-name">${r.name}</div>
+        <div class="rest-meta">/${r.slug}/ ${r.managerEmail ? '· ' + r.managerEmail : ''}</div>
+      </div>
+      <div><span class="badge ${PLAN_BADGES[r.plan] || 'badge-blue'}">${PLAN_LABELS[r.plan] || r.plan}</span></div>
+      <div style="font-size:12px;color:var(--text-3);font-weight:700;">${r.subscriptionEnd || '—'}</div>
+      <div><span class="badge ${r.isActive !== false ? 'badge-green' : 'badge-red'}">${r.isActive !== false ? 'نشط' : 'معطّل'}</span></div>
+      <div class="rest-actions">
+        <a href="menu.html?r=${r.slug}" target="_blank" class="btn btn-ghost btn-sm" title="عرض المنيو">👁️</a>
+        <button class="btn btn-ghost btn-sm" onclick="openEdit('${r.id}')" title="تعديل">✏️</button>
+        <button class="btn btn-sm ${r.isActive !== false ? 'btn-danger' : 'btn-success'}" onclick="toggleRest('${r.id}')" title="${r.isActive !== false ? 'تعطيل' : 'تفعيل'}">${r.isActive !== false ? '⛔' : '✅'}</button>
+        <button class="btn btn-danger btn-sm" onclick="removeRest('${r.id}')" title="حذف">🗑️</button>
+      </div>
+    </div>`).join('');
+
+  mlist.innerHTML = list.map(r => `
+    <div class="rest-mobile-card">
+      <div class="rest-mc-head">
+        <div>
+          <div class="rest-name">${r.name}</div>
+          <div class="rest-meta">/${r.slug}/</div>
+          ${r.managerEmail ? `<div class="rest-meta" style="margin-top:2px;">📧 ${r.managerEmail}</div>` : ''}
+        </div>
+        <span class="badge ${r.isActive !== false ? 'badge-green' : 'badge-red'}">${r.isActive !== false ? 'نشط' : 'معطّل'}</span>
+      </div>
+      <div class="flex gap-2 flex-wrap">
+        <span class="badge ${PLAN_BADGES[r.plan] || 'badge-blue'}">${PLAN_LABELS[r.plan] || r.plan}</span>
+        ${r.subscriptionEnd ? `<span style="font-size:11px;color:var(--text-3);font-weight:700;padding-top:3px;">ينتهي: ${r.subscriptionEnd}</span>` : ''}
+      </div>
+      <div class="rest-mc-actions">
+        <a href="menu.html?r=${r.slug}" target="_blank" class="btn btn-ghost btn-sm">👁️ عرض</a>
+        <button class="btn btn-ghost btn-sm" onclick="openEdit('${r.id}')">✏️ تعديل</button>
+        <button class="btn btn-sm ${r.isActive !== false ? 'btn-danger' : 'btn-success'}" onclick="toggleRest('${r.id}')">${r.isActive !== false ? '⛔ تعطيل' : '✅ تفعيل'}</button>
+        <button class="btn btn-danger btn-sm" onclick="removeRest('${r.id}')">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
+// ── Filter ────────────────────────────────────────────────
+window.filterList = function() {
+  const q    = document.getElementById('search-q').value.toLowerCase();
+  const plan = document.getElementById('filter-plan').value;
+  const st   = document.getElementById('filter-status').value;
+  renderList(restaurants.filter(r =>
+    (!q || r.name.toLowerCase().includes(q) || r.slug.includes(q) || (r.managerEmail||'').toLowerCase().includes(q)) &&
+    (!plan || r.plan === plan) &&
+    (!st || (st==='active' && r.isActive !== false) || (st==='inactive' && r.isActive === false))
+  ));
+};
+
+// ── Add Restaurant ────────────────────────────────────────
+window.autoSlug = function() {
+  const name = document.getElementById('a-name').value;
+  const slug = name.toLowerCase().replace(/\s+/g,'-').replace(/[^\w\-]/g,'').replace(/\-\-+/g,'-');
+  document.getElementById('a-slug').value = slug;
+  document.getElementById('slug-live').textContent = slug || '...';
+};
+window.onSlugInput = function() {
+  document.getElementById('slug-live').textContent = document.getElementById('a-slug').value || '...';
+};
+
+document.getElementById('btn-add-rest').addEventListener('click', () => {
+  ['a-name','a-slug','a-phone','a-address','a-email','a-pass'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('a-plan').value = 'TRIAL';
+  document.getElementById('slug-live').textContent = '...';
+  openModal('add-modal');
+});
+
+document.getElementById('btn-create-rest').addEventListener('click', async () => {
+  const name  = document.getElementById('a-name').value.trim();
+  const slug  = document.getElementById('a-slug').value.trim();
+  const email = document.getElementById('a-email').value.trim();
+  const pass  = document.getElementById('a-pass').value;
+  const plan  = document.getElementById('a-plan').value;
+
+  if (!name || !slug || !email || !pass) { toast('جميع الحقول المطلوبة يجب تعبئتها', 'error'); return; }
+  if (restaurants.some(r => r.slug === slug)) { toast('الـ slug مستخدم بالفعل', 'error'); return; }
+  if (pass.length < 6) { toast('كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'error'); return; }
+
+  const btn = document.getElementById('btn-create-rest');
+  btn.disabled = true; btn.textContent = '...';
+
+  try {
+    // Create manager Firebase Auth account using a secondary app instance to avoid logging out the super admin
+    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+    const { createUserWithEmailAndPassword, getAuth, signOut: signOutSecondary } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
+    
+    const secondaryAppName = "Secondary_" + Date.now();
+    const secondaryApp = initializeApp(firebaseConfig, secondaryAppName);
+    const secondaryAuth = getAuth(secondaryApp);
+    
+    let userCredential;
+    try {
+      userCredential = await createUserWithEmailAndPassword(secondaryAuth, email, pass);
+      await signOutSecondary(secondaryAuth);
+    } catch(authErr) {
+      if (authErr.code === 'auth/email-already-in-use') { toast('البريد الإلكتروني مستخدم بالفعل', 'error'); return; }
+      throw authErr;
+    }
+    const managerId = userCredential.user.uid;
+
+    // Create restaurant
+    const restRef = await createRestaurant({
+      name, slug, plan, phone: document.getElementById('a-phone').value.trim(),
+      address: document.getElementById('a-address').value.trim(),
+      currency: 'ج.م', tagline: '', isActive: true,
+      managerId, managerEmail: email,
+      subscriptionEnd: null
+    });
+
+    // Set manager profile
+    await setUserProfile(managerId, { role: 'MANAGER', restaurantId: restRef.id, email });
+
+    toast(`تم إنشاء مطعم "${name}" وحساب المدير ✅`, 'success', 5000);
+    closeModal('add-modal');
+    await loadRestaurants();
+  } catch(e) {
+    toast('خطأ: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = '✅ إنشاء المطعم';
+  }
+});
+
+// ── Edit Restaurant ───────────────────────────────────────
+window.openEdit = function(id) {
+  const r = restaurants.find(r => r.id === id);
+  if (!r) return;
+  document.getElementById('e-id').value   = id;
+  document.getElementById('e-name').value = r.name;
+  document.getElementById('e-phone').value= r.phone || '';
+  document.getElementById('e-plan').value = r.plan;
+  document.getElementById('e-end').value  = r.subscriptionEnd || '';
+  document.getElementById('e-pass').value = '';
+  editIsActive = r.isActive !== false;
+  document.getElementById('toggle-active').className = 'toggle ' + (editIsActive ? 'on' : 'off');
+  openModal('edit-modal');
+};
+
+document.getElementById('btn-update-rest').addEventListener('click', async () => {
+  const id   = document.getElementById('e-id').value;
+  const name = document.getElementById('e-name').value.trim();
+  if (!name) { toast('الاسم مطلوب', 'error'); return; }
+  const btn = document.getElementById('btn-update-rest');
+  btn.disabled = true; btn.textContent = '...';
+  try {
+    await updateRestaurant(id, {
+      name,
+      phone: document.getElementById('e-phone').value.trim(),
+      plan:  document.getElementById('e-plan').value,
+      subscriptionEnd: document.getElementById('e-end').value || null,
+      isActive: editIsActive
+    });
+    toast(`تم تحديث "${name}" ✅`);
+    closeModal('edit-modal');
+    await loadRestaurants();
+  } catch(e) { toast('خطأ: ' + e.message, 'error'); }
+  finally { btn.disabled = false; btn.textContent = '💾 حفظ'; }
+});
+
+// ── Toggle Active ─────────────────────────────────────────
+window.toggleRest = async function(id) {
+  const r = restaurants.find(r => r.id === id);
+  if (!r) return;
+  const newState = r.isActive === false ? true : false;
+  await updateRestaurant(id, { isActive: newState });
+  toast(newState ? `تم تفعيل "${r.name}"` : `تم تعطيل "${r.name}"`);
+  await loadRestaurants();
+};
+
+// ── Delete ─────────────────────────────────────────────────
+window.removeRest = async function(id) {
+  const r = restaurants.find(item => item.id === id);
+  if (!r) return;
+  if (!confirm(`حذف مطعم "${r.name}"؟ لا يمكن التراجع عن هذا الإجراء.`)) return;
+  try {
+    await deleteRestaurant(id);
+    toast(`تم حذف "${r.name}"`);
+    await loadRestaurants();
+  } catch(e) { toast('خطأ في الحذف', 'error'); }
+};
+
+// ── Stats ──────────────────────────────────────────────────
+function renderStats() {
+  const byPlan = {};
+  restaurants.forEach(r => { byPlan[r.plan] = (byPlan[r.plan]||0)+1; });
+  const rows = Object.entries(PLAN_LABELS).map(([key, label]) =>
+    `<tr><td style="padding:12px 16px;font-weight:900;">${label}</td><td style="padding:12px 16px;font-family:'Outfit',sans-serif;font-weight:900;font-size:20px;color:var(--primary-light);">${byPlan[key]||0}</td></tr>`
+  ).join('');
+  document.getElementById('stats-content').innerHTML = `
+    <table style="width:100%;border-collapse:collapse;text-align:right;">
+      <thead><tr style="border-bottom:1px solid var(--border);">
+        <th style="padding:10px 16px;font-size:11px;color:var(--text-3);text-transform:uppercase;">خطة الاشتراك</th>
+        <th style="padding:10px 16px;font-size:11px;color:var(--text-3);text-transform:uppercase;">عدد المطاعم</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+      <tfoot><tr style="border-top:1px solid var(--border);">
+        <td style="padding:12px 16px;font-weight:900;">الإجمالي</td>
+        <td style="padding:12px 16px;font-size:20px;font-weight:900;font-family:'Outfit',sans-serif;">${restaurants.length}</td>
+      </tr></tfoot>
+    </table>`;
+}
+
+window.openModal  = openModal;
+window.closeModal = closeModal;
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('Service Worker registered', reg))
+        .catch(err => console.log('Service Worker registration failed', err));
+    });
+  }
+</script>
+</body>
+</html>

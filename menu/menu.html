@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="html-root">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="page-title">المنيو</title>
+  <meta name="description" content="تصفح قائمة الطعام">
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#6366f1">
+  <link rel="apple-touch-icon" href="./pwa-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    /* ══ Reset & Base ══════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Cairo', sans-serif; background: #f8fafc; color: #1e293b; padding-bottom: 60px; }
+    img { display: block; max-width: 100%; }
+    button { cursor: pointer; font-family: inherit; border: none; }
+
+    /* ══ Hero ═══════════════════════════════════════════════ */
+    .hero { position: relative; height: 300px; overflow: hidden; }
+    @media (min-width: 640px) { .hero { height: 380px; } }
+
+    .hero-cover {
+      width: 100%; height: 100%; object-fit: cover;
+      transform: scale(1.05);
+      transition: transform 10s ease;
+    }
+    .hero-cover:hover { transform: scale(1); }
+
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.1) 100%);
+    }
+
+    .hero-top {
+      position: absolute; top: 0; left: 0; right: 0;
+      padding: 16px 20px;
+      display: flex; justify-content: space-between; align-items: center;
+      z-index: 5;
+    }
+
+    .lang-btn {
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 99px; padding: 7px 18px;
+      color: white; font-family: 'Cairo', sans-serif;
+      font-size: 11px; font-weight: 900;
+      transition: all 0.2s;
+    }
+    .lang-btn:hover { background: rgba(255,255,255,0.25); }
+
+    .open-badge {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 99px; padding: 6px 14px;
+      color: white; font-size: 11px; font-weight: 900;
+    }
+    .open-dot {
+      width: 8px; height: 8px;
+      background: #22c55e; border-radius: 50%;
+      animation: pulse-dot 2s ease infinite;
+    }
+    @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(1.4)} }
+
+    .hero-bottom {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 20px 20px 24px;
+    }
+    .hero-logo {
+      width: 60px; height: 60px;
+      border-radius: 18px; object-fit: cover;
+      border: 3px solid rgba(255,255,255,0.25);
+      margin-bottom: 10px;
+    }
+    .hero-name { font-size: 28px; font-weight: 900; color: white; line-height: 1.1; margin-bottom: 4px; }
+    @media (min-width: 640px) { .hero-name { font-size: 36px; } }
+    .hero-tagline { font-size: 13px; color: rgba(255,255,255,0.65); font-weight: 600; margin-bottom: 10px; }
+    .hero-links { display: flex; gap: 8px; flex-wrap: wrap; }
+    .hero-link {
+      display: flex; align-items: center; gap: 5px;
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 10px; padding: 5px 12px;
+      color: white; font-size: 11px; font-weight: 700;
+      text-decoration: none; transition: background 0.2s;
+    }
+    .hero-link:hover { background: rgba(255,255,255,0.22); }
+
+    /* ══ Category Nav ═══════════════════════════════════════ */
+    .cat-nav {
+      position: sticky; top: 0; z-index: 30;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid #e2e8f0;
+      padding: 10px 16px;
+    }
+    .cat-scroll {
+      display: flex; gap: 8px;
+      overflow-x: auto; -ms-overflow-style: none; scrollbar-width: none;
+    }
+    .cat-scroll::-webkit-scrollbar { display: none; }
+
+    .cat-pill {
+      flex-shrink: 0;
+      padding: 8px 18px;
+      border-radius: 99px;
+      font-family: 'Cairo', sans-serif;
+      font-size: 13px; font-weight: 900;
+      border: none; cursor: pointer;
+      background: #f1f5f9; color: #64748b;
+      transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+      white-space: nowrap;
+    }
+    .cat-pill.active {
+      background: #ef4444; color: white;
+      box-shadow: 0 6px 16px rgba(239,68,68,0.35);
+      transform: scale(1.03);
+    }
+
+    /* ══ Menu Main ══════════════════════════════════════════ */
+    .menu-main { max-width: 700px; margin: 0 auto; padding: 20px 14px; }
+    @media (min-width: 640px) { .menu-main { padding: 28px 20px; } }
+
+    .section-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .section-head h2 { font-size: 18px; font-weight: 900; color: #1e293b; white-space: nowrap; }
+    @media (min-width: 640px) { .section-head h2 { font-size: 20px; } }
+    .section-line { flex: 1; height: 2px; background: linear-gradient(to left, transparent, #e2e8f0); }
+    .cat-section { margin-bottom: 36px; }
+
+    /* ══ Item Card ══════════════════════════════════════════ */
+    .item-card {
+      background: white;
+      border-radius: 20px;
+      border: 1px solid #e2e8f0;
+      display: grid;
+      grid-template-columns: 1fr 88px;
+      padding: 14px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .item-card:hover { box-shadow: 0 8px 28px rgba(0,0,0,0.1); transform: translateY(-2px); border-color: #cbd5e1; }
+    .item-card:active { transform: scale(0.98); }
+
+    .item-body { display: flex; flex-direction: column; justify-content: space-between; padding-left: 12px; }
+    .item-name  { font-size: 14px; font-weight: 900; color: #1e293b; margin-bottom: 4px; line-height: 1.3; }
+    @media (min-width: 480px) { .item-name { font-size: 15px; } }
+    .item-desc  {
+      font-size: 11px; color: #94a3b8; line-height: 1.6;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .item-footer { display: flex; align-items: center; justify-content: space-between; }
+    .item-price  { font-size: 16px; font-weight: 900; color: #ef4444; font-family: 'Outfit', sans-serif; }
+    .item-currency { font-size: 10px; color: #94a3b8; font-weight: 700; margin-right: 2px; }
+    .extras-tag {
+      font-size: 10px; font-weight: 900; color: #6366f1;
+      background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.15);
+      border-radius: 8px; padding: 3px 10px;
+    }
+
+    /* Image area */
+    .item-img-wrap { position: relative; align-self: center; }
+    .item-img {
+      width: 88px; height: 88px;
+      border-radius: 16px; object-fit: cover;
+    }
+    .item-img-ph {
+      width: 88px; height: 88px;
+      border-radius: 16px;
+      background: #f1f5f9;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px;
+    }
+    .featured-tag {
+      position: absolute; top: -6px; right: -6px;
+      background: #f59e0b; color: white;
+      font-size: 8px; font-weight: 900;
+      padding: 3px 8px; border-radius: 99px;
+      transform: rotate(8deg);
+      box-shadow: 0 4px 8px rgba(245,158,11,0.4);
+    }
+    .unavail-overlay {
+      position: absolute; inset: 0;
+      background: rgba(255,255,255,0.75);
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 900; color: #94a3b8;
+    }
+
+    /* ══ Item Detail Modal ══════════════════════════════════ */
+    .detail-modal {
+      position: fixed; inset: 0; z-index: 70;
+      display: flex; align-items: flex-end;
+      visibility: hidden;
+    }
+    .detail-modal.open { visibility: visible; }
+
+    .detail-bg {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(8px);
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+    .detail-modal.open .detail-bg { opacity: 1; }
+
+    .detail-sheet {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 640px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 36px 36px 0 0;
+      max-height: 88vh; overflow-y: auto; scrollbar-width: none;
+      transform: translateY(100%);
+      transition: transform 0.45s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .detail-sheet::-webkit-scrollbar { display: none; }
+    .detail-modal.open .detail-sheet { transform: translateY(0); }
+
+    @media (min-width: 640px) {
+      .detail-modal { align-items: center; }
+      .detail-sheet { border-radius: 32px; max-height: 80vh; margin-bottom: 0; }
+      .detail-modal .detail-sheet { transform: scale(0.9); }
+      .detail-modal.open .detail-sheet { transform: scale(1); }
+    }
+
+    .drag-handle { width: 44px; height: 5px; background: #e2e8f0; border-radius: 99px; margin: 14px auto 0; }
+    .detail-close {
+      position: absolute; left: 16px; top: 16px;
+      width: 36px; height: 36px;
+      background: #f1f5f9; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; color: #64748b;
+      border: none; cursor: pointer;
+    }
+    .detail-body { padding: 12px 22px 40px; }
+    .detail-img { width: 100%; height: 220px; object-fit: cover; border-radius: 22px; margin-bottom: 18px; }
+    .detail-name { font-size: 22px; font-weight: 900; color: #1e293b; margin-bottom: 6px; }
+    .detail-price-row { display: flex; align-items: baseline; gap: 4px; margin-bottom: 14px; }
+    .detail-price { font-size: 26px; font-weight: 900; color: #ef4444; font-family: 'Outfit', sans-serif; }
+    .detail-price-cur { font-size: 13px; color: #94a3b8; font-weight: 700; }
+    .detail-desc { font-size: 14px; color: #64748b; line-height: 1.8; margin-bottom: 20px; }
+
+    .extras-section { margin-top: 16px; }
+    .extras-title {
+      font-size: 12px; font-weight: 900; color: #475569;
+      display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+    }
+    .extras-title::before { content:''; width:3px; height:16px; background:#6366f1; border-radius:2px; display:block; }
+    .extras-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+    .extra-pill {
+      padding: 8px 14px;
+      background: #f8fafc; border: 1.5px solid #e2e8f0;
+      border-radius: 12px; font-size: 12px; font-weight: 900; color: #334155;
+    }
+    .extra-add-price { color: #ef4444; margin-right: 4px; font-family: 'Outfit', sans-serif; }
+
+    /* ══ Loading / Skeleton ═════════════════════════════════ */
+    .skeleton {
+      background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s ease infinite;
+      border-radius: 16px;
+    }
+    @keyframes shimmer { 0%{background-position:200%} 100%{background-position:-200%} }
+
+    .skel-card { height: 116px; background: white; border-radius: 20px; margin-bottom: 12px; padding: 14px; display: grid; grid-template-columns: 1fr 88px; gap: 14px; border: 1px solid #e2e8f0; }
+
+    /* ══ Error / Empty ══════════════════════════════════════ */
+    .state-box { text-align: center; padding: 60px 20px; }
+    .state-icon { font-size: 64px; opacity: 0.25; margin-bottom: 16px; }
+    .state-text { font-size: 15px; font-weight: 700; color: #94a3b8; }
+
+    /* ══ Footer ═════════════════════════════════════════════ */
+    .menu-footer { text-align: center; padding: 32px 16px 16px; }
+    .footer-brand { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: #cbd5e1; font-weight: 700; }
+  </style>
+</head>
+<body>
+
+<!-- Hero -->
+<div class="hero">
+  <img class="hero-cover" id="hero-cover" src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=1400" alt="">
+  <div class="hero-overlay"></div>
+  <div class="hero-top">
+    <button class="lang-btn" id="lang-btn" onclick="toggleLang()">English</button>
+    <div class="open-badge"><div class="open-dot"></div><span id="open-text">مفتوح</span></div>
+  </div>
+  <div class="hero-bottom">
+    <img id="hero-logo" src="" alt="" class="hero-logo" style="display:none;">
+    <h1 class="hero-name" id="hero-name">...</h1>
+    <p class="hero-tagline" id="hero-tagline"></p>
+    <div class="hero-links" id="hero-links"></div>
+  </div>
+</div>
+
+<!-- Category Nav -->
+<nav class="cat-nav" id="cat-nav">
+  <div class="cat-scroll" id="cat-pills">
+    <div class="skeleton" style="width:70px;height:36px;border-radius:99px;flex-shrink:0;"></div>
+    <div class="skeleton" style="width:90px;height:36px;border-radius:99px;flex-shrink:0;"></div>
+    <div class="skeleton" style="width:80px;height:36px;border-radius:99px;flex-shrink:0;"></div>
+  </div>
+</nav>
+
+<!-- Menu Items -->
+<main class="menu-main" id="menu-main">
+  <!-- Loading skeletons -->
+  <div id="loading-state">
+    <div class="skel-card"><div style="display:flex;flex-direction:column;gap:10px;"><div class="skeleton" style="height:18px;width:60%;"></div><div class="skeleton" style="height:12px;width:90%;"></div><div class="skeleton" style="height:16px;width:35%;"></div></div><div class="skeleton" style="width:88px;height:88px;border-radius:16px;"></div></div>
+    <div class="skel-card"><div style="display:flex;flex-direction:column;gap:10px;"><div class="skeleton" style="height:18px;width:70%;"></div><div class="skeleton" style="height:12px;width:85%;"></div><div class="skeleton" style="height:16px;width:40%;"></div></div><div class="skeleton" style="width:88px;height:88px;border-radius:16px;"></div></div>
+    <div class="skel-card"><div style="display:flex;flex-direction:column;gap:10px;"><div class="skeleton" style="height:18px;width:55%;"></div><div class="skeleton" style="height:12px;width:95%;"></div><div class="skeleton" style="height:16px;width:30%;"></div></div><div class="skeleton" style="width:88px;height:88px;border-radius:16px;"></div></div>
+  </div>
+</main>
+
+<!-- Item Detail Modal -->
+<div class="detail-modal" id="detail-modal">
+  <div class="detail-bg" onclick="closeDetail()"></div>
+  <div class="detail-sheet">
+    <div class="drag-handle"></div>
+    <button class="detail-close" onclick="closeDetail()">✕</button>
+    <div class="detail-body">
+      <img id="detail-img" class="detail-img" src="" alt="">
+      <h2 class="detail-name" id="detail-name"></h2>
+      <div class="detail-price-row">
+        <span class="detail-price" id="detail-price"></span>
+        <span class="detail-price-cur" id="detail-currency">ج.م</span>
+      </div>
+      <p class="detail-desc" id="detail-desc"></p>
+      <div id="detail-extras" style="display:none;">
+        <div class="extras-section">
+          <div class="extras-title" id="extras-label">الإضافات المتاحة</div>
+          <div class="extras-wrap" id="extras-pills"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="menu-footer"><div class="footer-brand">🍴 <span>QR Menu Platform</span></div></footer>
+
+<script type="module">
+import { getFullMenu } from './js/db.js';
+
+const params = new URLSearchParams(window.location.search);
+const slug   = params.get('r');
+let menuData = null;
+let lang     = 'ar';
+let currency = 'ج.م';
+let activeCategory = 'all';
+
+const i18n = {
+  ar: { open:'مفتوح', all:'الكل', extras:'الإضافات المتاحة', unavail:'غير متاح', nolang:'English' },
+  en: { open:'Open',  all:'All',  extras:'Available Extras', unavail:'Unavailable', nolang:'عربي' },
+};
+
+const demoMenuData = {
+  restaurant: {
+    name: "مطعم هربي لاند (تجريبي)",
+    tagline: "أشهى المأكولات والوجبات السريعة على مدار الساعة",
+    logo: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=100&auto=format&fit=crop&q=60",
+    cover: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=1400",
+    phone: "01000000000",
+    whatsapp: "01000000000",
+    instagram: "harpy.menu",
+    currency: "ج.م"
+  },
+  categories: [
+    {
+      id: "cat-1",
+      nameAr: "الأكثر مبيعاً",
+      nameEn: "Best Sellers",
+      isActive: true,
+      items: [
+        {
+          id: "item-1",
+          nameAr: "جراند بيرجر لحم دبل",
+          nameEn: "Double Grand Beef Burger",
+          descAr: "شريحتين من اللحم البقري المشوي مع الجبن الشيدر السائح، خس، طماطم، بصل وصوص البيرجر المميز",
+          descEn: "Two grilled beef patties with melted cheddar, lettuce, tomatoes, onions, and special burger sauce",
+          price: 150,
+          isFeatured: true,
+          isAvailable: true,
+          image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&auto=format&fit=crop&q=60",
+          extras: [
+            { nameAr: "جبنة شيدر إضافية", nameEn: "Extra Cheddar", price: 15 },
+            { nameAr: "صوص حار", nameEn: "Hot Sauce", price: 5 }
+          ]
+        },
+        {
+          id: "item-2",
+          nameAr: "شاورما عربي دجاج جامبو",
+          nameEn: "Jumbo Chicken Shawarma",
+          descAr: "قطع صدور الدجاج المتبلة بخلطة الهرمل الخاصة، بطاطس مقرمشة، مخلل وثومية غنية ملفوفة في خبز الصاج المحمص",
+          descEn: "Marinated chicken breast with special spices, crispy fries, pickles, and garlic sauce in toasted saj bread",
+          price: 110,
+          isFeatured: true,
+          isAvailable: true,
+          image: "https://images.unsplash.com/photo-1529006557810-2f4b6bc098c6?w=500&auto=format&fit=crop&q=60"
+        }
+      ]
+    },
+    {
+      id: "cat-2",
+      nameAr: "الوجبات الرئيسية",
+      nameEn: "Main Meals",
+      isActive: true,
+      items: [
+        {
+          id: "item-3",
+          nameAr: "نصف دجاجة مشوية على الفحم",
+          nameEn: "Charcoal Grilled Half Chicken",
+          descAr: "تقدم مع الأرز البسمتي المبهر، سلطة خضراء، طحينة، وخبز طازج",
+          descEn: "Served with spiced basmati rice, green salad, tahini, and fresh bread",
+          price: 140,
+          isAvailable: true,
+          image: "https://images.unsplash.com/photo-1598515214211-89d3e73ae83b?w=500&auto=format&fit=crop&q=60"
+        }
+      ]
+    },
+    {
+      id: "cat-3",
+      nameAr: "المقبلات والطلبات الجانبية",
+      nameEn: "Appetizers & Sides",
+      isActive: true,
+      items: [
+        {
+          id: "item-4",
+          nameAr: "بطاطس بالجبن والهلابينو",
+          nameEn: "Cheddar & Jalapeno Fries",
+          descAr: "بطاطس ذهبية مقرمشة مغطاة بصوص الجبن الشيدر الغني وشرائح الهلابينو الحارة",
+          descEn: "Golden crispy fries topped with rich cheddar cheese sauce and spicy jalapeno slices",
+          price: 65,
+          isAvailable: true,
+          image: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500&auto=format&fit=crop&q=60"
+        },
+        {
+          id: "item-5",
+          nameAr: "حلقات البصل المقرمشة",
+          nameEn: "Crispy Onion Rings",
+          descAr: "8 قطع من حلقات البصل الذهبية المقرمشة تقدم مع صوص الباربكيو",
+          descEn: "8 pieces of golden crispy onion rings served with BBQ sauce",
+          price: 45,
+          isAvailable: true,
+          image: "https://images.unsplash.com/photo-1639024471283-2bc7b3c6a267?w=500&auto=format&fit=crop&q=60"
+        }
+      ]
+    }
+  ]
+};
+
+function loadDemoMenu() {
+  menuData = demoMenuData;
+  currency = demoMenuData.restaurant.currency;
+  renderHero();
+  renderCats();
+  renderMenu(menuData.categories);
+  const loadingState = document.getElementById('loading-state');
+  if (loadingState) loadingState.remove();
+  const name = demoMenuData.restaurant.name;
+  document.getElementById('page-title').textContent = name + ' — المنيو';
+  document.title = name + ' — المنيو';
+}
+
+async function init() {
+  if (!slug) { showState('لم يتم تحديد المطعم', '❓'); return; }
+  if (slug === 'demo') {
+    loadDemoMenu();
+    return;
+  }
+  try {
+    const data = await getFullMenu(slug);
+    if (!data) { showState('المطعم غير موجود أو غير نشط', '🔒'); return; }
+    menuData = data;
+    currency = data.restaurant.currency || 'ج.م';
+    renderHero();
+    renderCats();
+    renderMenu(menuData.categories);
+    const loadingState = document.getElementById('loading-state');
+    if (loadingState) loadingState.remove();
+    const name = data.restaurant.name;
+    document.getElementById('page-title').textContent = name + ' — المنيو';
+    document.title = name + ' — المنيو';
+  } catch(e) {
+    console.error(e);
+    showState('تعذّر تحميل المنيو. تحقق من الاتصال.', '📡');
+  }
+}
+
+function renderHero() {
+  const r = menuData.restaurant;
+  if (r.cover) document.getElementById('hero-cover').src = r.cover;
+  if (r.logo) {
+    const logo = document.getElementById('hero-logo');
+    logo.src = r.logo; logo.style.display = 'block';
+  }
+  document.getElementById('hero-name').textContent = r.name;
+  document.getElementById('hero-tagline').textContent = r.tagline || '';
+  const links = document.getElementById('hero-links');
+  const items = [];
+  if (r.phone)     items.push(`<a href="tel:${r.phone}" class="hero-link">📞 ${r.phone}</a>`);
+  if (r.whatsapp)  items.push(`<a href="https://wa.me/${r.whatsapp.replace(/\D/g,'')}" target="_blank" class="hero-link">💬 واتساب</a>`);
+  if (r.instagram) items.push(`<a href="https://instagram.com/${r.instagram.replace('@','')}" target="_blank" class="hero-link">📸</a>`);
+  if (r.facebook)  items.push(`<a href="https://facebook.com/${r.facebook}" target="_blank" class="hero-link">👍</a>`);
+  links.innerHTML = items.join('');
+}
+
+function renderCats() {
+  const pills = document.getElementById('cat-pills');
+  const activeCats = menuData.categories.filter(c => c.items.length > 0);
+  pills.innerHTML = `<button class="cat-pill active" onclick="filterCat('all',this)">${i18n[lang].all}</button>` +
+    activeCats.map(c => `<button class="cat-pill" onclick="filterCat('${c.id}',this)">${lang==='ar'?c.nameAr:c.nameEn||c.nameAr}</button>`).join('');
+}
+
+function renderMenu(cats) {
+  const main = document.getElementById('menu-main');
+  const activeCats = cats.filter(c => c.items.length > 0);
+  if (!activeCats.length) {
+    main.innerHTML = `<div class="state-box"><div class="state-icon">🍽️</div><div class="state-text">لا توجد أصناف في هذا القسم</div></div>`;
+    return;
+  }
+  main.innerHTML = activeCats.map(cat => `
+    <div class="cat-section" id="cat-${cat.id}">
+      <div class="section-head">
+        <h2>${lang==='ar' ? cat.nameAr : cat.nameEn || cat.nameAr}</h2>
+        <div class="section-line"></div>
+      </div>
+      ${cat.items.map(item => buildItemCard(item)).join('')}
+    </div>`).join('');
+}
+
+function buildItemCard(item) {
+  const name = lang==='ar' ? item.nameAr : item.nameEn || item.nameAr;
+  const desc = lang==='ar' ? item.descAr : item.descEn || item.descAr;
+  const imgHtml = item.image
+    ? `<img class="item-img" src="${item.image}" alt="${name}" loading="lazy">`
+    : `<div class="item-img-ph">🍽️</div>`;
+  return `
+    <div class="item-card" onclick="openDetail('${item.id}')">
+      <div class="item-body">
+        <div>
+          <div class="item-name">${name}</div>
+          ${desc ? `<div class="item-desc">${desc}</div>` : ''}
+        </div>
+        <div class="item-footer">
+          <div>
+            <span class="item-price">${parseFloat(item.price||0).toFixed(2)}</span>
+            <span class="item-currency">${currency}</span>
+          </div>
+          ${item.extras?.length ? `<span class="extras-tag">+ ${item.extras.length} إضافة</span>` : ''}
+        </div>
+      </div>
+      <div class="item-img-wrap">
+        ${imgHtml}
+        ${item.isFeatured ? '<span class="featured-tag">Best</span>' : ''}
+        ${item.isAvailable === false ? `<div class="unavail-overlay">${i18n[lang].unavail}</div>` : ''}
+      </div>
+    </div>`;
+}
+
+window.filterCat = function(catId, btn) {
+  document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  activeCategory = catId;
+  if (catId === 'all') renderMenu(menuData.categories);
+  else renderMenu(menuData.categories.filter(c => c.id === catId));
+};
+
+window.openDetail = function(itemId) {
+  let item = null;
+  for (const cat of menuData.categories) {
+    item = cat.items.find(i => i.id === itemId);
+    if (item) break;
+  }
+  if (!item) return;
+
+  const name = lang==='ar' ? item.nameAr : item.nameEn || item.nameAr;
+  const desc = lang==='ar' ? item.descAr : item.descEn || item.descAr;
+  document.getElementById('detail-img').src = item.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=600';
+  document.getElementById('detail-name').textContent    = name;
+  document.getElementById('detail-price').textContent   = parseFloat(item.price||0).toFixed(2);
+  document.getElementById('detail-currency').textContent = currency;
+  document.getElementById('detail-desc').textContent    = desc || '';
+  const extrasEl = document.getElementById('detail-extras');
+  if (item.extras?.length) {
+    document.getElementById('extras-label').textContent = i18n[lang].extras;
+    document.getElementById('extras-pills').innerHTML = item.extras.map(e =>
+      `<div class="extra-pill">${lang==='ar'?e.nameAr:e.nameEn||e.nameAr} <span class="extra-add-price">+${parseFloat(e.price||0).toFixed(2)}</span></div>`
+    ).join('');
+    extrasEl.style.display = 'block';
+  } else { extrasEl.style.display = 'none'; }
+  document.getElementById('detail-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+};
+
+window.closeDetail = function() {
+  document.getElementById('detail-modal').classList.remove('open');
+  document.body.style.overflow = '';
+};
+
+window.toggleLang = function() {
+  lang = lang === 'ar' ? 'en' : 'ar';
+  const html = document.getElementById('html-root');
+  html.lang = lang; html.dir = lang==='ar' ? 'rtl' : 'ltr';
+  document.getElementById('lang-btn').textContent = i18n[lang].nolang;
+  document.getElementById('open-text').textContent = i18n[lang].open;
+  if (menuData) {
+    renderCats();
+    const cats = activeCategory==='all' ? menuData.categories : menuData.categories.filter(c=>c.id===activeCategory);
+    renderMenu(cats);
+  }
+};
+
+function showState(msg, icon) {
+  document.getElementById('loading-state').remove();
+  document.getElementById('menu-main').innerHTML = `<div class="state-box"><div class="state-icon">${icon}</div><div class="state-text">${msg}</div></div>`;
+  document.getElementById('cat-pills').innerHTML = '';
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDetail(); });
+
+init();
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('Service Worker registered', reg))
+        .catch(err => console.log('Service Worker registration failed', err));
+    });
+  }
+</script>
+</body>
+</html>

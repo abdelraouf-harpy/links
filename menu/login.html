@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تسجيل الدخول — QR Menu</title>
+  <link rel="stylesheet" href="./css/app.css">
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#6366f1">
+  <link rel="apple-touch-icon" href="./pwa-icon.png">
+  <style>
+    body { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; overflow: hidden; }
+
+    /* Animated background */
+    .bg-orbs { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+    .orb {
+      position: absolute; border-radius: 50%;
+      filter: blur(80px); opacity: 0.15; animation: float 8s ease-in-out infinite;
+    }
+    .orb-1 { width: 500px; height: 500px; background: radial-gradient(circle, #6366f1, transparent); top: -150px; right: -100px; }
+    .orb-2 { width: 400px; height: 400px; background: radial-gradient(circle, #ec4899, transparent); bottom: -100px; left: -100px; animation-delay: -4s; }
+    .orb-3 { width: 300px; height: 300px; background: radial-gradient(circle, #22c55e, transparent); top: 50%; left: 50%; animation-delay: -2s; }
+    @keyframes float { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(20px,-20px) scale(1.05)} }
+
+    /* Card */
+    .login-card {
+      position: relative; z-index: 1;
+      background: rgba(17,24,39,0.92);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 40px;
+      padding: 48px 40px;
+      width: 100%; max-width: 420px;
+      backdrop-filter: blur(24px);
+      box-shadow: 0 40px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05);
+      animation: card-in 0.6s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    @keyframes card-in { from{opacity:0;transform:translateY(40px) scale(0.95)} to{opacity:1;transform:translateY(0) scale(1)} }
+
+    @media (max-width: 480px) {
+      .login-card { padding: 36px 24px; border-radius: 28px; }
+    }
+
+    /* Logo */
+    .login-logo {
+      width: 76px; height: 76px;
+      background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
+      border-radius: 28px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 34px;
+      margin: 0 auto 20px;
+      box-shadow: 0 16px 40px rgba(99,102,241,0.5);
+      animation: logo-bounce 0.8s cubic-bezier(0.34,1.56,0.64,1) 0.2s both;
+    }
+    @keyframes logo-bounce { from{transform:scale(0.5);opacity:0} to{transform:scale(1);opacity:1} }
+
+    .login-title { font-size: 22px; font-weight: 900; text-align: center; margin-bottom: 4px; }
+    .login-sub   { font-size: 11px; color: var(--text-3); text-align: center; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 32px; }
+
+    /* Error */
+    .error-box {
+      display: none;
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.3);
+      border-radius: var(--r-md);
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #fca5a5;
+      margin-bottom: 20px;
+      text-align: center;
+      animation: shake 0.4s ease;
+    }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
+
+    /* Password wrap */
+    .pass-wrap { position: relative; }
+    .pass-wrap .input { padding-left: 48px; }
+    .eye-toggle {
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: var(--text-3); font-size: 18px;
+      cursor: pointer; padding: 4px; transition: color 0.15s;
+    }
+    .eye-toggle:hover { color: var(--text); }
+
+    /* Submit */
+    .submit-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #6366f1, #ec4899);
+      color: white; border: none;
+      border-radius: var(--r-lg); padding: 16px;
+      font-family: 'Cairo', sans-serif; font-size: 16px; font-weight: 900;
+      cursor: pointer; margin-top: 24px;
+      box-shadow: 0 12px 32px rgba(99,102,241,0.4);
+      transition: all 0.25s ease; position: relative; overflow: hidden;
+    }
+    .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 20px 48px rgba(99,102,241,0.5); }
+    .submit-btn:active { transform: scale(0.98); }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .footer-note { text-align: center; margin-top: 24px; font-size: 11px; color: var(--text-3); font-weight: 700; }
+  </style>
+</head>
+<body>
+
+<!-- Animated BG Orbs -->
+<div class="bg-orbs">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<div class="login-card">
+  <div class="login-logo">🍴</div>
+  <h1 class="login-title">QR Menu Platform</h1>
+  <p class="login-sub">Staff Login Portal</p>
+
+  <div class="error-box" id="error-box">⚠️ <span id="error-text"></span></div>
+
+  <form id="login-form" novalidate>
+    <div class="field-group">
+      <label class="field-label" for="email">البريد الإلكتروني</label>
+      <div class="input-group">
+        <span class="input-icon">✉️</span>
+        <input class="input" type="email" id="email" placeholder="example@email.com" autocomplete="email" required>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="password">كلمة المرور</label>
+      <div class="pass-wrap">
+        <input class="input" type="password" id="password" placeholder="••••••••" autocomplete="current-password" required>
+        <button type="button" class="eye-toggle" id="eye-toggle" aria-label="عرض كلمة المرور">👁️</button>
+      </div>
+    </div>
+
+    <button type="submit" class="submit-btn" id="submit-btn">
+      <span id="btn-text">تسجيل الدخول</span>
+    </button>
+  </form>
+
+  <p class="footer-note">🍴 منصة إدارة قوائم الطعام</p>
+</div>
+
+<script type="module">
+import { auth } from './js/firebase.js';
+import {
+  signInWithEmailAndPassword,
+  onAuthStateChanged
+} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getUserProfile } from './js/db.js';
+
+// Check if already logged in
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    const profile = await getUserProfile(user.uid);
+    window.location.href = profile?.role === 'ADMIN' ? './platform.html' : './manager.html';
+  }
+});
+
+// Eye toggle
+document.getElementById('eye-toggle').addEventListener('click', function() {
+  const input = document.getElementById('password');
+  const isHidden = input.type === 'password';
+  input.type = isHidden ? 'text' : 'password';
+  this.textContent = isHidden ? '🙈' : '👁️';
+});
+
+// Login form
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email    = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const btn      = document.getElementById('submit-btn');
+  const btnText  = document.getElementById('btn-text');
+  const errorBox = document.getElementById('error-box');
+
+  // Show loading
+  btn.disabled = true;
+  btnText.innerHTML = '⏳ جاري الدخول...';
+  errorBox.style.display = 'none';
+
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    btnText.innerHTML = '✅ تم! جاري التحويل...';
+    // redirect is handled by onAuthStateChanged
+  } catch (err) {
+    const messages = {
+      'auth/invalid-credential':    'البريد الإلكتروني أو كلمة المرور غير صحيحة',
+      'auth/user-not-found':        'لا يوجد حساب بهذا البريد الإلكتروني',
+      'auth/wrong-password':        'كلمة المرور غير صحيحة',
+      'auth/too-many-requests':     'تم تجاوز عدد المحاولات. حاول لاحقاً',
+      'auth/network-request-failed':'خطأ في الاتصال بالإنترنت',
+    };
+    document.getElementById('error-text').textContent = messages[err.code] || 'حدث خطأ. حاول مرة أخرى';
+    errorBox.style.display = 'block';
+    // Reset animation
+    errorBox.style.animation = 'none';
+    errorBox.offsetHeight; // trigger reflow
+    errorBox.style.animation = 'shake 0.4s ease';
+    btn.disabled = false;
+    btnText.textContent = 'تسجيل الدخول';
+  }
+});
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('Service Worker registered', reg))
+        .catch(err => console.log('Service Worker registration failed', err));
+    });
+  }
+</script>
+</body>
+</html>
