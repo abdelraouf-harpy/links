@@ -502,7 +502,8 @@ window.doRegister = async function() {
       'auth/invalid-email':        'البريد الإلكتروني غير صحيح',
       'auth/weak-password':        'كلمة المرور ضعيفة جداً',
     };
-    toast(msgs[e.code] || 'حدث خطأ أثناء التسجيل، يرجى المحاولة لاحقاً', 'error');
+    console.error(e);
+    toast(msgs[e.code] || `حدث خطأ: ${e.code || e.message || e}`, 'error');
   } finally { setLoading('btn-register', false); }
 };
 
