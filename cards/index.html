@@ -308,6 +308,11 @@
         <input type="password" id="r-conf" class="form-input" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" autocomplete="new-password" />
       </div>
 
+      <div class="form-group">
+        <label class="form-label" for="r-code">ÙƒÙˆØ¯ Ø§Ù„ØªÙ Ø¹ÙŠÙ„ (Activation Code)</label>
+        <input type="text" id="r-code" class="form-input" placeholder="HARPY-XXXX-XXXX" style="direction: ltr; text-align: left;" autocomplete="off" />
+      </div>
+
       <button class="btn-submit" id="btn-register" onclick="doRegister()">
         <span class="btn-txt">Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ø­Ø³Ø§Ø¨ âœ¨</span>
         <div class="btn-spinner"></div>
@@ -326,7 +331,7 @@
 import { auth, db } from "./js/firebase-config.js";
 import { createUserWithEmailAndPassword,
          signInWithEmailAndPassword, onAuthStateChanged }        from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { doc, setDoc, getDoc }                     from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { doc, setDoc, getDoc, updateDoc }                     from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* redirect if already logged in */
 onAuthStateChanged(auth, user => {
@@ -427,7 +432,7 @@ window.doLogin = async function() {
   } catch (e) {
     const msgs = {
       'auth/invalid-credential':   'Ø§Ù„Ø¥ÙŠÙ…ÙŠÙ„ Ø£Ùˆ ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± ØºÙ„Ø·',
-      'auth/user-not-found':       'Ù…ÙÙŠØ´ Ø­Ø³Ø§Ø¨ Ø¨Ø§Ù„Ø¥ÙŠÙ…ÙŠÙ„ Ø¯Ù‡',
+      'auth/user-not-found':       'Ù…Ù ÙŠØ´ Ø­Ø³Ø§Ø¨ Ø¨Ø§Ù„Ø¥ÙŠÙ…ÙŠÙ„ Ø¯Ù‡',
       'auth/wrong-password':       'ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± ØºÙ„Ø·',
       'auth/invalid-email':        'Ø§Ù„Ø¥ÙŠÙ…ÙŠÙ„ Ù…Ø´ ØµØ­ÙŠØ­',
       'auth/too-many-requests':    'Ù…Ø­Ø§ÙˆÙ„Ø§Øª ÙƒØªÙŠØ±ØŒ Ø§Ø³ØªÙ†Ù‰ Ø¯Ù‚ÙŠÙ‚Ø©',
@@ -443,20 +448,45 @@ window.doRegister = async function() {
   const email = document.getElementById('r-email').value.trim();
   const pass  = document.getElementById('r-pass').value;
   const conf  = document.getElementById('r-conf').value;
+  const code  = document.getElementById('r-code').value.trim().toUpperCase();
 
-  if (!name || !uname || !email || !pass || !conf) { toast('Ø§Ø¯Ø®Ù„ ÙƒÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª', 'error'); return; }
+  if (!name || !uname || !email || !pass || !conf || !code) { toast('Ø§Ø¯Ø®Ù„ ÙƒÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª', 'error'); return; }
   if (!/^[a-zA-Z0-9_]{3,20}$/.test(uname)) { toast('Ø§Ù„ÙŠÙˆØ²Ø±Ù†ÙŠÙ… Ù…Ø´ ØµØ­ÙŠØ­', 'error'); return; }
   if (pass !== conf)  { toast('ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ù…Ø´ Ù…ØªØ·Ø§Ø¨Ù‚Ø©', 'error'); return; }
-  if (pass.length < 6) { toast('ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ù„Ø§Ø²Ù… 6 Ø£Ø­Ø±Ù Ø¹Ù„Ù‰ Ø§Ù„Ø£Ù‚Ù„', 'error'); return; }
+  if (pass.length < 6) { toast('ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ù„Ø§Ø²Ù… 6 Ø£Ø­Ø±Ù  Ø¹Ù„Ù‰ Ø§Ù„Ø£Ù‚Ù„', 'error'); return; }
 
   setLoading('btn-register', true);
   try {
-    const taken = await getDoc(doc(db, 'usernames', uname));
-    if (taken.exists()) { toast('Ø§Ù„ÙŠÙˆØ²Ø±Ù†ÙŠÙ… Ù…Ø£Ø®ÙˆØ°', 'error'); return; }
+    // 1. Verify activation code
+    const codeSnap = await getDoc(doc(db, 'activationCodes', code));
+    if (!codeSnap.exists()) {
+      toast('ÙƒÙˆØ¯ Ø§Ù„ØªÙ Ø¹ÙŠÙ„ ØºÙŠØ± ØµØ­ÙŠØ­', 'error');
+      setLoading('btn-register', false);
+      return;
+    }
+    const codeData = codeSnap.data();
+    if (codeData.isUsed === true) {
+      toast('ÙƒÙˆØ¯ Ø§Ù„ØªÙ Ø¹ÙŠÙ„ Ù…Ø³ØªØ®Ø¯Ù… Ù…Ù† Ù‚Ø¨Ù„', 'error');
+      setLoading('btn-register', false);
+      return;
+    }
 
+    // 2. Verify username
+    const taken = await getDoc(doc(db, 'usernames', uname));
+    if (taken.exists()) { toast('Ø§Ù„ÙŠÙˆØ²Ø±Ù†ÙŠÙ… Ù…Ø£Ø®ÙˆØ°', 'error'); setLoading('btn-register', false); return; }
+
+    // 3. Create auth user
     const cred = await createUserWithEmailAndPassword(auth, email, pass);
     const uid  = cred.user.uid;
 
+    // 4. Update activation code to used
+    await updateDoc(doc(db, 'activationCodes', code), {
+      isUsed: true,
+      usedBy: uid,
+      usedAt: new Date().toISOString()
+    });
+
+    // 5. Create user doc
     await setDoc(doc(db, 'users', uid), {
       uid, username:uname, name, email,
       photo:'', title:'', company:'', bio:'',
@@ -469,7 +499,7 @@ window.doRegister = async function() {
     });
     await setDoc(doc(db, 'usernames', uname), { uid });
 
-    toast('ØªÙ… Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ø­Ø³Ø§Ø¨! ðŸŽ‰', 'success');
+    toast('ØªÙ… Ø¥Ù†Ø½Ø§Ø¡ Ø§Ù„Ø­Ø³Ø§Ø¨! ðŸŽ‰', 'success');
     setTimeout(() => window.location.href = 'dashboard.html', 1000);
   } catch (e) {
     const msgs = {
