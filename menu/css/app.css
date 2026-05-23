@@ -712,3 +712,21 @@ tbody tr:hover td { background: rgba(255,255,255,0.02); }
 .loader-dot:nth-child(2) { animation-delay: 0.2s; background: var(--accent); }
 .loader-dot:nth-child(3) { animation-delay: 0.4s; background: var(--success); }
 @keyframes dot-bounce { 0%,80%,100%{transform:scale(0.7);opacity:0.5} 40%{transform:scale(1);opacity:1} }
+
+/* ── SVG Icon styling ── */
+.icon-svg {
+  width: 1.25em;
+  height: 1.25em;
+  vertical-align: middle;
+  display: inline-block;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.icon-svg-lg {
+  width: 1.6em;
+  height: 1.6em;
+}
+

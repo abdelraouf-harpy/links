@@ -279,8 +279,20 @@
     .state-text { font-size: 15px; font-weight: 700; color: #94a3b8; }
 
     /* ══ Footer ═════════════════════════════════════════════ */
-    .menu-footer { text-align: center; padding: 32px 16px 16px; }
     .footer-brand { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: #cbd5e1; font-weight: 700; }
+    
+    /* ── SVG Icon styling ── */
+    .icon-svg {
+      width: 1.25em;
+      height: 1.25em;
+      vertical-align: middle;
+      display: inline-block;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
   </style>
 </head>
 <body>
@@ -344,7 +356,7 @@
   </div>
 </div>
 
-<footer class="menu-footer"><div class="footer-brand">🍴 <span>QR Menu Platform</span></div></footer>
+<footer class="menu-footer"><div class="footer-brand"><svg class="icon-svg" viewBox="0 0 24 24" style="width: 1.1em; height: 1.1em; stroke: #cbd5e1; margin-left: 4px; vertical-align: -2px;"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg> <span>QR Menu Platform</span></div></footer>
 
 <script type="module">
 import { getFullMenu } from './js/db.js';
@@ -403,7 +415,7 @@ const demoMenuData = {
           price: 110,
           isFeatured: true,
           isAvailable: true,
-          image: "https://images.unsplash.com/photo-1529006557810-2f4b6bc098c6?w=500&auto=format&fit=crop&q=60"
+          image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=500&auto=format&fit=crop&q=60"
         }
       ]
     },
@@ -523,7 +535,7 @@ function renderMenu(cats) {
   const main = document.getElementById('menu-main');
   const activeCats = cats.filter(c => c.items.length > 0);
   if (!activeCats.length) {
-    main.innerHTML = `<div class="state-box"><div class="state-icon">🍽️</div><div class="state-text">لا توجد أصناف في هذا القسم</div></div>`;
+    main.innerHTML = `<div class="state-box"><div class="state-icon"><svg class="icon-svg" viewBox="0 0 24 24" style="stroke: #cbd5e1; width: 64px; height: 64px;"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg></div><div class="state-text">لا توجد أصناف في هذا القسم</div></div>`;
     return;
   }
   main.innerHTML = activeCats.map(cat => `
@@ -541,7 +553,7 @@ function buildItemCard(item) {
   const desc = lang==='ar' ? item.descAr : item.descEn || item.descAr;
   const imgHtml = item.image
     ? `<img class="item-img" src="${item.image}" alt="${name}" loading="lazy">`
-    : `<div class="item-img-ph">🍽️</div>`;
+    : `<div class="item-img-ph"><svg class="icon-svg" viewBox="0 0 24 24" style="stroke: #cbd5e1; width: 32px; height: 32px;"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg></div>`;
   return `
     <div class="item-card" onclick="openDetail('${item.id}')">
       <div class="item-body">
