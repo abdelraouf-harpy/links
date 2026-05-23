@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HARPY CARDS â€” Ø³Ø¬Ù‘Ù„ ÙˆØ§Ø¨Ø¯Ø£</title>
+  <meta name="description" content="Ø¨Ø·Ø§Ù‚Ø© Ø¨ÙŠØ²Ù†Ø³ Ø±Ù‚Ù…ÙŠØ© Ø°ÙƒÙŠØ© â€” Ø§Ø¶ØºØ· ÙˆØ´Ø§Ø±Ùƒ Ù…Ø¹Ù„ÙˆÙ…Ø§ØªÙƒ Ø¨Ù€ NFC" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:           #06060f;
+      --surface:      #0d0d1f;
+      --card:         rgba(255,255,255,0.04);
+      --border:       rgba(255,255,255,0.09);
+      --primary:      #7c3aed;
+      --primary-lt:   #a78bfa;
+      --primary-glow: rgba(124,58,237,0.28);
+      --pink:         #db2777;
+      --text:         #f1f5f9;
+      --muted:        #94a3b8;
+      --dim:          #64748b;
+      --success:      #10b981;
+      --error:        #ef4444;
+      --warn:         #f59e0b;
+      --radius:       14px;
+      --ease:         cubic-bezier(0.4,0,0.2,1);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* â”€â”€ Animated background â”€â”€ */
+    .bg-layer {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 0;
+      overflow: hidden;
+    }
+    .orb {
+      position: absolute; border-radius: 50%;
+      filter: blur(90px); opacity: 0.12;
+      animation: drift linear infinite;
+    }
+    .orb-1 { width:700px; height:700px; background:var(--primary); top:-250px; right:-150px; animation-duration:22s; }
+    .orb-2 { width:500px; height:500px; background:var(--pink);    bottom:-150px; left:-120px; animation-duration:18s; animation-direction:reverse; }
+    .orb-3 { width:350px; height:350px; background:#06b6d4;        top:40%; left:40%; animation-duration:28s; }
+
+    @keyframes drift {
+      0%   { transform:translate(0,0) rotate(0deg); }
+      25%  { transform:translate(40px,-40px) rotate(90deg); }
+      50%  { transform:translate(0,-80px) rotate(180deg); }
+      75%  { transform:translate(-40px,-40px) rotate(270deg); }
+      100% { transform:translate(0,0) rotate(360deg); }
+    }
+
+    /* â”€â”€ Grid lines bg â”€â”€ */
+    .grid-bg {
+      position: fixed; inset: 0; z-index: 0; opacity: 0.03;
+      background-image:
+        linear-gradient(rgba(255,255,255,.8) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.8) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    /* â”€â”€ Wrapper â”€â”€ */
+    .wrapper {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 460px;
+      padding: 20px;
+      animation: slideInUp .6s var(--ease) both;
+    }
+    @keyframes slideInUp {
+      from { opacity:0; transform:translateY(30px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    /* â”€â”€ Brand â”€â”€ */
+    .brand { text-align:center; margin-bottom:28px; }
+    .brand-logo {
+      display: inline-flex; align-items:center; gap:12px;
+      text-decoration:none; margin-bottom:8px;
+    }
+    .brand-icon {
+      width:50px; height:50px;
+      background: linear-gradient(135deg, var(--primary), var(--pink));
+      border-radius:15px; font-size:24px;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow: 0 0 35px var(--primary-glow);
+    }
+    .brand-name {
+      font-size:26px; font-weight:900; letter-spacing:-1px;
+      background: linear-gradient(135deg, var(--primary-lt), var(--pink));
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    }
+    .brand-tag { color:var(--muted); font-size:14px; }
+
+    /* â”€â”€ Card â”€â”€ */
+    .auth-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 24px; padding: 36px;
+      backdrop-filter: blur(24px);
+      box-shadow: 0 30px 60px rgba(0,0,0,.55);
+    }
+
+    /* â”€â”€ Tabs â”€â”€ */
+    .tabs {
+      display:flex; background:rgba(255,255,255,0.05);
+      border-radius:10px; padding:4px; gap:4px; margin-bottom:28px;
+    }
+    .tab-btn {
+      flex:1; padding:10px; border:none; border-radius:8px;
+      background:transparent; color:var(--muted);
+      font-size:14px; font-weight:600; cursor:pointer;
+      transition:.3s var(--ease); font-family:inherit;
+    }
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--primary), var(--pink));
+      color:white; box-shadow:0 4px 16px var(--primary-glow);
+    }
+
+    /* â”€â”€ Form â”€â”€ */
+    .form-section { display:none; }
+    .form-section.active { display:block; }
+
+    .form-group { margin-bottom:16px; }
+    .form-label {
+      display:block; font-size:12px; font-weight:600;
+      color:var(--muted); margin-bottom:7px;
+      text-transform:uppercase; letter-spacing:.5px;
+    }
+    .form-input {
+      width:100%; padding:13px 16px;
+      background:rgba(255,255,255,0.05);
+      border:1px solid var(--border);
+      border-radius:10px; color:var(--text);
+      font-size:14px; font-family:inherit;
+      outline:none; transition:.25s var(--ease);
+    }
+    .form-input::placeholder { color:var(--dim); }
+    .form-input:focus {
+      border-color:var(--primary);
+      background:rgba(124,58,237,0.09);
+      box-shadow:0 0 0 3px var(--primary-glow);
+    }
+    .form-input.is-error  { border-color:var(--error);   background:rgba(239,68,68,.07); }
+    .form-input.is-ok     { border-color:var(--success);  background:rgba(16,185,129,.07); }
+
+    .hint { font-size:12px; margin-top:5px; color:var(--dim); }
+    .hint.error   { color:var(--error); }
+    .hint.success { color:var(--success); }
+
+    /* Username row */
+    .uname-wrap { position:relative; }
+    .uname-badge {
+      position:absolute; top:50%; transform:translateY(-50%);
+      left:14px; font-size:15px; transition:.25s;
+    }
+    [dir="rtl"] .uname-badge { left:14px; right:auto; }
+    .form-input.uname-field { padding-left:40px; direction:ltr; text-align:left; }
+
+    /* Password strength */
+    .strength-bars { display:flex; gap:5px; margin-top:7px; }
+    .s-bar {
+      flex:1; height:3px; border-radius:3px;
+      background:var(--border); transition:.3s;
+    }
+    .s-bar.lvl-1 { background:var(--error); }
+    .s-bar.lvl-2 { background:var(--warn); }
+    .s-bar.lvl-3 { background:var(--success); }
+
+    /* Submit */
+    .btn-submit {
+      width:100%; padding:14px;
+      background: linear-gradient(135deg, var(--primary), var(--pink));
+      border:none; border-radius:10px;
+      color:white; font-size:15px; font-weight:700;
+      cursor:pointer; transition:.25s var(--ease);
+      font-family:inherit; margin-top:6px;
+      display:flex; align-items:center; justify-content:center; gap:8px;
+    }
+    .btn-submit:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 10px 30px var(--primary-glow); }
+    .btn-submit:disabled { opacity:.6; cursor:not-allowed; }
+    .btn-spinner {
+      width:18px; height:18px; border:2px solid rgba(255,255,255,.35);
+      border-top-color:white; border-radius:50%;
+      animation:spin .7s linear infinite; display:none;
+    }
+    .btn-submit.loading .btn-txt    { display:none; }
+    .btn-submit.loading .btn-spinner { display:block; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* â”€â”€ Toast â”€â”€ */
+    #toasts {
+      position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+      z-index:999; display:flex; flex-direction:column; gap:8px; align-items:center;
+    }
+    .toast {
+      padding:12px 22px; border-radius:10px;
+      font-size:14px; font-weight:600; color:white;
+      backdrop-filter:blur(16px);
+      box-shadow:0 8px 28px rgba(0,0,0,.35);
+      animation:toastIn .3s var(--ease);
+      min-width:240px; text-align:center;
+    }
+    .toast.success { background:rgba(16,185,129,.92); }
+    .toast.error   { background:rgba(239,68,68,.92); }
+    .toast.info    { background:rgba(124,58,237,.92); }
+    @keyframes toastIn {
+      from { opacity:0; transform:translateY(16px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    @media(max-width:480px) {
+      .auth-card { padding:24px 18px; }
+      .wrapper { padding:14px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="bg-layer">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+<div class="grid-bg"></div>
+
+<div class="wrapper">
+  <div class="brand">
+    <a class="brand-logo" href="#">
+      <div class="brand-icon">ðŸ’³</div>
+      <span class="brand-name">HARPY CARDS</span>
+    </a>
+    <p class="brand-tag">Ø¨Ø·Ø§Ù‚Ø© Ø¨ÙŠØ²Ù†Ø³ Ø±Ù‚Ù…ÙŠØ© â€” Ø§Ø¶ØºØ· ÙˆØ´Ø§Ø±Ùƒ</p>
+  </div>
+
+  <div class="auth-card">
+    <div class="tabs">
+      <button class="tab-btn active" id="tab-login"    onclick="switchTab('login')">Ø¯Ø®ÙˆÙ„</button>
+      <button class="tab-btn"        id="tab-register" onclick="switchTab('register')">ØªØ³Ø¬ÙŠÙ„</button>
+    </div>
+
+    <!-- â”€â”€ LOGIN â”€â”€ -->
+    <div class="form-section active" id="sec-login">
+      <div class="form-group">
+        <label class="form-label" for="l-email">Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ</label>
+        <input type="email" id="l-email" class="form-input" placeholder="example@email.com" autocomplete="email" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="l-pass">ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±</label>
+        <input type="password" id="l-pass" class="form-input" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" autocomplete="current-password" />
+      </div>
+      <button class="btn-submit" id="btn-login" onclick="doLogin()">
+        <span class="btn-txt">Ø¯Ø®ÙˆÙ„ ðŸš€</span>
+        <div class="btn-spinner"></div>
+      </button>
+    </div>
+
+    <!-- â”€â”€ REGISTER â”€â”€ -->
+    <div class="form-section" id="sec-register">
+      <div class="form-group">
+        <label class="form-label" for="r-name">Ø§Ù„Ø§Ø³Ù… Ø§Ù„ÙƒØ§Ù…Ù„</label>
+        <input type="text" id="r-name" class="form-input" placeholder="Ø£Ø­Ù…Ø¯ Ù…Ø­Ù…Ø¯" autocomplete="name" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="r-uname">Ø§Ù„ÙŠÙˆØ²Ø±Ù†ÙŠÙ… (Ø±Ø§Ø¨Ø· Ø¨Ø·Ø§Ù‚ØªÙƒ)</label>
+        <div class="uname-wrap">
+          <input type="text" id="r-uname" class="form-input uname-field"
+                 placeholder="ahmed" autocomplete="off"
+                 oninput="checkUsername(this.value)" />
+          <span class="uname-badge" id="uname-badge"></span>
+        </div>
+        <p class="hint" id="uname-hint">Ø±Ø§Ø¨Ø·Ùƒ: harpymenu.com/cards/profile.html?u=ahmed</p>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="r-email">Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ</label>
+        <input type="email" id="r-email" class="form-input" placeholder="example@email.com" autocomplete="email" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="r-pass">ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±</label>
+        <input type="password" id="r-pass" class="form-input" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+               autocomplete="new-password" oninput="checkStrength(this.value)" />
+        <div class="strength-bars">
+          <div class="s-bar" id="sb1"></div>
+          <div class="s-bar" id="sb2"></div>
+          <div class="s-bar" id="sb3"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="r-conf">ØªØ£ÙƒÙŠØ¯ ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±</label>
+        <input type="password" id="r-conf" class="form-input" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" autocomplete="new-password" />
+      </div>
+
+      <button class="btn-submit" id="btn-register" onclick="doRegister()">
+        <span class="btn-txt">Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ø­Ø³Ø§Ø¨ âœ¨</span>
+        <div class="btn-spinner"></div>
+      </button>
+    </div>
+  </div>
+
+  <p style="text-align:center;color:var(--dim);font-size:12px;margin-top:18px;">
+    Â© 2025 HARPY CARDS â€” Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø­Ù‚ÙˆÙ‚ Ù…Ø­ÙÙˆØ¸Ø©
+  </p>
+</div>
+
+<div id="toasts"></div>
+
+<script type="module">
+import { auth, db } from "./js/firebase-config.js";
+import { createUserWithEmailAndPassword,
+         signInWithEmailAndPassword, onAuthStateChanged }        from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { doc, setDoc, getDoc }                     from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* redirect if already logged in */
+onAuthStateChanged(auth, user => {
+  if (user) window.location.href = 'dashboard.html';
+});
+
+/* â”€â”€ helpers â”€â”€ */
+function toast(msg, type = 'info') {
+  const c = document.getElementById('toasts');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`; t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3600);
+}
+
+function setLoading(btnId, on) {
+  const b = document.getElementById(btnId);
+  b.classList.toggle('loading', on);
+  b.disabled = on;
+}
+
+/* â”€â”€ tab switch â”€â”€ */
+window.switchTab = function(tab) {
+  ['login','register'].forEach(t => {
+    document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
+    document.getElementById(`sec-${t}`).classList.toggle('active', t === tab);
+  });
+};
+
+/* â”€â”€ username check â”€â”€ */
+let uTimer;
+window.checkUsername = function(val) {
+  const inp   = document.getElementById('r-uname');
+  const badge = document.getElementById('uname-badge');
+  const hint  = document.getElementById('uname-hint');
+  clearTimeout(uTimer);
+
+  if (!val) {
+    badge.textContent = '';
+    inp.className = 'form-input uname-field';
+    hint.className = 'hint';
+    hint.textContent = 'Ø±Ø§Ø¨Ø·Ùƒ: harpymenu.com/cards/profile.html?u=ahmed';
+    return;
+  }
+  if (!/^[a-zA-Z0-9_]+$/.test(val)) {
+    badge.textContent = 'âœ•'; badge.style.color = 'var(--error)';
+    inp.className = 'form-input uname-field is-error';
+    hint.className = 'hint error';
+    hint.textContent = 'Ø­Ø±ÙˆÙ Ø¥Ù†Ø¬Ù„ÙŠØ²ÙŠØ© ÙˆØ£Ø±Ù‚Ø§Ù… ÙÙ‚Ø·ØŒ Ø¨Ø¯ÙˆÙ† Ù…Ø³Ø§ÙØ§Øª';
+    return;
+  }
+  if (val.length < 3) {
+    hint.className = 'hint error';
+    hint.textContent = 'Ø§Ù„ÙŠÙˆØ²Ø±Ù†ÙŠÙ… Ù„Ø§Ø²Ù… ÙŠÙƒÙˆÙ† 3 Ø£Ø­Ø±Ù Ø¹Ù„Ù‰ Ø§Ù„Ø£Ù‚Ù„';
+    return;
+  }
+  badge.textContent = 'â³'; badge.style.color = 'var(--muted)';
+  hint.className = 'hint'; hint.textContent = 'Ø¬Ø§Ø±ÙŠ Ø§Ù„ØªØ­Ù‚Ù‚...';
+
+  uTimer = setTimeout(async () => {
+    try {
+      const snap = await getDoc(doc(db, 'usernames', val.toLowerCase()));
+      if (snap.exists()) {
+        badge.textContent = 'âœ•'; badge.style.color = 'var(--error)';
+        inp.className = 'form-input uname-field is-error';
+        hint.className = 'hint error'; hint.textContent = 'Ø§Ù„ÙŠÙˆØ²Ø±Ù†ÙŠÙ… Ø¯Ù‡ Ù…Ø£Ø®ÙˆØ°ØŒ Ø¬Ø±Ù‘Ø¨ ØªØ§Ù†ÙŠ';
+      } else {
+        badge.textContent = 'âœ“'; badge.style.color = 'var(--success)';
+        inp.className = 'form-input uname-field is-ok';
+        hint.className = 'hint success';
+        hint.textContent = `Ø±Ø§Ø¨Ø·Ùƒ: harpymenu.com/cards/profile.html?u=${val.toLowerCase()}`;
+      }
+    } catch { hint.textContent = 'Ù…Ø´ Ù‚Ø§Ø¯Ø± ÙŠØªØ­Ù‚Ù‚ Ø¯Ù„ÙˆÙ‚ØªÙŠ'; }
+  }, 650);
+};
+
+/* â”€â”€ password strength â”€â”€ */
+window.checkStrength = function(pw) {
+  const bars = [document.getElementById('sb1'), document.getElementById('sb2'), document.getElementById('sb3')];
+  bars.forEach(b => { b.className = 's-bar'; });
+  let s = 0;
+  if (pw.length >= 6)  s++;
+  if (pw.length >= 10) s++;
+  if (/[A-Z]/.test(pw) && /[0-9]/.test(pw)) s++;
+  for (let i = 0; i < s; i++) bars[i].classList.add(`lvl-${s}`);
+};
+
+/* â”€â”€ LOGIN â”€â”€ */
+window.doLogin = async function() {
+  const email = document.getElementById('l-email').value.trim();
+  const pass  = document.getElementById('l-pass').value;
+  if (!email || !pass) { toast('Ø§Ø¯Ø®Ù„ Ø§Ù„Ø¥ÙŠÙ…ÙŠÙ„ ÙˆÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±', 'error'); return; }
+  setLoading('btn-login', true);
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+    toast('Ù…Ø±Ø­Ø¨Ø§Ù‹! ðŸ‘‹', 'success');
+    setTimeout(() => window.location.href = 'dashboard.html', 900);
+  } catch (e) {
+    const msgs = {
+      'auth/invalid-credential':   'Ø§Ù„Ø¥ÙŠÙ…ÙŠÙ„ Ø£Ùˆ ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± ØºÙ„Ø·',
+      'auth/user-not-found':       'Ù…ÙÙŠØ´ Ø­Ø³Ø§Ø¨ Ø¨Ø§Ù„Ø¥ÙŠÙ…ÙŠÙ„ Ø¯Ù‡',
+      'auth/wrong-password':       'ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± ØºÙ„Ø·',
+      'auth/invalid-email':        'Ø§Ù„Ø¥ÙŠÙ…ÙŠÙ„ Ù…Ø´ ØµØ­ÙŠØ­',
+      'auth/too-many-requests':    'Ù…Ø­Ø§ÙˆÙ„Ø§Øª ÙƒØªÙŠØ±ØŒ Ø§Ø³ØªÙ†Ù‰ Ø¯Ù‚ÙŠÙ‚Ø©',
+    };
+    toast(msgs[e.code] || 'Ø­Ø¯Ø« Ø®Ø·Ø£ØŒ Ø­Ø§ÙˆÙ„ Ù…Ø±Ø© ØªØ§Ù†ÙŠØ©', 'error');
+  } finally { setLoading('btn-login', false); }
+};
+
+/* â”€â”€ REGISTER â”€â”€ */
+window.doRegister = async function() {
+  const name  = document.getElementById('r-name').value.trim();
+  const uname = document.getElementById('r-uname').value.trim().toLowerCase();
+  const email = document.getElementById('r-email').value.trim();
+  const pass  = document.getElementById('r-pass').value;
+  const conf  = document.getElementById('r-conf').value;
+
+  if (!name || !uname || !email || !pass || !conf) { toast('Ø§Ø¯Ø®Ù„ ÙƒÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª', 'error'); return; }
+  if (!/^[a-zA-Z0-9_]{3,20}$/.test(uname)) { toast('Ø§Ù„ÙŠÙˆØ²Ø±Ù†ÙŠÙ… Ù…Ø´ ØµØ­ÙŠØ­', 'error'); return; }
+  if (pass !== conf)  { toast('ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ù…Ø´ Ù…ØªØ·Ø§Ø¨Ù‚Ø©', 'error'); return; }
+  if (pass.length < 6) { toast('ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ù„Ø§Ø²Ù… 6 Ø£Ø­Ø±Ù Ø¹Ù„Ù‰ Ø§Ù„Ø£Ù‚Ù„', 'error'); return; }
+
+  setLoading('btn-register', true);
+  try {
+    const taken = await getDoc(doc(db, 'usernames', uname));
+    if (taken.exists()) { toast('Ø§Ù„ÙŠÙˆØ²Ø±Ù†ÙŠÙ… Ù…Ø£Ø®ÙˆØ°', 'error'); return; }
+
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    const uid  = cred.user.uid;
+
+    await setDoc(doc(db, 'users', uid), {
+      uid, username:uname, name, email,
+      photo:'', title:'', company:'', bio:'',
+      mobile:'', whatsapp:'', publicEmail:'',
+      location:'', website:'',
+      instagram:'', linkedin:'', tiktok:'',
+      twitter:'', snapchat:'', youtube:'',
+      theme:'#7c3aed', lang:'ar',
+      createdAt: new Date().toISOString()
+    });
+    await setDoc(doc(db, 'usernames', uname), { uid });
+
+    toast('ØªÙ… Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ø­Ø³Ø§Ø¨! ðŸŽ‰', 'success');
+    setTimeout(() => window.location.href = 'dashboard.html', 1000);
+  } catch (e) {
+    const msgs = {
+      'auth/email-already-in-use': 'Ø§Ù„Ø¥ÙŠÙ…ÙŠÙ„ Ø¯Ù‡ Ù…Ø³ØªØ®Ø¯Ù… Ø¨Ø§Ù„ÙØ¹Ù„',
+      'auth/invalid-email':        'Ø§Ù„Ø¥ÙŠÙ…ÙŠÙ„ Ù…Ø´ ØµØ­ÙŠØ­',
+      'auth/weak-password':        'ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ø¶Ø¹ÙŠÙØ© Ø¬Ø¯Ø§Ù‹',
+    };
+    toast(msgs[e.code] || 'Ø­Ø¯Ø« Ø®Ø·Ø£ØŒ Ø­Ø§ÙˆÙ„ Ù…Ø±Ø© ØªØ§Ù†ÙŠØ©', 'error');
+  } finally { setLoading('btn-register', false); }
+};
+
+/* â”€â”€ Enter key â”€â”€ */
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const active = document.querySelector('.form-section.active');
+  if (active.id === 'sec-login') doLogin(); else doRegister();
+});
+</script>
+</body>
+</html>
+
