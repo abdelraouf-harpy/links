@@ -1432,8 +1432,8 @@ function fillUI(d) {
 
   document.getElementById('info-url').textContent         = url;
 
-            <a href="#" id="btn-view-card" target="_blank" class="btn-action">👁️ شوف بطاقتك</a>
-
+            // <a href="#" id="btn-view-card" target="_blank" class="btn-action">👁️ شوف بطاقتك</a>
+document.getElementById('btn-view-card').href = url;
   buildQR(url);
 
 
