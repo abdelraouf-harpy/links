@@ -79,6 +79,28 @@
       transition: var(--tr-fast);
     }
     .preview-link:hover { background: rgba(34,197,94,0.2); }
+    
+    .modal-toggle-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: var(--tr-fast);
+      user-select: none;
+    }
+    .modal-toggle-card:hover {
+      border-color: var(--border2);
+      background: var(--surface3);
+    }
+    .modal-toggle-card .toggle-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-2);
+    }
   </style>
 </head>
 <body>
@@ -303,14 +325,14 @@
     </div>
 
     <div class="grid-2" style="gap:14px;margin-bottom:14px;">
-      <label class="toggle-wrap">
-        <span id="toggle-avail" class="toggle on"></span>
+      <div class="modal-toggle-card" id="card-toggle-avail">
         <span class="toggle-label">متاح للطلب</span>
-      </label>
-      <label class="toggle-wrap">
+        <span id="toggle-avail" class="toggle on"></span>
+      </div>
+      <div class="modal-toggle-card" id="card-toggle-featured">
+        <span class="toggle-label">صنف مميز ⭐</span>
         <span id="toggle-featured" class="toggle off"></span>
-        <span class="toggle-label">صنف مميز</span>
-      </label>
+      </div>
     </div>
 
     <div class="field-group">
@@ -421,15 +443,15 @@ function initNavigation() {
 
 // ── Toggle Buttons ────────────────────────────────────────
 function initToggleButtons() {
-  document.getElementById('toggle-avail').addEventListener('click', function() {
+  document.getElementById('card-toggle-avail').addEventListener('click', function() {
     toggleAvail = !toggleAvail;
-    this.classList.toggle('on', toggleAvail);
-    this.classList.toggle('off', !toggleAvail);
+    const indicator = document.getElementById('toggle-avail');
+    indicator.className = 'toggle ' + (toggleAvail ? 'on' : 'off');
   });
-  document.getElementById('toggle-featured').addEventListener('click', function() {
+  document.getElementById('card-toggle-featured').addEventListener('click', function() {
     toggleFeatured = !toggleFeatured;
-    this.classList.toggle('on', toggleFeatured);
-    this.classList.toggle('off', !toggleFeatured);
+    const indicator = document.getElementById('toggle-featured');
+    indicator.className = 'toggle ' + (toggleFeatured ? 'on' : 'off');
   });
 }
 
@@ -596,7 +618,7 @@ function renderItems(items) {
           ${item.extras?.length ? ` · ${item.extras.length} إضافة` : ''}
         </div>
       </div>
-      <div class="item-list-price">${parseFloat(item.price||0).toFixed(2)}</div>
+      <div class="item-list-price">${parseFloat(item.price||0).toFixed(2)} <span style="font-size: 10px; color: var(--text-3); font-weight: 700; margin-right: 2px;">${restaurant?.currency || 'ج.م'}</span></div>
       <div class="item-list-actions">
         <button class="btn btn-ghost btn-sm" onclick="openEditItem('${item.id}','${item.categoryId}')"><svg class="icon-svg" viewBox="0 0 24 24" style="width: 13px; height: 13px;"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
         <button class="btn btn-danger btn-sm" onclick="removeItem('${item.id}','${item.categoryId}')"><svg class="icon-svg" viewBox="0 0 24 24" style="width: 13px; height: 13px;"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button>
@@ -623,6 +645,11 @@ document.getElementById('btn-add-item').addEventListener('click', () => {
   document.getElementById('toggle-featured').className = 'toggle off';
   renderExtras();
   document.getElementById('extras-form').style.display = 'none';
+  // Default the category select in the modal to the active filter category (if any)
+  const filterCat = document.getElementById('item-filter-cat').value;
+  if (filterCat) {
+    document.getElementById('item-cat-sel').value = filterCat;
+  }
   openModal('item-modal');
 });
 
@@ -679,13 +706,20 @@ document.getElementById('item-save-btn').addEventListener('click', async () => {
       image: imageUrl || null, extras: currentExtras
     };
     if (editingItemId) {
-      const newCatId = catId;
-      await updateItem(restaurant.id, editingItemCatId, editingItemId, data);
+      if (editingItemCatId !== catId) {
+        // Move item to new category (delete from old, create in new)
+        await deleteItem(restaurant.id, editingItemCatId, editingItemId);
+        await createItem(restaurant.id, catId, data);
+      } else {
+        await updateItem(restaurant.id, editingItemCatId, editingItemId, data);
+      }
     } else {
       await createItem(restaurant.id, catId, data);
     }
     toast(editingItemId ? 'تم التعديل' : 'تمت الإضافة');
     closeModal('item-modal');
+    // Set the items filter to the category of the saved item and reload to show it immediately
+    document.getElementById('item-filter-cat').value = catId;
     await loadItems();
   } catch(e) { toast('خطأ: ' + e.message, 'error'); }
   finally { btn.disabled = false; btn.innerHTML = '<svg class="icon-svg" viewBox="0 0 24 24" style="width: 1.1em; height: 1.1em; stroke-width: 2.5; vertical-align: -2px; margin-left: 4px;"><polyline points="20 6 9 17 4 12"/></svg> حفظ'; }

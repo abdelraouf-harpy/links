@@ -270,6 +270,15 @@
       border-radius: 16px;
     }
     @keyframes shimmer { 0%{background-position:200%} 100%{background-position:-200%} }
+    
+    .skeleton-text {
+      background: rgba(255,255,255,0.15);
+      border-radius: 6px;
+      display: inline-block;
+      animation: pulse-dark 1.5s ease infinite;
+      min-height: 1em;
+    }
+    @keyframes pulse-dark { 0%,100%{opacity:0.4} 50%{opacity:0.75} }
 
     .skel-card { height: 116px; background: white; border-radius: 20px; margin-bottom: 12px; padding: 14px; display: grid; grid-template-columns: 1fr 88px; gap: 14px; border: 1px solid #e2e8f0; }
 
@@ -307,8 +316,8 @@
   </div>
   <div class="hero-bottom">
     <img id="hero-logo" src="" alt="" class="hero-logo" style="display:none;">
-    <h1 class="hero-name" id="hero-name">...</h1>
-    <p class="hero-tagline" id="hero-tagline"></p>
+    <h1 class="hero-name" id="hero-name"><span class="skeleton-text" style="width: 160px; height: 28px;"></span></h1>
+    <p class="hero-tagline" id="hero-tagline" style="margin-top: 6px;"><span class="skeleton-text" style="width: 220px; height: 14px;"></span></p>
     <div class="hero-links" id="hero-links"></div>
   </div>
 </div>
