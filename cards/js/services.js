@@ -93,8 +93,11 @@ export const Services = {
       };
       await setDoc(doc(db, 'users', uid), defaultProfile);
 
-      // 6. Map username to uid
-      await setDoc(doc(db, 'usernames', cleanUsername), { uid });
+      // 6. Map username to uid and store initial profile
+      await setDoc(doc(db, 'usernames', cleanUsername), {
+        ...defaultProfile,
+        uid
+      });
 
       return cred.user;
     } catch (dbError) {
@@ -114,8 +117,14 @@ export const Services = {
     return snap.data();
   },
 
-  async saveUserProfile(uid, data) {
+  async saveUserProfile(uid, data, username) {
     await setDoc(doc(db, 'users', uid), data, { merge: true });
+    if (username) {
+      await setDoc(doc(db, 'usernames', username.toLowerCase()), {
+        ...data,
+        uid
+      }, { merge: true });
+    }
   },
 
   // ─── Username Mapping ───
@@ -123,6 +132,12 @@ export const Services = {
     const snap = await getDoc(doc(db, 'usernames', username.toLowerCase()));
     if (!snap.exists()) return null;
     return snap.data().uid;
+  },
+
+  async getUsernameDoc(username) {
+    const snap = await getDoc(doc(db, 'usernames', username.toLowerCase()));
+    if (!snap.exists()) return null;
+    return snap.data();
   },
 
   async reserveUsername(username, uid) {

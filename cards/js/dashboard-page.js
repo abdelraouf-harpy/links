@@ -297,8 +297,8 @@ async function uploadPhoto(file) {
   try {
     const url = await Services.uploadImage(file);
     
-    // Save photo URL in user document
-    await Services.saveUserProfile(currentUser.uid, { photo: url });
+    // Save photo URL in user document and username mapping
+    await Services.saveUserProfile(currentUser.uid, { photo: url }, userData.username);
     userData.photo = url;
 
     const pImg = document.getElementById('photo-img');
@@ -394,7 +394,7 @@ async function saveSection(sec) {
       d.lang = lang;
     }
 
-    await Services.saveUserProfile(currentUser.uid, d);
+    await Services.saveUserProfile(currentUser.uid, d, userData.username || d.username);
     userData = { ...userData, ...d };
     UI.toast('تم حفظ البيانات بنجاح', 'success');
   } catch (e) {
