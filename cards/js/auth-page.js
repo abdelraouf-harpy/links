@@ -1,5 +1,5 @@
-import { Services } from "./services.js";
-import { UI } from "./ui.js";
+import { Services } from "./services.js?v=3.0.0";
+import { UI } from "./ui.js?v=3.0.0";
 
 // Check if already logged in and redirect
 Services.onAuth(user => {

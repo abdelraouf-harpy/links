@@ -1,4 +1,4 @@
-import { UI } from "./ui.js";
+import { UI } from "./ui.js?v=3.0.0";
 
 let profileData = null;
 

@@ -1,4 +1,4 @@
-import { auth, db } from "./firebase-config.js";
+import { auth, db } from "./firebase-config.js?v=3.0.0";
 
 const IMGBB_KEY = '9716f16445d36094b2e16dd8682fc0c1';
 
