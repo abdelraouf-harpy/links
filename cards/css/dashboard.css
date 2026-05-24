@@ -684,3 +684,121 @@ input[type="color"] {
   height: 18px;
   stroke: currentColor;
 }
+
+/* --- Account Switcher --- */
+.sb-switcher {
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.sb-switcher-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--dim);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 10px;
+  margin-inline-start: 2px;
+}
+.sb-switcher-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.sb-switcher-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 9px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.03);
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+}
+.sb-switcher-item:hover {
+  background: rgba(255,255,255,0.05);
+  border-color: var(--border);
+}
+.sb-switcher-item.current {
+  background: rgba(124,58,237,0.08);
+  border-color: rgba(124,58,237,0.2);
+  cursor: default;
+}
+.sb-switcher-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+.sb-switcher-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--pink));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  overflow: hidden;
+  color: white;
+  flex-shrink: 0;
+}
+.sb-switcher-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.sb-switcher-meta {
+  min-width: 0;
+  line-height: 1.2;
+}
+.sb-switcher-name {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text);
+}
+.sb-switcher-remove {
+  background: transparent;
+  border: none;
+  color: var(--dim);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+  margin-inline-start: 6px;
+}
+.sb-switcher-remove:hover {
+  background: rgba(239,68,68,0.15);
+  color: #ef4444;
+}
+.btn-switcher-add {
+  width: 100%;
+  padding: 10px;
+  border: 1px dashed var(--border);
+  background: transparent;
+  border-radius: 9px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: inherit;
+}
+.btn-switcher-add:hover {
+  border-color: var(--primary);
+  color: var(--primary-lt);
+  background: rgba(124,58,237,0.04);
+}

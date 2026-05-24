@@ -42,6 +42,7 @@ async function loadData() {
     };
   }
   fillUI(userData);
+  updateSavedAccounts(userData);
 }
 
 // Populate fields
@@ -305,6 +306,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
+
+  // Account Switcher new account binding
+  const btnSwitcherAdd = document.getElementById('btn-switcher-add');
+  if (btnSwitcherAdd) {
+    btnSwitcherAdd.addEventListener('click', addNewAccount);
+  }
 });
 
 // Sidebar navigation controls
@@ -591,5 +598,145 @@ async function updatePasswordAction() {
     UI.toast(errMsg, "error");
   } finally {
     UI.setLoading('btn-update-pass', false);
+  }
+}
+
+// ─── Account Switcher Logic ───
+function updateSavedAccounts(d) {
+  if (!currentUser || !currentUser.email) return;
+  const email = currentUser.email;
+  const pass = localStorage.getItem('harpy_login_password') || '';
+
+  let accounts = [];
+  try {
+    accounts = JSON.parse(localStorage.getItem('harpy_saved_accounts')) || [];
+  } catch (e) {
+    accounts = [];
+  }
+
+  // Find if this account is already saved
+  const idx = accounts.findIndex(a => a.email.toLowerCase() === email.toLowerCase());
+  const accountData = {
+    email: email.toLowerCase(),
+    pass: pass,
+    username: d.username || '',
+    name: d.name || 'مستخدم جديد',
+    photo: d.photo || ''
+  };
+
+  if (idx > -1) {
+    // Update existing credentials and info
+    if (!accountData.pass && accounts[idx].pass) {
+      accountData.pass = accounts[idx].pass;
+    }
+    accounts[idx] = accountData;
+  } else {
+    // Add new account
+    accounts.push(accountData);
+  }
+
+  localStorage.setItem('harpy_saved_accounts', JSON.stringify(accounts));
+  renderAccountSwitcher(accounts, email);
+}
+
+function renderAccountSwitcher(accounts, currentEmail) {
+  const container = document.getElementById('sb-switcher-container');
+  const list = document.getElementById('sb-switcher-list');
+  if (!container || !list) return;
+
+  container.style.display = 'block';
+
+  list.innerHTML = accounts.map(a => {
+    const isCurrent = a.email.toLowerCase() === currentEmail.toLowerCase();
+    const avatarHtml = a.photo 
+      ? `<img src="${a.photo}" />` 
+      : (a.name || 'U')[0].toUpperCase();
+
+    return `
+      <div class="sb-switcher-item ${isCurrent ? 'current' : ''}" data-email="${a.email}">
+        <div class="sb-switcher-info">
+          <div class="sb-switcher-avatar">${avatarHtml}</div>
+          <div class="sb-switcher-meta">
+            <div class="sb-switcher-name">${a.name}</div>
+            <div style="font-size: 10px; color: var(--dim); direction: ltr; text-align: right;">@${a.username || '—'}</div>
+          </div>
+        </div>
+        ${!isCurrent ? `
+          <button class="sb-switcher-remove" data-email="${a.email}" title="إزالة الحساب">
+            <svg style="width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2;" viewBox="0 0 24 24">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        ` : ''}
+      </div>
+    `;
+  }).join('');
+
+  // Bind switcher item click to switch account
+  list.querySelectorAll('.sb-switcher-item').forEach(item => {
+    if (item.classList.contains('current')) return;
+    item.addEventListener('click', (e) => {
+      if (e.target.closest('.sb-switcher-remove')) return;
+      const email = item.dataset.email;
+      const account = accounts.find(a => a.email.toLowerCase() === email.toLowerCase());
+      if (account) switchAccount(account);
+    });
+  });
+
+  // Bind remove click
+  list.querySelectorAll('.sb-switcher-remove').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const email = btn.dataset.email;
+      removeSavedAccount(email);
+    });
+  });
+}
+
+async function switchAccount(account) {
+  UI.showLoader(true);
+  try {
+    // Log in to the selected account using stored credentials
+    await Services.login(account.email, account.pass);
+    
+    // Update active credentials in localStorage
+    localStorage.setItem('harpy_login_email', account.email);
+    localStorage.setItem('harpy_login_password', account.pass);
+    
+    UI.toast(`تم التبديل إلى حساب ${account.name} بنجاح`, 'success');
+    // Reload page to re-trigger Auth State Monitor
+    setTimeout(() => window.location.reload(), 800);
+  } catch (e) {
+    console.error("Account switch failed:", e);
+    UI.toast(`فشل التبديل: ${e.message}`, 'error');
+    UI.showLoader(false);
+  }
+}
+
+function removeSavedAccount(email) {
+  let accounts = [];
+  try {
+    accounts = JSON.parse(localStorage.getItem('harpy_saved_accounts')) || [];
+  } catch (e) {
+    accounts = [];
+  }
+
+  accounts = accounts.filter(a => a.email.toLowerCase() !== email.toLowerCase());
+  localStorage.setItem('harpy_saved_accounts', JSON.stringify(accounts));
+  
+  const currentEmail = currentUser?.email || '';
+  renderAccountSwitcher(accounts, currentEmail);
+  UI.toast('تم إزالة الحساب من هذا الجهاز', 'success');
+}
+
+async function addNewAccount() {
+  UI.showLoader(true);
+  try {
+    await Services.logout();
+    window.location.href = 'index.html';
+  } catch (e) {
+    UI.toast('حدث خطأ أثناء الانتقال لصفحة تسجيل الدخول', 'error');
+    UI.showLoader(false);
   }
 }
