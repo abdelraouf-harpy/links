@@ -111,10 +111,19 @@ export const Services = {
   async saveUserProfile(uid, data, username) {
     await db.collection('users').doc(uid).set(data, { merge: true });
     if (username) {
-      await db.collection('usernames').doc(username.toLowerCase()).set({
-        ...data,
-        uid
-      }, { merge: true });
+      const snap = await db.collection('users').doc(uid).get();
+      if (snap.exists) {
+        const fullData = snap.data();
+        await db.collection('usernames').doc(username.toLowerCase()).set({
+          ...fullData,
+          uid
+        });
+      } else {
+        await db.collection('usernames').doc(username.toLowerCase()).set({
+          ...data,
+          uid
+        }, { merge: true });
+      }
     }
   },
 

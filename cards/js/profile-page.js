@@ -1,7 +1,33 @@
-import { Services } from "./services.js";
 import { UI } from "./ui.js";
 
 let profileData = null;
+
+// Helper to format WhatsApp numbers for Egyptian formats
+function formatEgyptianWhatsApp(num) {
+  let clean = num.replace(/\D/g, '');
+  if (clean.startsWith('0') && clean.length === 11) {
+    clean = '20' + clean.substring(1);
+  }
+  return clean;
+}
+
+// Helper to parse Firestore REST API JSON fields into a flat JS object
+function parseFirestoreFields(fields) {
+  const data = {};
+  if (!fields) return data;
+  for (const [key, valObj] of Object.entries(fields)) {
+    if (valObj.stringValue !== undefined) {
+      data[key] = valObj.stringValue;
+    } else if (valObj.booleanValue !== undefined) {
+      data[key] = valObj.booleanValue;
+    } else if (valObj.integerValue !== undefined) {
+      data[key] = parseInt(valObj.integerValue, 10);
+    } else if (valObj.doubleValue !== undefined) {
+      data[key] = parseFloat(valObj.doubleValue);
+    }
+  }
+  return data;
+}
 
 // Helpers for color dynamic theme calculations
 function hexToRgb(hex) {
@@ -19,7 +45,7 @@ function lighter(hex, pct = 0.25) {
   return `rgb(${Math.min(255, Math.floor(r + (255 - r) * pct))},${Math.min(255, Math.floor(g + (255 - g) * pct))},${Math.min(255, Math.floor(b + (255 - b) * pct))})`;
 }
 
-// Load profile on page start
+// Load profile on page start using Firestore REST API (Fast, Zero SDK waterfall)
 async function loadProfile() {
   const params = new URLSearchParams(window.location.search);
   const uname = params.get('u');
@@ -28,34 +54,46 @@ async function loadProfile() {
     return;
   }
 
+  const cleanUname = uname.trim().toLowerCase();
+  const projectID = "harpy-cards";
+
   try {
-    const uDoc = await Services.getUsernameDoc(uname);
-    if (!uDoc) {
+    // 1. Fetch mapping document directly (Fast Path)
+    const res = await fetch(`https://firestore.googleapis.com/v1/projects/${projectID}/databases/(default)/documents/usernames/${cleanUname}`);
+    if (res.status === 404) {
       show404();
       return;
     }
+    if (!res.ok) throw new Error("Failed to load profile mapping");
 
-    // Fast Path (1 Read): If usernames mapping already contains full profile details
-    if (uDoc.name) {
-      profileData = uDoc;
+    const uDoc = await res.json();
+    const uData = parseFirestoreFields(uDoc.fields);
+
+    // 2. If it contains profile data, render it immediately (Fast Path - 1 read)
+    if (uData.name) {
+      profileData = uData;
       render(profileData);
       return;
     }
 
-    // Slow Path (2 Reads): Fallback for old mappings (backwards compatibility)
-    const uid = uDoc.uid;
+    // 3. Fallback to fetch from users collection (Slow Path - 2 reads - backwards compatibility)
+    const uid = uData.uid;
     if (!uid) {
       show404();
       return;
     }
 
-    const data = await Services.getUserProfile(uid);
-    if (!data) {
+    const userRes = await fetch(`https://firestore.googleapis.com/v1/projects/${projectID}/databases/(default)/documents/users/${uid}`);
+    if (userRes.status === 404) {
       show404();
       return;
     }
+    if (!userRes.ok) throw new Error("Failed to load user profile");
 
-    profileData = data;
+    const userDoc = await userRes.json();
+    const userData = parseFirestoreFields(userDoc.fields);
+
+    profileData = { ...uData, ...userData };
     render(profileData);
   } catch (e) {
     console.error("Error loading public profile:", e);
@@ -150,7 +188,7 @@ function render(d) {
   }
   
   if (d.whatsapp) {
-    const waNum = Services.formatEgyptianWhatsApp(d.whatsapp);
+    const waNum = formatEgyptianWhatsApp(d.whatsapp);
     acts.push({ 
       href: `https://wa.me/${waNum}`, 
       icon: `<svg class="svg-icon-fill" style="fill:currentColor;width:22px;height:22px;" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.458 5.704 1.459h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`, 
@@ -162,7 +200,7 @@ function render(d) {
   if (d.publicEmail) {
     acts.push({ 
       href: `mailto:${d.publicEmail}`, 
-      icon: `<svg class="svg-icon" style="stroke:currentColor;fill:none;width:22px;height:22px;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`, 
+      icon: `<svg class="svg-icon" style="stroke:currentColor;fill:none;width:22px;height:22px;" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`, 
       lbl: isAr ? 'إيميل' : 'Email' 
     });
   }
@@ -186,7 +224,7 @@ function render(d) {
   if (d.location) {
     infoRows.push({
       href: `https://maps.google.com?q=${encodeURIComponent(d.location)}`,
-      icon: `<svg class="svg-icon" style="stroke:currentColor;fill:none;width:20px;height:20px;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`, 
+      icon: `<svg class="svg-icon" style="stroke:currentColor;fill:none;width:20px;height:20px;" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`, 
       lbl: isAr ? 'الموقع' : 'Location', 
       val: d.location, 
       target: '_blank'
@@ -198,7 +236,7 @@ function render(d) {
     const href  = d.website.startsWith('http') ? d.website : `https://${d.website}`;
     infoRows.push({ 
       href, 
-      icon: `<svg class="svg-icon" style="stroke:currentColor;fill:none;width:20px;height:20px;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`, 
+      icon: `<svg class="svg-icon" style="stroke:currentColor;fill:none;width:20px;height:20px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`, 
       lbl: isAr ? 'الموقع الإلكتروني' : 'Website', 
       val: clean, 
       target: '_blank' 
@@ -291,12 +329,11 @@ function downloadVCard() {
   URL.revokeObjectURL(url);
 }
 
-// Bind load and save actions
-document.addEventListener('DOMContentLoaded', () => {
-  loadProfile();
-  
-  const saveBtn = document.getElementById('save-contact-btn');
-  if (saveBtn) {
-    saveBtn.addEventListener('click', downloadVCard);
-  }
-});
+// Start loading profile immediately (Fast Path)
+loadProfile();
+
+// Bind download action
+const saveBtn = document.getElementById('save-contact-btn');
+if (saveBtn) {
+  saveBtn.addEventListener('click', downloadVCard);
+}
