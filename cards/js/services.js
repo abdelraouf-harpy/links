@@ -1,25 +1,16 @@
 import { auth, db } from "./firebase-config.js";
-import { 
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword, 
-  onAuthStateChanged,
-  signOut 
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { 
-  doc, setDoc, getDoc, updateDoc 
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const IMGBB_KEY = '9716f16445d36094b2e16dd8682fc0c1';
 
 export const Services = {
   // ─── Authentication Services ───
   onAuth(callback) {
-    return onAuthStateChanged(auth, callback);
+    return auth.onAuthStateChanged(callback);
   },
 
   async login(email, password) {
     try {
-      const cred = await signInWithEmailAndPassword(auth, email, password);
+      const cred = await auth.signInWithEmailAndPassword(email, password);
       return cred.user;
     } catch (e) {
       const errorMap = {
@@ -38,8 +29,8 @@ export const Services = {
     const cleanCode = code.trim().toUpperCase();
 
     // 1. Verify activation code
-    const codeSnap = await getDoc(doc(db, 'activationCodes', cleanCode));
-    if (!codeSnap.exists()) {
+    const codeSnap = await db.collection('activationCodes').doc(cleanCode).get();
+    if (!codeSnap.exists) {
       throw new Error('كود التفعيل غير صحيح');
     }
     const codeData = codeSnap.data();
@@ -48,18 +39,18 @@ export const Services = {
     }
 
     // 2. Verify username uniqueness
-    const takenSnap = await getDoc(doc(db, 'usernames', cleanUsername));
-    if (takenSnap.exists()) {
+    const takenSnap = await db.collection('usernames').doc(cleanUsername).get();
+    if (takenSnap.exists) {
       throw new Error('اسم المستخدم مأخوذ بالفعل، يرجى اختيار اسم آخر');
     }
 
     // 3. Create Auth user
-    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    const cred = await auth.createUserWithEmailAndPassword(email, password);
     const uid = cred.user.uid;
 
     try {
       // 4. Update activation code
-      await setDoc(doc(db, 'activationCodes', cleanCode), {
+      await db.collection('activationCodes').doc(cleanCode).set({
         isUsed: true,
         usedBy: uid,
         usedAt: new Date().toISOString()
@@ -91,10 +82,10 @@ export const Services = {
         lang: 'ar',
         createdAt: new Date().toISOString()
       };
-      await setDoc(doc(db, 'users', uid), defaultProfile);
+      await db.collection('users').doc(uid).set(defaultProfile);
 
       // 6. Map username to uid and store initial profile
-      await setDoc(doc(db, 'usernames', cleanUsername), {
+      await db.collection('usernames').doc(cleanUsername).set({
         ...defaultProfile,
         uid
       });
@@ -107,20 +98,20 @@ export const Services = {
   },
 
   async logout() {
-    await signOut(auth);
+    await auth.signOut();
   },
 
   // ─── User Profile Services ───
   async getUserProfile(uid) {
-    const snap = await getDoc(doc(db, 'users', uid));
-    if (!snap.exists()) return null;
+    const snap = await db.collection('users').doc(uid).get();
+    if (!snap.exists) return null;
     return snap.data();
   },
 
   async saveUserProfile(uid, data, username) {
-    await setDoc(doc(db, 'users', uid), data, { merge: true });
+    await db.collection('users').doc(uid).set(data, { merge: true });
     if (username) {
-      await setDoc(doc(db, 'usernames', username.toLowerCase()), {
+      await db.collection('usernames').doc(username.toLowerCase()).set({
         ...data,
         uid
       }, { merge: true });
@@ -129,25 +120,25 @@ export const Services = {
 
   // ─── Username Mapping ───
   async getUidByUsername(username) {
-    const snap = await getDoc(doc(db, 'usernames', username.toLowerCase()));
-    if (!snap.exists()) return null;
+    const snap = await db.collection('usernames').doc(username.toLowerCase()).get();
+    if (!snap.exists) return null;
     return snap.data().uid;
   },
 
   async getUsernameDoc(username) {
-    const snap = await getDoc(doc(db, 'usernames', username.toLowerCase()));
-    if (!snap.exists()) return null;
+    const snap = await db.collection('usernames').doc(username.toLowerCase()).get();
+    if (!snap.exists) return null;
     return snap.data();
   },
 
   async reserveUsername(username, uid) {
     const cleanUsername = username.trim().toLowerCase();
-    const takenSnap = await getDoc(doc(db, 'usernames', cleanUsername));
-    if (takenSnap.exists()) {
+    const takenSnap = await db.collection('usernames').doc(cleanUsername).get();
+    if (takenSnap.exists) {
       throw new Error('اسم المستخدم مأخوذ بالفعل');
     }
-    await setDoc(doc(db, 'usernames', cleanUsername), { uid });
-    await setDoc(doc(db, 'users', uid), { username: cleanUsername }, { merge: true });
+    await db.collection('usernames').doc(cleanUsername).set({ uid });
+    await db.collection('users').doc(uid).set({ username: cleanUsername }, { merge: true });
   },
 
   // ─── Image Upload Services (ImgBB) ───
