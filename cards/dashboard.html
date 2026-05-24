@@ -772,6 +772,26 @@
 
     }
 
+    .svg-icon {
+      width: 1.25rem;
+      height: 1.25rem;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    
+    .svg-icon-fill {
+      width: 1.25rem;
+      height: 1.25rem;
+      fill: currentColor;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
   </style>
 
 </head>
@@ -798,13 +818,16 @@
 
 
 
-<!-- ─── MOBILE HEADER ─── -->
-
 <div class="mob-header">
 
   <div style="display:flex;align-items:center;gap:10px">
 
-    <div class="sb-icon">💳</div>
+    <div class="sb-icon">
+      <svg class="svg-icon" style="stroke:white;" viewBox="0 0 24 24">
+        <rect width="20" height="14" x="2" y="5" rx="2"/>
+        <line x1="2" x2="22" y1="10" y2="10"/>
+      </svg>
+    </div>
 
     <span style="font-size:14px;font-weight:800;background:linear-gradient(135deg,#a78bfa,#db2777);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">HARPY CARDS</span>
 
@@ -826,7 +849,12 @@
 
     <div class="sb-brand">
 
-      <div class="sb-icon">💳</div>
+      <div class="sb-icon">
+        <svg class="svg-icon" style="stroke:white;" viewBox="0 0 24 24">
+          <rect width="20" height="14" x="2" y="5" rx="2"/>
+          <line x1="2" x2="22" y1="10" y2="10"/>
+        </svg>
+      </div>
 
       <span class="sb-brand-name">HARPY CARDS</span>
 
@@ -852,15 +880,40 @@
 
     <nav class="sb-nav" id="sb-nav-container">
 
-      <button class="nav-btn active" id="nav-personal"   onclick="goTo('personal')">   <span class="nav-icon">👤</span> المعلومات الشخصية</button>
+      <button class="nav-btn active" id="nav-personal"   onclick="goTo('personal')">
+        <span class="nav-icon">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </span>
+        المعلومات الشخصية
+      </button>
 
-      <button class="nav-btn"        id="nav-contact"    onclick="goTo('contact')">    <span class="nav-icon">📞</span> بيانات التواصل</button>
+      <button class="nav-btn"        id="nav-contact"    onclick="goTo('contact')">
+        <span class="nav-icon">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </span>
+        بيانات التواصل
+      </button>
 
-      <button class="nav-btn"        id="nav-social"     onclick="goTo('social')">     <span class="nav-icon">📱</span> السوشيال ميديا</button>
+      <button class="nav-btn"        id="nav-social"     onclick="goTo('social')">
+        <span class="nav-icon">
+          <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>
+        </span>
+        السوشيال ميديا
+      </button>
 
-      <button class="nav-btn"        id="nav-appearance" onclick="goTo('appearance')"> <span class="nav-icon">🎨</span> المظهر والثيم</button>
+      <button class="nav-btn"        id="nav-appearance" onclick="goTo('appearance')">
+        <span class="nav-icon">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 14.7255 3.09032 17.1962 4.85857 19C5.35823 19.5 5.21734 20.5 6.00282 20.5H9C10.5 20.5 10.5 22 12 22Z"/><circle cx="7.5" cy="10.5" r="1.5" fill="currentColor"/><circle cx="11.5" cy="7.5" r="1.5" fill="currentColor"/><circle cx="16.5" cy="9.5" r="1.5" fill="currentColor"/></svg>
+        </span>
+        المظهر والثيم
+      </button>
 
-      <button class="nav-btn"        id="nav-mycard"     onclick="goTo('mycard')">     <span class="nav-icon">🔗</span> بطاقتي الرقمية</button>
+      <button class="nav-btn"        id="nav-mycard"     onclick="goTo('mycard')">
+        <span class="nav-icon">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        </span>
+        بطاقتي الرقمية
+      </button>
 
     </nav>
 
@@ -868,7 +921,10 @@
 
     <div class="sb-footer">
 
-      <button class="btn-logout" onclick="doLogout()">🚪 تسجيل الخروج</button>
+      <button class="btn-logout" onclick="doLogout()">
+        <svg class="svg-icon" style="margin-inline-end: 6px; width: 1.1em; height: 1.1em;" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+        تسجيل الخروج
+      </button>
 
     </div>
 
@@ -896,11 +952,9 @@
 
 
 
-      <!-- Photo -->
-
       <div class="card">
 
-        <div class="card-title">📸 الصورة الشخصية</div>
+        <div class="card-title">الصورة الشخصية</div>
 
         <div class="photo-row">
 
@@ -908,9 +962,13 @@
 
             <img id="photo-img" src="" alt="Photo" />
 
-            <span id="photo-emoji">👤</span>
+            <span id="photo-emoji">
+              <svg class="svg-icon" style="width:48px;height:48px;stroke:var(--muted);" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </span>
 
-            <div class="photo-ring-overlay">📷</div>
+            <div class="photo-ring-overlay">
+              <svg class="svg-icon" style="stroke:white;" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </div>
 
           </div>
 
@@ -920,7 +978,10 @@
 
             <button class="btn-upload" id="upload-btn" onclick="document.getElementById('photo-file').click()">
 
-            <span class="upload-txt">📤 رفع صورة</span>
+            <span class="upload-txt">
+              <svg class="svg-icon" style="margin-inline-end: 6px; width: 1.1em; height: 1.1em;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+              رفع صورة
+            </span>
 
               <div class="upload-spin"></div>
 
@@ -936,11 +997,9 @@
 
 
 
-      <!-- Basic info -->
-
       <div class="card">
 
-        <div class="card-title">📝 البيانات الأساسية</div>
+        <div class="card-title">البيانات الأساسية</div>
 
         <div class="grid-2">
 
@@ -960,11 +1019,17 @@
 
       <div class="save-bar">
 
-        <button class="btn-preview" onclick="previewCard()">👁️ معاينة البطاقة</button>
+        <button class="btn-preview" onclick="previewCard()">
+          <svg class="svg-icon" style="margin-inline-end: 6px; width: 1.1em; height: 1.1em;" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          معاينة البطاقة
+        </button>
 
         <button class="btn-save" id="save-personal" onclick="saveSection('personal')">
 
-          <span class="save-txt">💾 حفظ</span><div class="save-spin"></div>
+          <span class="save-txt">
+            <svg class="svg-icon" style="margin-inline-end: 6px; width: 1.1em; height: 1.1em; stroke: white;" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            حفظ
+          </span><div class="save-spin"></div>
 
         </button>
 
@@ -988,7 +1053,7 @@
 
       <div class="card">
 
-        <div class="card-title">📞 وسائل التواصل</div>
+        <div class="card-title">وسائل التواصل</div>
 
         <div class="grid-2">
 
@@ -1008,11 +1073,17 @@
 
       <div class="save-bar">
 
-        <button class="btn-preview" onclick="previewCard()">👁️ معاينة البطاقة</button>
+        <button class="btn-preview" onclick="previewCard()">
+          <svg class="svg-icon" style="margin-inline-end: 6px; width: 1.1em; height: 1.1em;" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          معاينة البطاقة
+        </button>
 
         <button class="btn-save" id="save-contact" onclick="saveSection('contact')">
 
-          <span class="save-txt">💾 حفظ</span><div class="save-spin"></div>
+          <span class="save-txt">
+            <svg class="svg-icon" style="margin-inline-end: 6px; width: 1.1em; height: 1.1em; stroke: white;" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            حفظ
+          </span><div class="save-spin"></div>
 
         </button>
 
@@ -1036,21 +1107,21 @@
 
       <div class="card">
 
-        <div class="card-title">🔗 الحسابات</div>
+        <div class="card-title">حسابات التواصل الاجتماعي</div>
 
         <div class="social-grid">
 
-          <div class="form-group"><label class="label">📸 إنستاغرام</label><input class="input" id="f-instagram" type="url" placeholder="https://instagram.com/username" dir="ltr" /></div>
+          <div class="form-group"><label class="label">إنستاغرام</label><input class="input" id="f-instagram" type="url" placeholder="https://instagram.com/username" dir="ltr" /></div>
 
-          <div class="form-group"><label class="label">💼 لينكدإن</label><input class="input" id="f-linkedin"  type="url" placeholder="https://linkedin.com/in/username" dir="ltr" /></div>
+          <div class="form-group"><label class="label">لينكدإن</label><input class="input" id="f-linkedin"  type="url" placeholder="https://linkedin.com/in/username" dir="ltr" /></div>
 
-          <div class="form-group"><label class="label">🎵 تيك توك</label><input class="input" id="f-tiktok"    type="url" placeholder="https://tiktok.com/@username" dir="ltr" /></div>
+          <div class="form-group"><label class="label">تيك توك</label><input class="input" id="f-tiktok"    type="url" placeholder="https://tiktok.com/@username" dir="ltr" /></div>
 
-        <div class="form-group"><label class="label">🐦 تويتر / X</label><input class="input" id="f-twitter"   type="url" placeholder="https://x.com/username" dir="ltr" /></div>
+        <div class="form-group"><label class="label">تويتر / X</label><input class="input" id="f-twitter"   type="url" placeholder="https://x.com/username" dir="ltr" /></div>
 
-          <div class="form-group"><label class="label">👻 سناب شات</label><input class="input" id="f-snapchat"  type="url" placeholder="https://snapchat.com/add/username" dir="ltr" /></div>
+          <div class="form-group"><label class="label">سناب شات</label><input class="input" id="f-snapchat"  type="url" placeholder="https://snapchat.com/add/username" dir="ltr" /></div>
 
-        <div class="form-group"><label class="label">▶️ يوتيوب</label><input class="input" id="f-youtube"   type="url" placeholder="https://youtube.com/@channel" dir="ltr" /></div>
+        <div class="form-group"><label class="label">يوتيوب</label><input class="input" id="f-youtube"   type="url" placeholder="https://youtube.com/@channel" dir="ltr" /></div>
 
         </div>
 
@@ -1058,11 +1129,17 @@
 
       <div class="save-bar">
 
-        <button class="btn-preview" onclick="previewCard()">👁️ معاينة البطاقة</button>
+        <button class="btn-preview" onclick="previewCard()">
+          <svg class="svg-icon" style="margin-inline-end: 6px; width: 1.1em; height: 1.1em;" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          معاينة البطاقة
+        </button>
 
         <button class="btn-save" id="save-social" onclick="saveSection('social')">
 
-          <span class="save-txt">💾 حفظ</span><div class="save-spin"></div>
+          <span class="save-txt">
+            <svg class="svg-icon" style="margin-inline-end: 6px; width: 1.1em; height: 1.1em; stroke: white;" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            حفظ
+          </span><div class="save-spin"></div>
 
         </button>
 
@@ -1088,7 +1165,7 @@
 
       <div class="card">
 
-        <div class="card-title">🎨 لون الثيم</div>
+        <div class="card-title">لون الثيم</div>
 
         <p style="font-size:13px;color:var(--muted);margin-bottom:14px">اختار لون الثيم اللي هيظهر في بطاقتك</p>
 
@@ -1128,15 +1205,15 @@
 
       <div class="card">
 
-        <div class="card-title">🌐 لغة البطاقة</div>
+        <div class="card-title">لغة البطاقة</div>
 
         <p style="font-size:13px;color:var(--muted);margin-bottom:14px">اللغة اللي هيشوفها الناس في بطاقتك</p>
 
         <div class="lang-toggle">
 
-          <button class="lang-btn active" id="lang-ar" onclick="setLang('ar')">عربي 🇸🇦</button>
+          <button class="lang-btn active" id="lang-ar" onclick="setLang('ar')">العربية</button>
 
-          <button class="lang-btn"        id="lang-en" onclick="setLang('en')">English 🇺🇸</button>
+          <button class="lang-btn"        id="lang-en" onclick="setLang('en')">English</button>
 
         </div>
 
@@ -1146,11 +1223,17 @@
 
       <div class="save-bar">
 
-        <button class="btn-preview" onclick="previewCard()">👁️ معاينة البطاقة</button>
+        <button class="btn-preview" onclick="previewCard()">
+          <svg class="svg-icon" style="margin-inline-end: 6px; width: 1.1em; height: 1.1em;" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          معاينة البطاقة
+        </button>
 
         <button class="btn-save" id="save-appearance" onclick="saveSection('appearance')">
 
-          <span class="save-txt">💾 حفظ</span><div class="save-spin"></div>
+          <span class="save-txt">
+            <svg class="svg-icon" style="margin-inline-end: 6px; width: 1.1em; height: 1.1em; stroke: white;" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            حفظ
+          </span><div class="save-spin"></div>
 
         </button>
 
@@ -1188,7 +1271,10 @@
 
             <span class="url-text" id="profile-url-text">—</span>
 
-            <button class="btn-copy" onclick="copyUrl()">📋 نسخ</button>
+            <button class="btn-copy" onclick="copyUrl()">
+              <svg class="svg-icon" style="margin-inline-end: 4px; width: 1.1em; height: 1.1em;" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>
+              نسخ
+            </button>
 
           </div>
 
@@ -1196,9 +1282,15 @@
 
           <div class="action-btns">
 
-            <a href="#" id="btn-view-card" target="_blank" class="btn-action">👁️ شوف بطاقتك</a>
+            <a href="#" id="btn-view-card" target="_blank" class="btn-action">
+              <svg class="svg-icon" style="margin-inline-end: 6px; width: 1.1em; height: 1.1em; stroke: white;" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              زيارة بطاقتك
+            </a>
 
-            <button class="btn-action outline" onclick="downloadQR()">📥 تحميل QR</button>
+            <button class="btn-action outline" onclick="downloadQR()">
+              <svg class="svg-icon" style="margin-inline-end: 6px; width: 1.1em; height: 1.1em;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+              تحميل الرمز (QR)
+            </button>
 
           </div>
 
@@ -1210,15 +1302,17 @@
 
       <div class="card">
 
-        <div class="card-title">ℹ️ معلومات مهمة</div>
+        <div class="card-title">معلومات مهمة</div>
 
         <div class="info-list">
 
-          <p>🔗 رابطك: <code id="info-url">—</code></p>
+          <p>رابطك: <code id="info-url">—</code></p>
 
-          <p>📡 حط الرابط في كارت NFC أو اطبع الـ QR Code</p>
+          <p>ضع الرابط في بطاقة NFC أو اطبع الرمز (QR Code)</p>
 
-          <p>⚡ أي تعديل بتعمله بيظهر فوراً على البطاقة</p>
+          <p>أي تعديل تقوم به يظهر فوراً على البطاقة</p>
+
+          <p></p>
 
         </div>
 
@@ -1246,7 +1340,7 @@ import { auth, db } from "./js/firebase-config.js";
 
 import { onAuthStateChanged, signOut }       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-import { doc, getDoc, updateDoc }       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { doc, getDoc, updateDoc, setDoc }       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
 
@@ -1309,33 +1403,37 @@ function setBtnLoading(id, on) {
 /* ── auth guard ── */
 
 onAuthStateChanged(auth, async user => {
-
   if (!user) { window.location.href = 'index.html'; return; }
-
   currentUser = user;
-
-  await loadData();
-
-  document.getElementById('loader').style.display = 'none';
-
+  try {
+    await loadData();
+  } catch (e) {
+    console.error("Error loading user data:", e);
+    toast("حدث خطأ أثناء تحميل البيانات. يرجى التحقق من اتصالك بالشبكة.", "error");
+  } finally {
+    document.getElementById('loader').style.display = 'none';
+  }
 });
 
-
-
 async function loadData() {
-
   const snap = await getDoc(doc(db, 'users', currentUser.uid));
-
   userData = snap.data();
-
+  if (!userData) {
+    userData = {
+      uid: currentUser.uid,
+      username: '',
+      name: currentUser.displayName || 'مستخدم جديد',
+      email: currentUser.email || '',
+      theme: '#7c3aed',
+      lang: 'ar'
+    };
+  }
   fillUI(userData);
-
 }
 
 
 
 function fillUI(d) {
-  if (!d) d = {};
 
   /* sidebar */
 
@@ -1427,14 +1525,14 @@ function fillUI(d) {
 
   /* card URL + QR */
 
-  const url = `${BASE_URL}/profile.html?u=${d.username}`;
+  const url = `${BASE_URL}/${d.username}`;
 
   document.getElementById('profile-url-text').textContent = url;
 
   document.getElementById('info-url').textContent         = url;
 
-            // <a href="#" id="btn-view-card" target="_blank" class="btn-action">👁️ شوف بطاقتك</a>
-document.getElementById('btn-view-card').href = url;
+  document.getElementById('btn-view-card').href           = url;
+
   buildQR(url);
 
 
@@ -1587,7 +1685,7 @@ window.uploadPhoto = async function(file) {
 
     const url = data.data.display_url;
 
-    await updateDoc(doc(db, 'users', currentUser.uid), { photo: url });
+    await setDoc(doc(db, 'users', currentUser.uid), { photo: url }, { merge: true });
 
     userData.photo = url;
 
@@ -1601,7 +1699,7 @@ window.uploadPhoto = async function(file) {
 
     updateSidebarAvatar(url, userData.name);
 
-    toast('تم رفع الصورة ✓', 'success');
+    toast('تم رفع الصورة بنجاح', 'success');
 
   } catch { toast('فشل رفع الصورة، حاول تاني', 'error'); }
 
@@ -1671,11 +1769,11 @@ window.saveSection = async function(sec) {
 
   try {
 
-    await updateDoc(doc(db, 'users', currentUser.uid), d);
+    await setDoc(doc(db, 'users', currentUser.uid), d, { merge: true });
 
     userData = { ...userData, ...d };
 
-    toast('تم الحفظ ✓', 'success');
+    toast('تم حفظ البيانات بنجاح', 'success');
 
   } catch { toast('خطأ في الحفظ', 'error'); }
 
@@ -1693,7 +1791,7 @@ window.copyUrl = () => {
 
   const url = document.getElementById('profile-url-text').textContent;
 
-  navigator.clipboard.writeText(url).then(() => toast('تم نسخ الرابط ✓', 'success'));
+  navigator.clipboard.writeText(url).then(() => toast('تم نسخ الرابط بنجاح', 'success'));
 
 };
 
@@ -1711,7 +1809,7 @@ window.downloadQR = () => {
 
   a.click();
 
-  toast('تم تحميل الـ QR ✓', 'success');
+  toast('تم تحميل الرمز بنجاح', 'success');
 
 };
 

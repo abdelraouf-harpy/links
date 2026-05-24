@@ -241,7 +241,12 @@
 <div class="wrapper">
   <div class="brand">
     <a class="brand-logo" href="#">
-      <div class="brand-icon">💳</div>
+      <div class="brand-icon">
+        <svg style="width:24px;height:24px;fill:none;stroke:white;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24">
+          <rect width="20" height="14" x="2" y="5" rx="2"/>
+          <line x1="2" x2="22" y1="10" y2="10"/>
+        </svg>
+      </div>
       <span class="brand-name">HARPY CARDS</span>
     </a>
     <p class="brand-tag">بطاقة بيزنس رقمية — اضغط وشارك</p>
@@ -264,7 +269,7 @@
         <input type="password" id="l-pass" class="form-input" placeholder="••••••••" autocomplete="current-password" />
       </div>
       <button class="btn-submit" id="btn-login" onclick="doLogin()">
-        <span class="btn-txt">دخول 🚀</span>
+        <span class="btn-txt">دخول</span>
         <div class="btn-spinner"></div>
       </button>
     </div>
@@ -284,7 +289,7 @@
                  oninput="checkUsername(this.value)" />
           <span class="uname-badge" id="uname-badge"></span>
         </div>
-        <p class="hint" id="uname-hint">رابطك: harpymenu.com/cards/profile.html?u=ahmed</p>
+        <p class="hint" id="uname-hint">رابطك: harpymenu.com/cards/ahmed</p>
       </div>
 
       <div class="form-group">
@@ -314,7 +319,7 @@
       </div>
 
       <button class="btn-submit" id="btn-register" onclick="doRegister()">
-        <span class="btn-txt">إنشاء الحساب ✨</span>
+        <span class="btn-txt">إنشاء الحساب</span>
         <div class="btn-spinner"></div>
       </button>
     </div>
@@ -373,7 +378,7 @@ window.checkUsername = function(val) {
     badge.textContent = '';
     inp.className = 'form-input uname-field';
     hint.className = 'hint';
-    hint.textContent = 'رابطك: harpymenu.com/cards/profile.html?u=ahmed';
+    hint.textContent = 'رابطك: harpymenu.com/cards/ahmed';
     return;
   }
   if (!/^[a-zA-Z0-9_]{3,20}$/.test(val)) {
@@ -397,7 +402,7 @@ window.checkUsername = function(val) {
         badge.textContent = '✓'; badge.style.color = 'var(--success)';
         inp.className = 'form-input uname-field is-ok';
         hint.className = 'hint success';
-        hint.textContent = `رابطك: harpymenu.com/cards/profile.html?u=${val.toLowerCase()}`;
+        hint.textContent = `رابطك: harpymenu.com/cards/${val.toLowerCase()}`;
       }
     } catch { hint.textContent = 'مش قادر يتحقق دلوقتي'; }
   }, 650);
@@ -422,7 +427,7 @@ window.doLogin = async function() {
   setLoading('btn-login', true);
   try {
     await signInWithEmailAndPassword(auth, email, pass);
-    toast('مرحباً! 👋', 'success');
+    toast('تم تسجيل الدخول بنجاح', 'success');
     setTimeout(() => window.location.href = 'dashboard.html', 900);
   } catch (e) {
     const msgs = {
@@ -494,7 +499,7 @@ window.doRegister = async function() {
     });
     await setDoc(doc(db, 'usernames', uname), { uid });
 
-    toast('تم إنشاء الحساب بنجاح! 🎉', 'success');
+    toast('تم إنشاء الحساب بنجاح', 'success');
     setTimeout(() => window.location.href = 'dashboard.html', 1000);
   } catch (e) {
     const msgs = {
