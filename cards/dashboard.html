@@ -1003,13 +1003,19 @@
 
         <div class="grid-2">
 
+          <div class="form-group">
+            <label class="label">رابط البطاقة (اليوزرنيم)</label>
+            <input class="input" id="f-username" type="text" placeholder="username" style="direction: ltr; text-align: left;" />
+            <p class="hint" id="f-username-hint" style="font-size:11px; margin-top:4px; color:var(--dim);"></p>
+          </div>
+
           <div class="form-group"><label class="label">الاسم الكامل</label><input class="input" id="f-name"    type="text" placeholder="أحمد محمد" /></div>
 
-        <div class="form-group"><label class="label">المسمى الوظيفي</label><input class="input" id="f-title"   type="text" placeholder="مصمم جرافيك" /></div>
+          <div class="form-group"><label class="label">المسمى الوظيفي</label><input class="input" id="f-title"   type="text" placeholder="مصمم جرافيك" /></div>
 
-        <div class="form-group"><label class="label">الشركة / الجهة</label><input class="input" id="f-company" type="text" placeholder="شركة إبداع" /></div>
+          <div class="form-group"><label class="label">الشركة / الجهة</label><input class="input" id="f-company" type="text" placeholder="شركة إبداع" /></div>
 
-        <div class="form-group full"><label class="label">وصف قصير / بايو</label><textarea class="textarea" id="f-bio" placeholder="اكتب جملة أو اتنين عنك أو عن بيزنسك..."></textarea></div>
+          <div class="form-group full"><label class="label">وصف قصير / بايو</label><textarea class="textarea" id="f-bio" placeholder="اكتب جملة أو اتنين عنك أو عن بيزنسك..."></textarea></div>
 
         </div>
 
@@ -1446,6 +1452,20 @@ function fillUI(d) {
 
 
   /* personal */
+  const uInput = document.getElementById('f-username');
+  const uHint = document.getElementById('f-username-hint');
+  
+  if (d.username) {
+    uInput.value = d.username;
+    uInput.disabled = true;
+    uHint.textContent = "اليوزرنيم ثابت ولا يمكن تعديله بعد إنشائه لتجنب تلف روابط البطاقات.";
+    uHint.style.color = "var(--dim)";
+  } else {
+    uInput.value = '';
+    uInput.disabled = false;
+    uHint.textContent = "الرجاء تعيين يوزرنيم لإنشاء رابط بطاقتك.";
+    uHint.style.color = "var(--warn)";
+  }
 
   document.getElementById('f-name').value    = d.name    || '';
 
@@ -1525,15 +1545,19 @@ function fillUI(d) {
 
   /* card URL + QR */
 
-  const url = `${BASE_URL}/${d.username}`;
+  const url = d.username ? `${BASE_URL}/${d.username}` : '';
 
-  document.getElementById('profile-url-text').textContent = url;
+  document.getElementById('profile-url-text').textContent = url || 'يرجى تعيين يوزرنيم أولاً في قسم المعلومات الشخصية';
 
-  document.getElementById('info-url').textContent         = url;
+  document.getElementById('info-url').textContent         = url || '—';
 
-  document.getElementById('btn-view-card').href           = url;
+  document.getElementById('btn-view-card').href           = d.username ? `profile.html?u=${d.username}` : '#';
 
-  buildQR(url);
+  if (d.username) {
+    buildQR(url);
+  } else {
+    document.getElementById('qr-output').innerHTML = '<p style="color:var(--warn);font-size:12px;padding:20px;">الرجاء تعيين يوزرنيم في قسم المعلومات الشخصية لعرض رمز QR</p>';
+  }
 
 
 
@@ -1720,6 +1744,33 @@ window.saveSection = async function(sec) {
 
 
   if (sec === 'personal') {
+    const newUname = document.getElementById('f-username').value.trim().toLowerCase();
+    
+    // Check if username is being set for the first time
+    if (!userData.username) {
+      if (!newUname) {
+        toast('يرجى كتابة يوزرنيم لبطاقتك', 'error');
+        setBtnLoading('save-personal', false);
+        return;
+      }
+      if (!/^[a-zA-Z0-9_]{3,20}$/.test(newUname)) {
+        toast('اليوزرنيم غير صحيح، يجب أن يتكون من 3 إلى 20 حرفاً إنجليزي أو أرقام بدون مسافات', 'error');
+        setBtnLoading('save-personal', false);
+        return;
+      }
+      
+      // Check if username is taken in database
+      const taken = await getDoc(doc(db, 'usernames', newUname));
+      if (taken.exists()) {
+        toast('هذا اليوزرنيم مأخوذ بالفعل، يرجى اختيار يوزرنيم آخر', 'error');
+        setBtnLoading('save-personal', false);
+        return;
+      }
+      
+      // Save username mapping
+      await setDoc(doc(db, 'usernames', newUname), { uid: currentUser.uid });
+      d.username = newUname;
+    }
 
     d.name    = document.getElementById('f-name').value.trim();
 
@@ -1730,6 +1781,24 @@ window.saveSection = async function(sec) {
     d.bio     = document.getElementById('f-bio').value.trim();
 
     document.getElementById('sb-name').textContent = d.name || '—';
+    
+    if (d.username) {
+      document.getElementById('sb-uname').textContent = '@' + d.username;
+      
+      // Update URLs and QR Code
+      const url = `${BASE_URL}/${d.username}`;
+      document.getElementById('profile-url-text').textContent = url;
+      document.getElementById('info-url').textContent         = url;
+      document.getElementById('btn-view-card').href           = `profile.html?u=${d.username}`;
+      buildQR(url);
+      
+      // Disable username input field
+      const uInput = document.getElementById('f-username');
+      const uHint = document.getElementById('f-username-hint');
+      uInput.disabled = true;
+      uHint.textContent = "اليوزرنيم ثابت ولا يمكن تعديله بعد إنشائه لتجنب تلف روابط البطاقات.";
+      uHint.style.color = "var(--dim)";
+    }
 
   }
 
