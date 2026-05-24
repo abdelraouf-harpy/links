@@ -81,6 +81,7 @@ export const Services = {
         location: '',
         website: '',
         instagram: '',
+        facebook: '',
         linkedin: '',
         tiktok: '',
         twitter: '',

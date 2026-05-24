@@ -98,6 +98,7 @@ function fillUI(d) {
 
   /* social links */
   document.getElementById('f-instagram').value = d.instagram || '';
+  document.getElementById('f-facebook').value = d.facebook || '';
   document.getElementById('f-linkedin').value = d.linkedin || '';
   document.getElementById('f-tiktok').value = d.tiktok || '';
   document.getElementById('f-twitter').value = d.twitter || '';
@@ -119,7 +120,7 @@ function fillUI(d) {
   document.getElementById('lang-en').classList.toggle('active', lang === 'en');
 
   /* card urls and QR code rendering */
-  const url = d.username ? `${BASE_URL}/${d.username}` : '';
+  const url = d.username ? `${BASE_URL}/profile.html?u=${d.username}` : '';
   
   document.getElementById('profile-url-text').textContent = url || 'يرجى تعيين يوزرنيم أولاً في قسم المعلومات الشخصية';
   document.getElementById('info-url').textContent         = url || '—';
@@ -353,7 +354,7 @@ async function saveSection(sec) {
       
       if (d.username) {
         document.getElementById('sb-uname').textContent = '@' + d.username;
-        const url = `${BASE_URL}/${d.username}`;
+        const url = `${BASE_URL}/profile.html?u=${d.username}`;
         document.getElementById('profile-url-text').textContent = url;
         document.getElementById('info-url').textContent         = url;
         document.getElementById('btn-view-card').href           = `profile.html?u=${d.username}`;
@@ -380,6 +381,7 @@ async function saveSection(sec) {
 
     if (sec === 'social') {
       d.instagram = document.getElementById('f-instagram').value.trim();
+      d.facebook = document.getElementById('f-facebook').value.trim();
       d.linkedin = document.getElementById('f-linkedin').value.trim();
       d.tiktok = document.getElementById('f-tiktok').value.trim();
       d.twitter = document.getElementById('f-twitter').value.trim();

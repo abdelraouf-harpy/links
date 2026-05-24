@@ -286,6 +286,11 @@ body::before {
   font-size: 20px;
   transition: all 0.3s;
 }
+.act-icon svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
 .act-btn:hover .act-icon {
   background: var(--theme);
   color: white;
@@ -389,6 +394,13 @@ body::before {
   font-size: 13.5px;
   font-weight: 600;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  min-width: 0;
+}
+.soc-btn span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 .soc-btn:hover {
   background: rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.08);
@@ -437,4 +449,10 @@ body::before {
 }
 [dir="ltr"] .info-row:hover .info-arr {
   transform: translateX(3px) scaleX(-1);
+}
+
+@media (max-width: 375px) {
+  .socials {
+    grid-template-columns: 1fr;
+  }
 }
