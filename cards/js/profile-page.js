@@ -1,5 +1,25 @@
 import { UI } from "./ui.js?v=3.0.0";
 
+// Auto-update checker to bypass browser cache on new deployments
+async function checkAppVersion() {
+  try {
+    const res = await fetch(`/cards/version.json?t=${new Date().getTime()}`);
+    if (res.ok) {
+      const data = await res.json();
+      const currentVersion = "3.0.0";
+      if (data.version && data.version !== currentVersion) {
+        console.log(`New version detected: ${data.version}. Forcing reload...`);
+        const url = new URL(window.location.href);
+        url.searchParams.set('cv', data.version);
+        window.location.replace(url.toString());
+      }
+    }
+  } catch (e) {
+    console.warn("Version check failed:", e);
+  }
+}
+checkAppVersion();
+
 let profileData = null;
 
 // Helper to format WhatsApp numbers for Egyptian formats
@@ -233,11 +253,25 @@ function render(d) {
   /* location & website detail links */
   const infoRows = [];
   if (d.location) {
+    let locVal = d.location.trim();
+    let locHref = '';
+    
+    if (locVal.includes('|')) {
+      const parts = locVal.split('|');
+      locVal = parts[0].trim();
+      locHref = parts[1].trim();
+    } else if (locVal.startsWith('http://') || locVal.startsWith('https://')) {
+      locHref = locVal;
+      locVal = isAr ? 'الموقع على الخريطة' : 'Location on Map';
+    } else {
+      locHref = `https://maps.google.com?q=${encodeURIComponent(locVal)}`;
+    }
+
     infoRows.push({
-      href: `https://maps.google.com?q=${encodeURIComponent(d.location)}`,
+      href: locHref,
       icon: `<svg class="svg-icon" style="stroke:currentColor;fill:none;width:20px;height:20px;" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`, 
       lbl: isAr ? 'الموقع' : 'Location', 
-      val: d.location, 
+      val: locVal, 
       target: '_blank'
     });
   }
