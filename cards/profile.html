@@ -40,26 +40,28 @@
 <!-- PROFILE -->
 <div id="profile">
 
-  <!-- ── HERO ── -->
+  <!-- ── HERO (Cinematic Cover) ── -->
   <div class="hero" id="hero">
     <div class="hero-bg">
       <div class="hero-orb hero-orb-1"></div>
       <div class="hero-orb hero-orb-2"></div>
     </div>
 
-    <div class="photo-wrap">
-      <div class="photo-circle" id="photo-el">
-        <svg style="width:48px;height:48px;stroke:rgba(255,255,255,.5);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24">
+    <div class="cover-wrap">
+      <div class="cover-img-el" id="photo-el">
+        <svg class="default-avatar-svg" viewBox="0 0 24 24">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
           <circle cx="12" cy="7" r="4"/>
         </svg>
       </div>
-      <div class="photo-ring-anim"></div>
+      <div class="cover-overlay"></div>
     </div>
 
-    <h1 class="hero-name"    id="h-name">—</h1>
-    <p  class="hero-title"   id="h-title"  style="display:none"></p>
-    <p  class="hero-company" id="h-company" style="display:none"></p>
+    <div class="hero-text-wrap">
+      <h1 class="hero-name"    id="h-name">—</h1>
+      <p  class="hero-title"   id="h-title"  style="display:none"></p>
+      <p  class="hero-company" id="h-company" style="display:none"></p>
+    </div>
 
     <button class="save-btn" id="save-contact-btn">
       <svg style="width:1.2em;height:1.2em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:inline-block;vertical-align:middle;" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>

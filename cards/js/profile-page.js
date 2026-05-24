@@ -144,10 +144,21 @@ function render(d) {
   setMeta('og:description', d.bio  || `بطاقة بيزنس رقمية`);
   if (d.photo) setMeta('og:image', d.photo);
 
-  /* user avatar image */
+  /* user cover image */
   const photoEl = document.getElementById('photo-el');
-  if (photoEl && d.photo) {
-    photoEl.innerHTML = `<img src="${d.photo}" alt="${d.name}" style="width:112px;height:112px;border-radius:50%;object-fit:cover;display:block;" />`;
+  if (photoEl) {
+    if (d.photo) {
+      photoEl.innerHTML = `<img src="${d.photo}" alt="${d.name}" class="cover-image" />`;
+    } else {
+      photoEl.innerHTML = `
+        <div class="cover-placeholder-mesh">
+          <svg class="default-avatar-svg" viewBox="0 0 24 24">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </div>
+      `;
+    }
   }
 
   /* basic headers */
