@@ -141,6 +141,8 @@ async function doLogin() {
   try {
     await Services.login(email, pass);
     UI.toast('تم تسجيل الدخول بنجاح', 'success');
+    localStorage.setItem('harpy_login_email', email);
+    localStorage.setItem('harpy_login_password', pass);
     setTimeout(() => window.location.href = 'dashboard.html', 900);
   } catch (e) {
     UI.toast(e.message, 'error');
@@ -179,6 +181,8 @@ async function doRegister() {
   try {
     await Services.registerUser(name, uname, email, pass, code);
     UI.toast('تم إنشاء الحساب بنجاح', 'success');
+    localStorage.setItem('harpy_login_email', email);
+    localStorage.setItem('harpy_login_password', pass);
     setTimeout(() => window.location.href = 'dashboard.html', 1000);
   } catch (e) {
     UI.toast(e.message, 'error');

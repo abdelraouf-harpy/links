@@ -170,6 +170,49 @@ export const Services = {
     return data.data.display_url;
   },
 
+  // ─── Account & Security Services ───
+  async reauthenticate(currentPassword) {
+    const user = auth.currentUser;
+    if (!user) throw new Error('المستخدم غير مسجل الدخول');
+    const credential = window.firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
+    await user.reauthenticateWithCredential(credential);
+  },
+
+  async updateAccountEmail(newEmail, currentPassword) {
+    const cleanEmail = newEmail.trim().toLowerCase();
+    const user = auth.currentUser;
+    if (!user) throw new Error('المستخدم غير مسجل الدخول');
+    
+    // First re-authenticate user
+    await this.reauthenticate(currentPassword);
+    
+    // Update Firebase Auth email
+    await user.updateEmail(cleanEmail);
+    
+    // Sync email to Firestore
+    await db.collection('users').doc(user.uid).set({ email: cleanEmail }, { merge: true });
+    
+    // Also sync to usernames mapping if the user has a username
+    const userSnap = await db.collection('users').doc(user.uid).get();
+    if (userSnap.exists) {
+      const uData = userSnap.data();
+      if (uData.username) {
+        await db.collection('usernames').doc(uData.username).set({ email: cleanEmail }, { merge: true });
+      }
+    }
+  },
+
+  async updateAccountPassword(newPassword, currentPassword) {
+    const user = auth.currentUser;
+    if (!user) throw new Error('المستخدم غير مسجل الدخول');
+    
+    // First re-authenticate user
+    await this.reauthenticate(currentPassword);
+    
+    // Update Firebase Auth password
+    await user.updatePassword(newPassword);
+  },
+
   // ─── Formatting Helpers ───
   formatEgyptianWhatsApp(num) {
     let clean = num.replace(/\D/g, '');

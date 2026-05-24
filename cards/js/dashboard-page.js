@@ -135,6 +135,28 @@ function fillUI(d) {
   } else {
     document.getElementById('qr-output').innerHTML = '<p style="color:var(--warn);font-size:12px;padding:20px;">الرجاء تعيين يوزرنيم في قسم المعلومات الشخصية لعرض رمز QR</p>';
   }
+
+  const accEmail = document.getElementById('f-acc-email');
+  if (accEmail && currentUser) {
+    accEmail.value = currentUser.email || '';
+  }
+
+  // Prefill current login credentials in the show card and password forms
+  const showEmail = document.getElementById('f-show-login-email');
+  const showPass = document.getElementById('f-show-login-pass');
+  if (showEmail && currentUser) {
+    showEmail.value = currentUser.email || '';
+  }
+  if (showPass) {
+    const savedPass = localStorage.getItem('harpy_login_password') || '';
+    showPass.value = savedPass || '••••••••';
+    
+    // Also prefill current password fields for update forms if saved
+    const emailPassField = document.getElementById('f-acc-email-pass');
+    const currPassField = document.getElementById('f-acc-curr-pass');
+    if (emailPassField && savedPass) emailPassField.value = savedPass;
+    if (currPassField && savedPass) currPassField.value = savedPass;
+  }
 }
 
 // Update sidebar profile avatar image
@@ -168,7 +190,7 @@ function buildQR(url) {
 // Page bindings setup
 document.addEventListener('DOMContentLoaded', () => {
   // Navigation goTo triggers
-  const navIds = ['personal', 'contact', 'social', 'appearance', 'mycard'];
+  const navIds = ['personal', 'contact', 'social', 'appearance', 'mycard', 'account'];
   navIds.forEach(id => {
     const btn = document.getElementById(`nav-${id}`);
     if (btn) {
@@ -235,6 +257,54 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnCopy) btnCopy.addEventListener('click', copyUrl);
   if (btnDownloadQR) btnDownloadQR.addEventListener('click', downloadQR);
   if (btnLogout) btnLogout.addEventListener('click', doLogout);
+
+  const btnUpdateEmail = document.getElementById('btn-update-email');
+  const btnUpdatePass = document.getElementById('btn-update-pass');
+  if (btnUpdateEmail) btnUpdateEmail.addEventListener('click', updateEmailAction);
+  if (btnUpdatePass) btnUpdatePass.addEventListener('click', updatePasswordAction);
+
+  // Copy login email & password bindings
+  const copyLoginEmail = document.getElementById('btn-copy-login-email');
+  if (copyLoginEmail) {
+    copyLoginEmail.addEventListener('click', () => {
+      const emailVal = document.getElementById('f-show-login-email').value;
+      if (emailVal) {
+        navigator.clipboard.writeText(emailVal).then(() => {
+          UI.toast('تم نسخ البريد الإلكتروني بنجاح', 'success');
+        });
+      }
+    });
+  }
+
+  const copyLoginPass = document.getElementById('btn-copy-login-pass');
+  if (copyLoginPass) {
+    copyLoginPass.addEventListener('click', () => {
+      const passVal = document.getElementById('f-show-login-pass').value;
+      if (passVal && passVal !== '••••••••') {
+        navigator.clipboard.writeText(passVal).then(() => {
+          UI.toast('تم نسخ كلمة المرور بنجاح', 'success');
+        });
+      } else {
+        UI.toast('لا توجد كلمة مرور لنسخها حالياً', 'warn');
+      }
+    });
+  }
+
+  // Password visibility eye toggles
+  document.querySelectorAll('.btn-toggle-pw').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.dataset.target;
+      const input = document.getElementById(targetId);
+      if (!input) return;
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.innerHTML = `<svg class="svg-icon" style="stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" x2="23" y1="1" y2="23"/></svg>`;
+      } else {
+        input.type = 'password';
+        btn.innerHTML = `<svg class="svg-icon" style="stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+      }
+    });
+  });
 });
 
 // Sidebar navigation controls
@@ -439,6 +509,87 @@ function downloadQR() {
 }
 
 async function doLogout() {
+  localStorage.removeItem('harpy_login_password');
   await Services.logout();
   window.location.href = 'index.html';
+}
+
+// Change Login Email Action
+async function updateEmailAction() {
+  const newEmail = document.getElementById('f-acc-email').value;
+  const pass = document.getElementById('f-acc-email-pass').value;
+  
+  if (!newEmail || !pass) {
+    UI.toast("يرجى إدخال البريد الإلكتروني الجديد وكلمة المرور الحالية للتأكيد.", "warn");
+    return;
+  }
+  
+  UI.setLoading('btn-update-email', true);
+  try {
+    await Services.updateAccountEmail(newEmail, pass);
+    UI.toast("تم تحديث البريد الإلكتروني بنجاح!", "success");
+    localStorage.setItem('harpy_login_email', newEmail);
+    const showEmail = document.getElementById('f-show-login-email');
+    if (showEmail) showEmail.value = newEmail;
+    document.getElementById('f-acc-email-pass').value = '';
+  } catch (e) {
+    console.error("Error updating email:", e);
+    let errMsg = e.message;
+    if (e.code === 'auth/wrong-password') {
+      errMsg = "كلمة المرور الحالية غير صحيحة.";
+    } else if (e.code === 'auth/invalid-email') {
+      errMsg = "صيغة البريد الإلكتروني الجديد غير صحيحة.";
+    }
+    UI.toast(errMsg, "error");
+  } finally {
+    UI.setLoading('btn-update-email', false);
+  }
+}
+
+// Change Login Password Action
+async function updatePasswordAction() {
+  const currPass = document.getElementById('f-acc-curr-pass').value;
+  const newPass = document.getElementById('f-acc-new-pass').value;
+  const newPassConf = document.getElementById('f-acc-new-pass-conf').value;
+  
+  if (!currPass || !newPass || !newPassConf) {
+    UI.toast("يرجى ملء جميع حقول كلمة المرور.", "warn");
+    return;
+  }
+  
+  if (newPass.length < 6) {
+    UI.toast("يجب أن تكون كلمة المرور الجديدة مكونة من 6 أحرف على الأقل.", "warn");
+    return;
+  }
+  
+  if (newPass !== newPassConf) {
+    UI.toast("كلمة المرور الجديدة لا تطابق تأكيد كلمة المرور.", "warn");
+    return;
+  }
+  
+  UI.setLoading('btn-update-pass', true);
+  try {
+    await Services.updateAccountPassword(newPass, currPass);
+    UI.toast("تم تغيير كلمة المرور بنجاح!", "success");
+    localStorage.setItem('harpy_login_password', newPass);
+    const showPass = document.getElementById('f-show-login-pass');
+    if (showPass) showPass.value = newPass;
+    
+    const emailPassField = document.getElementById('f-acc-email-pass');
+    const currPassField = document.getElementById('f-acc-curr-pass');
+    if (emailPassField) emailPassField.value = newPass;
+    if (currPassField) currPassField.value = newPass;
+
+    document.getElementById('f-acc-new-pass').value = '';
+    document.getElementById('f-acc-new-pass-conf').value = '';
+  } catch (e) {
+    console.error("Error updating password:", e);
+    let errMsg = e.message;
+    if (e.code === 'auth/wrong-password') {
+      errMsg = "كلمة المرور الحالية غير صحيحة.";
+    }
+    UI.toast(errMsg, "error");
+  } finally {
+    UI.setLoading('btn-update-pass', false);
+  }
 }

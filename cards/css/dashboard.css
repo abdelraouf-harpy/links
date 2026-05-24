@@ -652,3 +652,35 @@ input[type="color"] {
   color: var(--primary-lt);
   font-size: 12px;
 }
+
+/* Action inputs styling */
+.input-with-action {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+.btn-input-action {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--muted);
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
+  flex-shrink: 0;
+  padding: 0;
+}
+.btn-input-action:hover {
+  background: var(--card-hover);
+  color: var(--text);
+  border-color: rgba(255,255,255,.14);
+}
+.btn-input-action svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+}
