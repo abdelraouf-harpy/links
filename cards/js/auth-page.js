@@ -272,6 +272,13 @@ function removeSavedAccount(email) {
     accounts = [];
   }
 
+  const account = accounts.find(a => a.email.toLowerCase() === email.toLowerCase());
+  const name = account ? account.name : email;
+
+  if (!confirm(`هل أنت متأكد من إزالة حساب "${name}" من هذا الجهاز؟`)) {
+    return;
+  }
+
   accounts = accounts.filter(a => a.email.toLowerCase() !== email.toLowerCase());
   localStorage.setItem('harpy_saved_accounts', JSON.stringify(accounts));
   
