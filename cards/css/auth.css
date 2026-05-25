@@ -170,3 +170,98 @@ body {
   .auth-card { padding:24px 18px; }
   .wrapper { padding:14px; }
 }
+
+/* --- Account Switcher --- */
+.sb-switcher {
+  border-bottom: none;
+}
+.sb-switcher-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--dim);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 10px;
+  margin-inline-start: 2px;
+}
+.sb-switcher-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.sb-switcher-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.04);
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+}
+.sb-switcher-item:hover {
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(255,255,255,0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.sb-switcher-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+.sb-switcher-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--pink));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: white;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+.sb-switcher-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.sb-switcher-meta {
+  min-width: 0;
+  flex: 1;
+  text-align: right;
+}
+.sb-switcher-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+.sb-switcher-remove {
+  background: transparent;
+  border: none;
+  color: var(--dim);
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: .2s;
+  margin-inline-start: 6px;
+}
+.sb-switcher-remove:hover {
+  color: var(--error);
+  background: rgba(239, 68, 68, 0.12);
+}

@@ -47,6 +47,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   });
+
+  // Init Saved Accounts Switcher on outer login screen
+  initSavedAccounts();
 });
 
 // Tab switcher logic
@@ -189,4 +192,89 @@ async function doRegister() {
   } finally { 
     UI.setLoading('btn-register', false); 
   }
+}
+
+// ─── Account Switcher Logic for Outer Login Screen ───
+function initSavedAccounts() {
+  const section = document.getElementById('saved-accounts-section');
+  const list = document.getElementById('saved-accounts-list');
+  if (!section || !list) return;
+
+  let accounts = [];
+  try {
+    accounts = JSON.parse(localStorage.getItem('harpy_saved_accounts')) || [];
+  } catch (e) {
+    accounts = [];
+  }
+
+  if (accounts.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = 'block';
+  list.innerHTML = accounts.map(a => {
+    const avatarHtml = a.photo 
+      ? `<img src="${a.photo}" />` 
+      : (a.name || 'U')[0].toUpperCase();
+
+    return `
+      <div class="sb-switcher-item" data-email="${a.email}">
+        <div class="sb-switcher-info">
+          <div class="sb-switcher-avatar">${avatarHtml}</div>
+          <div class="sb-switcher-meta">
+            <div class="sb-switcher-name">${a.name}</div>
+            <div style="font-size: 10px; color: var(--dim); direction: ltr; text-align: right;">@${a.username || '—'}</div>
+          </div>
+        </div>
+        <button class="sb-switcher-remove" data-email="${a.email}" title="إزالة الحساب">
+          <svg style="width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2;" viewBox="0 0 24 24">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    `;
+  }).join('');
+
+  // Bind click to login directly
+  list.querySelectorAll('.sb-switcher-item').forEach(item => {
+    item.addEventListener('click', async (e) => {
+      if (e.target.closest('.sb-switcher-remove')) return;
+      
+      const email = item.dataset.email;
+      const account = accounts.find(a => a.email.toLowerCase() === email.toLowerCase());
+      if (account) {
+        document.getElementById('l-email').value = account.email;
+        document.getElementById('l-pass').value = account.pass;
+        
+        UI.toast(`جاري الدخول إلى حساب ${account.name}...`, 'info');
+        await doLogin();
+      }
+    });
+  });
+
+  // Bind remove click
+  list.querySelectorAll('.sb-switcher-remove').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const email = btn.dataset.email;
+      removeSavedAccount(email);
+    });
+  });
+}
+
+function removeSavedAccount(email) {
+  let accounts = [];
+  try {
+    accounts = JSON.parse(localStorage.getItem('harpy_saved_accounts')) || [];
+  } catch (e) {
+    accounts = [];
+  }
+
+  accounts = accounts.filter(a => a.email.toLowerCase() !== email.toLowerCase());
+  localStorage.setItem('harpy_saved_accounts', JSON.stringify(accounts));
+  
+  UI.toast('تم إزالة الحساب من هذا الجهاز', 'success');
+  initSavedAccounts();
 }
