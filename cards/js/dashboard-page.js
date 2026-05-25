@@ -697,12 +697,12 @@ function renderAccountSwitcher(accounts, currentEmail) {
 async function switchAccount(account) {
   UI.showLoader(true);
   try {
-    // Log in to the selected account using stored credentials
-    await Services.login(account.email, account.pass);
-    
-    // Update active credentials in localStorage
+    // Update active credentials in localStorage first to avoid any race conditions
     localStorage.setItem('harpy_login_email', account.email);
     localStorage.setItem('harpy_login_password', account.pass);
+
+    // Log in to the selected account using stored credentials
+    await Services.login(account.email, account.pass);
     
     UI.toast(`تم التبديل إلى حساب ${account.name} بنجاح`, 'success');
     // Reload page to re-trigger Auth State Monitor

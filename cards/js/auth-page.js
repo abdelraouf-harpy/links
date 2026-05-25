@@ -1,9 +1,13 @@
 import { Services } from "./services.js?v=3.0.0";
 import { UI } from "./ui.js?v=3.0.0";
 
-// Check if already logged in and redirect
+// Check if already logged in and redirect on initial load only (prevents race condition during login/register)
+let initialAuthCheck = true;
 Services.onAuth(user => {
-  if (user) window.location.href = 'dashboard.html';
+  if (user && initialAuthCheck) {
+    window.location.href = 'dashboard.html';
+  }
+  initialAuthCheck = false;
 });
 
 document.addEventListener('DOMContentLoaded', () => {
