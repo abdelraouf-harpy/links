@@ -591,14 +591,15 @@ body::before {
   letter-spacing: 0.5px;
 }
 .powered a {
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--theme);
   text-decoration: none;
   font-weight: 700;
   margin-inline-start: 4px;
-  transition: color 0.2s ease;
+  transition: opacity 0.2s ease, text-shadow 0.2s ease;
 }
 .powered a:hover {
-  color: var(--theme);
+  opacity: 0.85;
+  text-shadow: 0 0 8px rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.6);
 }
 
 /* ─── ANIMATIONS ─── */
