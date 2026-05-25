@@ -41,8 +41,8 @@ body::before {
 .bg-orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(120px);
-  opacity: 0.15;
+  filter: blur(140px);
+  opacity: 0.28; /* Increased for a much more cheerful, glowing vibe */
   animation: floatOrb 25s infinite ease-in-out;
 }
 
@@ -59,10 +59,20 @@ body::before {
   width: 600px;
   height: 600px;
   background: #db2777;
-  bottom: 10%;
+  bottom: 15%;
   right: -5%;
   animation-duration: 25s;
   animation-delay: -5s;
+}
+
+.bg-orb-3 {
+  width: 450px;
+  height: 450px;
+  background: #00f2fe; /* Cheerful, vibrant cyan */
+  top: 40%;
+  left: 20%;
+  animation-duration: 20s;
+  animation-delay: -12s;
 }
 
 @keyframes floatOrb {
@@ -118,13 +128,16 @@ body::before {
 #profile::before {
   content: '';
   position: absolute;
+  inset: 0;
   top: 350px;
-  left: 10%;
-  right: 10%;
-  height: 200px;
-  background: radial-gradient(circle at center, rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.15) 0%, transparent 75%);
+  background: 
+    radial-gradient(circle at 10% 20%, rgba(var(--theme-r), var(--theme-g), var(--theme-b), 0.25) 0%, transparent 60%),
+    radial-gradient(circle at 90% 70%, rgba(219, 39, 119, 0.22) 0%, transparent 60%),
+    radial-gradient(circle at 50% 45%, rgba(0, 242, 254, 0.18) 0%, transparent 70%);
   z-index: 1;
   pointer-events: none;
+  border-radius: 0 0 28px 28px;
+  opacity: 0.95;
 }
 
 @keyframes cardFadeIn {
