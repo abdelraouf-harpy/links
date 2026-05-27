@@ -19,6 +19,11 @@ service cloud.firestore {
       
       // Only the authenticated card owner can create, update, or delete their profile
       allow write: if isOwner(uid);
+
+      // Private settings document (stores saved accounts securely)
+      match /private/savedAccounts {
+        allow read, write: if isOwner(uid);
+      }
     }
 
     // 2. Rules for the 'usernames' collection (stores username -> uid mappings)

@@ -31,9 +31,9 @@ async function loadData() {
   if (profile) {
     userData = profile;
 
-    // ─ Restore saved accounts from Firestore into localStorage immediately
-    if (Array.isArray(profile.savedAccounts) && profile.savedAccounts.length > 0) {
-      localStorage.setItem('harpy_saved_accounts', JSON.stringify(profile.savedAccounts));
+    // Clean up insecure legacy field if present
+    if (profile.savedAccounts) {
+      await Services.removeInsecureSavedAccountsField(currentUser.uid);
     }
   } else {
     userData = {
@@ -45,6 +45,45 @@ async function loadData() {
       lang: 'ar'
     };
   }
+
+  // ─ Restore/Merge saved accounts from Firestore into localStorage
+  try {
+    const dbAccounts = await Services.getSavedAccounts(currentUser.uid);
+    if (Array.isArray(dbAccounts) && dbAccounts.length > 0) {
+      let localAccounts = [];
+      try {
+        localAccounts = JSON.parse(localStorage.getItem('harpy_saved_accounts')) || [];
+      } catch (_) {}
+
+      let deletedEmails = [];
+      try {
+        deletedEmails = JSON.parse(localStorage.getItem('harpy_deleted_accounts')) || [];
+      } catch (_) {}
+
+      // Filter out deleted accounts from the Firestore list
+      const activeDbAccounts = dbAccounts.filter(a => !deletedEmails.includes(a.email.toLowerCase()));
+
+      // Merge: add any active db accounts to local cache if not present
+      let merged = [...localAccounts];
+      for (const da of activeDbAccounts) {
+        const idx = merged.findIndex(a => a.email.toLowerCase() === da.email.toLowerCase());
+        if (idx === -1) {
+          merged.push(da);
+        } else {
+          // Update details if present
+          if (da.pass && !merged[idx].pass) merged[idx].pass = da.pass;
+          if (da.username) merged[idx].username = da.username;
+          if (da.name) merged[idx].name = da.name;
+          if (da.photo) merged[idx].photo = da.photo;
+        }
+      }
+
+      localStorage.setItem('harpy_saved_accounts', JSON.stringify(merged));
+    }
+  } catch (e) {
+    console.warn("Could not restore saved accounts from Firestore on load:", e);
+  }
+
   fillUI(userData);
   await updateSavedAccounts(userData);
 }
@@ -660,7 +699,6 @@ async function updatePasswordAction() {
   }
 }
 
-// ─── Account Switcher Logic ───
 // Saves accounts to Firestore (survives clearing browser data)
 async function updateSavedAccounts(d) {
   if (!currentUser || !currentUser.email) return;
@@ -684,16 +722,26 @@ async function updateSavedAccounts(d) {
     console.warn('Could not load saved accounts from Firestore:', e);
   }
 
+  // Retrieve deleted accounts list to filter them out
+  let deletedEmails = [];
+  try {
+    deletedEmails = JSON.parse(localStorage.getItem('harpy_deleted_accounts')) || [];
+  } catch (_) {}
+
   // ─ 2. Merge local cache into Firestore list
   let localAccounts = [];
   try { localAccounts = JSON.parse(localStorage.getItem('harpy_saved_accounts')) || []; } catch (_) {}
 
-  // Merge: add any local accounts not yet in Firestore
+  // Merge: add any local accounts not yet in Firestore, filtering out deleted ones
   for (const la of localAccounts) {
+    if (deletedEmails.includes(la.email.toLowerCase())) continue;
     if (!firestoreAccounts.find(a => a.email.toLowerCase() === la.email.toLowerCase())) {
       firestoreAccounts.push(la);
     }
   }
+
+  // Filter Firestore accounts list to remove deleted ones
+  firestoreAccounts = firestoreAccounts.filter(a => !deletedEmails.includes(a.email.toLowerCase()));
 
   // ─ 3. Upsert current account
   const idx = firestoreAccounts.findIndex(a => a.email.toLowerCase() === email.toLowerCase());
@@ -709,6 +757,8 @@ async function updateSavedAccounts(d) {
   // ─ 4. Save to both Firestore and localStorage
   try {
     await Services.setSavedAccounts(currentUser.uid, firestoreAccounts);
+    // Once successfully saved to Firestore, we can clear the deleted list for this user session since it's synced
+    localStorage.removeItem('harpy_deleted_accounts');
   } catch (e) {
     console.warn('Could not save accounts to Firestore:', e);
   }
@@ -807,8 +857,29 @@ function removeSavedAccount(email) {
     return;
   }
 
+  // Add to deleted accounts list in localStorage
+  let deletedEmails = [];
+  try {
+    deletedEmails = JSON.parse(localStorage.getItem('harpy_deleted_accounts')) || [];
+  } catch (_) {}
+  if (!deletedEmails.includes(email.toLowerCase())) {
+    deletedEmails.push(email.toLowerCase());
+    localStorage.setItem('harpy_deleted_accounts', JSON.stringify(deletedEmails));
+  }
+
   accounts = accounts.filter(a => a.email.toLowerCase() !== email.toLowerCase());
   localStorage.setItem('harpy_saved_accounts', JSON.stringify(accounts));
+  
+  // Also save the updated list to Firestore for the current user!
+  if (currentUser) {
+    try {
+      Services.setSavedAccounts(currentUser.uid, accounts).catch(e => {
+        console.warn('Could not save updated accounts to Firestore:', e);
+      });
+    } catch (e) {
+      console.warn('Could not save updated accounts to Firestore:', e);
+    }
+  }
   
   const currentEmail = currentUser?.email || '';
   renderAccountSwitcher(accounts, currentEmail);

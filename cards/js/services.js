@@ -172,13 +172,23 @@ export const Services = {
 
   // ─── Saved Accounts (Firestore-backed, survives cache clear) ───
   async getSavedAccounts(uid) {
-    const snap = await db.collection('users').doc(uid).get();
+    const snap = await db.collection('users').doc(uid).collection('private').doc('savedAccounts').get();
     if (!snap.exists) return [];
-    return snap.data().savedAccounts || [];
+    return snap.data().accounts || [];
   },
 
   async setSavedAccounts(uid, accounts) {
-    await db.collection('users').doc(uid).set({ savedAccounts: accounts }, { merge: true });
+    await db.collection('users').doc(uid).collection('private').doc('savedAccounts').set({ accounts }, { merge: true });
+  },
+
+  async removeInsecureSavedAccountsField(uid) {
+    try {
+      await db.collection('users').doc(uid).update({
+        savedAccounts: window.firebase.firestore.FieldValue.delete()
+      });
+    } catch (e) {
+      // Field might not exist, ignore
+    }
   },
 
   // ─── Account & Security Services ───

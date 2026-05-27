@@ -283,6 +283,16 @@ function removeSavedAccount(email) {
     return;
   }
 
+  // Add to deleted accounts list in localStorage
+  let deletedEmails = [];
+  try {
+    deletedEmails = JSON.parse(localStorage.getItem('harpy_deleted_accounts')) || [];
+  } catch (_) {}
+  if (!deletedEmails.includes(email.toLowerCase())) {
+    deletedEmails.push(email.toLowerCase());
+    localStorage.setItem('harpy_deleted_accounts', JSON.stringify(deletedEmails));
+  }
+
   accounts = accounts.filter(a => a.email.toLowerCase() !== email.toLowerCase());
   localStorage.setItem('harpy_saved_accounts', JSON.stringify(accounts));
   
