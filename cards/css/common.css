@@ -5,6 +5,26 @@
   box-sizing: border-box;
 }
 
+/* ─── Remove browser white flash on tap/click ─── */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+/* Remove browser default focus outlines (replaced by custom focus styles where needed) */
+:focus {
+  outline: none;
+}
+:focus-visible {
+  outline: 2px solid rgba(124, 58, 237, 0.55);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+button, a, input, textarea, select {
+  -webkit-tap-highlight-color: transparent;
+}
+
 :root {
   --bg:           #06060f;
   --surface:      #0d0d1f;

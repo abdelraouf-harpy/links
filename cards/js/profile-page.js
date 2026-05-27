@@ -44,6 +44,15 @@ function parseFirestoreFields(fields) {
       data[key] = parseInt(valObj.integerValue, 10);
     } else if (valObj.doubleValue !== undefined) {
       data[key] = parseFloat(valObj.doubleValue);
+    } else if (valObj.arrayValue !== undefined) {
+      // Parse array values (e.g. photos[])
+      const arr = valObj.arrayValue.values || [];
+      data[key] = arr.map(v => {
+        if (v.stringValue !== undefined) return v.stringValue;
+        if (v.integerValue !== undefined) return parseInt(v.integerValue, 10);
+        if (v.booleanValue !== undefined) return v.booleanValue;
+        return null;
+      }).filter(v => v !== null);
     }
   }
   return data;
@@ -164,12 +173,19 @@ function render(d) {
   setMeta('og:description', d.bio  || `بطاقة بيزنس رقمية`);
   if (d.photo) setMeta('og:image', d.photo);
 
-  /* user cover image */
+  /* user cover image(s) — supports single photo or photos[] array */
   const photoEl = document.getElementById('photo-el');
   if (photoEl) {
-    if (d.photo) {
-      photoEl.innerHTML = `<img src="${d.photo}" alt="${d.name}" class="cover-image" />`;
-    } else {
+    // Build photos array: use d.photos[] if available, else fallback to single d.photo
+    const photos = [];
+    if (Array.isArray(d.photos) && d.photos.length > 0) {
+      photos.push(...d.photos);
+    } else if (d.photo) {
+      photos.push(d.photo);
+    }
+
+    if (photos.length === 0) {
+      // No photos — show default avatar placeholder
       photoEl.innerHTML = `
         <div class="cover-placeholder-mesh">
           <svg class="default-avatar-svg" viewBox="0 0 24 24">
@@ -178,6 +194,12 @@ function render(d) {
           </svg>
         </div>
       `;
+    } else if (photos.length === 1) {
+      // Single photo — simple render
+      photoEl.innerHTML = `<img src="${photos[0]}" alt="${d.name}" style="width:100%;height:100%;object-fit:cover;display:block;" />`;
+    } else {
+      // Multiple photos — build swiper
+      buildSwiper(photoEl, photos, d.name || '');
     }
   }
 
@@ -372,6 +394,129 @@ function downloadVCard() {
   a.click();
   document.body.removeChild(a); 
   URL.revokeObjectURL(url);
+}
+
+// ─── IMAGE SWIPER BUILDER ───
+function buildSwiper(container, photos, altName) {
+  let current = 0;
+  let isAnimating = false;
+  let autoTimer = null;
+  let touchStartX = 0;
+  let touchStartY = 0;
+
+  // Build HTML
+  const slidesHTML = photos.map((url, i) =>
+    `<div class="img-slide${i === 0 ? ' active' : ''}" data-index="${i}">
+      <img src="${url}" alt="${altName}" style="width:100%;height:100%;object-fit:cover;display:block;" loading="${i === 0 ? 'eager' : 'lazy'}" />
+    </div>`
+  ).join('');
+
+  const dotsHTML = photos.map((_, i) =>
+    `<div class="swiper-dot${i === 0 ? ' active' : ''}" data-dot="${i}"></div>`
+  ).join('');
+
+  container.innerHTML = `
+    <div class="img-swiper" id="img-swiper">
+      ${slidesHTML}
+      <button class="swiper-peel-hint" id="swiper-peel" aria-label="الصورة التالية" type="button">
+        <svg class="peel-icon" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 7h8M7 3l4 4-4 4" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <div class="swiper-dots">${dotsHTML}</div>
+    </div>
+  `;
+
+  const swiper = container.querySelector('#img-swiper');
+  const peelBtn = container.querySelector('#swiper-peel');
+  const slides = container.querySelectorAll('.img-slide');
+  const dots = container.querySelectorAll('.swiper-dot');
+
+  function goTo(next, direction = 'forward') {
+    if (isAnimating || next === current) return;
+    isAnimating = true;
+    resetAutoTimer();
+
+    const prevSlide = slides[current];
+    const nextSlide = slides[next];
+
+    // Set exit direction based on swipe
+    prevSlide.classList.remove('active');
+    prevSlide.classList.add('prev');
+    nextSlide.style.transform = direction === 'forward' ? 'translateX(-100%)' : 'translateX(100%)';
+    nextSlide.style.opacity = '0';
+
+    // Force reflow
+    void nextSlide.offsetWidth;
+
+    nextSlide.style.transition = 'opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1)';
+    nextSlide.style.transform = 'translateX(0)';
+    nextSlide.style.opacity = '1';
+    nextSlide.classList.add('active');
+
+    // Update dots
+    dots.forEach((d, i) => d.classList.toggle('active', i === next));
+
+    current = next;
+
+    setTimeout(() => {
+      prevSlide.classList.remove('prev');
+      prevSlide.style.transform = '';
+      prevSlide.style.opacity = '';
+      prevSlide.style.transition = '';
+      nextSlide.style.transition = '';
+      isAnimating = false;
+    }, 580);
+  }
+
+  function nextSlideFunc() {
+    goTo((current + 1) % photos.length, 'forward');
+  }
+
+  function prevSlideFunc() {
+    goTo((current - 1 + photos.length) % photos.length, 'backward');
+  }
+
+  function resetAutoTimer() {
+    if (autoTimer) clearInterval(autoTimer);
+    autoTimer = setInterval(nextSlideFunc, 5000);
+  }
+
+  // Peel button click
+  if (peelBtn) {
+    peelBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      nextSlideFunc();
+    });
+  }
+
+  // Touch / swipe support
+  swiper.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].clientX;
+    touchStartY = e.changedTouches[0].clientY;
+  }, { passive: true });
+
+  swiper.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    // Only swipe if horizontal movement dominates
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+      // RTL: swipe left = next, swipe right = prev
+      if (dx < 0) nextSlideFunc();
+      else prevSlideFunc();
+    }
+  }, { passive: true });
+
+  // Start auto-advance
+  resetAutoTimer();
+
+  // Pause on interaction
+  swiper.addEventListener('touchstart', () => {
+    if (autoTimer) clearInterval(autoTimer);
+  }, { passive: true });
+  swiper.addEventListener('touchend', () => {
+    resetAutoTimer();
+  }, { passive: true });
 }
 
 // Start loading profile immediately (Fast Path)
