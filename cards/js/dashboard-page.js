@@ -399,54 +399,60 @@ function setLang(l) {
 // Photo uploading to ImgBB — front photo
 async function uploadPhoto(file) {
   if (!file) return;
-  UI.setLoading('upload-btn', true);
-  try {
-    const url = await Services.uploadImage(file);
-    await Services.saveUserProfile(currentUser.uid, { photo: url }, userData.username);
-    userData.photo = url;
+  openCropper(file, async (croppedBlob) => {
+    UI.setLoading('upload-btn', true);
+    try {
+      const croppedFile = new File([croppedBlob], file.name || 'front.jpg', { type: 'image/jpeg' });
+      const url = await Services.uploadImage(croppedFile);
+      await Services.saveUserProfile(currentUser.uid, { photo: url }, userData.username);
+      userData.photo = url;
 
-    const pImg = document.getElementById('photo-img');
-    const pEmoji = document.getElementById('photo-emoji');
-    if (pImg && pEmoji) {
-      pImg.src = url;
-      pImg.style.display = 'block';
-      pEmoji.style.display = 'none';
+      const pImg = document.getElementById('photo-img');
+      const pEmoji = document.getElementById('photo-emoji');
+      if (pImg && pEmoji) {
+        pImg.src = url;
+        pImg.style.display = 'block';
+        pEmoji.style.display = 'none';
+      }
+
+      updateSidebarAvatar(url, userData.name);
+      UI.toast('تم تعديل ورفع الصورة الأمامية بنجاح ✅', 'success');
+    } catch (e) {
+      console.error("Photo upload error:", e);
+      UI.toast('فشل رفع الصورة، يرجى المحاولة مرة أخرى', 'error');
+    } finally {
+      UI.setLoading('upload-btn', false);
     }
-
-    updateSidebarAvatar(url, userData.name);
-    UI.toast('تم رفع الصورة الأمامية بنجاح ✅', 'success');
-  } catch (e) {
-    console.error("Photo upload error:", e);
-    UI.toast('فشل رفع الصورة، يرجى المحاولة مرة أخرى', 'error');
-  } finally {
-    UI.setLoading('upload-btn', false);
-  }
+  });
 }
 
 // Photo uploading to ImgBB — back photo
 async function uploadPhoto2(file) {
   if (!file) return;
-  UI.setLoading('upload-btn2', true);
-  try {
-    const url = await Services.uploadImage(file);
-    await Services.saveUserProfile(currentUser.uid, { photo2: url }, userData.username);
-    userData.photo2 = url;
+  openCropper(file, async (croppedBlob) => {
+    UI.setLoading('upload-btn2', true);
+    try {
+      const croppedFile = new File([croppedBlob], file.name || 'back.jpg', { type: 'image/jpeg' });
+      const url = await Services.uploadImage(croppedFile);
+      await Services.saveUserProfile(currentUser.uid, { photo2: url }, userData.username);
+      userData.photo2 = url;
 
-    const p2Img = document.getElementById('photo2-img');
-    const p2Emoji = document.getElementById('photo2-emoji');
-    if (p2Img && p2Emoji) {
-      p2Img.src = url;
-      p2Img.style.display = 'block';
-      p2Emoji.style.display = 'none';
+      const p2Img = document.getElementById('photo2-img');
+      const p2Emoji = document.getElementById('photo2-emoji');
+      if (p2Img && p2Emoji) {
+        p2Img.src = url;
+        p2Img.style.display = 'block';
+        p2Emoji.style.display = 'none';
+      }
+
+      UI.toast('تم تعديل ورفع الصورة الخلفية بنجاح ✅', 'success');
+    } catch (e) {
+      console.error("Photo2 upload error:", e);
+      UI.toast('فشل رفع الصورة الخلفية، يرجى المحاولة مرة أخرى', 'error');
+    } finally {
+      UI.setLoading('upload-btn2', false);
     }
-
-    UI.toast('تم رفع الصورة الخلفية بنجاح ✅', 'success');
-  } catch (e) {
-    console.error("Photo2 upload error:", e);
-    UI.toast('فشل رفع الصورة الخلفية، يرجى المحاولة مرة أخرى', 'error');
-  } finally {
-    UI.setLoading('upload-btn2', false);
-  }
+  });
 }
 
 // Save Section
@@ -818,4 +824,202 @@ async function addNewAccount() {
     UI.toast('حدث خطأ أثناء الانتقال لصفحة تسجيل الدخول', 'error');
     UI.showLoader(false);
   }
+}
+
+// ─── Interactive Image Cropper (Frame Overlay) ───
+function openCropper(file, callback) {
+  const modal = document.getElementById('crop-modal');
+  const preview = document.getElementById('crop-img-preview');
+  const viewport = document.getElementById('crop-viewport');
+  const saveBtn = document.getElementById('btn-save-crop');
+  const cancelBtn = document.getElementById('btn-cancel-crop');
+  const closeBtn = document.getElementById('btn-close-crop');
+
+  if (!modal || !preview || !viewport) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    preview.src = e.target.result;
+    modal.style.display = 'flex';
+
+    // Wait for image to load to get dimensions
+    preview.onload = function() {
+      const vWidth = viewport.clientWidth;
+      const vHeight = viewport.clientHeight;
+      const imgRatio = preview.naturalWidth / preview.naturalHeight;
+      const targetRatio = 460 / 350;
+
+      let scaledWidth = 0;
+      let scaledHeight = 0;
+      let minX = 0, maxX = 0;
+      let minY = 0, maxY = 0;
+      let currentX = 0;
+      let currentY = 0;
+
+      // Fit to cover viewport
+      if (imgRatio > targetRatio) {
+        // Image is wider than target. Fit height to viewport, drag horizontally
+        preview.style.height = '100%';
+        preview.style.width = 'auto';
+        scaledHeight = vHeight;
+        scaledWidth = vHeight * imgRatio;
+        
+        minX = vWidth - scaledWidth;
+        maxX = 0;
+        minY = 0;
+        maxY = 0;
+        
+        // Center horizontally initially
+        currentX = (vWidth - scaledWidth) / 2;
+        currentY = 0;
+      } else {
+        // Image is taller than target. Fit width to viewport, drag vertically
+        preview.style.width = '100%';
+        preview.style.height = 'auto';
+        scaledWidth = vWidth;
+        scaledHeight = vWidth / imgRatio;
+        
+        minX = 0;
+        maxX = 0;
+        minY = vHeight - scaledHeight;
+        maxY = 0;
+
+        // Center vertically initially
+        currentX = 0;
+        currentY = (vHeight - scaledHeight) / 2;
+      }
+
+      // Apply initial transform
+      preview.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+
+      // Dragging logic
+      let isDragging = false;
+      let startX = 0, startY = 0;
+      let baseX = currentX, baseY = currentY;
+
+      function onStart(x, y) {
+        isDragging = true;
+        startX = x;
+        startY = y;
+        baseX = currentX;
+        baseY = currentY;
+      }
+
+      function onMove(x, y) {
+        if (!isDragging) return;
+        const dx = x - startX;
+        const dy = y - startY;
+
+        let tx = baseX + dx;
+        let ty = baseY + dy;
+
+        // Clamp
+        if (tx < minX) tx = minX;
+        if (tx > maxX) tx = maxX;
+        if (ty < minY) ty = minY;
+        if (ty > maxY) ty = maxY;
+
+        currentX = tx;
+        currentY = ty;
+        preview.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+      }
+
+      function onEnd() {
+        isDragging = false;
+      }
+
+      // Mouse Events
+      const mousedownHandler = (e) => {
+        onStart(e.clientX, e.clientY);
+      };
+      const mousemoveHandler = (e) => {
+        onMove(e.clientX, e.clientY);
+      };
+      const mouseupHandler = () => {
+        onEnd();
+      };
+
+      // Touch Events
+      const touchstartHandler = (e) => {
+        if (e.touches.length > 0) {
+          onStart(e.touches[0].clientX, e.touches[0].clientY);
+        }
+      };
+      const touchmoveHandler = (e) => {
+        if (e.touches.length > 0) {
+          onMove(e.touches[0].clientX, e.touches[0].clientY);
+        }
+      };
+      const touchendHandler = () => {
+        onEnd();
+      };
+
+      // Bind drag event listeners
+      viewport.addEventListener('mousedown', mousedownHandler);
+      window.addEventListener('mousemove', mousemoveHandler);
+      window.addEventListener('mouseup', mouseupHandler);
+
+      viewport.addEventListener('touchstart', touchstartHandler, { passive: true });
+      window.addEventListener('touchmove', touchmoveHandler, { passive: true });
+      window.addEventListener('touchend', touchendHandler);
+
+      // Cleanup function
+      function cleanup() {
+        viewport.removeEventListener('mousedown', mousedownHandler);
+        window.removeEventListener('mousemove', mousemoveHandler);
+        window.removeEventListener('mouseup', mouseupHandler);
+
+        viewport.removeEventListener('touchstart', touchstartHandler);
+        window.removeEventListener('touchmove', touchmoveHandler);
+        window.removeEventListener('touchend', touchendHandler);
+
+        saveBtn.removeEventListener('click', saveHandler);
+        cancelBtn.removeEventListener('click', cancelHandler);
+        closeBtn.removeEventListener('click', cancelHandler);
+        modal.style.display = 'none';
+        
+        // Reset file inputs so same file can be selected again
+        document.getElementById('photo-file').value = '';
+        const pf2 = document.getElementById('photo2-file');
+        if (pf2) pf2.value = '';
+      }
+
+      // Save Handler
+      const saveHandler = () => {
+        // Crop mapping calculations
+        const canvas = document.createElement('canvas');
+        canvas.width = 920; // Double size for high resolution
+        canvas.height = 700;
+
+        const ctx = canvas.getContext('2d');
+
+        // Translate screen offset to natural coordinates
+        const scale = scaledWidth / preview.naturalWidth;
+        
+        const sx = -currentX / scale;
+        const sy = -currentY / scale;
+        const sw = vWidth / scale;
+        const sh = vHeight / scale;
+
+        ctx.drawImage(preview, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+
+        canvas.toBlob((blob) => {
+          if (blob) {
+            callback(blob);
+          }
+          cleanup();
+        }, 'image/jpeg', 0.92);
+      };
+
+      const cancelHandler = () => {
+        cleanup();
+      };
+
+      saveBtn.addEventListener('click', saveHandler);
+      cancelBtn.addEventListener('click', cancelHandler);
+      closeBtn.addEventListener('click', cancelHandler);
+    };
+  };
+
+  reader.readAsDataURL(file);
 }

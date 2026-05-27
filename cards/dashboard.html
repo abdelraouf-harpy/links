@@ -8,13 +8,14 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <link rel="manifest" href="manifest.json?v=3.0.0" />
+  <link rel="icon" type="image/png" href="pwa_icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://firestore.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <link rel="stylesheet" href="css/common.css?v=3.3.0" />
-  <link rel="stylesheet" href="css/dashboard.css?v=3.3.0" />
+  <link rel="stylesheet" href="css/common.css?v=3.4.0" />
+  <link rel="stylesheet" href="css/dashboard.css?v=3.4.0" />
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -503,7 +504,30 @@
 
 <div id="toasts"></div>
 
+<!-- ─── Image Crop Modal ─── -->
+<div id="crop-modal" class="crop-modal" style="display:none;">
+  <div class="crop-modal-content">
+    <div class="crop-modal-header">
+      <h3>تعديل ومحاذاة الصورة</h3>
+      <button class="btn-close-crop" id="btn-close-crop">&times;</button>
+    </div>
+    <div class="crop-container-outer">
+      <div class="crop-viewport" id="crop-viewport">
+        <img id="crop-img-preview" src="" alt="Crop Preview" />
+        <div class="crop-overlay-guide"></div>
+      </div>
+    </div>
+    <div class="crop-instructions">
+      💡 اسحب الصورة لتعديل الجزء الذي سيظهر في البروفايل بالظبط.
+    </div>
+    <div class="crop-modal-footer">
+      <button class="btn-action outline" id="btn-cancel-crop">إلغاء</button>
+      <button class="btn-action" id="btn-save-crop">حفظ وتعديل</button>
+    </div>
+  </div>
+</div>
+
 <!-- ─── SCRIPT ─── -->
-<script type="module" src="js/dashboard-page.js?v=3.3.0"></script>
+<script type="module" src="js/dashboard-page.js?v=3.4.0"></script>
 </body>
 </html>
