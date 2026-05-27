@@ -76,7 +76,7 @@ function fillUI(d) {
   document.getElementById('f-company').value = d.company || '';
   document.getElementById('f-bio').value = d.bio || '';
 
-  /* photo display */
+  /* photo display — front */
   const pImg = document.getElementById('photo-img');
   const pEmoji = document.getElementById('photo-emoji');
   if (pImg && pEmoji) {
@@ -87,6 +87,20 @@ function fillUI(d) {
     } else {
       pImg.style.display = 'none';
       pEmoji.style.display = 'block';
+    }
+  }
+
+  /* photo display — back */
+  const p2Img = document.getElementById('photo2-img');
+  const p2Emoji = document.getElementById('photo2-emoji');
+  if (p2Img && p2Emoji) {
+    if (d.photo2) {
+      p2Img.src = d.photo2;
+      p2Img.style.display = 'block';
+      p2Emoji.style.display = 'none';
+    } else {
+      p2Img.style.display = 'none';
+      p2Emoji.style.display = 'block';
     }
   }
 
@@ -215,6 +229,17 @@ document.addEventListener('DOMContentLoaded', () => {
   if (uploadBtn) uploadBtn.addEventListener('click', () => photoFile.click());
   if (photoFile) {
     photoFile.addEventListener('change', (e) => uploadPhoto(e.target.files[0]));
+  }
+
+  // Back photo upload trigger
+  const photo2Ring = document.getElementById('photo2-ring');
+  const uploadBtn2 = document.getElementById('upload-btn2');
+  const photo2File = document.getElementById('photo2-file');
+
+  if (photo2Ring) photo2Ring.addEventListener('click', () => photo2File && photo2File.click());
+  if (uploadBtn2) uploadBtn2.addEventListener('click', () => photo2File && photo2File.click());
+  if (photo2File) {
+    photo2File.addEventListener('change', (e) => uploadPhoto2(e.target.files[0]));
   }
 
   // Swatch color selection
@@ -367,14 +392,12 @@ function setLang(l) {
   document.getElementById('lang-en').classList.toggle('active', l === 'en');
 }
 
-// Photo uploading to ImgBB
+// Photo uploading to ImgBB — front photo
 async function uploadPhoto(file) {
   if (!file) return;
   UI.setLoading('upload-btn', true);
   try {
     const url = await Services.uploadImage(file);
-    
-    // Save photo URL in user document and username mapping
     await Services.saveUserProfile(currentUser.uid, { photo: url }, userData.username);
     userData.photo = url;
 
@@ -387,12 +410,38 @@ async function uploadPhoto(file) {
     }
 
     updateSidebarAvatar(url, userData.name);
-    UI.toast('تم رفع الصورة بنجاح', 'success');
+    UI.toast('تم رفع الصورة الأمامية بنجاح ✅', 'success');
   } catch (e) {
     console.error("Photo upload error:", e);
     UI.toast('فشل رفع الصورة، يرجى المحاولة مرة أخرى', 'error');
   } finally {
     UI.setLoading('upload-btn', false);
+  }
+}
+
+// Photo uploading to ImgBB — back photo
+async function uploadPhoto2(file) {
+  if (!file) return;
+  UI.setLoading('upload-btn2', true);
+  try {
+    const url = await Services.uploadImage(file);
+    await Services.saveUserProfile(currentUser.uid, { photo2: url }, userData.username);
+    userData.photo2 = url;
+
+    const p2Img = document.getElementById('photo2-img');
+    const p2Emoji = document.getElementById('photo2-emoji');
+    if (p2Img && p2Emoji) {
+      p2Img.src = url;
+      p2Img.style.display = 'block';
+      p2Emoji.style.display = 'none';
+    }
+
+    UI.toast('تم رفع الصورة الخلفية بنجاح ✅', 'success');
+  } catch (e) {
+    console.error("Photo2 upload error:", e);
+    UI.toast('فشل رفع الصورة الخلفية، يرجى المحاولة مرة أخرى', 'error');
+  } finally {
+    UI.setLoading('upload-btn2', false);
   }
 }
 

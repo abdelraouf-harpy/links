@@ -6,7 +6,7 @@ async function checkAppVersion() {
     const res = await fetch(`/cards/version.json?t=${new Date().getTime()}`);
     if (res.ok) {
       const data = await res.json();
-      const currentVersion = "3.1.0";
+      const currentVersion = "3.2.0";
       if (data.version && data.version !== currentVersion) {
         console.log(`New version detected: ${data.version}. Forcing reload...`);
         const url = new URL(window.location.href);
@@ -173,19 +173,14 @@ function render(d) {
   setMeta('og:description', d.bio  || `بطاقة بيزنس رقمية`);
   if (d.photo) setMeta('og:image', d.photo);
 
-  /* user cover image(s) — supports single photo or photos[] array */
+  /* user cover image(s) — front photo + optional back photo */
   const photoEl = document.getElementById('photo-el');
   if (photoEl) {
-    // Build photos array: use d.photos[] if available, else fallback to single d.photo
     const photos = [];
-    if (Array.isArray(d.photos) && d.photos.length > 0) {
-      photos.push(...d.photos);
-    } else if (d.photo) {
-      photos.push(d.photo);
-    }
+    if (d.photo)  photos.push(d.photo);
+    if (d.photo2) photos.push(d.photo2);
 
     if (photos.length === 0) {
-      // No photos — show default avatar placeholder
       photoEl.innerHTML = `
         <div class="cover-placeholder-mesh">
           <svg class="default-avatar-svg" viewBox="0 0 24 24">
@@ -195,10 +190,8 @@ function render(d) {
         </div>
       `;
     } else if (photos.length === 1) {
-      // Single photo — simple render
-      photoEl.innerHTML = `<img src="${photos[0]}" alt="${d.name}" style="width:100%;height:100%;object-fit:cover;display:block;" />`;
+      photoEl.innerHTML = `<img src="${photos[0]}" alt="${d.name || ''}" style="width:100%;height:100%;object-fit:cover;display:block;" />`;
     } else {
-      // Multiple photos — build swiper
       buildSwiper(photoEl, photos, d.name || '');
     }
   }

@@ -13,8 +13,8 @@
   <link rel="preconnect" href="https://firestore.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <link rel="stylesheet" href="css/common.css?v=3.1.0" />
-  <link rel="stylesheet" href="css/dashboard.css?v=3.1.0" />
+  <link rel="stylesheet" href="css/common.css?v=3.2.0" />
+  <link rel="stylesheet" href="css/dashboard.css?v=3.2.0" />
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -140,30 +140,66 @@
       </div>
 
       <div class="card">
-        <div class="card-title">الصورة الشخصية</div>
-        <div class="photo-row">
-          <div class="photo-ring" id="photo-ring">
-            <img id="photo-img" src="" alt="Photo" />
-            <span id="photo-emoji">
-              <svg class="svg-icon" style="width:48px;height:48px;stroke:var(--muted);" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            </span>
-            <div class="photo-ring-overlay">
-              <svg class="svg-icon" style="stroke:white;" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-            </div>
-          </div>
+        <div class="card-title">الصور</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:18px;">أضف صورة أمامية وخلفية — الزائر يقدر يتنقل بينهم بالسحب</p>
 
-          <div class="photo-info">
-            <p>اضغط على الصورة أو الزرار عشان تغيّرها</p>
-            <button class="btn-upload" id="upload-btn">
+        <div class="photos-dual-row">
+
+          <!-- Front Photo -->
+          <div class="photo-slot">
+            <div class="photo-slot-label">
+              <svg class="svg-icon" style="width:14px;height:14px;stroke:var(--muted);" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              الصورة الأمامية
+            </div>
+            <div class="photo-ring" id="photo-ring">
+              <img id="photo-img" src="" alt="Front Photo" />
+              <span id="photo-emoji">
+                <svg class="svg-icon" style="width:36px;height:36px;stroke:var(--muted);" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </span>
+              <div class="photo-ring-overlay">
+                <svg class="svg-icon" style="stroke:white;" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              </div>
+            </div>
+            <button class="btn-upload btn-upload-sm" id="upload-btn" type="button">
               <span class="upload-txt">
-                <svg class="svg-icon" style="margin-inline-end: 6px; width: 1.1em; height: 1.1em;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-                رفع صورة
+                <svg class="svg-icon" style="margin-inline-end:5px;width:1em;height:1em;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                رفع أمامية
               </span>
               <div class="upload-spin"></div>
             </button>
             <input type="file" id="photo-file" accept="image/*" style="display:none" />
           </div>
+
+          <!-- Back Photo -->
+          <div class="photo-slot">
+            <div class="photo-slot-label">
+              <svg class="svg-icon" style="width:14px;height:14px;stroke:var(--muted);" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+              الصورة الخلفية
+            </div>
+            <div class="photo-ring" id="photo2-ring">
+              <img id="photo2-img" src="" alt="Back Photo" />
+              <span id="photo2-emoji">
+                <svg class="svg-icon" style="width:36px;height:36px;stroke:var(--muted);" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+              </span>
+              <div class="photo-ring-overlay">
+                <svg class="svg-icon" style="stroke:white;" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              </div>
+            </div>
+            <button class="btn-upload btn-upload-sm" id="upload-btn2" type="button">
+              <span class="upload-txt">
+                <svg class="svg-icon" style="margin-inline-end:5px;width:1em;height:1em;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                رفع خلفية
+              </span>
+              <div class="upload-spin"></div>
+            </button>
+            <input type="file" id="photo2-file" accept="image/*" style="display:none" />
+          </div>
+
         </div>
+
+        <p style="font-size:11px;color:var(--dim);margin-top:14px;text-align:center;">
+          💡 لو رفعت الصورتين، الزائر يقدر يسحب لليمين عشان يشوف الصورة الخلفية
+        </p>
       </div>
 
       <div class="card">
@@ -468,6 +504,6 @@
 <div id="toasts"></div>
 
 <!-- ─── SCRIPT ─── -->
-<script type="module" src="js/dashboard-page.js?v=3.1.0"></script>
+<script type="module" src="js/dashboard-page.js?v=3.2.0"></script>
 </body>
 </html>
