@@ -30,8 +30,12 @@ async function loadData() {
   const profile = await Services.getUserProfile(currentUser.uid);
   if (profile) {
     userData = profile;
+
+    // ─ Restore saved accounts from Firestore into localStorage immediately
+    if (Array.isArray(profile.savedAccounts) && profile.savedAccounts.length > 0) {
+      localStorage.setItem('harpy_saved_accounts', JSON.stringify(profile.savedAccounts));
+    }
   } else {
-    // Missing document fallback
     userData = {
       uid: currentUser.uid,
       username: '',
@@ -42,7 +46,7 @@ async function loadData() {
     };
   }
   fillUI(userData);
-  updateSavedAccounts(userData);
+  await updateSavedAccounts(userData);
 }
 
 // Populate fields
@@ -651,41 +655,60 @@ async function updatePasswordAction() {
 }
 
 // ─── Account Switcher Logic ───
-function updateSavedAccounts(d) {
+// Saves accounts to Firestore (survives clearing browser data)
+async function updateSavedAccounts(d) {
   if (!currentUser || !currentUser.email) return;
   const email = currentUser.email;
-  const pass = localStorage.getItem('harpy_login_password') || '';
+  const pass  = localStorage.getItem('harpy_login_password') || '';
 
-  let accounts = [];
-  try {
-    accounts = JSON.parse(localStorage.getItem('harpy_saved_accounts')) || [];
-  } catch (e) {
-    accounts = [];
-  }
-
-  // Find if this account is already saved
-  const idx = accounts.findIndex(a => a.email.toLowerCase() === email.toLowerCase());
   const accountData = {
-    email: email.toLowerCase(),
-    pass: pass,
+    email:    email.toLowerCase(),
+    pass:     pass,
     username: d.username || '',
-    name: d.name || 'مستخدم جديد',
-    photo: d.photo || ''
+    name:     d.name     || 'مستخدم جديد',
+    photo:    d.photo    || ''
   };
 
-  if (idx > -1) {
-    // Update existing credentials and info
-    if (!accountData.pass && accounts[idx].pass) {
-      accountData.pass = accounts[idx].pass;
-    }
-    accounts[idx] = accountData;
-  } else {
-    // Add new account
-    accounts.push(accountData);
+  // ─ 1. Load from Firestore first (source of truth)
+  let firestoreAccounts = [];
+  try {
+    const snap = await Services.getSavedAccounts(currentUser.uid);
+    firestoreAccounts = snap || [];
+  } catch (e) {
+    console.warn('Could not load saved accounts from Firestore:', e);
   }
 
-  localStorage.setItem('harpy_saved_accounts', JSON.stringify(accounts));
-  renderAccountSwitcher(accounts, email);
+  // ─ 2. Merge local cache into Firestore list
+  let localAccounts = [];
+  try { localAccounts = JSON.parse(localStorage.getItem('harpy_saved_accounts')) || []; } catch (_) {}
+
+  // Merge: add any local accounts not yet in Firestore
+  for (const la of localAccounts) {
+    if (!firestoreAccounts.find(a => a.email.toLowerCase() === la.email.toLowerCase())) {
+      firestoreAccounts.push(la);
+    }
+  }
+
+  // ─ 3. Upsert current account
+  const idx = firestoreAccounts.findIndex(a => a.email.toLowerCase() === email.toLowerCase());
+  if (idx > -1) {
+    if (!accountData.pass && firestoreAccounts[idx].pass) {
+      accountData.pass = firestoreAccounts[idx].pass;
+    }
+    firestoreAccounts[idx] = accountData;
+  } else {
+    firestoreAccounts.push(accountData);
+  }
+
+  // ─ 4. Save to both Firestore and localStorage
+  try {
+    await Services.setSavedAccounts(currentUser.uid, firestoreAccounts);
+  } catch (e) {
+    console.warn('Could not save accounts to Firestore:', e);
+  }
+  localStorage.setItem('harpy_saved_accounts', JSON.stringify(firestoreAccounts));
+
+  renderAccountSwitcher(firestoreAccounts, email);
 }
 
 function renderAccountSwitcher(accounts, currentEmail) {

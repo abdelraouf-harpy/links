@@ -170,6 +170,17 @@ export const Services = {
     return data.data.display_url;
   },
 
+  // ─── Saved Accounts (Firestore-backed, survives cache clear) ───
+  async getSavedAccounts(uid) {
+    const snap = await db.collection('users').doc(uid).get();
+    if (!snap.exists) return [];
+    return snap.data().savedAccounts || [];
+  },
+
+  async setSavedAccounts(uid, accounts) {
+    await db.collection('users').doc(uid).set({ savedAccounts: accounts }, { merge: true });
+  },
+
   // ─── Account & Security Services ───
   async reauthenticate(currentPassword) {
     const user = auth.currentUser;

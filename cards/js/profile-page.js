@@ -6,7 +6,7 @@ async function checkAppVersion() {
     const res = await fetch(`/cards/version.json?t=${new Date().getTime()}`);
     if (res.ok) {
       const data = await res.json();
-      const currentVersion = "3.2.0";
+      const currentVersion = "3.3.0";
       if (data.version && data.version !== currentVersion) {
         console.log(`New version detected: ${data.version}. Forcing reload...`);
         const url = new URL(window.location.href);
@@ -393,62 +393,39 @@ function downloadVCard() {
 function buildSwiper(container, photos, altName) {
   let current = 0;
   let isAnimating = false;
-  let autoTimer = null;
   let touchStartX = 0;
   let touchStartY = 0;
 
-  // Build HTML
+  // Build slides HTML — no buttons, no dots (clean look)
   const slidesHTML = photos.map((url, i) =>
     `<div class="img-slide${i === 0 ? ' active' : ''}" data-index="${i}">
       <img src="${url}" alt="${altName}" style="width:100%;height:100%;object-fit:cover;display:block;" loading="${i === 0 ? 'eager' : 'lazy'}" />
     </div>`
   ).join('');
 
-  const dotsHTML = photos.map((_, i) =>
-    `<div class="swiper-dot${i === 0 ? ' active' : ''}" data-dot="${i}"></div>`
-  ).join('');
-
-  container.innerHTML = `
-    <div class="img-swiper" id="img-swiper">
-      ${slidesHTML}
-      <button class="swiper-peel-hint" id="swiper-peel" aria-label="الصورة التالية" type="button">
-        <svg class="peel-icon" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M3 7h8M7 3l4 4-4 4" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-      <div class="swiper-dots">${dotsHTML}</div>
-    </div>
-  `;
+  container.innerHTML = `<div class="img-swiper" id="img-swiper">${slidesHTML}</div>`;
 
   const swiper = container.querySelector('#img-swiper');
-  const peelBtn = container.querySelector('#swiper-peel');
   const slides = container.querySelectorAll('.img-slide');
-  const dots = container.querySelectorAll('.swiper-dot');
 
   function goTo(next, direction = 'forward') {
     if (isAnimating || next === current) return;
     isAnimating = true;
-    resetAutoTimer();
 
     const prevSlide = slides[current];
     const nextSlide = slides[next];
 
-    // Set exit direction based on swipe
     prevSlide.classList.remove('active');
     prevSlide.classList.add('prev');
     nextSlide.style.transform = direction === 'forward' ? 'translateX(-100%)' : 'translateX(100%)';
     nextSlide.style.opacity = '0';
 
-    // Force reflow
-    void nextSlide.offsetWidth;
+    void nextSlide.offsetWidth; // force reflow
 
-    nextSlide.style.transition = 'opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1)';
+    nextSlide.style.transition = 'opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1)';
     nextSlide.style.transform = 'translateX(0)';
     nextSlide.style.opacity = '1';
     nextSlide.classList.add('active');
-
-    // Update dots
-    dots.forEach((d, i) => d.classList.toggle('active', i === next));
 
     current = next;
 
@@ -459,31 +436,13 @@ function buildSwiper(container, photos, altName) {
       prevSlide.style.transition = '';
       nextSlide.style.transition = '';
       isAnimating = false;
-    }, 580);
+    }, 460);
   }
 
-  function nextSlideFunc() {
-    goTo((current + 1) % photos.length, 'forward');
-  }
+  function nextSlideFunc() { goTo((current + 1) % photos.length, 'forward'); }
+  function prevSlideFunc() { goTo((current - 1 + photos.length) % photos.length, 'backward'); }
 
-  function prevSlideFunc() {
-    goTo((current - 1 + photos.length) % photos.length, 'backward');
-  }
-
-  function resetAutoTimer() {
-    if (autoTimer) clearInterval(autoTimer);
-    autoTimer = setInterval(nextSlideFunc, 5000);
-  }
-
-  // Peel button click
-  if (peelBtn) {
-    peelBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      nextSlideFunc();
-    });
-  }
-
-  // Touch / swipe support
+  // Touch swipe only
   swiper.addEventListener('touchstart', (e) => {
     touchStartX = e.changedTouches[0].clientX;
     touchStartY = e.changedTouches[0].clientY;
@@ -492,23 +451,10 @@ function buildSwiper(container, photos, altName) {
   swiper.addEventListener('touchend', (e) => {
     const dx = e.changedTouches[0].clientX - touchStartX;
     const dy = e.changedTouches[0].clientY - touchStartY;
-    // Only swipe if horizontal movement dominates
     if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
-      // RTL: swipe left = next, swipe right = prev
       if (dx < 0) nextSlideFunc();
       else prevSlideFunc();
     }
-  }, { passive: true });
-
-  // Start auto-advance
-  resetAutoTimer();
-
-  // Pause on interaction
-  swiper.addEventListener('touchstart', () => {
-    if (autoTimer) clearInterval(autoTimer);
-  }, { passive: true });
-  swiper.addEventListener('touchend', () => {
-    resetAutoTimer();
   }, { passive: true });
 }
 
