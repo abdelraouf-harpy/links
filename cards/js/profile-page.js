@@ -6,7 +6,7 @@ async function checkAppVersion() {
     const res = await fetch(`/cards/version.json?t=${new Date().getTime()}`);
     if (res.ok) {
       const data = await res.json();
-      const currentVersion = "3.0.0";
+      const currentVersion = "3.1.0";
       if (data.version && data.version !== currentVersion) {
         console.log(`New version detected: ${data.version}. Forcing reload...`);
         const url = new URL(window.location.href);
