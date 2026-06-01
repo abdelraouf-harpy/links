@@ -1,5 +1,5 @@
-import { Services } from "./services.js?v=3.0.0";
-import { UI } from "./ui.js?v=3.0.0";
+import { Services } from "./services.js?v=3.6.0";
+import { UI } from "./ui.js?v=3.6.0";
 
 // Check if already logged in and redirect on initial load only (prevents race condition during login/register)
 let initialAuthCheck = true;

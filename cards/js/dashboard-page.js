@@ -1,5 +1,5 @@
-import { Services } from "./services.js?v=3.0.0";
-import { UI } from "./ui.js?v=3.0.0";
+import { Services } from "./services.js?v=3.6.0";
+import { UI } from "./ui.js?v=3.6.0";
 
 let currentUser = null;
 let userData = null;
@@ -226,11 +226,8 @@ function addExtraField(fieldKey, value = '') {
   row.innerHTML = `
     <input class="input extra-input-field" type="${type}" placeholder="${placeholder}" ${dir ? `dir="${dir}"` : ''} value="${value}" />
     <button class="btn-remove-field" type="button" title="حذف">
-      <svg style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;" viewBox="0 0 24 24">
-        <polyline points="3 6 5 6 21 6"></polyline>
-        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-        <line x1="10" y1="11" x2="10" y2="17"></line>
-        <line x1="14" y1="11" x2="14" y2="17"></line>
+      <svg style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;" viewBox="0 0 24 24">
+        <line x1="5" y1="12" x2="19" y2="12"></line>
       </svg>
     </button>
   `;
@@ -299,7 +296,11 @@ function renderAdditionalPhotos() {
     card.className = 'additional-photo-card';
     card.innerHTML = `
       <img src="${url}" alt="Back Photo ${index + 1}" />
-      <button class="btn-delete" type="button" title="حذف">🗑️</button>
+      <button class="btn-delete" type="button" title="حذف">
+        <svg style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;" viewBox="0 0 24 24">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+      </button>
     `;
     
     card.querySelector('.btn-delete').addEventListener('click', async () => {

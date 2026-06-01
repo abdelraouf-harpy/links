@@ -2,7 +2,7 @@
 // HARPY CARDS - PWA Service Worker
 // =====================================================
 
-const CACHE_NAME = 'harpy-cards-cache-v3';
+const CACHE_NAME = 'harpy-cards-cache-v4';
 
 self.addEventListener('install', e => {
   self.skipWaiting();

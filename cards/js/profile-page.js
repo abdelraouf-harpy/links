@@ -1,4 +1,4 @@
-import { UI } from "./ui.js?v=3.0.0";
+import { UI } from "./ui.js?v=3.6.0";
 
 // Auto-update checker to bypass browser cache on new deployments
 async function checkAppVersion() {
@@ -6,7 +6,7 @@ async function checkAppVersion() {
     const res = await fetch(`/cards/version.json?t=${new Date().getTime()}`);
     if (res.ok) {
       const data = await res.json();
-      const currentVersion = "3.5.0";
+      const currentVersion = "3.6.0";
       if (data.version && data.version !== currentVersion) {
         console.log(`New version detected: ${data.version}. Forcing reload...`);
         const url = new URL(window.location.href);
@@ -24,7 +24,8 @@ let profileData = null;
 
 // Helper to format WhatsApp numbers for Egyptian formats
 function formatEgyptianWhatsApp(num) {
-  let clean = num.replace(/\D/g, '');
+  const str = String(num || '');
+  let clean = str.replace(/\D/g, '');
   if (clean.startsWith('0') && clean.length === 11) {
     clean = '20' + clean.substring(1);
   }
@@ -282,7 +283,6 @@ function render(d) {
           `<span class="act-lbl">${a.lbl}</span>` +
         `</a>`
       ).join('');
-      grid.parentElement.style.display = 'flex';
     } else {
       grid.parentElement.style.display = 'none';
     }
@@ -294,7 +294,7 @@ function render(d) {
     const locations = Array.isArray(d.location) ? d.location : [d.location];
     locations.forEach((loc, index) => {
       if (!loc) return;
-      let locVal = loc.trim();
+      let locVal = String(loc).trim();
       let locHref = '';
       
       if (locVal.includes('|')) {
@@ -322,8 +322,9 @@ function render(d) {
     const websites = Array.isArray(d.website) ? d.website : [d.website];
     websites.forEach((web, index) => {
       if (!web) return;
-      const clean = web.replace(/^https?:\/\//, '');
-      const href  = web.startsWith('http') ? web : `https://${web}`;
+      const strWeb = String(web);
+      const clean = strWeb.replace(/^https?:\/\//, '');
+      const href  = strWeb.startsWith('http') ? strWeb : `https://${strWeb}`;
       infoRows.push({ 
         href, 
         icon: `<svg class="svg-icon" style="stroke:currentColor;fill:none;width:20px;height:20px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`, 

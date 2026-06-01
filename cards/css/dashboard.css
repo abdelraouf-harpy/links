@@ -647,10 +647,16 @@ input[type="color"] {
 }
 .info-list code {
   background: rgba(255,255,255,.06);
-  padding: 2px 8px;
-  border-radius: 5px;
+  padding: 6px 12px;
+  border-radius: 6px;
   color: var(--primary-lt);
   font-size: 12px;
+  display: block;
+  margin-top: 6px;
+  max-width: 100%;
+  word-break: break-all;
+  direction: ltr;
+  text-align: left;
 }
 
 /* Action inputs styling */
@@ -875,14 +881,18 @@ input[type="color"] {
   font-size: 12px;
   padding: 7px 12px;
 }
-
-@media(max-width:500px) {
+@media(max-width:768px) {
   .photos-dual-row {
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .photo-slot {
+    width: 100%;
+    align-items: center;
   }
   .photo-slot .photo-ring {
-    height: 90px;
+    max-width: 120px;
+    height: 120px;
   }
 }
 
