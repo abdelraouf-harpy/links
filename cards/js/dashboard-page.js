@@ -119,24 +119,49 @@ function fillUI(d) {
   document.getElementById('f-company').value = d.company || '';
   document.getElementById('f-bio').value = d.bio || '';
 
-  /* gallery photos display */
-  renderPhotosGallery(d.photos);
+  /* photo display — front */
+  const pImg = document.getElementById('photo-img');
+  const pEmoji = document.getElementById('photo-emoji');
+  if (pImg && pEmoji) {
+    if (d.photo) {
+      pImg.src = d.photo;
+      pImg.style.display = 'block';
+      pEmoji.style.display = 'none';
+    } else {
+      pImg.style.display = 'none';
+      pEmoji.style.display = 'block';
+    }
+  }
+
+  /* photo display — back */
+  const p2Img = document.getElementById('photo2-img');
+  const p2Emoji = document.getElementById('photo2-emoji');
+  if (p2Img && p2Emoji) {
+    if (d.photo2) {
+      p2Img.src = d.photo2;
+      p2Img.style.display = 'block';
+      p2Emoji.style.display = 'none';
+    } else {
+      p2Img.style.display = 'none';
+      p2Emoji.style.display = 'block';
+    }
+  }
 
   /* contact inputs */
-  populateDynamicField('mobile', d.mobile);
-  populateDynamicField('whatsapp', d.whatsapp);
-  populateDynamicField('publicEmail', d.publicEmail);
-  populateDynamicField('location', d.location);
-  populateDynamicField('website', d.website);
+  document.getElementById('f-mobile').value = d.mobile || '';
+  document.getElementById('f-whatsapp').value = d.whatsapp || '';
+  document.getElementById('f-email').value = d.publicEmail || '';
+  document.getElementById('f-location').value = d.location || '';
+  document.getElementById('f-website').value = d.website || '';
 
   /* social links */
-  populateDynamicField('instagram', d.instagram);
-  populateDynamicField('facebook', d.facebook);
-  populateDynamicField('linkedin', d.linkedin);
-  populateDynamicField('tiktok', d.tiktok);
-  populateDynamicField('twitter', d.twitter);
-  populateDynamicField('snapchat', d.snapchat);
-  populateDynamicField('youtube', d.youtube);
+  document.getElementById('f-instagram').value = d.instagram || '';
+  document.getElementById('f-facebook').value = d.facebook || '';
+  document.getElementById('f-linkedin').value = d.linkedin || '';
+  document.getElementById('f-tiktok').value = d.tiktok || '';
+  document.getElementById('f-twitter').value = d.twitter || '';
+  document.getElementById('f-snapchat').value = d.snapchat || '';
+  document.getElementById('f-youtube').value = d.youtube || '';
 
   /* appearance presets */
   theme = d.theme || '#7c3aed';
@@ -238,25 +263,26 @@ document.addEventListener('DOMContentLoaded', () => {
   if (menuBtn) menuBtn.addEventListener('click', openSidebar);
   if (overlay) overlay.addEventListener('click', closeSidebar);
 
-  // Dynamic add buttons event binding
-  document.querySelectorAll('.btn-add-field').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const fieldKey = btn.dataset.field;
-      const container = document.getElementById(`container-${fieldKey}`);
-      if (container) {
-        const row = createDynamicFieldRow(fieldKey, '');
-        container.appendChild(row);
-        row.querySelector('input').focus();
-      }
-    });
-  });
+  // File upload trigger
+  const photoRing = document.getElementById('photo-ring');
+  const uploadBtn = document.getElementById('upload-btn');
+  const photoFile = document.getElementById('photo-file');
+  
+  if (photoRing) photoRing.addEventListener('click', () => photoFile.click());
+  if (uploadBtn) uploadBtn.addEventListener('click', () => photoFile.click());
+  if (photoFile) {
+    photoFile.addEventListener('change', (e) => uploadPhoto(e.target.files[0]));
+  }
 
-  // Photo gallery upload trigger
-  const btnAddPhoto = document.getElementById('btn-add-gallery-photo');
-  const galleryPhotoFile = document.getElementById('gallery-photo-file');
-  if (btnAddPhoto && galleryPhotoFile) {
-    btnAddPhoto.addEventListener('click', () => galleryPhotoFile.click());
-    galleryPhotoFile.addEventListener('change', (e) => uploadGalleryPhoto(e.target.files[0]));
+  // Back photo upload trigger
+  const photo2Ring = document.getElementById('photo2-ring');
+  const uploadBtn2 = document.getElementById('upload-btn2');
+  const photo2File = document.getElementById('photo2-file');
+
+  if (photo2Ring) photo2Ring.addEventListener('click', () => photo2File && photo2File.click());
+  if (uploadBtn2) uploadBtn2.addEventListener('click', () => photo2File && photo2File.click());
+  if (photo2File) {
+    photo2File.addEventListener('change', (e) => uploadPhoto2(e.target.files[0]));
   }
 
   // Swatch color selection
@@ -409,156 +435,61 @@ function setLang(l) {
   document.getElementById('lang-en').classList.toggle('active', l === 'en');
 }
 
-// Dynamic Field Definitions (for placeholders and types)
-const FIELD_DEFS = {
-  mobile:      { placeholder: '+20 123 456 7890', type: 'tel', dir: 'ltr' },
-  whatsapp:    { placeholder: '+20 123 456 7890', type: 'tel', dir: 'ltr' },
-  publicEmail: { placeholder: 'ahmed@email.com',  type: 'email', dir: 'ltr' },
-  location:    { placeholder: 'القاهرة، مصر (أو الاسم | الرابط)', type: 'text', dir: 'rtl' },
-  website:     { placeholder: 'https://mywebsite.com', type: 'url', dir: 'ltr' },
-  instagram:   { placeholder: 'https://instagram.com/username', type: 'url', dir: 'ltr' },
-  facebook:    { placeholder: 'https://facebook.com/username', type: 'url', dir: 'ltr' },
-  linkedin:    { placeholder: 'https://linkedin.com/in/username', type: 'url', dir: 'ltr' },
-  tiktok:      { placeholder: 'https://tiktok.com/@username', type: 'url', dir: 'ltr' },
-  twitter:     { placeholder: 'https://x.com/username', type: 'url', dir: 'ltr' },
-  snapchat:    { placeholder: 'https://snapchat.com/add/username', type: 'url', dir: 'ltr' },
-  youtube:     { placeholder: 'https://youtube.com/@channel', type: 'url', dir: 'ltr' }
-};
-
-// Render a single dynamic input row
-function createDynamicFieldRow(fieldKey, value = '') {
-  const def = FIELD_DEFS[fieldKey] || { placeholder: '', type: 'text', dir: 'ltr' };
-  const row = document.createElement('div');
-  row.className = 'dynamic-field-row';
-  
-  const input = document.createElement('input');
-  input.className = 'input';
-  input.type = def.type;
-  input.placeholder = def.placeholder;
-  input.value = value;
-  input.style.direction = def.dir;
-  if (def.dir === 'ltr') {
-    input.style.textAlign = 'left';
-  }
-  
-  const removeBtn = document.createElement('button');
-  removeBtn.type = 'button';
-  removeBtn.className = 'btn-remove-field';
-  removeBtn.title = 'إزالة الحقل';
-  removeBtn.innerHTML = `
-    <svg class="svg-icon" viewBox="0 0 24 24">
-      <polyline points="3 6 5 6 21 6"></polyline>
-      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-    </svg>
-  `;
-  
-  removeBtn.addEventListener('click', () => {
-    const container = row.parentElement;
-    row.remove();
-    // Ensure there's at least one empty input if all are removed
-    if (container && container.children.length === 0) {
-      container.appendChild(createDynamicFieldRow(fieldKey, ''));
-    }
-  });
-  
-  row.appendChild(input);
-  row.appendChild(removeBtn);
-  return row;
-}
-
-// Populate container with values (string or array of strings)
-function populateDynamicField(fieldKey, dataValue) {
-  const containerId = `container-${fieldKey}`;
-  const container = document.getElementById(containerId);
-  if (!container) return;
-  container.innerHTML = '';
-  
-  let values = [];
-  if (Array.isArray(dataValue)) {
-    values = dataValue.filter(Boolean);
-  } else if (dataValue) {
-    values = [dataValue];
-  }
-  
-  if (values.length === 0) {
-    values = [''];
-  }
-  
-  values.forEach(val => {
-    container.appendChild(createDynamicFieldRow(fieldKey, val));
-  });
-}
-
-// Get array of values from a container
-function getDynamicFieldValues(fieldKey) {
-  const containerId = `container-${fieldKey}`;
-  const container = document.getElementById(containerId);
-  if (!container) return [];
-  const inputs = container.querySelectorAll('input');
-  return Array.from(inputs).map(inp => inp.value.trim()).filter(Boolean);
-}
-
-let localPhotos = []; // Keep local array of photo URLs
-
-function renderPhotosGallery(photosArray) {
-  const grid = document.getElementById('photos-gallery-grid');
-  if (!grid) return;
-  
-  const addCard = document.getElementById('btn-add-gallery-photo');
-  grid.innerHTML = '';
-  
-  localPhotos = Array.isArray(photosArray) ? [...photosArray] : [];
-  if (localPhotos.length === 0) {
-    if (userData?.photo) localPhotos.push(userData.photo);
-    if (userData?.photo2) localPhotos.push(userData.photo2);
-  }
-  
-  localPhotos.forEach((url, index) => {
-    const card = document.createElement('div');
-    card.className = 'gallery-photo-card';
-    card.innerHTML = `
-      <img src="${url}" alt="Photo ${index + 1}" />
-      <button type="button" class="delete-btn" title="حذف الصورة">🗑️</button>
-    `;
-    card.querySelector('.delete-btn').addEventListener('click', () => {
-      if (confirm('هل أنت متأكد من حذف هذه الصورة؟')) {
-        localPhotos.splice(index, 1);
-        renderPhotosGallery(localPhotos);
-      }
-    });
-    grid.appendChild(card);
-  });
-  
-  grid.appendChild(addCard);
-}
-
-async function uploadGalleryPhoto(file) {
+// Photo uploading to ImgBB — front photo
+async function uploadPhoto(file) {
   if (!file) return;
   openCropper(file, async (croppedBlob) => {
-    const addCard = document.getElementById('btn-add-gallery-photo');
-    if (addCard) {
-      addCard.innerHTML = `<div class="upload-spin" style="display:block"></div> جاري الرفع...`;
-      addCard.style.pointerEvents = 'none';
-    }
+    UI.setLoading('upload-btn', true);
     try {
-      const croppedFile = new File([croppedBlob], file.name || 'photo.jpg', { type: 'image/jpeg' });
+      const croppedFile = new File([croppedBlob], file.name || 'front.jpg', { type: 'image/jpeg' });
       const url = await Services.uploadImage(croppedFile);
-      localPhotos.push(url);
-      renderPhotosGallery(localPhotos);
-      UI.toast('تم رفع الصورة بنجاح ✅', 'success');
+      await Services.saveUserProfile(currentUser.uid, { photo: url }, userData.username);
+      userData.photo = url;
+
+      const pImg = document.getElementById('photo-img');
+      const pEmoji = document.getElementById('photo-emoji');
+      if (pImg && pEmoji) {
+        pImg.src = url;
+        pImg.style.display = 'block';
+        pEmoji.style.display = 'none';
+      }
+
+      updateSidebarAvatar(url, userData.name);
+      UI.toast('تم تعديل ورفع الصورة الأمامية بنجاح ✅', 'success');
     } catch (e) {
-      console.error("Gallery photo upload error:", e);
+      console.error("Photo upload error:", e);
       UI.toast('فشل رفع الصورة، يرجى المحاولة مرة أخرى', 'error');
     } finally {
-      if (addCard) {
-        addCard.innerHTML = `
-          <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          رفع صورة جديدة
-        `;
-        addCard.style.pointerEvents = 'all';
+      UI.setLoading('upload-btn', false);
+    }
+  });
+}
+
+// Photo uploading to ImgBB — back photo
+async function uploadPhoto2(file) {
+  if (!file) return;
+  openCropper(file, async (croppedBlob) => {
+    UI.setLoading('upload-btn2', true);
+    try {
+      const croppedFile = new File([croppedBlob], file.name || 'back.jpg', { type: 'image/jpeg' });
+      const url = await Services.uploadImage(croppedFile);
+      await Services.saveUserProfile(currentUser.uid, { photo2: url }, userData.username);
+      userData.photo2 = url;
+
+      const p2Img = document.getElementById('photo2-img');
+      const p2Emoji = document.getElementById('photo2-emoji');
+      if (p2Img && p2Emoji) {
+        p2Img.src = url;
+        p2Img.style.display = 'block';
+        p2Emoji.style.display = 'none';
       }
-      const fileInput = document.getElementById('gallery-photo-file');
-      if (fileInput) fileInput.value = '';
+
+      UI.toast('تم تعديل ورفع الصورة الخلفية بنجاح ✅', 'success');
+    } catch (e) {
+      console.error("Photo2 upload error:", e);
+      UI.toast('فشل رفع الصورة الخلفية، يرجى المحاولة مرة أخرى', 'error');
+    } finally {
+      UI.setLoading('upload-btn2', false);
     }
   });
 }
@@ -593,12 +524,8 @@ async function saveSection(sec) {
       d.title = document.getElementById('f-title').value.trim();
       d.company = document.getElementById('f-company').value.trim();
       d.bio = document.getElementById('f-bio').value.trim();
-      d.photos = localPhotos;
-      d.photo = localPhotos[0] || '';
-      d.photo2 = localPhotos[1] || '';
 
       document.getElementById('sb-name').textContent = d.name || '—';
-      updateSidebarAvatar(d.photo, d.name);
       
       if (d.username) {
         document.getElementById('sb-uname').textContent = '@' + d.username;
@@ -620,21 +547,21 @@ async function saveSection(sec) {
     }
 
     if (sec === 'contact') {
-      d.mobile = getDynamicFieldValues('mobile');
-      d.whatsapp = getDynamicFieldValues('whatsapp');
-      d.publicEmail = getDynamicFieldValues('publicEmail');
-      d.location = getDynamicFieldValues('location');
-      d.website = getDynamicFieldValues('website');
+      d.mobile = document.getElementById('f-mobile').value.trim();
+      d.whatsapp = document.getElementById('f-whatsapp').value.trim();
+      d.publicEmail = document.getElementById('f-email').value.trim();
+      d.location = document.getElementById('f-location').value.trim();
+      d.website = document.getElementById('f-website').value.trim();
     }
 
     if (sec === 'social') {
-      d.instagram = getDynamicFieldValues('instagram');
-      d.facebook = getDynamicFieldValues('facebook');
-      d.linkedin = getDynamicFieldValues('linkedin');
-      d.tiktok = getDynamicFieldValues('tiktok');
-      d.twitter = getDynamicFieldValues('twitter');
-      d.snapchat = getDynamicFieldValues('snapchat');
-      d.youtube = getDynamicFieldValues('youtube');
+      d.instagram = document.getElementById('f-instagram').value.trim();
+      d.facebook = document.getElementById('f-facebook').value.trim();
+      d.linkedin = document.getElementById('f-linkedin').value.trim();
+      d.tiktok = document.getElementById('f-tiktok').value.trim();
+      d.twitter = document.getElementById('f-twitter').value.trim();
+      d.snapchat = document.getElementById('f-snapchat').value.trim();
+      d.youtube = document.getElementById('f-youtube').value.trim();
     }
 
     if (sec === 'appearance') {
@@ -662,6 +589,7 @@ function previewCard() {
   }
 }
 
+// Copy URL
 function copyUrl() {
   const url = document.getElementById('profile-url-text').textContent;
   if (!userData || !userData.username) {
@@ -1123,8 +1051,9 @@ function openCropper(file, callback) {
         modal.style.display = 'none';
         
         // Reset file inputs so same file can be selected again
-        const fileInput = document.getElementById('gallery-photo-file');
-        if (fileInput) fileInput.value = '';
+        document.getElementById('photo-file').value = '';
+        const pf2 = document.getElementById('photo2-file');
+        if (pf2) pf2.value = '';
       }
 
       // Save Handler
