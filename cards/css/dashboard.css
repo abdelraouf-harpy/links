@@ -1018,7 +1018,6 @@ input[type="color"] {
   border: none;
   transition: all 0.2s;
 }
-
 .crop-modal-footer .btn-action.outline {
   background: rgba(255,255,255,0.05);
   border: 1px solid var(--border);
@@ -1027,7 +1026,6 @@ input[type="color"] {
 .crop-modal-footer .btn-action.outline:hover {
   background: rgba(255,255,255,0.08);
 }
-
 .crop-modal-footer .btn-action:not(.outline) {
   background: linear-gradient(135deg, var(--primary), var(--pink));
   color: white;
@@ -1037,4 +1035,143 @@ input[type="color"] {
   transform: translateY(-1px);
   box-shadow: 0 6px 16px var(--primary-glow);
 }
+
+/* ─── DYNAMIC MULTI-FIELDS & ADDITIONAL PHOTOS ─── */
+.extra-inputs-container {
+  width: 100%;
+}
+.extra-field-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  animation: slideInField 0.25s ease-out;
+}
+@keyframes slideInField {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.btn-remove-field {
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  color: #ef4444;
+  width: 42px;
+  height: 42px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+  flex-shrink: 0;
+  padding: 0;
+}
+.btn-remove-field:hover {
+  background: #ef4444;
+  color: white;
+  border-color: #ef4444;
+}
+.btn-add-field {
+  background: rgba(124, 58, 237, 0.1);
+  border: 1px solid rgba(124, 58, 237, 0.25);
+  color: var(--primary-lt);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  margin-inline-start: 8px;
+  vertical-align: middle;
+  transition: all 0.2s var(--ease);
+  padding: 0;
+  line-height: 1;
+}
+.btn-add-field:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+.label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.additional-photos-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+  width: 100%;
+}
+.additional-photo-card {
+  width: 90px;
+  height: 90px;
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+.additional-photo-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.additional-photo-card .btn-delete {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(220, 38, 38, 0.85);
+  border: none;
+  color: white;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 11px;
+  transition: background 0.2s;
+  padding: 0;
+  line-height: 1;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+.additional-photo-card .btn-delete:hover {
+  background: rgb(220, 38, 38);
+}
+.additional-photo-add {
+  width: 90px;
+  height: 90px;
+  border-radius: 12px;
+  border: 2px dashed var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--muted);
+  background: rgba(255,255,255,0.02);
+  transition: all 0.2s var(--ease);
+}
+.additional-photo-add:hover {
+  border-color: var(--primary);
+  color: var(--primary-lt);
+  background: rgba(124, 58, 237, 0.04);
+}
+.additional-photo-add svg {
+  width: 24px;
+  height: 24px;
+  stroke: currentColor;
+}
+
+
+
+
 

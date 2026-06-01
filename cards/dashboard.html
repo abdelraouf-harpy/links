@@ -171,28 +171,21 @@
             <input type="file" id="photo-file" accept="image/*" style="display:none" />
           </div>
 
-          <!-- Back Photo -->
-          <div class="photo-slot">
+          <!-- Back Photo Group (Dynamic Gallery) -->
+          <div class="photo-slot" style="flex: 2; min-width: 280px;">
             <div class="photo-slot-label">
               <svg class="svg-icon" style="width:14px;height:14px;stroke:var(--muted);" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
-              الصورة الخلفية
+              الصور الخلفية
             </div>
-            <div class="photo-ring" id="photo2-ring">
+            <div class="additional-photos-gallery" id="additional-photos-gallery">
+              <!-- Dynamically populated via JS -->
+            </div>
+            <!-- Keep hidden elements for legacy JS backward compatibility -->
+            <div id="photo2-ring" style="display:none">
               <img id="photo2-img" src="" alt="Back Photo" />
-              <span id="photo2-emoji">
-                <svg class="svg-icon" style="width:36px;height:36px;stroke:var(--muted);" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
-              </span>
-              <div class="photo-ring-overlay">
-                <svg class="svg-icon" style="stroke:white;" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-              </div>
+              <span id="photo2-emoji"></span>
             </div>
-            <button class="btn-upload btn-upload-sm" id="upload-btn2" type="button">
-              <span class="upload-txt">
-                <svg class="svg-icon" style="margin-inline-end:5px;width:1em;height:1em;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-                رفع خلفية
-              </span>
-              <div class="upload-spin"></div>
-            </button>
+            <button id="upload-btn2" type="button" style="display:none"></button>
             <input type="file" id="photo2-file" accept="image/*" style="display:none" />
           </div>
 
@@ -244,11 +237,46 @@
       <div class="card">
         <div class="card-title">وسائل التواصل</div>
         <div class="grid-2">
-          <div class="form-group"><label class="label">رقم الموبايل</label><input class="input" id="f-mobile"   type="tel" placeholder="+20 123 456 7890" dir="ltr" /></div>
-          <div class="form-group"><label class="label">واتساب</label><input class="input" id="f-whatsapp" type="tel" placeholder="+20 123 456 7890" dir="ltr" /></div>
-          <div class="form-group"><label class="label">البريد الإلكتروني</label><input class="input" id="f-email"    type="email" placeholder="ahmed@email.com" dir="ltr" /></div>
-          <div class="form-group"><label class="label">الموقع / العنوان</label><input class="input" id="f-location" type="text"  placeholder="القاهرة، مصر (أو الاسم | الرابط)" /></div>
-          <div class="form-group full"><label class="label">رابط الموقع الإلكتروني</label><input class="input" id="f-website"  type="url"  placeholder="https://mywebsite.com" dir="ltr" /></div>
+          <div class="form-group">
+            <label class="label">
+              <span>رقم الموبايل</span>
+              <button class="btn-add-field" data-target="mobile" type="button">+</button>
+            </label>
+            <input class="input" id="f-mobile" type="tel" placeholder="+20 123 456 7890" dir="ltr" />
+            <div class="extra-inputs-container" id="extra-container-mobile"></div>
+          </div>
+          <div class="form-group">
+            <label class="label">
+              <span>واتساب</span>
+              <button class="btn-add-field" data-target="whatsapp" type="button">+</button>
+            </label>
+            <input class="input" id="f-whatsapp" type="tel" placeholder="+20 123 456 7890" dir="ltr" />
+            <div class="extra-inputs-container" id="extra-container-whatsapp"></div>
+          </div>
+          <div class="form-group">
+            <label class="label">
+              <span>البريد الإلكتروني</span>
+              <button class="btn-add-field" data-target="email" type="button">+</button>
+            </label>
+            <input class="input" id="f-email" type="email" placeholder="ahmed@email.com" dir="ltr" />
+            <div class="extra-inputs-container" id="extra-container-email"></div>
+          </div>
+          <div class="form-group">
+            <label class="label">
+              <span>الموقع / العنوان</span>
+              <button class="btn-add-field" data-target="location" type="button">+</button>
+            </label>
+            <input class="input" id="f-location" type="text" placeholder="القاهرة، مصر (أو الاسم | الرابط)" />
+            <div class="extra-inputs-container" id="extra-container-location"></div>
+          </div>
+          <div class="form-group full">
+            <label class="label">
+              <span>رابط الموقع الإلكتروني</span>
+              <button class="btn-add-field" data-target="website" type="button">+</button>
+            </label>
+            <input class="input" id="f-website" type="url" placeholder="https://mywebsite.com" dir="ltr" />
+            <div class="extra-inputs-container" id="extra-container-website"></div>
+          </div>
         </div>
       </div>
 
@@ -277,13 +305,62 @@
       <div class="card">
         <div class="card-title">حسابات التواصل الاجتماعي</div>
         <div class="social-grid">
-          <div class="form-group"><label class="label">إنستاغرام</label><input class="input" id="f-instagram" type="url" placeholder="https://instagram.com/username" dir="ltr" /></div>
-          <div class="form-group"><label class="label">فيسبوك</label><input class="input" id="f-facebook" type="url" placeholder="https://facebook.com/username" dir="ltr" /></div>
-          <div class="form-group"><label class="label">لينكدإن</label><input class="input" id="f-linkedin"  type="url" placeholder="https://linkedin.com/in/username" dir="ltr" /></div>
-          <div class="form-group"><label class="label">تيك توك</label><input class="input" id="f-tiktok"    type="url" placeholder="https://tiktok.com/@username" dir="ltr" /></div>
-          <div class="form-group"><label class="label">تويتر / X</label><input class="input" id="f-twitter"   type="url" placeholder="https://x.com/username" dir="ltr" /></div>
-          <div class="form-group"><label class="label">سناب شات</label><input class="input" id="f-snapchat"  type="url" placeholder="https://snapchat.com/add/username" dir="ltr" /></div>
-          <div class="form-group"><label class="label">يوتيوب</label><input class="input" id="f-youtube"   type="url" placeholder="https://youtube.com/@channel" dir="ltr" /></div>
+          <div class="form-group">
+            <label class="label">
+              <span>إنستاغرام</span>
+              <button class="btn-add-field" data-target="instagram" type="button">+</button>
+            </label>
+            <input class="input" id="f-instagram" type="url" placeholder="https://instagram.com/username" dir="ltr" />
+            <div class="extra-inputs-container" id="extra-container-instagram"></div>
+          </div>
+          <div class="form-group">
+            <label class="label">
+              <span>فيسبوك</span>
+              <button class="btn-add-field" data-target="facebook" type="button">+</button>
+            </label>
+            <input class="input" id="f-facebook" type="url" placeholder="https://facebook.com/username" dir="ltr" />
+            <div class="extra-inputs-container" id="extra-container-facebook"></div>
+          </div>
+          <div class="form-group">
+            <label class="label">
+              <span>لينكدإن</span>
+              <button class="btn-add-field" data-target="linkedin" type="button">+</button>
+            </label>
+            <input class="input" id="f-linkedin" type="url" placeholder="https://linkedin.com/in/username" dir="ltr" />
+            <div class="extra-inputs-container" id="extra-container-linkedin"></div>
+          </div>
+          <div class="form-group">
+            <label class="label">
+              <span>تيك توك</span>
+              <button class="btn-add-field" data-target="tiktok" type="button">+</button>
+            </label>
+            <input class="input" id="f-tiktok" type="url" placeholder="https://tiktok.com/@username" dir="ltr" />
+            <div class="extra-inputs-container" id="extra-container-tiktok"></div>
+          </div>
+          <div class="form-group">
+            <label class="label">
+              <span>تويتر / X</span>
+              <button class="btn-add-field" data-target="twitter" type="button">+</button>
+            </label>
+            <input class="input" id="f-twitter" type="url" placeholder="https://x.com/username" dir="ltr" />
+            <div class="extra-inputs-container" id="extra-container-twitter"></div>
+          </div>
+          <div class="form-group">
+            <label class="label">
+              <span>سناب شات</span>
+              <button class="btn-add-field" data-target="snapchat" type="button">+</button>
+            </label>
+            <input class="input" id="f-snapchat" type="url" placeholder="https://snapchat.com/add/username" dir="ltr" />
+            <div class="extra-inputs-container" id="extra-container-snapchat"></div>
+          </div>
+          <div class="form-group">
+            <label class="label">
+              <span>يوتيوب</span>
+              <button class="btn-add-field" data-target="youtube" type="button">+</button>
+            </label>
+            <input class="input" id="f-youtube" type="url" placeholder="https://youtube.com/@channel" dir="ltr" />
+            <div class="extra-inputs-container" id="extra-container-youtube"></div>
+          </div>
         </div>
       </div>
 

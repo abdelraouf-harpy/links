@@ -133,35 +133,27 @@ function fillUI(d) {
     }
   }
 
-  /* photo display — back */
-  const p2Img = document.getElementById('photo2-img');
-  const p2Emoji = document.getElementById('photo2-emoji');
-  if (p2Img && p2Emoji) {
-    if (d.photo2) {
-      p2Img.src = d.photo2;
-      p2Img.style.display = 'block';
-      p2Emoji.style.display = 'none';
-    } else {
-      p2Img.style.display = 'none';
-      p2Emoji.style.display = 'block';
-    }
+  /* photo display — back (dynamic additional gallery) */
+  if (!d.photos2) {
+    d.photos2 = d.photo2 ? [d.photo2] : [];
   }
+  renderAdditionalPhotos();
 
   /* contact inputs */
-  document.getElementById('f-mobile').value = d.mobile || '';
-  document.getElementById('f-whatsapp').value = d.whatsapp || '';
-  document.getElementById('f-email').value = d.publicEmail || '';
-  document.getElementById('f-location').value = d.location || '';
-  document.getElementById('f-website').value = d.website || '';
+  populateFieldWithExtras('mobile', d.mobile, 'f-mobile');
+  populateFieldWithExtras('whatsapp', d.whatsapp, 'f-whatsapp');
+  populateFieldWithExtras('email', d.publicEmail, 'f-email');
+  populateFieldWithExtras('location', d.location, 'f-location');
+  populateFieldWithExtras('website', d.website, 'f-website');
 
   /* social links */
-  document.getElementById('f-instagram').value = d.instagram || '';
-  document.getElementById('f-facebook').value = d.facebook || '';
-  document.getElementById('f-linkedin').value = d.linkedin || '';
-  document.getElementById('f-tiktok').value = d.tiktok || '';
-  document.getElementById('f-twitter').value = d.twitter || '';
-  document.getElementById('f-snapchat').value = d.snapchat || '';
-  document.getElementById('f-youtube').value = d.youtube || '';
+  populateFieldWithExtras('instagram', d.instagram, 'f-instagram');
+  populateFieldWithExtras('facebook', d.facebook, 'f-facebook');
+  populateFieldWithExtras('linkedin', d.linkedin, 'f-linkedin');
+  populateFieldWithExtras('tiktok', d.tiktok, 'f-tiktok');
+  populateFieldWithExtras('twitter', d.twitter, 'f-twitter');
+  populateFieldWithExtras('snapchat', d.snapchat, 'f-snapchat');
+  populateFieldWithExtras('youtube', d.youtube, 'f-youtube');
 
   /* appearance presets */
   theme = d.theme || '#7c3aed';
@@ -215,6 +207,140 @@ function fillUI(d) {
     if (emailPassField && savedPass) emailPassField.value = savedPass;
     if (currPassField && savedPass) currPassField.value = savedPass;
   }
+}
+
+// Helper to add dynamic repeating inputs
+function addExtraField(fieldKey, value = '') {
+  const container = document.getElementById(`extra-container-${fieldKey}`);
+  if (!container) return;
+
+  const row = document.createElement('div');
+  row.className = 'extra-field-row';
+
+  // For f-email, the key is 'email', but the element ID is 'f-email'. So f-[fieldKey] works.
+  const mainInput = document.getElementById(`f-${fieldKey}`);
+  const placeholder = mainInput ? mainInput.getAttribute('placeholder') || '' : '';
+  const type = mainInput ? mainInput.getAttribute('type') || 'text' : 'text';
+  const dir = mainInput ? mainInput.getAttribute('dir') || '' : '';
+
+  row.innerHTML = `
+    <input class="input extra-input-field" type="${type}" placeholder="${placeholder}" ${dir ? `dir="${dir}"` : ''} value="${value}" />
+    <button class="btn-remove-field" type="button" title="حذف">
+      <svg style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;" viewBox="0 0 24 24">
+        <polyline points="3 6 5 6 21 6"></polyline>
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        <line x1="10" y1="11" x2="10" y2="17"></line>
+        <line x1="14" y1="11" x2="14" y2="17"></line>
+      </svg>
+    </button>
+  `;
+
+  row.querySelector('.btn-remove-field').addEventListener('click', () => {
+    row.remove();
+  });
+
+  container.appendChild(row);
+}
+
+// Helper to populate field and spawn extra fields if multi-valued
+function populateFieldWithExtras(fieldKey, value, mainInputId) {
+  const mainInput = document.getElementById(mainInputId);
+  const container = document.getElementById(`extra-container-${fieldKey}`);
+  if (container) container.innerHTML = ''; // Clear existing extras
+
+  if (!value) {
+    if (mainInput) mainInput.value = '';
+    return;
+  }
+
+  if (Array.isArray(value)) {
+    if (mainInput) mainInput.value = value[0] || '';
+    for (let i = 1; i < value.length; i++) {
+      addExtraField(fieldKey, value[i]);
+    }
+  } else {
+    if (mainInput) mainInput.value = value;
+  }
+}
+
+// Helper to collect values from main input and dynamic extra inputs
+function collectFieldValues(fieldKey, mainInputId) {
+  const values = [];
+  const mainInput = document.getElementById(mainInputId);
+  if (mainInput && mainInput.value.trim()) {
+    values.push(mainInput.value.trim());
+  }
+
+  const container = document.getElementById(`extra-container-${fieldKey}`);
+  if (container) {
+    const extraInputs = container.querySelectorAll('.extra-input-field');
+    extraInputs.forEach(inp => {
+      const val = inp.value.trim();
+      if (val) values.push(val);
+    });
+  }
+
+  if (values.length === 0) return '';
+  if (values.length === 1) return values[0];
+  return values;
+}
+
+// Render dynamic additional background photos gallery
+function renderAdditionalPhotos() {
+  const container = document.getElementById('additional-photos-gallery');
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  const photos = userData.photos2 || [];
+
+  photos.forEach((url, index) => {
+    const card = document.createElement('div');
+    card.className = 'additional-photo-card';
+    card.innerHTML = `
+      <img src="${url}" alt="Back Photo ${index + 1}" />
+      <button class="btn-delete" type="button" title="حذف">🗑️</button>
+    `;
+    
+    card.querySelector('.btn-delete').addEventListener('click', async () => {
+      if (confirm('هل أنت متأكد من حذف هذه الصورة الخلفية؟')) {
+        photos.splice(index, 1);
+        userData.photos2 = photos;
+        userData.photo2 = photos.length > 0 ? photos[0] : '';
+        
+        try {
+          await Services.saveUserProfile(currentUser.uid, { 
+            photos2: userData.photos2,
+            photo2: userData.photo2
+          }, userData.username);
+          UI.toast('تم حذف الصورة الخلفية بنجاح', 'success');
+          renderAdditionalPhotos();
+        } catch (e) {
+          console.error("Error deleting additional photo:", e);
+          UI.toast('فشل حذف الصورة الخلفية', 'error');
+        }
+      }
+    });
+
+    container.appendChild(card);
+  });
+
+  const addCard = document.createElement('div');
+  addCard.className = 'additional-photo-add';
+  addCard.id = 'btn-add-additional-photo';
+  addCard.innerHTML = `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="12" y1="5" x2="12" y2="19"></line>
+      <line x1="5" y1="12" x2="19" y2="12"></line>
+    </svg>
+  `;
+
+  addCard.addEventListener('click', () => {
+    const fileInput = document.getElementById('photo2-file');
+    if (fileInput) fileInput.click();
+  });
+
+  container.appendChild(addCard);
 }
 
 // Update sidebar profile avatar image
@@ -288,6 +414,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Swatch color selection
   document.querySelectorAll('.swatch').forEach(s => {
     s.addEventListener('click', () => pickColor(s));
+  });
+
+  // Dynamic fields "+" buttons binding
+  document.querySelectorAll('.btn-add-field').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.target;
+      addExtraField(target);
+    });
   });
 
   // Custom theme color pickers
@@ -473,18 +607,18 @@ async function uploadPhoto2(file) {
     try {
       const croppedFile = new File([croppedBlob], file.name || 'back.jpg', { type: 'image/jpeg' });
       const url = await Services.uploadImage(croppedFile);
-      await Services.saveUserProfile(currentUser.uid, { photo2: url }, userData.username);
-      userData.photo2 = url;
+      
+      if (!userData.photos2) userData.photos2 = [];
+      userData.photos2.push(url);
+      userData.photo2 = userData.photos2[0] || '';
 
-      const p2Img = document.getElementById('photo2-img');
-      const p2Emoji = document.getElementById('photo2-emoji');
-      if (p2Img && p2Emoji) {
-        p2Img.src = url;
-        p2Img.style.display = 'block';
-        p2Emoji.style.display = 'none';
-      }
+      await Services.saveUserProfile(currentUser.uid, { 
+        photos2: userData.photos2,
+        photo2: userData.photo2
+      }, userData.username);
 
-      UI.toast('تم تعديل ورفع الصورة الخلفية بنجاح ✅', 'success');
+      UI.toast('تم رفع الصورة الخلفية بنجاح ✅', 'success');
+      renderAdditionalPhotos();
     } catch (e) {
       console.error("Photo2 upload error:", e);
       UI.toast('فشل رفع الصورة الخلفية، يرجى المحاولة مرة أخرى', 'error');
@@ -547,21 +681,21 @@ async function saveSection(sec) {
     }
 
     if (sec === 'contact') {
-      d.mobile = document.getElementById('f-mobile').value.trim();
-      d.whatsapp = document.getElementById('f-whatsapp').value.trim();
-      d.publicEmail = document.getElementById('f-email').value.trim();
-      d.location = document.getElementById('f-location').value.trim();
-      d.website = document.getElementById('f-website').value.trim();
+      d.mobile = collectFieldValues('mobile', 'f-mobile');
+      d.whatsapp = collectFieldValues('whatsapp', 'f-whatsapp');
+      d.publicEmail = collectFieldValues('email', 'f-email');
+      d.location = collectFieldValues('location', 'f-location');
+      d.website = collectFieldValues('website', 'f-website');
     }
 
     if (sec === 'social') {
-      d.instagram = document.getElementById('f-instagram').value.trim();
-      d.facebook = document.getElementById('f-facebook').value.trim();
-      d.linkedin = document.getElementById('f-linkedin').value.trim();
-      d.tiktok = document.getElementById('f-tiktok').value.trim();
-      d.twitter = document.getElementById('f-twitter').value.trim();
-      d.snapchat = document.getElementById('f-snapchat').value.trim();
-      d.youtube = document.getElementById('f-youtube').value.trim();
+      d.instagram = collectFieldValues('instagram', 'f-instagram');
+      d.facebook = collectFieldValues('facebook', 'f-facebook');
+      d.linkedin = collectFieldValues('linkedin', 'f-linkedin');
+      d.tiktok = collectFieldValues('tiktok', 'f-tiktok');
+      d.twitter = collectFieldValues('twitter', 'f-twitter');
+      d.snapchat = collectFieldValues('snapchat', 'f-snapchat');
+      d.youtube = collectFieldValues('youtube', 'f-youtube');
     }
 
     if (sec === 'appearance') {
