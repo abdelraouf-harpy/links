@@ -31,6 +31,13 @@ function formatEgyptianWhatsApp(num) {
   return clean;
 }
 
+// Helper to get string array from single string or string array
+function getArrayOrStringItems(field) {
+  if (Array.isArray(field)) return field.filter(Boolean);
+  if (field && typeof field === 'string') return [field];
+  return [];
+}
+
 // Helper to parse Firestore REST API JSON fields into a flat JS object
 function parseFirestoreFields(fields) {
   const data = {};
@@ -173,12 +180,16 @@ function render(d) {
   setMeta('og:description', d.bio  || `بطاقة بيزنس رقمية`);
   if (d.photo) setMeta('og:image', d.photo);
 
-  /* user cover image(s) — front photo + optional back photo */
+  /* user cover image(s) — front photo + optional back photo + dynamic photos list */
   const photoEl = document.getElementById('photo-el');
   if (photoEl) {
     const photos = [];
-    if (d.photo)  photos.push(d.photo);
-    if (d.photo2) photos.push(d.photo2);
+    if (Array.isArray(d.photos) && d.photos.length > 0) {
+      photos.push(...d.photos);
+    } else {
+      if (d.photo)  photos.push(d.photo);
+      if (d.photo2) photos.push(d.photo2);
+    }
 
     if (photos.length === 0) {
       photoEl.innerHTML = `
@@ -225,31 +236,35 @@ function render(d) {
 
   /* action buttons (Call, WA, Email) */
   const acts = [];
-  if (d.mobile) {
-    acts.push({ 
-      href: `tel:${d.mobile}`, 
-      icon: `<svg class="svg-icon" style="stroke:currentColor;fill:none;width:22px;height:22px;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`, 
-      lbl: isAr ? 'اتصال' : 'Call' 
-    });
-  }
   
-  if (d.whatsapp) {
-    const waNum = formatEgyptianWhatsApp(d.whatsapp);
+  const mobiles = getArrayOrStringItems(d.mobile);
+  mobiles.forEach((num, index) => {
+    acts.push({ 
+      href: `tel:${num}`, 
+      icon: `<svg class="svg-icon" style="stroke:currentColor;fill:none;width:22px;height:22px;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`, 
+      lbl: index === 0 ? (isAr ? 'اتصال' : 'Call') : `${isAr ? 'اتصال' : 'Call'} ${index + 1}`
+    });
+  });
+  
+  const whatsapps = getArrayOrStringItems(d.whatsapp);
+  whatsapps.forEach((num, index) => {
+    const waNum = formatEgyptianWhatsApp(num);
     acts.push({ 
       href: `https://wa.me/${waNum}`, 
       icon: `<svg class="svg-icon-fill" style="fill:currentColor;width:22px;height:22px;" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.458 5.704 1.459h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`, 
-      lbl: 'WhatsApp', 
+      lbl: index === 0 ? 'WhatsApp' : `WhatsApp ${index + 1}`, 
       target: '_blank' 
     });
-  }
+  });
   
-  if (d.publicEmail) {
+  const publicEmails = getArrayOrStringItems(d.publicEmail);
+  publicEmails.forEach((email, index) => {
     acts.push({ 
-      href: `mailto:${d.publicEmail}`, 
+      href: `mailto:${email}`, 
       icon: `<svg class="svg-icon" style="stroke:currentColor;fill:none;width:22px;height:22px;" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`, 
-      lbl: isAr ? 'إيميل' : 'Email' 
+      lbl: index === 0 ? (isAr ? 'إيميل' : 'Email') : `${isAr ? 'إيميل' : 'Email'} ${index + 1}`
     });
-  }
+  });
 
   const grid = document.getElementById('actions-grid');
   if (grid) {
@@ -260,6 +275,7 @@ function render(d) {
           `<span class="act-lbl">${a.lbl}</span>` +
         `</a>`
       ).join('');
+      grid.parentElement.style.display = 'block';
     } else {
       grid.parentElement.style.display = 'none';
     }
@@ -267,8 +283,9 @@ function render(d) {
 
   /* location & website detail links */
   const infoRows = [];
-  if (d.location) {
-    let locVal = d.location.trim();
+  const locations = getArrayOrStringItems(d.location);
+  locations.forEach((loc, index) => {
+    let locVal = loc.trim();
     let locHref = '';
     
     if (locVal.includes('|')) {
@@ -285,36 +302,42 @@ function render(d) {
     infoRows.push({
       href: locHref,
       icon: `<svg class="svg-icon" style="stroke:currentColor;fill:none;width:20px;height:20px;" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`, 
-      lbl: isAr ? 'الموقع' : 'Location', 
+      lbl: index === 0 ? (isAr ? 'الموقع' : 'Location') : `${isAr ? 'الموقع' : 'Location'} ${index + 1}`, 
       val: locVal, 
       target: '_blank'
     });
-  }
+  });
   
-  if (d.website) {
-    const clean = d.website.replace(/^https?:\/\//, '');
-    const href  = d.website.startsWith('http') ? d.website : `https://${d.website}`;
+  const websites = getArrayOrStringItems(d.website);
+  websites.forEach((web, index) => {
+    const clean = web.replace(/^https?:\/\//, '');
+    const href  = web.startsWith('http') ? web : `https://${web}`;
     infoRows.push({ 
       href, 
       icon: `<svg class="svg-icon" style="stroke:currentColor;fill:none;width:20px;height:20px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`, 
-      lbl: isAr ? 'الموقع الإلكتروني' : 'Website', 
+      lbl: index === 0 ? (isAr ? 'الموقع الإلكتروني' : 'Website') : `${isAr ? 'الموقع الإلكتروني' : 'Website'} ${index + 1}`, 
       val: clean, 
       target: '_blank' 
     });
-  }
+  });
 
   const infoList = document.getElementById('info-rows');
   if (infoList) {
-    infoList.innerHTML = infoRows.map(r =>
-      `<a href="${r.href}" class="info-row" ${r.target ? `target="${r.target}"` : ''}>` +
-        `<div class="info-icon-box">${r.icon}</div>` +
-        `<div class="info-content">` +
-          `<div class="info-lbl">${r.lbl}</div>` +
-          `<div class="info-val">${r.val}</div>` +
-        `</div>` +
-        `<span class="info-arr">←</span>` +
-      `</a>`
-    ).join('');
+    if (infoRows.length) {
+      infoList.innerHTML = infoRows.map(r =>
+        `<a href="${r.href}" class="info-row" ${r.target ? `target="${r.target}"` : ''}>` +
+          `<div class="info-icon-box">${r.icon}</div>` +
+          `<div class="info-content">` +
+            `<div class="info-lbl">${r.lbl}</div>` +
+            `<div class="info-val">${r.val}</div>` +
+          `</div>` +
+          `<span class="info-arr">←</span>` +
+        `</a>`
+      ).join('');
+      infoList.style.display = 'block';
+    } else {
+      infoList.style.display = 'none';
+    }
   }
 
   /* social grids render */
@@ -328,7 +351,18 @@ function render(d) {
     { key: 'youtube',   icon: `<svg class="svg-icon-fill" style="fill:currentColor;width:18px;height:18px;vertical-align:middle;margin-inline-end:4px;" viewBox="0 0 24 24"><path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.517 0-9.388.508a3.003 3.003 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.871.508 9.388.508 9.388.508s7.517 0 9.388-.508a3.003 3.003 0 0 0 2.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>`, label: 'YouTube' }
   ];
 
-  const activeSocials = platforms.filter(p => d[p.key]);
+  const activeSocials = [];
+  platforms.forEach(p => {
+    const items = getArrayOrStringItems(d[p.key]);
+    items.forEach((url, index) => {
+      activeSocials.push({
+        href: url,
+        icon: p.icon,
+        label: index === 0 ? p.label : `${p.label} ${index + 1}`
+      });
+    });
+  });
+
   const socialCard = document.getElementById('social-card');
   const socialGrid = document.getElementById('social-grid');
   
@@ -336,10 +370,10 @@ function render(d) {
     if (activeSocials.length) {
       socialCard.style.display = 'block';
       document.getElementById('social-label').textContent = isAr ? 'تابعني على' : 'Follow Me';
-      socialGrid.innerHTML = activeSocials.map(p =>
-        `<a href="${d[p.key]}" class="soc-btn" target="_blank" rel="noopener">` +
-          `<span class="soc-icon">${p.icon}</span>` +
-          `<span>${p.label}</span>` +
+      socialGrid.innerHTML = activeSocials.map(soc =>
+        `<a href="${soc.href}" class="soc-btn" target="_blank" rel="noopener">` +
+          `<span class="soc-icon">${soc.icon}</span>` +
+          `<span>${soc.label}</span>` +
         `</a>`
       ).join('');
     } else {
@@ -364,15 +398,21 @@ function setMeta(property, content) {
 function downloadVCard() {
   if (!profileData) return;
   const d = profileData;
+  
+  const mobiles = getArrayOrStringItems(d.mobile).map(num => `TEL;TYPE=CELL:${num}`);
+  const publicEmails = getArrayOrStringItems(d.publicEmail).map(email => `EMAIL:${email}`);
+  const websites = getArrayOrStringItems(d.website).map(web => `URL:${web}`);
+  const locations = getArrayOrStringItems(d.location).map(loc => `ADR:;;${loc};;;;`);
+
   const lines = [
     'BEGIN:VCARD', 'VERSION:3.0',
     `FN:${d.name || ''}`,
     d.title   ? `TITLE:${d.title}`   : '',
     d.company ? `ORG:${d.company}`   : '',
-    d.mobile  ? `TEL;TYPE=CELL:${d.mobile}` : '',
-    d.publicEmail ? `EMAIL:${d.publicEmail}` : '',
-    d.website ? `URL:${d.website}`   : '',
-    d.location ? `ADR:;;${d.location};;;;` : '',
+    ...mobiles,
+    ...publicEmails,
+    ...websites,
+    ...locations,
     d.photo ? `PHOTO;VALUE=URI:${d.photo}` : '',
     d.bio   ? `NOTE:${d.bio}`  : '',
     'END:VCARD'
