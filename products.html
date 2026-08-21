@@ -1995,22 +1995,29 @@ function logout() {
 
 /* المزامنة السحابية مع Firebase Realtime Database */
 function initUserProductsSync() {
-    if (!db || !currentUserSession || !currentUserSession.key) {
-        try { products = JSON.parse(localStorage.getItem('prods_v4')) || []; } catch { products = []; }
-        renderProducts();
-        updateStats();
-        updateCatTabs();
-        return;
+    // 1. عرض فوري من الذاكرة المحلية لتجنب أي وميض أو اختفاء عند التحديث (0ms)
+    try {
+        products = JSON.parse(localStorage.getItem('prods_v4')) || [];
+    } catch {
+        products = [];
     }
+    renderProducts();
+    updateStats();
+    updateCatTabs();
 
+    if (!db || !currentUserSession || !currentUserSession.key) return;
+
+    // 2. المزامنة في الخلفية بهدوء مع الفايربيس
     const userKey = currentUserSession.key;
     db.ref(`users_data/${userKey}/products`).on('value', snap => {
         const val = snap.val();
-        products = Array.isArray(val) ? val : (val ? Object.values(val) : []);
-        localStorage.setItem('prods_v4', JSON.stringify(products));
-        renderProducts();
-        updateStats();
-        updateCatTabs();
+        if (val !== null) {
+            products = Array.isArray(val) ? val : Object.values(val);
+            localStorage.setItem('prods_v4', JSON.stringify(products));
+            renderProducts();
+            updateStats();
+            updateCatTabs();
+        }
     });
 }
 
