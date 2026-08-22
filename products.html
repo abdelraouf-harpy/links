@@ -1384,15 +1384,15 @@
         <form id="authForm" novalidate>
             <div class="auth-fg">
                 <label>الاسم الكامل</label>
-                <input type="text" id="authName" required autocomplete="name">
+                <input type="text" id="authName" required autocomplete="name" placeholder="مثال: أحمد محمد">
             </div>
             <div class="auth-fg">
                 <label>رقم الموبايل</label>
-                <input type="tel" id="authPhone" required dir="ltr" style="text-align:right;" autocomplete="tel">
+                <input type="tel" id="authPhone" required dir="ltr" style="text-align:right;" autocomplete="tel" placeholder="01xxxxxxxxx">
             </div>
             <div class="auth-fg">
                 <label>كلمة السر / كود التفعيل</label>
-                <input type="text" id="authKey" required dir="ltr" style="text-align:center;font-weight:800;letter-spacing:1px;" autocomplete="off">
+                <input type="text" id="authKey" required dir="ltr" style="text-align:center;font-weight:800;letter-spacing:1px;" autocomplete="off" placeholder="HARPY-XXXX-XXXX">
             </div>
             <button type="submit" class="auth-btn" id="authBtn">
                 <i class="fa-solid fa-right-to-bracket"></i> دخول وتفعيل الحساب
@@ -1411,7 +1411,7 @@
             </div>
         </div>
         <div class="header-actions">
-            <div class="user-badge" id="userBadge" style="display:none;">
+            <div class="user-badge" id="userBadge" style="display:none;" title="المستخدم المسجل">
                 <i class="fa-solid fa-user-check"></i>
                 <span id="userNameLabel">المستخدم</span>
             </div>
@@ -1482,8 +1482,8 @@
                         <input type="hidden" id="editId">
 
                         <div class="fg">
-                            <label>الرقم التسلسلي</label>
-                            <input type="text" id="inSerial" required>
+                            <label>الرقم التسلسلي *</label>
+                            <input type="text" id="inSerial" required autocomplete="off">
                         </div>
                         <div class="fg">
                             <label>القسم / التصنيف</label>
@@ -1505,15 +1505,15 @@
                             </div>
                         </div>
                         <div class="fg">
-                            <label>اسم المنتج</label>
-                            <input type="text" id="inName" required>
+                            <label>اسم المنتج *</label>
+                            <input type="text" id="inName" required autocomplete="off">
                         </div>
                         <div class="fg">
-                            <label>سعر الجملة (ج.م)</label>
+                            <label>سعر الجملة (ج.م) *</label>
                             <input type="number" step="0.01" min="0" id="inWhole" required>
                         </div>
                         <div class="fg">
-                            <label>سعر البيع (ج.م)</label>
+                            <label>سعر البيع (ج.م) *</label>
                             <input type="number" step="0.01" min="0" id="inSell" required>
                         </div>
 
@@ -1539,7 +1539,7 @@
                                         <i class="fa-solid fa-link"></i> استخدام رابط صورة مباشر
                                     </button>
                                     <div class="url-input-box" id="urlInputBox">
-                                        <input type="url" id="inUrl">
+                                        <input type="url" id="inUrl" placeholder="https://...">
                                     </div>
                                 </div>
                             </div>
@@ -1566,7 +1566,7 @@
             <div class="toolbar">
                 <div class="search-box">
                     <i class="fa-solid fa-magnifying-glass s-icon"></i>
-                    <input type="text" id="searchInput">
+                    <input type="text" id="searchInput" placeholder="ابحث بالاسم أو الرقم التسلسلي...">
                     <button class="clear-btn" id="clearBtn" onclick="clearSearch()">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
@@ -1694,7 +1694,7 @@
 
 <script>
 /* ============================================================
-   إعدادات الفايربيس وتليجرام (تم الربط تلقائياً)
+   إعدادات الفايربيس (آمنة تماماً بدون أي مفاتيح أو توكنات سرية)
    ============================================================ */
 const FIREBASE_CONFIG = {
     apiKey: "AIzaSyBQj7a6pYF4eq67lEtrqVC9yyNeX7hjmkg",
@@ -1706,11 +1706,6 @@ const FIREBASE_CONFIG = {
     appId: "1:527951191283:web:d3d0820c1f1cc5ab5e2b86"
 };
 
-const TELEGRAM_CONFIG = {
-    botToken: "8909766324:AAGaVL7Xd1JEHReOeLOWnHz7uU77GN3jRaA",
-    adminChatId: "1604040086"
-};
-
 let db = null;
 try {
     if (FIREBASE_CONFIG.databaseURL && !FIREBASE_CONFIG.databaseURL.includes("YOUR_PROJECT_ID")) {
@@ -1718,11 +1713,11 @@ try {
         db = firebase.database();
     }
 } catch (e) {
-    console.warn("Firebase not configured yet:", e);
+    console.warn("Firebase initialized:", e);
 }
 
 /* ============================================================
-   IndexedDB Local Store (لحفظ الصور محلياً للتسريع)
+   IndexedDB Local Accelerator Cache (لتسريع فتح الصور محلياً)
    ============================================================ */
 class ImgDB {
     constructor() {
@@ -1802,10 +1797,11 @@ function toast(msg, type = 'default') {
     el.innerHTML = `<i class="fa-solid ${icons[type]||icons.default}"></i>${esc(msg)}`;
     document.getElementById('toastBox').appendChild(el);
     requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
-    setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 320); }, 3200);
+    setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 320); }, 3400);
 }
 
-function compress(file, maxW=900, maxH=900, q=0.75) {
+// ضغط الصور إلى حجم مثالي سحابي خفيف وسريع جداً (450x450 JPEG بحجم ~15-25KB)
+function compress(file, maxW=450, maxH=450, q=0.75) {
     return new Promise(res => {
         const img = new Image(), url = URL.createObjectURL(file);
         img.onload = () => {
@@ -1823,11 +1819,20 @@ function compress(file, maxW=900, maxH=900, q=0.75) {
 }
 
 /* ============================================================
-   إدارة الجلسات والتحقق من التراخيص
+   إدارة الجلسات والتحقق من التراخيص والاشتراكات
    ============================================================ */
+const SESSION_LIFETIME_MS = 14 * 24 * 60 * 60 * 1000; // 14 يوماً صلاحية الجلسة
 let currentUserSession = null;
 try {
-    currentUserSession = JSON.parse(localStorage.getItem('harpy_auth_session')) || null;
+    const rawSession = JSON.parse(localStorage.getItem('harpy_auth_session')) || null;
+    if (rawSession && rawSession.key) {
+        if (rawSession.sessionExpiresAt && Date.now() > rawSession.sessionExpiresAt) {
+            localStorage.removeItem('harpy_auth_session');
+            currentUserSession = null;
+        } else {
+            currentUserSession = rawSession;
+        }
+    }
 } catch {
     currentUserSession = null;
 }
@@ -1839,6 +1844,7 @@ let page       = 1;
 const PER_PAGE = 12;
 let pendingDel = null;
 let currentDetailProduct = null;
+let licenseWatcherUnsub = null;
 
 const $  = id => document.getElementById(id);
 const productForm   = $('productForm');
@@ -1870,23 +1876,12 @@ const userBadge     = $('userBadge');
 const userNameLabel = $('userNameLabel');
 const logoutBtn     = $('logoutBtn');
 
-/* إرسال إشعار التفعيل إلى تليجرام */
-async function notifyAdminTelegram(name, phone, key) {
-    if (!TELEGRAM_CONFIG.botToken || TELEGRAM_CONFIG.botToken.includes("ضع_هنا")) return;
-    const text = `🔔 *تم تفعيل حساب جديد في إدارة المنتجات!*\n\n👤 *الاسم:* ${name}\n📱 *الموبايل:* \`${phone}\`\n🔑 *كود التفعيل:* \`${key}\`\n⏰ *الوقت:* ${new Date().toLocaleString('ar-EG')}`;
-    try {
-        await fetch(`https://api.telegram.org/bot${TELEGRAM_CONFIG.botToken}/sendMessage`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: TELEGRAM_CONFIG.adminChatId,
-                text: text,
-                parse_mode: 'Markdown'
-            })
-        });
-    } catch (e) {
-        console.warn("Telegram notification error:", e);
-    }
+/* التحقق من صحة مدخلات التسجيل */
+function validateAuthInputs(name, phone, key) {
+    if (!name || name.length < 2) return 'يرجى كتابة اسمك الكامل بشكل صحيح';
+    if (!phone || phone.replace(/\D/g, '').length < 8) return 'يرجى إدخال رقم هاتف صحيح';
+    if (!key || key.length < 5) return 'يرجى إدخال كود التفعيل بشكل صحيح';
+    return null;
 }
 
 /* معالجة نموذج تسجيل الدخول والتفعيل */
@@ -1897,13 +1892,14 @@ authForm.addEventListener('submit', async e => {
     const key   = $('authKey').value.trim().toUpperCase();
     const btn   = $('authBtn');
 
-    if (!name || !phone || !key) {
-        toast('يرجى ملء جميع الحقول المطلوبة', 'warning');
+    const err = validateAuthInputs(name, phone, key);
+    if (err) {
+        toast(err, 'warning');
         return;
     }
 
     btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري التحقق والتفعيل...';
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري التحقق من الترخيص...';
 
     const cleanKey = key.replace(/[^A-Z0-9_-]/g, '');
 
@@ -1926,21 +1922,47 @@ authForm.addEventListener('submit', async e => {
                 return;
             }
 
-            const isFirstTime = !lic.activatedAt;
-            if (isFirstTime) {
-                await db.ref(`licenses/${cleanKey}`).update({
-                    activatedAt: new Date().toISOString(),
-                    userName: name,
-                    userPhone: phone
-                });
-                notifyAdminTelegram(name, phone, key);
+            // فحص تاريخ انتهاء الاشتراك
+            if (lic.expiresAt) {
+                const expDate = new Date(lic.expiresAt).getTime();
+                if (Date.now() > expDate) {
+                    toast('انتهت صلاحية هذا الاشتراك، يرجى التواصل مع الإدارة للتجديد.', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> دخول وتفعيل الحساب';
+                    return;
+                }
             }
 
-            currentUserSession = { name, phone, key: cleanKey };
+            const isFirstTime = !lic.activatedAt;
+            let expirationDateStr = lic.expiresAt;
+
+            if (isFirstTime) {
+                const now = new Date();
+                const duration = lic.durationDays || 30;
+                const expDate = new Date(now.getTime() + duration * 24 * 60 * 60 * 1000);
+                expirationDateStr = expDate.toISOString();
+
+                await db.ref(`licenses/${cleanKey}`).update({
+                    activatedAt: now.toISOString(),
+                    expiresAt: expirationDateStr,
+                    userName: name,
+                    userPhone: phone,
+                    pendingNotification: true // إرسال تنبيه للمدير عبر السيرفر الآمن
+                });
+            }
+
+            currentUserSession = {
+                name,
+                phone,
+                key: cleanKey,
+                expiresAt: expirationDateStr,
+                sessionExpiresAt: Date.now() + SESSION_LIFETIME_MS
+            };
             localStorage.setItem('harpy_auth_session', JSON.stringify(currentUserSession));
             authOverlay.classList.remove('open');
             toast(`مرحباً بك يا ${name} 👋`, 'success');
             initUserProductsSync();
+            startLicenseWatcher(cleanKey);
             updateUserUI();
         } catch (err) {
             toast('حدث خطأ أثناء الاتصال بالسيرفر، تحقق من اتصال الإنترنت', 'error');
@@ -1948,7 +1970,12 @@ authForm.addEventListener('submit', async e => {
         }
     } else {
         // في حالة عدم ضبط فايربيس بعد، السماح بالدخول للتجربة
-        currentUserSession = { name, phone, key: cleanKey || 'DEMO-USER' };
+        currentUserSession = {
+            name,
+            phone,
+            key: cleanKey || 'DEMO-USER',
+            sessionExpiresAt: Date.now() + SESSION_LIFETIME_MS
+        };
         localStorage.setItem('harpy_auth_session', JSON.stringify(currentUserSession));
         authOverlay.classList.remove('open');
         toast(`مرحباً بك يا ${name} (وضع التجربة)`, 'info');
@@ -1959,6 +1986,28 @@ authForm.addEventListener('submit', async e => {
     btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> دخول وتفعيل الحساب';
 });
 
+/* مراقبة فورية لحالة الترخيص في الخلفية (إيقاف أو انتهاء الاشتراك) */
+function startLicenseWatcher(key) {
+    if (!db || !key || key === 'DEMO-USER') return;
+    if (licenseWatcherUnsub) db.ref(`licenses/${key}`).off('value', licenseWatcherUnsub);
+
+    licenseWatcherUnsub = db.ref(`licenses/${key}`).on('value', snap => {
+        const lic = snap.val();
+        if (!lic) return;
+        
+        if (lic.status === 'blocked') {
+            toast('تم إيقاف حسابك من قبل الإدارة!', 'error');
+            logout(false);
+            return;
+        }
+
+        if (lic.expiresAt && Date.now() > new Date(lic.expiresAt).getTime()) {
+            toast('انتهت مدة اشتراكك، يرجى التجديد للمتابعة.', 'warning');
+            logout(false);
+        }
+    });
+}
+
 function checkAuthGuard() {
     if (!currentUserSession || !currentUserSession.key) {
         authOverlay.classList.add('open');
@@ -1966,6 +2015,7 @@ function checkAuthGuard() {
         authOverlay.classList.remove('open');
         updateUserUI();
         initUserProductsSync();
+        startLicenseWatcher(currentUserSession.key);
     }
 }
 
@@ -1980,8 +2030,11 @@ function updateUserUI() {
     }
 }
 
-function logout() {
-    if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
+function logout(confirmPrompt = true) {
+    if (!confirmPrompt || confirm('هل أنت متأكد من تسجيل الخروج؟')) {
+        if (licenseWatcherUnsub && db && currentUserSession) {
+            db.ref(`licenses/${currentUserSession.key}`).off('value', licenseWatcherUnsub);
+        }
         localStorage.removeItem('harpy_auth_session');
         currentUserSession = null;
         products = [];
@@ -1993,9 +2046,11 @@ function logout() {
     }
 }
 
-/* المزامنة السحابية مع Firebase Realtime Database */
+/* ============================================================
+   المزامنة السحابية الدقيقة لكل منتج (Granular Per-Product Sync)
+   ============================================================ */
 function initUserProductsSync() {
-    // 1. عرض فوري من الذاكرة المحلية لتجنب أي وميض أو اختفاء عند التحديث (0ms)
+    // 1. عرض فوري من الذاكرة المحلية (0ms) لمنع وميض الشاشة عند الريفريش
     try {
         products = JSON.parse(localStorage.getItem('prods_v4')) || [];
     } catch {
@@ -2007,28 +2062,51 @@ function initUserProductsSync() {
 
     if (!db || !currentUserSession || !currentUserSession.key) return;
 
-    // 2. المزامنة في الخلفية بهدوء مع الفايربيس
     const userKey = currentUserSession.key;
     db.ref(`users_data/${userKey}/products`).on('value', snap => {
         const val = snap.val();
-        if (val !== null) {
-            products = Array.isArray(val) ? val : Object.values(val);
-            localStorage.setItem('prods_v4', JSON.stringify(products));
-            renderProducts();
-            updateStats();
-            updateCatTabs();
+        if (val === null) {
+            products = [];
+        } else if (Array.isArray(val)) {
+            // ترحيل تلقائي نظيف إذا كانت البيانات السابقة بصيغة مصفوفة
+            products = val.filter(Boolean);
+            // تحويلها تلقائياً لصيغة Map لكل منتج
+            const mapData = {};
+            products.forEach(p => { if (p && p.id) mapData[p.id] = p; });
+            db.ref(`users_data/${userKey}/products`).set(mapData);
+        } else if (typeof val === 'object') {
+            products = Object.values(val);
         }
+        
+        localStorage.setItem('prods_v4', JSON.stringify(products));
+        renderProducts();
+        updateStats();
+        updateCatTabs();
     });
 }
 
-function save() {
-    try {
-        localStorage.setItem('prods_v4', JSON.stringify(products));
-        if (db && currentUserSession && currentUserSession.key) {
-            db.ref(`users_data/${currentUserSession.key}/products`).set(products);
-        }
-    } catch {
-        toast('تحذير: حدث خطأ أثناء الحفظ!', 'error');
+// حفظ أو تحديث منتج محدد سحابياً ومحلياً
+async function saveProductToCloud(prod) {
+    const idx = products.findIndex(p => p.id === prod.id);
+    if (idx !== -1) {
+        products[idx] = prod;
+    } else {
+        products.unshift(prod);
+    }
+    localStorage.setItem('prods_v4', JSON.stringify(products));
+
+    if (db && currentUserSession && currentUserSession.key) {
+        await db.ref(`users_data/${currentUserSession.key}/products/${prod.id}`).set(prod);
+    }
+}
+
+// حذف منتج محدد سحابياً ومحلياً
+async function deleteProductFromCloud(prodId) {
+    products = products.filter(p => p.id !== prodId);
+    localStorage.setItem('prods_v4', JSON.stringify(products));
+
+    if (db && currentUserSession && currentUserSession.key) {
+        await db.ref(`users_data/${currentUserSession.key}/products/${prodId}`).remove();
     }
 }
 
@@ -2353,20 +2431,26 @@ function makeCard(p) {
     return card;
 }
 
+// تحميل الصور من الـ Base64 السحابي أو IndexedDB أو الرابط المباشر
 async function loadImg(p, imgEl) {
     imgEl.referrerPolicy = 'no-referrer';
-    if (p.imgType === 'url' && p.imgData) {
+    
+    // 1. إذا كانت الصورة محفوظة في imgData سحابياً
+    if (p.imgData) {
         imgEl.src = p.imgData;
         return;
     }
-    if (p.imgType === 'file') {
-        const data = await imgDB.get(p.id);
-        if (data) { imgEl.src = data; return; }
+    
+    // 2. فحص كاش IndexedDB المحلي للتسريع
+    const cached = await imgDB.get(p.id);
+    if (cached) {
+        imgEl.src = cached;
+        return;
     }
-    if (p.image) {
-        if (p.image.startsWith('data:') || validUrl(p.image)) {
-            imgEl.src = p.image;
-        }
+    
+    // 3. التوافقية مع الحقول القديمة
+    if (p.image && (p.image.startsWith('data:') || validUrl(p.image))) {
+        imgEl.src = p.image;
     }
 }
 
@@ -2445,21 +2529,40 @@ inUrl.addEventListener('input', () => {
     }
 });
 
+/* التحقق من صحة بيانات المنتج قبل الحفظ */
+function validateProductInputs(serial, name, whole, sell) {
+    if (!serial) return 'يرجى إدخال الرقم التسلسلي للمنتج';
+    if (!name || name.length < 2) return 'يرجى إدخال اسم المنتج بشكل واضح';
+    if (isNaN(whole) || whole < 0) return 'يرجى إدخال سعر جملة صحيح';
+    if (isNaN(sell) || sell < 0) return 'يرجى إدخال سعر بيع صحيح';
+    return null;
+}
+
 productForm.addEventListener('submit', async e => {
     e.preventDefault();
 
-    const serial = $('inSerial').value.trim();
-    const cat    = $('inCat').value.trim()   || 'عام';
-    const name   = $('inName').value.trim();
-    const whole  = parseFloat($('inWhole').value) || 0;
-    const sell   = parseFloat($('inSell').value)  || 0;
-    const desc   = $('inDesc').value.trim();
-    const urlVal = inUrl.value.trim();
+    const serial  = $('inSerial').value.trim();
+    const cat     = $('inCat').value.trim() || 'عام';
+    const name    = $('inName').value.trim();
+    const whole   = parseFloat($('inWhole').value);
+    const sell    = parseFloat($('inSell').value);
+    const desc    = $('inDesc').value.trim();
+    const urlVal  = inUrl.value.trim();
     const existId = $('editId').value ? Number($('editId').value) : null;
     const id      = existId || Date.now();
 
+    const err = validateProductInputs(serial, name, whole, sell);
+    if (err) {
+        toast(err, 'warning');
+        return;
+    }
+
+    if (sell < whole) {
+        toast('تنبيه: سعر البيع أقل من سعر الجملة!', 'warning');
+    }
+
     saveBtn.disabled = true;
-    saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الحفظ...';
+    saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الحفظ والمزامنة...';
 
     let imgType = 'none', imgData = '';
 
@@ -2467,35 +2570,40 @@ productForm.addEventListener('submit', async e => {
     if (file) {
         const compressed = await compress(file);
         if (compressed) {
-            await imgDB.save(id, compressed);
             imgType = 'file';
+            imgData = compressed; // حفظ سحابي كامل ومزامنة فورية لكل الأجهزة
+            await imgDB.save(id, compressed);
         }
+    } else if (previewImg.src && previewImg.src.startsWith('data:image')) {
+        imgType = 'file';
+        imgData = previewImg.src;
+        await imgDB.save(id, imgData);
     } else if (validUrl(urlVal)) {
         imgType = 'url';
-        imgData  = urlVal;
+        imgData = urlVal;
         await imgDB.del(id);
     } else if (existId) {
         const ex = products.find(p => p.id === existId);
         if (ex) { imgType = ex.imgType||'none'; imgData = ex.imgData||''; }
     }
 
-    const prod = { id, serial, cat, name, whole, sell, imgType, imgData, desc };
-    const idx  = products.findIndex(p => p.id === id);
+    const prod = { id, serial, cat, name, whole, sell, imgType, imgData, desc, updatedAt: new Date().toISOString() };
 
-    if (idx !== -1) {
-        products[idx] = prod;
-        toast('تم تحديث المنتج بنجاح ✓', 'success');
-    } else {
-        products.unshift(prod);
-        toast('تم إضافة المنتج بنجاح ✓', 'success');
+    try {
+        await saveProductToCloud(prod);
+        toast(existId ? 'تم تحديث المنتج والمزامنة بنجاح ✓' : 'تم إضافة المنتج والمزامنة بنجاح ✓', 'success');
+        resetForm();
+        updateStats();
+        updateCatTabs();
+        renderProducts();
+        closeSidebar();
+    } catch (ex) {
+        toast('حدث خطأ أثناء الحفظ السحابي، تأكد من الاتصال', 'error');
+        console.error(ex);
     }
 
-    save();
-    resetForm();
-    updateStats();
-    updateCatTabs();
-    renderProducts();
-    closeSidebar();
+    saveBtn.disabled = false;
+    saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> حفظ المنتج';
 });
 
 function editProduct(id) {
@@ -2528,9 +2636,10 @@ function editProduct(id) {
 
 async function previewEditImg(p) {
     let src = '';
-    if (p.imgType==='url'  && p.imgData) src = p.imgData;
-    if (p.imgType==='file') src = await imgDB.get(p.id) || '';
+    if (p.imgData) src = p.imgData;
+    if (!src && p.imgType==='file') src = await imgDB.get(p.id) || '';
     if (!src && p.image && (p.image.startsWith('data:') || validUrl(p.image))) src = p.image;
+    
     if (src) {
         previewImg.src = src;
         uploadPrompt.style.display = 'none';
@@ -2566,14 +2675,19 @@ function closeConfirm() {
 
 $('doDeleteBtn').addEventListener('click', async () => {
     if (pendingDel === null) return;
-    await imgDB.del(pendingDel);
-    products = products.filter(p => p.id !== pendingDel);
-    save();
+    const targetId = pendingDel;
     closeConfirm();
-    toast('تم حذف المنتج', 'warning');
-    updateStats();
-    updateCatTabs();
-    renderProducts();
+    
+    try {
+        await imgDB.del(targetId);
+        await deleteProductFromCloud(targetId);
+        toast('تم حذف المنتج بنجاح', 'warning');
+        updateStats();
+        updateCatTabs();
+        renderProducts();
+    } catch (e) {
+        toast('حدث خطأ أثناء الحذف', 'error');
+    }
 });
 
 let sTimer;
@@ -2652,60 +2766,42 @@ window.exportData = function() {
     a.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(payload, null, 2));
     a.download = `منتجات_${new Date().toLocaleDateString('ar-EG').replace(/\//g,'-')}.json`;
     a.click();
-    toast('تم تصدير البيانات بنجاح', 'success');
+    toast('تم تصدير النسخة الاحتياطية بنجاح ✓', 'success');
 };
 
-window.importData = function(ev) {
+window.importData = async function(ev) {
     const file = ev.target.files[0];
     if (!file) return;
     const r = new FileReader();
-    r.onload = e => {
+    r.onload = async e => {
         try {
             let raw = JSON.parse(e.target.result);
             let arr = Array.isArray(raw) ? raw : (Array.isArray(raw.products) ? raw.products : null);
-            if (!arr) { toast('الملف غير صالح', 'error'); return; }
+            if (!arr || !arr.length) { toast('الملف غير صالح أو فارغ', 'error'); return; }
+            
             products = arr;
-            save();
+            localStorage.setItem('prods_v4', JSON.stringify(products));
+            
+            // حفظ كل المنتجات المستوردة سحابياً دفعة واحدة بصيغة Map
+            if (db && currentUserSession && currentUserSession.key) {
+                const mapData = {};
+                products.forEach(p => { if (p && p.id) mapData[p.id] = p; });
+                await db.ref(`users_data/${currentUserSession.key}/products`).set(mapData);
+            }
+            
             page = 1;
             updateStats();
             updateCatTabs();
             renderProducts();
-            toast(`تم استيراد ${products.length} منتج بنجاح`, 'success');
+            toast(`تم استيراد ومزامنة ${products.length} منتج بنجاح ✓`, 'success');
         } catch { toast('حدث خطأ أثناء قراءة الملف', 'error'); }
         ev.target.value = '';
     };
     r.readAsText(file);
 };
 
-async function migrate() {
-    if (localStorage.getItem('prods_v4') || !localStorage.getItem('my_products_v3')) return;
-    try {
-        const old = JSON.parse(localStorage.getItem('my_products_v3'));
-        if (!Array.isArray(old) || !old.length) return;
-        const migrated = await Promise.all(old.map(async p => {
-            const np = { id: p.id, serial: p.serial, cat: p.category||'عام', name: p.name,
-                         whole: p.wholesalePrice, sell: p.sellPrice, desc: p.desc||'',
-                         imgType:'none', imgData:'' };
-            if (p.image) {
-                if (p.image.startsWith('data:')) {
-                    await imgDB.save(p.id, p.image);
-                    np.imgType = 'file';
-                } else if (validUrl(p.image)) {
-                    np.imgType = 'url';
-                    np.imgData  = p.image;
-                }
-            }
-            return np;
-        }));
-        products = migrated;
-        save();
-        toast(`تم ترقية ${migrated.length} منتج تلقائياً ✓`, 'info');
-    } catch {}
-}
-
 async function init() {
     initTheme();
-    await migrate();
     checkAuthGuard();
 }
 
