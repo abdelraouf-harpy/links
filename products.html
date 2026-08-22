@@ -2270,10 +2270,22 @@ function updateStats() {
     const cats = new Set(products.map(p => p.cat||'عام')).size;
 
     let sumProfit = 0, sumMargin = 0, cnt = 0;
+    let sumProfitByQty = 0; // إجمالي الربح مضروباً في الكمية الفعلية
     scope.forEach(p => {
         const w = +p.whole||0, s = +p.sell||0;
-        sumProfit += s - w;
+        const unitProfit = s - w;
+
+        // متوسط الربح لكل موديل (بغض النظر عن الكمية)
+        sumProfit += unitProfit;
         if (w > 0) { sumMargin += ((s-w)/w)*100; cnt++; }
+
+        // إجمالي الربح الحقيقي = ربح القطعة × الكمية المتاحة
+        // qty = null (غير محدد) → تُحسب كقطعة واحدة
+        // qty = 0 → نفدت الكمية، إجمالي ربح هذا الموديل = 0
+        const qty = (p.qty !== null && p.qty !== undefined && !isNaN(+p.qty))
+            ? Math.max(0, +p.qty)
+            : 1;
+        sumProfitByQty += unitProfit * qty;
     });
 
     const label = catFilter === 'الكل' ? 'إجمالي المنتجات' : catFilter;
@@ -2285,12 +2297,13 @@ function updateStats() {
     $('statProfit').textContent = n ? `${(sumProfit/n).toFixed(1)} ج.م` : '—';
     $('statMargin').textContent = cnt ? `${(sumMargin/cnt).toFixed(1)}%` : '—';
 
-    // كارت إجمالي الربح حسب الموقف الحالي
+    // كارت إجمالي الربح حسب الكمية الفعلية لكل موديل
     const sumProfitLabel = catFilter === 'الكل' ? 'إجمالي الربح (الكل)' : `إجمالي ربح ${catFilter}`;
     const sumProfitEl = $('statSumProfitLabel');
     if (sumProfitEl) sumProfitEl.textContent = sumProfitLabel;
-    $('statSumProfit').textContent = n ? `${fmt(sumProfit)} ج.م` : '—';
+    $('statSumProfit').textContent = n ? `${fmt(sumProfitByQty)} ج.م` : '—';
 }
+
 
 function getCatOptions() {
     return [...new Set(products.map(p => p.cat||'عام'))];
