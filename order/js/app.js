@@ -348,7 +348,10 @@ function renderProducts() {
             <p class="hero-product-desc">${showcaseItem.desc || ''}</p>
           </div>
           <div class="hero-product-footer">
-            <div class="hero-price font-num">${showcaseItem.price} <span>${currency}</span></div>
+            <div class="hero-price font-num">
+            ${showcaseItem.originalPrice && showcaseItem.originalPrice > showcaseItem.price ? `<span class="price-crossed" style="font-size:14px;">${showcaseItem.originalPrice} ${currency}</span>` : ''}
+            ${showcaseItem.price} <span>${currency}</span>
+          </div>
             <div style="display:flex; align-items:center; gap:8px;">
               <button class="btn-fav-toggle ${isHeroFav ? 'active' : ''}" onclick="handleToggleFavorite(event, '${showcaseItem.id}')" title="إضافة للمفضلة">
                 <svg class="icon icon-sm" viewBox="0 0 24 24" ${isHeroFav ? 'fill="currentColor"' : ''}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
@@ -387,7 +390,10 @@ function renderProducts() {
           <h3 class="food-item-title" onclick="openProductPreview('${p.id}')">${p.name}</h3>
           <p class="food-item-desc">${p.desc || ''}</p>
           <div class="food-item-footer">
-            <div class="food-item-price font-num">${p.price} <span>${currency}</span></div>
+            <div class="food-item-price font-num">
+            ${p.originalPrice && p.originalPrice > p.price ? `<span class="price-crossed">${p.originalPrice} ${currency}</span>` : ''}
+            ${p.price} <span>${currency}</span>
+          </div>
             <div>${renderCartButtonHtml(p.id, inCartQty)}</div>
           </div>
         </div>
@@ -718,6 +724,35 @@ function setupEventListeners() {
   });
 
   // Payment Options
+  // Promo Code handlers
+  if (elements.btnApplyPromo) {
+    elements.btnApplyPromo.addEventListener('click', () => {
+      const code = (elements.promoCodeInput.value || '').trim().toUpperCase();
+      if (!code) {
+        showToast("يرجى كتابة كود الخصم أولاً", "error");
+        return;
+      }
+      const settings = Store.getSettings();
+      const validPromo = (settings.promoCodes || []).find(p => p.code.toUpperCase() === code);
+      if (validPromo) {
+        Store.setAppliedCoupon(validPromo);
+        elements.promoCodeInput.value = '';
+        updateLedgerUI();
+        showToast(`تم تطبيق خصم "${validPromo.code}" بنجاح! 🎉`);
+      } else {
+        showToast("كود الخصم غير صحيح أو منتهي", "error");
+      }
+    });
+  }
+
+  if (elements.btnRemovePromo) {
+    elements.btnRemovePromo.addEventListener('click', () => {
+      Store.setAppliedCoupon(null);
+      updateLedgerUI();
+      showToast("تم إلغاء كود الخصم", "info");
+    });
+  }
+
   if (elements.payCodOption) elements.payCodOption.addEventListener('click', () => setPaymentOption('cod'));
   if (elements.payWalletOption) elements.payWalletOption.addEventListener('click', () => setPaymentOption('wallet'));
 
@@ -816,11 +851,34 @@ function handleWhatsAppOrder() {
   const currency = settings.currency || "ج.م";
   
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+  // Spend Tier Discount
+  let spendTierDiscountAmount = 0;
+  if (settings.enableSpendTierDiscount && settings.spendTierMinAmount > 0 && subtotal >= settings.spendTierMinAmount) {
+    const tierValue = settings.spendTierDiscountValue || 15;
+    spendTierDiscountAmount = settings.spendTierDiscountType !== 'fixed' ? (subtotal * (tierValue / 100)) : tierValue;
+  }
+
+  // Coupon Discount
+  const appliedCoupon = Store.getAppliedCoupon();
+  let couponDiscountAmount = 0;
+  if (appliedCoupon && subtotal > 0) {
+    couponDiscountAmount = appliedCoupon.type === 'percent' ? (subtotal * (appliedCoupon.value / 100)) : appliedCoupon.value;
+  }
+
+  const subtotalAfterBase = Math.max(0, subtotal - spendTierDiscountAmount - couponDiscountAmount);
+
+  // Wallet Discount
   const isWallet = selectedPaymentMethod === 'wallet';
-  const hasDiscount = isWallet && settings.enableWalletDiscount !== false && (settings.walletDiscountPercent > 0);
-  const discountPercent = hasDiscount ? (settings.walletDiscountPercent || 10) : 0;
-  const discountAmount = hasDiscount ? Math.round((subtotal * (discountPercent / 100)) * 100) / 100 : 0;
-  const finalTotal = Math.max(0, subtotal - discountAmount);
+  let walletDiscountAmount = 0;
+  if (isWallet && settings.enableWalletDiscount !== false && subtotalAfterBase > 0) {
+    const isPercent = settings.walletDiscountType !== 'fixed';
+    const val = settings.walletDiscountValue !== undefined ? settings.walletDiscountValue : 10;
+    walletDiscountAmount = isPercent ? (subtotalAfterBase * (val / 100)) : val;
+  }
+
+  const totalDiscounts = spendTierDiscountAmount + couponDiscountAmount + walletDiscountAmount;
+  const finalTotal = Math.max(0, subtotal - totalDiscounts);
 
   // Save Last Order for quick recall
   Store.saveLastOrder({
@@ -848,9 +906,17 @@ function handleWhatsAppOrder() {
   message += `🛒 *تفاصيل الأصناف:*\n${itemsText}\n`;
   message += `━━━━━━━━━━━━━━━━━━━\n`;
   
-  if (hasDiscount) {
+  if (totalDiscounts > 0) {
     message += `💵 *إجمالي الأصناف:* ${subtotal.toFixed(2)} ${currency}\n`;
-    message += `🎁 *خصم الدفع الإلكتروني (${discountPercent}%):* -${discountAmount.toFixed(2)} ${currency}\n`;
+    if (spendTierDiscountAmount > 0) {
+      message += `🎁 *خصم طلب مميز (> ${settings.spendTierMinAmount} ${currency}):* -${spendTierDiscountAmount.toFixed(2)} ${currency}\n`;
+    }
+    if (couponDiscountAmount > 0 && appliedCoupon) {
+      message += `🏷️ *كوبون خصم (${appliedCoupon.code}):* -${couponDiscountAmount.toFixed(2)} ${currency}\n`;
+    }
+    if (walletDiscountAmount > 0) {
+      message += `⚡ *خصم الدفع الإلكتروني:* -${walletDiscountAmount.toFixed(2)} ${currency}\n`;
+    }
     message += `💰 *المبلغ النهائي المطلوب دفعه:* ${finalTotal.toFixed(2)} ${currency}\n`;
   } else {
     message += `💰 *المبلغ المطلوب دفعه:* ${finalTotal.toFixed(2)} ${currency}\n`;

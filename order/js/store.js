@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// HarpyOrder — Store & Data Manager (Multi-Tenant Ready Engine)
+// HarpyOrder — Store & Data Manager (Smart Discount Engine)
 // ═══════════════════════════════════════════════════════════
 
 const STORAGE_KEYS = {
@@ -9,10 +9,11 @@ const STORAGE_KEYS = {
   CART: 'harpy_order_cart',
   FAVORITES: 'harpy_order_favorites',
   LAST_ORDER: 'harpy_order_last_order',
-  THEME_MODE: 'harpy_theme_mode'
+  THEME_MODE: 'harpy_theme_mode',
+  APPLIED_COUPON: 'harpy_applied_coupon'
 };
 
-// ── Complete Theme Presets Palette ─────────────────────────
+// Complete Theme Presets Palette
 const THEME_PRESETS = {
   charcoal: {
     id: "charcoal",
@@ -107,7 +108,7 @@ const THEME_PRESETS = {
   }
 };
 
-// Default Settings with Automated Wallet Discount
+// Default Settings with Complete Discount Rules
 const DEFAULT_SETTINGS = {
   storeName: "شاورما وبيرجر الهرمل",
   storeTagline: "أشهى السندوتشات والوجبات السريعة طازجة يومياً على الحطب",
@@ -133,10 +134,24 @@ const DEFAULT_SETTINGS = {
     border: "rgba(245, 238, 227, 0.09)"
   },
 
-  // Discount & Offers System
+  // 1. Digital Wallet Discount
   enableWalletDiscount: true,
-  walletDiscountPercent: 10,
-  announcementText: "خصم خاص 10% عند الدفع بالمحفظة الإلكترونية • توصيل سريع لباب البيت",
+  walletDiscountType: "percent", // "percent" or "fixed"
+  walletDiscountValue: 10,
+
+  // 2. Spend Tier Discount (e.g. Spend 300 EGP get 15% OFF)
+  enableSpendTierDiscount: true,
+  spendTierMinAmount: 300,
+  spendTierDiscountType: "percent", // "percent" or "fixed"
+  spendTierDiscountValue: 15,
+
+  // 3. Active Promo Codes (Array of { code, type: 'percent'|'fixed', value: number, desc: string })
+  promoCodes: [
+    { code: "HERMEL10", type: "percent", value: 10, desc: "خصم ترحيبي 10%" },
+    { code: "BURGER50", type: "fixed", value: 50, desc: "خصم 50 ج.م على الطلب" }
+  ],
+
+  announcementText: "خصم 10% عند الدفع بفودافون كاش أو إنستاباي • وخصم 15% للطلبات فوق 300 ج.م",
   showAnnouncement: true,
   deliveryTime: "30-45 دقيقة",
   minOrder: 0
@@ -155,18 +170,20 @@ const DEFAULT_PRODUCTS = [
     name: "جراند بيرجر لحم دبل",
     category: "سندوتشات بيرجر",
     price: 140,
+    originalPrice: 160, // Shows 160 crossed out
     desc: "شريحتين لحم بقري أنجوس مشوي على اللهب، جبن شيدر سايح، خس مقرمش، طماطم، وصوص خاص مع خبز بريوش طازج",
     image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&auto=format&fit=crop&q=80",
     prepTime: "15 دقيقة",
     visible: true,
     isFeatured: true,
-    badge: "الأكثر طلباً"
+    badge: "عرض خاص"
   },
   {
     id: "p2",
     name: "بيرجر كريسبي دجاج حار",
     category: "سندوتشات بيرجر",
     price: 115,
+    originalPrice: 0,
     desc: "صدر دجاج كريسبي مقرمش بتتبيلة حارة، صوص هالبينو كريمي، جبنة شيدر، سلطة كول سلو منعشة",
     image: "https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?w=600&auto=format&fit=crop&q=80",
     prepTime: "12 دقيقة",
@@ -179,6 +196,7 @@ const DEFAULT_PRODUCTS = [
     name: "شاورما عربي دجاج دبل",
     category: "شاورما وسوري",
     price: 110,
+    originalPrice: 125,
     desc: "شاورما دجاج متبلة على السيخ، ثومية كريمية، مخلل خيار، بطاطس ذهبية مقرمشة في خبز الصاج السوري المحمص",
     image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop&q=80",
     prepTime: "10 دقائق",
@@ -191,6 +209,7 @@ const DEFAULT_PRODUCTS = [
     name: "صاروخ شاورما لحم بلدي",
     category: "شاورما وسوري",
     price: 125,
+    originalPrice: 0,
     desc: "شاورما لحم بلدي متبل مع بقدونس طازج، بصل متبل بالسماق، وطحينة سمسم فاخرة داخل رغيف صاج كبير",
     image: "https://images.unsplash.com/photo-1561651823-34feb02250e4?w=600&auto=format&fit=crop&q=80",
     prepTime: "12 دقيقة",
@@ -203,6 +222,7 @@ const DEFAULT_PRODUCTS = [
     name: "بطاطس بالجبن والهلابينو",
     category: "وجبات ومقبلات",
     price: 55,
+    originalPrice: 0,
     desc: "بطاطس ويدجز ذهبية مقرمشة مغطاة بصوص جبن الشيدر الغني وشرائح الهالبينو المكسيكي الحار",
     image: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=600&auto=format&fit=crop&q=80",
     prepTime: "8 دقائق",
@@ -215,6 +235,7 @@ const DEFAULT_PRODUCTS = [
     name: "أصابع موزاريلا مقرمشة",
     category: "وجبات ومقبلات",
     price: 65,
+    originalPrice: 75,
     desc: "5 أصابع جبن موزاريلا إيطالية مقلية ذهبية تقدم مع صوص المارينارا العشبي اللذيذ",
     image: "https://images.unsplash.com/photo-1531749668029-2db88e4276c7?w=600&auto=format&fit=crop&q=80",
     prepTime: "8 دقائق",
@@ -227,6 +248,7 @@ const DEFAULT_PRODUCTS = [
     name: "عصير برتقال فريش",
     category: "مشروبات منعشة",
     price: 35,
+    originalPrice: 0,
     desc: "عصير برتقال طبيعي معصور طازج 100% بدون أي سكر مضاف أو مواد حافظة",
     image: "https://images.unsplash.com/photo-1613478223719-2ab802602423?w=600&auto=format&fit=crop&q=80",
     prepTime: "5 دقائق",
@@ -239,6 +261,7 @@ const DEFAULT_PRODUCTS = [
     name: "بيبسي كانز 330 مل",
     category: "مشروبات منعشة",
     price: 20,
+    originalPrice: 0,
     desc: "مشروب غازي كلاسيكي بارد ومنعش يقدم مثلجاً",
     image: "https://images.unsplash.com/photo-1629203851122-3726ecdf080e?w=600&auto=format&fit=crop&q=80",
     prepTime: "دقيقة",
@@ -273,8 +296,7 @@ const Store = {
       return { 
         ...DEFAULT_SETTINGS, 
         ...parsed,
-        enableWalletDiscount: parsed.enableWalletDiscount !== false,
-        walletDiscountPercent: parsed.walletDiscountPercent !== undefined ? parseFloat(parsed.walletDiscountPercent) : 10,
+        promoCodes: parsed.promoCodes || DEFAULT_SETTINGS.promoCodes,
         siteColors: { ...DEFAULT_SETTINGS.siteColors, ...(parsed.siteColors || {}) }
       };
     } catch {
@@ -296,7 +318,6 @@ const Store = {
     root.setAttribute('data-theme', mode);
 
     if (mode === 'light') {
-      // Crisp & Elegant Daytime Paper Theme
       root.style.setProperty('--bg', '#faf7f2');
       root.style.setProperty('--bg-subtle', '#f2ece1');
       root.style.setProperty('--surface', '#ffffff');
@@ -309,7 +330,6 @@ const Store = {
       root.style.setProperty('--border', 'rgba(60, 45, 30, 0.09)');
       root.style.setProperty('--border-strong', 'rgba(60, 45, 30, 0.16)');
     } else {
-      // Dark Custom Theme Palette
       const colors = s.siteColors || DEFAULT_SETTINGS.siteColors;
       root.style.setProperty('--bg', colors.bg || "#110e0c");
       root.style.setProperty('--bg-subtle', colors.bg || "#110e0c");
@@ -324,7 +344,6 @@ const Store = {
       root.style.setProperty('--border-strong', colors.border || "rgba(245, 238, 227, 0.16)");
     }
 
-    // Retain Primary Brand Accent
     const primary = (s.siteColors && s.siteColors.primary) || s.primaryColor || "#c2410c";
     root.style.setProperty('--primary', primary);
     root.style.setProperty('--primary-hover', primary);
@@ -372,6 +391,8 @@ const Store = {
       return parsed.map(p => ({
         ...p,
         visible: p.visible !== false,
+        price: parseFloat(p.price) || 0,
+        originalPrice: parseFloat(p.originalPrice) || 0,
         prepTime: p.prepTime || "10-15 دقيقة",
         badge: p.badge || ""
       }));
@@ -390,6 +411,8 @@ const Store = {
     const newProd = {
       id: 'p_' + Date.now(),
       visible: true,
+      price: parseFloat(product.price) || 0,
+      originalPrice: parseFloat(product.originalPrice) || 0,
       prepTime: product.prepTime || "10-15 دقيقة",
       badge: product.badge || "",
       ...product
@@ -402,7 +425,12 @@ const Store = {
     const prods = this.getProducts();
     const idx = prods.findIndex(p => p.id === id);
     if (idx !== -1) {
-      prods[idx] = { ...prods[idx], ...updatedData };
+      prods[idx] = { 
+        ...prods[idx], 
+        ...updatedData,
+        price: parseFloat(updatedData.price !== undefined ? updatedData.price : prods[idx].price) || 0,
+        originalPrice: parseFloat(updatedData.originalPrice !== undefined ? updatedData.originalPrice : prods[idx].originalPrice) || 0
+      };
       this.saveProducts(prods);
       return prods[idx];
     }
@@ -456,6 +484,7 @@ const Store = {
     localStorage.removeItem(STORAGE_KEYS.CART);
     localStorage.removeItem(STORAGE_KEYS.FAVORITES);
     localStorage.removeItem(STORAGE_KEYS.LAST_ORDER);
+    localStorage.removeItem(STORAGE_KEYS.APPLIED_COUPON);
     this.getSettings();
     this.getCategories();
     this.saveProducts(DEFAULT_PRODUCTS);
@@ -476,6 +505,25 @@ const Store = {
   },
   clearCart() {
     this.saveCart([]);
+    this.setAppliedCoupon(null);
+  },
+
+  // Applied Coupon Management
+  getAppliedCoupon() {
+    const raw = localStorage.getItem(STORAGE_KEYS.APPLIED_COUPON);
+    try {
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  },
+  setAppliedCoupon(coupon) {
+    if (coupon) {
+      localStorage.setItem(STORAGE_KEYS.APPLIED_COUPON, JSON.stringify(coupon));
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.APPLIED_COUPON);
+    }
+    window.dispatchEvent(new Event('store_coupon_updated'));
   },
 
   // Favorites Management

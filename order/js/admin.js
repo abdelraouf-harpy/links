@@ -1,3 +1,60 @@
+
+// ── Promo Codes Management in Admin ─────────────────────────
+function renderAdminPromoCodesList() {
+  if (!adminElements.promoCodesList) return;
+  const s = Store.getSettings();
+  const promos = s.promoCodes || [];
+
+  if (promos.length === 0) {
+    adminElements.promoCodesList.innerHTML = `<span style="font-size:11.5px; color:var(--text-faint);">لا توجد أكواد خصم حالياً</span>`;
+    return;
+  }
+
+  adminElements.promoCodesList.innerHTML = promos.map((p, idx) => `
+    <div style="background:var(--surface-raised); border:1px solid var(--border-strong); padding:6px 12px; border-radius:var(--radius-xs); display:flex; align-items:center; gap:8px; font-size:12px;">
+      <span class="font-num" style="font-weight:800; color:var(--primary);">${p.code}</span>
+      <span style="color:var(--text-muted);">(${p.value}${p.type === 'fixed' ? ' ج.م' : '%'})</span>
+      <button type="button" onclick="handleDeletePromoCode(${idx})" style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:700; font-size:12px;" title="حذف الكود">✕</button>
+    </div>
+  `).join('');
+}
+
+window.handleDeletePromoCode = function(idx) {
+  const s = Store.getSettings();
+  const promos = s.promoCodes || [];
+  promos.splice(idx, 1);
+  Store.saveSettings({ ...s, promoCodes: promos });
+  renderAdminPromoCodesList();
+  showAdminToast("تم حذف كود الخصم", "info");
+};
+
+function handleAddPromoCode() {
+  const code = (adminElements.newPromoCode.value || '').trim().toUpperCase();
+  const type = adminElements.newPromoType.value || 'percent';
+  const val = parseFloat(adminElements.newPromoVal.value) || 0;
+
+  if (!code || val <= 0) {
+    showAdminToast("اكتب الكود والقيمة بشكل صحيح", "error");
+    return;
+  }
+
+  const s = Store.getSettings();
+  const promos = s.promoCodes || [];
+
+  if (promos.some(p => p.code === code)) {
+    showAdminToast("كود الخصم مضاف بالفعل", "error");
+    return;
+  }
+
+  promos.push({ code, type, value: val, desc: `خصم ${val}${type === 'fixed' ? ' ج.م' : '%'}` });
+  Store.saveSettings({ ...s, promoCodes: promos });
+
+  adminElements.newPromoCode.value = '';
+  adminElements.newPromoVal.value = '';
+  renderAdminPromoCodesList();
+  showAdminToast(`تمت إضافة كود الخصم "${code}" بنجاح`);
+}
+
 // ═══════════════════════════════════════════════════════════
 // HarpyOrder — Admin Visual Catalog & Color Studio Manager
 // ═══════════════════════════════════════════════════════════
@@ -43,6 +100,7 @@ const adminElements = {
   prodName: document.getElementById('prod-name'),
   prodCategory: document.getElementById('prod-category'),
   prodPrice: document.getElementById('prod-price'),
+  prodOriginalPrice: document.getElementById('prod-original-price'),
   prodPrepTime: document.getElementById('prod-preptime'),
   prodBadge: document.getElementById('prod-badge'),
   prodFeatured: document.getElementById('prod-featured'),
@@ -82,7 +140,17 @@ const adminElements = {
   setShowAnnouncement: document.getElementById('set-show-announcement'),
   setAnnouncementText: document.getElementById('set-announcement-text'),
   setEnableWalletDiscount: document.getElementById('set-enable-wallet-discount'),
-  setWalletDiscount: document.getElementById('set-wallet-discount'),
+  setWalletDiscountType: document.getElementById('set-wallet-discount-type'),
+  setWalletDiscountVal: document.getElementById('set-wallet-discount-val'),
+  setEnableSpendDiscount: document.getElementById('set-enable-spend-discount'),
+  setSpendMinAmount: document.getElementById('set-spend-min-amount'),
+  setSpendDiscountType: document.getElementById('set-spend-discount-type'),
+  setSpendDiscountVal: document.getElementById('set-spend-discount-val'),
+  newPromoCode: document.getElementById('new-promo-code'),
+  newPromoType: document.getElementById('new-promo-type'),
+  newPromoVal: document.getElementById('new-promo-val'),
+  btnAddPromoCode: document.getElementById('btn-add-promo-code'),
+  promoCodesList: document.getElementById('promo-codes-list'),
   setDeliveryTime: document.getElementById('set-delivery-time'),
   setMinOrder: document.getElementById('set-min-order'),
   setWhatsApp: document.getElementById('set-whatsapp'),
@@ -489,6 +557,7 @@ function openAddProductModal() {
   adminElements.prodName.value = '';
   populateCategorySelect();
   adminElements.prodPrice.value = '';
+  adminElements.prodOriginalPrice.value = '';
   adminElements.prodPrepTime.value = '15 دقيقة';
   adminElements.prodBadge.value = '';
   adminElements.prodFeatured.checked = false;
@@ -511,6 +580,7 @@ window.openEditProductModal = function(id) {
   populateCategorySelect();
   adminElements.prodCategory.value = p.category;
   adminElements.prodPrice.value = p.price;
+  adminElements.prodOriginalPrice.value = p.originalPrice || '';
   adminElements.prodPrepTime.value = p.prepTime || '15 دقيقة';
   adminElements.prodBadge.value = p.badge || '';
   adminElements.prodFeatured.checked = p.isFeatured === true;
@@ -605,9 +675,28 @@ function loadSettingsForm() {
   if (adminElements.setEnableWalletDiscount) {
     adminElements.setEnableWalletDiscount.checked = s.enableWalletDiscount !== false;
   }
-  if (adminElements.setWalletDiscount) {
-    adminElements.setWalletDiscount.value = s.walletDiscountPercent !== undefined ? s.walletDiscountPercent : 10;
+  if (adminElements.setWalletDiscountType) {
+    adminElements.setWalletDiscountType.value = s.walletDiscountType || 'percent';
   }
+  if (adminElements.setWalletDiscountVal) {
+    adminElements.setWalletDiscountVal.value = s.walletDiscountValue !== undefined ? s.walletDiscountValue : 10;
+  }
+
+  if (adminElements.setEnableSpendDiscount) {
+    adminElements.setEnableSpendDiscount.checked = s.enableSpendTierDiscount !== false;
+  }
+  if (adminElements.setSpendMinAmount) {
+    adminElements.setSpendMinAmount.value = s.spendTierMinAmount !== undefined ? s.spendTierMinAmount : 300;
+  }
+  if (adminElements.setSpendDiscountType) {
+    adminElements.setSpendDiscountType.value = s.spendTierDiscountType || 'percent';
+  }
+  if (adminElements.setSpendDiscountVal) {
+    adminElements.setSpendDiscountVal.value = s.spendTierDiscountValue !== undefined ? s.spendTierDiscountValue : 15;
+  }
+
+  renderAdminPromoCodesList();
+
   if (adminElements.setDeliveryTime) {
     adminElements.setDeliveryTime.value = s.deliveryTime || '30-45 دقيقة';
   }
@@ -637,7 +726,13 @@ function handleSaveSettings(e) {
     showAnnouncement: adminElements.setShowAnnouncement ? adminElements.setShowAnnouncement.checked : true,
     announcementText: adminElements.setAnnouncementText ? adminElements.setAnnouncementText.value.trim() : '',
     enableWalletDiscount: adminElements.setEnableWalletDiscount ? adminElements.setEnableWalletDiscount.checked : true,
-    walletDiscountPercent: adminElements.setWalletDiscount ? parseFloat(adminElements.setWalletDiscount.value) || 0 : 0,
+    walletDiscountType: adminElements.setWalletDiscountType ? adminElements.setWalletDiscountType.value : 'percent',
+    walletDiscountValue: adminElements.setWalletDiscountVal ? parseFloat(adminElements.setWalletDiscountVal.value) || 0 : 0,
+
+    enableSpendTierDiscount: adminElements.setEnableSpendDiscount ? adminElements.setEnableSpendDiscount.checked : true,
+    spendTierMinAmount: adminElements.setSpendMinAmount ? parseFloat(adminElements.setSpendMinAmount.value) || 0 : 300,
+    spendTierDiscountType: adminElements.setSpendDiscountType ? adminElements.setSpendDiscountType.value : 'percent',
+    spendTierDiscountValue: adminElements.setSpendDiscountVal ? parseFloat(adminElements.setSpendDiscountVal.value) || 0 : 15,
     deliveryTime: adminElements.setDeliveryTime ? adminElements.setDeliveryTime.value.trim() : '30-45 دقيقة',
     minOrder: adminElements.setMinOrder ? parseFloat(adminElements.setMinOrder.value) || 0 : 0,
     whatsappNumber: adminElements.setWhatsApp.value.trim(),
@@ -705,6 +800,7 @@ function setupAdminEventListeners() {
         name: adminElements.prodName.value.trim(),
         category: adminElements.prodCategory.value,
         price: parseFloat(adminElements.prodPrice.value) || 0,
+        originalPrice: parseFloat(adminElements.prodOriginalPrice.value) || 0,
         prepTime: (adminElements.prodPrepTime.value || '15 دقيقة').trim(),
         badge: (adminElements.prodBadge.value || '').trim(),
         isFeatured: adminElements.prodFeatured.checked,
@@ -727,6 +823,7 @@ function setupAdminEventListeners() {
 
   // Categories
   if (adminElements.btnAddCat) adminElements.btnAddCat.addEventListener('click', handleAddCategory);
+  if (adminElements.btnAddPromoCode) adminElements.btnAddPromoCode.addEventListener('click', handleAddPromoCode);
   if (adminElements.newCatInput) {
     adminElements.newCatInput.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') handleAddCategory();
