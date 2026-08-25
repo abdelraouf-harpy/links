@@ -9,9 +9,6 @@
 </head>
 <body style="padding-bottom: 50px;">
 
-  <!-- Toast Notification Container -->
-  <div id="toast-container"></div>
-
   <!-- Editorial Header -->
   <header class="app-header">
     <div class="container header-wrap">
@@ -23,7 +20,7 @@
         </div>
         <div class="brand-text">
           <h1 id="admin-store-name">إدارة دفتر المنيو</h1>
-          <p>تعديل الأصناف، الأسعار، السحب والإفلات، وإعدادات الواتساب</p>
+          <p>تعديل الأصناف، الأسعار، العروض، وألوان الموقع</p>
         </div>
       </div>
       <div class="header-actions">
@@ -64,7 +61,7 @@
       </button>
       <button class="admin-tab-btn" data-tab="tab-settings">
         <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-        إعدادات المكان والدفع
+        إعدادات المكان والعروض
       </button>
     </div>
 
@@ -82,10 +79,7 @@
           </button>
         </div>
 
-        <!-- Visual Catalog Grid (Drag & Drop + Inline Quick Edit) -->
-        <div id="admin-catalog-container" class="admin-catalog-grid">
-          <!-- Rendered via JS -->
-        </div>
+        <div id="admin-catalog-container" class="admin-catalog-grid"></div>
       </div>
     </div>
 
@@ -100,17 +94,15 @@
           <button id="btn-add-cat" class="btn btn-primary" style="white-space:nowrap;">+ إضافة</button>
         </div>
 
-        <div id="categories-list-container" style="display:flex; flex-wrap:wrap; gap:10px;">
-          <!-- Rendered via JS -->
-        </div>
+        <div id="categories-list-container" style="display:flex; flex-wrap:wrap; gap:10px;"></div>
       </div>
     </div>
 
-    <!-- ═══ TAB 3: SETTINGS ═════════════════════════════════ -->
+    <!-- ═══ TAB 3: SETTINGS & DISCOUNTS ═════════════════════ -->
     <div id="tab-settings" class="tab-pane" style="display:none;">
       <div class="admin-card">
-        <h2 style="font-size:17px; font-weight:900; margin-bottom:6px; color:var(--text-main);">إعدادات المكان وبيانات التواصل</h2>
-        <p style="font-size:12px; color:var(--text-muted); margin-bottom:20px;">هذه البيانات تظهر للزبائن وتُستخدم في توجيه رسائل الواتساب واستقبال التحويلات</p>
+        <h2 style="font-size:17px; font-weight:900; margin-bottom:6px; color:var(--text-main);">إعدادات المكان والعروض والهوية</h2>
+        <p style="font-size:12px; color:var(--text-muted); margin-bottom:20px;">التحكم في بيانات المطعم، الخصومات التلقائية، وألوان الموقع بالكامل</p>
 
         <form id="settings-form">
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
@@ -129,52 +121,19 @@
             <input type="text" id="set-store-tagline" class="form-input">
           </div>
 
-          <!-- Full Website Color Studio & Live Theme Customizer -->
+          <!-- Color Studio -->
           <div style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:18px; margin-bottom:18px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
-              <div>
-                <div style="font-size:15px; font-weight:900; color:var(--text-main); display:flex; align-items:center; gap:6px;">
-                  <span>تخصيص ألوان وهوية الموقع</span>
-                </div>
-                <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">
-                  غيّر ألوان الخلفية، الكروت، العناوين، الأزرار، والخطوط بحرية تامة أو اختر قالباً متناسقاً
-                </div>
-              </div>
+            <div style="font-size:14px; font-weight:700; color:var(--text-main); margin-bottom:12px;">
+              <span>تخصيص ألوان وهوية الموقع بالكامل</span>
             </div>
 
-            <!-- 1-Click Ready Theme Presets -->
             <div style="margin-bottom:16px;">
-              <label class="form-label" style="margin-bottom:8px; font-weight:800;">قوالب ألوان جاهزة ومتناسقة:</label>
+              <label class="form-label" style="margin-bottom:8px; font-weight:700;">قوالب ألوان جاهزة ومتناسقة:</label>
               <div id="theme-presets-grid" class="theme-presets-grid"></div>
             </div>
 
-            <!-- Live Mini Preview Mockup -->
-            <div style="margin-bottom:16px;">
-              <label class="form-label" style="margin-bottom:8px; font-weight:800;">معاينة حية للمظهر:</label>
-              <div id="live-color-mockup" class="live-mockup-banner" style="background:#110e0c; border:1px solid rgba(255,255,255,0.12);">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.08);">
-                  <div style="display:flex; align-items:center; gap:8px;">
-                    <div style="width:28px; height:28px; border-radius:6px; background:var(--primary); display:flex; align-items:center; justify-content:center; color:#fff;"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 2a8 8 0 0 0-8 8v1h16v-1a8 8 0 0 0-8-8z"/><path d="M4 15h16"/><path d="M4 18h16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/></svg></div>
-                    <span id="mockup-header-title" style="font-size:13px; font-weight:900; color:#faf6f0;">اسم المطعم بالهيدر</span>
-                  </div>
-                  <span id="mockup-btn-sample" style="background:#c2410c; color:#fff; font-size:10.5px; font-weight:800; padding:4px 10px; border-radius:6px;">زر التوصيل</span>
-                </div>
-
-                <div id="mockup-card-surface" style="background:#1f1a16; border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:10px 12px; display:flex; justify-content:space-between; align-items:center;">
-                  <div>
-                    <div id="mockup-item-title" style="font-size:12.5px; font-weight:800; color:#faf6f0;">وجبة جراند بيرجر دبل</div>
-                    <div id="mockup-item-desc" style="font-size:10.5px; color:#d8cec0; margin-top:2px;">شريحتين لحم بقري مشوي مع جبن شيدر وصوص خاص</div>
-                  </div>
-                  <div id="mockup-item-price" class="font-num" style="font-size:14px; font-weight:900; color:#c2410c; white-space:nowrap; margin-right:12px;">140 ج.م</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Direct Color Pickers Grid -->
-            <label class="form-label" style="margin-bottom:8px; font-weight:800;">تخصيص درجات الألوان بالتفصيل:</label>
+            <label class="form-label" style="margin-bottom:8px; font-weight:700;">تخصيص درجات الألوان بالتفصيل:</label>
             <div class="color-studio-grid">
-              
-              <!-- Background Color -->
               <div class="color-picker-item">
                 <div>
                   <div class="color-picker-label">خلفية الموقع الرئيسية</div>
@@ -183,16 +142,14 @@
                 <input type="color" id="picker-bg" class="color-input-circle" value="#110e0c">
               </div>
 
-              <!-- Cards Surface Color -->
               <div class="color-picker-item">
                 <div>
                   <div class="color-picker-label">خلفية كروت الوجبات</div>
                   <div class="color-picker-sub">Card Surfaces</div>
                 </div>
-                <input type="color" id="picker-surface" class="color-input-circle" value="#1f1a16">
+                <input type="color" id="picker-surface" class="color-input-circle" value="#1c1713">
               </div>
 
-              <!-- Header Background -->
               <div class="color-picker-item">
                 <div>
                   <div class="color-picker-label">شريط الهيدر العلوي</div>
@@ -201,7 +158,6 @@
                 <input type="color" id="picker-header-bg" class="color-input-circle" value="#110e0c">
               </div>
 
-              <!-- Primary Accent Color -->
               <div class="color-picker-item">
                 <div>
                   <div class="color-picker-label">الأزرار والأسعار والتمييز</div>
@@ -210,7 +166,6 @@
                 <input type="color" id="picker-primary" class="color-input-circle" value="#c2410c">
               </div>
 
-              <!-- Main Titles Color -->
               <div class="color-picker-item">
                 <div>
                   <div class="color-picker-label">العناوين والنصوص الرئيسية</div>
@@ -219,18 +174,15 @@
                 <input type="color" id="picker-text-main" class="color-input-circle" value="#faf6f0">
               </div>
 
-              <!-- Body Descriptions Color -->
               <div class="color-picker-item">
                 <div>
                   <div class="color-picker-label">وصف الوجبات والخط الفرعي</div>
                   <div class="color-picker-sub">Body Descriptions</div>
                 </div>
-                <input type="color" id="picker-text-body" class="color-input-circle" value="#d8cec0">
+                <input type="color" id="picker-text-body" class="color-input-circle" value="#d4c9ba">
               </div>
-
             </div>
 
-            <!-- Delivery & Minimum Order -->
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:16px; padding-top:14px; border-top:1px solid var(--border);">
               <div class="form-group" style="margin-bottom:0;">
                 <label class="form-label">مدة التوصيل المعتادة</label>
@@ -243,23 +195,94 @@
             </div>
           </div>
 
-          <!-- Announcement & Offers Banner -->
-          <div style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-sm); padding:16px; margin-bottom:16px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-              <span style="font-size:13px; font-weight:900; color:var(--text-main);">شريط الإعلانات والعروض الترويجية</span>
-              <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:12px; font-weight:700;">
-                <input type="checkbox" id="set-show-announcement">
-                <span>تفعيل الظهور</span>
-              </label>
+          <!-- Smart Promotions & Multi-Discount Management Center -->
+          <div style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:18px; margin-bottom:18px;">
+            <div style="font-size:14px; font-weight:700; color:var(--text-main); margin-bottom:14px;">
+              <span>مركز إدارة العروض والخصومات الذكية</span>
             </div>
-            <input type="text" id="set-announcement-text" class="form-input" placeholder="اكتب نص العرض الترويجي (مثال: خصم 10% عند الدفع بالمحفظة الإلكترونية)">
+
+            <!-- Announcement Bar -->
+            <div style="margin-bottom:16px;">
+              <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:700; font-size:13px; color:var(--text-main); margin-bottom:8px;">
+                <input type="checkbox" id="set-show-announcement" style="width:16px; height:16px; accent-color:var(--primary);">
+                <span>إظهار شريط الإعلانات والعروض أعلى المنيو</span>
+              </label>
+              <input type="text" id="set-announcement-text" class="form-input" placeholder="مثال: خصم 10% عند الدفع بفودافون كاش • وخصم 15% للطلبات فوق 300 ج.م">
+            </div>
+
+            <!-- 1. Digital Wallet Discount Rule -->
+            <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:14px; margin-bottom:14px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:700; font-size:13px; color:var(--text-main); margin-bottom:0;">
+                  <input type="checkbox" id="set-enable-wallet-discount" style="width:16px; height:16px; accent-color:var(--primary);">
+                  <span>1. خصم الدفع الإلكتروني (فودافون كاش / إنستاباي)</span>
+                </label>
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label">نوع الخصم</label>
+                  <select id="set-wallet-discount-type" class="form-input">
+                    <option value="percent">نسبة مئوية (%)</option>
+                    <option value="fixed">مبلغ ثابت (ج.م)</option>
+                  </select>
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label">قيمة الخصم</label>
+                  <input type="number" id="set-wallet-discount-val" class="form-input font-num" placeholder="10" min="0" step="1">
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. Spend Tier Discount Rule -->
+            <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:14px; margin-bottom:14px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:700; font-size:13px; color:var(--text-main); margin-bottom:0;">
+                  <input type="checkbox" id="set-enable-spend-discount" style="width:16px; height:16px; accent-color:var(--primary);">
+                  <span>2. خصم الوصول لمبلغ معين (Spend & Save)</span>
+                </label>
+              </div>
+              <div style="display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:12px;">
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label">إذا وصل الطلب إلى (ج.م)</label>
+                  <input type="number" id="set-spend-min-amount" class="form-input font-num" placeholder="300" min="0" step="10">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label">نوع الخصم</label>
+                  <select id="set-spend-discount-type" class="form-input">
+                    <option value="percent">نسبة مئوية (%)</option>
+                    <option value="fixed">مبلغ ثابت (ج.م)</option>
+                  </select>
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label">قيمة الخصم</label>
+                  <input type="number" id="set-spend-discount-val" class="form-input font-num" placeholder="15" min="0" step="1">
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. Promo Codes -->
+            <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:14px;">
+              <div style="font-weight:700; font-size:13px; color:var(--text-main); margin-bottom:8px;">
+                3. كوبونات الخصم والبروموكود (Promo Codes)
+              </div>
+              <div style="display:grid; grid-template-columns:1.2fr 1fr 1fr auto; gap:8px; margin-bottom:10px;">
+                <input type="text" id="new-promo-code" class="form-input font-num" placeholder="كود الخصم (مثال: SAVE20)">
+                <select id="new-promo-type" class="form-input">
+                  <option value="percent">نسبة مئوية (%)</option>
+                  <option value="fixed">مبلغ ثابت (ج.م)</option>
+                </select>
+                <input type="number" id="new-promo-val" class="form-input font-num" placeholder="القيمة">
+                <button type="button" id="btn-add-promo-code" class="btn btn-primary btn-sm">+ إضافة كود</button>
+              </div>
+              <div id="promo-codes-list" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+            </div>
           </div>
 
+          <!-- Contact & Payment Information -->
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
             <div class="form-group">
               <label class="form-label">رقم الواتساب لاستقبال الطلبات (مع كود الدولة) *</label>
               <input type="tel" id="set-whatsapp" class="form-input font-num" placeholder="2010xxxxxxxx" required>
-              <small style="color:var(--text-faint); font-size:11px;">في مصر اكتب 2010... أو 2011...</small>
             </div>
             <div class="form-group">
               <label class="form-label">رقم محفظة الكاش (فودافون كاش / إنستاباي) *</label>
@@ -284,7 +307,7 @@
               <input type="text" id="set-logo-url" class="form-input" placeholder="https://...">
             </div>
             <div class="form-group">
-              <label class="form-label">مفتاح ImgBB المجاني (اختياري لرفع الصور)</label>
+              <label class="form-label">مفتاح ImgBB المجاني لرفع الصور</label>
               <input type="text" id="set-imgbb-key" class="form-input" placeholder="9716f164...">
             </div>
           </div>
@@ -324,26 +347,30 @@
           <select id="prod-category" class="form-input" required></select>
         </div>
         <div class="form-group">
-          <label class="form-label">السعر *</label>
+          <label class="form-label">سعر البيع (ج.م) *</label>
           <input type="number" id="prod-price" class="form-input font-num" placeholder="120" step="0.5" required>
         </div>
       </div>
 
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
         <div class="form-group">
-          <label class="form-label">وقت التحضير التقديري</label>
-          <input type="text" id="prod-preptime" class="form-input" placeholder="مثال: 12 دقيقة">
+          <label class="form-label">السعر قبل الخصم (مشطوب)</label>
+          <input type="number" id="prod-original-price" class="form-input font-num" placeholder="مثال: 140" step="0.5">
+        </div>
+        <div class="form-group">
+          <label class="form-label">وقت التحضير</label>
+          <input type="text" id="prod-preptime" class="form-input font-num" placeholder="مثال: 12 دقيقة">
         </div>
         <div class="form-group">
           <label class="form-label">شارة مميزة (Badge)</label>
-          <input type="text" id="prod-badge" class="form-input" placeholder="مثال: الأكثر طلباً">
+          <input type="text" id="prod-badge" class="form-input" placeholder="مثال: عرض خاص">
         </div>
       </div>
 
       <div class="form-group" style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">
         <input type="checkbox" id="prod-featured" style="width:18px; height:18px; accent-color:var(--primary); cursor:pointer;">
         <label for="prod-featured" style="font-size:13px; font-weight:700; color:var(--text-main); cursor:pointer;">
-          ⭐ إبراز هذا الصنف كاختيار رئيسي للشيف (Hero Featured)
+          إبراز هذا الصنف كاختيار رئيسي للشيف (Hero Featured)
         </label>
       </div>
 
@@ -357,7 +384,7 @@
         <div style="display:flex; gap:10px; align-items:center;">
           <input type="text" id="prod-img-url" class="form-input" placeholder="رابط الصورة المباشر https://...">
           <label class="btn btn-ghost btn-sm" style="white-space:nowrap; cursor:pointer;">
-            📁 رفع ملف
+            رفع ملف
             <input type="file" id="prod-img-file" accept="image/*" style="display:none;">
           </label>
         </div>
@@ -371,7 +398,6 @@
     </form>
   </div>
 
-  <!-- Scripts -->
   <script src="./js/store.js"></script>
   <script src="./js/admin.js"></script>
 </body>

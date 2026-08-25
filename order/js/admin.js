@@ -1,60 +1,3 @@
-
-// ── Promo Codes Management in Admin ─────────────────────────
-function renderAdminPromoCodesList() {
-  if (!adminElements.promoCodesList) return;
-  const s = Store.getSettings();
-  const promos = s.promoCodes || [];
-
-  if (promos.length === 0) {
-    adminElements.promoCodesList.innerHTML = `<span style="font-size:11.5px; color:var(--text-faint);">لا توجد أكواد خصم حالياً</span>`;
-    return;
-  }
-
-  adminElements.promoCodesList.innerHTML = promos.map((p, idx) => `
-    <div style="background:var(--surface-raised); border:1px solid var(--border-strong); padding:6px 12px; border-radius:var(--radius-xs); display:flex; align-items:center; gap:8px; font-size:12px;">
-      <span class="font-num" style="font-weight:800; color:var(--primary);">${p.code}</span>
-      <span style="color:var(--text-muted);">(${p.value}${p.type === 'fixed' ? ' ج.م' : '%'})</span>
-      <button type="button" onclick="handleDeletePromoCode(${idx})" style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:700; font-size:12px;" title="حذف الكود">✕</button>
-    </div>
-  `).join('');
-}
-
-window.handleDeletePromoCode = function(idx) {
-  const s = Store.getSettings();
-  const promos = s.promoCodes || [];
-  promos.splice(idx, 1);
-  Store.saveSettings({ ...s, promoCodes: promos });
-  renderAdminPromoCodesList();
-  showAdminToast("تم حذف كود الخصم", "info");
-};
-
-function handleAddPromoCode() {
-  const code = (adminElements.newPromoCode.value || '').trim().toUpperCase();
-  const type = adminElements.newPromoType.value || 'percent';
-  const val = parseFloat(adminElements.newPromoVal.value) || 0;
-
-  if (!code || val <= 0) {
-    showAdminToast("اكتب الكود والقيمة بشكل صحيح", "error");
-    return;
-  }
-
-  const s = Store.getSettings();
-  const promos = s.promoCodes || [];
-
-  if (promos.some(p => p.code === code)) {
-    showAdminToast("كود الخصم مضاف بالفعل", "error");
-    return;
-  }
-
-  promos.push({ code, type, value: val, desc: `خصم ${val}${type === 'fixed' ? ' ج.م' : '%'}` });
-  Store.saveSettings({ ...s, promoCodes: promos });
-
-  adminElements.newPromoCode.value = '';
-  adminElements.newPromoVal.value = '';
-  renderAdminPromoCodesList();
-  showAdminToast(`تمت إضافة كود الخصم "${code}" بنجاح`);
-}
-
 // ═══════════════════════════════════════════════════════════
 // HarpyOrder — Admin Visual Catalog & Color Studio Manager
 // ═══════════════════════════════════════════════════════════
@@ -62,16 +5,15 @@ function handleAddPromoCode() {
 let draggedCardElement = null;
 let currentSelectedThemePreset = "charcoal";
 
-// Working color state
 let currentSiteColors = {
   bg: "#110e0c",
-  surface: "#1f1a16",
-  surfaceRaised: "#29221d",
+  surface: "#1c1713",
+  surfaceRaised: "#251f1a",
   headerBg: "#110e0c",
   textMain: "#faf6f0",
-  textBody: "#d8cec0",
+  textBody: "#d4c9ba",
   primary: "#c2410c",
-  border: "rgba(245, 238, 227, 0.12)"
+  border: "rgba(245, 238, 227, 0.09)"
 };
 
 const adminElements = {
@@ -81,15 +23,12 @@ const adminElements = {
   btnLogin: document.getElementById('btn-login'),
   adminStoreName: document.getElementById('admin-store-name'),
 
-  // Tabs
   tabButtons: document.querySelectorAll('.admin-tab-btn'),
   tabPanes: document.querySelectorAll('.tab-pane'),
 
-  // Catalog
   adminCatalogContainer: document.getElementById('admin-catalog-container'),
   btnOpenAddProduct: document.getElementById('btn-open-add-product'),
   
-  // Product Modal
   productModal: document.getElementById('product-modal'),
   productModalBackdrop: document.getElementById('product-modal-backdrop'),
   productModalTitle: document.getElementById('product-modal-title'),
@@ -109,22 +48,11 @@ const adminElements = {
   prodImgFile: document.getElementById('prod-img-file'),
   prodImgStatus: document.getElementById('prod-img-status'),
 
-  // Categories
   newCatInput: document.getElementById('new-cat-input'),
   btnAddCat: document.getElementById('btn-add-cat'),
   categoriesListContainer: document.getElementById('categories-list-container'),
 
-  // Color Studio & Presets
   themePresetsGrid: document.getElementById('theme-presets-grid'),
-  liveColorMockup: document.getElementById('live-color-mockup'),
-  mockupHeaderTitle: document.getElementById('mockup-header-title'),
-  mockupBtnSample: document.getElementById('mockup-btn-sample'),
-  mockupCardSurface: document.getElementById('mockup-card-surface'),
-  mockupItemTitle: document.getElementById('mockup-item-title'),
-  mockupItemDesc: document.getElementById('mockup-item-desc'),
-  mockupItemPrice: document.getElementById('mockup-item-price'),
-
-  // Pickers
   pickerBg: document.getElementById('picker-bg'),
   pickerSurface: document.getElementById('picker-surface'),
   pickerHeaderBg: document.getElementById('picker-header-bg'),
@@ -132,25 +60,28 @@ const adminElements = {
   pickerTextMain: document.getElementById('picker-text-main'),
   pickerTextBody: document.getElementById('picker-text-body'),
 
-  // Settings
   settingsForm: document.getElementById('settings-form'),
   setStoreName: document.getElementById('set-store-name'),
   setCurrency: document.getElementById('set-currency'),
   setStoreTagline: document.getElementById('set-store-tagline'),
   setShowAnnouncement: document.getElementById('set-show-announcement'),
   setAnnouncementText: document.getElementById('set-announcement-text'),
+
   setEnableWalletDiscount: document.getElementById('set-enable-wallet-discount'),
   setWalletDiscountType: document.getElementById('set-wallet-discount-type'),
   setWalletDiscountVal: document.getElementById('set-wallet-discount-val'),
+
   setEnableSpendDiscount: document.getElementById('set-enable-spend-discount'),
   setSpendMinAmount: document.getElementById('set-spend-min-amount'),
   setSpendDiscountType: document.getElementById('set-spend-discount-type'),
   setSpendDiscountVal: document.getElementById('set-spend-discount-val'),
+
   newPromoCode: document.getElementById('new-promo-code'),
   newPromoType: document.getElementById('new-promo-type'),
   newPromoVal: document.getElementById('new-promo-val'),
   btnAddPromoCode: document.getElementById('btn-add-promo-code'),
   promoCodesList: document.getElementById('promo-codes-list'),
+
   setDeliveryTime: document.getElementById('set-delivery-time'),
   setMinOrder: document.getElementById('set-min-order'),
   setWhatsApp: document.getElementById('set-whatsapp'),
@@ -159,25 +90,9 @@ const adminElements = {
   setAdminPin: document.getElementById('set-admin-pin'),
   setLogoUrl: document.getElementById('set-logo-url'),
   setImgbbKey: document.getElementById('set-imgbb-key'),
-  btnResetDemo: document.getElementById('btn-reset-demo'),
-
-  toastContainer: document.getElementById('toast-container')
+  btnResetDemo: document.getElementById('btn-reset-demo')
 };
 
-// ── Toast Notification ─────────────────────────────────────
-function showAdminToast(message, type = "success") {
-  if (!adminElements.toastContainer) return;
-  const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
-  toast.innerHTML = `<span>${message}</span>`;
-  adminElements.toastContainer.appendChild(toast);
-  setTimeout(() => {
-    toast.style.opacity = '0';
-    setTimeout(() => toast.remove(), 300);
-  }, 3200);
-}
-
-// ── Authentication Check ───────────────────────────────────
 function checkAdminAuth() {
   const isLogged = sessionStorage.getItem('harpy_admin_logged');
   if (isLogged === 'true') {
@@ -200,15 +115,13 @@ function handleLogin() {
     adminElements.loginModal.classList.remove('open');
     adminElements.loginBackdrop.classList.remove('open');
     initAdminDashboard();
-    showAdminToast("أهلاً بك! تم تسجيل الدخول بنجاح");
   } else {
-    showAdminToast("رمز المرور غير صحيح", "error");
+    alert("رمز المرور غير صحيح");
     adminElements.pinInput.value = '';
     adminElements.pinInput.focus();
   }
 }
 
-// ── Init Dashboard ─────────────────────────────────────────
 function initAdminDashboard() {
   const s = Store.getSettings();
   if (adminElements.adminStoreName) adminElements.adminStoreName.textContent = `إدارة منيو (${s.storeName})`;
@@ -222,7 +135,6 @@ function initAdminDashboard() {
   setupColorStudioListeners();
 }
 
-// ── Tab Management ─────────────────────────────────────────
 function setupTabs() {
   adminElements.tabButtons.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -237,7 +149,6 @@ function setupTabs() {
   });
 }
 
-// ── Render Theme Presets Grid ──────────────────────────────
 function renderThemePresetsSelector() {
   if (!adminElements.themePresetsGrid) return;
   const presets = Store.THEME_PRESETS;
@@ -250,14 +161,14 @@ function renderThemePresetsSelector() {
       <div class="theme-preset-card ${isSelected ? 'active' : ''}" onclick="handleSelectThemePreset('${p.id}')">
         <div class="preset-preview-box" style="background:${p.bg};">
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-size:10px; font-weight:800; color:${p.textMain}; background:${p.surface}; padding:1px 6px; border-radius:4px;">
+            <span style="font-size:10px; font-weight:700; color:${p.textMain}; background:${p.surface}; padding:1px 6px; border-radius:4px;">
               ${p.name.split(' ')[0]}
             </span>
             <span style="width:12px; height:12px; border-radius:50%; background:${p.primary}; display:inline-block; border:1px solid #fff;"></span>
           </div>
           <div style="background:${p.surface}; border:1px solid ${p.border}; border-radius:4px; padding:3px 6px; display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-size:9px; font-weight:700; color:${p.textBody};">صنف المنيو</span>
-            <span style="font-size:9px; font-weight:900; color:${p.primary};">140 ج.م</span>
+            <span style="font-size:9px; font-weight:600; color:${p.textBody};">صنف المنيو</span>
+            <span style="font-size:9px; font-weight:800; color:${p.primary};">140 ج.م</span>
           </div>
         </div>
 
@@ -278,7 +189,6 @@ window.handleSelectThemePreset = function(presetId) {
   const preset = Store.THEME_PRESETS[presetId];
   if (!preset) return;
 
-  // Update working colors
   currentSiteColors = {
     bg: preset.bg,
     surface: preset.surface,
@@ -290,15 +200,11 @@ window.handleSelectThemePreset = function(presetId) {
     border: preset.border
   };
 
-  // Sync color pickers with preset colors
   syncColorPickersWithState();
-  updateLiveMockup();
   applyLiveThemePreview();
   renderThemePresetsSelector();
-  showAdminToast(`تم اختيار قالب "${preset.name}" 🎨`);
 };
 
-// ── Color Studio Live Updates ──────────────────────────────
 function syncColorPickersWithState() {
   if (adminElements.pickerBg) adminElements.pickerBg.value = currentSiteColors.bg;
   if (adminElements.pickerSurface) adminElements.pickerSurface.value = currentSiteColors.surface;
@@ -306,23 +212,6 @@ function syncColorPickersWithState() {
   if (adminElements.pickerPrimary) adminElements.pickerPrimary.value = currentSiteColors.primary;
   if (adminElements.pickerTextMain) adminElements.pickerTextMain.value = currentSiteColors.textMain;
   if (adminElements.pickerTextBody) adminElements.pickerTextBody.value = currentSiteColors.textBody;
-}
-
-function updateLiveMockup() {
-  if (!adminElements.liveColorMockup) return;
-  adminElements.liveColorMockup.style.background = currentSiteColors.bg;
-  if (adminElements.mockupHeaderTitle) adminElements.mockupHeaderTitle.style.color = currentSiteColors.textMain;
-  if (adminElements.mockupBtnSample) {
-    adminElements.mockupBtnSample.style.background = currentSiteColors.primary;
-    adminElements.mockupBtnSample.style.color = "#ffffff";
-  }
-  if (adminElements.mockupCardSurface) {
-    adminElements.mockupCardSurface.style.background = currentSiteColors.surface;
-    adminElements.mockupCardSurface.style.borderColor = currentSiteColors.border;
-  }
-  if (adminElements.mockupItemTitle) adminElements.mockupItemTitle.style.color = currentSiteColors.textMain;
-  if (adminElements.mockupItemDesc) adminElements.mockupItemDesc.style.color = currentSiteColors.textBody;
-  if (adminElements.mockupItemPrice) adminElements.mockupItemPrice.style.color = currentSiteColors.primary;
 }
 
 function applyLiveThemePreview() {
@@ -349,14 +238,12 @@ function setupColorStudioListeners() {
         currentSiteColors[key] = e.target.value;
         if (key === 'surface') currentSiteColors.surfaceRaised = e.target.value;
         currentSelectedThemePreset = 'custom';
-        updateLiveMockup();
         applyLiveThemePreview();
       });
     }
   });
 }
 
-// ── Render Visual Product Catalog ──────────────────────────
 function renderVisualCatalog() {
   if (!adminElements.adminCatalogContainer) return;
   const prods = Store.getProducts();
@@ -380,7 +267,6 @@ function renderVisualCatalog() {
            draggable="true" 
            data-product-id="${p.id}">
         
-        <!-- Header Row -->
         <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
           <div style="display:flex; align-items:center; gap:4px;">
             <span class="admin-drag-handle" title="اسحب لإعادة الترتيب">
@@ -405,7 +291,6 @@ function renderVisualCatalog() {
           </button>
         </div>
 
-        <!-- Body Row -->
         <div style="display:flex; gap:12px; align-items:center;">
           <img src="${p.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=120'}" 
                style="width:54px; height:54px; border-radius:6px; object-fit:cover; background:var(--surface);" 
@@ -416,12 +301,13 @@ function renderVisualCatalog() {
             </div>
             <div style="font-size:11px; color:var(--text-muted); margin-top:2px; display:flex; align-items:center; gap:4px;">
               <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              <span>${p.prepTime || '15 دقيقة'}</span> ${p.badge ? `<span style="margin:0 4px;">•</span> <span>${p.badge}</span>` : ''}
+              <span>${p.prepTime || '15 دقيقة'}</span> 
+              ${p.originalPrice && p.originalPrice > p.price ? `<span style="margin:0 4px;">•</span> <span style="color:var(--danger); font-weight:700;">خصم</span>` : ''}
+              ${p.badge ? `<span style="margin:0 4px;">•</span> <span>${p.badge}</span>` : ''}
             </div>
           </div>
         </div>
 
-        <!-- Footer Row -->
         <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; padding-top:10px; border-top:1px solid var(--border);">
           <div style="display:flex; align-items:center; gap:4px;">
             <span style="font-size:11px; color:var(--text-muted); font-weight:600;">السعر:</span>
@@ -435,11 +321,11 @@ function renderVisualCatalog() {
           </div>
 
           <div style="display:flex; gap:6px;">
-            <button class="btn btn-ghost btn-sm" onclick="openEditProductModal('${p.id}')" title="تعديل كامل">
+            <button type="button" class="btn btn-ghost btn-sm" onclick="openEditProductModal('${p.id}')" title="تعديل كامل">
               <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
               <span>تعديل</span>
             </button>
-            <button class="btn btn-danger btn-sm" onclick="handleDeleteProduct('${p.id}')" title="حذف الصنف">
+            <button type="button" class="btn btn-danger btn-sm" onclick="handleDeleteProduct('${p.id}')" title="حذف الصنف">
               <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
             </button>
           </div>
@@ -451,7 +337,6 @@ function renderVisualCatalog() {
   setupDragAndDrop();
 }
 
-// ── Mobile Reordering Arrows ───────────────────────────────
 window.moveProductUp = function(id) {
   const prods = Store.getProducts();
   const idx = prods.findIndex(p => p.id === id);
@@ -461,7 +346,6 @@ window.moveProductUp = function(id) {
     prods[idx - 1] = temp;
     Store.saveProducts(prods);
     renderVisualCatalog();
-    showAdminToast("تم تحريك الصنف للأعلى");
   }
 };
 
@@ -474,25 +358,19 @@ window.moveProductDown = function(id) {
     prods[idx + 1] = temp;
     Store.saveProducts(prods);
     renderVisualCatalog();
-    showAdminToast("تم تحريك الصنف للأسفل");
   }
 };
 
-// ── Quick Inline Price Update ──────────────────────────────
 window.handleInlinePriceChange = function(id, newPrice) {
   const price = parseFloat(newPrice) || 0;
   Store.quickUpdatePrice(id, price);
-  showAdminToast(`تم تحديث السعر بنجاح`);
 };
 
-// ── Quick Visibility Toggle ────────────────────────────────
 window.handleToggleVisibility = function(id) {
-  const isNowVisible = Store.toggleProductVisibility(id);
+  Store.toggleProductVisibility(id);
   renderVisualCatalog();
-  showAdminToast(isNowVisible ? "تم إظهار الصنف في المنيو" : "تم إخفاء الصنف من المنيو", "info");
 };
 
-// ── Drag and Drop Reordering Setup ─────────────────────────
 function setupDragAndDrop() {
   const items = adminElements.adminCatalogContainer.querySelectorAll('.admin-catalog-item');
 
@@ -538,13 +416,11 @@ function setupDragAndDrop() {
         const newOrderedCards = Array.from(parent.querySelectorAll('.admin-catalog-item'));
         const newIds = newOrderedCards.map(c => c.dataset.productId);
         Store.reorderProducts(newIds);
-        showAdminToast("تم حفظ الترتيب الجديد للمنيو");
       }
     });
   });
 }
 
-// ── Product Add / Edit Modal ───────────────────────────────
 function populateCategorySelect() {
   if (!adminElements.prodCategory) return;
   const categories = Store.getCategories();
@@ -552,21 +428,21 @@ function populateCategorySelect() {
 }
 
 function openAddProductModal() {
-  adminElements.productModalTitle.textContent = "إضافة صنف جديد لدفتر المنيو";
-  adminElements.prodId.value = '';
-  adminElements.prodName.value = '';
+  if (adminElements.productModalTitle) adminElements.productModalTitle.textContent = "إضافة صنف جديد لدفتر المنيو";
+  if (adminElements.prodId) adminElements.prodId.value = '';
+  if (adminElements.prodName) adminElements.prodName.value = '';
   populateCategorySelect();
-  adminElements.prodPrice.value = '';
-  adminElements.prodOriginalPrice.value = '';
-  adminElements.prodPrepTime.value = '15 دقيقة';
-  adminElements.prodBadge.value = '';
-  adminElements.prodFeatured.checked = false;
-  adminElements.prodDesc.value = '';
-  adminElements.prodImgUrl.value = '';
-  adminElements.prodImgStatus.style.display = 'none';
+  if (adminElements.prodPrice) adminElements.prodPrice.value = '';
+  if (adminElements.prodOriginalPrice) adminElements.prodOriginalPrice.value = '';
+  if (adminElements.prodPrepTime) adminElements.prodPrepTime.value = '15 دقيقة';
+  if (adminElements.prodBadge) adminElements.prodBadge.value = '';
+  if (adminElements.prodFeatured) adminElements.prodFeatured.checked = false;
+  if (adminElements.prodDesc) adminElements.prodDesc.value = '';
+  if (adminElements.prodImgUrl) adminElements.prodImgUrl.value = '';
+  if (adminElements.prodImgStatus) adminElements.prodImgStatus.style.display = 'none';
 
-  adminElements.productModal.classList.add('open');
-  adminElements.productModalBackdrop.classList.add('open');
+  if (adminElements.productModal) adminElements.productModal.classList.add('open');
+  if (adminElements.productModalBackdrop) adminElements.productModalBackdrop.classList.add('open');
 }
 
 window.openEditProductModal = function(id) {
@@ -574,59 +450,54 @@ window.openEditProductModal = function(id) {
   const p = prods.find(item => item.id === id);
   if (!p) return;
 
-  adminElements.productModalTitle.textContent = "تعديل تفاصيل الصنف";
-  adminElements.prodId.value = p.id;
-  adminElements.prodName.value = p.name;
+  if (adminElements.productModalTitle) adminElements.productModalTitle.textContent = "تعديل تفاصيل الصنف";
+  if (adminElements.prodId) adminElements.prodId.value = p.id;
+  if (adminElements.prodName) adminElements.prodName.value = p.name || '';
   populateCategorySelect();
-  adminElements.prodCategory.value = p.category;
-  adminElements.prodPrice.value = p.price;
-  adminElements.prodOriginalPrice.value = p.originalPrice || '';
-  adminElements.prodPrepTime.value = p.prepTime || '15 دقيقة';
-  adminElements.prodBadge.value = p.badge || '';
-  adminElements.prodFeatured.checked = p.isFeatured === true;
-  adminElements.prodDesc.value = p.desc || '';
-  adminElements.prodImgUrl.value = p.image || '';
-  adminElements.prodImgStatus.style.display = 'none';
+  if (adminElements.prodCategory) adminElements.prodCategory.value = p.category;
+  if (adminElements.prodPrice) adminElements.prodPrice.value = p.price !== undefined ? p.price : '';
+  if (adminElements.prodOriginalPrice) adminElements.prodOriginalPrice.value = p.originalPrice || '';
+  if (adminElements.prodPrepTime) adminElements.prodPrepTime.value = p.prepTime || '15 دقيقة';
+  if (adminElements.prodBadge) adminElements.prodBadge.value = p.badge || '';
+  if (adminElements.prodFeatured) adminElements.prodFeatured.checked = p.isFeatured === true;
+  if (adminElements.prodDesc) adminElements.prodDesc.value = p.desc || '';
+  if (adminElements.prodImgUrl) adminElements.prodImgUrl.value = p.image || '';
+  if (adminElements.prodImgStatus) adminElements.prodImgStatus.style.display = 'none';
 
-  adminElements.productModal.classList.add('open');
-  adminElements.productModalBackdrop.classList.add('open');
+  if (adminElements.productModal) adminElements.productModal.classList.add('open');
+  if (adminElements.productModalBackdrop) adminElements.productModalBackdrop.classList.add('open');
 };
 
 function closeProductModal() {
-  adminElements.productModal.classList.remove('open');
-  adminElements.productModalBackdrop.classList.remove('open');
+  if (adminElements.productModal) adminElements.productModal.classList.remove('open');
+  if (adminElements.productModalBackdrop) adminElements.productModalBackdrop.classList.remove('open');
 }
 
 window.handleDeleteProduct = function(id) {
   if (confirm("هل أنت متأكد من حذف هذا الصنف نهائياً؟")) {
     Store.deleteProduct(id);
     renderVisualCatalog();
-    showAdminToast("تم حذف الصنف من القائمة", "info");
   }
 };
 
-// ── Categories Management ──────────────────────────────────
 function renderCategoriesList() {
   if (!adminElements.categoriesListContainer) return;
   const cats = Store.getCategories();
 
   adminElements.categoriesListContainer.innerHTML = cats.map(c => `
-    <div style="background:var(--surface-raised); border:1px solid var(--border); padding:8px 14px; border-radius:var(--radius-full); display:flex; align-items:center; gap:8px; font-weight:800; font-size:13px;">
+    <div style="background:var(--surface-raised); border:1px solid var(--border); padding:8px 14px; border-radius:var(--radius-full); display:flex; align-items:center; gap:8px; font-weight:700; font-size:13px;">
       <span>${c}</span>
-      <button onclick="handleDeleteCategory('${c}')" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:13px;" title="حذف القسم">✕</button>
+      <button type="button" onclick="handleDeleteCategory('${c}')" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:13px;" title="حذف القسم">✕</button>
     </div>
   `).join('');
 }
 
 function handleAddCategory() {
   const newCat = (adminElements.newCatInput.value || '').trim();
-  if (!newCat) {
-    showAdminToast("اكتب اسم القسم أولاً", "error");
-    return;
-  }
+  if (!newCat) return;
   const cats = Store.getCategories();
   if (cats.includes(newCat)) {
-    showAdminToast("القسم موجود بالفعل", "error");
+    alert("القسم موجود بالفعل");
     return;
   }
   cats.push(newCat);
@@ -634,13 +505,12 @@ function handleAddCategory() {
   adminElements.newCatInput.value = '';
   renderCategoriesList();
   populateCategorySelect();
-  showAdminToast(`تمت إضافة قسم "${newCat}" بنجاح`);
 }
 
 window.handleDeleteCategory = function(catName) {
   let cats = Store.getCategories();
   if (cats.length <= 1) {
-    showAdminToast("يجب الإبقاء على قسم واحد على الأقل", "error");
+    alert("يجب الإبقاء على قسم واحد على الأقل");
     return;
   }
   if (confirm(`حذف قسم "${catName}"؟`)) {
@@ -648,23 +518,73 @@ window.handleDeleteCategory = function(catName) {
     Store.saveCategories(cats);
     renderCategoriesList();
     populateCategorySelect();
-    showAdminToast(`تم حذف قسم "${catName}"`, "info");
   }
 };
 
-// ── Settings Management ────────────────────────────────────
+function renderAdminPromoCodesList() {
+  if (!adminElements.promoCodesList) return;
+  const s = Store.getSettings();
+  const promos = s.promoCodes || [];
+
+  if (promos.length === 0) {
+    adminElements.promoCodesList.innerHTML = `<span style="font-size:11.5px; color:var(--text-faint);">لا توجد أكواد خصم حالياً</span>`;
+    return;
+  }
+
+  adminElements.promoCodesList.innerHTML = promos.map((p, idx) => `
+    <div style="background:var(--surface-raised); border:1px solid var(--border-strong); padding:6px 12px; border-radius:var(--radius-xs); display:flex; align-items:center; gap:8px; font-size:12px;">
+      <span class="font-num" style="font-weight:800; color:var(--primary);">${p.code}</span>
+      <span style="color:var(--text-muted);">(${p.value}${p.type === 'fixed' ? ' ج.م' : '%'})</span>
+      <button type="button" onclick="handleDeletePromoCode(${idx})" style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:700; font-size:12px;" title="حذف الكود">✕</button>
+    </div>
+  `).join('');
+}
+
+window.handleDeletePromoCode = function(idx) {
+  const s = Store.getSettings();
+  const promos = s.promoCodes || [];
+  promos.splice(idx, 1);
+  Store.saveSettings({ ...s, promoCodes: promos });
+  renderAdminPromoCodesList();
+};
+
+function handleAddPromoCode() {
+  const code = (adminElements.newPromoCode.value || '').trim().toUpperCase();
+  const type = adminElements.newPromoType.value || 'percent';
+  const val = parseFloat(adminElements.newPromoVal.value) || 0;
+
+  if (!code || val <= 0) {
+    alert("اكتب الكود والقيمة بشكل صحيح");
+    return;
+  }
+
+  const s = Store.getSettings();
+  const promos = s.promoCodes || [];
+
+  if (promos.some(p => p.code === code)) {
+    alert("كود الخصم مضاف بالفعل");
+    return;
+  }
+
+  promos.push({ code, type, value: val, desc: `خصم ${val}${type === 'fixed' ? ' ج.م' : '%'}` });
+  Store.saveSettings({ ...s, promoCodes: promos });
+
+  adminElements.newPromoCode.value = '';
+  adminElements.newPromoVal.value = '';
+  renderAdminPromoCodesList();
+}
+
 function loadSettingsForm() {
   const s = Store.getSettings();
-  adminElements.setStoreName.value = s.storeName || '';
-  adminElements.setCurrency.value = s.currency || 'ج.م';
-  adminElements.setStoreTagline.value = s.storeTagline || '';
+  if (adminElements.setStoreName) adminElements.setStoreName.value = s.storeName || '';
+  if (adminElements.setCurrency) adminElements.setCurrency.value = s.currency || 'ج.م';
+  if (adminElements.setStoreTagline) adminElements.setStoreTagline.value = s.storeTagline || '';
   
   currentSelectedThemePreset = s.themePreset || 'charcoal';
   currentSiteColors = { ...DEFAULT_SETTINGS.siteColors, ...(s.siteColors || {}) };
 
   renderThemePresetsSelector();
   syncColorPickersWithState();
-  updateLiveMockup();
 
   if (adminElements.setShowAnnouncement) {
     adminElements.setShowAnnouncement.checked = s.showAnnouncement !== false;
@@ -672,6 +592,7 @@ function loadSettingsForm() {
   if (adminElements.setAnnouncementText) {
     adminElements.setAnnouncementText.value = s.announcementText || '';
   }
+
   if (adminElements.setEnableWalletDiscount) {
     adminElements.setEnableWalletDiscount.checked = s.enableWalletDiscount !== false;
   }
@@ -697,18 +618,13 @@ function loadSettingsForm() {
 
   renderAdminPromoCodesList();
 
-  if (adminElements.setDeliveryTime) {
-    adminElements.setDeliveryTime.value = s.deliveryTime || '30-45 دقيقة';
-  }
-  if (adminElements.setMinOrder) {
-    adminElements.setMinOrder.value = s.minOrder || 0;
-  }
-
-  adminElements.setWhatsApp.value = s.whatsappNumber || '';
-  adminElements.setWalletNumber.value = s.walletNumber || '';
-  adminElements.setWalletName.value = s.walletName || '';
-  adminElements.setAdminPin.value = s.adminPin || '1234';
-  adminElements.setLogoUrl.value = s.logo || '';
+  if (adminElements.setDeliveryTime) adminElements.setDeliveryTime.value = s.deliveryTime || '30-45 دقيقة';
+  if (adminElements.setMinOrder) adminElements.setMinOrder.value = s.minOrder || 0;
+  if (adminElements.setWhatsApp) adminElements.setWhatsApp.value = s.whatsappNumber || '';
+  if (adminElements.setWalletNumber) adminElements.setWalletNumber.value = s.walletNumber || '';
+  if (adminElements.setWalletName) adminElements.setWalletName.value = s.walletName || '';
+  if (adminElements.setAdminPin) adminElements.setAdminPin.value = s.adminPin || '1234';
+  if (adminElements.setLogoUrl) adminElements.setLogoUrl.value = s.logo || '';
   if (adminElements.setImgbbKey) adminElements.setImgbbKey.value = s.imgbbApiKey || '';
 }
 
@@ -725,6 +641,7 @@ function handleSaveSettings(e) {
     primaryColor: currentSiteColors.primary,
     showAnnouncement: adminElements.setShowAnnouncement ? adminElements.setShowAnnouncement.checked : true,
     announcementText: adminElements.setAnnouncementText ? adminElements.setAnnouncementText.value.trim() : '',
+
     enableWalletDiscount: adminElements.setEnableWalletDiscount ? adminElements.setEnableWalletDiscount.checked : true,
     walletDiscountType: adminElements.setWalletDiscountType ? adminElements.setWalletDiscountType.value : 'percent',
     walletDiscountValue: adminElements.setWalletDiscountVal ? parseFloat(adminElements.setWalletDiscountVal.value) || 0 : 0,
@@ -733,6 +650,7 @@ function handleSaveSettings(e) {
     spendTierMinAmount: adminElements.setSpendMinAmount ? parseFloat(adminElements.setSpendMinAmount.value) || 0 : 300,
     spendTierDiscountType: adminElements.setSpendDiscountType ? adminElements.setSpendDiscountType.value : 'percent',
     spendTierDiscountValue: adminElements.setSpendDiscountVal ? parseFloat(adminElements.setSpendDiscountVal.value) || 0 : 15,
+
     deliveryTime: adminElements.setDeliveryTime ? adminElements.setDeliveryTime.value.trim() : '30-45 دقيقة',
     minOrder: adminElements.setMinOrder ? parseFloat(adminElements.setMinOrder.value) || 0 : 0,
     whatsappNumber: adminElements.setWhatsApp.value.trim(),
@@ -745,20 +663,17 @@ function handleSaveSettings(e) {
 
   Store.saveSettings(updated);
   if (adminElements.adminStoreName) adminElements.adminStoreName.textContent = `إدارة منيو (${updated.storeName})`;
-  showAdminToast("تم حفظ جميع إعدادات وألوان الموقع بنجاح");
+  alert("تم حفظ جميع التعديلات بنجاح");
 }
 
 function handleResetDemo() {
-  if (confirm("تحذير: سيتم استعادة جميع الأصناف والأقسام والألوان الافتراضية. هل تريد المتابعة؟")) {
+  if (confirm("تحذير: سيتم استعادة جميع الأصناف والأقسام والإعدادات الافتراضية. هل تريد المتابعة؟")) {
     Store.resetAll();
     initAdminDashboard();
-    showAdminToast("تمت استعادة البيانات الافتراضية بنجاح");
   }
 }
 
-// ── Event Listeners Setup ──────────────────────────────────
 function setupAdminEventListeners() {
-  // Login
   if (adminElements.btnLogin) adminElements.btnLogin.addEventListener('click', handleLogin);
   if (adminElements.pinInput) {
     adminElements.pinInput.addEventListener('keypress', (e) => {
@@ -766,13 +681,11 @@ function setupAdminEventListeners() {
     });
   }
 
-  // Modals
   if (adminElements.btnOpenAddProduct) adminElements.btnOpenAddProduct.addEventListener('click', openAddProductModal);
   if (adminElements.btnCloseProductModal) adminElements.btnCloseProductModal.addEventListener('click', closeProductModal);
   if (adminElements.btnCancelProduct) adminElements.btnCancelProduct.addEventListener('click', closeProductModal);
   if (adminElements.productModalBackdrop) adminElements.productModalBackdrop.addEventListener('click', closeProductModal);
 
-  // File Upload
   if (adminElements.prodImgFile) {
     adminElements.prodImgFile.addEventListener('change', async (e) => {
       const file = e.target.files[0];
@@ -784,14 +697,13 @@ function setupAdminEventListeners() {
       try {
         const url = await Store.uploadImage(file);
         adminElements.prodImgUrl.value = url;
-        adminElements.prodImgStatus.textContent = "✅ تم تجهيز رابط الصورة بنجاح!";
+        adminElements.prodImgStatus.textContent = "تم تجهيز رابط الصورة بنجاح";
       } catch (err) {
-        adminElements.prodImgStatus.textContent = "⚠️ تعذر الرفع السحابي، يرجى لصق رابط الصورة";
+        adminElements.prodImgStatus.textContent = "تعذر الرفع، يرجى لصق رابط مباشر";
       }
     });
   }
 
-  // Product Form Submit
   if (adminElements.productForm) {
     adminElements.productForm.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -810,10 +722,8 @@ function setupAdminEventListeners() {
 
       if (id) {
         Store.updateProduct(id, productData);
-        showAdminToast(`تم تعديل "${productData.name}" بنجاح`);
       } else {
         Store.addProduct(productData);
-        showAdminToast(`تمت إضافة "${productData.name}" بنجاح`);
       }
 
       closeProductModal();
@@ -821,21 +731,19 @@ function setupAdminEventListeners() {
     });
   }
 
-  // Categories
   if (adminElements.btnAddCat) adminElements.btnAddCat.addEventListener('click', handleAddCategory);
-  if (adminElements.btnAddPromoCode) adminElements.btnAddPromoCode.addEventListener('click', handleAddPromoCode);
   if (adminElements.newCatInput) {
     adminElements.newCatInput.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') handleAddCategory();
     });
   }
 
-  // Settings
+  if (adminElements.btnAddPromoCode) adminElements.btnAddPromoCode.addEventListener('click', handleAddPromoCode);
+
   if (adminElements.settingsForm) adminElements.settingsForm.addEventListener('submit', handleSaveSettings);
   if (adminElements.btnResetDemo) adminElements.btnResetDemo.addEventListener('click', handleResetDemo);
 }
 
-// Start
 document.addEventListener('DOMContentLoaded', () => {
   setupAdminEventListeners();
   checkAdminAuth();

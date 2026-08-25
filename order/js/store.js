@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// HarpyOrder — Store & Data Manager (Smart Discount Engine)
+// HarpyOrder — Store & Data Manager (Rock-Solid Multi-Tenant Engine)
 // ═══════════════════════════════════════════════════════════
 
 const STORAGE_KEYS = {
@@ -13,7 +13,6 @@ const STORAGE_KEYS = {
   APPLIED_COUPON: 'harpy_applied_coupon'
 };
 
-// Complete Theme Presets Palette
 const THEME_PRESETS = {
   charcoal: {
     id: "charcoal",
@@ -108,7 +107,6 @@ const THEME_PRESETS = {
   }
 };
 
-// Default Settings with Complete Discount Rules
 const DEFAULT_SETTINGS = {
   storeName: "شاورما وبيرجر الهرمل",
   storeTagline: "أشهى السندوتشات والوجبات السريعة طازجة يومياً على الحطب",
@@ -121,7 +119,6 @@ const DEFAULT_SETTINGS = {
   cover: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=1200",
   imgbbApiKey: "9716f16445d36094b2e16dd8682fc0c1",
   
-  // Full Website Colors
   themePreset: "charcoal",
   siteColors: {
     bg: "#110e0c",
@@ -134,21 +131,19 @@ const DEFAULT_SETTINGS = {
     border: "rgba(245, 238, 227, 0.09)"
   },
 
-  // 1. Digital Wallet Discount
+  // Discounts
   enableWalletDiscount: true,
-  walletDiscountType: "percent", // "percent" or "fixed"
+  walletDiscountType: "percent",
   walletDiscountValue: 10,
 
-  // 2. Spend Tier Discount (e.g. Spend 300 EGP get 15% OFF)
   enableSpendTierDiscount: true,
   spendTierMinAmount: 300,
-  spendTierDiscountType: "percent", // "percent" or "fixed"
+  spendTierDiscountType: "percent",
   spendTierDiscountValue: 15,
 
-  // 3. Active Promo Codes (Array of { code, type: 'percent'|'fixed', value: number, desc: string })
   promoCodes: [
-    { code: "HERMEL10", type: "percent", value: 10, desc: "خصم ترحيبي 10%" },
-    { code: "BURGER50", type: "fixed", value: 50, desc: "خصم 50 ج.م على الطلب" }
+    { code: "HERMEL10", type: "percent", value: 10, desc: "خصم 10%" },
+    { code: "BURGER50", type: "fixed", value: 50, desc: "خصم 50 ج.م" }
   ],
 
   announcementText: "خصم 10% عند الدفع بفودافون كاش أو إنستاباي • وخصم 15% للطلبات فوق 300 ج.م",
@@ -170,7 +165,7 @@ const DEFAULT_PRODUCTS = [
     name: "جراند بيرجر لحم دبل",
     category: "سندوتشات بيرجر",
     price: 140,
-    originalPrice: 160, // Shows 160 crossed out
+    originalPrice: 160,
     desc: "شريحتين لحم بقري أنجوس مشوي على اللهب، جبن شيدر سايح، خس مقرمش، طماطم، وصوص خاص مع خبز بريوش طازج",
     image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&auto=format&fit=crop&q=80",
     prepTime: "15 دقيقة",
@@ -276,11 +271,9 @@ function isCorrupted(str) {
   return /\?{3,}/.test(str);
 }
 
-// ── Store API ──────────────────────────────────────────────
 const Store = {
   THEME_PRESETS,
 
-  // Settings
   getSettings() {
     const raw = localStorage.getItem(STORAGE_KEYS.SETTINGS);
     if (!raw) {
@@ -309,7 +302,6 @@ const Store = {
     window.dispatchEvent(new Event('store_settings_updated'));
   },
 
-  // Apply Theme & User-Selected Day/Night Lighting Mode
   applyTheme(settings) {
     const s = settings || this.getSettings();
     const mode = this.getThemeMode();
@@ -352,7 +344,6 @@ const Store = {
     root.style.setProperty('--border-focus', primary);
   },
 
-  // Categories
   getCategories() {
     const raw = localStorage.getItem(STORAGE_KEYS.CATEGORIES);
     if (!raw) {
@@ -375,7 +366,6 @@ const Store = {
     window.dispatchEvent(new Event('store_categories_updated'));
   },
 
-  // Products
   getProducts() {
     const raw = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
     if (!raw) {
@@ -405,7 +395,6 @@ const Store = {
     window.dispatchEvent(new Event('store_products_updated'));
   },
 
-  // Product Actions
   addProduct(product) {
     const prods = this.getProducts();
     const newProd = {
@@ -476,7 +465,6 @@ const Store = {
     this.saveProducts(reordered);
   },
 
-  // Reset to default state
   resetAll() {
     localStorage.removeItem(STORAGE_KEYS.SETTINGS);
     localStorage.removeItem(STORAGE_KEYS.CATEGORIES);
@@ -490,7 +478,6 @@ const Store = {
     this.saveProducts(DEFAULT_PRODUCTS);
   },
 
-  // Cart Management
   getCart() {
     const raw = localStorage.getItem(STORAGE_KEYS.CART);
     try {
@@ -508,7 +495,6 @@ const Store = {
     this.setAppliedCoupon(null);
   },
 
-  // Applied Coupon Management
   getAppliedCoupon() {
     const raw = localStorage.getItem(STORAGE_KEYS.APPLIED_COUPON);
     try {
@@ -526,7 +512,6 @@ const Store = {
     window.dispatchEvent(new Event('store_coupon_updated'));
   },
 
-  // Favorites Management
   getFavorites() {
     const raw = localStorage.getItem(STORAGE_KEYS.FAVORITES);
     try {
@@ -550,7 +535,6 @@ const Store = {
     return this.getFavorites().includes(productId);
   },
 
-  // Last Order Memory
   getLastOrder() {
     const raw = localStorage.getItem(STORAGE_KEYS.LAST_ORDER);
     try {
@@ -564,7 +548,6 @@ const Store = {
     window.dispatchEvent(new Event('store_last_order_updated'));
   },
 
-  // Day/Night Theme Mode (Light / Dark)
   getThemeMode() {
     return localStorage.getItem(STORAGE_KEYS.THEME_MODE) || 'dark';
   },
@@ -577,7 +560,6 @@ const Store = {
     this.applyTheme();
   },
 
-  // Image Upload via ImgBB
   async uploadImage(file) {
     if (!file) return null;
     const settings = this.getSettings();
@@ -608,7 +590,6 @@ const Store = {
   }
 };
 
-// Auto initialize brand theme on script load
 if (typeof document !== 'undefined') {
   Store.initTheme();
 }
