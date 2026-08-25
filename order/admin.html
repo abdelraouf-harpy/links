@@ -129,35 +129,109 @@
             <input type="text" id="set-store-tagline" class="form-input">
           </div>
 
-          <!-- Visual Identity & Complete Site Theme Presets -->
+          <!-- Full Website Color Studio & Live Theme Customizer -->
           <div style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:18px; margin-bottom:18px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
               <div>
-                <div style="font-size:14px; font-weight:900; color:var(--text-main); display:flex; align-items:center; gap:6px;">
-                  <span>🎨 قوالب المظهر وتنسيق ألوان الموقع بالكامل</span>
+                <div style="font-size:15px; font-weight:900; color:var(--text-main); display:flex; align-items:center; gap:6px;">
+                  <span>🎨 استوديو تخصيص ألوان الموقع بالكامل (Full Site Colors)</span>
                 </div>
                 <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">
-                  اختر قالباً يغير كامل ألوان الخلفيات والكروت والنصوص والتفاصيل بضغطة واحدة
+                  غيّر ألوان الخلفية، الكروت، العناوين، الأزرار، والخطوط بحرية تامة أو اختر قالباً متناسقاً
                 </div>
               </div>
             </div>
 
-            <!-- Theme Presets Grid (Rendered dynamically with live preview) -->
-            <div id="theme-presets-grid" class="theme-presets-grid"></div>
+            <!-- 1-Click Ready Theme Presets -->
+            <div style="margin-bottom:16px;">
+              <label class="form-label" style="margin-bottom:8px; font-weight:800;">✨ قوالب ألوان جاهزة ومتناسقة بضغطة واحدة:</label>
+              <div id="theme-presets-grid" class="theme-presets-grid"></div>
+            </div>
 
-            <!-- Custom Primary Accent & Fine-Tuning -->
-            <div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
-              <div style="display:flex; align-items:center; gap:10px;">
-                <label class="form-label" style="margin-bottom:0;">تخصيص لون التمييز الإضافي:</label>
-                <input type="color" id="set-primary-color" value="#c2410c" style="width:44px; height:38px; padding:2px; border-radius:var(--radius-xs); border:1px solid var(--border); background:var(--bg); cursor:pointer;">
-                <span id="color-hex-label" class="font-num" style="font-size:13px; font-weight:800; color:var(--text-muted);">#c2410c</span>
-              </div>
-              <div style="font-size:11.5px; color:var(--text-faint);">
-                يتم تطبيق القالب المختار فورياً
+            <!-- Live Mini Preview Mockup -->
+            <div style="margin-bottom:16px;">
+              <label class="form-label" style="margin-bottom:8px; font-weight:800;">👁️ معاينة مباشرة لشكل وتناسق الألوان:</label>
+              <div id="live-color-mockup" class="live-mockup-banner" style="background:#110e0c; border:1px solid rgba(255,255,255,0.12);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.08);">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <div style="width:28px; height:28px; border-radius:6px; background:#c2410c; display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px; font-weight:900;">🍔</div>
+                    <span id="mockup-header-title" style="font-size:13px; font-weight:900; color:#faf6f0;">اسم المطعم بالهيدر</span>
+                  </div>
+                  <span id="mockup-btn-sample" style="background:#c2410c; color:#fff; font-size:10.5px; font-weight:800; padding:4px 10px; border-radius:6px;">زر التوصيل</span>
+                </div>
+
+                <div id="mockup-card-surface" style="background:#1f1a16; border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:10px 12px; display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <div id="mockup-item-title" style="font-size:12.5px; font-weight:800; color:#faf6f0;">وجبة جراند بيرجر دبل</div>
+                    <div id="mockup-item-desc" style="font-size:10.5px; color:#d8cec0; margin-top:2px;">شريحتين لحم بقري مشوي مع جبن شيدر وصوص خاص</div>
+                  </div>
+                  <div id="mockup-item-price" class="font-num" style="font-size:14px; font-weight:900; color:#c2410c; white-space:nowrap; margin-right:12px;">140 ج.م</div>
+                </div>
               </div>
             </div>
 
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
+            <!-- Direct Color Pickers Grid -->
+            <label class="form-label" style="margin-bottom:8px; font-weight:800;">🎛️ تخصيص درجات الألوان الفعلية بدقة:</label>
+            <div class="color-studio-grid">
+              
+              <!-- Background Color -->
+              <div class="color-picker-item">
+                <div>
+                  <div class="color-picker-label">خلفية الموقع الرئيسية</div>
+                  <div class="color-picker-sub">Background Color</div>
+                </div>
+                <input type="color" id="picker-bg" class="color-input-circle" value="#110e0c">
+              </div>
+
+              <!-- Cards Surface Color -->
+              <div class="color-picker-item">
+                <div>
+                  <div class="color-picker-label">خلفية كروت الوجبات</div>
+                  <div class="color-picker-sub">Card Surfaces</div>
+                </div>
+                <input type="color" id="picker-surface" class="color-input-circle" value="#1f1a16">
+              </div>
+
+              <!-- Header Background -->
+              <div class="color-picker-item">
+                <div>
+                  <div class="color-picker-label">شريط الهيدر العلوي</div>
+                  <div class="color-picker-sub">Header Bar</div>
+                </div>
+                <input type="color" id="picker-header-bg" class="color-input-circle" value="#110e0c">
+              </div>
+
+              <!-- Primary Accent Color -->
+              <div class="color-picker-item">
+                <div>
+                  <div class="color-picker-label">الأزرار والأسعار والتمييز</div>
+                  <div class="color-picker-sub">Buttons & Accents</div>
+                </div>
+                <input type="color" id="picker-primary" class="color-input-circle" value="#c2410c">
+              </div>
+
+              <!-- Main Titles Color -->
+              <div class="color-picker-item">
+                <div>
+                  <div class="color-picker-label">العناوين والنصوص الرئيسية</div>
+                  <div class="color-picker-sub">Main Text & Titles</div>
+                </div>
+                <input type="color" id="picker-text-main" class="color-input-circle" value="#faf6f0">
+              </div>
+
+              <!-- Body Descriptions Color -->
+              <div class="color-picker-item">
+                <div>
+                  <div class="color-picker-label">وصف الوجبات والخط الفرعي</div>
+                  <div class="color-picker-sub">Body Descriptions</div>
+                </div>
+                <input type="color" id="picker-text-body" class="color-input-circle" value="#d8cec0">
+              </div>
+
+            </div>
+
+            <!-- Delivery & Minimum Order -->
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:16px; padding-top:14px; border-top:1px solid var(--border);">
               <div class="form-group" style="margin-bottom:0;">
                 <label class="form-label">مدة التوصيل المعتادة</label>
                 <input type="text" id="set-delivery-time" class="form-input font-num" placeholder="مثال: 30-45 دقيقة">

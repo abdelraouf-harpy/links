@@ -1,9 +1,21 @@
 // ═══════════════════════════════════════════════════════════
-// HarpyOrder — Admin Visual Catalog & Branding Manager
+// HarpyOrder — Admin Visual Catalog & Color Studio Manager
 // ═══════════════════════════════════════════════════════════
 
 let draggedCardElement = null;
 let currentSelectedThemePreset = "charcoal";
+
+// Working color state
+let currentSiteColors = {
+  bg: "#110e0c",
+  surface: "#1f1a16",
+  surfaceRaised: "#29221d",
+  headerBg: "#110e0c",
+  textMain: "#faf6f0",
+  textBody: "#d8cec0",
+  primary: "#c2410c",
+  border: "rgba(245, 238, 227, 0.12)"
+};
 
 const adminElements = {
   loginModal: document.getElementById('login-modal'),
@@ -44,14 +56,29 @@ const adminElements = {
   btnAddCat: document.getElementById('btn-add-cat'),
   categoriesListContainer: document.getElementById('categories-list-container'),
 
-  // Settings & Theme Presets
+  // Color Studio & Presets
   themePresetsGrid: document.getElementById('theme-presets-grid'),
+  liveColorMockup: document.getElementById('live-color-mockup'),
+  mockupHeaderTitle: document.getElementById('mockup-header-title'),
+  mockupBtnSample: document.getElementById('mockup-btn-sample'),
+  mockupCardSurface: document.getElementById('mockup-card-surface'),
+  mockupItemTitle: document.getElementById('mockup-item-title'),
+  mockupItemDesc: document.getElementById('mockup-item-desc'),
+  mockupItemPrice: document.getElementById('mockup-item-price'),
+
+  // Pickers
+  pickerBg: document.getElementById('picker-bg'),
+  pickerSurface: document.getElementById('picker-surface'),
+  pickerHeaderBg: document.getElementById('picker-header-bg'),
+  pickerPrimary: document.getElementById('picker-primary'),
+  pickerTextMain: document.getElementById('picker-text-main'),
+  pickerTextBody: document.getElementById('picker-text-body'),
+
+  // Settings
   settingsForm: document.getElementById('settings-form'),
   setStoreName: document.getElementById('set-store-name'),
   setCurrency: document.getElementById('set-currency'),
   setStoreTagline: document.getElementById('set-store-tagline'),
-  setPrimaryColor: document.getElementById('set-primary-color'),
-  colorHexLabel: document.getElementById('color-hex-label'),
   setShowAnnouncement: document.getElementById('set-show-announcement'),
   setAnnouncementText: document.getElementById('set-announcement-text'),
   setDeliveryTime: document.getElementById('set-delivery-time'),
@@ -122,6 +149,7 @@ function initAdminDashboard() {
   populateCategorySelect();
   renderThemePresetsSelector();
   loadSettingsForm();
+  setupColorStudioListeners();
 }
 
 // ── Tab Management ─────────────────────────────────────────
@@ -143,8 +171,6 @@ function setupTabs() {
 function renderThemePresetsSelector() {
   if (!adminElements.themePresetsGrid) return;
   const presets = Store.THEME_PRESETS;
-  const settings = Store.getSettings();
-  currentSelectedThemePreset = settings.themePreset || "charcoal";
 
   adminElements.themePresetsGrid.innerHTML = Object.keys(presets).map(key => {
     const p = presets[key];
@@ -152,17 +178,16 @@ function renderThemePresetsSelector() {
 
     return `
       <div class="theme-preset-card ${isSelected ? 'active' : ''}" onclick="handleSelectThemePreset('${p.id}')">
-        <!-- Mini Mockup Box showing theme colors -->
         <div class="preset-preview-box" style="background:${p.bg};">
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-size:10px; font-weight:800; color:${p.textMain}; background:${p.surfaceRaised}; padding:1px 6px; border-radius:4px;">
+            <span style="font-size:10px; font-weight:800; color:${p.textMain}; background:${p.surface}; padding:1px 6px; border-radius:4px;">
               ${p.name.split(' ')[0]}
             </span>
-            <span style="width:10px; height:10px; border-radius:50%; background:${p.primary}; display:inline-block;"></span>
+            <span style="width:12px; height:12px; border-radius:50%; background:${p.primary}; display:inline-block; border:1px solid #fff;"></span>
           </div>
-          <div style="background:${p.surface}; border:1px solid ${p.border}; border-radius:4px; padding:4px 6px; display:flex; justify-content:space-between; align-items:center;">
+          <div style="background:${p.surface}; border:1px solid ${p.border}; border-radius:4px; padding:3px 6px; display:flex; justify-content:space-between; align-items:center;">
             <span style="font-size:9px; font-weight:700; color:${p.textBody};">صنف المنيو</span>
-            <span style="font-size:9px; font-weight:900; color:${p.primary};">120 ج.م</span>
+            <span style="font-size:9px; font-weight:900; color:${p.primary};">140 ج.م</span>
           </div>
         </div>
 
@@ -183,23 +208,83 @@ window.handleSelectThemePreset = function(presetId) {
   const preset = Store.THEME_PRESETS[presetId];
   if (!preset) return;
 
-  if (adminElements.setPrimaryColor) {
-    adminElements.setPrimaryColor.value = preset.primary;
-  }
-  if (adminElements.colorHexLabel) {
-    adminElements.colorHexLabel.textContent = preset.primary;
-  }
+  // Update working colors
+  currentSiteColors = {
+    bg: preset.bg,
+    surface: preset.surface,
+    surfaceRaised: preset.surfaceRaised,
+    headerBg: preset.headerBg,
+    textMain: preset.textMain,
+    textBody: preset.textBody,
+    primary: preset.primary,
+    border: preset.border
+  };
 
-  // Apply live preview in the admin session
+  // Sync color pickers with preset colors
+  syncColorPickersWithState();
+  updateLiveMockup();
+  applyLiveThemePreview();
+  renderThemePresetsSelector();
+  showAdminToast(`تم اختيار قالب "${preset.name}" 🎨`);
+};
+
+// ── Color Studio Live Updates ──────────────────────────────
+function syncColorPickersWithState() {
+  if (adminElements.pickerBg) adminElements.pickerBg.value = currentSiteColors.bg;
+  if (adminElements.pickerSurface) adminElements.pickerSurface.value = currentSiteColors.surface;
+  if (adminElements.pickerHeaderBg) adminElements.pickerHeaderBg.value = currentSiteColors.headerBg;
+  if (adminElements.pickerPrimary) adminElements.pickerPrimary.value = currentSiteColors.primary;
+  if (adminElements.pickerTextMain) adminElements.pickerTextMain.value = currentSiteColors.textMain;
+  if (adminElements.pickerTextBody) adminElements.pickerTextBody.value = currentSiteColors.textBody;
+}
+
+function updateLiveMockup() {
+  if (!adminElements.liveColorMockup) return;
+  adminElements.liveColorMockup.style.background = currentSiteColors.bg;
+  if (adminElements.mockupHeaderTitle) adminElements.mockupHeaderTitle.style.color = currentSiteColors.textMain;
+  if (adminElements.mockupBtnSample) {
+    adminElements.mockupBtnSample.style.background = currentSiteColors.primary;
+    adminElements.mockupBtnSample.style.color = "#ffffff";
+  }
+  if (adminElements.mockupCardSurface) {
+    adminElements.mockupCardSurface.style.background = currentSiteColors.surface;
+    adminElements.mockupCardSurface.style.borderColor = currentSiteColors.border;
+  }
+  if (adminElements.mockupItemTitle) adminElements.mockupItemTitle.style.color = currentSiteColors.textMain;
+  if (adminElements.mockupItemDesc) adminElements.mockupItemDesc.style.color = currentSiteColors.textBody;
+  if (adminElements.mockupItemPrice) adminElements.mockupItemPrice.style.color = currentSiteColors.primary;
+}
+
+function applyLiveThemePreview() {
   Store.applyTheme({
     ...Store.getSettings(),
-    themePreset: presetId,
-    primaryColor: preset.primary
+    themePreset: currentSelectedThemePreset,
+    siteColors: currentSiteColors
   });
+}
 
-  renderThemePresetsSelector();
-  showAdminToast(`تم تطبيق قالب "${preset.name}" في المعاينة 🎨`);
-};
+function setupColorStudioListeners() {
+  const pickers = [
+    { el: adminElements.pickerBg, key: 'bg' },
+    { el: adminElements.pickerSurface, key: 'surface' },
+    { el: adminElements.pickerHeaderBg, key: 'headerBg' },
+    { el: adminElements.pickerPrimary, key: 'primary' },
+    { el: adminElements.pickerTextMain, key: 'textMain' },
+    { el: adminElements.pickerTextBody, key: 'textBody' }
+  ];
+
+  pickers.forEach(({ el, key }) => {
+    if (el) {
+      el.addEventListener('input', (e) => {
+        currentSiteColors[key] = e.target.value;
+        if (key === 'surface') currentSiteColors.surfaceRaised = e.target.value;
+        currentSelectedThemePreset = 'custom';
+        updateLiveMockup();
+        applyLiveThemePreview();
+      });
+    }
+  });
+}
 
 // ── Render Visual Product Catalog ──────────────────────────
 function renderVisualCatalog() {
@@ -495,14 +580,12 @@ function loadSettingsForm() {
   adminElements.setStoreTagline.value = s.storeTagline || '';
   
   currentSelectedThemePreset = s.themePreset || 'charcoal';
-  renderThemePresetsSelector();
+  currentSiteColors = { ...DEFAULT_SETTINGS.siteColors, ...(s.siteColors || {}) };
 
-  if (adminElements.setPrimaryColor) {
-    adminElements.setPrimaryColor.value = s.primaryColor || '#c2410c';
-  }
-  if (adminElements.colorHexLabel) {
-    adminElements.colorHexLabel.textContent = s.primaryColor || '#c2410c';
-  }
+  renderThemePresetsSelector();
+  syncColorPickersWithState();
+  updateLiveMockup();
+
   if (adminElements.setShowAnnouncement) {
     adminElements.setShowAnnouncement.checked = s.showAnnouncement !== false;
   }
@@ -533,7 +616,8 @@ function handleSaveSettings(e) {
     currency: adminElements.setCurrency.value.trim() || 'ج.م',
     storeTagline: adminElements.setStoreTagline.value.trim(),
     themePreset: currentSelectedThemePreset,
-    primaryColor: adminElements.setPrimaryColor ? adminElements.setPrimaryColor.value : current.primaryColor,
+    siteColors: currentSiteColors,
+    primaryColor: currentSiteColors.primary,
     showAnnouncement: adminElements.setShowAnnouncement ? adminElements.setShowAnnouncement.checked : true,
     announcementText: adminElements.setAnnouncementText ? adminElements.setAnnouncementText.value.trim() : '',
     deliveryTime: adminElements.setDeliveryTime ? adminElements.setDeliveryTime.value.trim() : '30-45 دقيقة',
@@ -548,11 +632,11 @@ function handleSaveSettings(e) {
 
   Store.saveSettings(updated);
   if (adminElements.adminStoreName) adminElements.adminStoreName.textContent = `إدارة منيو (${updated.storeName})`;
-  showAdminToast("تم حفظ قالب المظهر وجميع الإعدادات بنجاح ✅");
+  showAdminToast("تم حفظ جميع ألوان الموقع وإعداداته بنجاح ✅");
 }
 
 function handleResetDemo() {
-  if (confirm("تحذير: سيتم استعادة جميع الأصناف والأقسام والإعدادات الافتراضية. هل تريد المتابعة؟")) {
+  if (confirm("تحذير: سيتم استعادة جميع الأصناف والأقسام والألوان الافتراضية. هل تريد المتابعة؟")) {
     Store.resetAll();
     initAdminDashboard();
     showAdminToast("تمت استعادة البيانات الافتراضية بنجاح");
@@ -574,19 +658,6 @@ function setupAdminEventListeners() {
   if (adminElements.btnCloseProductModal) adminElements.btnCloseProductModal.addEventListener('click', closeProductModal);
   if (adminElements.btnCancelProduct) adminElements.btnCancelProduct.addEventListener('click', closeProductModal);
   if (adminElements.productModalBackdrop) adminElements.productModalBackdrop.addEventListener('click', closeProductModal);
-
-  // Color picker change live
-  if (adminElements.setPrimaryColor) {
-    adminElements.setPrimaryColor.addEventListener('input', (e) => {
-      const color = e.target.value;
-      if (adminElements.colorHexLabel) adminElements.colorHexLabel.textContent = color;
-      const root = document.documentElement;
-      root.style.setProperty('--primary', color);
-      root.style.setProperty('--primary-hover', color);
-      root.style.setProperty('--primary-subtle', color + '22');
-      root.style.setProperty('--primary-glow', color + '40');
-    });
-  }
 
   // File Upload
   if (adminElements.prodImgFile) {
