@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------
-   HarpyOrder � '???? ???????' (The Table Ledger)
+   HarpyOrder — 'دفتر الطاولة' (The Table Ledger)
    Warm Editorial Food Menu & WhatsApp Ordering Experience
    Mobile-Optimized & Touch-First Responsive Design
    ----------------------------------------------------------- */
@@ -1501,4 +1501,78 @@ body {
   opacity: 1;
   pointer-events: auto;
   transform: translate(-50%, -50%) scale(1);
+}
+
+/* ── Warm Light Mode (دفتر الطاولة النهاري) ──────────────── */
+[data-theme="light"] {
+  --bg: #faf7f2;
+  --bg-subtle: #f2ece1;
+  --surface: #ffffff;
+  --surface-raised: #f5eedf;
+  --surface-hover: #eae1d0;
+
+  --border: rgba(60, 45, 30, 0.09);
+  --border-strong: rgba(60, 45, 30, 0.16);
+
+  --text-main: #1c1815;
+  --text-body: #4a4035;
+  --text-muted: #7d7060;
+  --text-faint: #a89c8a;
+
+  --shadow-sm: 0 4px 14px rgba(60, 40, 20, 0.06);
+  --shadow-md: 0 10px 28px rgba(60, 40, 20, 0.1);
+  --shadow-lg: 0 20px 45px rgba(60, 40, 20, 0.16);
+}
+
+[data-theme="light"] .app-header {
+  background: rgba(250, 247, 242, 0.95);
+}
+
+[data-theme="light"] .modal-backdrop {
+  background: rgba(30, 24, 18, 0.65);
+}
+
+[data-theme="light"] .cart-drawer {
+  background: #faf7f2;
+}
+
+[data-theme="light"] .preview-modal {
+  background: #ffffff;
+}
+
+/* -- Announcement Banner & Store Highlights --------------- */
+.announcement-bar {
+  background: linear-gradient(135deg, var(--primary-subtle), rgba(217, 119, 6, 0.08));
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-full);
+  padding: 8px 16px;
+  margin: 12px 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-main);
+  animation: fadeIn 0.4s ease;
+}
+.announcement-icon {
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.announcement-text {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.delivery-chip-badge {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: 10.5px;
+  color: var(--text-muted);
+  flex-shrink: 0;
 }

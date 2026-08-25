@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 // HarpyOrder — Store & Data Manager (Multi-Tenant Ready Engine)
 // ═══════════════════════════════════════════════════════════
 
@@ -8,10 +8,11 @@ const STORAGE_KEYS = {
   PRODUCTS: 'harpy_order_products',
   CART: 'harpy_order_cart',
   FAVORITES: 'harpy_order_favorites',
-  LAST_ORDER: 'harpy_order_last_order'
+  LAST_ORDER: 'harpy_order_last_order',
+  THEME_MODE: 'harpy_theme_mode'
 };
 
-// Default Sample Data
+// Default Sample Data with Full Restaurant Customization
 const DEFAULT_SETTINGS = {
   storeName: "شاورما وبيرجر الهرمل",
   storeTagline: "أشهى السندوتشات والوجبات السريعة طازجة يومياً على الحطب",
@@ -22,7 +23,14 @@ const DEFAULT_SETTINGS = {
   adminPin: "1234",
   logo: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=120&auto=format&fit=crop&q=60",
   cover: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=1200",
-  imgbbApiKey: "9716f16445d36094b2e16dd8682fc0c1"
+  imgbbApiKey: "9716f16445d36094b2e16dd8682fc0c1",
+  
+  // Custom Visual Identity & Store Options
+  primaryColor: "#c2410c", // Brand Accent
+  announcementText: "🔥 خصم خاص 10% عند الدفع بالمحفظة الإلكترونية • توصيل سريع لباب البيت",
+  showAnnouncement: true,
+  deliveryTime: "30-45 دقيقة",
+  minOrder: 0
 };
 
 const DEFAULT_CATEGORIES = [
@@ -131,6 +139,11 @@ const DEFAULT_PRODUCTS = [
   }
 ];
 
+function isCorrupted(str) {
+  if (typeof str !== 'string') return false;
+  return /\?{3,}/.test(str);
+}
+
 // ── Store API ──────────────────────────────────────────────
 const Store = {
   // Settings
@@ -141,14 +154,31 @@ const Store = {
       return DEFAULT_SETTINGS;
     }
     try {
-      return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
+      const parsed = JSON.parse(raw);
+      if (isCorrupted(parsed.storeName) || isCorrupted(parsed.storeTagline)) {
+        this.saveSettings(DEFAULT_SETTINGS);
+        return DEFAULT_SETTINGS;
+      }
+      return { ...DEFAULT_SETTINGS, ...parsed };
     } catch {
       return DEFAULT_SETTINGS;
     }
   },
   saveSettings(settings) {
     localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
+    this.applyBrandColor(settings.primaryColor);
     window.dispatchEvent(new Event('store_settings_updated'));
+  },
+
+  // Apply Brand Theme Color to CSS Variables
+  applyBrandColor(color) {
+    if (!color) color = "#c2410c";
+    const root = document.documentElement;
+    root.style.setProperty('--primary', color);
+    root.style.setProperty('--primary-hover', color);
+    root.style.setProperty('--primary-subtle', color + '24');
+    root.style.setProperty('--primary-glow', color + '45');
+    root.style.setProperty('--border-focus', color);
   },
 
   // Categories
@@ -159,7 +189,12 @@ const Store = {
       return DEFAULT_CATEGORIES;
     }
     try {
-      return JSON.parse(raw);
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.some(isCorrupted)) {
+        this.saveCategories(DEFAULT_CATEGORIES);
+        return DEFAULT_CATEGORIES;
+      }
+      return parsed;
     } catch {
       return DEFAULT_CATEGORIES;
     }
@@ -178,7 +213,10 @@ const Store = {
     }
     try {
       const parsed = JSON.parse(raw);
-      // Ensure backward compatibility of properties
+      if (Array.isArray(parsed) && parsed.some(p => isCorrupted(p.name) || isCorrupted(p.category))) {
+        this.saveProducts(DEFAULT_PRODUCTS);
+        return DEFAULT_PRODUCTS;
+      }
       return parsed.map(p => ({
         ...p,
         visible: p.visible !== false,
@@ -250,7 +288,6 @@ const Store = {
       const found = prods.find(p => p.id === id);
       if (found) reordered.push(found);
     });
-    // Append any that weren't in the list
     prods.forEach(p => {
       if (!reordered.some(r => r.id === p.id)) {
         reordered.push(p);
@@ -259,7 +296,7 @@ const Store = {
     this.saveProducts(reordered);
   },
 
-  // Reset to sample initial state
+  // Reset to default state
   resetAll() {
     localStorage.removeItem(STORAGE_KEYS.SETTINGS);
     localStorage.removeItem(STORAGE_KEYS.CATEGORIES);
@@ -289,7 +326,7 @@ const Store = {
     this.saveCart([]);
   },
 
-  // Favorites Management (Session/Device Favorites ❤️)
+  // Favorites Management
   getFavorites() {
     const raw = localStorage.getItem(STORAGE_KEYS.FAVORITES);
     try {
@@ -327,6 +364,22 @@ const Store = {
     window.dispatchEvent(new Event('store_last_order_updated'));
   },
 
+  // Day/Night Theme Mode (Light / Dark)
+  getThemeMode() {
+    return localStorage.getItem(STORAGE_KEYS.THEME_MODE) || 'dark';
+  },
+  setThemeMode(mode) {
+    localStorage.setItem(STORAGE_KEYS.THEME_MODE, mode);
+    document.documentElement.setAttribute('data-theme', mode);
+    window.dispatchEvent(new CustomEvent('theme_mode_changed', { detail: mode }));
+  },
+  initTheme() {
+    const mode = this.getThemeMode();
+    document.documentElement.setAttribute('data-theme', mode);
+    const settings = this.getSettings();
+    this.applyBrandColor(settings.primaryColor);
+  },
+
   // Image Upload via ImgBB
   async uploadImage(file) {
     if (!file) return null;
@@ -350,7 +403,6 @@ const Store = {
       }
     }
 
-    // Fallback: Data URL
     return new Promise((resolve) => {
       const reader = new FileReader();
       reader.onload = (e) => resolve(e.target.result);
@@ -358,3 +410,8 @@ const Store = {
     });
   }
 };
+
+// Auto initialize brand color and theme on script load
+if (typeof document !== 'undefined') {
+  Store.initTheme();
+}

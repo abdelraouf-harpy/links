@@ -1,6 +1,6 @@
-// -----------------------------------------------------------
-// HarpyOrder � Admin Visual Catalog & Menu Manager
-// -----------------------------------------------------------
+// ═══════════════════════════════════════════════════════════
+// HarpyOrder — Admin Visual Catalog & Branding Manager
+// ═══════════════════════════════════════════════════════════
 
 let draggedCardElement = null;
 
@@ -48,6 +48,12 @@ const adminElements = {
   setStoreName: document.getElementById('set-store-name'),
   setCurrency: document.getElementById('set-currency'),
   setStoreTagline: document.getElementById('set-store-tagline'),
+  setPrimaryColor: document.getElementById('set-primary-color'),
+  colorHexLabel: document.getElementById('color-hex-label'),
+  setShowAnnouncement: document.getElementById('set-show-announcement'),
+  setAnnouncementText: document.getElementById('set-announcement-text'),
+  setDeliveryTime: document.getElementById('set-delivery-time'),
+  setMinOrder: document.getElementById('set-min-order'),
   setWhatsApp: document.getElementById('set-whatsapp'),
   setWalletNumber: document.getElementById('set-wallet-number'),
   setWalletName: document.getElementById('set-wallet-name'),
@@ -59,7 +65,7 @@ const adminElements = {
   toastContainer: document.getElementById('toast-container')
 };
 
-// -- Toast Notification -------------------------------------
+// ── Toast Notification ─────────────────────────────────────
 function showAdminToast(message, type = "success") {
   if (!adminElements.toastContainer) return;
   const toast = document.createElement('div');
@@ -72,7 +78,7 @@ function showAdminToast(message, type = "success") {
   }, 3200);
 }
 
-// -- Authentication Check -----------------------------------
+// ── Authentication Check ───────────────────────────────────
 function checkAdminAuth() {
   const isLogged = sessionStorage.getItem('harpy_admin_logged');
   if (isLogged === 'true') {
@@ -95,18 +101,18 @@ function handleLogin() {
     adminElements.loginModal.classList.remove('open');
     adminElements.loginBackdrop.classList.remove('open');
     initAdminDashboard();
-    showAdminToast("????? ??! ?? ????? ?????? ?????");
+    showAdminToast("أهلاً بك! تم تسجيل الدخول بنجاح");
   } else {
-    showAdminToast("??? ?????? ??? ????", "error");
+    showAdminToast("رمز المرور غير صحيح", "error");
     adminElements.pinInput.value = '';
     adminElements.pinInput.focus();
   }
 }
 
-// -- Init Dashboard -----------------------------------------
+// ── Init Dashboard ─────────────────────────────────────────
 function initAdminDashboard() {
   const s = Store.getSettings();
-  if (adminElements.adminStoreName) adminElements.adminStoreName.textContent = `????? ???? (${s.storeName})`;
+  if (adminElements.adminStoreName) adminElements.adminStoreName.textContent = `إدارة منيو (${s.storeName})`;
 
   setupTabs();
   renderVisualCatalog();
@@ -115,7 +121,7 @@ function initAdminDashboard() {
   loadSettingsForm();
 }
 
-// -- Tab Management -----------------------------------------
+// ── Tab Management ─────────────────────────────────────────
 function setupTabs() {
   adminElements.tabButtons.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -130,17 +136,17 @@ function setupTabs() {
   });
 }
 
-// -- Render Visual Product Catalog (Drag & Drop + Mobile Arrows + Inline) --
+// ── Render Visual Product Catalog ──────────────────────────
 function renderVisualCatalog() {
   if (!adminElements.adminCatalogContainer) return;
   const prods = Store.getProducts();
   const settings = Store.getSettings();
-  const currency = settings.currency || "?.?";
+  const currency = settings.currency || "ج.م";
 
   if (prods.length === 0) {
     adminElements.adminCatalogContainer.innerHTML = `
       <div style="grid-column: 1 / -1; text-align:center; padding:40px; color:var(--text-faint);">
-        ?? ???? ?? ????? ??????. ???? ??? "+ ????? ??? ????" ?????.
+        لا توجد أي أصناف حالياً. اضغط على "+ إضافة صنف جديد" للبدء.
       </div>
     `;
     return;
@@ -157,9 +163,9 @@ function renderVisualCatalog() {
         <!-- Header Row (Drag Handle + Mobile Arrows + Category + Visibility Toggle) -->
         <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
           <div style="display:flex; align-items:center; gap:4px;">
-            <span class="admin-drag-handle" title="???? ?????? ???????">?</span>
-            <button type="button" class="reorder-mobile-btn" onclick="moveProductUp('${p.id}')" title="????? ?????" ${index === 0 ? 'disabled style="opacity:0.3; cursor:default;"' : ''}>?</button>
-            <button type="button" class="reorder-mobile-btn" onclick="moveProductDown('${p.id}')" title="????? ?????" ${index === prods.length - 1 ? 'disabled style="opacity:0.3; cursor:default;"' : ''}>?</button>
+            <span class="admin-drag-handle" title="اسحب لإعادة الترتيب">⠿</span>
+            <button type="button" class="reorder-mobile-btn" onclick="moveProductUp('${p.id}')" title="تحريك لأعلى" ${index === 0 ? 'disabled style="opacity:0.3; cursor:default;"' : ''}>▲</button>
+            <button type="button" class="reorder-mobile-btn" onclick="moveProductDown('${p.id}')" title="تحريك لأسفل" ${index === prods.length - 1 ? 'disabled style="opacity:0.3; cursor:default;"' : ''}>▼</button>
             <span style="font-size:11px; font-weight:800; color:var(--text-muted); background:var(--surface); padding:2px 8px; border-radius:var(--radius-xs); margin-right:4px;">
               ${p.category}
             </span>
@@ -168,8 +174,8 @@ function renderVisualCatalog() {
                   class="btn btn-ghost btn-sm" 
                   style="font-size:11px; padding:3px 8px; color:${isVisible ? 'var(--accent-wa)' : 'var(--danger)'};"
                   onclick="handleToggleVisibility('${p.id}')"
-                  title="????? ???? ?????? ???????">
-            ${isVisible ? '??? ?????' : '?? ????'}
+                  title="تغيير حالة الظهور للزبائن">
+            ${isVisible ? '👁️ معروض' : '🚫 مخفي'}
           </button>
         </div>
 
@@ -183,7 +189,7 @@ function renderVisualCatalog() {
               ${p.name}
             </div>
             <div style="font-size:11px; color:var(--text-faint); margin-top:2px;">
-              ?? ${p.prepTime || '15 ?????'} ${p.badge ? `� ??? ${p.badge}` : ''}
+              ⏱️ ${p.prepTime || '15 دقيقة'} ${p.badge ? `• 🏷️ ${p.badge}` : ''}
             </div>
           </div>
         </div>
@@ -191,7 +197,7 @@ function renderVisualCatalog() {
         <!-- Footer Row (Inline Price Edit + Full Edit & Delete Actions) -->
         <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; padding-top:10px; border-top:1px solid var(--border);">
           <div style="display:flex; align-items:center; gap:4px;">
-            <span style="font-size:11px; color:var(--text-muted); font-weight:700;">?????:</span>
+            <span style="font-size:11px; color:var(--text-muted); font-weight:700;">السعر:</span>
             <input type="number" 
                    class="inline-price-input font-num" 
                    value="${p.price}" 
@@ -202,11 +208,11 @@ function renderVisualCatalog() {
           </div>
 
           <div style="display:flex; gap:6px;">
-            <button class="btn btn-ghost btn-sm" onclick="openEditProductModal('${p.id}')" title="????? ????">
-              ?? ?????
+            <button class="btn btn-ghost btn-sm" onclick="openEditProductModal('${p.id}')" title="تعديل كامل">
+              ✏️ تعديل
             </button>
-            <button class="btn btn-danger btn-sm" onclick="handleDeleteProduct('${p.id}')" title="??? ?????">
-              ???
+            <button class="btn btn-danger btn-sm" onclick="handleDeleteProduct('${p.id}')" title="حذف الصنف">
+              🗑️
             </button>
           </div>
         </div>
@@ -217,7 +223,7 @@ function renderVisualCatalog() {
   setupDragAndDrop();
 }
 
-// -- Mobile Reordering Arrows -------------------------------
+// ── Mobile Reordering Arrows ───────────────────────────────
 window.moveProductUp = function(id) {
   const prods = Store.getProducts();
   const idx = prods.findIndex(p => p.id === id);
@@ -227,7 +233,7 @@ window.moveProductUp = function(id) {
     prods[idx - 1] = temp;
     Store.saveProducts(prods);
     renderVisualCatalog();
-    showAdminToast("?? ????? ????? ?????? ?");
+    showAdminToast("تم تحريك الصنف للأعلى ⠿");
   }
 };
 
@@ -240,25 +246,25 @@ window.moveProductDown = function(id) {
     prods[idx + 1] = temp;
     Store.saveProducts(prods);
     renderVisualCatalog();
-    showAdminToast("?? ????? ????? ?????? ?");
+    showAdminToast("تم تحريك الصنف للأسفل ⠿");
   }
 };
 
-// -- Quick Inline Price Update ------------------------------
+// ── Quick Inline Price Update ──────────────────────────────
 window.handleInlinePriceChange = function(id, newPrice) {
   const price = parseFloat(newPrice) || 0;
   Store.quickUpdatePrice(id, price);
-  showAdminToast(`?? ????? ????? ??? ${price} ?`);
+  showAdminToast(`تم تحديث السعر إلى ${price} ✅`);
 };
 
-// -- Quick Visibility Toggle --------------------------------
+// ── Quick Visibility Toggle ────────────────────────────────
 window.handleToggleVisibility = function(id) {
   const isNowVisible = Store.toggleProductVisibility(id);
   renderVisualCatalog();
-  showAdminToast(isNowVisible ? "?? ????? ????? ?? ?????? ???" : "?? ????? ????? ?? ?????? ??", "info");
+  showAdminToast(isNowVisible ? "تم إظهار الصنف في المنيو 👁️" : "تم إخفاء الصنف من المنيو 🚫", "info");
 };
 
-// -- Drag and Drop Reordering Setup -------------------------
+// ── Drag and Drop Reordering Setup ─────────────────────────
 function setupDragAndDrop() {
   const items = adminElements.adminCatalogContainer.querySelectorAll('.admin-catalog-item');
 
@@ -301,17 +307,16 @@ function setupDragAndDrop() {
           item.before(draggedCardElement);
         }
 
-        // Save reordered IDs
         const newOrderedCards = Array.from(parent.querySelectorAll('.admin-catalog-item'));
         const newIds = newOrderedCards.map(c => c.dataset.productId);
         Store.reorderProducts(newIds);
-        showAdminToast("?? ??? ??????? ?????? ?????? ?");
+        showAdminToast("تم حفظ الترتيب الجديد للمنيو ⠿");
       }
     });
   });
 }
 
-// -- Product Add / Edit Modal -------------------------------
+// ── Product Add / Edit Modal ───────────────────────────────
 function populateCategorySelect() {
   if (!adminElements.prodCategory) return;
   const categories = Store.getCategories();
@@ -319,12 +324,12 @@ function populateCategorySelect() {
 }
 
 function openAddProductModal() {
-  adminElements.productModalTitle.textContent = "????? ??? ???? ????? ??????";
+  adminElements.productModalTitle.textContent = "إضافة صنف جديد لدفتر المنيو";
   adminElements.prodId.value = '';
   adminElements.prodName.value = '';
   populateCategorySelect();
   adminElements.prodPrice.value = '';
-  adminElements.prodPrepTime.value = '15 ?????';
+  adminElements.prodPrepTime.value = '15 دقيقة';
   adminElements.prodBadge.value = '';
   adminElements.prodFeatured.checked = false;
   adminElements.prodDesc.value = '';
@@ -340,13 +345,13 @@ window.openEditProductModal = function(id) {
   const p = prods.find(item => item.id === id);
   if (!p) return;
 
-  adminElements.productModalTitle.textContent = "????? ?????? ?????";
+  adminElements.productModalTitle.textContent = "تعديل تفاصيل الصنف";
   adminElements.prodId.value = p.id;
   adminElements.prodName.value = p.name;
   populateCategorySelect();
   adminElements.prodCategory.value = p.category;
   adminElements.prodPrice.value = p.price;
-  adminElements.prodPrepTime.value = p.prepTime || '15 ?????';
+  adminElements.prodPrepTime.value = p.prepTime || '15 دقيقة';
   adminElements.prodBadge.value = p.badge || '';
   adminElements.prodFeatured.checked = p.isFeatured === true;
   adminElements.prodDesc.value = p.desc || '';
@@ -363,14 +368,14 @@ function closeProductModal() {
 }
 
 window.handleDeleteProduct = function(id) {
-  if (confirm("?? ??? ????? ?? ??? ??? ????? ????????")) {
+  if (confirm("هل أنت متأكد من حذف هذا الصنف نهائياً؟")) {
     Store.deleteProduct(id);
     renderVisualCatalog();
-    showAdminToast("?? ??? ????? ?? ???????", "info");
+    showAdminToast("تم حذف الصنف من القائمة", "info");
   }
 };
 
-// -- Categories Management ----------------------------------
+// ── Categories Management ──────────────────────────────────
 function renderCategoriesList() {
   if (!adminElements.categoriesListContainer) return;
   const cats = Store.getCategories();
@@ -378,7 +383,7 @@ function renderCategoriesList() {
   adminElements.categoriesListContainer.innerHTML = cats.map(c => `
     <div style="background:var(--surface-raised); border:1px solid var(--border); padding:8px 14px; border-radius:var(--radius-full); display:flex; align-items:center; gap:8px; font-weight:800; font-size:13px;">
       <span>${c}</span>
-      <button onclick="handleDeleteCategory('${c}')" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:13px;" title="??? ?????">?</button>
+      <button onclick="handleDeleteCategory('${c}')" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:13px;" title="حذف القسم">✕</button>
     </div>
   `).join('');
 }
@@ -386,12 +391,12 @@ function renderCategoriesList() {
 function handleAddCategory() {
   const newCat = (adminElements.newCatInput.value || '').trim();
   if (!newCat) {
-    showAdminToast("???? ??? ????? ?????", "error");
+    showAdminToast("اكتب اسم القسم أولاً", "error");
     return;
   }
   const cats = Store.getCategories();
   if (cats.includes(newCat)) {
-    showAdminToast("????? ????? ??????", "error");
+    showAdminToast("القسم موجود بالفعل", "error");
     return;
   }
   cats.push(newCat);
@@ -399,30 +404,61 @@ function handleAddCategory() {
   adminElements.newCatInput.value = '';
   renderCategoriesList();
   populateCategorySelect();
-  showAdminToast(`??? ????? ??? "${newCat}" ?????`);
+  showAdminToast(`تمت إضافة قسم "${newCat}" بنجاح`);
 }
 
 window.handleDeleteCategory = function(catName) {
   let cats = Store.getCategories();
   if (cats.length <= 1) {
-    showAdminToast("??? ??????? ??? ??? ???? ??? ?????", "error");
+    showAdminToast("يجب الإبقاء على قسم واحد على الأقل", "error");
     return;
   }
-  if (confirm(`??? ??? "${catName}"?`)) {
+  if (confirm(`حذف قسم "${catName}"؟`)) {
     cats = cats.filter(c => c !== catName);
     Store.saveCategories(cats);
     renderCategoriesList();
     populateCategorySelect();
-    showAdminToast(`?? ??? ??? "${catName}"`, "info");
+    showAdminToast(`تم حذف قسم "${catName}"`, "info");
   }
 };
 
-// -- Settings Management ------------------------------------
+// ── Brand Color Preset Helper ──────────────────────────────
+window.pickPresetColor = function(colorHex) {
+  if (adminElements.setPrimaryColor) {
+    adminElements.setPrimaryColor.value = colorHex;
+  }
+  if (adminElements.colorHexLabel) {
+    adminElements.colorHexLabel.textContent = colorHex;
+  }
+  Store.applyBrandColor(colorHex);
+};
+
+// ── Settings Management ────────────────────────────────────
 function loadSettingsForm() {
   const s = Store.getSettings();
   adminElements.setStoreName.value = s.storeName || '';
-  adminElements.setCurrency.value = s.currency || '?.?';
+  adminElements.setCurrency.value = s.currency || 'ج.م';
   adminElements.setStoreTagline.value = s.storeTagline || '';
+  
+  if (adminElements.setPrimaryColor) {
+    adminElements.setPrimaryColor.value = s.primaryColor || '#c2410c';
+  }
+  if (adminElements.colorHexLabel) {
+    adminElements.colorHexLabel.textContent = s.primaryColor || '#c2410c';
+  }
+  if (adminElements.setShowAnnouncement) {
+    adminElements.setShowAnnouncement.checked = s.showAnnouncement !== false;
+  }
+  if (adminElements.setAnnouncementText) {
+    adminElements.setAnnouncementText.value = s.announcementText || '';
+  }
+  if (adminElements.setDeliveryTime) {
+    adminElements.setDeliveryTime.value = s.deliveryTime || '30-45 دقيقة';
+  }
+  if (adminElements.setMinOrder) {
+    adminElements.setMinOrder.value = s.minOrder || 0;
+  }
+
   adminElements.setWhatsApp.value = s.whatsappNumber || '';
   adminElements.setWalletNumber.value = s.walletNumber || '';
   adminElements.setWalletName.value = s.walletName || '';
@@ -437,8 +473,13 @@ function handleSaveSettings(e) {
   const updated = {
     ...current,
     storeName: adminElements.setStoreName.value.trim(),
-    currency: adminElements.setCurrency.value.trim() || '?.?',
+    currency: adminElements.setCurrency.value.trim() || 'ج.م',
     storeTagline: adminElements.setStoreTagline.value.trim(),
+    primaryColor: adminElements.setPrimaryColor ? adminElements.setPrimaryColor.value : current.primaryColor,
+    showAnnouncement: adminElements.setShowAnnouncement ? adminElements.setShowAnnouncement.checked : true,
+    announcementText: adminElements.setAnnouncementText ? adminElements.setAnnouncementText.value.trim() : '',
+    deliveryTime: adminElements.setDeliveryTime ? adminElements.setDeliveryTime.value.trim() : '30-45 دقيقة',
+    minOrder: adminElements.setMinOrder ? parseFloat(adminElements.setMinOrder.value) || 0 : 0,
     whatsappNumber: adminElements.setWhatsApp.value.trim(),
     walletNumber: adminElements.setWalletNumber.value.trim(),
     walletName: adminElements.setWalletName.value.trim(),
@@ -448,19 +489,19 @@ function handleSaveSettings(e) {
   };
 
   Store.saveSettings(updated);
-  if (adminElements.adminStoreName) adminElements.adminStoreName.textContent = `????? ???? (${updated.storeName})`;
-  showAdminToast("?? ??? ???? ????????? ????? ?");
+  if (adminElements.adminStoreName) adminElements.adminStoreName.textContent = `إدارة منيو (${updated.storeName})`;
+  showAdminToast("تم حفظ جميع إعدادات وهوية المتجر بنجاح ✅");
 }
 
 function handleResetDemo() {
-  if (confirm("?????: ???? ??????? ???? ??????? ???????? ?????????? ??????????. ?? ???? ?????????")) {
+  if (confirm("تحذير: سيتم استعادة جميع الأصناف والأقسام والإعدادات الافتراضية. هل تريد المتابعة؟")) {
     Store.resetAll();
     initAdminDashboard();
-    showAdminToast("??? ??????? ???????? ?????????? ?????");
+    showAdminToast("تمت استعادة البيانات الافتراضية بنجاح");
   }
 }
 
-// -- Event Listeners Setup ----------------------------------
+// ── Event Listeners Setup ──────────────────────────────────
 function setupAdminEventListeners() {
   // Login
   if (adminElements.btnLogin) adminElements.btnLogin.addEventListener('click', handleLogin);
@@ -476,21 +517,30 @@ function setupAdminEventListeners() {
   if (adminElements.btnCancelProduct) adminElements.btnCancelProduct.addEventListener('click', closeProductModal);
   if (adminElements.productModalBackdrop) adminElements.productModalBackdrop.addEventListener('click', closeProductModal);
 
+  // Color picker change live
+  if (adminElements.setPrimaryColor) {
+    adminElements.setPrimaryColor.addEventListener('input', (e) => {
+      const color = e.target.value;
+      if (adminElements.colorHexLabel) adminElements.colorHexLabel.textContent = color;
+      Store.applyBrandColor(color);
+    });
+  }
+
   // File Upload
   if (adminElements.prodImgFile) {
     adminElements.prodImgFile.addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
 
-      adminElements.prodImgStatus.textContent = "???? ??? ??????...";
+      adminElements.prodImgStatus.textContent = "جاري رفع الصورة...";
       adminElements.prodImgStatus.style.display = "block";
 
       try {
         const url = await Store.uploadImage(file);
         adminElements.prodImgUrl.value = url;
-        adminElements.prodImgStatus.textContent = "? ?? ????? ???? ?????? ?????!";
+        adminElements.prodImgStatus.textContent = "✅ تم تجهيز رابط الصورة بنجاح!";
       } catch (err) {
-        adminElements.prodImgStatus.textContent = "?? ???? ????? ???????? ???? ??? ???? ??????";
+        adminElements.prodImgStatus.textContent = "⚠️ تعذر الرفع السحابي، يرجى لصق رابط الصورة";
       }
     });
   }
@@ -504,7 +554,7 @@ function setupAdminEventListeners() {
         name: adminElements.prodName.value.trim(),
         category: adminElements.prodCategory.value,
         price: parseFloat(adminElements.prodPrice.value) || 0,
-        prepTime: (adminElements.prodPrepTime.value || '15 ?????').trim(),
+        prepTime: (adminElements.prodPrepTime.value || '15 دقيقة').trim(),
         badge: (adminElements.prodBadge.value || '').trim(),
         isFeatured: adminElements.prodFeatured.checked,
         desc: adminElements.prodDesc.value.trim(),
@@ -513,10 +563,10 @@ function setupAdminEventListeners() {
 
       if (id) {
         Store.updateProduct(id, productData);
-        showAdminToast(`?? ????? "${productData.name}" ?????`);
+        showAdminToast(`تم تعديل "${productData.name}" بنجاح`);
       } else {
         Store.addProduct(productData);
-        showAdminToast(`??? ????? "${productData.name}" ?????`);
+        showAdminToast(`تمت إضافة "${productData.name}" بنجاح`);
       }
 
       closeProductModal();

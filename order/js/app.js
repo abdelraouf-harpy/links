@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 // HarpyOrder — Storefront & Contextual Discovery Engine
 // ═══════════════════════════════════════════════════════════
 
@@ -15,6 +15,14 @@ const elements = {
   storeTagline: document.getElementById('store-tagline'),
   storeLogo: document.getElementById('store-logo'),
   storeWhatsAppLink: document.getElementById('store-whatsapp-link'),
+  themeToggleBtn: document.getElementById('theme-toggle-btn'),
+  themeIconDark: document.getElementById('theme-icon-dark'),
+  themeIconLight: document.getElementById('theme-icon-light'),
+
+  // Announcement Bar
+  announcementBar: document.getElementById('announcement-bar'),
+  announcementText: document.getElementById('announcement-text'),
+  deliveryTimeBadge: document.getElementById('delivery-time-badge'),
   
   // Last Order
   lastOrderBanner: document.getElementById('last-order-banner'),
@@ -102,13 +110,53 @@ function showToast(message, type = "success") {
 
 // ── App Initialization ─────────────────────────────────────
 function initApp() {
+  Store.initTheme();
+  updateThemeToggleIcons();
   renderStoreInfo();
+  renderAnnouncement();
   renderLastOrderRecall();
   renderDiscoveryRibbon();
   renderCategories();
   renderProducts();
   updateLedgerUI();
   setupEventListeners();
+}
+
+// ── Day / Night Theme Mode Controls ────────────────────────
+function updateThemeToggleIcons() {
+  const currentMode = Store.getThemeMode();
+  if (elements.themeIconDark && elements.themeIconLight) {
+    if (currentMode === 'light') {
+      elements.themeIconDark.style.display = 'none';
+      elements.themeIconLight.style.display = 'inline-block';
+    } else {
+      elements.themeIconDark.style.display = 'inline-block';
+      elements.themeIconLight.style.display = 'none';
+    }
+  }
+}
+
+function handleThemeToggle() {
+  const currentMode = Store.getThemeMode();
+  const newMode = currentMode === 'light' ? 'dark' : 'light';
+  Store.setThemeMode(newMode);
+  updateThemeToggleIcons();
+  showToast(newMode === 'light' ? 'تم تفعيل الوضع النهاري ☀️' : 'تم تفعيل الوضع الليلي 🌙', 'info');
+}
+
+// ── Announcement Bar ───────────────────────────────────────
+function renderAnnouncement() {
+  if (!elements.announcementBar) return;
+  const s = Store.getSettings();
+  if (s.showAnnouncement && s.announcementText) {
+    elements.announcementBar.style.display = 'flex';
+    if (elements.announcementText) elements.announcementText.textContent = s.announcementText;
+    if (elements.deliveryTimeBadge) {
+      elements.deliveryTimeBadge.textContent = `⏱️ ${s.deliveryTime || '30-45 دقيقة'}`;
+    }
+  } else {
+    elements.announcementBar.style.display = 'none';
+  }
 }
 
 // ── Render Store Branding ──────────────────────────────────
@@ -589,6 +637,11 @@ function setPaymentOption(method) {
 
 // ── Event Listeners ────────────────────────────────────────
 function setupEventListeners() {
+  // Theme Toggle (Day / Night)
+  if (elements.themeToggleBtn) {
+    elements.themeToggleBtn.addEventListener('click', handleThemeToggle);
+  }
+
   // Live Search
   if (elements.searchInput) {
     elements.searchInput.addEventListener('input', (e) => {
@@ -715,7 +768,9 @@ function setupEventListeners() {
 
   // Store update listeners
   window.addEventListener('store_settings_updated', () => {
+    Store.initTheme();
     renderStoreInfo();
+    renderAnnouncement();
     renderProducts();
     updateLedgerUI();
   });

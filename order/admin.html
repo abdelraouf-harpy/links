@@ -129,6 +129,58 @@
             <input type="text" id="set-store-tagline" class="form-input">
           </div>
 
+          <!-- Visual Identity & Custom Branding -->
+          <div style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-sm); padding:16px; margin-bottom:16px;">
+            <div style="font-size:13px; font-weight:900; color:var(--primary); margin-bottom:12px; display:flex; align-items:center; gap:6px;">
+              <span>🎨 الهوية البصرية ولون المتجر الخاص</span>
+            </div>
+
+            <div style="display:grid; grid-template-columns:auto 1fr; gap:16px; align-items:center; margin-bottom:12px;">
+              <div>
+                <label class="form-label">اللون الرئيسي</label>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <input type="color" id="set-primary-color" value="#c2410c" style="width:48px; height:44px; padding:2px; border-radius:var(--radius-xs); border:1px solid var(--border); background:var(--bg); cursor:pointer;">
+                  <span id="color-hex-label" class="font-num" style="font-size:13px; font-weight:800; color:var(--text-muted);">#c2410c</span>
+                </div>
+              </div>
+
+              <div>
+                <label class="form-label">نماذج ألوان جاهزة وسريعة</label>
+                <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                  <button type="button" class="btn btn-ghost btn-sm" onclick="pickPresetColor('#c2410c')" style="border-color:#c2410c; color:#c2410c;">🔥 فخار مشوي</button>
+                  <button type="button" class="btn btn-ghost btn-sm" onclick="pickPresetColor('#991b1b')" style="border-color:#991b1b; color:#ef4444;">🍷 عنابي فاخر</button>
+                  <button type="button" class="btn btn-ghost btn-sm" onclick="pickPresetColor('#15803d')" style="border-color:#15803d; color:#22c55e;">🌿 زيتوني ملكي</button>
+                  <button type="button" class="btn btn-ghost btn-sm" onclick="pickPresetColor('#d97706')" style="border-color:#d97706; color:#f59e0b;">🍯 كهرماني دافئ</button>
+                  <button type="button" class="btn btn-ghost btn-sm" onclick="pickPresetColor('#2563eb')" style="border-color:#2563eb; color:#3b82f6;">🌊 كحلي ملكي</button>
+                  <button type="button" class="btn btn-ghost btn-sm" onclick="pickPresetColor('#7e22ce')" style="border-color:#7e22ce; color:#a855f7;">🍇 بنفسجي فاخر</button>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:12px; padding-top:12px; border-top:1px solid var(--border);">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">مدة التوصيل المعتادة</label>
+                <input type="text" id="set-delivery-time" class="form-input font-num" placeholder="مثال: 30-45 دقيقة">
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">الحد الأدنى للطلب (ج.م - اختياري)</label>
+                <input type="number" id="set-min-order" class="form-input font-num" placeholder="0">
+              </div>
+            </div>
+          </div>
+
+          <!-- Announcement & Offers Banner -->
+          <div style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-sm); padding:16px; margin-bottom:16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <span style="font-size:13px; font-weight:900; color:var(--text-main);">📢 شريط الإعلانات والعروض أعلى المنيو</span>
+              <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:12px; font-weight:700;">
+                <input type="checkbox" id="set-show-announcement">
+                <span>تفعيل الظهور</span>
+              </label>
+            </div>
+            <input type="text" id="set-announcement-text" class="form-input" placeholder="اكتب نص العرض الترويجي (مثال: خصم 10% عند الدفع بالمحفظة الإلكترونية)">
+          </div>
+
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
             <div class="form-group">
               <label class="form-label">رقم الواتساب لاستقبال الطلبات (مع كود الدولة) *</label>
