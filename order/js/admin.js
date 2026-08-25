@@ -81,6 +81,8 @@ const adminElements = {
   setStoreTagline: document.getElementById('set-store-tagline'),
   setShowAnnouncement: document.getElementById('set-show-announcement'),
   setAnnouncementText: document.getElementById('set-announcement-text'),
+  setEnableWalletDiscount: document.getElementById('set-enable-wallet-discount'),
+  setWalletDiscount: document.getElementById('set-wallet-discount'),
   setDeliveryTime: document.getElementById('set-delivery-time'),
   setMinOrder: document.getElementById('set-min-order'),
   setWhatsApp: document.getElementById('set-whatsapp'),
@@ -600,6 +602,12 @@ function loadSettingsForm() {
   if (adminElements.setAnnouncementText) {
     adminElements.setAnnouncementText.value = s.announcementText || '';
   }
+  if (adminElements.setEnableWalletDiscount) {
+    adminElements.setEnableWalletDiscount.checked = s.enableWalletDiscount !== false;
+  }
+  if (adminElements.setWalletDiscount) {
+    adminElements.setWalletDiscount.value = s.walletDiscountPercent !== undefined ? s.walletDiscountPercent : 10;
+  }
   if (adminElements.setDeliveryTime) {
     adminElements.setDeliveryTime.value = s.deliveryTime || '30-45 دقيقة';
   }
@@ -628,6 +636,8 @@ function handleSaveSettings(e) {
     primaryColor: currentSiteColors.primary,
     showAnnouncement: adminElements.setShowAnnouncement ? adminElements.setShowAnnouncement.checked : true,
     announcementText: adminElements.setAnnouncementText ? adminElements.setAnnouncementText.value.trim() : '',
+    enableWalletDiscount: adminElements.setEnableWalletDiscount ? adminElements.setEnableWalletDiscount.checked : true,
+    walletDiscountPercent: adminElements.setWalletDiscount ? parseFloat(adminElements.setWalletDiscount.value) || 0 : 0,
     deliveryTime: adminElements.setDeliveryTime ? adminElements.setDeliveryTime.value.trim() : '30-45 دقيقة',
     minOrder: adminElements.setMinOrder ? parseFloat(adminElements.setMinOrder.value) || 0 : 0,
     whatsappNumber: adminElements.setWhatsApp.value.trim(),

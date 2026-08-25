@@ -814,7 +814,13 @@ function handleWhatsAppOrder() {
 
   const settings = Store.getSettings();
   const currency = settings.currency || "ج.م";
-  const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+  
+  const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+  const isWallet = selectedPaymentMethod === 'wallet';
+  const hasDiscount = isWallet && settings.enableWalletDiscount !== false && (settings.walletDiscountPercent > 0);
+  const discountPercent = hasDiscount ? (settings.walletDiscountPercent || 10) : 0;
+  const discountAmount = hasDiscount ? Math.round((subtotal * (discountPercent / 100)) * 100) / 100 : 0;
+  const finalTotal = Math.max(0, subtotal - discountAmount);
 
   // Save Last Order for quick recall
   Store.saveLastOrder({
@@ -824,11 +830,11 @@ function handleWhatsAppOrder() {
   });
 
   // Format Items List
-  const itemsText = cart.map(item => `• ${item.qty}x ${item.name} (${item.price * item.qty} ${currency})`).join('\n');
+  const itemsText = cart.map(item => `• ${item.qty}x ${item.name} (${(item.price * item.qty).toFixed(2)} ${currency})`).join('\n');
 
-  const paymentText = selectedPaymentMethod === 'wallet' 
-    ? `📱 تحويل محفظة إلكترونية (${settings.walletName || 'كاش'})`
-    : `💵 دفع نقدي عند الاستلام (COD)`;
+  const paymentText = isWallet 
+    ? `تحويل محفظة إلكترونية (${settings.walletName || 'كاش'})`
+    : `دفع نقدي عند الاستلام (COD)`;
 
   let message = `*طلب جديد من موقع ${settings.storeName}* 🛍️\n`;
   message += `━━━━━━━━━━━━━━━━━━━\n`;
@@ -841,10 +847,18 @@ function handleWhatsAppOrder() {
   message += `━━━━━━━━━━━━━━━━━━━\n`;
   message += `🛒 *تفاصيل الأصناف:*\n${itemsText}\n`;
   message += `━━━━━━━━━━━━━━━━━━━\n`;
-  message += `💰 *إجمالي الحساب:* ${totalPrice} ${currency}\n`;
+  
+  if (hasDiscount) {
+    message += `💵 *إجمالي الأصناف:* ${subtotal.toFixed(2)} ${currency}\n`;
+    message += `🎁 *خصم الدفع الإلكتروني (${discountPercent}%):* -${discountAmount.toFixed(2)} ${currency}\n`;
+    message += `💰 *المبلغ النهائي المطلوب دفعه:* ${finalTotal.toFixed(2)} ${currency}\n`;
+  } else {
+    message += `💰 *المبلغ المطلوب دفعه:* ${finalTotal.toFixed(2)} ${currency}\n`;
+  }
+
   message += `💳 *طريقة الدفع:* ${paymentText}\n`;
 
-  if (selectedPaymentMethod === 'wallet' && uploadedReceiptUrl) {
+  if (isWallet && uploadedReceiptUrl) {
     message += `📸 *رابط سكرين التحويل:* ${uploadedReceiptUrl}\n`;
   }
   message += `━━━━━━━━━━━━━━━━━━━\n`;

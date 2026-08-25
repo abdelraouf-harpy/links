@@ -19,13 +19,13 @@ const THEME_PRESETS = {
     name: "دفتر الفحم الدافئ",
     badge: "فحم وخشب داكن",
     bg: "#110e0c",
-    surface: "#1f1a16",
-    surfaceRaised: "#29221d",
+    surface: "#1c1713",
+    surfaceRaised: "#251f1a",
     headerBg: "#110e0c",
     textMain: "#faf6f0",
-    textBody: "#d8cec0",
+    textBody: "#d4c9ba",
     primary: "#c2410c",
-    border: "rgba(245, 238, 227, 0.12)"
+    border: "rgba(245, 238, 227, 0.09)"
   },
   cream: {
     id: "cream",
@@ -38,7 +38,7 @@ const THEME_PRESETS = {
     textMain: "#1c1815",
     textBody: "#4a4035",
     primary: "#9a3412",
-    border: "rgba(60, 45, 30, 0.12)"
+    border: "rgba(60, 45, 30, 0.09)"
   },
   olive: {
     id: "olive",
@@ -51,7 +51,7 @@ const THEME_PRESETS = {
     textMain: "#f0f7f2",
     textBody: "#c8ded0",
     primary: "#15803d",
-    border: "rgba(230, 245, 235, 0.12)"
+    border: "rgba(230, 245, 235, 0.09)"
   },
   midnight: {
     id: "midnight",
@@ -64,7 +64,7 @@ const THEME_PRESETS = {
     textMain: "#ffffff",
     textBody: "#d4d4d4",
     primary: "#d97706",
-    border: "rgba(217, 119, 6, 0.28)"
+    border: "rgba(217, 119, 6, 0.25)"
   },
   indigo: {
     id: "indigo",
@@ -77,7 +77,7 @@ const THEME_PRESETS = {
     textMain: "#f8faff",
     textBody: "#cbd8f0",
     primary: "#2563eb",
-    border: "rgba(224, 236, 255, 0.12)"
+    border: "rgba(224, 236, 255, 0.09)"
   },
   bordeaux: {
     id: "bordeaux",
@@ -90,7 +90,7 @@ const THEME_PRESETS = {
     textMain: "#fff5f7",
     textBody: "#ecc8d0",
     primary: "#be123c",
-    border: "rgba(255, 230, 236, 0.12)"
+    border: "rgba(255, 230, 236, 0.09)"
   },
   sunset: {
     id: "sunset",
@@ -103,11 +103,11 @@ const THEME_PRESETS = {
     textMain: "#fffaf0",
     textBody: "#e8d5bf",
     primary: "#ea580c",
-    border: "rgba(234, 88, 12, 0.22)"
+    border: "rgba(234, 88, 12, 0.18)"
   }
 };
 
-// Default Settings with Complete Custom Color Palette
+// Default Settings with Automated Wallet Discount
 const DEFAULT_SETTINGS = {
   storeName: "شاورما وبيرجر الهرمل",
   storeTagline: "أشهى السندوتشات والوجبات السريعة طازجة يومياً على الحطب",
@@ -124,15 +124,18 @@ const DEFAULT_SETTINGS = {
   themePreset: "charcoal",
   siteColors: {
     bg: "#110e0c",
-    surface: "#1f1a16",
-    surfaceRaised: "#29221d",
+    surface: "#1c1713",
+    surfaceRaised: "#251f1a",
     headerBg: "#110e0c",
     textMain: "#faf6f0",
-    textBody: "#d8cec0",
+    textBody: "#d4c9ba",
     primary: "#c2410c",
-    border: "rgba(245, 238, 227, 0.12)"
+    border: "rgba(245, 238, 227, 0.09)"
   },
 
+  // Discount & Offers System
+  enableWalletDiscount: true,
+  walletDiscountPercent: 10,
   announcementText: "خصم خاص 10% عند الدفع بالمحفظة الإلكترونية • توصيل سريع لباب البيت",
   showAnnouncement: true,
   deliveryTime: "30-45 دقيقة",
@@ -270,6 +273,8 @@ const Store = {
       return { 
         ...DEFAULT_SETTINGS, 
         ...parsed,
+        enableWalletDiscount: parsed.enableWalletDiscount !== false,
+        walletDiscountPercent: parsed.walletDiscountPercent !== undefined ? parseFloat(parsed.walletDiscountPercent) : 10,
         siteColors: { ...DEFAULT_SETTINGS.siteColors, ...(parsed.siteColors || {}) }
       };
     } catch {
@@ -282,30 +287,49 @@ const Store = {
     window.dispatchEvent(new Event('store_settings_updated'));
   },
 
-  // Apply Complete Palette of Colors to the Entire Website
+  // Apply Theme & User-Selected Day/Night Lighting Mode
   applyTheme(settings) {
     const s = settings || this.getSettings();
-    const colors = s.siteColors || DEFAULT_SETTINGS.siteColors;
+    const mode = this.getThemeMode();
     const root = document.documentElement;
 
-    // Apply exact custom colors chosen by the owner
-    root.style.setProperty('--bg', colors.bg || "#110e0c");
-    root.style.setProperty('--bg-subtle', colors.bg || "#110e0c");
-    root.style.setProperty('--surface', colors.surface || "#1f1a16");
-    root.style.setProperty('--surface-raised', colors.surfaceRaised || "#29221d");
-    root.style.setProperty('--surface-hover', colors.surfaceRaised || "#29221d");
-    root.style.setProperty('--header-bg', colors.headerBg || colors.bg || "#110e0c");
-    root.style.setProperty('--text-main', colors.textMain || "#faf6f0");
-    root.style.setProperty('--text-body', colors.textBody || "#d8cec0");
-    root.style.setProperty('--border', colors.border || "rgba(245, 238, 227, 0.12)");
-    root.style.setProperty('--border-strong', colors.border || "rgba(245, 238, 227, 0.18)");
+    root.setAttribute('data-theme', mode);
 
-    // Primary accent button color
-    const primary = colors.primary || s.primaryColor || "#c2410c";
+    if (mode === 'light') {
+      // Crisp & Elegant Daytime Paper Theme
+      root.style.setProperty('--bg', '#faf7f2');
+      root.style.setProperty('--bg-subtle', '#f2ece1');
+      root.style.setProperty('--surface', '#ffffff');
+      root.style.setProperty('--surface-raised', '#f5eedf');
+      root.style.setProperty('--surface-hover', '#eae1d0');
+      root.style.setProperty('--header-bg', '#faf7f2');
+      root.style.setProperty('--text-main', '#1c1815');
+      root.style.setProperty('--text-body', '#4a4035');
+      root.style.setProperty('--text-muted', '#7d7060');
+      root.style.setProperty('--border', 'rgba(60, 45, 30, 0.09)');
+      root.style.setProperty('--border-strong', 'rgba(60, 45, 30, 0.16)');
+    } else {
+      // Dark Custom Theme Palette
+      const colors = s.siteColors || DEFAULT_SETTINGS.siteColors;
+      root.style.setProperty('--bg', colors.bg || "#110e0c");
+      root.style.setProperty('--bg-subtle', colors.bg || "#110e0c");
+      root.style.setProperty('--surface', colors.surface || "#1c1713");
+      root.style.setProperty('--surface-raised', colors.surfaceRaised || "#251f1a");
+      root.style.setProperty('--surface-hover', colors.surfaceRaised || "#251f1a");
+      root.style.setProperty('--header-bg', colors.headerBg || colors.bg || "#110e0c");
+      root.style.setProperty('--text-main', colors.textMain || "#faf6f0");
+      root.style.setProperty('--text-body', colors.textBody || "#d4c9ba");
+      root.style.setProperty('--text-muted', "#968a7a");
+      root.style.setProperty('--border', colors.border || "rgba(245, 238, 227, 0.09)");
+      root.style.setProperty('--border-strong', colors.border || "rgba(245, 238, 227, 0.16)");
+    }
+
+    // Retain Primary Brand Accent
+    const primary = (s.siteColors && s.siteColors.primary) || s.primaryColor || "#c2410c";
     root.style.setProperty('--primary', primary);
     root.style.setProperty('--primary-hover', primary);
-    root.style.setProperty('--primary-subtle', primary + '24');
-    root.style.setProperty('--primary-glow', primary + '45');
+    root.style.setProperty('--primary-subtle', primary + '22');
+    root.style.setProperty('--primary-glow', primary + '40');
     root.style.setProperty('--border-focus', primary);
   },
 
@@ -498,12 +522,10 @@ const Store = {
   },
   setThemeMode(mode) {
     localStorage.setItem(STORAGE_KEYS.THEME_MODE, mode);
-    document.documentElement.setAttribute('data-theme', mode);
+    this.applyTheme();
     window.dispatchEvent(new CustomEvent('theme_mode_changed', { detail: mode }));
   },
   initTheme() {
-    const mode = this.getThemeMode();
-    document.documentElement.setAttribute('data-theme', mode);
     this.applyTheme();
   },
 
