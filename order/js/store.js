@@ -12,7 +12,119 @@ const STORAGE_KEYS = {
   THEME_MODE: 'harpy_theme_mode'
 };
 
-// Default Sample Data with Full Restaurant Customization
+// ── Complete Theme Presets ─────────────────────────────────
+const THEME_PRESETS = {
+  charcoal: {
+    id: "charcoal",
+    name: "دفتر الفحم الكلاسيكي",
+    badge: "الأكثر شعبية 🔥",
+    bg: "#110e0c",
+    bgSubtle: "#181411",
+    surface: "#1f1a16",
+    surfaceRaised: "#29221d",
+    surfaceHover: "#332b24",
+    border: "rgba(245, 238, 227, 0.08)",
+    borderStrong: "rgba(245, 238, 227, 0.16)",
+    primary: "#c2410c",
+    primaryHover: "#ea580c",
+    textMain: "#faf6f0",
+    textBody: "#d8cec0",
+    textMuted: "#9e9180",
+    textFaint: "#6e6456"
+  },
+  cream: {
+    id: "cream",
+    name: "الورق العاجي والمقهى الهادئ",
+    badge: "نهاري راقي 📜",
+    bg: "#faf7f2",
+    bgSubtle: "#f2ece1",
+    surface: "#ffffff",
+    surfaceRaised: "#f5eedf",
+    surfaceHover: "#eae1d0",
+    border: "rgba(60, 45, 30, 0.09)",
+    borderStrong: "rgba(60, 45, 30, 0.16)",
+    primary: "#9a3412",
+    primaryHover: "#c2410c",
+    textMain: "#1c1815",
+    textBody: "#4a4035",
+    textMuted: "#7d7060",
+    textFaint: "#a89c8a"
+  },
+  olive: {
+    id: "olive",
+    name: "الزيتوني الريفي والروستيك",
+    badge: "طبيعي وأورجانيك 🌿",
+    bg: "#0d1410",
+    bgSubtle: "#141e18",
+    surface: "#1a2720",
+    surfaceRaised: "#23352c",
+    surfaceHover: "#2d4338",
+    border: "rgba(230, 245, 235, 0.08)",
+    borderStrong: "rgba(230, 245, 235, 0.16)",
+    primary: "#15803d",
+    primaryHover: "#16a34a",
+    textMain: "#f0f7f2",
+    textBody: "#c8ded0",
+    textMuted: "#8ba895",
+    textFaint: "#5c7564"
+  },
+  midnight: {
+    id: "midnight",
+    name: "الأسود والذهب الملكي",
+    badge: "فخامة لاونج 👑",
+    bg: "#0a0a0a",
+    bgSubtle: "#121212",
+    surface: "#181818",
+    surfaceRaised: "#222222",
+    surfaceHover: "#2c2c2c",
+    border: "rgba(255, 255, 255, 0.08)",
+    borderStrong: "rgba(217, 119, 6, 0.3)",
+    primary: "#d97706",
+    primaryHover: "#f59e0b",
+    textMain: "#ffffff",
+    textBody: "#d4d4d4",
+    textMuted: "#a3a3a3",
+    textFaint: "#737373"
+  },
+  indigo: {
+    id: "indigo",
+    name: "الأزرق النيلي العصري",
+    badge: "عصري وجذاب 🌊",
+    bg: "#0b1120",
+    bgSubtle: "#111a30",
+    surface: "#16223f",
+    surfaceRaised: "#1e2e54",
+    surfaceHover: "#263968",
+    border: "rgba(224, 236, 255, 0.08)",
+    borderStrong: "rgba(224, 236, 255, 0.16)",
+    primary: "#2563eb",
+    primaryHover: "#3b82f6",
+    textMain: "#f8faff",
+    textBody: "#cbd8f0",
+    textMuted: "#8fa3c7",
+    textFaint: "#5d7094"
+  },
+  bordeaux: {
+    id: "bordeaux",
+    name: "العنابي الفاخر والبوردو",
+    badge: "دافئ وشاعري 🍷",
+    bg: "#150a0d",
+    bgSubtle: "#1e0f14",
+    surface: "#28151b",
+    surfaceRaised: "#361d24",
+    surfaceHover: "#44252e",
+    border: "rgba(255, 230, 236, 0.08)",
+    borderStrong: "rgba(255, 230, 236, 0.16)",
+    primary: "#be123c",
+    primaryHover: "#e11d48",
+    textMain: "#fff5f7",
+    textBody: "#ecc8d0",
+    textMuted: "#b38994",
+    textFaint: "#7e5a63"
+  }
+};
+
+// Default Settings
 const DEFAULT_SETTINGS = {
   storeName: "شاورما وبيرجر الهرمل",
   storeTagline: "أشهى السندوتشات والوجبات السريعة طازجة يومياً على الحطب",
@@ -25,8 +137,9 @@ const DEFAULT_SETTINGS = {
   cover: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=1200",
   imgbbApiKey: "9716f16445d36094b2e16dd8682fc0c1",
   
-  // Custom Visual Identity & Store Options
-  primaryColor: "#c2410c", // Brand Accent
+  // Visual Theme & Styling
+  themePreset: "charcoal", // charcoal, cream, olive, midnight, indigo, bordeaux
+  primaryColor: "#c2410c",
   announcementText: "🔥 خصم خاص 10% عند الدفع بالمحفظة الإلكترونية • توصيل سريع لباب البيت",
   showAnnouncement: true,
   deliveryTime: "30-45 دقيقة",
@@ -146,6 +259,8 @@ function isCorrupted(str) {
 
 // ── Store API ──────────────────────────────────────────────
 const Store = {
+  THEME_PRESETS,
+
   // Settings
   getSettings() {
     const raw = localStorage.getItem(STORAGE_KEYS.SETTINGS);
@@ -166,19 +281,40 @@ const Store = {
   },
   saveSettings(settings) {
     localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
-    this.applyBrandColor(settings.primaryColor);
+    this.applyTheme(settings);
     window.dispatchEvent(new Event('store_settings_updated'));
   },
 
-  // Apply Brand Theme Color to CSS Variables
-  applyBrandColor(color) {
-    if (!color) color = "#c2410c";
+  // Apply Complete Theme Preset to the entire website
+  applyTheme(settings) {
+    const s = settings || this.getSettings();
+    const presetKey = s.themePreset || "charcoal";
+    const preset = THEME_PRESETS[presetKey] || THEME_PRESETS.charcoal;
     const root = document.documentElement;
-    root.style.setProperty('--primary', color);
-    root.style.setProperty('--primary-hover', color);
-    root.style.setProperty('--primary-subtle', color + '24');
-    root.style.setProperty('--primary-glow', color + '45');
-    root.style.setProperty('--border-focus', color);
+
+    // Apply Preset Theme Attribute
+    root.setAttribute('data-theme-preset', presetKey);
+
+    // Apply Complete Palette Variables
+    root.style.setProperty('--bg', preset.bg);
+    root.style.setProperty('--bg-subtle', preset.bgSubtle);
+    root.style.setProperty('--surface', preset.surface);
+    root.style.setProperty('--surface-raised', preset.surfaceRaised);
+    root.style.setProperty('--surface-hover', preset.surfaceHover);
+    root.style.setProperty('--border', preset.border);
+    root.style.setProperty('--border-strong', preset.borderStrong);
+    root.style.setProperty('--text-main', preset.textMain);
+    root.style.setProperty('--text-body', preset.textBody);
+    root.style.setProperty('--text-muted', preset.textMuted);
+    root.style.setProperty('--text-faint', preset.textFaint);
+
+    // Primary accent color (either preset or customized)
+    const primaryColor = s.primaryColor || preset.primary;
+    root.style.setProperty('--primary', primaryColor);
+    root.style.setProperty('--primary-hover', primaryColor);
+    root.style.setProperty('--primary-subtle', primaryColor + '22');
+    root.style.setProperty('--primary-glow', primaryColor + '40');
+    root.style.setProperty('--border-focus', primaryColor);
   },
 
   // Categories
@@ -376,8 +512,7 @@ const Store = {
   initTheme() {
     const mode = this.getThemeMode();
     document.documentElement.setAttribute('data-theme', mode);
-    const settings = this.getSettings();
-    this.applyBrandColor(settings.primaryColor);
+    this.applyTheme();
   },
 
   // Image Upload via ImgBB
@@ -411,7 +546,7 @@ const Store = {
   }
 };
 
-// Auto initialize brand color and theme on script load
+// Auto initialize brand theme on script load
 if (typeof document !== 'undefined') {
   Store.initTheme();
 }

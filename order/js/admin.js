@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════════════════
 
 let draggedCardElement = null;
+let currentSelectedThemePreset = "charcoal";
 
 const adminElements = {
   loginModal: document.getElementById('login-modal'),
@@ -43,7 +44,8 @@ const adminElements = {
   btnAddCat: document.getElementById('btn-add-cat'),
   categoriesListContainer: document.getElementById('categories-list-container'),
 
-  // Settings
+  // Settings & Theme Presets
+  themePresetsGrid: document.getElementById('theme-presets-grid'),
   settingsForm: document.getElementById('settings-form'),
   setStoreName: document.getElementById('set-store-name'),
   setCurrency: document.getElementById('set-currency'),
@@ -118,6 +120,7 @@ function initAdminDashboard() {
   renderVisualCatalog();
   renderCategoriesList();
   populateCategorySelect();
+  renderThemePresetsSelector();
   loadSettingsForm();
 }
 
@@ -135,6 +138,68 @@ function setupTabs() {
     });
   });
 }
+
+// ── Render Theme Presets Grid ──────────────────────────────
+function renderThemePresetsSelector() {
+  if (!adminElements.themePresetsGrid) return;
+  const presets = Store.THEME_PRESETS;
+  const settings = Store.getSettings();
+  currentSelectedThemePreset = settings.themePreset || "charcoal";
+
+  adminElements.themePresetsGrid.innerHTML = Object.keys(presets).map(key => {
+    const p = presets[key];
+    const isSelected = currentSelectedThemePreset === p.id;
+
+    return `
+      <div class="theme-preset-card ${isSelected ? 'active' : ''}" onclick="handleSelectThemePreset('${p.id}')">
+        <!-- Mini Mockup Box showing theme colors -->
+        <div class="preset-preview-box" style="background:${p.bg};">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:10px; font-weight:800; color:${p.textMain}; background:${p.surfaceRaised}; padding:1px 6px; border-radius:4px;">
+              ${p.name.split(' ')[0]}
+            </span>
+            <span style="width:10px; height:10px; border-radius:50%; background:${p.primary}; display:inline-block;"></span>
+          </div>
+          <div style="background:${p.surface}; border:1px solid ${p.border}; border-radius:4px; padding:4px 6px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:9px; font-weight:700; color:${p.textBody};">صنف المنيو</span>
+            <span style="font-size:9px; font-weight:900; color:${p.primary};">120 ج.م</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="preset-card-title">
+            <span>${p.name}</span>
+            ${isSelected ? '<span style="color:var(--primary); font-size:13px;">✔</span>' : ''}
+          </div>
+          <div class="preset-card-badge">${p.badge}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+window.handleSelectThemePreset = function(presetId) {
+  currentSelectedThemePreset = presetId;
+  const preset = Store.THEME_PRESETS[presetId];
+  if (!preset) return;
+
+  if (adminElements.setPrimaryColor) {
+    adminElements.setPrimaryColor.value = preset.primary;
+  }
+  if (adminElements.colorHexLabel) {
+    adminElements.colorHexLabel.textContent = preset.primary;
+  }
+
+  // Apply live preview in the admin session
+  Store.applyTheme({
+    ...Store.getSettings(),
+    themePreset: presetId,
+    primaryColor: preset.primary
+  });
+
+  renderThemePresetsSelector();
+  showAdminToast(`تم تطبيق قالب "${preset.name}" في المعاينة 🎨`);
+};
 
 // ── Render Visual Product Catalog ──────────────────────────
 function renderVisualCatalog() {
@@ -422,17 +487,6 @@ window.handleDeleteCategory = function(catName) {
   }
 };
 
-// ── Brand Color Preset Helper ──────────────────────────────
-window.pickPresetColor = function(colorHex) {
-  if (adminElements.setPrimaryColor) {
-    adminElements.setPrimaryColor.value = colorHex;
-  }
-  if (adminElements.colorHexLabel) {
-    adminElements.colorHexLabel.textContent = colorHex;
-  }
-  Store.applyBrandColor(colorHex);
-};
-
 // ── Settings Management ────────────────────────────────────
 function loadSettingsForm() {
   const s = Store.getSettings();
@@ -440,6 +494,9 @@ function loadSettingsForm() {
   adminElements.setCurrency.value = s.currency || 'ج.م';
   adminElements.setStoreTagline.value = s.storeTagline || '';
   
+  currentSelectedThemePreset = s.themePreset || 'charcoal';
+  renderThemePresetsSelector();
+
   if (adminElements.setPrimaryColor) {
     adminElements.setPrimaryColor.value = s.primaryColor || '#c2410c';
   }
@@ -475,6 +532,7 @@ function handleSaveSettings(e) {
     storeName: adminElements.setStoreName.value.trim(),
     currency: adminElements.setCurrency.value.trim() || 'ج.م',
     storeTagline: adminElements.setStoreTagline.value.trim(),
+    themePreset: currentSelectedThemePreset,
     primaryColor: adminElements.setPrimaryColor ? adminElements.setPrimaryColor.value : current.primaryColor,
     showAnnouncement: adminElements.setShowAnnouncement ? adminElements.setShowAnnouncement.checked : true,
     announcementText: adminElements.setAnnouncementText ? adminElements.setAnnouncementText.value.trim() : '',
@@ -490,7 +548,7 @@ function handleSaveSettings(e) {
 
   Store.saveSettings(updated);
   if (adminElements.adminStoreName) adminElements.adminStoreName.textContent = `إدارة منيو (${updated.storeName})`;
-  showAdminToast("تم حفظ جميع إعدادات وهوية المتجر بنجاح ✅");
+  showAdminToast("تم حفظ قالب المظهر وجميع الإعدادات بنجاح ✅");
 }
 
 function handleResetDemo() {
@@ -522,7 +580,11 @@ function setupAdminEventListeners() {
     adminElements.setPrimaryColor.addEventListener('input', (e) => {
       const color = e.target.value;
       if (adminElements.colorHexLabel) adminElements.colorHexLabel.textContent = color;
-      Store.applyBrandColor(color);
+      const root = document.documentElement;
+      root.style.setProperty('--primary', color);
+      root.style.setProperty('--primary-hover', color);
+      root.style.setProperty('--primary-subtle', color + '22');
+      root.style.setProperty('--primary-glow', color + '40');
     });
   }
 
