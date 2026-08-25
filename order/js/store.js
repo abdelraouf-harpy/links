@@ -17,7 +17,7 @@ const THEME_PRESETS = {
   charcoal: {
     id: "charcoal",
     name: "دفتر الفحم الدافئ",
-    badge: "فحم وخشب داكن 🔥",
+    badge: "فحم وخشب داكن",
     bg: "#110e0c",
     surface: "#1f1a16",
     surfaceRaised: "#29221d",
@@ -30,7 +30,7 @@ const THEME_PRESETS = {
   cream: {
     id: "cream",
     name: "الورق العاجي الفاتح",
-    badge: "نهاري راقي وكافيهات 📜",
+    badge: "نهاري راقي وكافيهات",
     bg: "#faf7f2",
     surface: "#ffffff",
     surfaceRaised: "#f5eedf",
@@ -43,7 +43,7 @@ const THEME_PRESETS = {
   olive: {
     id: "olive",
     name: "الزيتوني الريفي والروستيك",
-    badge: "طبيعي ومزارع خضراء 🌿",
+    badge: "طبيعي ومزارع خضراء",
     bg: "#0d1410",
     surface: "#1a2720",
     surfaceRaised: "#23352c",
@@ -56,7 +56,7 @@ const THEME_PRESETS = {
   midnight: {
     id: "midnight",
     name: "الأسود والذهب الملكي",
-    badge: "فخامة لاونج وستيك 👑",
+    badge: "فخامة لاونج وستيك",
     bg: "#0a0a0a",
     surface: "#181818",
     surfaceRaised: "#242424",
@@ -69,7 +69,7 @@ const THEME_PRESETS = {
   indigo: {
     id: "indigo",
     name: "الأزرق النيلي العصري",
-    badge: "سي فود وشبابي عصري 🌊",
+    badge: "سي فود وشبابي عصري",
     bg: "#0b1120",
     surface: "#16223f",
     surfaceRaised: "#1e2e54",
@@ -82,7 +82,7 @@ const THEME_PRESETS = {
   bordeaux: {
     id: "bordeaux",
     name: "العنابي الفاخر والبوردو",
-    badge: "مشويات وشاعري دافئ 🍷",
+    badge: "مشويات وشاعري دافئ",
     bg: "#150a0d",
     surface: "#28151b",
     surfaceRaised: "#361d24",
@@ -95,7 +95,7 @@ const THEME_PRESETS = {
   sunset: {
     id: "sunset",
     name: "البرتقالي المنعش والفاير",
-    badge: "برجر وفاست فود حماسي 🍔",
+    badge: "برجر وفاست فود",
     bg: "#140e08",
     surface: "#24180d",
     surfaceRaised: "#332212",
@@ -133,7 +133,7 @@ const DEFAULT_SETTINGS = {
     border: "rgba(245, 238, 227, 0.12)"
   },
 
-  announcementText: "🔥 خصم خاص 10% عند الدفع بالمحفظة الإلكترونية • توصيل سريع لباب البيت",
+  announcementText: "خصم خاص 10% عند الدفع بالمحفظة الإلكترونية • توصيل سريع لباب البيت",
   showAnnouncement: true,
   deliveryTime: "30-45 دقيقة",
   minOrder: 0

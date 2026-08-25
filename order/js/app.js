@@ -141,7 +141,7 @@ function handleThemeToggle() {
   const newMode = currentMode === 'light' ? 'dark' : 'light';
   Store.setThemeMode(newMode);
   updateThemeToggleIcons();
-  showToast(newMode === 'light' ? 'تم تفعيل الوضع النهاري ☀️' : 'تم تفعيل الوضع الليلي 🌙', 'info');
+  showToast(newMode === 'light' ? 'تم تفعيل الوضع النهاري' : 'تم تفعيل الوضع الليلي', 'info');
 }
 
 // ── Announcement Bar ───────────────────────────────────────
@@ -208,7 +208,7 @@ function handleReorderPrevious() {
   renderProducts();
   openCartDrawer();
   goToCheckoutStep(1);
-  showToast("تمت استعادة طلبك السابق بنجاح! 🛍️");
+  showToast("تمت استعادة طلبك السابق بنجاح");
 }
 
 // ── Contextual Discovery Ribbon ────────────────────────────
@@ -217,15 +217,15 @@ function renderDiscoveryRibbon() {
   const favs = Store.getFavorites();
 
   const discoveryItems = [
-    { id: "all", label: "✨ تصفح المنيو كاملاً", count: null },
-    { id: "featured", label: "🔥 الأكثر طلباً", count: null },
-    { id: "fast", label: "⚡ تحضير سريع", count: null },
-    { id: "favorites", label: "❤️ المفضلة", count: favs.length > 0 ? favs.length : null }
+    { id: "all", label: "جميع الأصناف", icon: '<svg class="icon icon-sm" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>', count: null },
+    { id: "featured", label: "الأكثر طلباً", icon: '<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3z"/></svg>', count: null },
+    { id: "fast", label: "تحضير سريع", icon: '<svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>', count: null },
+    { id: "favorites", label: "المفضلة", icon: '<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>', count: favs.length > 0 ? favs.length : null }
   ];
 
   elements.discoveryScroll.innerHTML = discoveryItems.map(item => `
     <button class="discovery-chip ${activeDiscovery === item.id ? 'active' : ''}" data-discovery="${item.id}">
-      <span>${item.label}</span>
+      ${item.icon || ''} <span>${item.label}</span>
       ${item.count ? `<span class="chip-count font-num">${item.count}</span>` : ''}
     </button>
   `).join('');
@@ -336,7 +336,7 @@ function renderProducts() {
       <div class="hero-product-card">
         <div class="hero-product-img-wrap" onclick="openProductPreview('${showcaseItem.id}')">
           <img src="${showcaseItem.image || 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600'}" alt="${showcaseItem.name}" class="hero-product-img" loading="lazy">
-          <span class="hero-badge-tag">${showcaseItem.badge || '⭐ اختيار الشيف المميز'}</span>
+          <span class="hero-badge-tag">${showcaseItem.badge || 'اختيار الشيف'}</span>
         </div>
         <div class="hero-product-content">
           <div>
@@ -467,7 +467,7 @@ window.handleToggleFavorite = function(e, productId) {
     elements.previewFavBtn.className = `btn-fav-toggle ${isNowFav ? 'active' : ''}`;
   }
 
-  showToast(isNowFav ? "تمت إضافة الصنف لمفضلاتك ❤️" : "تمت إزالة الصنف من المفضلة", "info");
+  showToast(isNowFav ? "تمت إضافة الصنف لمفضلاتك" : "تمت إزالة الصنف من المفضلة", "info");
 };
 
 // ── Cart State Modifiers ───────────────────────────────────
@@ -873,7 +873,7 @@ function handleWhatsAppOrder() {
   elements.receiptStatus.style.display = 'none';
   uploadedReceiptUrl = null;
 
-  showToast("تم تحويل طلبك للواتساب بنجاح! 🚀");
+  showToast("جاري تحويل طلبك إلى الواتساب");
 }
 
 // Start

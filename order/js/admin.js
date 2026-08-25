@@ -310,59 +310,67 @@ function renderVisualCatalog() {
            draggable="true" 
            data-product-id="${p.id}">
         
-        <!-- Header Row (Drag Handle + Mobile Arrows + Category + Visibility Toggle) -->
+        <!-- Header Row -->
         <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
           <div style="display:flex; align-items:center; gap:4px;">
-            <span class="admin-drag-handle" title="اسحب لإعادة الترتيب">⠿</span>
-            <button type="button" class="reorder-mobile-btn" onclick="moveProductUp('${p.id}')" title="تحريك لأعلى" ${index === 0 ? 'disabled style="opacity:0.3; cursor:default;"' : ''}>▲</button>
-            <button type="button" class="reorder-mobile-btn" onclick="moveProductDown('${p.id}')" title="تحريك لأسفل" ${index === prods.length - 1 ? 'disabled style="opacity:0.3; cursor:default;"' : ''}>▼</button>
-            <span style="font-size:11px; font-weight:800; color:var(--text-muted); background:var(--surface); padding:2px 8px; border-radius:var(--radius-xs); margin-right:4px;">
+            <span class="admin-drag-handle" title="اسحب لإعادة الترتيب">
+              <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="9" cy="5" r="1.2"/><circle cx="9" cy="12" r="1.2"/><circle cx="9" cy="19" r="1.2"/><circle cx="15" cy="5" r="1.2"/><circle cx="15" cy="12" r="1.2"/><circle cx="15" cy="19" r="1.2"/></svg>
+            </span>
+            <button type="button" class="reorder-mobile-btn" onclick="moveProductUp('${p.id}')" title="تحريك لأعلى" ${index === 0 ? 'disabled style="opacity:0.3; cursor:default;"' : ''}>
+              <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></svg>
+            </button>
+            <button type="button" class="reorder-mobile-btn" onclick="moveProductDown('${p.id}')" title="تحريك لأسفل" ${index === prods.length - 1 ? 'disabled style="opacity:0.3; cursor:default;"' : ''}>
+              <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <span style="font-size:11.5px; font-weight:600; color:var(--text-muted); background:var(--surface); padding:2px 8px; border-radius:4px; margin-right:4px;">
               ${p.category}
             </span>
           </div>
           <button type="button" 
                   class="btn btn-ghost btn-sm" 
-                  style="font-size:11px; padding:3px 8px; color:${isVisible ? 'var(--accent-wa)' : 'var(--danger)'};"
+                  style="font-size:11.5px; padding:3px 8px; color:${isVisible ? 'var(--accent-wa)' : 'var(--danger)'}; display:inline-flex; align-items:center; gap:4px;"
                   onclick="handleToggleVisibility('${p.id}')"
-                  title="تغيير حالة الظهور للزبائن">
-            ${isVisible ? '👁️ معروض' : '🚫 مخفي'}
+                  title="تغيير حالة الظهور">
+            ${isVisible ? '<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg> معروض' : '<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg> مخفي'}
           </button>
         </div>
 
-        <!-- Body Row (Thumb + Title & Desc) -->
+        <!-- Body Row -->
         <div style="display:flex; gap:12px; align-items:center;">
           <img src="${p.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=120'}" 
-               style="width:56px; height:56px; border-radius:var(--radius-xs); object-fit:cover; background:var(--surface);" 
+               style="width:54px; height:54px; border-radius:6px; object-fit:cover; background:var(--surface);" 
                alt="${p.name}">
           <div style="flex:1; min-width:0;">
-            <div style="font-weight:900; font-size:14px; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+            <div style="font-weight:700; font-size:14px; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
               ${p.name}
             </div>
-            <div style="font-size:11px; color:var(--text-faint); margin-top:2px;">
-              ⏱️ ${p.prepTime || '15 دقيقة'} ${p.badge ? `• 🏷️ ${p.badge}` : ''}
+            <div style="font-size:11px; color:var(--text-muted); margin-top:2px; display:flex; align-items:center; gap:4px;">
+              <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span>${p.prepTime || '15 دقيقة'}</span> ${p.badge ? `<span style="margin:0 4px;">•</span> <span>${p.badge}</span>` : ''}
             </div>
           </div>
         </div>
 
-        <!-- Footer Row (Inline Price Edit + Full Edit & Delete Actions) -->
+        <!-- Footer Row -->
         <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; padding-top:10px; border-top:1px solid var(--border);">
           <div style="display:flex; align-items:center; gap:4px;">
-            <span style="font-size:11px; color:var(--text-muted); font-weight:700;">السعر:</span>
+            <span style="font-size:11px; color:var(--text-muted); font-weight:600;">السعر:</span>
             <input type="number" 
                    class="inline-price-input font-num" 
                    value="${p.price}" 
                    step="0.5"
                    onchange="handleInlinePriceChange('${p.id}', this.value)"
                    onkeypress="if(event.key === 'Enter') this.blur();">
-            <span style="font-size:11px; color:var(--primary); font-weight:800;">${currency}</span>
+            <span style="font-size:11px; color:var(--primary); font-weight:700;">${currency}</span>
           </div>
 
           <div style="display:flex; gap:6px;">
             <button class="btn btn-ghost btn-sm" onclick="openEditProductModal('${p.id}')" title="تعديل كامل">
-              ✏️ تعديل
+              <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+              <span>تعديل</span>
             </button>
             <button class="btn btn-danger btn-sm" onclick="handleDeleteProduct('${p.id}')" title="حذف الصنف">
-              🗑️
+              <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
             </button>
           </div>
         </div>
@@ -383,7 +391,7 @@ window.moveProductUp = function(id) {
     prods[idx - 1] = temp;
     Store.saveProducts(prods);
     renderVisualCatalog();
-    showAdminToast("تم تحريك الصنف للأعلى ⠿");
+    showAdminToast("تم تحريك الصنف للأعلى");
   }
 };
 
@@ -396,7 +404,7 @@ window.moveProductDown = function(id) {
     prods[idx + 1] = temp;
     Store.saveProducts(prods);
     renderVisualCatalog();
-    showAdminToast("تم تحريك الصنف للأسفل ⠿");
+    showAdminToast("تم تحريك الصنف للأسفل");
   }
 };
 
@@ -404,14 +412,14 @@ window.moveProductDown = function(id) {
 window.handleInlinePriceChange = function(id, newPrice) {
   const price = parseFloat(newPrice) || 0;
   Store.quickUpdatePrice(id, price);
-  showAdminToast(`تم تحديث السعر إلى ${price} ✅`);
+  showAdminToast(`تم تحديث السعر بنجاح`);
 };
 
 // ── Quick Visibility Toggle ────────────────────────────────
 window.handleToggleVisibility = function(id) {
   const isNowVisible = Store.toggleProductVisibility(id);
   renderVisualCatalog();
-  showAdminToast(isNowVisible ? "تم إظهار الصنف في المنيو 👁️" : "تم إخفاء الصنف من المنيو 🚫", "info");
+  showAdminToast(isNowVisible ? "تم إظهار الصنف في المنيو" : "تم إخفاء الصنف من المنيو", "info");
 };
 
 // ── Drag and Drop Reordering Setup ─────────────────────────
@@ -460,7 +468,7 @@ function setupDragAndDrop() {
         const newOrderedCards = Array.from(parent.querySelectorAll('.admin-catalog-item'));
         const newIds = newOrderedCards.map(c => c.dataset.productId);
         Store.reorderProducts(newIds);
-        showAdminToast("تم حفظ الترتيب الجديد للمنيو ⠿");
+        showAdminToast("تم حفظ الترتيب الجديد للمنيو");
       }
     });
   });
@@ -632,7 +640,7 @@ function handleSaveSettings(e) {
 
   Store.saveSettings(updated);
   if (adminElements.adminStoreName) adminElements.adminStoreName.textContent = `إدارة منيو (${updated.storeName})`;
-  showAdminToast("تم حفظ جميع ألوان الموقع وإعداداته بنجاح ✅");
+  showAdminToast("تم حفظ جميع إعدادات وألوان الموقع بنجاح");
 }
 
 function handleResetDemo() {
