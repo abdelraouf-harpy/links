@@ -2293,24 +2293,42 @@ function toast(msg, type = 'default') {
     setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 320); }, 3400);
 }
 
-// ضغط ومعالجة الصور بجودة فائقة الوضوح HD (950x950 JPEG بجودة 0.88 تمنع أي بكسلة)
-function compress(file, maxW=950, maxH=950, q=0.88) {
+// ضغط ومعالجة الصور بجودة فائقة الوضوح HD ودعم شامل لكافة متصفحات الموبايل والكمبيوتر
+function compress(file, maxW=900, maxH=900, q=0.85) {
     return new Promise(res => {
-        const img = new Image(), url = URL.createObjectURL(file);
-        img.onload = () => {
-            URL.revokeObjectURL(url);
-            let {width:w, height:h} = img;
-            if (w > maxW || h > maxH) { const r = Math.min(maxW/w, maxH/h); w=Math.floor(w*r); h=Math.floor(h*r); }
-            const c = document.createElement('canvas');
-            c.width = w; c.height = h;
-            const ctx = c.getContext('2d');
-            ctx.imageSmoothingEnabled = true;
-            ctx.imageSmoothingQuality = 'high';
-            ctx.drawImage(img, 0, 0, w, h);
-            res(c.toDataURL('image/jpeg', q));
+        if (!file) return res(null);
+        const reader = new FileReader();
+        reader.onload = e => {
+            const rawDataUrl = e.target.result;
+            const img = new Image();
+            img.onload = () => {
+                let { width: w, height: h } = img;
+                if (w > maxW || h > maxH) {
+                    const r = Math.min(maxW / w, maxH / h);
+                    w = Math.max(1, Math.floor(w * r));
+                    h = Math.max(1, Math.floor(h * r));
+                }
+                const c = document.createElement('canvas');
+                c.width = w;
+                c.height = h;
+                const ctx = c.getContext('2d');
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                ctx.drawImage(img, 0, 0, w, h);
+                try {
+                    const dataUrl = c.toDataURL('image/jpeg', q);
+                    res(dataUrl || rawDataUrl);
+                } catch (err) {
+                    res(rawDataUrl);
+                }
+            };
+            img.onerror = () => {
+                res(rawDataUrl);
+            };
+            img.src = rawDataUrl;
         };
-        img.onerror = () => { URL.revokeObjectURL(url); res(null); };
-        img.src = url;
+        reader.onerror = () => res(null);
+        reader.readAsDataURL(file);
     });
 }
 
@@ -3166,24 +3184,27 @@ productForm.addEventListener('submit', async e => {
     let imgType = 'none', imgData = '';
 
     const file = inFile.files[0];
-    if (file) {
-        const compressed = await compress(file);
-        if (compressed) {
-            imgType = 'file';
-            imgData = compressed; // حفظ سحابي كامل ومزامنة فورية لكل الأجهزة
-            await imgDB.save(id, compressed);
-        }
-    } else if (previewImg.src && previewImg.src.startsWith('data:image')) {
+    if (previewImg.src && previewImg.src.startsWith('data:image')) {
         imgType = 'file';
         imgData = previewImg.src;
         await imgDB.save(id, imgData);
+    } else if (file) {
+        const compressed = await compress(file);
+        if (compressed) {
+            imgType = 'file';
+            imgData = compressed;
+            await imgDB.save(id, compressed);
+        }
     } else if (validUrl(urlVal)) {
         imgType = 'url';
         imgData = urlVal;
         await imgDB.del(id);
     } else if (existId) {
         const ex = products.find(p => p.id === existId);
-        if (ex) { imgType = ex.imgType||'none'; imgData = ex.imgData||''; }
+        if (ex) {
+            imgType = ex.imgType || 'none';
+            imgData = ex.imgData || '';
+        }
     }
 
     const prod = { id, serial, cat, name, whole, sell, qty, imgType, imgData, desc, updatedAt: new Date().toISOString() };
