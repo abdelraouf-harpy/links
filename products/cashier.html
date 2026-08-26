@@ -1313,7 +1313,6 @@ async function completeCheckout() {
         $('discountVal').value  = '';
         updateSummary();
 
-        toast(`تم حفظ الفاتورة ${invId} وخصم الكميات بنجاح ✓`, 'success');
         showInvoiceModal(invoice);
         loadHistory();
 
