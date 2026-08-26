@@ -627,9 +627,43 @@
         }
         #printArea { display: none; }
 
-        @media (max-width: 600px) {
-            .cashier-wrap { padding: 12px 10px; gap: 14px; }
-            .inv-meta { grid-template-columns: 1fr; }
+        @media (max-width: 680px) {
+            .app-header { padding: 8px 10px; }
+            .header-inner { gap: 6px; }
+            .header-brand .icon { width: 32px; height: 32px; font-size: 0.95rem; border-radius: 8px; }
+            .header-brand h1 { font-size: 0.92rem; }
+            .header-brand p { display: none; }
+
+            .header-actions { gap: 4px; }
+            .hbtn { padding: 6px 10px; font-size: 0.78rem; border-radius: 8px; }
+            .hbtn .btn-label { display: none; }
+            .hbtn.icon-only { width: 32px; height: 32px; border-radius: 8px; }
+
+            .cashier-wrap { padding: 10px 10px; gap: 12px; }
+            .c-card-head { padding: 10px 14px; }
+            .c-card-body { padding: 12px 14px; }
+
+            .cart-item { padding: 8px 10px; gap: 8px; }
+            .cart-item-img { width: 44px; height: 44px; border-radius: 6px; }
+            .cart-item-name { font-size: 0.82rem; }
+            .cart-item-meta { font-size: 0.7rem; }
+            .qty-btn { width: 26px; height: 26px; font-size: 0.9rem; }
+            .qty-num { font-size: 0.88rem; min-width: 18px; }
+            .cart-del-btn { width: 28px; height: 28px; font-size: 0.8rem; }
+
+            .history-section { padding: 0 10px; margin-bottom: 20px; }
+            .inv-meta { grid-template-columns: 1fr; gap: 6px; }
+            .inv-modal-box { max-width: 96vw; }
+            .inv-header { padding: 14px 16px; }
+            .inv-body { padding: 14px 16px; }
+            .inv-actions { padding: 12px 16px; flex-wrap: wrap; }
+            .inv-actions button { min-width: 100px; padding: 9px; font-size: 0.82rem; }
+        }
+
+        @media (max-width: 360px) {
+            .cart-search-bar { flex-direction: column; }
+            .cart-search-bar button { width: 100%; }
+            .pay-method-btn { padding: 8px 4px; font-size: 0.78rem; }
         }
     </style>
 </head>
