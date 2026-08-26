@@ -403,25 +403,22 @@
 
         /* ── Sales History Table ── */
         .history-section {
+            width: 100%;
             max-width: 1400px;
             margin: 0 auto 30px;
             padding: 0 16px;
-            width: 100%;
-            max-width: 100%;
-            min-width: 0;
-            overflow: hidden;
             box-sizing: border-box;
         }
+
         .history-table-wrap {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
             width: 100%;
-            max-width: 100%;
             display: block;
         }
+
         table {
             width: 100%;
-            min-width: 580px;
             border-collapse: collapse;
             font-size: 0.87rem;
         }
@@ -567,29 +564,9 @@
         }
         .inv-footer-note {
             text-align: center;
-            font-size: 0.74rem;
-            color: var(--muted);
-            margin-top: 10px;
-            padding-top: 8px;
-            border-top: 1px dashed var(--border);
-        }
-            justify-content: space-between;
-            font-size: 0.85rem;
-            padding: 4px 0;
-        }
-        .inv-total-row.final {
-            font-size: 1.05rem;
-            font-weight: 900;
-            color: #059669;
-            padding-top: 8px;
-            border-top: 1px dashed #e2e8f0;
-            margin-top: 4px;
-        }
-        .inv-footer-note {
-            text-align: center;
-            font-size: 0.78rem;
+            font-size: 0.76rem;
             color: #94a3b8;
-            margin-top: 14px;
+            margin-top: 12px;
             padding-top: 10px;
             border-top: 1px dashed #e2e8f0;
         }
@@ -1382,7 +1359,7 @@ function renderHistory(invList) {
             <td style="font-size:0.8rem">${itemsSummary}</td>
             <td><strong style="color:var(--green)">${fmt(inv.total)} ج.م</strong></td>
             <td>${pay}</td>
-            <td style="color:var(--success);font-weight:700">${fmt(inv.totalProfit)} ج.م</td>
+            <td style="color:var(--success);font-weight:700">+${fmt(inv.totalProfit)} ج.م</td>
             <td>
                 <button class="tbl-act-btn" onclick='showInvoiceModal(${JSON.stringify(inv)})'>
                     <i class="fa-solid fa-eye"></i> عرض

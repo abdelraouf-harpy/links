@@ -2400,16 +2400,34 @@ function validateAuthInputs(name, phone, key) {
     return null;
 }
 
-/* شارة حالة الكمية والمخزون */
-function getQtyBadge(qty) {
-    if (qty === null || qty === undefined || qty === '' || isNaN(qty)) return '';
-    const n = parseInt(qty, 10);
-    if (n <= 0) {
+/* شارة حالة الكمية والمخزون التفاعلية المباشرة (تخصم فورياً عند وضع أي كمية في السلة) */
+function getQtyBadge(p) {
+    if (!p) return '';
+    const totalStock = (p.qty !== null && p.qty !== undefined && !isNaN(p.qty)) ? parseInt(p.qty, 10) : 1;
+    const inCartQty = getCartItemQty(p.id);
+    const available = Math.max(0, totalStock - inCartQty);
+
+    if (totalStock <= 0) {
         return `<span class="stock-badge stock-out"><i class="fa-solid fa-triangle-exclamation"></i> نفدت الكمية</span>`;
-    } else if (n <= LOW_STOCK_THRESHOLD) {
-        return `<span class="stock-badge stock-low"><i class="fa-solid fa-cubes-stacked"></i> الكمية المتاحة: ${n}</span>`;
+    } else if (available <= 0) {
+        return `<span class="stock-badge stock-out" style="background:#fee2e2;color:#dc2626;border-color:#fca5a5;"><i class="fa-solid fa-cart-shopping"></i> كل المخزون بالسلة (${inCartQty})</span>`;
+    } else if (available <= LOW_STOCK_THRESHOLD) {
+        return `<span class="stock-badge stock-low"><i class="fa-solid fa-cubes-stacked"></i> المتبقي: ${available} قطعة</span>`;
     } else {
-        return `<span class="stock-badge stock-in"><i class="fa-solid fa-cubes-stacked"></i> الكمية المتاحة: ${n}</span>`;
+        return `<span class="stock-badge stock-in"><i class="fa-solid fa-cubes-stacked"></i> المتبقي: ${available} قطعة</span>`;
+    }
+}
+
+function updateCardStockBadge(productId) {
+    const card = document.querySelector(`.product-card[data-id="${productId}"]`);
+    const p = products.find(x => x.id === productId);
+    if (card && p) {
+        const badgeWrap = card.querySelector('.card-stock-wrap');
+        if (badgeWrap) badgeWrap.innerHTML = getQtyBadge(p);
+    }
+    if (currentDetailProduct && currentDetailProduct.id === productId) {
+        const dtStock = $('dtStockTag');
+        if (dtStock) dtStock.innerHTML = getQtyBadge(currentDetailProduct);
     }
 }
 
@@ -2978,12 +2996,10 @@ function makeCard(p) {
     profitTag.textContent = `الربح: ${fmt(profit)} ج.م${margin !== null ? ` (${margin}%)` : ''}`;
     tagsRow.appendChild(profitTag);
 
-    const qtyBadgeHTML = getQtyBadge(p.qty);
-    if (qtyBadgeHTML) {
-        const qContainer = document.createElement('div');
-        qContainer.innerHTML = qtyBadgeHTML;
-        tagsRow.appendChild(qContainer.firstElementChild);
-    }
+    const qtyBadgeWrap = document.createElement('div');
+    qtyBadgeWrap.className = 'card-stock-wrap';
+    qtyBadgeWrap.innerHTML = getQtyBadge(p);
+    tagsRow.appendChild(qtyBadgeWrap);
 
     const desc = document.createElement('div');
     desc.className = 'prod-desc';
@@ -3078,7 +3094,7 @@ async function openProductDetails(p) {
 
     const dtStock = $('dtStockTag');
     if (dtStock) {
-        dtStock.innerHTML = getQtyBadge(p.qty);
+        dtStock.innerHTML = getQtyBadge(p);
     }
 
     $('dtDesc').textContent = p.desc || 'لا يوجد وصف مضاف لهذا المنتج.';
@@ -3480,6 +3496,7 @@ function addToCart(product) {
         });
     }
     saveCart(cart);
+    updateCardStockBadge(product.id);
 }
 
 function getCartItemQty(productId) {
@@ -3511,6 +3528,7 @@ function changeCartQty(productId, delta, productRef) {
         cart = cart.filter(i => i.id !== productId);
     }
     saveCart(cart);
+    updateCardStockBadge(productId);
     updateFloatCart();
 }
 
@@ -3608,6 +3626,28 @@ async function init() {
     checkAuthGuard();
     updateFloatCart();
 }
+
+window.addEventListener('pageshow', () => {
+    try {
+        const savedProds = JSON.parse(localStorage.getItem('prods_v4'));
+        if (savedProds && Array.isArray(savedProds)) {
+            products = savedProds;
+        }
+    } catch {}
+    renderProducts();
+    updateStats();
+    updateFloatCart();
+});
+
+window.addEventListener('storage', e => {
+    if (e.key === CART_KEY || e.key === 'prods_v4') {
+        try {
+            if (e.key === 'prods_v4') products = JSON.parse(localStorage.getItem('prods_v4')) || products;
+        } catch {}
+        renderProducts();
+        updateFloatCart();
+    }
+});
 
 init();
 
