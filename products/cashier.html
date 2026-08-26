@@ -488,7 +488,7 @@
             z-index: 3000;
             align-items: center;
             justify-content: center;
-            padding: 10px;
+            padding: 8px;
             box-sizing: border-box;
             overflow-y: auto;
         }
@@ -496,10 +496,11 @@
         .inv-modal-box {
             background: #fff;
             border-radius: 16px;
-            max-width: 480px;
+            max-width: 440px;
             width: 100%;
-            max-height: 92vh;
+            max-height: 94vh;
             overflow-y: auto;
+            overflow-x: hidden;
             box-shadow: 0 25px 60px rgba(0,0,0,0.4);
             color: #1e293b;
             box-sizing: border-box;
@@ -507,52 +508,71 @@
         .inv-header {
             background: linear-gradient(135deg, #059669, #047857);
             color: #fff;
-            padding: 16px 14px 14px;
+            padding: 14px 12px;
             text-align: center;
         }
-        .inv-header h2 { font-size: 1.2rem; font-weight: 900; margin-bottom: 2px; }
-        .inv-header p  { font-size: 0.8rem; opacity: 0.85; }
-        .inv-body { padding: 14px 12px; box-sizing: border-box; }
+        .inv-header h2 { font-size: 1.15rem; font-weight: 900; margin-bottom: 2px; }
+        .inv-header p  { font-size: 0.78rem; opacity: 0.85; }
+        .inv-body { padding: 12px 10px; box-sizing: border-box; width: 100%; overflow: hidden; }
         .inv-meta {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 6px;
             margin-bottom: 12px;
         }
-        .inv-meta-item { font-size: 0.78rem; }
-        .inv-meta-item span { display: block; color: #64748b; font-size: 0.7rem; font-weight: 700; }
+        .inv-meta-item { font-size: 0.76rem; min-width: 0; }
+        .inv-meta-item span { display: block; color: #64748b; font-size: 0.68rem; font-weight: 700; }
         .inv-meta-item strong { font-weight: 800; word-break: break-all; }
         .inv-items-table {
-            width: 100%;
-            max-width: 100%;
-            table-layout: fixed;
+            width: 100% !important;
+            max-width: 100% !important;
+            table-layout: fixed !important;
             border-collapse: collapse;
             margin-bottom: 12px;
-            font-size: 0.76rem;
+            font-size: 0.74rem;
             box-sizing: border-box;
         }
-        .inv-items-table th:nth-child(1), .inv-items-table td:nth-child(1) { width: 44%; }
-        .inv-items-table th:nth-child(2), .inv-items-table td:nth-child(2) { width: 16%; text-align: center; }
-        .inv-items-table th:nth-child(3), .inv-items-table td:nth-child(3) { width: 20%; text-align: left; }
-        .inv-items-table th:nth-child(4), .inv-items-table td:nth-child(4) { width: 20%; text-align: left; }
+        .inv-items-table th:nth-child(1), .inv-items-table td:nth-child(1) { width: 44% !important; text-align: right; overflow-wrap: anywhere; word-break: break-word; }
+        .inv-items-table th:nth-child(2), .inv-items-table td:nth-child(2) { width: 14% !important; text-align: center; }
+        .inv-items-table th:nth-child(3), .inv-items-table td:nth-child(3) { width: 21% !important; text-align: center; white-space: nowrap; }
+        .inv-items-table th:nth-child(4), .inv-items-table td:nth-child(4) { width: 21% !important; text-align: left; white-space: nowrap; }
         .inv-items-table th {
             background: #f4f6f9;
-            padding: 6px 4px;
-            text-align: right;
+            padding: 6px 3px;
             font-weight: 800;
-            font-size: 0.72rem;
+            font-size: 0.7rem;
             color: #64748b;
             border-bottom: 2px solid #e2e8f0;
         }
         .inv-items-table td {
-            padding: 6px 4px;
+            padding: 6px 3px;
             border-bottom: 1px solid #f1f5f9;
-            word-break: break-word;
-            overflow-wrap: break-word;
+            vertical-align: middle;
         }
-        .inv-totals { border-top: 2px solid #e2e8f0; padding-top: 12px; }
+        .inv-totals { border-top: 2px solid #e2e8f0; padding-top: 10px; width: 100%; box-sizing: border-box; }
         .inv-total-row {
             display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        .inv-total-row.final {
+            font-size: 0.95rem;
+            font-weight: 900;
+            color: var(--primary);
+            border-top: 1px dashed #e2e8f0;
+            margin-top: 4px;
+            padding-top: 6px;
+        }
+        .inv-footer-note {
+            text-align: center;
+            font-size: 0.74rem;
+            color: var(--muted);
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px dashed var(--border);
+        }
             justify-content: space-between;
             font-size: 0.85rem;
             padding: 4px 0;
@@ -674,17 +694,17 @@
         #printArea { display: none; }
 
         @media (max-width: 680px) {
-            .app-header { padding: 10px 14px; width: 100%; box-sizing: border-box; }
+            .app-header { padding: 10px 16px; width: 100%; box-sizing: border-box; }
             .header-inner { gap: 8px; width: 100%; justify-content: space-between; }
-            .header-brand { gap: 8px; flex-shrink: 0; }
-            .header-brand .icon { width: 34px; height: 34px; font-size: 0.95rem; border-radius: 8px; }
-            .header-brand h1 { font-size: 0.95rem; }
+            .header-brand { gap: 6px; flex-shrink: 1; min-width: 0; }
+            .header-brand .icon { width: 32px; height: 32px; font-size: 0.9rem; border-radius: 8px; flex-shrink: 0; }
+            .header-brand h1 { font-size: 0.92rem; }
             .header-brand p { display: none; }
 
-            .header-actions { gap: 6px; flex-shrink: 0; }
+            .header-actions { gap: 8px; flex-shrink: 0; margin-left: 2px; }
             .hbtn { padding: 6px 10px; font-size: 0.78rem; border-radius: 8px; }
             .hbtn .btn-label { display: none; }
-            .hbtn.icon-only { width: 34px; height: 34px; border-radius: 8px; flex-shrink: 0; }
+            .hbtn.icon-only { width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0; }
 
             .cashier-wrap { padding: 10px 10px; gap: 12px; }
             .c-card-head { padding: 10px 14px; }
@@ -700,11 +720,11 @@
 
             .history-section { padding: 0 10px; margin-bottom: 20px; }
             .inv-meta { grid-template-columns: 1fr; gap: 6px; }
-            .inv-modal-box { max-width: 96vw; }
-            .inv-header { padding: 14px 16px; }
-            .inv-body { padding: 14px 16px; }
-            .inv-actions { padding: 12px 16px; flex-wrap: wrap; }
-            .inv-actions button { min-width: 100px; padding: 9px; font-size: 0.82rem; }
+            .inv-modal-box { max-width: 95vw; width: 100%; }
+            .inv-header { padding: 12px 10px; }
+            .inv-body { padding: 10px 8px; }
+            .inv-actions { padding: 10px 8px; flex-wrap: wrap; gap: 6px; }
+            .inv-actions button { flex: 1; min-width: 80px; padding: 8px; font-size: 0.8rem; }
 
             /* منع الزوم التلقائي في الموبايل */
             .fg input,
@@ -1387,10 +1407,13 @@ function showInvoiceModal(inv) {
 
     const itemsRows = (inv.items||[]).map(i => `
         <tr>
-            <td>${i.name}<br><small style="color:#94a3b8"># ${i.serial}</small></td>
-            <td style="text-align:center">${i.qty}</td>
-            <td>${fmt(i.unitPrice)} ج.م</td>
-            <td><strong>${fmt(i.unitPrice * i.qty)} ج.م</strong></td>
+            <td>
+                <div style="font-weight:700;line-height:1.25;word-break:break-word;overflow-wrap:anywhere;">${i.name}</div>
+                <small style="color:#94a3b8;font-size:0.68rem;word-break:break-all;"># ${i.serial}</small>
+            </td>
+            <td style="text-align:center;font-weight:800;">${i.qty}</td>
+            <td style="text-align:center;white-space:nowrap;">${fmt(i.unitPrice)}</td>
+            <td style="text-align:left;white-space:nowrap;"><strong>${fmt(i.unitPrice * i.qty)}</strong></td>
         </tr>`).join('');
 
     $('invModalBody').innerHTML = `
@@ -1405,8 +1428,8 @@ function showInvoiceModal(inv) {
                 <tr>
                     <th>المنتج</th>
                     <th style="text-align:center">الكمية</th>
-                    <th>سعر القطعة</th>
-                    <th>الإجمالي</th>
+                    <th style="text-align:center">السعر</th>
+                    <th style="text-align:left">الإجمالي</th>
                 </tr>
             </thead>
             <tbody>${itemsRows}</tbody>
