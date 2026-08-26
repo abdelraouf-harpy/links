@@ -1651,12 +1651,43 @@
                 font-size: 0.75rem;
             }
 
+            /* منع الزوم التلقائي المزعج في متصفحات الموبايل والآيفون */
+            .search-box input,
+            .fg input,
+            .fg select,
+            .fg textarea,
+            .auth-fg input {
+                font-size: 16px !important;
+            }
+
             .float-cart {
-                bottom: 18px;
-                left: 18px;
-                padding: 10px 16px;
-                font-size: 0.88rem;
+                bottom: max(16px, env(safe-area-inset-bottom, 16px));
+                left: 14px;
+                padding: 9px 14px;
+                font-size: 0.82rem;
                 border-radius: 16px;
+                max-width: calc(50vw - 20px);
+            }
+
+            .fab {
+                bottom: max(16px, env(safe-area-inset-bottom, 16px));
+                right: 14px;
+                padding: 9px 14px;
+                font-size: 0.82rem;
+                border-radius: 16px;
+                max-width: calc(50vw - 20px);
+            }
+
+            .details-box {
+                width: 94vw;
+                max-height: 90vh;
+                border-radius: 16px;
+            }
+
+            .confirm-box, .auth-box {
+                width: 92vw;
+                max-width: 360px;
+                padding: 24px 20px;
             }
 
             .details-img-wrap { height: 190px; }

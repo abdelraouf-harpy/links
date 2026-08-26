@@ -692,6 +692,15 @@
             .inv-body { padding: 14px 16px; }
             .inv-actions { padding: 12px 16px; flex-wrap: wrap; }
             .inv-actions button { min-width: 100px; padding: 9px; font-size: 0.82rem; }
+
+            /* منع الزوم التلقائي في الموبايل */
+            .fg input,
+            .fg select,
+            .fg textarea,
+            .cart-search-bar input,
+            .auth-fg input {
+                font-size: 16px !important;
+            }
         }
 
         @media (max-width: 360px) {
@@ -835,7 +844,7 @@
                         <span class="summary-val" id="sumTotal">0.00 ج.م</span>
                     </div>
                     <div class="summary-row profit-row">
-                        <span class="summary-label" style="color:var(--success)"><i class="fa-solid fa-chart-line"></i> الربح المتوقع</span>
+                        <span class="summary-label" style="color:var(--success)"><i class="fa-solid fa-chart-line"></i> هامش الربح (إداري داخلي)</span>
                         <span class="summary-val" id="sumProfit">0.00 ج.م</span>
                     </div>
                 </div>
@@ -1339,14 +1348,14 @@ function renderHistory(invList) {
 }
 
 /* ============================================================
-   Invoice Modal — Display, Print, PDF
+   Invoice Modal — Display, Print, PDF (بدون ظهور أي نسبة ربح للعميل)
    ============================================================ */
 function showInvoiceModal(inv) {
     currentInvoice = inv;
     const d = new Date(inv.date);
     const dateStr = d.toLocaleDateString('ar-EG', {year:'numeric',month:'long',day:'numeric'}) + ' — ' + d.toLocaleTimeString('ar-EG', {hour:'2-digit',minute:'2-digit'});
 
-    const payLabel = inv.paymentMethod === 'cash' ? '💵 كاش' : '💳 فيزا';
+    const payLabel = inv.paymentMethod === 'cash' ? 'نقداً (كاش)' : 'بطاقة بنكية (فيزا)';
     const discLabel = inv.discountAmount > 0
         ? (inv.discount.type === 'percent' ? `${inv.discount.value}% (${fmt(inv.discountAmount)} ج.م)` : `${fmt(inv.discountAmount)} ج.م`)
         : '—';
@@ -1380,10 +1389,9 @@ function showInvoiceModal(inv) {
         <div class="inv-totals">
             <div class="inv-total-row"><span>المجموع الفرعي</span><span>${fmt(inv.subtotal)} ج.م</span></div>
             <div class="inv-total-row" style="color:#ef4444"><span>الخصم</span><span>${discLabel}</span></div>
-            <div class="inv-total-row final"><span>الإجمالي المدفوع</span><span>${fmt(inv.total)} ج.م</span></div>
-            <div class="inv-total-row" style="color:#059669;font-weight:800"><span>💰 الربح</span><span>${fmt(inv.totalProfit)} ج.م</span></div>
+            <div class="inv-total-row final"><span>الإجمالي النهائي المستحق</span><span>${fmt(inv.total)} ج.م</span></div>
         </div>
-        <div class="inv-footer-note">شكراً لتعاملكم معنا 🙏 — نظام إدارة المنتجات / harpy</div>`;
+        <div class="inv-footer-note">شكراً لتعاملكم معنا.</div>`;
 
     $('invModal').classList.add('open');
 }
@@ -1406,7 +1414,7 @@ function downloadPDF() {
     const win = window.open('', '_blank');
     win.document.write(`<!DOCTYPE html><html dir="rtl"><head>
         <meta charset="UTF-8">
-        <title>فاتورة ${currentInvoice.invoiceId}</title>
+        <title>فاتورة رقم ${currentInvoice.invoiceId}</title>
         <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap" rel="stylesheet">
         <style>
             * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
@@ -1420,29 +1428,29 @@ function downloadPDF() {
 function buildPrintHTML(inv) {
     const d = new Date(inv.date);
     const dateStr = d.toLocaleDateString('ar-EG', {year:'numeric',month:'long',day:'numeric'}) + ' ' + d.toLocaleTimeString('ar-EG', {hour:'2-digit',minute:'2-digit'});
-    const payLabel = inv.paymentMethod === 'cash' ? 'كاش' : 'فيزا';
+    const payLabel = inv.paymentMethod === 'cash' ? 'نقداً (كاش)' : 'بطاقة بنكية (فيزا)';
     const discLabel = inv.discountAmount > 0 ? `- ${fmt(inv.discountAmount)} ج.م` : '—';
 
     const rows = (inv.items||[]).map(i => `
         <tr>
-            <td style="padding:7px 10px;border-bottom:1px solid #f1f5f9">${i.name} (# ${i.serial})</td>
-            <td style="padding:7px 10px;border-bottom:1px solid #f1f5f9;text-align:center">${i.qty}</td>
-            <td style="padding:7px 10px;border-bottom:1px solid #f1f5f9">${fmt(i.unitPrice)} ج.م</td>
-            <td style="padding:7px 10px;border-bottom:1px solid #f1f5f9;font-weight:800">${fmt(i.unitPrice*i.qty)} ج.م</td>
+            <td style="padding:8px 10px;border-bottom:1px solid #f1f5f9">${i.name} (# ${i.serial})</td>
+            <td style="padding:8px 10px;border-bottom:1px solid #f1f5f9;text-align:center">${i.qty}</td>
+            <td style="padding:8px 10px;border-bottom:1px solid #f1f5f9">${fmt(i.unitPrice)} ج.م</td>
+            <td style="padding:8px 10px;border-bottom:1px solid #f1f5f9;font-weight:800">${fmt(i.unitPrice*i.qty)} ج.م</td>
         </tr>`).join('');
 
     return `
         <div style="max-width:480px;margin:0 auto">
             <div style="background:linear-gradient(135deg,#059669,#047857);color:#fff;padding:20px;border-radius:12px 12px 0 0;text-align:center">
-                <h2 style="font-size:1.3rem;font-weight:900;margin-bottom:4px">🧾 فاتورة بيع</h2>
-                <p style="opacity:.85;font-size:.82rem">نظام إدارة المنتجات — harpy</p>
+                <h2 style="font-size:1.3rem;font-weight:900;margin-bottom:4px">فاتورة مبيعات</h2>
+                <p style="opacity:.85;font-size:.82rem">نظام إدارة المنتجات</p>
             </div>
             <div style="border:1px solid #e2e8f0;border-top:none;border-radius:0 0 12px 12px;padding:20px">
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;font-size:.82rem">
                     <div><span style="color:#94a3b8;display:block;font-size:.72rem;font-weight:700">رقم الفاتورة</span><strong>${inv.invoiceId}</strong></div>
                     <div><span style="color:#94a3b8;display:block;font-size:.72rem;font-weight:700">التاريخ</span><strong>${dateStr}</strong></div>
                     <div><span style="color:#94a3b8;display:block;font-size:.72rem;font-weight:700">العميل</span><strong>${inv.customerName||'—'}</strong></div>
-                    <div><span style="color:#94a3b8;display:block;font-size:.72rem;font-weight:700">الدفع</span><strong>${payLabel}</strong></div>
+                    <div><span style="color:#94a3b8;display:block;font-size:.72rem;font-weight:700">طريقة الدفع</span><strong>${payLabel}</strong></div>
                 </div>
                 <table style="width:100%;border-collapse:collapse;font-size:.82rem;margin-bottom:14px">
                     <thead>
@@ -1459,11 +1467,11 @@ function buildPrintHTML(inv) {
                     <div style="display:flex;justify-content:space-between;padding:4px 0"><span>المجموع</span><span>${fmt(inv.subtotal)} ج.م</span></div>
                     <div style="display:flex;justify-content:space-between;padding:4px 0;color:#ef4444"><span>الخصم</span><span>${discLabel}</span></div>
                     <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:1.1rem;font-weight:900;color:#059669;border-top:1px dashed #e2e8f0;margin-top:4px">
-                        <span>الإجمالي المدفوع</span><span>${fmt(inv.total)} ج.م</span>
+                        <span>الإجمالي المستحق</span><span>${fmt(inv.total)} ج.م</span>
                     </div>
                 </div>
                 <div style="text-align:center;font-size:.78rem;color:#94a3b8;margin-top:14px;padding-top:10px;border-top:1px dashed #e2e8f0">
-                    شكراً لتعاملكم معنا 🙏
+                    شكراً لتعاملكم معنا.
                 </div>
             </div>
         </div>`;
