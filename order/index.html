@@ -4,7 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>اطلب الآن — منيو وطلبات أونلاين</title>
-  <meta name="description" content="تصفح أشهى المأكولات واطلب وجباتك المفضلة مباشرة عبر الواتساب مع الدفع عند الاستلام أو محفظة كاش">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700;800;900&family=Cairo:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./css/style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23c2410c'><circle cx='12' cy='12' r='10'/></svg>">
 </head>
@@ -24,6 +26,10 @@
         </div>
       </a>
       <div class="header-actions">
+        <button id="sound-toggle-btn" class="btn btn-ghost btn-sm" title="تشغيل / كتم المؤثرات الصوتية" aria-label="الصوت">
+          <svg id="sound-icon-on" class="icon icon-sm" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+          <svg id="sound-icon-off" class="icon icon-sm" style="display:none;" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+        </button>
         <a id="store-whatsapp-link" href="#" target="_blank" class="btn btn-ghost btn-sm" title="محادثة المطعم عبر الواتساب">
           <svg class="icon icon-sm" style="color:var(--accent-wa);" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
           تواصل
@@ -38,6 +44,11 @@
 
   <!-- Main Content Container -->
   <main class="container">
+
+    <!-- Stories Bar (Instagram/Snapchat Style Highlights) -->
+    <section class="stories-strip-section" id="stories-section">
+      <div class="stories-track" id="stories-track"></div>
+    </section>
 
     <!-- Announcement Bar -->
     <div id="announcement-bar" class="announcement-bar" style="display:none;">
@@ -63,15 +74,35 @@
       </button>
     </div>
 
+    <!-- Interactive Food Mood / Roulette Banner -->
+    <div class="chef-mood-trigger-card" id="btn-open-food-mood">
+      <div class="mood-sparkle-icon">✨</div>
+      <div class="mood-trigger-text">
+        <div class="mood-trigger-title">محتار تاكل إيه؟ جرّب روليت الشيف السحري 🎲</div>
+        <div class="mood-trigger-sub">حدد ميزانيتك ومودك اليوم ودع الشيف يقترح لك الكومبو المثالي فوراً!</div>
+      </div>
+      <button class="btn-mood-action" type="button">ابدأ الآن ⚡</button>
+    </div>
+
     <!-- Discovery Ribbon -->
     <div class="discovery-strip">
       <div id="discovery-container" class="discovery-scroll"></div>
     </div>
 
-    <!-- Search Bar -->
-    <div class="search-container">
-      <input type="text" id="search-input" class="search-input" placeholder="ابحث في دفتر المنيو (مثال: برجر، شاورما، بطاطس)...">
-      <svg class="icon search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <!-- Search & Controls Bar -->
+    <div class="search-and-controls">
+      <div class="search-container">
+        <input type="text" id="search-input" class="search-input" placeholder="ابحث في دفتر المنيو (مثال: برجر، شاورما، صوص)...">
+        <svg class="icon search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </div>
+      <div class="view-controls">
+        <button id="view-toggle-grid" class="btn-view-mode active" title="عرض البطاقات البصرية">
+          <svg class="icon icon-sm" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+        </button>
+        <button id="view-toggle-list" class="btn-view-mode" title="عرض القائمة السريعة">
+          <svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        </button>
+      </div>
     </div>
 
     <!-- Categories Strip -->
@@ -81,21 +112,30 @@
     <section id="hero-showcase-container" style="display:none;"></section>
 
     <!-- Products Catalog Grid -->
-    <section id="products-container" class="products-flow"></section>
+    <section id="products-container" class="products-flow view-mode-grid"></section>
   </main>
 
-  <!-- Floating Cart Ledger Bar -->
-  <div class="floating-ledger" id="floating-ledger">
-    <div class="ledger-info-left">
-      <div class="ledger-counter-badge font-num" id="ledger-count-badge">0</div>
-      <div>
-        <div class="ledger-title">دفتر طلباتك جاهز</div>
-        <div class="ledger-sub">اضغط للمراجعة وتأكيد الأوردر</div>
+  <!-- Dynamic Island Floating Cart (Next-Gen Luxury Experience) -->
+  <div class="dynamic-island-cart" id="dynamic-island-cart">
+    <div class="island-glow-aura"></div>
+    <div class="island-content-wrap">
+      <div class="island-left-cluster">
+        <div class="island-avatar-stack" id="island-avatar-stack"></div>
+        <div class="island-text-info">
+          <div class="island-title font-num" id="island-item-count">0 أصناف بالسلة</div>
+          <div class="island-sub" id="island-sub-text">انقر للمراجعة والتأكيد</div>
+        </div>
+      </div>
+      <div class="island-right-cluster">
+        <div class="island-price-chip font-num" id="island-price-display">0 ج.م</div>
+        <div class="island-chevron">
+          <svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        </div>
       </div>
     </div>
-    <div class="ledger-info-right">
-      <span class="font-num" id="ledger-floating-total">0 ج.م</span>
-      <svg class="icon" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    <!-- Mini progress bar along bottom of island -->
+    <div class="island-progress-track">
+      <div class="island-progress-fill" id="island-progress-fill" style="width: 0%;"></div>
     </div>
   </div>
 
@@ -136,6 +176,15 @@
             <div id="spend-tier-fill" class="spend-tier-bar-fill" style="width: 50%;"></div>
           </div>
         </div>
+        
+        <!-- Smart Pairing & Upselling ("يكمل وجبتك") -->
+        <div id="cart-smart-pairing" class="smart-pairing-box" style="display:none;">
+          <div class="pairing-headline">
+            <span class="pairing-icon">✨</span>
+            <span>يكمل وجبتك (إضافات مقترحة):</span>
+          </div>
+          <div id="pairing-items-list" class="pairing-scroll-track"></div>
+        </div>
 
         <div class="section-headline">
           <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
@@ -162,103 +211,99 @@
         </div>
       </div>
 
-      <!-- ══ STEP 2: CUSTOMER & DELIVERY INFO ══ -->
+      <!-- ══ STEP 2: DELIVERY INFO ══ -->
       <div class="checkout-step" data-step="2" style="display:none;">
         <div class="section-headline">
-          <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          بيانات العميل ومكان التوصيل
+          <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+          بيانات التوصيل والعنوان
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="cust-name">الاسم الكريم *</label>
-          <input type="text" id="cust-name" class="form-input" placeholder="اكتب اسمك">
+          <label class="form-label" for="cust-name">الاسم الكريم <span style="color:var(--danger);">*</span></label>
+          <input type="text" id="cust-name" class="form-input" placeholder="اسمك الثنائي أو اللقب" required>
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="cust-phone">رقم الهاتف للتواصل *</label>
-          <input type="tel" id="cust-phone" class="form-input font-num" placeholder="010xxxxxxxx">
+          <label class="form-label" for="cust-phone">رقم الهاتف للتواصل <span style="color:var(--danger);">*</span></label>
+          <input type="tel" id="cust-phone" class="form-input font-num" placeholder="01xxxxxxxxx" required>
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="cust-address">العنوان بالتفصيل *</label>
-          <input type="text" id="cust-address" class="form-input" placeholder="المنطقة، الشارع، رقم العمارة، الشقة">
+          <label class="form-label" for="cust-address">عنوان التوصيل بالتفصيل <span style="color:var(--danger);">*</span></label>
+          <textarea id="cust-address" class="form-textarea" placeholder="المنطقة، اسم الشارع، رقم العمارة، الدور، الشقة، وأقرب علامة مميزة" required></textarea>
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="cust-notes">ملاحظات خاصة (اختياري)</label>
-          <input type="text" id="cust-notes" class="form-input" placeholder="مثال: بدون بصل، صوص زيادة">
+          <label class="form-label" for="cust-notes">ملاحظات خاصة للشيف أو الطيار (اختياري)</label>
+          <input type="text" id="cust-notes" class="form-input" placeholder="مثال: بدون بصل، زيادة صوص، الاتصال عند الوصول...">
         </div>
 
         <div style="display:flex; gap:10px; margin-top:20px;">
-          <button type="button" id="btn-back-to-step1" class="btn btn-ghost">→ رجوع</button>
-          <button type="button" id="btn-proceed-to-step3" class="btn btn-primary" style="flex:1; padding:13px;">
-            متابعة لطريقة الدفع ←
-          </button>
+          <button type="button" id="btn-back-to-step1" class="btn btn-ghost" style="flex:1;">← مراجعة الأصناف</button>
+          <button type="button" id="btn-proceed-to-step3" class="btn btn-primary" style="flex:2;">اختيار طريقة الدفع ←</button>
         </div>
       </div>
 
-      <!-- ══ STEP 3: PAYMENT & CONFIRMATION ══ -->
+      <!-- ══ STEP 3: PAYMENT METHOD ══ -->
       <div class="checkout-step" data-step="3" style="display:none;">
         <div class="section-headline">
-          <svg class="icon icon-sm" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
-          اختر وسيلة الدفع
+          <svg class="icon icon-sm" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          طريقة الدفع والتأكيد
         </div>
 
-        <div class="payment-selector-grid">
-          <!-- COD -->
-          <div class="payment-option-card active" id="pay-cod-option">
-            <div class="payment-option-icon">
-              <svg class="icon" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/></svg>
+        <div class="payment-options-grid">
+          <label class="payment-card-option selected" id="pay-cod-option">
+            <input type="radio" name="payment_method" value="cod" checked>
+            <div class="payment-card-content">
+              <div class="payment-card-icon">💵</div>
+              <div class="payment-card-title">الدفع عند الاستلام</div>
+              <div class="payment-card-desc">كاش أو فيزا مع الطيار عند وصول الأوردر</div>
             </div>
-            <div class="payment-option-title">دفع عند الاستلام</div>
-            <div class="payment-option-sub">نقداً عند استلام الأوردر</div>
-          </div>
+          </label>
 
-          <!-- Wallet / Cash -->
-          <div class="payment-option-card" id="pay-wallet-option">
-            <div class="payment-option-icon">
-              <svg class="icon" viewBox="0 0 24 24"><path d="M17 14h.01"/><path d="M7 7h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14v4"/></svg>
+          <label class="payment-card-option" id="pay-wallet-option">
+            <input type="radio" name="payment_method" value="wallet">
+            <div class="payment-card-content">
+              <div class="payment-card-icon">📱</div>
+              <div class="payment-card-title" id="wallet-name-label">فودافون كاش / إنستاباي</div>
+              <div class="payment-card-desc" id="wallet-discount-tag-label">خصم 10% فوري على إجمالي الأوردر!</div>
             </div>
-            <div class="payment-option-title">محفظة إلكترونية</div>
-            <div class="payment-option-sub">فودافون كاش / إنستاباي</div>
-          </div>
+          </label>
         </div>
 
-        <!-- Wallet Details Panel -->
-        <div id="wallet-details-box" style="display:none;">
-          <div class="wallet-box-panel">
-            <div class="wallet-panel-title">
-              <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              حول المبلغ إلى رقم <span id="wallet-name-display">المحفظة</span>:
-            </div>
-            <div class="wallet-num-card">
-              <span class="wallet-num-digits font-num" id="wallet-num-display">01000000000</span>
-              <button type="button" class="btn-copy-num" id="btn-copy-num">
-                <svg class="icon icon-sm" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-                نسخ الرقم
-              </button>
-            </div>
+        <!-- Wallet Transfer Details Box -->
+        <div id="wallet-details-box" class="wallet-instructions-box" style="display:none;">
+          <div class="wallet-inst-title">
+            <span>بيانات تحويل المحفظة / إنستاباي</span>
+            <span class="badge-saving font-num" id="wallet-saving-badge">خصم 10% مفعّل</span>
+          </div>
 
-            <!-- Amount to transfer reminder -->
-            <div id="wallet-amount-reminder" style="background:var(--primary-subtle); border:1px solid var(--border); border-radius:var(--radius-xs); padding:8px 12px; margin-bottom:10px; font-size:12px; font-weight:700; color:var(--primary); display:flex; justify-content:space-between; align-items:center;">
-              <span>المبلغ المطلوب تحويله:</span>
-              <span class="font-num" id="wallet-transfer-amount" style="font-size:14px; font-weight:800;">0 ج.م</span>
+          <div class="wallet-num-row">
+            <div>
+              <div style="font-size:11px; color:var(--text-muted);" id="wallet-name-display">فودافون كاش</div>
+              <div class="font-num wallet-target-num" id="wallet-num-display">01012345678</div>
             </div>
+            <button type="button" id="btn-copy-num" class="btn btn-ghost btn-sm">نسخ الرقم</button>
+          </div>
 
-            <!-- Receipt Drop Zone -->
-            <div class="receipt-drop-zone">
+          <div style="font-size:11.5px; color:var(--text-body); margin-top:8px; line-height:1.5;">
+            قم بتحويل مبلغ <strong class="font-num" id="wallet-amount-reminder" style="color:var(--primary);">0 ج.م</strong> للرقم أعلاه ثم ارفع لقطة الشاشة (سكرين شوت) أدناه:
+          </div>
+
+          <!-- Receipt Upload Dropzone -->
+          <div class="receipt-dropzone-wrap" style="margin-top:10px;">
+            <div class="dropzone" id="receipt-dropzone">
               <input type="file" id="receipt-input" accept="image/*">
               <svg class="icon icon-lg" style="color:var(--text-faint); margin-bottom:4px;" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.08-3.08a2 2 0 0 0-2.82 0L6 21"/></svg>
               <div style="font-size:12px; font-weight:800; color:var(--text-body);">اضغط هنا لإرفاق سكرين شوت التحويل</div>
               <div style="font-size:10.5px; color:var(--text-faint);">سيتم إرفاق رابط الإيصال تلقائياً برسالة الواتساب</div>
               <img id="receipt-preview" class="receipt-preview-img" alt="معاينة التحويل">
-              <div id="receipt-status" class="upload-status"></div>
             </div>
           </div>
         </div>
 
         <div style="margin-top:14px;">
-          <button type="button" id="btn-back-to-step2" class="btn btn-ghost" style="width:100%; margin-bottom:8px;">→ تعديل بيانات التوصيل</button>
+          <button type="button" id="btn-back-to-step2" class="btn btn-ghost" style="width:100%; margin-bottom:8px;">← تعديل بيانات التوصيل</button>
         </div>
       </div>
     </div>
@@ -317,6 +362,198 @@
       <div style="display:flex; align-items:center; justify-content:space-between; padding-top:16px; border-top:1px solid var(--border);">
         <div class="food-item-price font-num" id="preview-price" style="font-size:22px;">0 <span>ج.م</span></div>
         <div id="preview-action-wrap"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       NEW: Fullscreen Stories Viewer Modal
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="story-modal-backdrop" id="story-modal-backdrop"></div>
+  <div class="story-viewer-modal" id="story-viewer-modal">
+    <div class="story-viewer-container">
+      <!-- Story Progress Bars -->
+      <div class="story-progress-bar-wrap" id="story-progress-wrap"></div>
+      
+      <!-- Story Header -->
+      <div class="story-viewer-header">
+        <div class="story-viewer-brand">
+          <img id="story-header-logo" src="" alt="Logo" class="story-header-logo">
+          <div>
+            <div class="story-header-title" id="story-viewer-title">عرض اليوم</div>
+            <div class="story-header-time" id="story-viewer-time">مميز وحصري</div>
+          </div>
+        </div>
+        <button class="btn-close-story" id="btn-close-story">✕</button>
+      </div>
+
+      <!-- Story Media & Overlay -->
+      <div class="story-media-layer">
+        <img id="story-viewer-img" src="" alt="Story Media" class="story-img">
+        <div class="story-overlay-gradient"></div>
+      </div>
+
+      <!-- Story Navigation Touch Zones -->
+      <div class="story-touch-prev" id="story-touch-prev"></div>
+      <div class="story-touch-next" id="story-touch-next"></div>
+
+      <!-- Story Footer Card -->
+      <div class="story-footer-card">
+        <span class="card-badge" id="story-viewer-badge">عرض خاص</span>
+        <h3 class="story-footer-headline" id="story-viewer-headline">جراند برجر كومبو</h3>
+        <p class="story-footer-desc" id="story-viewer-desc">شريحتين لحم أنجوس مشوي على اللهب مع الجبن والشيبسي</p>
+        <button class="btn btn-primary btn-story-cta" id="btn-story-cta">
+          <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+          <span id="story-cta-label">اطلب هذا العرض الآن ⚡</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       NEW: Interactive Food Mood / Roulette Modal
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="modal-backdrop" id="food-mood-backdrop"></div>
+  <div class="food-mood-modal" id="food-mood-modal">
+    <div class="mood-modal-header">
+      <div class="mood-modal-title">
+        <span class="mood-modal-sparkle">🎲</span>
+        روليت الشيف السحري
+      </div>
+      <button class="btn-close" id="btn-close-food-mood">✕</button>
+    </div>
+    
+    <div class="mood-modal-body">
+      <p class="mood-modal-intro">محتار تاكل إيه؟ اختر ميزانيتك ومودك وسيقوم الشيف بتوليد أشهى كومبو متكامل لك فوراً!</p>
+      
+      <!-- Budget Selector -->
+      <div class="mood-control-block">
+        <div class="mood-control-label">
+          <span>ميزانيتك التقريبية:</span>
+          <span class="font-num mood-budget-val" id="mood-budget-val">200 ج.م</span>
+        </div>
+        <input type="range" id="mood-budget-slider" class="mood-range-slider" min="50" max="500" step="10" value="200">
+        <div class="range-labels font-num">
+          <span>50 ج.م</span>
+          <span>250 ج.م</span>
+          <span>500 ج.م</span>
+        </div>
+      </div>
+
+      <!-- Mood Vibe Selector -->
+      <div class="mood-control-block">
+        <div class="mood-control-label">مودك ورغبتك اليوم:</div>
+        <div class="mood-chips-grid" id="mood-chips-container">
+          <button type="button" class="mood-chip active" data-mood="hungry">🍔 جعان ومفترس</button>
+          <button type="button" class="mood-chip" data-mood="spicy">🔥 سبايسي ومولع</button>
+          <button type="button" class="mood-chip" data-mood="light">🥗 خفيف وسريع</button>
+          <button type="button" class="mood-chip" data-mood="chef">👑 لمسة شيف فاخرة</button>
+          <button type="button" class="mood-chip" data-mood="family">👨‍👩‍👦 لمة عيلة وتوفير</button>
+        </div>
+      </div>
+
+      <!-- Action Button -->
+      <button type="button" class="btn-spin-roulette" id="btn-spin-roulette">
+        <span class="spin-icon">🎲</span>
+        <span>تشغيل روليت الشيف واقتراح الكومبو!</span>
+      </button>
+
+      <!-- Result Combo Container -->
+      <div class="mood-result-box" id="mood-result-box" style="display:none;">
+        <div class="mood-result-headline">
+          <span>✨ اقتراح الشيف المخصص لك:</span>
+          <span class="font-num mood-result-total" id="mood-result-total">0 ج.م</span>
+        </div>
+        <div class="mood-result-items" id="mood-result-items"></div>
+        <button type="button" class="btn btn-primary" id="btn-add-mood-combo" style="width:100%; margin-top:12px;">
+          إضافة كل هذه الأصناف إلى السلة فوراً 🛒
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       NEW: Bespoke Digital Boarding Pass / Order Ticket Modal
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="modal-backdrop" id="ticket-modal-backdrop"></div>
+  <div class="digital-ticket-modal" id="digital-ticket-modal">
+    <div class="ticket-card-wrap">
+      <div class="ticket-top-badge">
+        <span>✈️ تذكرة طلب رقمية معتمدة</span>
+        <button class="btn-close-ticket" id="btn-close-ticket">✕</button>
+      </div>
+
+      <div class="ticket-main-header">
+        <div class="ticket-brand-name" id="ticket-store-name">شاورما وبيرجر الهرمل</div>
+        <div class="ticket-order-id font-num" id="ticket-order-id">#ORD-9821</div>
+      </div>
+
+      <!-- Live Order Preparation Tracker -->
+      <div class="ticket-tracker-container">
+        <div class="ticket-tracker-title">متابعة حالة تحضير الطلب:</div>
+        <div class="tracker-steps">
+          <div class="tracker-step active">
+            <div class="tracker-dot">✓</div>
+            <div class="tracker-text">تم الاستلام</div>
+          </div>
+          <div class="tracker-line active"></div>
+          <div class="tracker-step current">
+            <div class="tracker-dot">🍳</div>
+            <div class="tracker-text">في المطبخ</div>
+          </div>
+          <div class="tracker-line"></div>
+          <div class="tracker-step">
+            <div class="tracker-dot">🛵</div>
+            <div class="tracker-text">مع الطيار</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ticket-divider">
+        <div class="ticket-notch notch-left"></div>
+        <div class="ticket-dash-line"></div>
+        <div class="ticket-notch notch-right"></div>
+      </div>
+
+      <!-- Ticket Details -->
+      <div class="ticket-body-details">
+        <div class="ticket-row">
+          <span class="ticket-label">العميل:</span>
+          <span class="ticket-val" id="ticket-cust-name">-</span>
+        </div>
+        <div class="ticket-row">
+          <span class="ticket-label">رقم الهاتف:</span>
+          <span class="ticket-val font-num" id="ticket-cust-phone">-</span>
+        </div>
+        <div class="ticket-row">
+          <span class="ticket-label">عنوان التوصيل:</span>
+          <span class="ticket-val" id="ticket-cust-address">-</span>
+        </div>
+        <div class="ticket-row">
+          <span class="ticket-label">طريقة الدفع:</span>
+          <span class="ticket-val" id="ticket-pay-method">الدفع عند الاستلام</span>
+        </div>
+        <div class="ticket-items-summary" id="ticket-items-summary"></div>
+        
+        <div class="ticket-total-row">
+          <span>إجمالي الحساب المطلوب:</span>
+          <span class="ticket-total-val font-num" id="ticket-total-val">0 ج.م</span>
+        </div>
+      </div>
+
+      <!-- Barcode Simulator -->
+      <div class="ticket-barcode-wrap">
+        <div class="barcode-lines">
+          <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="barcode-num font-num" id="ticket-barcode-num">HARPY-ORDER-VERIFIED</div>
+      </div>
+
+      <div class="ticket-actions">
+        <a id="ticket-whatsapp-link" href="#" target="_blank" class="btn btn-primary" style="width:100%; text-decoration:none; display:flex; justify-content:center; align-items:center; gap:8px;">
+          <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          متابعة الطلب في محادثة الواتساب
+        </a>
       </div>
     </div>
   </div>

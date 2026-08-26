@@ -10,7 +10,10 @@ const STORAGE_KEYS = {
   FAVORITES: 'harpy_order_favorites',
   LAST_ORDER: 'harpy_order_last_order',
   THEME_MODE: 'harpy_theme_mode',
-  APPLIED_COUPON: 'harpy_applied_coupon'
+  APPLIED_COUPON: 'harpy_applied_coupon',
+  SOUND_ENABLED: 'harpy_sound_enabled',
+  VIEW_MODE: 'harpy_view_mode',
+  STORIES: 'harpy_order_stories'
 };
 
 const THEME_PRESETS = {
@@ -263,6 +266,39 @@ const DEFAULT_PRODUCTS = [
     visible: true,
     isFeatured: false,
     badge: "بارد"
+  }
+];
+
+const DEFAULT_STORIES = [
+  {
+    id: "story_1",
+    title: "عرض اليوم الناري 🔥",
+    tagline: "جراند برجر + بطاطس ويدجز بخصم خاص",
+    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=900&auto=format&fit=crop&q=85",
+    badge: "عرض محدود",
+    productId: "p1",
+    ctaText: "اطلب العرض الآن",
+    desc: "شريحتين لحم أنجوس مشوي على اللهب مع جبن شيدر ذائب وصوص مميز بخصم خاص للطلب الآن!"
+  },
+  {
+    id: "story_2",
+    title: "سر الشاورما السورية 🌯",
+    tagline: "تتبيلة خاصة وثومية كريمية أصلية",
+    image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=900&auto=format&fit=crop&q=85",
+    badge: "الأكثر طلباً",
+    productId: "p3",
+    ctaText: "جرّب الشاورما السوري",
+    desc: "شاورما دجاج محضرة طازجة يومياً على السيخ مع تتبيلتنا السرية وخبز الصاج المقرمش."
+  },
+  {
+    id: "story_3",
+    title: "مقبلات وسناكس مقرمشة 🧀",
+    tagline: "أصابع الموزاريلا والبطاطس السايحة",
+    image: "https://images.unsplash.com/photo-1531749668029-2db88e4276c7?w=900&auto=format&fit=crop&q=85",
+    badge: "سناكس الشيف",
+    productId: "p6",
+    ctaText: "أضف لسفرتك",
+    desc: "أصابع الموزاريلا الإيطالية الذهبية مع صوص المارينارا العشبي اللذيذ لتكتمل وجبتك."
   }
 ];
 
@@ -558,6 +594,36 @@ const Store = {
   },
   initTheme() {
     this.applyTheme();
+  },
+
+  getStories() {
+    const raw = localStorage.getItem(STORAGE_KEYS.STORIES);
+    try {
+      return raw ? JSON.parse(raw) : DEFAULT_STORIES;
+    } catch {
+      return DEFAULT_STORIES;
+    }
+  },
+  saveStories(stories) {
+    localStorage.setItem(STORAGE_KEYS.STORIES, JSON.stringify(stories));
+    window.dispatchEvent(new Event('store_stories_updated'));
+  },
+
+  getSoundEnabled() {
+    const raw = localStorage.getItem(STORAGE_KEYS.SOUND_ENABLED);
+    return raw === null ? true : raw === 'true';
+  },
+  setSoundEnabled(enabled) {
+    localStorage.setItem(STORAGE_KEYS.SOUND_ENABLED, String(enabled));
+    window.dispatchEvent(new CustomEvent('store_sound_changed', { detail: enabled }));
+  },
+
+  getViewMode() {
+    return localStorage.getItem(STORAGE_KEYS.VIEW_MODE) || 'grid';
+  },
+  setViewMode(mode) {
+    localStorage.setItem(STORAGE_KEYS.VIEW_MODE, mode);
+    window.dispatchEvent(new CustomEvent('store_view_mode_changed', { detail: mode }));
   },
 
   async uploadImage(file) {

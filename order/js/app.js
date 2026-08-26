@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// HarpyOrder — Client Front-End & Smart Order Engine
+// HarpyOrder — Next-Gen Client Front-End & Smart Dining Engine
 // ═══════════════════════════════════════════════════════════
 
 let activeCategoryFilter = 'all';
@@ -10,7 +10,134 @@ let currentCheckoutStep = 1;
 let selectedPaymentMethod = 'cod';
 let uploadedReceiptUrl = null;
 
+// Stories state
+let currentStoryIndex = 0;
+let storyProgress = 0;
+let storyInterval = null;
+let isStoryPaused = false;
+
+// Food Mood state
+let selectedFoodMood = 'hungry';
+let lastGeneratedMoodCombo = [];
+
+// ── Web Audio FX Engine (Synthesized UI Sounds) ────────────
+const SoundFX = {
+  ctx: null,
+  init() {
+    if (!this.ctx && (window.AudioContext || window.webkitAudioContext)) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      this.ctx = new AudioCtx();
+    }
+  },
+  playPop() {
+    if (!Store.getSoundEnabled()) return;
+    try {
+      this.init();
+      if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+      if (!this.ctx) return;
+
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      
+      const now = this.ctx.currentTime;
+      osc.frequency.setValueAtTime(440, now);
+      osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
+
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.09);
+
+      if (navigator.vibrate) navigator.vibrate(20);
+    } catch (e) {}
+  },
+  playChime() {
+    if (!Store.getSoundEnabled()) return;
+    try {
+      this.init();
+      if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+      if (!this.ctx) return;
+
+      const now = this.ctx.currentTime;
+      [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now + (idx * 0.05));
+        
+        gain.gain.setValueAtTime(0.12, now + (idx * 0.05));
+        gain.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.05) + 0.25);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now + (idx * 0.05));
+        osc.stop(now + (idx * 0.05) + 0.26);
+      });
+
+      if (navigator.vibrate) navigator.vibrate([20, 30, 20]);
+    } catch (e) {}
+  },
+  playCash() {
+    if (!Store.getSoundEnabled()) return;
+    try {
+      this.init();
+      if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+      if (!this.ctx) return;
+
+      const now = this.ctx.currentTime;
+      [880, 1318.51, 1760].forEach((freq, idx) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + (idx * 0.07));
+        
+        gain.gain.setValueAtTime(0.18, now + (idx * 0.07));
+        gain.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.07) + 0.35);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now + (idx * 0.07));
+        osc.stop(now + (idx * 0.07) + 0.36);
+      });
+
+      if (navigator.vibrate) navigator.vibrate([30, 40, 50]);
+    } catch (e) {}
+  },
+  playSpinTick() {
+    if (!Store.getSoundEnabled()) return;
+    try {
+      this.init();
+      if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+      if (!this.ctx) return;
+
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      const now = this.ctx.currentTime;
+      osc.frequency.setValueAtTime(300 + Math.random() * 400, now);
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.05);
+    } catch (e) {}
+  }
+};
+
 const elements = {
+  soundToggleBtn: document.getElementById('sound-toggle-btn'),
+  soundIconOn: document.getElementById('sound-icon-on'),
+  soundIconOff: document.getElementById('sound-icon-off'),
+
   themeToggleBtn: document.getElementById('theme-toggle-btn'),
   themeIconDark: document.getElementById('theme-icon-dark'),
   themeIconLight: document.getElementById('theme-icon-light'),
@@ -20,6 +147,9 @@ const elements = {
   storeLogo: document.getElementById('store-logo'),
   storeWhatsAppLink: document.getElementById('store-whatsapp-link'),
 
+  storiesSection: document.getElementById('stories-section'),
+  storiesTrack: document.getElementById('stories-track'),
+
   announcementBar: document.getElementById('announcement-bar'),
   announcementText: document.getElementById('announcement-text'),
   deliveryTimeBadge: document.getElementById('delivery-time-badge'),
@@ -28,12 +158,26 @@ const elements = {
   lastOrderSummary: document.getElementById('last-order-summary'),
   btnReorder: document.getElementById('btn-reorder'),
 
+  btnOpenFoodMood: document.getElementById('btn-open-food-mood'),
+
   discoveryContainer: document.getElementById('discovery-container'),
   searchInput: document.getElementById('search-input'),
+  viewToggleGrid: document.getElementById('view-toggle-grid'),
+  viewToggleList: document.getElementById('view-toggle-list'),
+
   categoriesContainer: document.getElementById('categories-container'),
   heroShowcaseContainer: document.getElementById('hero-showcase-container'),
   productsContainer: document.getElementById('products-container'),
 
+  // Dynamic Island
+  dynamicIslandCart: document.getElementById('dynamic-island-cart'),
+  islandAvatarStack: document.getElementById('island-avatar-stack'),
+  islandItemCount: document.getElementById('island-item-count'),
+  islandSubText: document.getElementById('island-sub-text'),
+  islandPriceDisplay: document.getElementById('island-price-display'),
+  islandProgressFill: document.getElementById('island-progress-fill'),
+
+  // Quick Preview Modal
   previewModal: document.getElementById('preview-modal'),
   previewModalBackdrop: document.getElementById('preview-modal-backdrop'),
   previewImg: document.getElementById('preview-img'),
@@ -46,10 +190,7 @@ const elements = {
   previewActionWrap: document.getElementById('preview-action-wrap'),
   btnClosePreview: document.getElementById('btn-close-preview'),
 
-  floatingLedger: document.getElementById('floating-ledger'),
-  ledgerCountBadge: document.getElementById('ledger-count-badge'),
-  ledgerFloatingTotal: document.getElementById('ledger-floating-total'),
-
+  // Cart Drawer
   cartDrawer: document.getElementById('cart-drawer'),
   cartDrawerBackdrop: document.getElementById('cart-drawer-backdrop'),
   btnCloseCartDrawer: document.getElementById('btn-close-cart-drawer'),
@@ -60,6 +201,9 @@ const elements = {
   spendTierMsg: document.getElementById('spend-tier-msg'),
   spendTierPercent: document.getElementById('spend-tier-percent'),
   spendTierFill: document.getElementById('spend-tier-fill'),
+
+  cartSmartPairing: document.getElementById('cart-smart-pairing'),
+  pairingItemsList: document.getElementById('pairing-items-list'),
 
   cartDrawerItems: document.getElementById('cart-drawer-items'),
   promoCodeInput: document.getElementById('promo-code-input'),
@@ -98,18 +242,64 @@ const elements = {
   walletNumDisplay: document.getElementById('wallet-num-display'),
   btnCopyNum: document.getElementById('btn-copy-num'),
   walletAmountReminder: document.getElementById('wallet-amount-reminder'),
-  walletTransferAmount: document.getElementById('wallet-transfer-amount'),
   receiptInput: document.getElementById('receipt-input'),
   receiptPreview: document.getElementById('receipt-preview'),
   receiptStatus: document.getElementById('receipt-status'),
   btnBackToStep2: document.getElementById('btn-back-to-step2'),
-  btnSendWhatsApp: document.getElementById('btn-send-whatsapp')
+  btnSendWhatsApp: document.getElementById('btn-send-whatsapp'),
+
+  // Stories Modal
+  storyModalBackdrop: document.getElementById('story-modal-backdrop'),
+  storyViewerModal: document.getElementById('story-viewer-modal'),
+  storyProgressWrap: document.getElementById('story-progress-wrap'),
+  storyHeaderLogo: document.getElementById('story-header-logo'),
+  storyViewerTitle: document.getElementById('story-viewer-title'),
+  storyViewerTime: document.getElementById('story-viewer-time'),
+  btnCloseStory: document.getElementById('btn-close-story'),
+  storyViewerImg: document.getElementById('story-viewer-img'),
+  storyViewerBadge: document.getElementById('story-viewer-badge'),
+  storyViewerHeadline: document.getElementById('story-viewer-headline'),
+  storyViewerDesc: document.getElementById('story-viewer-desc'),
+  btnStoryCta: document.getElementById('btn-story-cta'),
+  storyTouchPrev: document.getElementById('story-touch-prev'),
+  storyTouchNext: document.getElementById('story-touch-next'),
+
+  // Food Mood Modal
+  foodMoodBackdrop: document.getElementById('food-mood-backdrop'),
+  foodMoodModal: document.getElementById('food-mood-modal'),
+  btnCloseFoodMood: document.getElementById('btn-close-food-mood'),
+  moodBudgetSlider: document.getElementById('mood-budget-slider'),
+  moodBudgetVal: document.getElementById('mood-budget-val'),
+  moodChipsContainer: document.getElementById('mood-chips-container'),
+  btnSpinRoulette: document.getElementById('btn-spin-roulette'),
+  moodResultBox: document.getElementById('mood-result-box'),
+  moodResultTotal: document.getElementById('mood-result-total'),
+  moodResultItems: document.getElementById('mood-result-items'),
+  btnAddMoodCombo: document.getElementById('btn-add-mood-combo'),
+
+  // Digital Ticket Modal
+  ticketModalBackdrop: document.getElementById('ticket-modal-backdrop'),
+  digitalTicketModal: document.getElementById('digital-ticket-modal'),
+  btnCloseTicket: document.getElementById('btn-close-ticket'),
+  ticketStoreName: document.getElementById('ticket-store-name'),
+  ticketOrderId: document.getElementById('ticket-order-id'),
+  ticketCustName: document.getElementById('ticket-cust-name'),
+  ticketCustPhone: document.getElementById('ticket-cust-phone'),
+  ticketCustAddress: document.getElementById('ticket-cust-address'),
+  ticketPayMethod: document.getElementById('ticket-pay-method'),
+  ticketItemsSummary: document.getElementById('ticket-items-summary'),
+  ticketTotalVal: document.getElementById('ticket-total-val'),
+  ticketBarcodeNum: document.getElementById('ticket-barcode-num'),
+  ticketWhatsAppLink: document.getElementById('ticket-whatsapp-link')
 };
 
 function initApp() {
   Store.initTheme();
   updateThemeToggleIcons();
+  updateSoundToggleIcon();
+  initViewMode();
   renderStoreInfo();
+  renderStories();
   renderAnnouncement();
   renderLastOrderRecall();
   renderDiscoveryRibbon();
@@ -117,6 +307,7 @@ function initApp() {
   renderProducts();
   updateLedgerUI();
   setupEventListeners();
+  initFoodMoodRoulette();
 }
 
 function updateThemeToggleIcons() {
@@ -139,164 +330,493 @@ function handleThemeToggle() {
   updateThemeToggleIcons();
 }
 
-function renderAnnouncement() {
-  if (!elements.announcementBar) return;
-  const s = Store.getSettings();
-  if (s.showAnnouncement && s.announcementText) {
-    elements.announcementBar.style.display = 'flex';
-    if (elements.announcementText) elements.announcementText.textContent = s.announcementText;
-    if (elements.deliveryTimeBadge) {
-      elements.deliveryTimeBadge.innerHTML = `<svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ${s.deliveryTime || '30-45 دقيقة'}`;
+function updateSoundToggleIcon() {
+  const enabled = Store.getSoundEnabled();
+  if (elements.soundIconOn && elements.soundIconOff) {
+    if (enabled) {
+      elements.soundIconOn.style.display = 'inline-block';
+      elements.soundIconOff.style.display = 'none';
+      if (elements.soundToggleBtn) elements.soundToggleBtn.classList.remove('muted');
+    } else {
+      elements.soundIconOn.style.display = 'none';
+      elements.soundIconOff.style.display = 'inline-block';
+      if (elements.soundToggleBtn) elements.soundToggleBtn.classList.add('muted');
     }
-  } else {
-    elements.announcementBar.style.display = 'none';
   }
+}
+
+function handleSoundToggle() {
+  const enabled = Store.getSoundEnabled();
+  Store.setSoundEnabled(!enabled);
+  updateSoundToggleIcon();
+  if (!enabled) SoundFX.playPop();
+}
+
+function initViewMode() {
+  const mode = Store.getViewMode();
+  applyViewMode(mode);
+}
+
+function applyViewMode(mode) {
+  if (elements.productsContainer) {
+    elements.productsContainer.classList.remove('view-mode-grid', 'view-mode-list');
+    elements.productsContainer.classList.add(mode === 'list' ? 'view-mode-list' : 'view-mode-grid');
+  }
+  if (elements.viewToggleGrid && elements.viewToggleList) {
+    elements.viewToggleGrid.classList.toggle('active', mode === 'grid');
+    elements.viewToggleList.classList.toggle('active', mode === 'list');
+  }
+}
+
+function handleViewModeChange(mode) {
+  Store.setViewMode(mode);
+  applyViewMode(mode);
+  SoundFX.playPop();
 }
 
 function renderStoreInfo() {
-  const s = Store.getSettings();
-  if (elements.storeName) elements.storeName.textContent = s.storeName;
-  if (elements.storeTagline) elements.storeTagline.textContent = s.storeTagline;
-  if (elements.storeLogo) elements.storeLogo.src = s.logo || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=120';
+  const settings = Store.getSettings();
+  if (elements.storeName) elements.storeName.textContent = settings.storeName || "منيو المطعم";
+  if (elements.storeTagline) elements.storeTagline.textContent = settings.storeTagline || "أشهى المأكولات الطازجة";
   
-  if (elements.storeWhatsAppLink) {
-    const cleanPhone = (s.whatsappNumber || '').replace(/\D/g, '');
-    elements.storeWhatsAppLink.href = `https://wa.me/${cleanPhone}`;
+  if (elements.storeLogo) {
+    if (settings.logo) {
+      elements.storeLogo.src = settings.logo;
+      elements.storeLogo.style.display = 'inline-block';
+    } else {
+      elements.storeLogo.style.display = 'none';
+    }
   }
+
+  if (elements.storeWhatsAppLink) {
+    const cleanNum = (settings.whatsappNumber || '').replace(/\D/g, '');
+    elements.storeWhatsAppLink.href = `https://wa.me/${cleanNum}`;
+  }
+
+  if (elements.walletNameDisplay) {
+    elements.walletNameDisplay.textContent = settings.walletName || "فودافون كاش / إنستاباي";
+  }
+  if (elements.walletNumDisplay) {
+    elements.walletNumDisplay.textContent = settings.walletNumber || "010xxxxxxxx";
+  }
+}
+
+// ── Stories Highlights Engine ──────────────────────────────
+function renderStories() {
+  if (!elements.storiesTrack) return;
+  const stories = Store.getStories();
+  if (!stories || stories.length === 0) {
+    if (elements.storiesSection) elements.storiesSection.style.display = 'none';
+    return;
+  }
+  if (elements.storiesSection) elements.storiesSection.style.display = 'block';
+
+  elements.storiesTrack.innerHTML = stories.map((s, idx) => `
+    <div class="story-circle-item" onclick="openStoryViewer(${idx})">
+      <div class="story-ring-wrap">
+        <img src="${s.image}" alt="${s.title}" class="story-avatar-img" loading="lazy">
+      </div>
+      <span class="story-circle-label">${s.title}</span>
+    </div>
+  `).join('');
+}
+
+window.openStoryViewer = function(index) {
+  const stories = Store.getStories();
+  if (!stories || stories.length === 0) return;
   
-  if (elements.walletNumDisplay) elements.walletNumDisplay.textContent = s.walletNumber || '01000000000';
-  if (elements.walletNameDisplay) elements.walletNameDisplay.textContent = s.walletName || 'محفظة كاش';
+  currentStoryIndex = Math.max(0, Math.min(index, stories.length - 1));
+  const settings = Store.getSettings();
+
+  if (elements.storyHeaderLogo) elements.storyHeaderLogo.src = settings.logo || stories[0].image;
+  if (elements.storyModalBackdrop) elements.storyModalBackdrop.classList.add('active');
+  if (elements.storyViewerModal) elements.storyViewerModal.classList.add('active');
+
+  SoundFX.playPop();
+  loadCurrentStory();
+};
+
+function loadCurrentStory() {
+  const stories = Store.getStories();
+  const s = stories[currentStoryIndex];
+  if (!s) return;
+
+  if (elements.storyViewerTitle) elements.storyViewerTitle.textContent = s.title;
+  if (elements.storyViewerTime) elements.storyViewerTime.textContent = s.tagline || 'عرض مميز';
+  if (elements.storyViewerImg) elements.storyViewerImg.src = s.image;
+  if (elements.storyViewerBadge) elements.storyViewerBadge.textContent = s.badge || 'حصري';
+  if (elements.storyViewerHeadline) elements.storyViewerHeadline.textContent = s.title;
+  if (elements.storyViewerDesc) elements.storyViewerDesc.textContent = s.desc || s.tagline || '';
+
+  // Render progress segments
+  if (elements.storyProgressWrap) {
+    elements.storyProgressWrap.innerHTML = stories.map((_, idx) => `
+      <div class="story-bar-segment">
+        <div class="story-bar-fill ${idx < currentStoryIndex ? 'finished' : ''}" id="story-fill-${idx}"></div>
+      </div>
+    `).join('');
+  }
+
+  // Hook CTA
+  if (elements.btnStoryCta) {
+    elements.btnStoryCta.onclick = () => {
+      if (s.productId) {
+        handleQuickAddItem(s.productId);
+        closeStoryViewer();
+        openCartDrawer();
+      }
+    };
+  }
+
+  startStoryTimer();
+}
+
+function startStoryTimer() {
+  clearInterval(storyInterval);
+  storyProgress = 0;
+  const currentFill = document.getElementById(`story-fill-${currentStoryIndex}`);
+  
+  const step = 50; // ms
+  const totalDuration = 4500; // 4.5s
+  const increment = (step / totalDuration) * 100;
+
+  storyInterval = setInterval(() => {
+    if (isStoryPaused) return;
+    storyProgress += increment;
+    if (currentFill) currentFill.style.width = `${Math.min(100, storyProgress)}%`;
+
+    if (storyProgress >= 100) {
+      clearInterval(storyInterval);
+      nextStory();
+    }
+  }, step);
+}
+
+function nextStory() {
+  const stories = Store.getStories();
+  if (currentStoryIndex < stories.length - 1) {
+    currentStoryIndex++;
+    loadCurrentStory();
+  } else {
+    closeStoryViewer();
+  }
+}
+
+function prevStory() {
+  if (currentStoryIndex > 0) {
+    currentStoryIndex--;
+    loadCurrentStory();
+  }
+}
+
+function closeStoryViewer() {
+  clearInterval(storyInterval);
+  if (elements.storyModalBackdrop) elements.storyModalBackdrop.classList.remove('active');
+  if (elements.storyViewerModal) elements.storyViewerModal.classList.remove('active');
+}
+
+// ── Chef Food Mood / Roulette Engine ───────────────────────
+function initFoodMoodRoulette() {
+  if (!elements.moodBudgetSlider) return;
+
+  elements.moodBudgetSlider.addEventListener('input', (e) => {
+    if (elements.moodBudgetVal) {
+      elements.moodBudgetVal.textContent = `${e.target.value} ج.م`;
+    }
+  });
+
+  const moodChips = document.querySelectorAll('.mood-chip');
+  moodChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      moodChips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      selectedFoodMood = chip.dataset.mood;
+      SoundFX.playPop();
+    });
+  });
+
+  if (elements.btnSpinRoulette) {
+    elements.btnSpinRoulette.addEventListener('click', spinChefRoulette);
+  }
+
+  if (elements.btnAddMoodCombo) {
+    elements.btnAddMoodCombo.addEventListener('click', addMoodComboToCart);
+  }
+}
+
+function spinChefRoulette() {
+  const prods = Store.getProducts().filter(p => p.visible !== false);
+  if (prods.length === 0) return;
+
+  const budget = parseInt(elements.moodBudgetSlider.value) || 200;
+  const mood = selectedFoodMood;
+
+  if (elements.btnSpinRoulette) {
+    elements.btnSpinRoulette.classList.add('spinning');
+    elements.btnSpinRoulette.disabled = true;
+  }
+
+  // Play roulette ticking sound
+  let tickCount = 0;
+  const tickInterval = setInterval(() => {
+    SoundFX.playSpinTick();
+    tickCount++;
+    if (tickCount > 6) clearInterval(tickInterval);
+  }, 100);
+
+  setTimeout(() => {
+    if (elements.btnSpinRoulette) {
+      elements.btnSpinRoulette.classList.remove('spinning');
+      elements.btnSpinRoulette.disabled = false;
+    }
+
+    // Matching Algorithm
+    let pool = [...prods];
+    if (mood === 'spicy') {
+      pool = pool.filter(p => (p.name + p.desc + p.badge).includes('حار') || (p.name + p.desc + p.badge).includes('سبايسي') || (p.name + p.desc + p.badge).includes('هلابينو'));
+      if (pool.length === 0) pool = [...prods];
+    } else if (mood === 'light') {
+      pool = pool.filter(p => p.price < 80 || (p.category || '').includes('مشروبات') || (p.category || '').includes('مقبلات'));
+      if (pool.length === 0) pool = [...prods];
+    }
+
+    // Pick a main dish
+    const mainPool = pool.filter(p => p.price <= budget);
+    const main = mainPool.length > 0 ? mainPool[Math.floor(Math.random() * mainPool.length)] : prods[0];
+
+    const combo = [main];
+    let remainingBudget = budget - main.price;
+
+    // Pick side / drink if remaining budget allows
+    const sidesAndDrinks = prods.filter(p => p.id !== main.id && p.price <= remainingBudget);
+    if (sidesAndDrinks.length > 0) {
+      const side = sidesAndDrinks[Math.floor(Math.random() * sidesAndDrinks.length)];
+      combo.push(side);
+      remainingBudget -= side.price;
+    }
+
+    lastGeneratedMoodCombo = combo;
+    renderMoodComboResult(combo);
+    SoundFX.playChime();
+  }, 750);
+}
+
+function renderMoodComboResult(combo) {
+  if (!elements.moodResultBox || !elements.moodResultItems) return;
+  const currency = Store.getSettings().currency || "ج.م";
+  const total = combo.reduce((sum, p) => sum + p.price, 0);
+
+  if (elements.moodResultTotal) elements.moodResultTotal.textContent = `${total.toFixed(2)} ${currency}`;
+  
+  elements.moodResultItems.innerHTML = combo.map(p => `
+    <div class="mood-combo-item-row">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <img src="${p.image}" alt="${p.name}" style="width:36px; height:36px; border-radius:6px; object-fit:cover;">
+        <div>
+          <div style="font-size:12.5px; font-weight:700; color:var(--text-main);">${p.name}</div>
+          <div style="font-size:10.5px; color:var(--text-muted);">${p.category}</div>
+        </div>
+      </div>
+      <div class="font-num" style="font-weight:800; color:var(--primary); font-size:13px;">${p.price} ${currency}</div>
+    </div>
+  `).join('');
+
+  elements.moodResultBox.style.display = 'block';
+}
+
+function addMoodComboToCart() {
+  if (!lastGeneratedMoodCombo || lastGeneratedMoodCombo.length === 0) return;
+  
+  const cart = Store.getCart();
+  lastGeneratedMoodCombo.forEach(p => {
+    const existing = cart.find(i => i.id === p.id);
+    if (existing) {
+      existing.qty += 1;
+    } else {
+      cart.push({
+        id: p.id,
+        name: p.name,
+        price: p.price,
+        image: p.image,
+        category: p.category,
+        qty: 1
+      });
+    }
+  });
+
+  Store.saveCart(cart);
+  updateLedgerUI();
+  renderProducts();
+  SoundFX.playPop();
+
+  // Close food mood modal and open cart
+  if (elements.foodMoodBackdrop) elements.foodMoodBackdrop.classList.remove('open');
+  if (elements.foodMoodModal) elements.foodMoodModal.classList.remove('active');
+  openCartDrawer();
+}
+
+// ── Fly-to-Cart Particle Animation ─────────────────────────
+function animateFlyToCart(sourceElement, imageUrl) {
+  if (!sourceElement || !elements.dynamicIslandCart) return;
+
+  const rect = sourceElement.getBoundingClientRect();
+  const targetRect = elements.dynamicIslandCart.getBoundingClientRect();
+
+  const particle = document.createElement('img');
+  particle.src = imageUrl || '';
+  particle.className = 'flying-dish-particle';
+  particle.style.top = `${rect.top + rect.height / 2 - 24}px`;
+  particle.style.left = `${rect.left + rect.width / 2 - 24}px`;
+  document.body.appendChild(particle);
+
+  requestAnimationFrame(() => {
+    particle.style.transform = `translate(${targetRect.left + targetRect.width / 2 - (rect.left + rect.width / 2)}px, ${targetRect.top + targetRect.height / 2 - (rect.top + rect.height / 2)}px) scale(0.2)`;
+    particle.style.opacity = '0.2';
+  });
+
+  setTimeout(() => {
+    particle.remove();
+    // Dynamic island bounce
+    if (elements.dynamicIslandCart) {
+      elements.dynamicIslandCart.animate([
+        { transform: 'translateX(-50%) translateY(0) scale(1)' },
+        { transform: 'translateX(-50%) translateY(-6px) scale(1.06)' },
+        { transform: 'translateX(-50%) translateY(0) scale(1)' }
+      ], { duration: 300, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' });
+    }
+  }, 650);
+}
+
+function renderAnnouncement() {
+  const settings = Store.getSettings();
+  if (elements.announcementBar) {
+    if (settings.showAnnouncement && settings.announcementText) {
+      elements.announcementBar.style.display = 'flex';
+      if (elements.announcementText) elements.announcementText.textContent = settings.announcementText;
+      if (elements.deliveryTimeBadge) elements.deliveryTimeBadge.textContent = `⏱️ ${settings.deliveryTime || '30-45 دقيقة'}`;
+    } else {
+      elements.announcementBar.style.display = 'none';
+    }
+  }
 }
 
 function renderLastOrderRecall() {
-  if (!elements.lastOrderBanner) return;
   const lastOrder = Store.getLastOrder();
-  if (!lastOrder || !lastOrder.items || lastOrder.items.length === 0) {
-    elements.lastOrderBanner.style.display = 'none';
-    return;
+  if (elements.lastOrderBanner) {
+    if (lastOrder && lastOrder.items && lastOrder.items.length > 0) {
+      elements.lastOrderBanner.style.display = 'flex';
+      if (elements.lastOrderSummary) {
+        const itemNames = lastOrder.items.map(i => `${i.qty}x ${i.name}`).join('، ');
+        elements.lastOrderSummary.textContent = `طلبك السابق: ${itemNames}`;
+      }
+    } else {
+      elements.lastOrderBanner.style.display = 'none';
+    }
   }
-
-  const s = Store.getSettings();
-  const currency = s.currency || "ج.م";
-  const itemsSummary = lastOrder.items.map(i => `${i.qty}x ${i.name}`).join('، ');
-  const totalPrice = lastOrder.items.reduce((sum, i) => sum + (i.price * i.qty), 0);
-
-  elements.lastOrderSummary.textContent = `${itemsSummary} (${totalPrice.toFixed(2)} ${currency})`;
-  elements.lastOrderBanner.style.display = 'flex';
 }
 
 function handleReorderClick() {
   const lastOrder = Store.getLastOrder();
-  if (lastOrder && lastOrder.items) {
-    Store.saveCart(lastOrder.items);
-    if (lastOrder.customer) {
-      if (elements.custName) elements.custName.value = lastOrder.customer.name || '';
-      if (elements.custPhone) elements.custPhone.value = lastOrder.customer.phone || '';
-      if (elements.custAddress) elements.custAddress.value = lastOrder.customer.address || '';
-    }
-    updateLedgerUI();
-    openCartDrawer();
+  if (!lastOrder || !lastOrder.items) return;
+
+  Store.saveCart([...lastOrder.items]);
+  if (lastOrder.customer) {
+    if (elements.custName) elements.custName.value = lastOrder.customer.name || '';
+    if (elements.custPhone) elements.custPhone.value = lastOrder.customer.phone || '';
+    if (elements.custAddress) elements.custAddress.value = lastOrder.customer.address || '';
   }
+  updateLedgerUI();
+  renderProducts();
+  SoundFX.playChime();
+  openCartDrawer();
 }
 
 function renderDiscoveryRibbon() {
   if (!elements.discoveryContainer) return;
-  const favs = Store.getFavorites();
+  const categories = Store.getCategories();
+  const favorites = Store.getFavorites();
 
-  const discoveryItems = [
-    { id: "all", label: "جميع الأصناف", icon: '<svg class="icon icon-sm" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>', count: null },
-    { id: "featured", label: "الأكثر طلباً", icon: '<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3z"/></svg>', count: null },
-    { id: "fast", label: "تحضير سريع", icon: '<svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>', count: null },
-    { id: "favorites", label: "المفضلة", icon: '<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>', count: favs.length > 0 ? favs.length : null }
+  const discoveryTags = [
+    { id: 'all', label: '🌟 الكل', count: null },
+    { id: 'fav', label: `❤️ المفضلة (${favorites.length})`, count: favorites.length }
   ];
 
-  elements.discoveryContainer.innerHTML = discoveryItems.map(item => `
-    <button class="discovery-chip ${activeDiscoveryFilter === item.id ? 'active' : ''}" onclick="handleDiscoveryFilterClick('${item.id}')">
-      ${item.icon || ''}
-      <span>${item.label}</span>
-      ${item.count !== null ? `<span class="chip-count font-num">${item.count}</span>` : ''}
+  elements.discoveryContainer.innerHTML = discoveryTags.map(tag => `
+    <button class="discovery-chip ${activeDiscoveryFilter === tag.id ? 'active' : ''}" onclick="handleDiscoveryFilter('${tag.id}')">
+      ${tag.label}
     </button>
   `).join('');
 }
 
-window.handleDiscoveryFilterClick = function(id) {
-  activeDiscoveryFilter = id;
+window.handleDiscoveryFilter = function(filterId) {
+  activeDiscoveryFilter = filterId;
+  activeCategoryFilter = 'all';
   renderDiscoveryRibbon();
+  renderCategories();
   renderProducts();
+  SoundFX.playPop();
 };
 
 function renderCategories() {
   if (!elements.categoriesContainer) return;
-  const cats = Store.getCategories();
-  
-  const allHtml = `
-    <button class="cat-pill ${activeCategoryFilter === 'all' ? 'active' : ''}" onclick="handleCategoryFilterClick('all')">
-      الكل
+  const categories = Store.getCategories();
+
+  let html = `
+    <button class="cat-pill ${activeCategoryFilter === 'all' && activeDiscoveryFilter === 'all' ? 'active' : ''}" onclick="handleCategoryFilter('all')">
+      كل القائمة
     </button>
   `;
 
-  const itemsHtml = cats.map(c => `
-    <button class="cat-pill ${activeCategoryFilter === c ? 'active' : ''}" onclick="handleCategoryFilterClick('${c}')">
-      ${c}
+  html += categories.map(cat => `
+    <button class="cat-pill ${activeCategoryFilter === cat ? 'active' : ''}" onclick="handleCategoryFilter('${cat}')">
+      ${cat}
     </button>
   `).join('');
 
-  elements.categoriesContainer.innerHTML = allHtml + itemsHtml;
+  elements.categoriesContainer.innerHTML = html;
 }
 
-window.handleCategoryFilterClick = function(cat) {
+window.handleCategoryFilter = function(cat) {
   activeCategoryFilter = cat;
+  activeDiscoveryFilter = 'all';
   renderCategories();
+  renderDiscoveryRibbon();
   renderProducts();
+  SoundFX.playPop();
 };
-
-function getFilteredProducts() {
-  let prods = Store.getProducts().filter(p => p.visible !== false);
-  const searchTerm = (elements.searchInput ? elements.searchInput.value : '').trim().toLowerCase();
-
-  if (activeCategoryFilter !== 'all') {
-    prods = prods.filter(p => p.category === activeCategoryFilter);
-  }
-
-  if (activeDiscoveryFilter === 'featured') {
-    prods = prods.filter(p => p.isFeatured || (p.badge && p.badge.includes('طلب')));
-  } else if (activeDiscoveryFilter === 'fast') {
-    prods = prods.filter(p => {
-      const minutes = parseInt(p.prepTime) || 15;
-      return minutes <= 10;
-    });
-  } else if (activeDiscoveryFilter === 'favorites') {
-    const favs = Store.getFavorites();
-    prods = prods.filter(p => favs.includes(p.id));
-  }
-
-  if (searchTerm) {
-    prods = prods.filter(p => {
-      const nameMatch = (p.name || '').toLowerCase().includes(searchTerm);
-      const descMatch = (p.desc || '').toLowerCase().includes(searchTerm);
-      const catMatch = (p.category || '').toLowerCase().includes(searchTerm);
-      return nameMatch || descMatch || catMatch;
-    });
-  }
-
-  return prods;
-}
 
 function renderProducts() {
   if (!elements.productsContainer) return;
-  const prods = getFilteredProducts();
-  const s = Store.getSettings();
-  const currency = s.currency || "ج.م";
 
+  const allProds = Store.getProducts().filter(p => p.visible !== false);
+  const settings = Store.getSettings();
+  const currency = settings.currency || "ج.م";
+  const favorites = Store.getFavorites();
+  const searchQuery = (elements.searchInput && elements.searchInput.value || '').trim().toLowerCase();
+
+  let prods = allProds;
+
+  if (activeDiscoveryFilter === 'fav') {
+    prods = prods.filter(p => favorites.includes(p.id));
+  } else if (activeCategoryFilter !== 'all') {
+    prods = prods.filter(p => p.category === activeCategoryFilter);
+  }
+
+  if (searchQuery) {
+    prods = prods.filter(p => 
+      p.name.toLowerCase().includes(searchQuery) ||
+      (p.desc && p.desc.toLowerCase().includes(searchQuery)) ||
+      (p.category && p.category.toLowerCase().includes(searchQuery)) ||
+      (p.badge && p.badge.toLowerCase().includes(searchQuery))
+    );
+  }
+
+  // Hero Featured
+  const featured = allProds.find(p => p.isFeatured);
   if (elements.heroShowcaseContainer) {
-    if (activeDiscoveryFilter === 'all' && activeCategoryFilter === 'all' && !elements.searchInput.value.trim()) {
-      const showcaseItem = Store.getProducts().find(p => p.visible !== false && p.isFeatured) || prods[0];
-      if (showcaseItem) {
-        elements.heroShowcaseContainer.style.display = 'block';
-        elements.heroShowcaseContainer.innerHTML = renderHeroShowcase(showcaseItem, currency);
-      } else {
-        elements.heroShowcaseContainer.style.display = 'none';
-      }
+    if (featured && activeCategoryFilter === 'all' && activeDiscoveryFilter === 'all' && !searchQuery) {
+      elements.heroShowcaseContainer.style.display = 'block';
+      elements.heroShowcaseContainer.innerHTML = renderHeroShowcase(featured, currency);
     } else {
       elements.heroShowcaseContainer.style.display = 'none';
     }
@@ -326,7 +846,7 @@ function renderHeroShowcase(p, currency) {
     <div class="hero-product-card">
       <div class="hero-product-img-wrap" onclick="openQuickPreview('${p.id}')">
         <img src="${p.image}" class="hero-product-img" alt="${p.name}" loading="lazy">
-        <span class="hero-badge-tag">${p.badge || 'اختيار الشيف'}</span>
+        <span class="hero-badge-tag">${p.badge || '👑 اختيار الشيف'}</span>
       </div>
       <div class="hero-product-content">
         <div>
@@ -411,7 +931,7 @@ function renderCardActionButton(product, qty) {
     `;
   } else {
     return `
-      <button class="btn-quick-add" onclick="event.stopPropagation(); handleQuickAddItem('${product.id}')">
+      <button class="btn-quick-add" onclick="event.stopPropagation(); handleQuickAddItem('${product.id}', this)">
         <svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         <span>إضافة</span>
       </button>
@@ -421,11 +941,12 @@ function renderCardActionButton(product, qty) {
 
 window.handleToggleFav = function(productId) {
   Store.toggleFavorite(productId);
+  SoundFX.playPop();
   renderDiscoveryRibbon();
   renderProducts();
 };
 
-window.handleQuickAddItem = function(productId) {
+window.handleQuickAddItem = function(productId, triggerElement) {
   const prods = Store.getProducts();
   const p = prods.find(item => item.id === productId);
   if (!p) return;
@@ -445,6 +966,12 @@ window.handleQuickAddItem = function(productId) {
     });
   }
   Store.saveCart(cart);
+  SoundFX.playPop();
+
+  if (triggerElement) {
+    animateFlyToCart(triggerElement, p.image);
+  }
+
   updateLedgerUI();
   renderProducts();
 };
@@ -459,6 +986,7 @@ window.handleUpdateItemQty = function(productId, change) {
     cart = cart.filter(i => i.id !== productId);
   }
   Store.saveCart(cart);
+  SoundFX.playPop();
   updateLedgerUI();
   renderProducts();
 
@@ -496,6 +1024,7 @@ window.openQuickPreview = function(productId) {
 
   if (elements.previewModal) elements.previewModal.classList.add('open');
   if (elements.previewModalBackdrop) elements.previewModalBackdrop.classList.add('open');
+  SoundFX.playPop();
 };
 
 function updatePreviewModalActions(productId) {
@@ -517,16 +1046,53 @@ function closeQuickPreview() {
   if (elements.previewModalBackdrop) elements.previewModalBackdrop.classList.remove('open');
 }
 
+// ── Smart Upselling / Pairing Engine ───────────────────────
+function renderSmartPairing(cart, prods, currency) {
+  if (!elements.cartSmartPairing || !elements.pairingItemsList) return;
+  if (cart.length === 0) {
+    elements.cartSmartPairing.style.display = 'none';
+    return;
+  }
+
+  const cartIds = cart.map(i => i.id);
+  // Find suggestions (drinks, fries, sides) not in cart
+  const suggestions = prods.filter(p => !cartIds.includes(p.id) && (
+    (p.category || '').includes('مقبلات') || 
+    (p.category || '').includes('مشروبات') || 
+    p.price < 70
+  )).slice(0, 4);
+
+  if (suggestions.length === 0) {
+    elements.cartSmartPairing.style.display = 'none';
+    return;
+  }
+
+  elements.cartSmartPairing.style.display = 'block';
+  elements.pairingItemsList.innerHTML = suggestions.map(p => `
+    <div class="pairing-chip-card" onclick="handleQuickAddItem('${p.id}')">
+      <img src="${p.image}" class="pairing-thumb" alt="${p.name}">
+      <div>
+        <div class="pairing-title">${p.name}</div>
+        <div class="pairing-price font-num">${p.price} ${currency}</div>
+      </div>
+      <button class="pairing-btn-add" title="إضافة">+</button>
+    </div>
+  `).join('');
+}
+
+// ── Dynamic Island & Cart UI Updates ───────────────────────
 function updateLedgerUI() {
   const cart = Store.getCart();
   const settings = Store.getSettings();
   const currency = settings.currency || "ج.م";
+  const prods = Store.getProducts();
 
   const totalItemsCount = cart.reduce((sum, item) => sum + item.qty, 0);
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
   // Spend Tier Discount
   let spendTierDiscountAmount = 0;
+  let spendTierProgress = 0;
   if (settings.enableSpendTierDiscount && settings.spendTierMinAmount > 0 && subtotal > 0) {
     const minSpend = settings.spendTierMinAmount;
     const tierValue = settings.spendTierDiscountValue || 15;
@@ -534,6 +1100,7 @@ function updateLedgerUI() {
 
     if (subtotal >= minSpend) {
       spendTierDiscountAmount = isPercent ? (subtotal * (tierValue / 100)) : tierValue;
+      spendTierProgress = 100;
       if (elements.spendTierCard) {
         elements.spendTierCard.style.display = 'block';
         if (elements.spendTierMsg) elements.spendTierMsg.textContent = `مبروك! حصلت على خصم ${tierValue}${isPercent ? '%' : ' ' + currency} على طلبك`;
@@ -542,12 +1109,12 @@ function updateLedgerUI() {
       }
     } else {
       const remaining = minSpend - subtotal;
-      const progressPercent = Math.min(100, Math.round((subtotal / minSpend) * 100));
+      spendTierProgress = Math.min(100, Math.round((subtotal / minSpend) * 100));
       if (elements.spendTierCard) {
         elements.spendTierCard.style.display = 'block';
         if (elements.spendTierMsg) elements.spendTierMsg.textContent = `أضف بـ ${remaining.toFixed(0)} ${currency} أخرى لتحصل على خصم ${tierValue}${isPercent ? '%' : ' ' + currency}`;
         if (elements.spendTierPercent) elements.spendTierPercent.textContent = `متبقي ${remaining.toFixed(0)} ${currency}`;
-        if (elements.spendTierFill) elements.spendTierFill.style.width = `${progressPercent}%`;
+        if (elements.spendTierFill) elements.spendTierFill.style.width = `${spendTierProgress}%`;
       }
     }
   } else {
@@ -585,15 +1152,27 @@ function updateLedgerUI() {
   const totalDiscounts = spendTierDiscountAmount + couponDiscountAmount + walletDiscountAmount;
   const finalTotal = Math.max(0, subtotal - totalDiscounts);
 
-  if (elements.floatingLedger) {
+  // Update Dynamic Island
+  if (elements.dynamicIslandCart) {
     if (totalItemsCount > 0) {
-      elements.floatingLedger.classList.add('visible');
-      if (elements.ledgerCountBadge) elements.ledgerCountBadge.textContent = totalItemsCount;
-      if (elements.ledgerFloatingTotal) {
-        elements.ledgerFloatingTotal.textContent = `${finalTotal.toFixed(2)} ${currency}`;
+      elements.dynamicIslandCart.classList.add('active');
+      if (elements.islandItemCount) {
+        elements.islandItemCount.textContent = `${totalItemsCount} ${totalItemsCount === 1 ? 'صنف بالسلة' : 'أصناف بالسلة'}`;
+      }
+      if (elements.islandPriceDisplay) {
+        elements.islandPriceDisplay.textContent = `${finalTotal.toFixed(2)} ${currency}`;
+      }
+      if (elements.islandProgressFill) {
+        elements.islandProgressFill.style.width = `${spendTierProgress}%`;
+      }
+      if (elements.islandAvatarStack) {
+        const topAvatars = cart.slice(0, 3);
+        elements.islandAvatarStack.innerHTML = topAvatars.map(i => `
+          <img src="${i.image}" class="island-avatar-thumb" alt="${i.name}">
+        `).join('');
       }
     } else {
-      elements.floatingLedger.classList.remove('visible');
+      elements.dynamicIslandCart.classList.remove('active');
     }
   }
 
@@ -636,8 +1215,8 @@ function updateLedgerUI() {
     if (elements.walletDiscountVal) elements.walletDiscountVal.textContent = `-${walletDiscountAmount.toFixed(2)} ${currency}`;
   }
 
-  if (elements.walletTransferAmount) {
-    elements.walletTransferAmount.textContent = `${finalTotal.toFixed(2)} ${currency}`;
+  if (elements.walletAmountReminder) {
+    elements.walletAmountReminder.textContent = `${finalTotal.toFixed(2)} ${currency}`;
   }
 
   const minOrder = settings.minOrder || 0;
@@ -647,10 +1226,11 @@ function updateLedgerUI() {
       elements.btnProceedToStep2.innerHTML = `<span>الحد الأدنى للطلب ${minOrder} ${currency}</span>`;
     } else {
       elements.btnProceedToStep2.disabled = totalItemsCount === 0;
-      elements.btnProceedToStep2.innerHTML = `<span>متابعة الطلب</span> <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>`;
+      elements.btnProceedToStep2.innerHTML = `<span>متابعة لبيانات التوصيل ←</span>`;
     }
   }
 
+  renderSmartPairing(cart, prods, currency);
   renderCartDrawerItems();
 }
 
@@ -693,6 +1273,7 @@ function openCartDrawer() {
   if (elements.cartDrawer) elements.cartDrawer.classList.add('open');
   if (elements.cartDrawerBackdrop) elements.cartDrawerBackdrop.classList.add('open');
   goToCheckoutStep(1);
+  SoundFX.playPop();
 }
 
 function closeCartDrawer() {
@@ -723,24 +1304,74 @@ function goToCheckoutStep(stepNumber) {
 function setPaymentOption(opt) {
   selectedPaymentMethod = opt;
   if (opt === 'cod') {
-    if (elements.payCodOption) elements.payCodOption.classList.add('active');
-    if (elements.payWalletOption) elements.payWalletOption.classList.remove('active');
+    if (elements.payCodOption) elements.payCodOption.classList.add('selected');
+    if (elements.payWalletOption) elements.payWalletOption.classList.remove('selected');
     if (elements.walletDetailsBox) elements.walletDetailsBox.style.display = 'none';
   } else {
-    if (elements.payCodOption) elements.payCodOption.classList.remove('active');
-    if (elements.payWalletOption) elements.payWalletOption.classList.add('active');
+    if (elements.payCodOption) elements.payCodOption.classList.remove('selected');
+    if (elements.payWalletOption) elements.payWalletOption.classList.add('selected');
     if (elements.walletDetailsBox) elements.walletDetailsBox.style.display = 'block';
   }
+  SoundFX.playPop();
   updateLedgerUI();
 }
 
 function setupEventListeners() {
+  if (elements.soundToggleBtn) {
+    elements.soundToggleBtn.addEventListener('click', handleSoundToggle);
+  }
+
   if (elements.themeToggleBtn) {
     elements.themeToggleBtn.addEventListener('click', handleThemeToggle);
   }
 
   if (elements.btnReorder) {
     elements.btnReorder.addEventListener('click', handleReorderClick);
+  }
+
+  // Food mood roulette trigger
+  if (elements.btnOpenFoodMood) {
+    elements.btnOpenFoodMood.addEventListener('click', () => {
+      if (elements.foodMoodBackdrop) elements.foodMoodBackdrop.classList.add('open');
+      if (elements.foodMoodModal) elements.foodMoodModal.classList.add('active');
+      SoundFX.playPop();
+    });
+  }
+  if (elements.btnCloseFoodMood) {
+    elements.btnCloseFoodMood.addEventListener('click', () => {
+      if (elements.foodMoodBackdrop) elements.foodMoodBackdrop.classList.remove('open');
+      if (elements.foodMoodModal) elements.foodMoodModal.classList.remove('active');
+    });
+  }
+  if (elements.foodMoodBackdrop) {
+    elements.foodMoodBackdrop.addEventListener('click', () => {
+      if (elements.foodMoodBackdrop) elements.foodMoodBackdrop.classList.remove('open');
+      if (elements.foodMoodModal) elements.foodMoodModal.classList.remove('active');
+    });
+  }
+
+  // View Mode Switcher
+  if (elements.viewToggleGrid) elements.viewToggleGrid.addEventListener('click', () => handleViewModeChange('grid'));
+  if (elements.viewToggleList) elements.viewToggleList.addEventListener('click', () => handleViewModeChange('list'));
+
+  // Stories Touch / Navigation
+  if (elements.storyTouchPrev) elements.storyTouchPrev.addEventListener('click', prevStory);
+  if (elements.storyTouchNext) elements.storyTouchNext.addEventListener('click', nextStory);
+  if (elements.btnCloseStory) elements.btnCloseStory.addEventListener('click', closeStoryViewer);
+  if (elements.storyModalBackdrop) elements.storyModalBackdrop.addEventListener('click', closeStoryViewer);
+
+  // Digital Ticket Modal Close
+  if (elements.btnCloseTicket) {
+    elements.btnCloseTicket.addEventListener('click', () => {
+      if (elements.ticketModalBackdrop) elements.ticketModalBackdrop.classList.remove('open');
+      if (elements.digitalTicketModal) elements.digitalTicketModal.classList.remove('active');
+    });
+  }
+  if (elements.ticketModalBackdrop) {
+    elements.ticketModalBackdrop.addEventListener('click', () => {
+      if (elements.ticketModalBackdrop) elements.ticketModalBackdrop.classList.remove('open');
+      if (elements.digitalTicketModal) elements.digitalTicketModal.classList.remove('active');
+    });
   }
 
   if (elements.searchInput) {
@@ -755,7 +1386,7 @@ function setupEventListeners() {
   if (elements.btnClosePreview) elements.btnClosePreview.addEventListener('click', closeQuickPreview);
   if (elements.previewModalBackdrop) elements.previewModalBackdrop.addEventListener('click', closeQuickPreview);
 
-  if (elements.floatingLedger) elements.floatingLedger.addEventListener('click', openCartDrawer);
+  if (elements.dynamicIslandCart) elements.dynamicIslandCart.addEventListener('click', openCartDrawer);
   if (elements.btnCloseCartDrawer) elements.btnCloseCartDrawer.addEventListener('click', closeCartDrawer);
   if (elements.cartDrawerBackdrop) elements.cartDrawerBackdrop.addEventListener('click', closeCartDrawer);
 
@@ -784,7 +1415,7 @@ function setupEventListeners() {
         return;
       }
       if (!address) {
-        alert("يرجى كتابة عنوان التوصيل");
+        alert("يرجى كتابة عنوان التوصيل بالتفصيل");
         elements.custAddress.focus();
         return;
       }
@@ -820,6 +1451,7 @@ function setupEventListeners() {
       if (validPromo) {
         Store.setAppliedCoupon(validPromo);
         elements.promoCodeInput.value = '';
+        SoundFX.playChime();
         updateLedgerUI();
       } else {
         alert("كود الخصم غير صحيح أو منتهي");
@@ -830,6 +1462,7 @@ function setupEventListeners() {
   if (elements.btnRemovePromo) {
     elements.btnRemovePromo.addEventListener('click', () => {
       Store.setAppliedCoupon(null);
+      SoundFX.playPop();
       updateLedgerUI();
     });
   }
@@ -841,7 +1474,8 @@ function setupEventListeners() {
     elements.btnCopyNum.addEventListener('click', () => {
       const num = elements.walletNumDisplay.textContent;
       navigator.clipboard.writeText(num);
-      alert("تم نسخ رقم المحفظة");
+      SoundFX.playPop();
+      alert("تم نسخ رقم المحفظة بنجاح!");
     });
   }
 
@@ -866,6 +1500,7 @@ function setupEventListeners() {
         uploadedReceiptUrl = await Store.uploadImage(file);
         elements.receiptStatus.textContent = "تم تجهيز الإيصال بنجاح";
         elements.receiptStatus.className = "upload-status success";
+        SoundFX.playChime();
       } catch (err) {
         elements.receiptStatus.textContent = "تعذر الرفع، سيتم إرسال الطلب بدون رابط";
         elements.receiptStatus.className = "upload-status error";
@@ -883,6 +1518,7 @@ function setupEventListeners() {
     Store.initTheme();
     renderStoreInfo();
     renderAnnouncement();
+    renderStories();
     renderProducts();
     updateLedgerUI();
   });
@@ -900,6 +1536,7 @@ function setupEventListeners() {
   });
 }
 
+// ── WhatsApp Order & Digital Boarding Pass Ticket ──────────
 function handleWhatsAppOrder() {
   const cart = Store.getCart();
   if (cart.length === 0) {
@@ -952,10 +1589,13 @@ function handleWhatsAppOrder() {
 
   const totalDiscounts = spendTierDiscountAmount + couponDiscountAmount + walletDiscountAmount;
   const finalTotal = Math.max(0, subtotal - totalDiscounts);
+  const orderId = `#ORD-${Math.floor(1000 + Math.random() * 9000)}`;
 
   Store.saveLastOrder({
+    orderId,
     items: cart,
-    customer: { name, phone, address },
+    customer: { name, phone, address, notes },
+    finalTotal,
     timestamp: Date.now()
   });
 
@@ -967,6 +1607,7 @@ function handleWhatsAppOrder() {
 
   let message = `*طلب جديد من موقع ${settings.storeName}*\n`;
   message += `━━━━━━━━━━━━━━━━━━━\n`;
+  message += `🔖 *رقم الطلب:* ${orderId}\n`;
   message += `👤 *العميل:* ${name}\n`;
   message += `📞 *الهاتف:* ${phone}\n`;
   message += `📍 *العنوان:* ${address}\n`;
@@ -988,9 +1629,9 @@ function handleWhatsAppOrder() {
     if (walletDiscountAmount > 0) {
       message += `⚡ *خصم الدفع الإلكتروني:* -${walletDiscountAmount.toFixed(2)} ${currency}\n`;
     }
-    message += `💰 *المبلغ النهائي المطلوب دفعه:* ${finalTotal.toFixed(2)} ${currency}\n`;
+    message += `💰 *المبلغ النهائي المطلوب:* ${finalTotal.toFixed(2)} ${currency}\n`;
   } else {
-    message += `💰 *المبلغ المطلوب دفعه:* ${finalTotal.toFixed(2)} ${currency}\n`;
+    message += `💰 *المبلغ المطلوب:* ${finalTotal.toFixed(2)} ${currency}\n`;
   }
 
   message += `💳 *طريقة الدفع:* ${paymentText}\n`;
@@ -1004,7 +1645,25 @@ function handleWhatsAppOrder() {
   const cleanWhatsApp = (settings.whatsappNumber || '').replace(/\D/g, '');
   const encodedUrl = `https://wa.me/${cleanWhatsApp}?text=${encodeURIComponent(message)}`;
 
+  // Play Register Sound
+  SoundFX.playCash();
+
+  // Open WhatsApp in new tab
   window.open(encodedUrl, '_blank');
+
+  // Display Digital Ticket Boarding Pass
+  showDigitalTicket({
+    orderId,
+    name,
+    phone,
+    address,
+    paymentText,
+    cart,
+    finalTotal,
+    currency,
+    encodedUrl,
+    storeName: settings.storeName
+  });
 
   Store.clearCart();
   closeCartDrawer();
@@ -1020,6 +1679,33 @@ function handleWhatsAppOrder() {
   elements.receiptPreview.style.display = 'none';
   elements.receiptStatus.style.display = 'none';
   uploadedReceiptUrl = null;
+}
+
+function showDigitalTicket(data) {
+  if (elements.ticketStoreName) elements.ticketStoreName.textContent = data.storeName || "منيو المطعم";
+  if (elements.ticketOrderId) elements.ticketOrderId.textContent = data.orderId;
+  if (elements.ticketCustName) elements.ticketCustName.textContent = data.name;
+  if (elements.ticketCustPhone) elements.ticketCustPhone.textContent = data.phone;
+  if (elements.ticketCustAddress) elements.ticketCustAddress.textContent = data.address;
+  if (elements.ticketPayMethod) elements.ticketPayMethod.textContent = data.paymentText;
+  if (elements.ticketTotalVal) elements.ticketTotalVal.textContent = `${data.finalTotal.toFixed(2)} ${data.currency}`;
+  if (elements.ticketBarcodeNum) elements.ticketBarcodeNum.textContent = `PASS-${data.orderId.replace('#', '')}-${Date.now().toString().slice(-4)}`;
+
+  if (elements.ticketItemsSummary) {
+    elements.ticketItemsSummary.innerHTML = data.cart.map(i => `
+      <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
+        <span>${i.qty}x ${i.name}</span>
+        <span class="font-num" style="font-weight:700;">${(i.price * i.qty).toFixed(2)} ${data.currency}</span>
+      </div>
+    `).join('');
+  }
+
+  if (elements.ticketWhatsAppLink) {
+    elements.ticketWhatsAppLink.href = data.encodedUrl;
+  }
+
+  if (elements.ticketModalBackdrop) elements.ticketModalBackdrop.classList.add('open');
+  if (elements.digitalTicketModal) elements.digitalTicketModal.classList.add('active');
 }
 
 document.addEventListener('DOMContentLoaded', initApp);
