@@ -120,7 +120,111 @@
         .header-actions {
             display: flex;
             align-items: center;
-            gap: 8px;
+            position: relative;
+        }
+
+        .hbtn-dots {
+            width: 38px;
+            height: 38px;
+            background: var(--bg);
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--tr);
+            box-shadow: var(--shadow-sm);
+        }
+        .hbtn-dots:hover, .hbtn-dots.active {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--card);
+        }
+
+        .header-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            min-width: 250px;
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            box-shadow: var(--shadow-lg);
+            padding: 8px;
+            z-index: 600;
+            animation: menuFade 0.18s ease;
+        }
+        .header-dropdown.open { display: block; }
+
+        .menu-user-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 6px;
+        }
+        .u-avatar {
+            width: 34px;
+            height: 34px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            flex-shrink: 0;
+        }
+        .u-info { min-width: 0; }
+        .u-info strong { display: block; font-size: 0.88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .u-info span { display: block; font-size: 0.72rem; color: var(--muted); }
+
+        .menu-items { display: flex; flex-direction: column; gap: 4px; }
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 10px 12px;
+            background: none;
+            border: none;
+            border-radius: 9px;
+            color: var(--text);
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: right;
+            transition: all 0.15s ease;
+        }
+        .menu-item:hover {
+            background: var(--bg);
+            color: var(--primary);
+        }
+        .menu-item.highlight {
+            background: linear-gradient(135deg, #059669, #047857);
+            color: #fff !important;
+        }
+        .menu-item.highlight:hover {
+            box-shadow: 0 4px 12px rgba(5,150,105,0.35);
+        }
+        .menu-item.danger {
+            color: var(--danger);
+        }
+        .menu-item.danger:hover {
+            background: var(--danger-bg);
+        }
+        .menu-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 4px 0;
         }
 
         .user-badge {
@@ -1740,33 +1844,57 @@
             <div class="icon"><i class="fa-solid fa-boxes-stacked"></i></div>
             <div>
                 <h1>إدارة المنتجات</h1>
-                <p>نظام متكامل لإدارة ومتابعة منتجاتك</p>
+                <p id="headerUserSubtitle">نظام متكامل لإدارة ومتابعة منتجاتك</p>
             </div>
         </div>
         <div class="header-actions">
-            <div class="user-badge" id="userBadge" style="display:none;" title="المستخدم المسجل">
-                <i class="fa-solid fa-user-check"></i>
-                <span id="userNameLabel">المستخدم</span>
+            <!-- 3-Dots Menu Button -->
+            <button class="hbtn-dots" id="headerMenuBtn" onclick="toggleHeaderMenu(event)" title="القائمة والخيارات" aria-label="القائمة">
+                <i class="fa-solid fa-ellipsis-vertical"></i>
+            </button>
+
+            <!-- Dropdown Menu -->
+            <div class="header-dropdown" id="headerDropdown">
+                <div class="menu-user-card" id="menuUserCard" style="display:none;">
+                    <div class="u-avatar"><i class="fa-solid fa-user-check"></i></div>
+                    <div class="u-info">
+                        <strong id="menuUserName">المستخدم</strong>
+                        <span id="menuUserKey">الاشتراك: نشط</span>
+                    </div>
+                </div>
+                
+                <div class="menu-items">
+                    <button class="menu-item highlight" onclick="goToCashier(); closeHeaderMenu();">
+                        <i class="fa-solid fa-cash-register"></i>
+                        <span>شاشة الكاشير والمبيعات</span>
+                    </button>
+
+                    <div class="menu-divider"></div>
+
+                    <button class="menu-item" onclick="exportData(); closeHeaderMenu();">
+                        <i class="fa-solid fa-download"></i>
+                        <span>حفظ نسخة احتياطية</span>
+                    </button>
+
+                    <button class="menu-item" onclick="document.getElementById('importFile').click(); closeHeaderMenu();">
+                        <i class="fa-solid fa-upload"></i>
+                        <span>استعادة نسخة احتياطية</span>
+                    </button>
+
+                    <button class="menu-item" onclick="toggleTheme();">
+                        <i class="fa-solid fa-moon" id="menuThemeIcon"></i>
+                        <span id="menuThemeLabel">تبديل الوضع الليلي</span>
+                    </button>
+
+                    <div class="menu-divider"></div>
+
+                    <button class="menu-item danger" id="menuLogoutBtn" onclick="logout(); closeHeaderMenu();" style="display:none;">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        <span>تسجيل الخروج</span>
+                    </button>
+                </div>
             </div>
-            <button class="hbtn" onclick="goToCashier()" style="background:linear-gradient(135deg,#059669,#047857);color:#fff;border:none;box-shadow:var(--shadow-sm);" title="فتح شاشة الكاشير والمبيعات">
-                <i class="fa-solid fa-cash-register"></i>
-                <span class="btn-label">شاشة الكاشير</span>
-            </button>
-            <button class="hbtn" onclick="exportData()" title="حفظ نسخة احتياطية">
-                <i class="fa-solid fa-download"></i>
-                <span class="btn-label">نسخة احتياطية</span>
-            </button>
-            <button class="hbtn" onclick="document.getElementById('importFile').click()" title="استعادة نسخة احتياطية">
-                <i class="fa-solid fa-upload"></i>
-                <span class="btn-label">استعادة</span>
-            </button>
             <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
-            <button class="hbtn icon-only" id="themeBtn" onclick="toggleTheme()" title="تبديل الوضع الليلي">
-                <i class="fa-solid fa-moon"></i>
-            </button>
-            <button class="hbtn icon-only logout-btn" id="logoutBtn" onclick="logout()" title="تسجيل الخروج" style="display:none;">
-                <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            </button>
         </div>
     </div>
 </header>
@@ -2391,14 +2519,40 @@ function checkAuthGuard() {
     }
 }
 
+function toggleHeaderMenu(e) {
+    if (e) e.stopPropagation();
+    const drop = $('headerDropdown');
+    const btn = $('headerMenuBtn');
+    if (drop) {
+        drop.classList.toggle('open');
+        btn?.classList.toggle('active');
+    }
+}
+
+function closeHeaderMenu() {
+    $('headerDropdown')?.classList.remove('open');
+    $('headerMenuBtn')?.classList.remove('active');
+}
+
+document.addEventListener('click', e => {
+    if (!e.target.closest('.header-actions')) {
+        closeHeaderMenu();
+    }
+});
+
 function updateUserUI() {
     if (currentUserSession) {
-        userBadge.style.display = 'flex';
-        userNameLabel.textContent = currentUserSession.name || 'المستخدم';
-        logoutBtn.style.display = 'flex';
+        const name = currentUserSession.name || 'المستخدم';
+        const key = currentUserSession.key || 'نشط';
+        $('headerUserSubtitle').textContent = `التاجر: ${name}`;
+        $('menuUserCard').style.display = 'flex';
+        $('menuUserName').textContent = name;
+        $('menuUserKey').textContent = `كود التفعيل: ${key}`;
+        $('menuLogoutBtn').style.display = 'flex';
     } else {
-        userBadge.style.display = 'none';
-        logoutBtn.style.display = 'none';
+        $('headerUserSubtitle').textContent = 'نظام متكامل لإدارة ومتابعة منتجاتك';
+        $('menuUserCard').style.display = 'none';
+        $('menuLogoutBtn').style.display = 'none';
     }
 }
 
@@ -2425,6 +2579,12 @@ function initUserProductsSync() {
     // 1. عرض فوري من الذاكرة المحلية (0ms) لمنع وميض الشاشة عند الريفريش
     try {
         products = JSON.parse(localStorage.getItem('prods_v4')) || [];
+        products = products.map(p => {
+            if (p && (p.qty === null || p.qty === undefined || p.qty === '' || isNaN(p.qty))) {
+                p.qty = 1;
+            }
+            return p;
+        });
     } catch {
         products = [];
     }
@@ -2444,11 +2604,24 @@ function initUserProductsSync() {
             products = val.filter(Boolean);
             // تحويلها تلقائياً لصيغة Map لكل منتج
             const mapData = {};
-            products.forEach(p => { if (p && p.id) mapData[p.id] = p; });
+            products.forEach(p => { 
+                if (p && p.id) {
+                    if (p.qty === null || p.qty === undefined || p.qty === '' || isNaN(p.qty)) p.qty = 1;
+                    mapData[p.id] = p; 
+                }
+            });
             db.ref(`users_data/${userKey}/products`).set(mapData);
         } else if (typeof val === 'object') {
             products = Object.values(val);
         }
+        
+        // توحيد الكميات: أي صنف بدون كمية أو null يتحول تلقائياً إلى 1
+        products = products.map(p => {
+            if (p && (p.qty === null || p.qty === undefined || p.qty === '' || isNaN(p.qty))) {
+                p.qty = 1;
+            }
+            return p;
+        });
         
         localStorage.setItem('prods_v4', JSON.stringify(products));
         renderProducts();
@@ -2958,10 +3131,12 @@ productForm.addEventListener('submit', async e => {
     const id      = existId || Date.now();
 
     const qtyVal  = $('inQty').value.trim();
-    let qty = null;
+    let qty = 1;
     if (qtyVal !== '') {
         const parsed = parseInt(qtyVal, 10);
-        qty = isNaN(parsed) ? null : Math.max(0, parsed);
+        qty = isNaN(parsed) ? 1 : Math.max(0, parsed);
+    } else {
+        qty = 1;
     }
 
     const err = validateProductInputs(serial, name, whole, sell);
@@ -3029,7 +3204,7 @@ function editProduct(id) {
     $('inName').value   = p.name    || '';
     $('inWhole').value  = p.whole   || '';
     $('inSell').value   = p.sell    || '';
-    $('inQty').value    = (p.qty !== null && p.qty !== undefined && !isNaN(p.qty)) ? p.qty : '';
+    $('inQty').value    = (p.qty !== null && p.qty !== undefined && !isNaN(p.qty)) ? p.qty : 1;
     $('inDesc').value   = p.desc    || '';
     inUrl.value         = p.imgType==='url' ? (p.imgData||'') : '';
     inFile.value        = '';
@@ -3068,7 +3243,7 @@ async function previewEditImg(p) {
 function resetForm() {
     productForm.reset();
     $('editId').value       = '';
-    $('inQty').value        = '';
+    $('inQty').value        = '1';
     previewImg.src          = '';
     imgPreviewBox.classList.remove('show');
     uploadPrompt.style.display = 'flex';
@@ -3146,9 +3321,14 @@ function toggleTheme() {
 function setTheme(t) {
     document.documentElement.setAttribute('data-theme', t);
     localStorage.setItem('theme', t);
-    $('themeBtn').innerHTML = t==='dark'
-        ? '<i class="fa-solid fa-sun"></i>'
-        : '<i class="fa-solid fa-moon"></i>';
+    const icon = $('menuThemeIcon');
+    const label = $('menuThemeLabel');
+    if (icon) {
+        icon.className = t==='dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+    }
+    if (label) {
+        label.textContent = t==='dark' ? 'تفعيل الوضع النهاري' : 'تفعيل الوضع الليلي';
+    }
 }
 
 function initTheme() {
