@@ -7,6 +7,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700;800;900&family=Cairo:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#c2410c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="HarpyOrder">
   <link rel="stylesheet" href="./css/style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23c2410c'><circle cx='12' cy='12' r='10'/></svg>">
 </head>
@@ -54,7 +59,10 @@
     <div id="announcement-bar" class="announcement-bar" style="display:none;">
       <span class="announcement-icon"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></span>
       <span id="announcement-text" class="announcement-text"></span>
-      <span id="delivery-time-badge" class="delivery-chip-badge font-num">⏱️ 30-45 دقيقة</span>
+      <span id="delivery-time-badge" class="delivery-chip-badge font-num">
+        <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        30-45 دقيقة
+      </span>
     </div>
 
     <!-- Last Order Recall Banner -->
@@ -72,16 +80,6 @@
         <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> 
         إعادة طلبك السابق
       </button>
-    </div>
-
-    <!-- Interactive Food Mood / Roulette Banner -->
-    <div class="chef-mood-trigger-card" id="btn-open-food-mood">
-      <div class="mood-sparkle-icon">✨</div>
-      <div class="mood-trigger-text">
-        <div class="mood-trigger-title">محتار تاكل إيه؟ جرّب روليت الشيف السحري 🎲</div>
-        <div class="mood-trigger-sub">حدد ميزانيتك ومودك اليوم ودع الشيف يقترح لك الكومبو المثالي فوراً!</div>
-      </div>
-      <button class="btn-mood-action" type="button">ابدأ الآن ⚡</button>
     </div>
 
     <!-- Discovery Ribbon -->
@@ -213,97 +211,175 @@
 
       <!-- ══ STEP 2: DELIVERY INFO ══ -->
       <div class="checkout-step" data-step="2" style="display:none;">
-        <div class="section-headline">
-          <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-          بيانات التوصيل والعنوان
+        <div class="step-card-header">
+          <div class="step-card-title">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            بيانات التوصيل والعنوان
+          </div>
+          <span class="step-badge-indicator">دليفري مباشر</span>
         </div>
 
-        <div class="form-group">
-          <label class="form-label" for="cust-name">الاسم الكريم <span style="color:var(--danger);">*</span></label>
-          <input type="text" id="cust-name" class="form-input" placeholder="اسمك الثنائي أو اللقب" required>
+        <div class="form-luxury-card">
+          <!-- Name Input -->
+          <div class="input-luxury-group">
+            <label class="input-luxury-label" for="cust-name">
+              <span>الاسم بالكامل</span>
+              <span class="required-star">*</span>
+            </label>
+            <div class="input-icon-wrapper">
+              <span class="input-leading-icon">
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </span>
+              <input type="text" id="cust-name" class="input-luxury-field" placeholder="اكتب اسمك" autocomplete="name" required>
+            </div>
+          </div>
+
+          <!-- Phone Input -->
+          <div class="input-luxury-group">
+            <label class="input-luxury-label" for="cust-phone">
+              <span>رقم الهاتف للتواصل</span>
+              <span class="required-star">*</span>
+            </label>
+            <div class="input-icon-wrapper">
+              <span class="input-leading-icon">
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              </span>
+              <input type="tel" id="cust-phone" class="input-luxury-field font-num" placeholder="01012345678" autocomplete="tel" required>
+            </div>
+          </div>
+
+          <!-- Detailed Address Input -->
+          <div class="input-luxury-group">
+            <label class="input-luxury-label" for="cust-address">
+              <span>عنوان التوصيل بالتفصيل</span>
+              <span class="required-star">*</span>
+            </label>
+            <div class="input-icon-wrapper textarea-wrapper">
+              <span class="input-leading-icon top-icon">
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+              </span>
+              <textarea id="cust-address" class="input-luxury-textarea" rows="3" placeholder="المنطقة، اسم الشارع، رقم العمارة والشقة..." required></textarea>
+            </div>
+          </div>
+
+          <!-- Notes Input -->
+          <div class="input-luxury-group" style="margin-bottom: 0;">
+            <label class="input-luxury-label" for="cust-notes">
+              <span>ملاحظات إضافية للتوصيل (اختياري)</span>
+            </label>
+            <div class="input-icon-wrapper">
+              <span class="input-leading-icon">
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+              </span>
+              <input type="text" id="cust-notes" class="input-luxury-field" placeholder="أي تفاصيل خاصة للتوصيل...">
+            </div>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-label" for="cust-phone">رقم الهاتف للتواصل <span style="color:var(--danger);">*</span></label>
-          <input type="tel" id="cust-phone" class="form-input font-num" placeholder="01xxxxxxxxx" required>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="cust-address">عنوان التوصيل بالتفصيل <span style="color:var(--danger);">*</span></label>
-          <textarea id="cust-address" class="form-textarea" placeholder="المنطقة، اسم الشارع، رقم العمارة، الدور، الشقة، وأقرب علامة مميزة" required></textarea>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="cust-notes">ملاحظات خاصة للشيف أو الطيار (اختياري)</label>
-          <input type="text" id="cust-notes" class="form-input" placeholder="مثال: بدون بصل، زيادة صوص، الاتصال عند الوصول...">
-        </div>
-
-        <div style="display:flex; gap:10px; margin-top:20px;">
-          <button type="button" id="btn-back-to-step1" class="btn btn-ghost" style="flex:1;">← مراجعة الأصناف</button>
-          <button type="button" id="btn-proceed-to-step3" class="btn btn-primary" style="flex:2;">اختيار طريقة الدفع ←</button>
+        <div class="step-actions-row">
+          <button type="button" id="btn-back-to-step1" class="btn btn-ghost btn-step-back">
+            <span>← السلة</span>
+          </button>
+          <button type="button" id="btn-proceed-to-step3" class="btn btn-primary btn-step-next">
+            <span>متابعة لاختيار طريقة الدفع</span>
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
         </div>
       </div>
 
       <!-- ══ STEP 3: PAYMENT METHOD ══ -->
       <div class="checkout-step" data-step="3" style="display:none;">
-        <div class="section-headline">
-          <svg class="icon icon-sm" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-          طريقة الدفع والتأكيد
+        <div class="step-card-header">
+          <div class="step-card-title">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            طريقة الدفع والتأكيد
+          </div>
+          <span class="step-badge-indicator">خطوة أخيرة</span>
         </div>
 
-        <div class="payment-options-grid">
-          <label class="payment-card-option selected" id="pay-cod-option">
-            <input type="radio" name="payment_method" value="cod" checked>
-            <div class="payment-card-content">
-              <div class="payment-card-icon">💵</div>
-              <div class="payment-card-title">الدفع عند الاستلام</div>
-              <div class="payment-card-desc">كاش أو فيزا مع الطيار عند وصول الأوردر</div>
+        <div class="payment-methods-stack">
+          <!-- Option 1: COD -->
+          <div class="payment-luxury-card selected" id="pay-cod-option">
+            <div class="payment-radio-indicator">
+              <div class="radio-inner-dot"></div>
             </div>
-          </label>
+            <div class="payment-card-icon-box">
+              <svg class="icon icon-sm" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>
+            </div>
+            <div class="payment-card-info">
+              <div class="payment-card-headline">الدفع عند الاستلام (COD)</div>
+              <div class="payment-card-sub">كاش أو فيزا للطيار فور وصول طلبك</div>
+            </div>
+          </div>
 
-          <label class="payment-card-option" id="pay-wallet-option">
-            <input type="radio" name="payment_method" value="wallet">
-            <div class="payment-card-content">
-              <div class="payment-card-icon">📱</div>
-              <div class="payment-card-title" id="wallet-name-label">فودافون كاش / إنستاباي</div>
-              <div class="payment-card-desc" id="wallet-discount-tag-label">خصم 10% فوري على إجمالي الأوردر!</div>
+          <!-- Option 2: Digital Wallet / InstaPay -->
+          <div class="payment-luxury-card" id="pay-wallet-option">
+            <div class="payment-radio-indicator">
+              <div class="radio-inner-dot"></div>
             </div>
-          </label>
+            <div class="payment-card-icon-box wallet-icon">
+              <svg class="icon icon-sm" viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+            </div>
+            <div class="payment-card-info">
+              <div class="payment-title-row">
+                <span class="payment-card-headline" id="wallet-name-label">فودافون كاش / إنستاباي</span>
+                <span class="payment-discount-pill" id="wallet-discount-tag-label">خصم 10% فوري</span>
+              </div>
+              <div class="payment-card-sub">تحويل إلكتروني سريع مع خصم مباشر على الفاتورة</div>
+            </div>
+          </div>
         </div>
 
         <!-- Wallet Transfer Details Box -->
-        <div id="wallet-details-box" class="wallet-instructions-box" style="display:none;">
-          <div class="wallet-inst-title">
-            <span>بيانات تحويل المحفظة / إنستاباي</span>
-            <span class="badge-saving font-num" id="wallet-saving-badge">خصم 10% مفعّل</span>
-          </div>
-
-          <div class="wallet-num-row">
-            <div>
-              <div style="font-size:11px; color:var(--text-muted);" id="wallet-name-display">فودافون كاش</div>
-              <div class="font-num wallet-target-num" id="wallet-num-display">01012345678</div>
+        <div id="wallet-details-box" class="wallet-luxury-panel" style="display:none;">
+          <div class="wallet-panel-head">
+            <div class="wallet-panel-title">
+              <svg class="icon icon-sm" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+              <span>بيانات تحويل المبلغ</span>
             </div>
-            <button type="button" id="btn-copy-num" class="btn btn-ghost btn-sm">نسخ الرقم</button>
+            <span class="wallet-status-badge font-num" id="wallet-saving-badge">خصم 10% مفعّل</span>
           </div>
 
-          <div style="font-size:11.5px; color:var(--text-body); margin-top:8px; line-height:1.5;">
-            قم بتحويل مبلغ <strong class="font-num" id="wallet-amount-reminder" style="color:var(--primary);">0 ج.م</strong> للرقم أعلاه ثم ارفع لقطة الشاشة (سكرين شوت) أدناه:
-          </div>
-
-          <!-- Receipt Upload Dropzone -->
-          <div class="receipt-dropzone-wrap" style="margin-top:10px;">
-            <div class="dropzone" id="receipt-dropzone">
-              <input type="file" id="receipt-input" accept="image/*">
-              <svg class="icon icon-lg" style="color:var(--text-faint); margin-bottom:4px;" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.08-3.08a2 2 0 0 0-2.82 0L6 21"/></svg>
-              <div style="font-size:12px; font-weight:800; color:var(--text-body);">اضغط هنا لإرفاق سكرين شوت التحويل</div>
-              <div style="font-size:10.5px; color:var(--text-faint);">سيتم إرفاق رابط الإيصال تلقائياً برسالة الواتساب</div>
-              <img id="receipt-preview" class="receipt-preview-img" alt="معاينة التحويل">
+          <div class="wallet-account-card">
+            <div class="account-info-wrap">
+              <span class="account-type-label" id="wallet-name-display">فودافون كاش / إنستاباي</span>
+              <span class="account-digits font-num" id="wallet-num-display">01012345678</span>
             </div>
+            <button type="button" id="btn-copy-num" class="btn-copy-luxury">
+              <svg class="icon icon-sm" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+              <span id="copy-btn-text">نسخ الرقم</span>
+            </button>
+          </div>
+
+          <div class="wallet-amount-summary-banner">
+            <span>المبلغ المطلوب تحويله:</span>
+            <strong class="font-num target-amount" id="wallet-amount-reminder">0 ج.م</strong>
+          </div>
+
+          <!-- Receipt Upload Box -->
+          <div class="receipt-luxury-dropzone">
+            <input type="file" id="receipt-input" accept="image/*" class="receipt-hidden-input">
+            <div class="dropzone-content" id="dropzone-prompt">
+              <div class="dropzone-icon">
+                <svg class="icon" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.08-3.08a2 2 0 0 0-2.82 0L6 21"/></svg>
+              </div>
+              <div class="dropzone-text-wrap">
+                <div class="dropzone-title">إرفاق إيصال / سكرين شوت التحويل (اختياري)</div>
+                <div class="dropzone-desc">انقر هنا لاختيار الصورة أو تصوير الإيصال</div>
+              </div>
+            </div>
+            <div id="receipt-preview-wrap" style="display:none; position:relative; margin-top:8px;">
+              <img id="receipt-preview" class="receipt-preview-image" alt="إيصال التحويل">
+              <button type="button" id="btn-remove-receipt" class="btn-remove-receipt" title="حذف الصورة">✕</button>
+            </div>
+            <div id="receipt-status" class="upload-status-chip"></div>
           </div>
         </div>
 
         <div style="margin-top:14px;">
-          <button type="button" id="btn-back-to-step2" class="btn btn-ghost" style="width:100%; margin-bottom:8px;">← تعديل بيانات التوصيل</button>
+          <button type="button" id="btn-back-to-step2" class="btn btn-ghost" style="width:100%; padding:10px; font-size:0.86rem; font-weight:700;">
+            ← تعديل بيانات التوصيل
+          </button>
         </div>
       </div>
     </div>
@@ -404,158 +480,92 @@
         <p class="story-footer-desc" id="story-viewer-desc">شريحتين لحم أنجوس مشوي على اللهب مع الجبن والشيبسي</p>
         <button class="btn btn-primary btn-story-cta" id="btn-story-cta">
           <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
-          <span id="story-cta-label">اطلب هذا العرض الآن ⚡</span>
+          <span id="story-cta-label">اطلب هذا العرض الآن</span>
         </button>
       </div>
     </div>
   </div>
 
   <!-- ═══════════════════════════════════════════════════════════
-       NEW: Interactive Food Mood / Roulette Modal
+       ADVANCED ITEM CUSTOMIZER MODAL (Sizes, Add-ons, Notes)
        ═══════════════════════════════════════════════════════════ -->
-  <div class="modal-backdrop" id="food-mood-backdrop"></div>
-  <div class="food-mood-modal" id="food-mood-modal">
-    <div class="mood-modal-header">
-      <div class="mood-modal-title">
-        <span class="mood-modal-sparkle">🎲</span>
-        روليت الشيف السحري
+  <div class="customizer-modal-backdrop" id="customizer-backdrop"></div>
+  <div class="customizer-modal" id="customizer-modal">
+    <div class="customizer-header">
+      <div class="customizer-head-info">
+        <h3 id="customizer-title">تخصيص الوجبة</h3>
+        <p id="customizer-desc">اختر الحجم والإضافات المفضلة</p>
       </div>
-      <button class="btn-close" id="btn-close-food-mood">✕</button>
+      <button class="btn-close-customizer" id="btn-close-customizer">✕</button>
     </div>
-    
-    <div class="mood-modal-body">
-      <p class="mood-modal-intro">محتار تاكل إيه؟ اختر ميزانيتك ومودك وسيقوم الشيف بتوليد أشهى كومبو متكامل لك فوراً!</p>
-      
-      <!-- Budget Selector -->
-      <div class="mood-control-block">
-        <div class="mood-control-label">
-          <span>ميزانيتك التقريبية:</span>
-          <span class="font-num mood-budget-val" id="mood-budget-val">200 ج.م</span>
-        </div>
-        <input type="range" id="mood-budget-slider" class="mood-range-slider" min="50" max="500" step="10" value="200">
-        <div class="range-labels font-num">
-          <span>50 ج.م</span>
-          <span>250 ج.م</span>
-          <span>500 ج.م</span>
-        </div>
+
+    <div class="customizer-body">
+      <!-- Media Banner -->
+      <div class="customizer-media-wrap">
+        <img id="customizer-img" src="" alt="Food Preview">
+        <div class="customizer-base-price-chip font-num" id="customizer-base-price">0 ج.م</div>
       </div>
 
-      <!-- Mood Vibe Selector -->
-      <div class="mood-control-block">
-        <div class="mood-control-label">مودك ورغبتك اليوم:</div>
-        <div class="mood-chips-grid" id="mood-chips-container">
-          <button type="button" class="mood-chip active" data-mood="hungry">🍔 جعان ومفترس</button>
-          <button type="button" class="mood-chip" data-mood="spicy">🔥 سبايسي ومولع</button>
-          <button type="button" class="mood-chip" data-mood="light">🥗 خفيف وسريع</button>
-          <button type="button" class="mood-chip" data-mood="chef">👑 لمسة شيف فاخرة</button>
-          <button type="button" class="mood-chip" data-mood="family">👨‍👩‍👦 لمة عيلة وتوفير</button>
+      <!-- Sizes / Portions Section -->
+      <div class="customizer-section" id="customizer-sizes-section">
+        <div class="customizer-section-title">
+          <span>الحجم / الكمية</span>
+          <span class="badge-required">إجباري</span>
         </div>
+        <div class="customizer-options-list" id="customizer-sizes-list"></div>
       </div>
 
-      <!-- Action Button -->
-      <button type="button" class="btn-spin-roulette" id="btn-spin-roulette">
-        <span class="spin-icon">🎲</span>
-        <span>تشغيل روليت الشيف واقتراح الكومبو!</span>
+      <!-- Paid Add-ons Section -->
+      <div class="customizer-section" id="customizer-addons-section">
+        <div class="customizer-section-title">
+          <span>إضافات مميزة</span>
+          <span class="badge-optional">اختياري</span>
+        </div>
+        <div class="customizer-options-list" id="customizer-addons-list"></div>
+      </div>
+
+      <!-- Special Notes -->
+      <div class="customizer-section">
+        <div class="customizer-section-title">
+          <span>ملاحظات خاصة للشيف</span>
+        </div>
+        <input type="text" id="customizer-notes" class="customizer-notes-input" placeholder="مثال: بدون بصل، صوص زيادة، حار جداً...">
+      </div>
+    </div>
+
+    <!-- Sticky Customizer Footer -->
+    <div class="customizer-footer">
+      <div class="customizer-footer-calc">
+        <div class="customizer-qty-stepper">
+          <button id="btn-customizer-qty-minus" class="qty-btn">−</button>
+          <span id="customizer-qty-val" class="qty-val font-num">1</span>
+          <button id="btn-customizer-qty-plus" class="qty-btn">+</button>
+        </div>
+        <div class="customizer-footer-price">
+          <div class="calc-label">المجموع:</div>
+          <div class="calc-val font-num" id="customizer-total-price">0 ج.م</div>
+        </div>
+      </div>
+      <button id="btn-add-customized-cart" class="btn btn-primary btn-add-customized">
+        <svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        إضافة إلى السلة
       </button>
-
-      <!-- Result Combo Container -->
-      <div class="mood-result-box" id="mood-result-box" style="display:none;">
-        <div class="mood-result-headline">
-          <span>✨ اقتراح الشيف المخصص لك:</span>
-          <span class="font-num mood-result-total" id="mood-result-total">0 ج.م</span>
-        </div>
-        <div class="mood-result-items" id="mood-result-items"></div>
-        <button type="button" class="btn btn-primary" id="btn-add-mood-combo" style="width:100%; margin-top:12px;">
-          إضافة كل هذه الأصناف إلى السلة فوراً 🛒
-        </button>
-      </div>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════
-       NEW: Bespoke Digital Boarding Pass / Order Ticket Modal
-       ═══════════════════════════════════════════════════════════ -->
-  <div class="modal-backdrop" id="ticket-modal-backdrop"></div>
-  <div class="digital-ticket-modal" id="digital-ticket-modal">
-    <div class="ticket-card-wrap">
-      <div class="ticket-top-badge">
-        <span>✈️ تذكرة طلب رقمية معتمدة</span>
-        <button class="btn-close-ticket" id="btn-close-ticket">✕</button>
-      </div>
-
-      <div class="ticket-main-header">
-        <div class="ticket-brand-name" id="ticket-store-name">شاورما وبيرجر الهرمل</div>
-        <div class="ticket-order-id font-num" id="ticket-order-id">#ORD-9821</div>
-      </div>
-
-      <!-- Live Order Preparation Tracker -->
-      <div class="ticket-tracker-container">
-        <div class="ticket-tracker-title">متابعة حالة تحضير الطلب:</div>
-        <div class="tracker-steps">
-          <div class="tracker-step active">
-            <div class="tracker-dot">✓</div>
-            <div class="tracker-text">تم الاستلام</div>
-          </div>
-          <div class="tracker-line active"></div>
-          <div class="tracker-step current">
-            <div class="tracker-dot">🍳</div>
-            <div class="tracker-text">في المطبخ</div>
-          </div>
-          <div class="tracker-line"></div>
-          <div class="tracker-step">
-            <div class="tracker-dot">🛵</div>
-            <div class="tracker-text">مع الطيار</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="ticket-divider">
-        <div class="ticket-notch notch-left"></div>
-        <div class="ticket-dash-line"></div>
-        <div class="ticket-notch notch-right"></div>
-      </div>
-
-      <!-- Ticket Details -->
-      <div class="ticket-body-details">
-        <div class="ticket-row">
-          <span class="ticket-label">العميل:</span>
-          <span class="ticket-val" id="ticket-cust-name">-</span>
-        </div>
-        <div class="ticket-row">
-          <span class="ticket-label">رقم الهاتف:</span>
-          <span class="ticket-val font-num" id="ticket-cust-phone">-</span>
-        </div>
-        <div class="ticket-row">
-          <span class="ticket-label">عنوان التوصيل:</span>
-          <span class="ticket-val" id="ticket-cust-address">-</span>
-        </div>
-        <div class="ticket-row">
-          <span class="ticket-label">طريقة الدفع:</span>
-          <span class="ticket-val" id="ticket-pay-method">الدفع عند الاستلام</span>
-        </div>
-        <div class="ticket-items-summary" id="ticket-items-summary"></div>
-        
-        <div class="ticket-total-row">
-          <span>إجمالي الحساب المطلوب:</span>
-          <span class="ticket-total-val font-num" id="ticket-total-val">0 ج.م</span>
-        </div>
-      </div>
-
-      <!-- Barcode Simulator -->
-      <div class="ticket-barcode-wrap">
-        <div class="barcode-lines">
-          <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-        </div>
-        <div class="barcode-num font-num" id="ticket-barcode-num">HARPY-ORDER-VERIFIED</div>
-      </div>
-
-      <div class="ticket-actions">
-        <a id="ticket-whatsapp-link" href="#" target="_blank" class="btn btn-primary" style="width:100%; text-decoration:none; display:flex; justify-content:center; align-items:center; gap:8px;">
-          <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-          متابعة الطلب في محادثة الواتساب
-        </a>
-      </div>
+  <!-- Subscription Suspended Overlay -->
+  <div id="subscription-suspended-backdrop" class="modal-backdrop" style="display:none; z-index:9998; backdrop-filter:blur(10px); background:rgba(0,0,0,0.8);"></div>
+  <div id="subscription-suspended-overlay" class="modal-box" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index:9999; max-width:400px; text-align:center; box-shadow: 0 24px 60px rgba(0,0,0,0.85);">
+    <div style="width:58px; height:58px; border-radius:50%; background:var(--primary-subtle); color:var(--primary); display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+      <svg class="icon icon-lg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
     </div>
+    <h3 style="font-size:1.15rem; font-weight:900; color:var(--text-main); margin-bottom:8px;">عفواً، الخدمة متوقفة مؤقتاً</h3>
+    <p style="font-size:0.86rem; color:var(--text-muted); line-height:1.6; margin-bottom:20px;">
+      قائمة هذا المطعم غير متاحة حالياً لتلقي طلبات الأونلاين أو جاري تجديد الاشتراك.
+    </p>
+    <a id="sub-suspended-contact-btn" href="#" class="btn btn-primary" style="width:100%; padding:12px; font-weight:800; text-decoration:none; display:inline-block;">
+      تواصل مع المطعم عبر الواتساب
+    </a>
   </div>
 
   <script src="./js/store.js"></script>

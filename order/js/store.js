@@ -13,100 +13,101 @@ const STORAGE_KEYS = {
   APPLIED_COUPON: 'harpy_applied_coupon',
   SOUND_ENABLED: 'harpy_sound_enabled',
   VIEW_MODE: 'harpy_view_mode',
-  STORIES: 'harpy_order_stories'
+  STORIES: 'harpy_order_stories',
+  TABLE_NUM: 'harpy_order_table_num'
 };
 
 const THEME_PRESETS = {
   charcoal: {
     id: "charcoal",
-    name: "دفتر الفحم الدافئ",
+    name: "دفتر الفحم الدافئ (ليلي أساسي)",
     badge: "فحم وخشب داكن",
-    bg: "#110e0c",
-    surface: "#1c1713",
-    surfaceRaised: "#251f1a",
-    headerBg: "#110e0c",
+    bg: "#120e0c",
+    surface: "#1e1814",
+    surfaceRaised: "#28201a",
+    headerBg: "#120e0c",
     textMain: "#faf6f0",
     textBody: "#d4c9ba",
-    primary: "#c2410c",
+    primary: "#ea580c",
     border: "rgba(245, 238, 227, 0.09)"
   },
   cream: {
     id: "cream",
-    name: "الورق العاجي الفاتح",
-    badge: "نهاري راقي وكافيهات",
-    bg: "#faf7f2",
+    name: "الورق العاجي الفاخر (نهاري أساسي)",
+    badge: "نهاري راقي ومقاهي",
+    bg: "#f8f6f0",
     surface: "#ffffff",
-    surfaceRaised: "#f5eedf",
-    headerBg: "#faf7f2",
-    textMain: "#1c1815",
-    textBody: "#4a4035",
-    primary: "#9a3412",
-    border: "rgba(60, 45, 30, 0.09)"
-  },
-  olive: {
-    id: "olive",
-    name: "الزيتوني الريفي والروستيك",
-    badge: "طبيعي ومزارع خضراء",
-    bg: "#0d1410",
-    surface: "#1a2720",
-    surfaceRaised: "#23352c",
-    headerBg: "#0d1410",
-    textMain: "#f0f7f2",
-    textBody: "#c8ded0",
-    primary: "#15803d",
-    border: "rgba(230, 245, 235, 0.09)"
+    surfaceRaised: "#f3ede2",
+    headerBg: "#f8f6f0",
+    textMain: "#18130f",
+    textBody: "#3d332a",
+    primary: "#c2410c",
+    border: "rgba(45, 35, 25, 0.10)"
   },
   midnight: {
     id: "midnight",
     name: "الأسود والذهب الملكي",
     badge: "فخامة لاونج وستيك",
-    bg: "#0a0a0a",
-    surface: "#181818",
-    surfaceRaised: "#242424",
-    headerBg: "#0a0a0a",
+    bg: "#0d0d0e",
+    surface: "#18181b",
+    surfaceRaised: "#242428",
+    headerBg: "#0d0d0e",
     textMain: "#ffffff",
-    textBody: "#d4d4d4",
+    textBody: "#d4d4d8",
     primary: "#d97706",
-    border: "rgba(217, 119, 6, 0.25)"
-  },
-  indigo: {
-    id: "indigo",
-    name: "الأزرق النيلي العصري",
-    badge: "سي فود وشبابي عصري",
-    bg: "#0b1120",
-    surface: "#16223f",
-    surfaceRaised: "#1e2e54",
-    headerBg: "#0b1120",
-    textMain: "#f8faff",
-    textBody: "#cbd8f0",
-    primary: "#2563eb",
-    border: "rgba(224, 236, 255, 0.09)"
-  },
-  bordeaux: {
-    id: "bordeaux",
-    name: "العنابي الفاخر والبوردو",
-    badge: "مشويات وشاعري دافئ",
-    bg: "#150a0d",
-    surface: "#28151b",
-    surfaceRaised: "#361d24",
-    headerBg: "#150a0d",
-    textMain: "#fff5f7",
-    textBody: "#ecc8d0",
-    primary: "#be123c",
-    border: "rgba(255, 230, 236, 0.09)"
+    border: "rgba(217, 119, 6, 0.20)"
   },
   sunset: {
     id: "sunset",
-    name: "البرتقالي المنعش والفاير",
+    name: "البرتقالي الناري الحيوي",
     badge: "برجر وفاست فود",
-    bg: "#140e08",
-    surface: "#24180d",
-    surfaceRaised: "#332212",
-    headerBg: "#140e08",
-    textMain: "#fffaf0",
-    textBody: "#e8d5bf",
-    primary: "#ea580c",
-    border: "rgba(234, 88, 12, 0.18)"
+    bg: "#140e0a",
+    surface: "#221812",
+    surfaceRaised: "#2e2119",
+    headerBg: "#140e0a",
+    textMain: "#fffaf5",
+    textBody: "#e8d8cb",
+    primary: "#f97316",
+    border: "rgba(249, 115, 22, 0.16)"
+  },
+  olive: {
+    id: "olive",
+    name: "الزيتوني الريفي والطبيعي",
+    badge: "طبيعي ومزارع خضراء",
+    bg: "#0d1410",
+    surface: "#18241d",
+    surfaceRaised: "#223329",
+    headerBg: "#0d1410",
+    textMain: "#f0f7f2",
+    textBody: "#c8ded0",
+    primary: "#16a34a",
+    border: "rgba(22, 163, 74, 0.16)"
+  },
+  indigo: {
+    id: "indigo",
+    name: "الأزرق النيلي والبحري",
+    badge: "سي فود وشبابي عصري",
+    bg: "#0b1120",
+    surface: "#141d33",
+    surfaceRaised: "#1c2847",
+    headerBg: "#0b1120",
+    textMain: "#f8faff",
+    textBody: "#cbd8f0",
+    primary: "#3b82f6",
+    border: "rgba(59, 130, 246, 0.16)"
+  },
+  bordeaux: {
+    id: "bordeaux",
+    name: "العنابي والمشويات الفاخرة",
+    badge: "مشويات وشاعري دافئ",
+    bg: "#140a0e",
+    surface: "#24141a",
+    surfaceRaised: "#321b24",
+    headerBg: "#140a0e",
+    textMain: "#fff5f7",
+    textBody: "#ecc8d0",
+    primary: "#e11d48",
+    border: "rgba(225, 29, 72, 0.16)"
   }
 };
 
@@ -120,7 +121,7 @@ const DEFAULT_SETTINGS = {
   adminPin: "1234",
   logo: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=120&auto=format&fit=crop&q=60",
   cover: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=1200",
-  imgbbApiKey: "9716f16445d36094b2e16dd8682fc0c1",
+  imgbbApiKey: "", // User can add their own ImgBB API key from admin settings
   
   themePreset: "charcoal",
   siteColors: {
@@ -174,7 +175,17 @@ const DEFAULT_PRODUCTS = [
     prepTime: "15 دقيقة",
     visible: true,
     isFeatured: true,
-    badge: "عرض خاص"
+    badge: "عرض خاص",
+    sizes: [
+      { id: "s-reg", name: "سنجل عادي", price: 0 },
+      { id: "s-dbl", name: "دبل لارج (+35 ج.م)", price: 35 },
+      { id: "s-trp", name: "تربل عملاق (+60 ج.م)", price: 60 }
+    ],
+    addons: [
+      { id: "a-chz", name: "شريحة جبنة شيدر إضافية", price: 15 },
+      { id: "a-sauce", name: "صوص سموكي باربكيو", price: 10 },
+      { id: "a-jal", name: "قطع هلابينو حار", price: 10 }
+    ]
   },
   {
     id: "p2",
@@ -187,7 +198,15 @@ const DEFAULT_PRODUCTS = [
     prepTime: "12 دقيقة",
     visible: true,
     isFeatured: true,
-    badge: "سبايسي"
+    badge: "سبايسي",
+    sizes: [
+      { id: "s-reg", name: "حجم عادي", price: 0 },
+      { id: "s-lrg", name: "حجم سوبر لارج (+25 ج.م)", price: 25 }
+    ],
+    addons: [
+      { id: "a-chz", name: "جبنة سايحة دوبل", price: 15 },
+      { id: "a-turk", name: "شريحة تركي مدخن", price: 20 }
+    ]
   },
   {
     id: "p3",
@@ -200,7 +219,15 @@ const DEFAULT_PRODUCTS = [
     prepTime: "10 دقائق",
     visible: true,
     isFeatured: false,
-    badge: "وجبة شيف"
+    badge: "وجبة شيف",
+    sizes: [
+      { id: "s-reg", name: "وجبة فردية (1 رول)", price: 0 },
+      { id: "s-dbl", name: "وجبة دبل (2 رول + بطاطس) (+45 ج.م)", price: 45 }
+    ],
+    addons: [
+      { id: "a-garlic", name: "علبة ثومية زيادة", price: 10 },
+      { id: "a-pickles", name: "مخلل خيار متبل", price: 8 }
+    ]
   },
   {
     id: "p4",
@@ -213,7 +240,10 @@ const DEFAULT_PRODUCTS = [
     prepTime: "12 دقيقة",
     visible: true,
     isFeatured: false,
-    badge: "لحم بلدي"
+    badge: "لحم بلدي",
+    addons: [
+      { id: "a-tahina", name: "طحينة سمسم فاخرة إضافية", price: 10 }
+    ]
   },
   {
     id: "p5",
@@ -253,269 +283,217 @@ const DEFAULT_PRODUCTS = [
     visible: true,
     isFeatured: false,
     badge: "طبيعي 100%"
-  },
-  {
-    id: "p8",
-    name: "بيبسي كانز 330 مل",
-    category: "مشروبات منعشة",
-    price: 20,
-    originalPrice: 0,
-    desc: "مشروب غازي كلاسيكي بارد ومنعش يقدم مثلجاً",
-    image: "https://images.unsplash.com/photo-1629203851122-3726ecdf080e?w=600&auto=format&fit=crop&q=80",
-    prepTime: "دقيقة",
-    visible: true,
-    isFeatured: false,
-    badge: "بارد"
   }
 ];
 
 const DEFAULT_STORIES = [
   {
-    id: "story_1",
-    title: "عرض اليوم الناري 🔥",
-    tagline: "جراند برجر + بطاطس ويدجز بخصم خاص",
-    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=900&auto=format&fit=crop&q=85",
-    badge: "عرض محدود",
+    id: "s1",
+    title: "عرض اليوم الحصري",
+    tagline: "خصم 20% لفترة محدودة",
+    desc: "جراند بيرجر لحم دبل مشوي على اللهب مع بطاطس بالجبن ومشروب منعش بخصم حصري اليوم فقط!",
+    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&auto=format&fit=crop&q=80",
     productId: "p1",
-    ctaText: "اطلب العرض الآن",
-    desc: "شريحتين لحم أنجوس مشوي على اللهب مع جبن شيدر ذائب وصوص مميز بخصم خاص للطلب الآن!"
+    badge: "خصم 20%"
   },
   {
-    id: "story_2",
-    title: "سر الشاورما السورية 🌯",
-    tagline: "تتبيلة خاصة وثومية كريمية أصلية",
-    image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=900&auto=format&fit=crop&q=85",
-    badge: "الأكثر طلباً",
+    id: "s2",
+    title: "شاورما الصاج المحمص",
+    tagline: "طعم لا يقاوم",
+    desc: "شاورما دجاج ولحم بالصاج السوري المقرمش مع الثومية الخاصة وسلطة المخلل اللذيذة.",
+    image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop&q=80",
     productId: "p3",
-    ctaText: "جرّب الشاورما السوري",
-    desc: "شاورما دجاج محضرة طازجة يومياً على السيخ مع تتبيلتنا السرية وخبز الصاج المقرمش."
+    badge: "الأكثر طلباً"
   },
   {
-    id: "story_3",
-    title: "مقبلات وسناكس مقرمشة 🧀",
-    tagline: "أصابع الموزاريلا والبطاطس السايحة",
-    image: "https://images.unsplash.com/photo-1531749668029-2db88e4276c7?w=900&auto=format&fit=crop&q=85",
-    badge: "سناكس الشيف",
+    id: "s3",
+    title: "سناكس ومقبلات مقرمشة",
+    tagline: "كمل وجبتك",
+    desc: "أصابع الموزاريلا الغنية وبطاطس الهلابينو بالجبنة الشيدر الساخنة لتجربة طعام متكاملة.",
+    image: "https://images.unsplash.com/photo-1531749668029-2db88e4276c7?w=600&auto=format&fit=crop&q=80",
     productId: "p6",
-    ctaText: "أضف لسفرتك",
-    desc: "أصابع الموزاريلا الإيطالية الذهبية مع صوص المارينارا العشبي اللذيذ لتكتمل وجبتك."
+    badge: "قرمشة شيدر"
   }
 ];
 
-function isCorrupted(str) {
-  if (typeof str !== 'string') return false;
-  return /\?{3,}/.test(str);
-}
-
 const Store = {
-  THEME_PRESETS,
+  // ── Multi-Tenant Restaurant Engine ────────────────────────
+  getRestaurantSlug() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const urlSlug = params.get('m') || params.get('restaurant') || params.get('store') || params.get('slug');
+      if (urlSlug) {
+        const clean = urlSlug.toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
+        if (clean) {
+          localStorage.setItem('harpy_active_slug', clean);
+          this.registerRestaurant(clean);
+          return clean;
+        }
+      }
+    } catch {}
+    return localStorage.getItem('harpy_active_slug') || 'hermel';
+  },
+
+  setRestaurantSlug(slug) {
+    const clean = (slug || '').toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
+    if (clean) {
+      localStorage.setItem('harpy_active_slug', clean);
+      this.registerRestaurant(clean);
+      this.applyTheme();
+      window.dispatchEvent(new CustomEvent('harpy_restaurant_changed', { detail: clean }));
+    }
+  },
+
+  registerRestaurant(slug, customName = null) {
+    let list = this.getAllRestaurants();
+    const existing = list.find(r => r.slug === slug);
+    if (!existing) {
+      const name = customName || (slug === 'hermel' ? 'شاورما وبيرجر الهرمل' : `مطعم ${slug}`);
+      list.push({ slug, name });
+      localStorage.setItem('harpy_restaurants_list', JSON.stringify(list));
+    } else if (customName && existing.name !== customName) {
+      existing.name = customName;
+      localStorage.setItem('harpy_restaurants_list', JSON.stringify(list));
+    }
+  },
+
+  getAllRestaurants() {
+    const raw = localStorage.getItem('harpy_restaurants_list');
+    try {
+      return raw ? JSON.parse(raw) : [{ slug: 'hermel', name: 'شاورما وبيرجر الهرمل' }];
+    } catch {
+      return [{ slug: 'hermel', name: 'شاورما وبيرجر الهرمل' }];
+    }
+  },
+
+  getKey(baseKey) {
+    const slug = this.getRestaurantSlug();
+    return `harpy_${slug}_${baseKey}`;
+  },
 
   getSettings() {
-    const raw = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+    const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.SETTINGS));
     if (!raw) {
-      this.saveSettings(DEFAULT_SETTINGS);
+      // If default hermel or custom store with no settings yet
+      const slug = this.getRestaurantSlug();
+      if (slug !== 'hermel') {
+        return { ...DEFAULT_SETTINGS, storeName: `مطعم ${slug}` };
+      }
       return DEFAULT_SETTINGS;
     }
     try {
-      const parsed = JSON.parse(raw);
-      if (isCorrupted(parsed.storeName) || isCorrupted(parsed.storeTagline)) {
-        this.saveSettings(DEFAULT_SETTINGS);
-        return DEFAULT_SETTINGS;
-      }
-      return { 
-        ...DEFAULT_SETTINGS, 
-        ...parsed,
-        promoCodes: parsed.promoCodes || DEFAULT_SETTINGS.promoCodes,
-        siteColors: { ...DEFAULT_SETTINGS.siteColors, ...(parsed.siteColors || {}) }
-      };
+      return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
     } catch {
       return DEFAULT_SETTINGS;
     }
   },
   saveSettings(settings) {
-    localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
-    this.applyTheme(settings);
+    localStorage.setItem(this.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(settings));
+    if (settings.storeName) {
+      this.registerRestaurant(this.getRestaurantSlug(), settings.storeName);
+    }
+    this.applyTheme();
     window.dispatchEvent(new Event('store_settings_updated'));
   },
 
-  applyTheme(settings) {
-    const s = settings || this.getSettings();
+  applyTheme() {
+    const s = this.getSettings();
     const mode = this.getThemeMode();
     const root = document.documentElement;
 
     root.setAttribute('data-theme', mode);
 
-    if (mode === 'light') {
-      root.style.setProperty('--bg', '#faf7f2');
-      root.style.setProperty('--bg-subtle', '#f2ece1');
-      root.style.setProperty('--surface', '#ffffff');
-      root.style.setProperty('--surface-raised', '#f5eedf');
-      root.style.setProperty('--surface-hover', '#eae1d0');
-      root.style.setProperty('--header-bg', '#faf7f2');
-      root.style.setProperty('--text-main', '#1c1815');
-      root.style.setProperty('--text-body', '#4a4035');
-      root.style.setProperty('--text-muted', '#7d7060');
-      root.style.setProperty('--border', 'rgba(60, 45, 30, 0.09)');
-      root.style.setProperty('--border-strong', 'rgba(60, 45, 30, 0.16)');
-    } else {
-      const colors = s.siteColors || DEFAULT_SETTINGS.siteColors;
-      root.style.setProperty('--bg', colors.bg || "#110e0c");
-      root.style.setProperty('--bg-subtle', colors.bg || "#110e0c");
-      root.style.setProperty('--surface', colors.surface || "#1c1713");
-      root.style.setProperty('--surface-raised', colors.surfaceRaised || "#251f1a");
-      root.style.setProperty('--surface-hover', colors.surfaceRaised || "#251f1a");
-      root.style.setProperty('--header-bg', colors.headerBg || colors.bg || "#110e0c");
-      root.style.setProperty('--text-main', colors.textMain || "#faf6f0");
-      root.style.setProperty('--text-body', colors.textBody || "#d4c9ba");
-      root.style.setProperty('--text-muted', "#968a7a");
-      root.style.setProperty('--border', colors.border || "rgba(245, 238, 227, 0.09)");
-      root.style.setProperty('--border-strong', colors.border || "rgba(245, 238, 227, 0.16)");
+    // Clean up stale inline color overrides
+    root.style.removeProperty('--bg');
+    root.style.removeProperty('--bg-subtle');
+    root.style.removeProperty('--surface');
+    root.style.removeProperty('--surface-raised');
+    root.style.removeProperty('--surface-hover');
+    root.style.removeProperty('--header-bg');
+    root.style.removeProperty('--text-main');
+    root.style.removeProperty('--text-body');
+    root.style.removeProperty('--border');
+    root.style.removeProperty('--border-strong');
+
+    let colors = s.siteColors;
+    if (!colors && s.themePreset && THEME_PRESETS[s.themePreset]) {
+      colors = THEME_PRESETS[s.themePreset];
+    }
+    if (!colors) colors = THEME_PRESETS.charcoal;
+
+    if (mode === 'dark') {
+      if (s.themePreset && s.themePreset !== 'charcoal' && s.themePreset !== 'cream' && THEME_PRESETS[s.themePreset]) {
+        const p = THEME_PRESETS[s.themePreset];
+        root.style.setProperty('--bg', p.bg);
+        root.style.setProperty('--surface', p.surface);
+        root.style.setProperty('--surface-raised', p.surfaceRaised);
+        root.style.setProperty('--header-bg', p.bg);
+        root.style.setProperty('--text-main', p.textMain);
+        root.style.setProperty('--text-body', p.textBody);
+        root.style.setProperty('--border', p.border);
+        root.style.setProperty('--border-strong', p.border);
+      } else if (colors && colors.bg && colors.surface && s.themePreset !== 'cream') {
+        root.style.setProperty('--bg', colors.bg);
+        root.style.setProperty('--surface', colors.surface);
+        root.style.setProperty('--surface-raised', colors.surfaceRaised || colors.surface);
+        root.style.setProperty('--header-bg', colors.headerBg || colors.bg);
+        root.style.setProperty('--text-main', colors.textMain || '#faf6f0');
+        root.style.setProperty('--text-body', colors.textBody || '#d4c9ba');
+        root.style.setProperty('--border', colors.border || 'rgba(245, 238, 227, 0.09)');
+      }
     }
 
-    const primary = (s.siteColors && s.siteColors.primary) || s.primaryColor || "#c2410c";
-    root.style.setProperty('--primary', primary);
-    root.style.setProperty('--primary-hover', primary);
-    root.style.setProperty('--primary-subtle', primary + '22');
-    root.style.setProperty('--primary-glow', primary + '40');
-    root.style.setProperty('--border-focus', primary);
+    const primaryColor = colors?.primary || (mode === 'light' ? '#c2410c' : '#ea580c');
+    root.style.setProperty('--primary', primaryColor);
+    root.style.setProperty('--primary-glow', `${primaryColor}44`);
+    root.style.setProperty('--primary-subtle', `${primaryColor}22`);
   },
 
   getCategories() {
-    const raw = localStorage.getItem(STORAGE_KEYS.CATEGORIES);
-    if (!raw) {
-      this.saveCategories(DEFAULT_CATEGORIES);
-      return DEFAULT_CATEGORIES;
-    }
+    const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.CATEGORIES)) || localStorage.getItem(STORAGE_KEYS.CATEGORIES);
+    if (!raw) return DEFAULT_CATEGORIES;
     try {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.some(isCorrupted)) {
-        this.saveCategories(DEFAULT_CATEGORIES);
-        return DEFAULT_CATEGORIES;
-      }
-      return parsed;
+      return JSON.parse(raw);
     } catch {
       return DEFAULT_CATEGORIES;
     }
   },
   saveCategories(cats) {
-    localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(cats));
+    localStorage.setItem(this.getKey(STORAGE_KEYS.CATEGORIES), JSON.stringify(cats));
+    localStorage.setItem('harpy_last_sync', Date.now().toString());
     window.dispatchEvent(new Event('store_categories_updated'));
   },
 
   getProducts() {
-    const raw = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
-    if (!raw) {
-      this.saveProducts(DEFAULT_PRODUCTS);
-      return DEFAULT_PRODUCTS;
-    }
+    const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.PRODUCTS)) || localStorage.getItem(STORAGE_KEYS.PRODUCTS);
+    if (!raw) return DEFAULT_PRODUCTS;
     try {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.some(p => isCorrupted(p.name) || isCorrupted(p.category))) {
-        this.saveProducts(DEFAULT_PRODUCTS);
-        return DEFAULT_PRODUCTS;
-      }
-      return parsed.map(p => ({
-        ...p,
-        visible: p.visible !== false,
-        price: parseFloat(p.price) || 0,
-        originalPrice: parseFloat(p.originalPrice) || 0,
-        prepTime: p.prepTime || "10-15 دقيقة",
-        badge: p.badge || ""
-      }));
+      return JSON.parse(raw);
     } catch {
       return DEFAULT_PRODUCTS;
     }
   },
   saveProducts(prods) {
-    localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(prods));
+    localStorage.setItem(this.getKey(STORAGE_KEYS.PRODUCTS), JSON.stringify(prods));
+    localStorage.setItem('harpy_last_sync', Date.now().toString());
     window.dispatchEvent(new Event('store_products_updated'));
   },
-
-  addProduct(product) {
+  addProduct(prod) {
     const prods = this.getProducts();
-    const newProd = {
-      id: 'p_' + Date.now(),
-      visible: true,
-      price: parseFloat(product.price) || 0,
-      originalPrice: parseFloat(product.originalPrice) || 0,
-      prepTime: product.prepTime || "10-15 دقيقة",
-      badge: product.badge || "",
-      ...product
-    };
-    prods.unshift(newProd);
+    prods.unshift(prod);
     this.saveProducts(prods);
-    return newProd;
   },
-  updateProduct(id, updatedData) {
-    const prods = this.getProducts();
-    const idx = prods.findIndex(p => p.id === id);
-    if (idx !== -1) {
-      prods[idx] = { 
-        ...prods[idx], 
-        ...updatedData,
-        price: parseFloat(updatedData.price !== undefined ? updatedData.price : prods[idx].price) || 0,
-        originalPrice: parseFloat(updatedData.originalPrice !== undefined ? updatedData.originalPrice : prods[idx].originalPrice) || 0
-      };
-      this.saveProducts(prods);
-      return prods[idx];
-    }
-    return null;
+  updateProduct(id, updatedProd) {
+    const prods = this.getProducts().map(p => p.id === id ? { ...p, ...updatedProd } : p);
+    this.saveProducts(prods);
   },
   deleteProduct(id) {
-    let prods = this.getProducts();
-    prods = prods.filter(p => p.id !== id);
+    const prods = this.getProducts().filter(p => p.id !== id);
     this.saveProducts(prods);
-  },
-  toggleProductVisibility(id) {
-    const prods = this.getProducts();
-    const item = prods.find(p => p.id === id);
-    if (item) {
-      item.visible = item.visible === false ? true : false;
-      this.saveProducts(prods);
-      return item.visible;
-    }
-    return true;
-  },
-  quickUpdatePrice(id, newPrice) {
-    const prods = this.getProducts();
-    const item = prods.find(p => p.id === id);
-    if (item) {
-      item.price = parseFloat(newPrice) || 0;
-      this.saveProducts(prods);
-      return item.price;
-    }
-    return 0;
-  },
-  reorderProducts(newOrderedIds) {
-    const prods = this.getProducts();
-    const reordered = [];
-    newOrderedIds.forEach(id => {
-      const found = prods.find(p => p.id === id);
-      if (found) reordered.push(found);
-    });
-    prods.forEach(p => {
-      if (!reordered.some(r => r.id === p.id)) {
-        reordered.push(p);
-      }
-    });
-    this.saveProducts(reordered);
-  },
-
-  resetAll() {
-    localStorage.removeItem(STORAGE_KEYS.SETTINGS);
-    localStorage.removeItem(STORAGE_KEYS.CATEGORIES);
-    localStorage.removeItem(STORAGE_KEYS.PRODUCTS);
-    localStorage.removeItem(STORAGE_KEYS.CART);
-    localStorage.removeItem(STORAGE_KEYS.FAVORITES);
-    localStorage.removeItem(STORAGE_KEYS.LAST_ORDER);
-    localStorage.removeItem(STORAGE_KEYS.APPLIED_COUPON);
-    this.getSettings();
-    this.getCategories();
-    this.saveProducts(DEFAULT_PRODUCTS);
   },
 
   getCart() {
-    const raw = localStorage.getItem(STORAGE_KEYS.CART);
+    const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.CART));
     try {
       return raw ? JSON.parse(raw) : [];
     } catch {
@@ -523,16 +501,16 @@ const Store = {
     }
   },
   saveCart(cart) {
-    localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(cart));
+    localStorage.setItem(this.getKey(STORAGE_KEYS.CART), JSON.stringify(cart));
     window.dispatchEvent(new Event('store_cart_updated'));
   },
   clearCart() {
-    this.saveCart([]);
-    this.setAppliedCoupon(null);
+    localStorage.removeItem(this.getKey(STORAGE_KEYS.CART));
+    window.dispatchEvent(new Event('store_cart_updated'));
   },
 
   getAppliedCoupon() {
-    const raw = localStorage.getItem(STORAGE_KEYS.APPLIED_COUPON);
+    const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.APPLIED_COUPON));
     try {
       return raw ? JSON.parse(raw) : null;
     } catch {
@@ -541,15 +519,15 @@ const Store = {
   },
   setAppliedCoupon(coupon) {
     if (coupon) {
-      localStorage.setItem(STORAGE_KEYS.APPLIED_COUPON, JSON.stringify(coupon));
+      localStorage.setItem(this.getKey(STORAGE_KEYS.APPLIED_COUPON), JSON.stringify(coupon));
     } else {
-      localStorage.removeItem(STORAGE_KEYS.APPLIED_COUPON);
+      localStorage.removeItem(this.getKey(STORAGE_KEYS.APPLIED_COUPON));
     }
     window.dispatchEvent(new Event('store_coupon_updated'));
   },
 
   getFavorites() {
-    const raw = localStorage.getItem(STORAGE_KEYS.FAVORITES);
+    const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.FAVORITES));
     try {
       return raw ? JSON.parse(raw) : [];
     } catch {
@@ -563,7 +541,7 @@ const Store = {
     } else {
       favs.push(productId);
     }
-    localStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify(favs));
+    localStorage.setItem(this.getKey(STORAGE_KEYS.FAVORITES), JSON.stringify(favs));
     window.dispatchEvent(new Event('store_favorites_updated'));
     return favs.includes(productId);
   },
@@ -572,7 +550,7 @@ const Store = {
   },
 
   getLastOrder() {
-    const raw = localStorage.getItem(STORAGE_KEYS.LAST_ORDER);
+    const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.LAST_ORDER));
     try {
       return raw ? JSON.parse(raw) : null;
     } catch {
@@ -580,7 +558,7 @@ const Store = {
     }
   },
   saveLastOrder(orderData) {
-    localStorage.setItem(STORAGE_KEYS.LAST_ORDER, JSON.stringify(orderData));
+    localStorage.setItem(this.getKey(STORAGE_KEYS.LAST_ORDER), JSON.stringify(orderData));
     window.dispatchEvent(new Event('store_last_order_updated'));
   },
 
@@ -597,7 +575,7 @@ const Store = {
   },
 
   getStories() {
-    const raw = localStorage.getItem(STORAGE_KEYS.STORIES);
+    const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.STORIES));
     try {
       return raw ? JSON.parse(raw) : DEFAULT_STORIES;
     } catch {
@@ -605,8 +583,21 @@ const Store = {
     }
   },
   saveStories(stories) {
-    localStorage.setItem(STORAGE_KEYS.STORIES, JSON.stringify(stories));
+    localStorage.setItem(this.getKey(STORAGE_KEYS.STORIES), JSON.stringify(stories));
     window.dispatchEvent(new Event('store_stories_updated'));
+  },
+  addStory(story) {
+    const stories = this.getStories();
+    stories.push(story);
+    this.saveStories(stories);
+  },
+  updateStory(id, storyData) {
+    const stories = this.getStories().map(s => s.id === id ? { ...s, ...storyData } : s);
+    this.saveStories(stories);
+  },
+  deleteStory(id) {
+    const stories = this.getStories().filter(s => s.id !== id);
+    this.saveStories(stories);
   },
 
   getSoundEnabled() {
@@ -624,6 +615,61 @@ const Store = {
   setViewMode(mode) {
     localStorage.setItem(STORAGE_KEYS.VIEW_MODE, mode);
     window.dispatchEvent(new CustomEvent('store_view_mode_changed', { detail: mode }));
+  },
+
+  getActiveTable() {
+    return sessionStorage.getItem(STORAGE_KEYS.TABLE_NUM) || null;
+  },
+  setActiveTable(tableNum) {
+    if (tableNum) {
+      sessionStorage.setItem(STORAGE_KEYS.TABLE_NUM, String(tableNum));
+    } else {
+      sessionStorage.removeItem(STORAGE_KEYS.TABLE_NUM);
+    }
+  },
+
+  // ── Backup & Restore JSON Engine ───────────────────────────
+  exportAllDataJSON() {
+    const data = {
+      version: "2.0",
+      timestamp: new Date().toISOString(),
+      settings: this.getSettings(),
+      categories: this.getCategories(),
+      products: this.getProducts(),
+      stories: this.getStories()
+    };
+    return JSON.stringify(data, null, 2);
+  },
+
+  importAllDataJSON(jsonString) {
+    try {
+      const data = typeof jsonString === 'string' ? JSON.parse(jsonString) : jsonString;
+      if (!data || !data.products || !data.categories) {
+        throw new Error("ملف النسخة الاحتياطية غير صالح أو ناقص");
+      }
+      if (data.settings) this.saveSettings(data.settings);
+      if (data.categories) this.saveCategories(data.categories);
+      if (data.products) this.saveProducts(data.products);
+      if (data.stories) this.saveStories(data.stories);
+      return true;
+    } catch (err) {
+      console.error("Import error:", err);
+      throw err;
+    }
+  },
+
+  resetAllDataToDefault() {
+    localStorage.removeItem(STORAGE_KEYS.SETTINGS);
+    localStorage.removeItem(STORAGE_KEYS.CATEGORIES);
+    localStorage.removeItem(STORAGE_KEYS.PRODUCTS);
+    localStorage.removeItem(STORAGE_KEYS.STORIES);
+    localStorage.removeItem(STORAGE_KEYS.CART);
+    localStorage.removeItem(STORAGE_KEYS.APPLIED_COUPON);
+    this.initTheme();
+    window.dispatchEvent(new Event('store_settings_updated'));
+    window.dispatchEvent(new Event('store_categories_updated'));
+    window.dispatchEvent(new Event('store_products_updated'));
+    window.dispatchEvent(new Event('store_stories_updated'));
   },
 
   async uploadImage(file) {

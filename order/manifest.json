@@ -1,0 +1,20 @@
+{
+  "name": "HarpyOrder — منيو الطعام الفاخر والطلبات أونلاين",
+  "short_name": "HarpyOrder",
+  "description": "منيو طعام رقمي فاره مع طلب مباشر عبر الواتساب وخيارات دفع ميسرة",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#110e0c",
+  "theme_color": "#c2410c",
+  "dir": "rtl",
+  "lang": "ar",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' fill='%23c2410c'><rect width='512' height='512' rx='128' fill='%23181411'/><circle cx='256' cy='256' r='180' fill='%23c2410c'/><path d='M256 140c-64 0-116 52-116 116s52 116 116 116 116-52 116-116-52-116-116-116zm0 192c-42 0-76-34-76-76s34-76 76-76 76 34 76 76-34 76-76 76z' fill='%23ffffff'/></svg>",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

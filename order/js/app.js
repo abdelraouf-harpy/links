@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// HarpyOrder — Next-Gen Client Front-End & Smart Dining Engine
+// HarpyOrder — Client Front-End & Food Delivery Ordering Engine
 // ═══════════════════════════════════════════════════════════
 
 let activeCategoryFilter = 'all';
@@ -16,11 +16,13 @@ let storyProgress = 0;
 let storyInterval = null;
 let isStoryPaused = false;
 
-// Food Mood state
-let selectedFoodMood = 'hungry';
-let lastGeneratedMoodCombo = [];
+// Customizer state
+let customizerProduct = null;
+let customizerSelectedSize = null;
+let customizerSelectedAddons = [];
+let customizerQty = 1;
 
-// ── Web Audio FX Engine (Synthesized UI Sounds) ────────────
+// ── Web Audio FX Engine ────────────────────────────────────
 const SoundFX = {
   ctx: null,
   init() {
@@ -109,27 +111,6 @@ const SoundFX = {
 
       if (navigator.vibrate) navigator.vibrate([30, 40, 50]);
     } catch (e) {}
-  },
-  playSpinTick() {
-    if (!Store.getSoundEnabled()) return;
-    try {
-      this.init();
-      if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
-      if (!this.ctx) return;
-
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'triangle';
-      const now = this.ctx.currentTime;
-      osc.frequency.setValueAtTime(300 + Math.random() * 400, now);
-      gain.gain.setValueAtTime(0.08, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
-
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.05);
-    } catch (e) {}
   }
 };
 
@@ -157,8 +138,6 @@ const elements = {
   lastOrderBanner: document.getElementById('last-order-banner'),
   lastOrderSummary: document.getElementById('last-order-summary'),
   btnReorder: document.getElementById('btn-reorder'),
-
-  btnOpenFoodMood: document.getElementById('btn-open-food-mood'),
 
   discoveryContainer: document.getElementById('discovery-container'),
   searchInput: document.getElementById('search-input'),
@@ -189,6 +168,25 @@ const elements = {
   previewDesc: document.getElementById('preview-desc'),
   previewActionWrap: document.getElementById('preview-action-wrap'),
   btnClosePreview: document.getElementById('btn-close-preview'),
+
+  // Customizer Modal
+  customizerBackdrop: document.getElementById('customizer-backdrop'),
+  customizerModal: document.getElementById('customizer-modal'),
+  btnCloseCustomizer: document.getElementById('btn-close-customizer'),
+  customizerTitle: document.getElementById('customizer-title'),
+  customizerDesc: document.getElementById('customizer-desc'),
+  customizerImg: document.getElementById('customizer-img'),
+  customizerBasePrice: document.getElementById('customizer-base-price'),
+  customizerSizesSection: document.getElementById('customizer-sizes-section'),
+  customizerSizesList: document.getElementById('customizer-sizes-list'),
+  customizerAddonsSection: document.getElementById('customizer-addons-section'),
+  customizerAddonsList: document.getElementById('customizer-addons-list'),
+  customizerNotes: document.getElementById('customizer-notes'),
+  btnCustomizerQtyMinus: document.getElementById('btn-customizer-qty-minus'),
+  btnCustomizerQtyPlus: document.getElementById('btn-customizer-qty-plus'),
+  customizerQtyVal: document.getElementById('customizer-qty-val'),
+  customizerTotalPrice: document.getElementById('customizer-total-price'),
+  btnAddCustomizedCart: document.getElementById('btn-add-customized-cart'),
 
   // Cart Drawer
   cartDrawer: document.getElementById('cart-drawer'),
@@ -241,9 +239,13 @@ const elements = {
   walletNameDisplay: document.getElementById('wallet-name-display'),
   walletNumDisplay: document.getElementById('wallet-num-display'),
   btnCopyNum: document.getElementById('btn-copy-num'),
+  copyBtnText: document.getElementById('copy-btn-text'),
   walletAmountReminder: document.getElementById('wallet-amount-reminder'),
   receiptInput: document.getElementById('receipt-input'),
+  dropzonePrompt: document.getElementById('dropzone-prompt'),
+  receiptPreviewWrap: document.getElementById('receipt-preview-wrap'),
   receiptPreview: document.getElementById('receipt-preview'),
+  btnRemoveReceipt: document.getElementById('btn-remove-receipt'),
   receiptStatus: document.getElementById('receipt-status'),
   btnBackToStep2: document.getElementById('btn-back-to-step2'),
   btnSendWhatsApp: document.getElementById('btn-send-whatsapp'),
@@ -262,39 +264,14 @@ const elements = {
   storyViewerDesc: document.getElementById('story-viewer-desc'),
   btnStoryCta: document.getElementById('btn-story-cta'),
   storyTouchPrev: document.getElementById('story-touch-prev'),
-  storyTouchNext: document.getElementById('story-touch-next'),
-
-  // Food Mood Modal
-  foodMoodBackdrop: document.getElementById('food-mood-backdrop'),
-  foodMoodModal: document.getElementById('food-mood-modal'),
-  btnCloseFoodMood: document.getElementById('btn-close-food-mood'),
-  moodBudgetSlider: document.getElementById('mood-budget-slider'),
-  moodBudgetVal: document.getElementById('mood-budget-val'),
-  moodChipsContainer: document.getElementById('mood-chips-container'),
-  btnSpinRoulette: document.getElementById('btn-spin-roulette'),
-  moodResultBox: document.getElementById('mood-result-box'),
-  moodResultTotal: document.getElementById('mood-result-total'),
-  moodResultItems: document.getElementById('mood-result-items'),
-  btnAddMoodCombo: document.getElementById('btn-add-mood-combo'),
-
-  // Digital Ticket Modal
-  ticketModalBackdrop: document.getElementById('ticket-modal-backdrop'),
-  digitalTicketModal: document.getElementById('digital-ticket-modal'),
-  btnCloseTicket: document.getElementById('btn-close-ticket'),
-  ticketStoreName: document.getElementById('ticket-store-name'),
-  ticketOrderId: document.getElementById('ticket-order-id'),
-  ticketCustName: document.getElementById('ticket-cust-name'),
-  ticketCustPhone: document.getElementById('ticket-cust-phone'),
-  ticketCustAddress: document.getElementById('ticket-cust-address'),
-  ticketPayMethod: document.getElementById('ticket-pay-method'),
-  ticketItemsSummary: document.getElementById('ticket-items-summary'),
-  ticketTotalVal: document.getElementById('ticket-total-val'),
-  ticketBarcodeNum: document.getElementById('ticket-barcode-num'),
-  ticketWhatsAppLink: document.getElementById('ticket-whatsapp-link')
+  storyTouchNext: document.getElementById('story-touch-next')
 };
 
 function initApp() {
   Store.initTheme();
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  }
   updateThemeToggleIcons();
   updateSoundToggleIcon();
   initViewMode();
@@ -307,7 +284,7 @@ function initApp() {
   renderProducts();
   updateLedgerUI();
   setupEventListeners();
-  initFoodMoodRoulette();
+  initCustomizerEvents();
 }
 
 function updateThemeToggleIcons() {
@@ -399,6 +376,23 @@ function renderStoreInfo() {
   if (elements.walletNumDisplay) {
     elements.walletNumDisplay.textContent = settings.walletNumber || "010xxxxxxxx";
   }
+
+  // Subscription Status Gate (Telegram Bot & SaaS Control)
+  const sub = settings.subscription;
+  const overlay = document.getElementById('subscription-suspended-overlay');
+  const backdrop = document.getElementById('subscription-suspended-backdrop');
+  const contactBtn = document.getElementById('sub-suspended-contact-btn');
+
+  if (sub && (sub.status === 'suspended' || (sub.expiresAt && new Date() > new Date(sub.expiresAt)))) {
+    if (overlay) overlay.style.display = 'block';
+    if (backdrop) backdrop.style.display = 'block';
+    if (contactBtn && settings.whatsappNumber) {
+      contactBtn.href = `https://wa.me/${(settings.whatsappNumber || '').replace(/\D/g, '')}`;
+    }
+  } else {
+    if (overlay) overlay.style.display = 'none';
+    if (backdrop) backdrop.style.display = 'none';
+  }
 }
 
 // ── Stories Highlights Engine ──────────────────────────────
@@ -448,7 +442,6 @@ function loadCurrentStory() {
   if (elements.storyViewerHeadline) elements.storyViewerHeadline.textContent = s.title;
   if (elements.storyViewerDesc) elements.storyViewerDesc.textContent = s.desc || s.tagline || '';
 
-  // Render progress segments
   if (elements.storyProgressWrap) {
     elements.storyProgressWrap.innerHTML = stories.map((_, idx) => `
       <div class="story-bar-segment">
@@ -457,7 +450,6 @@ function loadCurrentStory() {
     `).join('');
   }
 
-  // Hook CTA
   if (elements.btnStoryCta) {
     elements.btnStoryCta.onclick = () => {
       if (s.productId) {
@@ -476,8 +468,8 @@ function startStoryTimer() {
   storyProgress = 0;
   const currentFill = document.getElementById(`story-fill-${currentStoryIndex}`);
   
-  const step = 50; // ms
-  const totalDuration = 4500; // 4.5s
+  const step = 50;
+  const totalDuration = 4500;
   const increment = (step / totalDuration) * 100;
 
   storyInterval = setInterval(() => {
@@ -515,146 +507,6 @@ function closeStoryViewer() {
   if (elements.storyViewerModal) elements.storyViewerModal.classList.remove('active');
 }
 
-// ── Chef Food Mood / Roulette Engine ───────────────────────
-function initFoodMoodRoulette() {
-  if (!elements.moodBudgetSlider) return;
-
-  elements.moodBudgetSlider.addEventListener('input', (e) => {
-    if (elements.moodBudgetVal) {
-      elements.moodBudgetVal.textContent = `${e.target.value} ج.م`;
-    }
-  });
-
-  const moodChips = document.querySelectorAll('.mood-chip');
-  moodChips.forEach(chip => {
-    chip.addEventListener('click', () => {
-      moodChips.forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-      selectedFoodMood = chip.dataset.mood;
-      SoundFX.playPop();
-    });
-  });
-
-  if (elements.btnSpinRoulette) {
-    elements.btnSpinRoulette.addEventListener('click', spinChefRoulette);
-  }
-
-  if (elements.btnAddMoodCombo) {
-    elements.btnAddMoodCombo.addEventListener('click', addMoodComboToCart);
-  }
-}
-
-function spinChefRoulette() {
-  const prods = Store.getProducts().filter(p => p.visible !== false);
-  if (prods.length === 0) return;
-
-  const budget = parseInt(elements.moodBudgetSlider.value) || 200;
-  const mood = selectedFoodMood;
-
-  if (elements.btnSpinRoulette) {
-    elements.btnSpinRoulette.classList.add('spinning');
-    elements.btnSpinRoulette.disabled = true;
-  }
-
-  // Play roulette ticking sound
-  let tickCount = 0;
-  const tickInterval = setInterval(() => {
-    SoundFX.playSpinTick();
-    tickCount++;
-    if (tickCount > 6) clearInterval(tickInterval);
-  }, 100);
-
-  setTimeout(() => {
-    if (elements.btnSpinRoulette) {
-      elements.btnSpinRoulette.classList.remove('spinning');
-      elements.btnSpinRoulette.disabled = false;
-    }
-
-    // Matching Algorithm
-    let pool = [...prods];
-    if (mood === 'spicy') {
-      pool = pool.filter(p => (p.name + p.desc + p.badge).includes('حار') || (p.name + p.desc + p.badge).includes('سبايسي') || (p.name + p.desc + p.badge).includes('هلابينو'));
-      if (pool.length === 0) pool = [...prods];
-    } else if (mood === 'light') {
-      pool = pool.filter(p => p.price < 80 || (p.category || '').includes('مشروبات') || (p.category || '').includes('مقبلات'));
-      if (pool.length === 0) pool = [...prods];
-    }
-
-    // Pick a main dish
-    const mainPool = pool.filter(p => p.price <= budget);
-    const main = mainPool.length > 0 ? mainPool[Math.floor(Math.random() * mainPool.length)] : prods[0];
-
-    const combo = [main];
-    let remainingBudget = budget - main.price;
-
-    // Pick side / drink if remaining budget allows
-    const sidesAndDrinks = prods.filter(p => p.id !== main.id && p.price <= remainingBudget);
-    if (sidesAndDrinks.length > 0) {
-      const side = sidesAndDrinks[Math.floor(Math.random() * sidesAndDrinks.length)];
-      combo.push(side);
-      remainingBudget -= side.price;
-    }
-
-    lastGeneratedMoodCombo = combo;
-    renderMoodComboResult(combo);
-    SoundFX.playChime();
-  }, 750);
-}
-
-function renderMoodComboResult(combo) {
-  if (!elements.moodResultBox || !elements.moodResultItems) return;
-  const currency = Store.getSettings().currency || "ج.م";
-  const total = combo.reduce((sum, p) => sum + p.price, 0);
-
-  if (elements.moodResultTotal) elements.moodResultTotal.textContent = `${total.toFixed(2)} ${currency}`;
-  
-  elements.moodResultItems.innerHTML = combo.map(p => `
-    <div class="mood-combo-item-row">
-      <div style="display:flex; align-items:center; gap:8px;">
-        <img src="${p.image}" alt="${p.name}" style="width:36px; height:36px; border-radius:6px; object-fit:cover;">
-        <div>
-          <div style="font-size:12.5px; font-weight:700; color:var(--text-main);">${p.name}</div>
-          <div style="font-size:10.5px; color:var(--text-muted);">${p.category}</div>
-        </div>
-      </div>
-      <div class="font-num" style="font-weight:800; color:var(--primary); font-size:13px;">${p.price} ${currency}</div>
-    </div>
-  `).join('');
-
-  elements.moodResultBox.style.display = 'block';
-}
-
-function addMoodComboToCart() {
-  if (!lastGeneratedMoodCombo || lastGeneratedMoodCombo.length === 0) return;
-  
-  const cart = Store.getCart();
-  lastGeneratedMoodCombo.forEach(p => {
-    const existing = cart.find(i => i.id === p.id);
-    if (existing) {
-      existing.qty += 1;
-    } else {
-      cart.push({
-        id: p.id,
-        name: p.name,
-        price: p.price,
-        image: p.image,
-        category: p.category,
-        qty: 1
-      });
-    }
-  });
-
-  Store.saveCart(cart);
-  updateLedgerUI();
-  renderProducts();
-  SoundFX.playPop();
-
-  // Close food mood modal and open cart
-  if (elements.foodMoodBackdrop) elements.foodMoodBackdrop.classList.remove('open');
-  if (elements.foodMoodModal) elements.foodMoodModal.classList.remove('active');
-  openCartDrawer();
-}
-
 // ── Fly-to-Cart Particle Animation ─────────────────────────
 function animateFlyToCart(sourceElement, imageUrl) {
   if (!sourceElement || !elements.dynamicIslandCart) return;
@@ -676,7 +528,6 @@ function animateFlyToCart(sourceElement, imageUrl) {
 
   setTimeout(() => {
     particle.remove();
-    // Dynamic island bounce
     if (elements.dynamicIslandCart) {
       elements.dynamicIslandCart.animate([
         { transform: 'translateX(-50%) translateY(0) scale(1)' },
@@ -733,12 +584,19 @@ function handleReorderClick() {
 
 function renderDiscoveryRibbon() {
   if (!elements.discoveryContainer) return;
-  const categories = Store.getCategories();
   const favorites = Store.getFavorites();
 
   const discoveryTags = [
-    { id: 'all', label: '🌟 الكل', count: null },
-    { id: 'fav', label: `❤️ المفضلة (${favorites.length})`, count: favorites.length }
+    { 
+      id: 'all', 
+      label: `<svg class="icon icon-sm" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg><span>جميع الأصناف</span>`, 
+      count: null 
+    },
+    { 
+      id: 'fav', 
+      label: `<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg><span>المفضلة</span> <span class="chip-count font-num">${favorites.length}</span>`, 
+      count: favorites.length 
+    }
   ];
 
   elements.discoveryContainer.innerHTML = discoveryTags.map(tag => `
@@ -839,8 +697,9 @@ function renderProducts() {
 function renderHeroShowcase(p, currency) {
   const isFav = Store.isFavorite(p.id);
   const cart = Store.getCart();
-  const cartItem = cart.find(i => i.id === p.id);
+  const cartItem = cart.find(i => (i.productId === p.id || i.id === p.id) && !i.selectedSize && (!i.selectedAddons || i.selectedAddons.length === 0));
   const qty = cartItem ? cartItem.qty : 0;
+  const hasOptions = (p.sizes && p.sizes.length > 0) || (p.addons && p.addons.length > 0);
 
   return `
     <div class="hero-product-card">
@@ -866,7 +725,11 @@ function renderHeroShowcase(p, currency) {
             <button class="btn-fav-toggle ${isFav ? 'active' : ''}" onclick="handleToggleFav('${p.id}')" title="إضافة للمفضلة">
               <svg class="icon" viewBox="0 0 24 24" style="fill: ${isFav ? 'currentColor' : 'none'};"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
             </button>
-            ${renderCardActionButton(p, qty)}
+            ${hasOptions ? `
+              <button class="btn-quick-add" onclick="event.stopPropagation(); openCustomizer('${p.id}')">
+                <span>تخصيص +</span>
+              </button>
+            ` : renderCardActionButton(p, qty)}
           </div>
         </div>
       </div>
@@ -877,8 +740,9 @@ function renderHeroShowcase(p, currency) {
 function renderProductCard(p, currency) {
   const isFav = Store.isFavorite(p.id);
   const cart = Store.getCart();
-  const cartItem = cart.find(i => i.id === p.id);
+  const cartItem = cart.find(i => (i.productId === p.id || i.id === p.id) && !i.selectedSize && (!i.selectedAddons || i.selectedAddons.length === 0));
   const qty = cartItem ? cartItem.qty : 0;
+  const hasOptions = (p.sizes && p.sizes.length > 0) || (p.addons && p.addons.length > 0);
 
   return `
     <div class="food-item-card" data-product-id="${p.id}">
@@ -894,11 +758,16 @@ function renderProductCard(p, currency) {
 
       <div class="food-item-body">
         <div class="item-meta-tags">
-          <span class="item-prep-time">
-            <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span>${p.prepTime || '15 دقيقة'}</span>
-          </span>
-          <span style="font-size:11px; color:var(--text-faint);">• ${p.category}</span>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span class="item-prep-time">
+              <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span>${p.prepTime || '15 دقيقة'}</span>
+            </span>
+            <span style="font-size:11.5px; color:var(--text-muted);">• ${p.category}</span>
+          </div>
+          <button class="btn-fav-inline ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); handleToggleFav('${p.id}')" title="إضافة للمفضلة">
+            <svg class="icon icon-sm" viewBox="0 0 24 24" style="fill: ${isFav ? 'currentColor' : 'none'};"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+          </button>
         </div>
 
         <h3 class="food-item-title" onclick="openQuickPreview('${p.id}')">${p.name}</h3>
@@ -910,7 +779,11 @@ function renderProductCard(p, currency) {
             ${p.price} <span>${currency}</span>
           </div>
           <div>
-            ${renderCardActionButton(p, qty)}
+            ${hasOptions ? `
+              <button class="btn-quick-add" onclick="event.stopPropagation(); openCustomizer('${p.id}')">
+                <span>تخصيص +</span>
+              </button>
+            ` : renderCardActionButton(p, qty)}
           </div>
         </div>
       </div>
@@ -951,14 +824,22 @@ window.handleQuickAddItem = function(productId, triggerElement) {
   const p = prods.find(item => item.id === productId);
   if (!p) return;
 
+  const hasOptions = (p.sizes && p.sizes.length > 0) || (p.addons && p.addons.length > 0);
+  if (hasOptions) {
+    openCustomizer(productId);
+    return;
+  }
+
   const cart = Store.getCart();
-  const existing = cart.find(i => i.id === productId);
+  const existing = cart.find(i => i.productId === productId && !i.selectedSize && (!i.selectedAddons || i.selectedAddons.length === 0));
   if (existing) {
     existing.qty += 1;
   } else {
     cart.push({
-      id: p.id,
+      id: 'c_' + p.id + '_' + Date.now(),
+      productId: p.id,
       name: p.name,
+      basePrice: p.price,
       price: p.price,
       image: p.image,
       category: p.category,
@@ -976,22 +857,22 @@ window.handleQuickAddItem = function(productId, triggerElement) {
   renderProducts();
 };
 
-window.handleUpdateItemQty = function(productId, change) {
+window.handleUpdateItemQty = function(cartItemId, change) {
   let cart = Store.getCart();
-  const existing = cart.find(i => i.id === productId);
+  const existing = cart.find(i => i.id === cartItemId || i.productId === cartItemId);
   if (!existing) return;
 
   existing.qty += change;
   if (existing.qty <= 0) {
-    cart = cart.filter(i => i.id !== productId);
+    cart = cart.filter(i => i.id !== existing.id);
   }
   Store.saveCart(cart);
   SoundFX.playPop();
   updateLedgerUI();
   renderProducts();
 
-  if (currentPreviewProductId === productId) {
-    updatePreviewModalActions(productId);
+  if (currentPreviewProductId === cartItemId) {
+    updatePreviewModalActions(cartItemId);
   }
 };
 
@@ -1033,8 +914,18 @@ function updatePreviewModalActions(productId) {
   const p = prods.find(item => item.id === productId);
   if (!p) return;
 
+  const hasOptions = (p.sizes && p.sizes.length > 0) || (p.addons && p.addons.length > 0);
+  if (hasOptions) {
+    elements.previewActionWrap.innerHTML = `
+      <button class="btn btn-primary" onclick="closeQuickPreview(); openCustomizer('${p.id}');" style="padding:8px 20px;">
+        <span>تخصيص وإضافة +</span>
+      </button>
+    `;
+    return;
+  }
+
   const cart = Store.getCart();
-  const cartItem = cart.find(i => i.id === productId);
+  const cartItem = cart.find(i => i.productId === productId || i.id === productId);
   const qty = cartItem ? cartItem.qty : 0;
 
   elements.previewActionWrap.innerHTML = renderCardActionButton(p, qty);
@@ -1046,6 +937,196 @@ function closeQuickPreview() {
   if (elements.previewModalBackdrop) elements.previewModalBackdrop.classList.remove('open');
 }
 
+// ── Advanced Item Customizer Modal ─────────────────────────
+window.openCustomizer = function(productId) {
+  const prods = Store.getProducts();
+  const p = prods.find(item => item.id === productId);
+  if (!p) return;
+
+  customizerProduct = p;
+  customizerSelectedSize = p.sizes && p.sizes.length > 0 ? p.sizes[0] : null;
+  customizerSelectedAddons = [];
+  customizerQty = 1;
+
+  const currency = Store.getSettings().currency || "ج.م";
+
+  if (elements.customizerTitle) elements.customizerTitle.textContent = p.name;
+  if (elements.customizerDesc) elements.customizerDesc.textContent = p.desc;
+  if (elements.customizerImg) elements.customizerImg.src = p.image;
+  if (elements.customizerBasePrice) elements.customizerBasePrice.textContent = `${p.price} ${currency}`;
+  if (elements.customizerNotes) elements.customizerNotes.value = '';
+  if (elements.customizerQtyVal) elements.customizerQtyVal.textContent = '1';
+
+  // Render Sizes
+  if (p.sizes && p.sizes.length > 0) {
+    if (elements.customizerSizesSection) elements.customizerSizesSection.style.display = 'block';
+    if (elements.customizerSizesList) {
+      elements.customizerSizesList.innerHTML = p.sizes.map((s, idx) => `
+        <div class="customizer-option-card ${idx === 0 ? 'selected' : ''}" onclick="selectCustomizerSize('${s.id}')" data-size-id="${s.id}">
+          <div class="option-left-wrap">
+            <div class="custom-radio-circle"></div>
+            <span class="option-name">${s.name}</span>
+          </div>
+          <span class="option-price-extra font-num">${s.price > 0 ? `+${s.price} ${currency}` : 'السعر الأساسي'}</span>
+        </div>
+      `).join('');
+    }
+  } else {
+    if (elements.customizerSizesSection) elements.customizerSizesSection.style.display = 'none';
+  }
+
+  // Render Add-ons
+  if (p.addons && p.addons.length > 0) {
+    if (elements.customizerAddonsSection) elements.customizerAddonsSection.style.display = 'block';
+    if (elements.customizerAddonsList) {
+      elements.customizerAddonsList.innerHTML = p.addons.map(a => `
+        <div class="customizer-option-card" onclick="toggleCustomizerAddon('${a.id}')" data-addon-id="${a.id}">
+          <div class="option-left-wrap">
+            <div class="custom-check-box"></div>
+            <span class="option-name">${a.name}</span>
+          </div>
+          <span class="option-price-extra font-num">+${a.price} ${currency}</span>
+        </div>
+      `).join('');
+    }
+  } else {
+    if (elements.customizerAddonsSection) elements.customizerAddonsSection.style.display = 'none';
+  }
+
+  calculateCustomizerTotal();
+
+  if (elements.customizerBackdrop) elements.customizerBackdrop.classList.add('open');
+  if (elements.customizerModal) elements.customizerModal.classList.add('open');
+  SoundFX.playPop();
+};
+
+window.selectCustomizerSize = function(sizeId) {
+  if (!customizerProduct || !customizerProduct.sizes) return;
+  customizerSelectedSize = customizerProduct.sizes.find(s => s.id === sizeId);
+  
+  const cards = document.querySelectorAll('#customizer-sizes-list .customizer-option-card');
+  cards.forEach(card => {
+    card.classList.toggle('selected', card.dataset.sizeId === sizeId);
+  });
+
+  SoundFX.playPop();
+  calculateCustomizerTotal();
+};
+
+window.toggleCustomizerAddon = function(addonId) {
+  if (!customizerProduct || !customizerProduct.addons) return;
+  const addon = customizerProduct.addons.find(a => a.id === addonId);
+  if (!addon) return;
+
+  const exists = customizerSelectedAddons.find(a => a.id === addonId);
+  if (exists) {
+    customizerSelectedAddons = customizerSelectedAddons.filter(a => a.id !== addonId);
+  } else {
+    customizerSelectedAddons.push(addon);
+  }
+
+  const card = document.querySelector(`#customizer-addons-list .customizer-option-card[data-addon-id="${addonId}"]`);
+  if (card) {
+    card.classList.toggle('selected', !exists);
+  }
+
+  SoundFX.playPop();
+  calculateCustomizerTotal();
+};
+
+function calculateCustomizerTotal() {
+  if (!customizerProduct) return;
+  const currency = Store.getSettings().currency || "ج.م";
+  let unitPrice = customizerProduct.price;
+
+  if (customizerSelectedSize && customizerSelectedSize.price) {
+    unitPrice += customizerSelectedSize.price;
+  }
+
+  customizerSelectedAddons.forEach(a => {
+    unitPrice += (a.price || 0);
+  });
+
+  const total = unitPrice * customizerQty;
+  if (elements.customizerTotalPrice) {
+    elements.customizerTotalPrice.textContent = `${total.toFixed(2)} ${currency}`;
+  }
+}
+
+function initCustomizerEvents() {
+  if (elements.btnCloseCustomizer) {
+    elements.btnCloseCustomizer.addEventListener('click', closeCustomizer);
+  }
+  if (elements.customizerBackdrop) {
+    elements.customizerBackdrop.addEventListener('click', closeCustomizer);
+  }
+
+  if (elements.btnCustomizerQtyMinus) {
+    elements.btnCustomizerQtyMinus.addEventListener('click', () => {
+      if (customizerQty > 1) {
+        customizerQty--;
+        if (elements.customizerQtyVal) elements.customizerQtyVal.textContent = customizerQty;
+        calculateCustomizerTotal();
+        SoundFX.playPop();
+      }
+    });
+  }
+
+  if (elements.btnCustomizerQtyPlus) {
+    elements.btnCustomizerQtyPlus.addEventListener('click', () => {
+      customizerQty++;
+      if (elements.customizerQtyVal) elements.customizerQtyVal.textContent = customizerQty;
+      calculateCustomizerTotal();
+      SoundFX.playPop();
+    });
+  }
+
+  if (elements.btnAddCustomizedCart) {
+    elements.btnAddCustomizedCart.addEventListener('click', () => {
+      if (!customizerProduct) return;
+
+      let unitPrice = customizerProduct.price;
+      if (customizerSelectedSize && customizerSelectedSize.price) {
+        unitPrice += customizerSelectedSize.price;
+      }
+      customizerSelectedAddons.forEach(a => {
+        unitPrice += (a.price || 0);
+      });
+
+      const notes = (elements.customizerNotes && elements.customizerNotes.value || '').trim();
+
+      const cartItem = {
+        id: 'c_' + customizerProduct.id + '_' + Date.now(),
+        productId: customizerProduct.id,
+        name: customizerProduct.name,
+        basePrice: customizerProduct.price,
+        price: unitPrice,
+        image: customizerProduct.image,
+        category: customizerProduct.category,
+        selectedSize: customizerSelectedSize ? { ...customizerSelectedSize } : null,
+        selectedAddons: customizerSelectedAddons.map(a => ({ ...a })),
+        notes: notes,
+        qty: customizerQty
+      };
+
+      const cart = Store.getCart();
+      cart.push(cartItem);
+      Store.saveCart(cart);
+
+      SoundFX.playPop();
+      closeCustomizer();
+      updateLedgerUI();
+      renderProducts();
+    });
+  }
+}
+
+function closeCustomizer() {
+  customizerProduct = null;
+  if (elements.customizerBackdrop) elements.customizerBackdrop.classList.remove('open');
+  if (elements.customizerModal) elements.customizerModal.classList.remove('open');
+}
+
 // ── Smart Upselling / Pairing Engine ───────────────────────
 function renderSmartPairing(cart, prods, currency) {
   if (!elements.cartSmartPairing || !elements.pairingItemsList) return;
@@ -1054,8 +1135,7 @@ function renderSmartPairing(cart, prods, currency) {
     return;
   }
 
-  const cartIds = cart.map(i => i.id);
-  // Find suggestions (drinks, fries, sides) not in cart
+  const cartIds = cart.map(i => i.productId || i.id);
   const suggestions = prods.filter(p => !cartIds.includes(p.id) && (
     (p.category || '').includes('مقبلات') || 
     (p.category || '').includes('مشروبات') || 
@@ -1251,25 +1331,38 @@ function renderCartDrawerItems() {
     return;
   }
 
-  elements.cartDrawerItems.innerHTML = cart.map(item => `
-    <div class="cart-ledger-item">
-      <img src="${item.image}" class="cart-ledger-img" alt="${item.name}">
-      <div class="cart-ledger-details">
-        <div class="cart-ledger-name">${item.name}</div>
-        <div class="cart-ledger-price font-num">${(item.price * item.qty).toFixed(2)} ${currency}</div>
+  elements.cartDrawerItems.innerHTML = cart.map(item => {
+    const sizeText = item.selectedSize ? `<span style="display:inline-block; background:var(--surface-hover); color:var(--text-muted); font-size:10.5px; padding:1px 6px; border-radius:4px; margin-top:2px;">${item.selectedSize.name}</span>` : '';
+    const addonsText = item.selectedAddons && item.selectedAddons.length > 0 
+      ? `<div style="font-size:10px; color:var(--primary); margin-top:2px;">+ ${item.selectedAddons.map(a => a.name).join('، ')}</div>` 
+      : '';
+    const notesText = item.notes ? `<div style="font-size:10px; color:var(--text-faint); font-style:italic;">ملاحظة: ${item.notes}</div>` : '';
+
+    return `
+      <div class="cart-ledger-item">
+        <img src="${item.image}" class="cart-ledger-img" alt="${item.name}">
+        <div class="cart-ledger-details">
+          <div class="cart-ledger-name">${item.name}</div>
+          ${sizeText}
+          ${addonsText}
+          ${notesText}
+          <div class="cart-ledger-price font-num" style="margin-top:4px;">${(item.price * item.qty).toFixed(2)} ${currency}</div>
+        </div>
+        <div class="qty-stepper" style="padding:1px;">
+          <button class="qty-stepper-btn" onclick="handleUpdateItemQty('${item.id}', -1)">
+            ${item.qty === 1 ? '<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/></svg>' : '−'}
+          </button>
+          <span class="qty-stepper-val font-num" style="min-width:18px; font-size:12.5px;">${item.qty}</span>
+          <button class="qty-stepper-btn" onclick="handleUpdateItemQty('${item.id}', 1)">+</button>
+        </div>
       </div>
-      <div class="qty-stepper" style="padding:1px;">
-        <button class="qty-stepper-btn" onclick="handleUpdateItemQty('${item.id}', -1)">
-          ${item.qty === 1 ? '<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/></svg>' : '−'}
-        </button>
-        <span class="qty-stepper-val font-num" style="min-width:18px; font-size:12.5px;">${item.qty}</span>
-        <button class="qty-stepper-btn" onclick="handleUpdateItemQty('${item.id}', 1)">+</button>
-      </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
 function openCartDrawer() {
+  document.body.classList.add('cart-drawer-open');
+  if (elements.dynamicIslandCart) elements.dynamicIslandCart.classList.add('hidden-during-drawer');
   if (elements.cartDrawer) elements.cartDrawer.classList.add('open');
   if (elements.cartDrawerBackdrop) elements.cartDrawerBackdrop.classList.add('open');
   goToCheckoutStep(1);
@@ -1277,6 +1370,8 @@ function openCartDrawer() {
 }
 
 function closeCartDrawer() {
+  document.body.classList.remove('cart-drawer-open');
+  if (elements.dynamicIslandCart) elements.dynamicIslandCart.classList.remove('hidden-during-drawer');
   if (elements.cartDrawer) elements.cartDrawer.classList.remove('open');
   if (elements.cartDrawerBackdrop) elements.cartDrawerBackdrop.classList.remove('open');
 }
@@ -1329,27 +1424,6 @@ function setupEventListeners() {
     elements.btnReorder.addEventListener('click', handleReorderClick);
   }
 
-  // Food mood roulette trigger
-  if (elements.btnOpenFoodMood) {
-    elements.btnOpenFoodMood.addEventListener('click', () => {
-      if (elements.foodMoodBackdrop) elements.foodMoodBackdrop.classList.add('open');
-      if (elements.foodMoodModal) elements.foodMoodModal.classList.add('active');
-      SoundFX.playPop();
-    });
-  }
-  if (elements.btnCloseFoodMood) {
-    elements.btnCloseFoodMood.addEventListener('click', () => {
-      if (elements.foodMoodBackdrop) elements.foodMoodBackdrop.classList.remove('open');
-      if (elements.foodMoodModal) elements.foodMoodModal.classList.remove('active');
-    });
-  }
-  if (elements.foodMoodBackdrop) {
-    elements.foodMoodBackdrop.addEventListener('click', () => {
-      if (elements.foodMoodBackdrop) elements.foodMoodBackdrop.classList.remove('open');
-      if (elements.foodMoodModal) elements.foodMoodModal.classList.remove('active');
-    });
-  }
-
   // View Mode Switcher
   if (elements.viewToggleGrid) elements.viewToggleGrid.addEventListener('click', () => handleViewModeChange('grid'));
   if (elements.viewToggleList) elements.viewToggleList.addEventListener('click', () => handleViewModeChange('list'));
@@ -1359,20 +1433,6 @@ function setupEventListeners() {
   if (elements.storyTouchNext) elements.storyTouchNext.addEventListener('click', nextStory);
   if (elements.btnCloseStory) elements.btnCloseStory.addEventListener('click', closeStoryViewer);
   if (elements.storyModalBackdrop) elements.storyModalBackdrop.addEventListener('click', closeStoryViewer);
-
-  // Digital Ticket Modal Close
-  if (elements.btnCloseTicket) {
-    elements.btnCloseTicket.addEventListener('click', () => {
-      if (elements.ticketModalBackdrop) elements.ticketModalBackdrop.classList.remove('open');
-      if (elements.digitalTicketModal) elements.digitalTicketModal.classList.remove('active');
-    });
-  }
-  if (elements.ticketModalBackdrop) {
-    elements.ticketModalBackdrop.addEventListener('click', () => {
-      if (elements.ticketModalBackdrop) elements.ticketModalBackdrop.classList.remove('open');
-      if (elements.digitalTicketModal) elements.digitalTicketModal.classList.remove('active');
-    });
-  }
 
   if (elements.searchInput) {
     elements.searchInput.addEventListener('input', () => {
@@ -1415,7 +1475,7 @@ function setupEventListeners() {
         return;
       }
       if (!address) {
-        alert("يرجى كتابة عنوان التوصيل بالتفصيل");
+        alert("يرجى كتابة عنوان التوصيل بالتفصيل (المنطقة، الشارع، العمارة، الشقة)");
         elements.custAddress.focus();
         return;
       }
@@ -1472,10 +1532,17 @@ function setupEventListeners() {
 
   if (elements.btnCopyNum) {
     elements.btnCopyNum.addEventListener('click', () => {
-      const num = elements.walletNumDisplay.textContent;
+      const num = (elements.walletNumDisplay.textContent || '').trim();
       navigator.clipboard.writeText(num);
       SoundFX.playPop();
-      alert("تم نسخ رقم المحفظة بنجاح!");
+
+      if (elements.copyBtnText) elements.copyBtnText.textContent = "تم النسخ ✓";
+      elements.btnCopyNum.classList.add('copied');
+
+      setTimeout(() => {
+        if (elements.copyBtnText) elements.copyBtnText.textContent = "نسخ الرقم";
+        elements.btnCopyNum.classList.remove('copied');
+      }, 2500);
     });
   }
 
@@ -1486,27 +1553,47 @@ function setupEventListeners() {
 
       const reader = new FileReader();
       reader.onload = (ev) => {
-        elements.receiptPreview.src = ev.target.result;
-        elements.receiptPreview.style.display = 'block';
+        if (elements.receiptPreview) elements.receiptPreview.src = ev.target.result;
+        if (elements.receiptPreviewWrap) elements.receiptPreviewWrap.style.display = 'block';
+        if (elements.dropzonePrompt) elements.dropzonePrompt.style.display = 'none';
       };
       reader.readAsDataURL(file);
 
-      elements.receiptStatus.textContent = "جاري رفع الإيصال وتجهيزه...";
-      elements.receiptStatus.className = "upload-status loading";
-      elements.receiptStatus.style.display = "block";
+      if (elements.receiptStatus) {
+        elements.receiptStatus.textContent = "جاري رفع الإيصال...";
+        elements.receiptStatus.className = "upload-status-chip loading";
+        elements.receiptStatus.style.display = "inline-block";
+      }
       elements.btnSendWhatsApp.disabled = true;
 
       try {
         uploadedReceiptUrl = await Store.uploadImage(file);
-        elements.receiptStatus.textContent = "تم تجهيز الإيصال بنجاح";
-        elements.receiptStatus.className = "upload-status success";
+        if (elements.receiptStatus) {
+          elements.receiptStatus.textContent = "تم تجهيز الإيصال بنجاح ✓";
+          elements.receiptStatus.className = "upload-status-chip success";
+        }
         SoundFX.playChime();
       } catch (err) {
-        elements.receiptStatus.textContent = "تعذر الرفع، سيتم إرسال الطلب بدون رابط";
-        elements.receiptStatus.className = "upload-status error";
+        if (elements.receiptStatus) {
+          elements.receiptStatus.textContent = "سيتم إرسال الطلب، ويمكنك إرفاق الصورة بالواتساب";
+          elements.receiptStatus.className = "upload-status-chip";
+        }
       } finally {
         elements.btnSendWhatsApp.disabled = false;
       }
+    });
+  }
+
+  if (elements.btnRemoveReceipt) {
+    elements.btnRemoveReceipt.addEventListener('click', (e) => {
+      e.stopPropagation();
+      uploadedReceiptUrl = null;
+      if (elements.receiptInput) elements.receiptInput.value = '';
+      if (elements.receiptPreview) elements.receiptPreview.src = '';
+      if (elements.receiptPreviewWrap) elements.receiptPreviewWrap.style.display = 'none';
+      if (elements.dropzonePrompt) elements.dropzonePrompt.style.display = 'flex';
+      if (elements.receiptStatus) elements.receiptStatus.style.display = 'none';
+      SoundFX.playPop();
     });
   }
 
@@ -1533,6 +1620,26 @@ function setupEventListeners() {
   window.addEventListener('store_favorites_updated', () => {
     renderDiscoveryRibbon();
     renderProducts();
+  });
+  window.addEventListener('harpy_restaurant_changed', () => {
+    Store.initTheme();
+    renderStoreInfo();
+    renderAnnouncement();
+    renderStories();
+    renderCategories();
+    renderProducts();
+    updateLedgerUI();
+  });
+
+  // Real-Time Cross-Tab Synchronization (When changes occur in admin.html)
+  window.addEventListener('storage', () => {
+    Store.initTheme();
+    renderStoreInfo();
+    renderAnnouncement();
+    renderStories();
+    renderCategories();
+    renderProducts();
+    updateLedgerUI();
   });
 }
 
@@ -1599,23 +1706,32 @@ function handleWhatsAppOrder() {
     timestamp: Date.now()
   });
 
-  const itemsText = cart.map(item => `• ${item.qty}x ${item.name} (${(item.price * item.qty).toFixed(2)} ${currency})`).join('\n');
+  const itemsText = cart.map(item => {
+    let line = `• ${item.qty}x ${item.name}`;
+    if (item.selectedSize) line += ` [${item.selectedSize.name}]`;
+    if (item.selectedAddons && item.selectedAddons.length > 0) {
+      line += ` (+ ${item.selectedAddons.map(a => a.name).join(', ')})`;
+    }
+    if (item.notes) line += ` (ملاحظة: ${item.notes})`;
+    line += ` = ${(item.price * item.qty).toFixed(2)} ${currency}`;
+    return line;
+  }).join('\n');
 
   const paymentText = isWallet 
     ? `تحويل محفظة إلكترونية (${settings.walletName || 'كاش'})`
     : `دفع نقدي عند الاستلام (COD)`;
 
-  let message = `*طلب جديد من موقع ${settings.storeName}*\n`;
+  let message = `*طلب دليفري جديد من موقع ${settings.storeName}*\n`;
   message += `━━━━━━━━━━━━━━━━━━━\n`;
   message += `🔖 *رقم الطلب:* ${orderId}\n`;
   message += `👤 *العميل:* ${name}\n`;
   message += `📞 *الهاتف:* ${phone}\n`;
-  message += `📍 *العنوان:* ${address}\n`;
+  message += `📍 *عنوان التوصيل:* ${address}\n`;
   if (notes) {
     message += `📝 *ملاحظات:* ${notes}\n`;
   }
   message += `━━━━━━━━━━━━━━━━━━━\n`;
-  message += `🛒 *تفاصيل الأصناف:*\n${itemsText}\n`;
+  message += `🛒 *تفاصيل الأصناف والخيارات:*\n${itemsText}\n`;
   message += `━━━━━━━━━━━━━━━━━━━\n`;
   
   if (totalDiscounts > 0) {
@@ -1645,25 +1761,8 @@ function handleWhatsAppOrder() {
   const cleanWhatsApp = (settings.whatsappNumber || '').replace(/\D/g, '');
   const encodedUrl = `https://wa.me/${cleanWhatsApp}?text=${encodeURIComponent(message)}`;
 
-  // Play Register Sound
   SoundFX.playCash();
-
-  // Open WhatsApp in new tab
   window.open(encodedUrl, '_blank');
-
-  // Display Digital Ticket Boarding Pass
-  showDigitalTicket({
-    orderId,
-    name,
-    phone,
-    address,
-    paymentText,
-    cart,
-    finalTotal,
-    currency,
-    encodedUrl,
-    storeName: settings.storeName
-  });
 
   Store.clearCart();
   closeCartDrawer();
@@ -1676,36 +1775,9 @@ function handleWhatsAppOrder() {
   elements.custPhone.value = '';
   elements.custAddress.value = '';
   elements.custNotes.value = '';
-  elements.receiptPreview.style.display = 'none';
-  elements.receiptStatus.style.display = 'none';
+  if (elements.receiptPreview) elements.receiptPreview.style.display = 'none';
+  if (elements.receiptStatus) elements.receiptStatus.style.display = 'none';
   uploadedReceiptUrl = null;
-}
-
-function showDigitalTicket(data) {
-  if (elements.ticketStoreName) elements.ticketStoreName.textContent = data.storeName || "منيو المطعم";
-  if (elements.ticketOrderId) elements.ticketOrderId.textContent = data.orderId;
-  if (elements.ticketCustName) elements.ticketCustName.textContent = data.name;
-  if (elements.ticketCustPhone) elements.ticketCustPhone.textContent = data.phone;
-  if (elements.ticketCustAddress) elements.ticketCustAddress.textContent = data.address;
-  if (elements.ticketPayMethod) elements.ticketPayMethod.textContent = data.paymentText;
-  if (elements.ticketTotalVal) elements.ticketTotalVal.textContent = `${data.finalTotal.toFixed(2)} ${data.currency}`;
-  if (elements.ticketBarcodeNum) elements.ticketBarcodeNum.textContent = `PASS-${data.orderId.replace('#', '')}-${Date.now().toString().slice(-4)}`;
-
-  if (elements.ticketItemsSummary) {
-    elements.ticketItemsSummary.innerHTML = data.cart.map(i => `
-      <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
-        <span>${i.qty}x ${i.name}</span>
-        <span class="font-num" style="font-weight:700;">${(i.price * i.qty).toFixed(2)} ${data.currency}</span>
-      </div>
-    `).join('');
-  }
-
-  if (elements.ticketWhatsAppLink) {
-    elements.ticketWhatsAppLink.href = data.encodedUrl;
-  }
-
-  if (elements.ticketModalBackdrop) elements.ticketModalBackdrop.classList.add('open');
-  if (elements.digitalTicketModal) elements.digitalTicketModal.classList.add('active');
 }
 
 document.addEventListener('DOMContentLoaded', initApp);
