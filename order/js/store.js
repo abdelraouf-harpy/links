@@ -2,6 +2,28 @@
 // HarpyOrder — Store & Data Manager (Rock-Solid Multi-Tenant Engine)
 // ═══════════════════════════════════════════════════════════
 
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAhDjumVbNoRCp6bDSeqrnVgakAQ2pu0ww",
+  authDomain: "harpy-order.firebaseapp.com",
+  databaseURL: "https://harpy-order-default-rtdb.firebaseio.com",
+  projectId: "harpy-order",
+  storageBucket: "harpy-order.firebasestorage.app",
+  messagingSenderId: "785040786034",
+  appId: "1:785040786034:web:2af6b418c70e4ecf8938eb"
+};
+
+let db = null;
+try {
+  if (typeof firebase !== 'undefined' && firebase.initializeApp) {
+    if (!firebase.apps.length) {
+      firebase.initializeApp(FIREBASE_CONFIG);
+    }
+    db = firebase.database();
+  }
+} catch (e) {
+  console.warn("Firebase Init:", e);
+}
+
 const STORAGE_KEYS = {
   SETTINGS: 'harpy_order_settings',
   CATEGORIES: 'harpy_order_categories',
@@ -699,6 +721,33 @@ const Store = {
       reader.onload = (e) => resolve(e.target.result);
       reader.readAsDataURL(file);
     });
+  },
+
+  startSubscriptionWatcher(onStatusChange) {
+    const slug = this.getRestaurantSlug();
+    if (!db || !slug) return;
+
+    try {
+      db.ref(`licenses/${slug}`).on('value', snap => {
+        const lic = snap.val();
+        if (!lic) return;
+
+        const isBlocked = lic.status === 'blocked' || lic.status === 'suspended';
+        const isExpired = lic.expiresAt && (Date.now() > new Date(lic.expiresAt).getTime());
+
+        if (isBlocked || isExpired) {
+          if (typeof onStatusChange === 'function') {
+            onStatusChange({ active: false, reason: isBlocked ? 'blocked' : 'expired', lic });
+          }
+        } else {
+          if (typeof onStatusChange === 'function') {
+            onStatusChange({ active: true, lic });
+          }
+        }
+      });
+    } catch (err) {
+      console.warn("Firebase license watcher:", err);
+    }
   }
 };
 

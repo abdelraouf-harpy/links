@@ -285,6 +285,7 @@ function initApp() {
   updateLedgerUI();
   setupEventListeners();
   initCustomizerEvents();
+  setupSubscriptionWatcher();
 }
 
 function updateThemeToggleIcons() {
@@ -1640,6 +1641,27 @@ function setupEventListeners() {
     renderCategories();
     renderProducts();
     updateLedgerUI();
+  });
+}
+
+function setupSubscriptionWatcher() {
+  const suspendedBackdrop = document.getElementById('subscription-suspended-backdrop');
+  const suspendedOverlay = document.getElementById('subscription-suspended-overlay');
+  const contactBtn = document.getElementById('sub-suspended-contact-btn');
+
+  Store.startSubscriptionWatcher((status) => {
+    if (!status.active) {
+      if (suspendedBackdrop) suspendedBackdrop.style.display = 'block';
+      if (suspendedOverlay) suspendedOverlay.style.display = 'block';
+      if (contactBtn) {
+        const settings = Store.getSettings();
+        const cleanWa = (settings.whatsappNumber || '').replace(/\D/g, '');
+        contactBtn.href = `https://wa.me/${cleanWa}?text=${encodeURIComponent('مرحباً، أود الاستفسار عن تجديد اشتراك المنيو')}`;
+      }
+    } else {
+      if (suspendedBackdrop) suspendedBackdrop.style.display = 'none';
+      if (suspendedOverlay) suspendedOverlay.style.display = 'none';
+    }
   });
 }
 
