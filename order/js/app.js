@@ -366,6 +366,18 @@ function renderStoreInfo() {
     }
   }
 
+  // Cover image banner
+  const coverBanner = document.getElementById('store-cover-banner');
+  const coverImg = document.getElementById('store-cover-img');
+  if (coverBanner && coverImg) {
+    if (settings.cover) {
+      coverImg.src = settings.cover;
+      coverBanner.style.display = 'block';
+    } else {
+      coverBanner.style.display = 'none';
+    }
+  }
+
   if (elements.storeWhatsAppLink) {
     const cleanNum = (settings.whatsappNumber || '').replace(/\D/g, '');
     elements.storeWhatsAppLink.href = `https://wa.me/${cleanNum}`;
@@ -542,10 +554,26 @@ function animateFlyToCart(sourceElement, imageUrl) {
 function renderAnnouncement() {
   const settings = Store.getSettings();
   if (elements.announcementBar) {
-    if (settings.showAnnouncement && settings.announcementText) {
+    const hasAnnouncement = settings.showAnnouncement && settings.announcementText;
+    const hasDeliveryTime = settings.deliveryTime;
+
+    if (hasAnnouncement || hasDeliveryTime) {
       elements.announcementBar.style.display = 'flex';
-      if (elements.announcementText) elements.announcementText.textContent = settings.announcementText;
-      if (elements.deliveryTimeBadge) elements.deliveryTimeBadge.textContent = `⏱️ ${settings.deliveryTime || '30-45 دقيقة'}`;
+      if (elements.announcementText) {
+        elements.announcementText.textContent = hasAnnouncement ? settings.announcementText : '';
+        elements.announcementText.style.display = hasAnnouncement ? '' : 'none';
+      }
+      if (elements.deliveryTimeBadge) {
+        if (hasDeliveryTime) {
+          elements.deliveryTimeBadge.style.display = '';
+          elements.deliveryTimeBadge.innerHTML = `
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            ${settings.deliveryTime}
+          `;
+        } else {
+          elements.deliveryTimeBadge.style.display = 'none';
+        }
+      }
     } else {
       elements.announcementBar.style.display = 'none';
     }
@@ -682,13 +710,25 @@ function renderProducts() {
   }
 
   if (prods.length === 0) {
-    elements.productsContainer.innerHTML = `
-      <div class="empty-state" style="grid-column: 1 / -1;">
-        <svg class="empty-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-        <div class="empty-title">لا توجد أصناف مطابقة</div>
-        <p style="font-size:12px; color:var(--text-muted);">جرب البحث بكلمة أخرى أو تصفح باقي الأقسام</p>
-      </div>
-    `;
+    const totalProds = Store.getProducts().filter(p => p.visible !== false).length;
+    if (totalProds === 0) {
+      // Restaurant has no products at all yet
+      elements.productsContainer.innerHTML = `
+        <div class="empty-state" style="grid-column: 1 / -1; padding: 60px 20px;">
+          <svg class="empty-icon" viewBox="0 0 24 24" style="width:64px;height:64px;opacity:0.3;"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <div class="empty-title" style="font-size:1.1rem;">المنيو قيد الإعداد</div>
+          <p style="font-size:13px; color:var(--text-muted); max-width:260px; margin: 8px auto 0;">يقوم المطعم حالياً بإضافة قائمة الأصناف. ارجع قريباً!</p>
+        </div>
+      `;
+    } else {
+      elements.productsContainer.innerHTML = `
+        <div class="empty-state" style="grid-column: 1 / -1;">
+          <svg class="empty-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <div class="empty-title">لا توجد أصناف مطابقة</div>
+          <p style="font-size:12px; color:var(--text-muted);">جرب البحث بكلمة أخرى أو تصفح باقي الأقسام</p>
+        </div>
+      `;
+    }
     return;
   }
 
@@ -1137,11 +1177,14 @@ function renderSmartPairing(cart, prods, currency) {
   }
 
   const cartIds = cart.map(i => i.productId || i.id);
-  const suggestions = prods.filter(p => !cartIds.includes(p.id) && (
-    (p.category || '').includes('مقبلات') || 
-    (p.category || '').includes('مشروبات') || 
-    p.price < 70
-  )).slice(0, 4);
+  const cartAvgPrice = cart.reduce((s, i) => s + (i.price || 0), 0) / (cart.length || 1);
+  // Suggest items not in cart: prefer lower-priced items (< 60% of cart avg), fallback to any non-cart visible items
+  let suggestions = prods.filter(p => p.visible !== false && !cartIds.includes(p.id) && p.price <= cartAvgPrice * 0.6);
+  if (suggestions.length < 2) {
+    // Fallback: any visible item not in cart
+    suggestions = prods.filter(p => p.visible !== false && !cartIds.includes(p.id));
+  }
+  suggestions = suggestions.slice(0, 4);
 
   if (suggestions.length === 0) {
     elements.cartSmartPairing.style.display = 'none';
@@ -1465,8 +1508,8 @@ function setupEventListeners() {
       const phone = (elements.custPhone.value || '').trim();
       const address = (elements.custAddress.value || '').trim();
 
-      if (!name) {
-        alert("يرجى كتابة الاسم");
+      if (!name || name.length < 2) {
+        alert("يرجى كتابة الاسم بشكل صحيح (حرفين على الأقل)");
         elements.custName.focus();
         return;
       }
@@ -1475,7 +1518,16 @@ function setupEventListeners() {
         elements.custPhone.focus();
         return;
       }
-      if (!address) {
+      // Validate phone: Egyptian mobile (01x) or international (+20x / 20x) — digits only, 10-15 digits
+      const phoneDigits = phone.replace(/[\s\-\+]/g, '');
+      const egyptianMobile = /^(01[0-9]{9})$/.test(phoneDigits);
+      const internationalMobile = /^(20[0-9]{10}|[0-9]{10,15})$/.test(phoneDigits);
+      if (!egyptianMobile && !internationalMobile) {
+        alert("يرجى كتابة رقم هاتف صحيح (مثال: 01012345678)");
+        elements.custPhone.focus();
+        return;
+      }
+      if (!address || address.length < 5) {
         alert("يرجى كتابة عنوان التوصيل بالتفصيل (المنطقة، الشارع، العمارة، الشقة)");
         elements.custAddress.focus();
         return;
@@ -1781,7 +1833,24 @@ function handleWhatsAppOrder() {
   message += `تم إرسال الطلب بنجاح.`;
 
   const cleanWhatsApp = (settings.whatsappNumber || '').replace(/\D/g, '');
+  if (!cleanWhatsApp) {
+    alert("لم يتم إعداد رقم الواتساب بعد. تواصل مع المطعم مباشرة.");
+    return;
+  }
+
   const encodedUrl = `https://wa.me/${cleanWhatsApp}?text=${encodeURIComponent(message)}`;
+
+  // Double-submit protection
+  if (elements.btnSendWhatsApp) {
+    elements.btnSendWhatsApp.disabled = true;
+    elements.btnSendWhatsApp.textContent = '...جاري الفتح';
+    setTimeout(() => {
+      if (elements.btnSendWhatsApp) {
+        elements.btnSendWhatsApp.disabled = false;
+        elements.btnSendWhatsApp.textContent = 'أرسل طلبك الآن عبر الواتساب';
+      }
+    }, 5000);
+  }
 
   SoundFX.playCash();
   window.open(encodedUrl, '_blank');

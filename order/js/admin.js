@@ -99,7 +99,12 @@ const adminElements = {
   newPromoVal: document.getElementById('new-promo-val'),
   btnAddPromoCode: document.getElementById('btn-add-promo-code'),
   promoCodesList: document.getElementById('promo-codes-list'),
-  adminThemeToggleBtn: document.getElementById('admin-theme-toggle-btn')
+  adminThemeToggleBtn: document.getElementById('admin-theme-toggle-btn'),
+  // New settings fields
+  setDeliveryTime: document.getElementById('set-delivery-time'),
+  setMinOrder: document.getElementById('set-min-order'),
+  setShowAnnouncement: document.getElementById('set-show-announcement'),
+  setAnnouncementText: document.getElementById('set-announcement-text')
 };
 
 function initAdmin() {
@@ -127,18 +132,65 @@ function setupAdminThemeToggle() {
 
 // ── Auth Gate ──────────────────────────────────────────────
 function setupAuth() {
+  let attempts = parseInt(sessionStorage.getItem('harpy_pin_attempts') || '0');
+  let lockedUntil = parseInt(sessionStorage.getItem('harpy_pin_locked_until') || '0');
+
   const checkPin = () => {
+    // Lockout check
+    if (Date.now() < lockedUntil) {
+      const remaining = Math.ceil((lockedUntil - Date.now()) / 1000);
+      alert(`تم تجاوز عدد المحاولات المسموح به. حاول مرة أخرى بعد ${remaining} ثانية.`);
+      return;
+    }
+
     const entered = (adminElements.adminPinInput.value || '').trim();
     const settings = Store.getSettings();
     const pin = settings.adminPin || "1234";
 
     if (entered === pin) {
       isAuthenticated = true;
+      sessionStorage.removeItem('harpy_pin_attempts');
+      sessionStorage.removeItem('harpy_pin_locked_until');
       if (adminElements.loginModal) adminElements.loginModal.classList.remove('open');
       if (adminElements.loginBackdrop) adminElements.loginBackdrop.classList.remove('open');
       loadAllDashboardData();
+      // Warn if still using default PIN
+      if (pin === '1234') {
+        setTimeout(() => {
+          const existing = document.getElementById('default-pin-warning');
+          if (!existing) {
+            const warn = document.createElement('div');
+            warn.id = 'default-pin-warning';
+            warn.style.cssText = `
+              background: #7c2d12; color: #fff; padding: 14px 18px; border-radius: 10px;
+              margin-bottom: 16px; font-size: 0.88rem; font-weight: 700; display: flex;
+              align-items: center; gap: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            `;
+            warn.innerHTML = `
+              <span style="font-size:1.4rem;">🔐</span>
+              <div>
+                <div style="font-size:0.95rem; margin-bottom:4px;">رمز المرور لا يزال الافتراضي (1234) — يجب تغييره فوراً!</div>
+                <div style="font-weight:500; opacity:0.85;">اذهب إلى إعدادات → رمز مرور لوحة الإدارة وعيّن رمزاً سرياً خاصاً بك.</div>
+              </div>
+              <button onclick="this.parentElement.remove()" style="margin-right:auto; background:transparent; border:none; color:#fff; font-size:1.2rem; cursor:pointer;">✕</button>
+            `;
+            const container = document.querySelector('main.container') || document.body;
+            container.insertBefore(warn, container.firstChild);
+          }
+        }, 400);
+      }
     } else {
-      alert("رمز المرور غير صحيح");
+      attempts++;
+      sessionStorage.setItem('harpy_pin_attempts', attempts.toString());
+      if (attempts >= 5) {
+        const lockDuration = 60 * 1000; // 60 seconds
+        const lockEnd = Date.now() + lockDuration;
+        sessionStorage.setItem('harpy_pin_locked_until', lockEnd.toString());
+        sessionStorage.setItem('harpy_pin_attempts', '0');
+        alert('تم إدخال رمز خاطئ 5 مرات. سيتم الإغلاق لمدة دقيقة واحدة.');
+      } else {
+        alert(`رمز المرور غير صحيح. المحاولات المتبقية: ${5 - attempts}`);
+      }
       adminElements.adminPinInput.value = '';
       adminElements.adminPinInput.focus();
     }
@@ -234,6 +286,56 @@ function loadAllDashboardData() {
   renderCategoriesList();
   renderStoriesList();
   loadSettingsIntoForm();
+  checkOnboardingSetup();
+}
+
+function checkOnboardingSetup() {
+  const settings = Store.getSettings();
+  const existingBanner = document.getElementById('onboarding-setup-banner');
+  const isIncomplete = !settings.storeName || !settings.whatsappNumber;
+
+  if (isIncomplete) {
+    if (!existingBanner) {
+      const banner = document.createElement('div');
+      banner.id = 'onboarding-setup-banner';
+      banner.style.cssText = `
+        background: linear-gradient(135deg, #7c2d12, #c2410c);
+        color: #fff;
+        padding: 16px 20px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        font-size: 0.88rem;
+        line-height: 1.6;
+        box-shadow: 0 4px 20px rgba(194,65,12,0.4);
+      `;
+      banner.innerHTML = `
+        <svg style="width:28px;height:28px;flex-shrink:0;margin-top:2px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <div>
+          <div style="font-weight:900; font-size:1rem; margin-bottom:6px;">⚠️ إعداد المطعم غير مكتمل — لا تشارك الرابط بعد!</div>
+          <div>يجب إكمال الإعدادات الأساسية قبل مشاركة رابط المنيو مع العملاء:</div>
+          <ul style="margin:8px 0 0 0; padding-right:18px;">
+            ${!settings.storeName ? '<li>اسم المطعم مطلوب</li>' : ''}
+            ${!settings.whatsappNumber ? '<li>رقم واتساب استقبال الطلبات مطلوب</li>' : ''}
+          </ul>
+          <div style="margin-top:10px;">
+            <button onclick="document.querySelector('[data-tab=tab-settings]').click(); this.closest('#onboarding-setup-banner').style.display='none';"
+              style="background:rgba(255,255,255,0.2); color:#fff; border:1px solid rgba(255,255,255,0.4); padding:7px 16px; border-radius:8px; cursor:pointer; font-weight:800; font-size:0.85rem;">
+              اذهب إلى الإعدادات الآن ←
+            </button>
+          </div>
+        </div>
+      `;
+      const container = document.querySelector('main.container') || document.body;
+      container.insertBefore(banner, container.firstChild);
+    }
+  } else {
+    if (existingBanner) existingBanner.remove();
+  }
 }
 
 // ── Navigation Tabs ────────────────────────────────────────
@@ -918,6 +1020,13 @@ function loadSettingsIntoForm() {
   if (adminElements.setSpendDiscountType) adminElements.setSpendDiscountType.value = s.spendTierDiscountType || 'percent';
   if (adminElements.setSpendDiscountVal) adminElements.setSpendDiscountVal.value = s.spendTierDiscountValue || 15;
 
+  // New fields
+  if (adminElements.setImgbbKey) adminElements.setImgbbKey.value = s.imgbbApiKey || '';
+  if (adminElements.setDeliveryTime) adminElements.setDeliveryTime.value = s.deliveryTime || '';
+  if (adminElements.setMinOrder) adminElements.setMinOrder.value = s.minOrder !== undefined ? s.minOrder : 0;
+  if (adminElements.setShowAnnouncement) adminElements.setShowAnnouncement.checked = s.showAnnouncement === true;
+  if (adminElements.setAnnouncementText) adminElements.setAnnouncementText.value = s.announcementText || '';
+
   renderPromoCodesList(s.promoCodes || []);
 }
 
@@ -941,6 +1050,21 @@ window.deletePromoFast = function(index) {
 
 function saveSettingsFromForm() {
   const current = Store.getSettings();
+
+  // Validate critical fields before saving
+  const newPin = (adminElements.setAdminPin?.value || '').trim();
+  if (newPin && (newPin.length < 4 || !/^\d+$/.test(newPin))) {
+    alert('رمز المرور يجب أن يكون 4 أرقام على الأقل ويحتوي على أرقام فقط.');
+    adminElements.setAdminPin?.focus();
+    return;
+  }
+  const newWhatsApp = (adminElements.setWhatsapp?.value || '').replace(/\D/g, '');
+  if (newWhatsApp && newWhatsApp.length < 10) {
+    alert('رقم الواتساب غير صحيح — يجب أن يكون على الأقل 10 أرقام (مثال: 201012345678).');
+    adminElements.setWhatsapp?.focus();
+    return;
+  }
+
   const bg = adminElements.pickerBg.value || '#120e0c';
   const surface = adminElements.pickerSurface.value || '#1e1814';
   const primary = adminElements.pickerPrimary.value || '#ea580c';
@@ -954,9 +1078,16 @@ function saveSettingsFromForm() {
     whatsappNumber: (adminElements.setWhatsapp.value || '').trim(),
     walletNumber: (adminElements.setWalletNumber.value || '').trim(),
     walletName: (adminElements.setWalletName.value || '').trim(),
-    adminPin: (adminElements.setAdminPin.value || '').trim() || '1234',
+    adminPin: (adminElements.setAdminPin?.value || '').trim() || current.adminPin || '1234',
     logo: (document.getElementById('set-logo-url')?.value || '').trim(),
     cover: (document.getElementById('set-cover-url')?.value || '').trim(),
+
+    // ImgBB and operational settings
+    imgbbApiKey: (adminElements.setImgbbKey?.value || '').trim(),
+    deliveryTime: (adminElements.setDeliveryTime?.value || '').trim() || '30-45 دقيقة',
+    minOrder: parseFloat(adminElements.setMinOrder?.value) || 0,
+    showAnnouncement: adminElements.setShowAnnouncement?.checked === true,
+    announcementText: (adminElements.setAnnouncementText?.value || '').trim(),
 
     siteColors: {
       bg,
@@ -982,6 +1113,8 @@ function saveSettingsFromForm() {
   Store.saveSettings(updated);
   alert("تم حفظ كافة الإعدادات بنجاح!");
   loadSettingsIntoForm();
+  checkOnboardingSetup();
+  renderRestaurantHub();
 }
 
 document.addEventListener('DOMContentLoaded', initAdmin);

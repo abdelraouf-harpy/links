@@ -134,16 +134,16 @@ const THEME_PRESETS = {
 };
 
 const DEFAULT_SETTINGS = {
-  storeName: "شاورما وبيرجر الهرمل",
-  storeTagline: "أشهى السندوتشات والوجبات السريعة طازجة يومياً على الحطب",
-  whatsappNumber: "201012345678",
-  walletNumber: "01012345678",
+  storeName: "",
+  storeTagline: "",
+  whatsappNumber: "",
+  walletNumber: "",
   walletName: "فودافون كاش / إنستاباي",
   currency: "ج.م",
   adminPin: "1234",
-  logo: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=120&auto=format&fit=crop&q=60",
-  cover: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=1200",
-  imgbbApiKey: "", // User can add their own ImgBB API key from admin settings
+  logo: "",
+  cover: "",
+  imgbbApiKey: "", // يجب على كل مطعم إدخال مفتاح ImgBB الخاص به من الإعدادات
   
   themePreset: "charcoal",
   siteColors: {
@@ -167,176 +167,18 @@ const DEFAULT_SETTINGS = {
   spendTierDiscountType: "percent",
   spendTierDiscountValue: 15,
 
-  promoCodes: [
-    { code: "HERMEL10", type: "percent", value: 10, desc: "خصم 10%" },
-    { code: "BURGER50", type: "fixed", value: 50, desc: "خصم 50 ج.م" }
-  ],
+  promoCodes: [],
 
-  announcementText: "خصم 10% عند الدفع بفودافون كاش أو إنستاباي • وخصم 15% للطلبات فوق 300 ج.م",
-  showAnnouncement: true,
+  announcementText: "",
+  showAnnouncement: false,
   deliveryTime: "30-45 دقيقة",
   minOrder: 0
 };
 
-const DEFAULT_CATEGORIES = [
-  "سندوتشات بيرجر",
-  "شاورما وسوري",
-  "وجبات ومقبلات",
-  "مشروبات منعشة"
-];
+const DEFAULT_CATEGORIES = [];
 
-const DEFAULT_PRODUCTS = [
-  {
-    id: "p1",
-    name: "جراند بيرجر لحم دبل",
-    category: "سندوتشات بيرجر",
-    price: 140,
-    originalPrice: 160,
-    desc: "شريحتين لحم بقري أنجوس مشوي على اللهب، جبن شيدر سايح، خس مقرمش، طماطم، وصوص خاص مع خبز بريوش طازج",
-    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&auto=format&fit=crop&q=80",
-    prepTime: "15 دقيقة",
-    visible: true,
-    isFeatured: true,
-    badge: "عرض خاص",
-    sizes: [
-      { id: "s-reg", name: "سنجل عادي", price: 0 },
-      { id: "s-dbl", name: "دبل لارج (+35 ج.م)", price: 35 },
-      { id: "s-trp", name: "تربل عملاق (+60 ج.م)", price: 60 }
-    ],
-    addons: [
-      { id: "a-chz", name: "شريحة جبنة شيدر إضافية", price: 15 },
-      { id: "a-sauce", name: "صوص سموكي باربكيو", price: 10 },
-      { id: "a-jal", name: "قطع هلابينو حار", price: 10 }
-    ]
-  },
-  {
-    id: "p2",
-    name: "بيرجر كريسبي دجاج حار",
-    category: "سندوتشات بيرجر",
-    price: 115,
-    originalPrice: 0,
-    desc: "صدر دجاج كريسبي مقرمش بتتبيلة حارة، صوص هالبينو كريمي، جبنة شيدر، سلطة كول سلو منعشة",
-    image: "https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?w=600&auto=format&fit=crop&q=80",
-    prepTime: "12 دقيقة",
-    visible: true,
-    isFeatured: true,
-    badge: "سبايسي",
-    sizes: [
-      { id: "s-reg", name: "حجم عادي", price: 0 },
-      { id: "s-lrg", name: "حجم سوبر لارج (+25 ج.م)", price: 25 }
-    ],
-    addons: [
-      { id: "a-chz", name: "جبنة سايحة دوبل", price: 15 },
-      { id: "a-turk", name: "شريحة تركي مدخن", price: 20 }
-    ]
-  },
-  {
-    id: "p3",
-    name: "شاورما عربي دجاج دبل",
-    category: "شاورما وسوري",
-    price: 110,
-    originalPrice: 125,
-    desc: "شاورما دجاج متبلة على السيخ، ثومية كريمية، مخلل خيار، بطاطس ذهبية مقرمشة في خبز الصاج السوري المحمص",
-    image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop&q=80",
-    prepTime: "10 دقائق",
-    visible: true,
-    isFeatured: false,
-    badge: "وجبة شيف",
-    sizes: [
-      { id: "s-reg", name: "وجبة فردية (1 رول)", price: 0 },
-      { id: "s-dbl", name: "وجبة دبل (2 رول + بطاطس) (+45 ج.م)", price: 45 }
-    ],
-    addons: [
-      { id: "a-garlic", name: "علبة ثومية زيادة", price: 10 },
-      { id: "a-pickles", name: "مخلل خيار متبل", price: 8 }
-    ]
-  },
-  {
-    id: "p4",
-    name: "صاروخ شاورما لحم بلدي",
-    category: "شاورما وسوري",
-    price: 125,
-    originalPrice: 0,
-    desc: "شاورما لحم بلدي متبل مع بقدونس طازج، بصل متبل بالسماق، وطحينة سمسم فاخرة داخل رغيف صاج كبير",
-    image: "https://images.unsplash.com/photo-1561651823-34feb02250e4?w=600&auto=format&fit=crop&q=80",
-    prepTime: "12 دقيقة",
-    visible: true,
-    isFeatured: false,
-    badge: "لحم بلدي",
-    addons: [
-      { id: "a-tahina", name: "طحينة سمسم فاخرة إضافية", price: 10 }
-    ]
-  },
-  {
-    id: "p5",
-    name: "بطاطس بالجبن والهلابينو",
-    category: "وجبات ومقبلات",
-    price: 55,
-    originalPrice: 0,
-    desc: "بطاطس ويدجز ذهبية مقرمشة مغطاة بصوص جبن الشيدر الغني وشرائح الهالبينو المكسيكي الحار",
-    image: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=600&auto=format&fit=crop&q=80",
-    prepTime: "8 دقائق",
-    visible: true,
-    isFeatured: false,
-    badge: "سناكس"
-  },
-  {
-    id: "p6",
-    name: "أصابع موزاريلا مقرمشة",
-    category: "وجبات ومقبلات",
-    price: 65,
-    originalPrice: 75,
-    desc: "5 أصابع جبن موزاريلا إيطالية مقلية ذهبية تقدم مع صوص المارينارا العشبي اللذيذ",
-    image: "https://images.unsplash.com/photo-1531749668029-2db88e4276c7?w=600&auto=format&fit=crop&q=80",
-    prepTime: "8 دقائق",
-    visible: true,
-    isFeatured: false,
-    badge: "مقرمش"
-  },
-  {
-    id: "p7",
-    name: "عصير برتقال فريش",
-    category: "مشروبات منعشة",
-    price: 35,
-    originalPrice: 0,
-    desc: "عصير برتقال طبيعي معصور طازج 100% بدون أي سكر مضاف أو مواد حافظة",
-    image: "https://images.unsplash.com/photo-1613478223719-2ab802602423?w=600&auto=format&fit=crop&q=80",
-    prepTime: "5 دقائق",
-    visible: true,
-    isFeatured: false,
-    badge: "طبيعي 100%"
-  }
-];
+const DEFAULT_PRODUCTS = [];
 
-const DEFAULT_STORIES = [
-  {
-    id: "s1",
-    title: "عرض اليوم الحصري",
-    tagline: "خصم 20% لفترة محدودة",
-    desc: "جراند بيرجر لحم دبل مشوي على اللهب مع بطاطس بالجبن ومشروب منعش بخصم حصري اليوم فقط!",
-    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&auto=format&fit=crop&q=80",
-    productId: "p1",
-    badge: "خصم 20%"
-  },
-  {
-    id: "s2",
-    title: "شاورما الصاج المحمص",
-    tagline: "طعم لا يقاوم",
-    desc: "شاورما دجاج ولحم بالصاج السوري المقرمش مع الثومية الخاصة وسلطة المخلل اللذيذة.",
-    image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop&q=80",
-    productId: "p3",
-    badge: "الأكثر طلباً"
-  },
-  {
-    id: "s3",
-    title: "سناكس ومقبلات مقرمشة",
-    tagline: "كمل وجبتك",
-    desc: "أصابع الموزاريلا الغنية وبطاطس الهلابينو بالجبنة الشيدر الساخنة لتجربة طعام متكاملة.",
-    image: "https://images.unsplash.com/photo-1531749668029-2db88e4276c7?w=600&auto=format&fit=crop&q=80",
-    productId: "p6",
-    badge: "قرمشة شيدر"
-  }
-];
 
 const Store = {
   // ── Multi-Tenant Restaurant Engine ────────────────────────
@@ -370,7 +212,7 @@ const Store = {
     let list = this.getAllRestaurants();
     const existing = list.find(r => r.slug === slug);
     if (!existing) {
-      const name = customName || (slug === 'hermel' ? 'شاورما وبيرجر الهرمل' : `مطعم ${slug}`);
+      const name = customName || `مطعم ${slug}`;
       list.push({ slug, name });
       localStorage.setItem('harpy_restaurants_list', JSON.stringify(list));
     } else if (customName && existing.name !== customName) {
@@ -382,9 +224,9 @@ const Store = {
   getAllRestaurants() {
     const raw = localStorage.getItem('harpy_restaurants_list');
     try {
-      return raw ? JSON.parse(raw) : [{ slug: 'hermel', name: 'شاورما وبيرجر الهرمل' }];
+      return raw ? JSON.parse(raw) : [];
     } catch {
-      return [{ slug: 'hermel', name: 'شاورما وبيرجر الهرمل' }];
+      return [];
     }
   },
 
@@ -395,18 +237,11 @@ const Store = {
 
   getSettings() {
     const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.SETTINGS));
-    if (!raw) {
-      // If default hermel or custom store with no settings yet
-      const slug = this.getRestaurantSlug();
-      if (slug !== 'hermel') {
-        return { ...DEFAULT_SETTINGS, storeName: `مطعم ${slug}` };
-      }
-      return DEFAULT_SETTINGS;
-    }
+    if (!raw) return { ...DEFAULT_SETTINGS };
     try {
       return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
     } catch {
-      return DEFAULT_SETTINGS;
+      return { ...DEFAULT_SETTINGS };
     }
   },
   saveSettings(settings) {
@@ -472,7 +307,7 @@ const Store = {
   },
 
   getCategories() {
-    const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.CATEGORIES)) || localStorage.getItem(STORAGE_KEYS.CATEGORIES);
+    const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.CATEGORIES));
     if (!raw) return DEFAULT_CATEGORIES;
     try {
       return JSON.parse(raw);
@@ -487,7 +322,7 @@ const Store = {
   },
 
   getProducts() {
-    const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.PRODUCTS)) || localStorage.getItem(STORAGE_KEYS.PRODUCTS);
+    const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.PRODUCTS));
     if (!raw) return DEFAULT_PRODUCTS;
     try {
       return JSON.parse(raw);
@@ -585,10 +420,10 @@ const Store = {
   },
 
   getThemeMode() {
-    return localStorage.getItem(STORAGE_KEYS.THEME_MODE) || 'dark';
+    return localStorage.getItem(this.getKey(STORAGE_KEYS.THEME_MODE)) || 'dark';
   },
   setThemeMode(mode) {
-    localStorage.setItem(STORAGE_KEYS.THEME_MODE, mode);
+    localStorage.setItem(this.getKey(STORAGE_KEYS.THEME_MODE), mode);
     this.applyTheme();
     window.dispatchEvent(new CustomEvent('theme_mode_changed', { detail: mode }));
   },
@@ -623,19 +458,19 @@ const Store = {
   },
 
   getSoundEnabled() {
-    const raw = localStorage.getItem(STORAGE_KEYS.SOUND_ENABLED);
+    const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.SOUND_ENABLED));
     return raw === null ? true : raw === 'true';
   },
   setSoundEnabled(enabled) {
-    localStorage.setItem(STORAGE_KEYS.SOUND_ENABLED, String(enabled));
+    localStorage.setItem(this.getKey(STORAGE_KEYS.SOUND_ENABLED), String(enabled));
     window.dispatchEvent(new CustomEvent('store_sound_changed', { detail: enabled }));
   },
 
   getViewMode() {
-    return localStorage.getItem(STORAGE_KEYS.VIEW_MODE) || 'grid';
+    return localStorage.getItem(this.getKey(STORAGE_KEYS.VIEW_MODE)) || 'grid';
   },
   setViewMode(mode) {
-    localStorage.setItem(STORAGE_KEYS.VIEW_MODE, mode);
+    localStorage.setItem(this.getKey(STORAGE_KEYS.VIEW_MODE), mode);
     window.dispatchEvent(new CustomEvent('store_view_mode_changed', { detail: mode }));
   },
 
@@ -681,12 +516,14 @@ const Store = {
   },
 
   resetAllDataToDefault() {
-    localStorage.removeItem(STORAGE_KEYS.SETTINGS);
-    localStorage.removeItem(STORAGE_KEYS.CATEGORIES);
-    localStorage.removeItem(STORAGE_KEYS.PRODUCTS);
-    localStorage.removeItem(STORAGE_KEYS.STORIES);
-    localStorage.removeItem(STORAGE_KEYS.CART);
-    localStorage.removeItem(STORAGE_KEYS.APPLIED_COUPON);
+    // ✅ Use getKey() so we remove slug-prefixed keys, not bare keys
+    localStorage.removeItem(this.getKey(STORAGE_KEYS.SETTINGS));
+    localStorage.removeItem(this.getKey(STORAGE_KEYS.CATEGORIES));
+    localStorage.removeItem(this.getKey(STORAGE_KEYS.PRODUCTS));
+    localStorage.removeItem(this.getKey(STORAGE_KEYS.STORIES));
+    localStorage.removeItem(this.getKey(STORAGE_KEYS.CART));
+    localStorage.removeItem(this.getKey(STORAGE_KEYS.APPLIED_COUPON));
+    localStorage.removeItem(this.getKey(STORAGE_KEYS.THEME_MODE));
     this.initTheme();
     window.dispatchEvent(new Event('store_settings_updated'));
     window.dispatchEvent(new Event('store_categories_updated'));
@@ -697,7 +534,7 @@ const Store = {
   async uploadImage(file) {
     if (!file) return null;
     const settings = this.getSettings();
-    const apiKey = settings.imgbbApiKey || "9716f16445d36094b2e16dd8682fc0c1";
+    const apiKey = settings.imgbbApiKey; // ⚠️ No fallback — each restaurant must set their own key
 
     if (apiKey) {
       const formData = new FormData();

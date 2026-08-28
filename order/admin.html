@@ -46,7 +46,7 @@
       <svg class="icon icon-lg" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     </div>
     <h2 style="font-size:1.15rem; font-weight:900; margin-bottom:6px; color:var(--text-main);">تسجيل دخول الإدارة</h2>
-    <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:20px; line-height:1.5;">أدخل رمز المرور السري للوصول إلى لوحة التحكم (الافتراضي: 1234)</p>
+    <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:20px; line-height:1.5;">أدخل رمز المرور السري للوصول إلى لوحة التحكم</p>
     
     <div style="margin-bottom: 16px;">
       <input type="password" id="admin-pin-input" class="pin-input-field font-num" placeholder="••••" maxlength="8" autofocus>
@@ -408,8 +408,43 @@
             </div>
             <div class="form-group">
               <label class="form-label">رمز مرور لوحة الإدارة (PIN)</label>
-              <input type="password" id="set-admin-pin" class="form-input font-num" placeholder="1234">
+              <input type="password" id="set-admin-pin" class="form-input font-num" placeholder="أدخل رمزاً جديداً (4+ أرقام)" minlength="4" maxlength="8">
             </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px;">
+            <!-- ImgBB API Key -->
+            <div class="form-group">
+              <label class="form-label">مفتاح ImgBB API (لرفع صور المنتجات)</label>
+              <input type="text" id="set-imgbb-key" class="form-input font-num" placeholder="مثال: abc123...">
+              <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">احصل على مفتاحك المجاني من <a href="https://imgbb.com" target="_blank" style="color:var(--primary);">imgbb.com</a></div>
+            </div>
+            <!-- Delivery Time -->
+            <div class="form-group">
+              <label class="form-label">وقت التوصيل المتوقع</label>
+              <input type="text" id="set-delivery-time" class="form-input" placeholder="مثال: 30-45 دقيقة">
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:8px;">
+            <!-- Min Order -->
+            <div class="form-group">
+              <label class="form-label">الحد الأدنى لقيمة الطلب (ج.م)</label>
+              <input type="number" id="set-min-order" class="form-input font-num" placeholder="0 (بدون حد أدنى)" min="0" step="5">
+            </div>
+            <!-- Announcement Toggle -->
+            <div class="form-group" style="display:flex; flex-direction:column; justify-content:flex-end; padding-bottom:2px;">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <input type="checkbox" id="set-show-announcement" style="width:18px; height:18px; accent-color:var(--primary); cursor:pointer;">
+                <label for="set-show-announcement" style="font-size:0.88rem; font-weight:700; color:var(--text-main); cursor:pointer;">إظهار شريط الإعلانات</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Announcement Text -->
+          <div class="form-group" style="margin-top:8px;">
+            <label class="form-label">نص شريط الإعلانات (يظهر أعلى الصفحة)</label>
+            <input type="text" id="set-announcement-text" class="form-input" placeholder="مثال: خصم 10% عند الدفع بفودافون كاش">
           </div>
 
           <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; flex-wrap:wrap; gap:12px;">
