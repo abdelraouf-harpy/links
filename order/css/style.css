@@ -262,6 +262,7 @@ body {
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
+}
 @media (max-width: 600px) {
   .header-wrap {
     flex-wrap: wrap;
