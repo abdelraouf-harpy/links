@@ -528,6 +528,60 @@ function setupProductManagement() {
   }
 }
 
+let lastKnownOrderCount = null;
+
+function playKitchenOrderChime() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (!ctx) return;
+    
+    // Play two-tone restaurant bell chime (Ding-Dong!)
+    const now = ctx.currentTime;
+    
+    // Note 1: High bell
+    const osc1 = ctx.createOscillator();
+    const gain1 = ctx.createGain();
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(880, now); // A5
+    gain1.gain.setValueAtTime(0.3, now);
+    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+    osc1.connect(gain1);
+    gain1.connect(ctx.destination);
+    osc1.start(now);
+    osc1.stop(now + 0.6);
+
+    // Note 2: Lower bell
+    const osc2 = ctx.createOscillator();
+    const gain2 = ctx.createGain();
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(1174.66, now + 0.15); // D6
+    gain2.gain.setValueAtTime(0.35, now + 0.15);
+    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+    osc2.connect(gain2);
+    gain2.connect(ctx.destination);
+    osc2.start(now + 0.15);
+    osc2.stop(now + 0.9);
+  } catch (e) {}
+}
+
+function showAdminOrderNotification(newOrder) {
+  if ('Notification' in window) {
+    if (Notification.permission === 'granted') {
+      const title = `🔔 طلب جديد ${newOrder.orderId}`;
+      const options = {
+        body: `العميل: ${newOrder.customer?.name || 'عميل'} | المبلغ: ${newOrder.finalTotal} ج.م`,
+        icon: './manifest.json',
+        tag: newOrder.orderId
+      };
+      try {
+        new Notification(title, options);
+      } catch (e) {}
+    } else if (Notification.permission !== 'denied') {
+      Notification.requestPermission();
+    }
+  }
+}
+
 function renderOrdersList(orders = []) {
   if (!adminElements.adminOrdersContainer) return;
   const currency = Store.getSettings().currency || "ج.م";
@@ -535,6 +589,16 @@ function renderOrdersList(orders = []) {
   const totalOrders = orders.length;
   const pendingOrders = orders.filter(o => !o.status || o.status === 'pending').length;
   const totalRevenue = orders.filter(o => o.status !== 'cancelled').reduce((sum, o) => sum + (parseFloat(o.finalTotal) || 0), 0);
+
+  // Trigger Audio Chime & Browser Notification on New Incoming Order
+  if (lastKnownOrderCount !== null && totalOrders > lastKnownOrderCount) {
+    const latestOrder = orders[0];
+    playKitchenOrderChime();
+    if (latestOrder) {
+      showAdminOrderNotification(latestOrder);
+    }
+  }
+  lastKnownOrderCount = totalOrders;
 
   if (adminElements.statTotalOrders) adminElements.statTotalOrders.textContent = totalOrders;
   if (adminElements.statPendingOrders) adminElements.statPendingOrders.textContent = pendingOrders;

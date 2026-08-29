@@ -186,8 +186,29 @@ const DEFAULT_STORIES = [];
 const Store = {
   // ── Firebase Auth & Admin Session ─────────────────────────
   async loginAdmin(email, password) {
-    if (!auth) throw new Error("Firebase Auth is not initialized");
-    return await auth.signInWithEmailAndPassword(email, password);
+    if (!auth) throw new Error("Firebase Auth is not initialized.");
+    const slug = this.getRestaurantSlug();
+    try {
+      return await auth.signInWithEmailAndPassword(email, password);
+    } catch (err) {
+      // First-time owner auto-provisioning
+      if ((err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential' || err.code === 'auth/invalid-login-credentials') && db && slug) {
+        try {
+          const metaSnap = await db.ref(`restaurants/${slug}/meta`).once('value');
+          const meta = metaSnap.val();
+          if (meta && meta.ownerEmail && meta.ownerEmail.toLowerCase() === email.toLowerCase().trim()) {
+            const userCred = await auth.createUserWithEmailAndPassword(email, password);
+            if (userCred && userCred.user) {
+              await db.ref(`restaurants/${slug}/meta/ownerUid`).set(userCred.user.uid);
+              return userCred;
+            }
+          }
+        } catch (provisionErr) {
+          console.warn("First-time auto provision check:", provisionErr);
+        }
+      }
+      throw err;
+    }
   },
 
   async logoutAdmin() {
@@ -349,7 +370,11 @@ const Store = {
         });
         return true;
       }
-      const meta = snap.val();
+      const meta = snap.val() || {};
+      if (!meta.ownerUid) {
+        await metaRef.child('ownerUid').set(userUid);
+        return true;
+      }
       return meta.ownerUid === userUid;
     } catch (err) {
       console.warn("Verify ownership error:", err);

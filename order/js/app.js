@@ -1932,6 +1932,29 @@ function renderTrackerOrderData(order, currency) {
   }
 }
 
+let lastTrackerStatus = null;
+
+function notifyCustomerOrderStatus(status) {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'default') {
+    Notification.requestPermission();
+    return;
+  }
+  if (Notification.permission === 'granted') {
+    const statusMessages = {
+      preparing: { title: '👨‍🍳 المطبخ يجهز طلبك الآن!', body: 'بدأ طهاة المطعم في تجهيز وطهي وجباتك الطازجة.' },
+      out_for_delivery: { title: '🛵 طلبك خرج للتوصيل!', body: 'الكابتن في طريقه إليك الآن لتسليم الأوردر.' },
+      delivered: { title: '✅ تم تسليم الطلب!', body: 'شكراً لطلبك من مطعمنا ونرجو لك وجبة شهية.' }
+    };
+    const info = statusMessages[status];
+    if (info) {
+      try {
+        new Notification(info.title, { body: info.body, icon: './manifest.json' });
+      } catch (e) {}
+    }
+  }
+}
+
 function updateTrackerStepper(status = 'pending') {
   const nodePending = document.getElementById('step-node-pending');
   const nodePrep = document.getElementById('step-node-preparing');
@@ -1941,6 +1964,21 @@ function updateTrackerStepper(status = 'pending') {
   const line1 = document.getElementById('step-line-1');
   const line2 = document.getElementById('step-line-2');
   const line3 = document.getElementById('step-line-3');
+
+  // Trigger audio chime and browser push notification on status transition
+  if (lastTrackerStatus !== null && lastTrackerStatus !== status) {
+    if (status === 'preparing') {
+      SoundFX.playPop();
+      notifyCustomerOrderStatus('preparing');
+    } else if (status === 'out_for_delivery') {
+      SoundFX.playChime();
+      notifyCustomerOrderStatus('out_for_delivery');
+    } else if (status === 'delivered') {
+      SoundFX.playCash();
+      notifyCustomerOrderStatus('delivered');
+    }
+  }
+  lastTrackerStatus = status;
 
   // Reset classes
   [nodePending, nodePrep, nodeDelivery, nodeDelivered].forEach(n => {
