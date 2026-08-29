@@ -313,6 +313,34 @@ function initApp() {
   });
 }
 
+function showToastNotification(message, type = 'success') {
+  const existing = document.getElementById('harpy-app-toast');
+  if (existing) existing.remove();
+
+  const toast = document.createElement('div');
+  toast.id = 'harpy-app-toast';
+  toast.className = `admin-toast-pill toast-${type}`;
+  toast.innerHTML = `
+    <div class="toast-icon">
+      ${type === 'success' 
+        ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`
+        : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`
+      }
+    </div>
+    <div class="toast-text">${message}</div>
+  `;
+  document.body.appendChild(toast);
+
+  requestAnimationFrame(() => {
+    toast.classList.add('show');
+  });
+
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 400);
+  }, 3500);
+}
+
 function updateThemeToggleIcons() {
   const currentMode = Store.getThemeMode();
   if (elements.themeIconDark && elements.themeIconLight) {
@@ -1462,6 +1490,20 @@ function goToCheckoutStep(stepNumber) {
     }
   });
 
+  // Dynamic drawer footer button label according to current step
+  if (elements.btnConfirmOrderDirect) {
+    const labelSpan = elements.btnConfirmOrderDirect.querySelector('span');
+    if (labelSpan) {
+      if (stepNumber === 1) {
+        labelSpan.textContent = "متابعة لبيانات التوصيل ←";
+      } else if (stepNumber === 2) {
+        labelSpan.textContent = "متابعة لاختيار طريقة الدفع ←";
+      } else {
+        labelSpan.textContent = "تأكيد وإرسال الطلب مباشرة ⚡";
+      }
+    }
+  }
+
   updateLedgerUI();
 }
 
@@ -1534,12 +1576,12 @@ function setupEventListeners() {
       const address = (elements.custAddress.value || '').trim();
 
       if (!name || name.length < 2) {
-        alert("يرجى كتابة الاسم بشكل صحيح (حرفين على الأقل)");
+        showToastNotification("يرجى كتابة الاسم بشكل صحيح (حرفين على الأقل)", "error");
         elements.custName.focus();
         return;
       }
       if (!phone) {
-        alert("يرجى كتابة رقم الهاتف");
+        showToastNotification("يرجى كتابة رقم الهاتف للتواصل", "error");
         elements.custPhone.focus();
         return;
       }
@@ -1548,12 +1590,12 @@ function setupEventListeners() {
       const egyptianMobile = /^(01[0-9]{9})$/.test(phoneDigits);
       const internationalMobile = /^(20[0-9]{10}|[0-9]{10,15})$/.test(phoneDigits);
       if (!egyptianMobile && !internationalMobile) {
-        alert("يرجى كتابة رقم هاتف صحيح (مثال: 01012345678)");
+        showToastNotification("يرجى كتابة رقم هاتف صحيح (مثال: 01012345678)", "error");
         elements.custPhone.focus();
         return;
       }
       if (!address || address.length < 5) {
-        alert("يرجى كتابة عنوان التوصيل بالتفصيل (المنطقة، الشارع، العمارة، الشقة)");
+        showToastNotification("يرجى كتابة عنوان التوصيل بالتفصيل (المنطقة، الشارع)", "error");
         elements.custAddress.focus();
         return;
       }
@@ -1581,7 +1623,7 @@ function setupEventListeners() {
     elements.btnApplyPromo.addEventListener('click', () => {
       const code = (elements.promoCodeInput.value || '').trim().toUpperCase();
       if (!code) {
-        alert("يرجى كتابة كود الخصم");
+        showToastNotification("يرجى إدخال كود الخصم أولاً", "error");
         return;
       }
       const settings = Store.getSettings();
@@ -1590,9 +1632,10 @@ function setupEventListeners() {
         Store.setAppliedCoupon(validPromo);
         elements.promoCodeInput.value = '';
         SoundFX.playChime();
+        showToastNotification(`تم تفعيل خصم الكوبون بنجاح (${validPromo.code})! 🎉`, "success");
         updateLedgerUI();
       } else {
-        alert("كود الخصم غير صحيح أو منتهي");
+        showToastNotification("كود الخصم غير صحيح أو غير متاح", "error");
       }
     });
   }
@@ -1758,7 +1801,14 @@ let activeTrackerUnsubscribe = null;
 function handleDirectOrderSubmit(openWhatsApp = false) {
   const cart = Store.getCart();
   if (cart.length === 0) {
-    alert("السلة فارغة، أضف بعض المنتجات أولاً");
+    showToastNotification("السلة فارغة، أضف بعض الوجبات أولاً 🛒", "error");
+    return;
+  }
+
+  // If user is on Step 1, advance to Step 2
+  if (currentCheckoutStep === 1) {
+    goToCheckoutStep(2);
+    if (elements.custName) elements.custName.focus();
     return;
   }
 
@@ -1767,8 +1817,38 @@ function handleDirectOrderSubmit(openWhatsApp = false) {
   const address = (elements.custAddress?.value || '').trim();
   const notes = (elements.custNotes?.value || '').trim();
 
+  // If user is on Step 2, validate and advance to Step 3
+  if (currentCheckoutStep === 2) {
+    if (!name || name.length < 2) {
+      showToastNotification("يرجى كتابة الاسم بشكل صحيح (حرفين على الأقل)", "error");
+      if (elements.custName) elements.custName.focus();
+      return;
+    }
+    if (!phone) {
+      showToastNotification("يرجى كتابة رقم الهاتف للتواصل", "error");
+      if (elements.custPhone) elements.custPhone.focus();
+      return;
+    }
+    const phoneDigits = phone.replace(/[\s\-\+]/g, '');
+    const egyptianMobile = /^(01[0-9]{9})$/.test(phoneDigits);
+    const internationalMobile = /^(20[0-9]{10}|[0-9]{10,15})$/.test(phoneDigits);
+    if (!egyptianMobile && !internationalMobile) {
+      showToastNotification("يرجى كتابة رقم هاتف صحيح (مثال: 01012345678)", "error");
+      if (elements.custPhone) elements.custPhone.focus();
+      return;
+    }
+    if (!address || address.length < 5) {
+      showToastNotification("يرجى كتابة عنوان التوصيل بالتفصيل", "error");
+      if (elements.custAddress) elements.custAddress.focus();
+      return;
+    }
+    goToCheckoutStep(3);
+    return;
+  }
+
+  // If user is on Step 3, ensure fields are complete before sending
   if (!name || !phone || !address) {
-    alert("يرجى استكمال بيانات التوصيل (الاسم، الهاتف، العنوان)");
+    showToastNotification("يرجى استكمال بيانات التوصيل أولاً", "error");
     goToCheckoutStep(2);
     return;
   }
@@ -1778,7 +1858,7 @@ function handleDirectOrderSubmit(openWhatsApp = false) {
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
   if (settings.minOrder > 0 && subtotal < settings.minOrder) {
-    alert(`الحد الأدنى للطلب هو ${settings.minOrder} ${currency}`);
+    showToastNotification(`الحد الأدنى للطلب هو ${settings.minOrder} ${currency}`, "error");
     return;
   }
 
@@ -1826,14 +1906,15 @@ function handleDirectOrderSubmit(openWhatsApp = false) {
     timestamp: Date.now()
   };
 
-  // 1. Push to Cloud (Firebase Realtime DB)
+  // 1. Instant Push to Cloud (Firebase Realtime DB + REST)
   Store.pushOrderToCloud(orderData);
 
   // 2. Save locally for recall
   Store.saveLastOrder(orderData);
 
-  // 3. Audio & Cart Reset
+  // 3. Audio & Success Toast
   SoundFX.playCash();
+  showToastNotification("تم إرسال واستلام طلبك بنجاح! جاري التجهيز 👨‍🍳🔥", "success");
   Store.clearCart();
   closeCartDrawer();
   goToCheckoutStep(1);

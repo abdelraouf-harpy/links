@@ -1141,10 +1141,10 @@ function setupBackupAndRestore() {
       reader.onload = (ev) => {
         try {
           Store.importAllDataJSON(ev.target.result);
-          alert("تم استرجاع كافة بيانات المنيو بنجاح!");
+          showToastNotification("تم استرجاع كافة بيانات المنيو بنجاح! 📦", "success");
           loadAllDashboardData();
         } catch (err) {
-          alert("حدث خطأ أثناء استرجاع الملف: " + err.message);
+          showToastNotification("حدث خطأ أثناء استرجاع الملف: " + err.message, "error");
         }
       };
       reader.readAsText(file);
@@ -1156,7 +1156,7 @@ function setupBackupAndRestore() {
       const ok = confirm("تحذير: سيتم مسح كافة التعديلات واستعادة المنيو الافتراضي الأولي. هل تود المتابعة؟");
       if (ok) {
         Store.resetAllDataToDefault();
-        alert("تم استعادة إعدادات المصنع بنجاح!");
+        showToastNotification("تم استعادة إعدادات المصنع بنجاح!", "success");
         loadAllDashboardData();
       }
     });
@@ -1204,7 +1204,7 @@ function setupSettingsForm() {
       const val = parseFloat(adminElements.newPromoVal.value) || 0;
 
       if (!code || val <= 0) {
-        alert("يرجى إدخال كود وقيمة صحيحة");
+        showToastNotification("يرجى إدخال كود وقيمة صحيحة للكوبون", "error");
         return;
       }
 

@@ -330,15 +330,27 @@ const Store = {
 
   async pushOrderToCloud(orderData) {
     const slug = this.getRestaurantSlug();
-    if (!db || !slug || !orderData || !orderData.orderId) return false;
+    if (!slug || !orderData || !orderData.orderId) return false;
+    const cleanId = orderData.orderId.replace(/[^a-zA-Z0-9_-]/g, '');
+
     try {
-      const cleanId = orderData.orderId.replace(/[^a-zA-Z0-9_-]/g, '');
-      await db.ref(`restaurants/${slug}/orders/${cleanId}`).set(orderData);
-      return true;
+      if (db) {
+        db.ref(`restaurants/${slug}/orders/${cleanId}`).set(orderData);
+      }
     } catch (err) {
-      console.warn("Error pushing order to cloud:", err);
-      return false;
+      console.warn("Error pushing order to cloud SDK:", err);
     }
+
+    try {
+      // Instant REST fallback/accelerator
+      fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders/${cleanId}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData)
+      }).catch(() => {});
+    } catch (e) {}
+
+    return true;
   },
 
   syncOrdersFromCloud(slug, onOrdersUpdate) {
@@ -677,7 +689,7 @@ const Store = {
   },
 
   getThemeMode() {
-    return localStorage.getItem(this.getKey(STORAGE_KEYS.THEME_MODE)) || 'dark';
+    return localStorage.getItem(this.getKey(STORAGE_KEYS.THEME_MODE)) || 'light';
   },
   setThemeMode(mode) {
     localStorage.setItem(this.getKey(STORAGE_KEYS.THEME_MODE), mode);
@@ -726,7 +738,7 @@ const Store = {
   },
 
   getViewMode() {
-    return localStorage.getItem(this.getKey(STORAGE_KEYS.VIEW_MODE)) || 'grid';
+    return localStorage.getItem(this.getKey(STORAGE_KEYS.VIEW_MODE)) || 'list';
   },
   setViewMode(mode) {
     localStorage.setItem(this.getKey(STORAGE_KEYS.VIEW_MODE), mode);
