@@ -90,7 +90,6 @@ const adminElements = {
   setWhatsapp: document.getElementById('set-whatsapp'),
   setWalletNumber: document.getElementById('set-wallet-number'),
   setWalletName: document.getElementById('set-wallet-name'),
-  setAdminPin: document.getElementById('set-admin-pin'),
   setLogoUrl: document.getElementById('set-logo-url'),
   setImgbbKey: document.getElementById('set-imgbb-key'),
   themePresetsGrid: document.getElementById('theme-presets-grid'),
@@ -131,12 +130,30 @@ function initAdmin() {
   setupSettingsForm();
 }
 
+function updateAdminThemeToggleIcons() {
+  const mode = Store.getThemeMode();
+  const darkIcon = document.getElementById('theme-icon-dark');
+  const lightIcon = document.getElementById('theme-icon-light');
+  if (darkIcon && lightIcon) {
+    if (mode === 'light') {
+      darkIcon.style.display = 'none';
+      lightIcon.style.display = 'block';
+    } else {
+      darkIcon.style.display = 'block';
+      lightIcon.style.display = 'none';
+    }
+  }
+}
+
 function setupAdminThemeToggle() {
-  if (adminElements.adminThemeToggleBtn) {
-    adminElements.adminThemeToggleBtn.addEventListener('click', () => {
+  updateAdminThemeToggleIcons();
+  const themeBtn = document.getElementById('theme-toggle-btn');
+  if (themeBtn) {
+    themeBtn.addEventListener('click', () => {
       const current = Store.getThemeMode();
       const next = current === 'light' ? 'dark' : 'light';
       Store.setThemeMode(next);
+      updateAdminThemeToggleIcons();
     });
   }
 }
@@ -263,13 +280,12 @@ function setupAuth() {
 
 function setupRestaurantHub() {
   const btnCopy = document.getElementById('btn-copy-restaurant-link');
-  const btnSwitch = document.getElementById('btn-switch-restaurant');
 
   if (btnCopy) {
     btnCopy.addEventListener('click', () => {
       const linkEl = document.getElementById('tenant-share-link');
       if (!linkEl) return;
-      const text = linkEl.textContent;
+      const text = linkEl.href || linkEl.textContent;
       navigator.clipboard.writeText(text);
       
       const copyText = document.getElementById('copy-store-link-text');
@@ -278,32 +294,10 @@ function setupRestaurantHub() {
       btnCopy.classList.remove('btn-ghost');
 
       setTimeout(() => {
-        if (copyText) copyText.textContent = "نسخ الرابط";
+        if (copyText) copyText.textContent = "نسخ رابط المنيو";
         btnCopy.classList.remove('btn-primary');
         btnCopy.classList.add('btn-ghost');
       }, 2500);
-    });
-  }
-
-  if (btnSwitch) {
-    btnSwitch.addEventListener('click', () => {
-      const restaurants = Store.getAllRestaurants();
-      const currentSlug = Store.getRestaurantSlug();
-
-      let promptMsg = `المطاعم المسجلة حالياً:\n` + 
-        restaurants.map((r, i) => `${i + 1}. [${r.slug}] — ${r.name}`).join('\n') + 
-        `\n\nاكتب المعرف (Slug) للمطعم الذي تريد التبديل إليه، أو اكتب اسماً إنجليزياً جديداً لإنشاء مطعم جديد:\n(مثال: omda أو burger-house)`;
-
-      const chosenSlug = prompt(promptMsg, currentSlug);
-      if (chosenSlug && chosenSlug.trim()) {
-        const clean = chosenSlug.toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
-        if (clean) {
-          Store.setRestaurantSlug(clean);
-          renderRestaurantHub();
-          loadAllDashboardData();
-          alert(`تم التبديل بنجاح إلى مطعم: ${clean}`);
-        }
-      }
     });
   }
 
@@ -330,7 +324,8 @@ function renderRestaurantHub() {
     : window.location.origin + window.location.pathname.replace('admin.html', 'index.html').replace(/\/$/, '') + `?m=${slug}`;
 
   if (shareLink) {
-    shareLink.textContent = targetUrl;
+    shareLink.textContent = targetUrl.replace(/^https?:\/\//, '');
+    shareLink.href = targetUrl;
   }
   if (previewBtn) {
     previewBtn.href = `./index.html?m=${slug}`;
@@ -356,33 +351,32 @@ function checkOnboardingSetup() {
       const banner = document.createElement('div');
       banner.id = 'onboarding-setup-banner';
       banner.style.cssText = `
-        background: linear-gradient(135deg, #7c2d12, #c2410c);
-        color: #fff;
+        background: rgba(245, 158, 11, 0.08);
+        border: 1px solid rgba(245, 158, 11, 0.25);
+        color: var(--text-main);
         padding: 16px 20px;
-        border-radius: 12px;
+        border-radius: var(--radius-md, 12px);
         margin-bottom: 20px;
         display: flex;
         align-items: flex-start;
         gap: 14px;
         font-size: 0.88rem;
         line-height: 1.6;
-        box-shadow: 0 4px 20px rgba(194,65,12,0.4);
       `;
       banner.innerHTML = `
-        <svg style="width:28px;height:28px;flex-shrink:0;margin-top:2px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg style="width:26px;height:26px;flex-shrink:0;color:#f59e0b;margin-top:2px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
         </svg>
         <div>
-          <div style="font-weight:900; font-size:1rem; margin-bottom:6px;">⚠️ إعداد المطعم غير مكتمل — لا تشارك الرابط بعد!</div>
-          <div>يجب إكمال الإعدادات الأساسية قبل مشاركة رابط المنيو مع العملاء:</div>
-          <ul style="margin:8px 0 0 0; padding-right:18px;">
+          <div style="font-weight:900; font-size:0.95rem; color:#f59e0b; margin-bottom:4px;">إعداد المطعم في انتظار الاستكمال</div>
+          <div style="font-size:0.84rem; color:var(--text-muted);">يرجى ضبط اسم المطعم ورقم الواتساب لاستقبال طلبات الزبائن مباشرة:</div>
+          <ul style="margin:6px 0 0 0; padding-right:18px; font-size:0.82rem; color:var(--text-main);">
             ${!settings.storeName ? '<li>اسم المطعم مطلوب</li>' : ''}
             ${!settings.whatsappNumber ? '<li>رقم واتساب استقبال الطلبات مطلوب</li>' : ''}
           </ul>
           <div style="margin-top:10px;">
-            <button onclick="document.querySelector('[data-tab=tab-settings]').click(); this.closest('#onboarding-setup-banner').style.display='none';"
-              style="background:rgba(255,255,255,0.2); color:#fff; border:1px solid rgba(255,255,255,0.4); padding:7px 16px; border-radius:8px; cursor:pointer; font-weight:800; font-size:0.85rem;">
-              اذهب إلى الإعدادات الآن ←
+            <button onclick="document.querySelector('[data-tab=tab-settings]').click();" class="btn btn-primary btn-sm" style="font-weight:800; padding:6px 14px; font-size:0.82rem;">
+              استكمال الإعدادات الآن ←
             </button>
           </div>
         </div>
@@ -722,7 +716,18 @@ function renderCatalog() {
   const currency = Store.getSettings().currency || "ج.م";
 
   if (prods.length === 0) {
-    adminElements.catalogContainer.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:30px; color:var(--text-muted);">لا توجد منتجات مسجلة. أضف أول صنف الآن!</div>`;
+    adminElements.catalogContainer.innerHTML = `
+      <div style="grid-column:1/-1; text-align:center; padding:45px 20px; background:var(--surface); border:1px dashed var(--border-strong); border-radius:var(--radius-md);">
+        <div style="font-size:38px; margin-bottom:12px;">🍽️</div>
+        <div style="font-size:16px; font-weight:800; color:var(--text-main); margin-bottom:6px;">لا توجد أصناف في المنيو بعد</div>
+        <div style="font-size:12.5px; color:var(--text-muted); margin-bottom:20px; max-width:320px; margin-left:auto; margin-right:auto;">
+          ابدأ بإضافة أول صنف أو وجبة في منيو مطعمك وحدد السعر والصورة والأقسام بسهولة
+        </div>
+        <button type="button" class="btn btn-primary" onclick="openProductModal(null)" style="padding:10px 22px; font-weight:800; font-size:0.9rem;">
+          + إضافة أول صنف الآن
+        </button>
+      </div>
+    `;
     return;
   }
 
@@ -1221,7 +1226,6 @@ function loadSettingsIntoForm() {
   if (adminElements.setWhatsapp) adminElements.setWhatsapp.value = s.whatsappNumber || '';
   if (adminElements.setWalletNumber) adminElements.setWalletNumber.value = s.walletNumber || '';
   if (adminElements.setWalletName) adminElements.setWalletName.value = s.walletName || '';
-  if (adminElements.setAdminPin) adminElements.setAdminPin.value = s.adminPin || '1234';
   
   const logoInput = document.getElementById('set-logo-url');
   if (logoInput) logoInput.value = s.logo || '';
@@ -1285,12 +1289,6 @@ function saveSettingsFromForm() {
   const current = Store.getSettings();
 
   // Validate critical fields before saving
-  const newPin = (adminElements.setAdminPin?.value || '').trim();
-  if (newPin && (newPin.length < 4 || !/^\d+$/.test(newPin))) {
-    alert('رمز المرور يجب أن يكون 4 أرقام على الأقل ويحتوي على أرقام فقط.');
-    adminElements.setAdminPin?.focus();
-    return;
-  }
   const newWhatsApp = (adminElements.setWhatsapp?.value || '').replace(/\D/g, '');
   if (newWhatsApp && newWhatsApp.length < 10) {
     alert('رقم الواتساب غير صحيح — يجب أن يكون على الأقل 10 أرقام (مثال: 201012345678).');
@@ -1311,7 +1309,6 @@ function saveSettingsFromForm() {
     whatsappNumber: (adminElements.setWhatsapp.value || '').trim(),
     walletNumber: (adminElements.setWalletNumber.value || '').trim(),
     walletName: (adminElements.setWalletName.value || '').trim(),
-    adminPin: (adminElements.setAdminPin?.value || '').trim() || current.adminPin || '1234',
     logo: (document.getElementById('set-logo-url')?.value || '').trim(),
     cover: (document.getElementById('set-cover-url')?.value || '').trim(),
 

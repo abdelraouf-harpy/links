@@ -194,7 +194,9 @@ const Store = {
     if (auth) {
       try {
         const userCred = await auth.signInWithEmailAndPassword(cleanEmail, cleanPassword);
-        sessionStorage.setItem(`harpy_auth_${slug}`, JSON.stringify({ email: cleanEmail, uid: userCred.user.uid, authenticated: true, timestamp: Date.now() }));
+        const session = { email: cleanEmail, uid: userCred.user.uid, authenticated: true, slug, timestamp: Date.now() };
+        localStorage.setItem(`harpy_admin_auth_${slug}`, JSON.stringify(session));
+        sessionStorage.setItem(`harpy_auth_${slug}`, JSON.stringify(session));
         return userCred;
       } catch (authErr) {
         console.warn("Firebase Auth attempt:", authErr.code || authErr.message);
@@ -218,6 +220,7 @@ const Store = {
                 await db.ref(`restaurants/${slug}/meta/adminPassword`).set(cleanPassword);
               }
               const session = { email: cleanEmail, authenticated: true, slug, timestamp: Date.now() };
+              localStorage.setItem(`harpy_admin_auth_${slug}`, JSON.stringify(session));
               sessionStorage.setItem(`harpy_auth_${slug}`, JSON.stringify(session));
               return session;
             }
@@ -233,6 +236,7 @@ const Store = {
 
   async logoutAdmin() {
     const slug = this.getRestaurantSlug();
+    localStorage.removeItem(`harpy_admin_auth_${slug}`);
     sessionStorage.removeItem(`harpy_auth_${slug}`);
     if (auth) {
       try { await auth.signOut(); } catch(e) {}
@@ -241,6 +245,13 @@ const Store = {
 
   isAdminAuthenticated(slug) {
     const activeSlug = slug || this.getRestaurantSlug();
+    const localSession = localStorage.getItem(`harpy_admin_auth_${activeSlug}`);
+    if (localSession) {
+      try {
+        const session = JSON.parse(localSession);
+        if (session && session.authenticated !== false) return true;
+      } catch(e) {}
+    }
     const sessionStr = sessionStorage.getItem(`harpy_auth_${activeSlug}`);
     if (sessionStr) {
       try {
