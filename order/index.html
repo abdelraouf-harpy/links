@@ -414,10 +414,17 @@
           <span class="ledger-summary-val font-num" id="cart-total-price">0 <span>ج.م</span></span>
         </div>
       </div>
-      <button class="btn-send-whatsapp" id="btn-send-whatsapp">
-        <svg class="icon" style="width:1.4em; height:1.4em;" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-        إرسال الطلب عبر الواتساب
-      </button>
+
+      <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
+        <button type="button" class="btn-confirm-order-direct" id="btn-confirm-order-direct" style="background:linear-gradient(135deg, var(--primary), #c2410c); color:#fff; width:100%; padding:14px; border-radius:var(--radius-sm, 10px); border:none; font-size:0.95rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 16px rgba(234,88,12,0.35); transition:transform 0.15s ease;">
+          <svg class="icon" style="width:1.2em; height:1.2em;" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>تأكيد وإرسال الطلب مباشرة ⚡</span>
+        </button>
+        <button type="button" class="btn-send-whatsapp" id="btn-send-whatsapp" style="background:transparent; border:1px solid rgba(37,211,102,0.4); color:var(--accent-wa); padding:8px; font-size:0.82rem; font-weight:700; width:100%; border-radius:var(--radius-sm, 10px); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+          <svg class="icon" style="width:1.1em; height:1.1em;" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          أو تأكيد ومحادثة عبر الواتساب
+        </button>
+      </div>
     </div>
   </aside>
 
@@ -555,6 +562,104 @@
         <svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         إضافة إلى السلة
       </button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       LIVE ORDER TRACKING MODAL (Real-time KDS Status Stepper)
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="modal-backdrop" id="tracker-modal-backdrop"></div>
+  <div class="tracker-modal" id="tracker-modal">
+    <div class="tracker-card">
+      <div class="tracker-header">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="pulse-live-dot"></span>
+            <span style="font-size:12px; font-weight:800; color:var(--primary); text-transform:uppercase;">متابعة حالة الطلب مباشرة</span>
+          </div>
+          <button class="btn-close" id="btn-close-tracker" style="background:var(--surface-raised); border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; color:var(--text-main); font-size:14px; display:flex; align-items:center; justify-content:center;">✕</button>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:12px;">
+          <div>
+            <div style="font-size:11.5px; color:var(--text-muted);">رقم الطلب:</div>
+            <div class="font-num" id="track-order-id" style="font-size:1.3rem; font-weight:900; color:var(--text-main);">#ORD-0000</div>
+          </div>
+          <div class="tracker-eta-pill">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span id="track-order-eta">30-45 دقيقة</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Stepper Flow -->
+      <div class="tracker-stepper">
+        <div class="step-node active" id="step-node-pending">
+          <div class="step-icon-wrap">
+            <span class="step-num">1</span>
+          </div>
+          <div class="step-text-wrap">
+            <div class="step-title">تم استلام الطلب بنجاح</div>
+            <div class="step-desc">تم إرسال الطلب وإخطار كاشير المطعم فوراً</div>
+          </div>
+        </div>
+
+        <div class="step-line" id="step-line-1"></div>
+
+        <div class="step-node" id="step-node-preparing">
+          <div class="step-icon-wrap">
+            <span class="step-icon">👨‍🍳</span>
+          </div>
+          <div class="step-text-wrap">
+            <div class="step-title">المطبخ يجهز طلبك الآن</div>
+            <div class="step-desc">يتم طهي وتغليف الوجبات الطازجة لك</div>
+          </div>
+        </div>
+
+        <div class="step-line" id="step-line-2"></div>
+
+        <div class="step-node" id="step-node-out_for_delivery">
+          <div class="step-icon-wrap">
+            <span class="step-icon">🛵</span>
+          </div>
+          <div class="step-text-wrap">
+            <div class="step-title">الطلب في الطريق إليك</div>
+            <div class="step-desc">الكابتن في طريقه لتسليم الطلب لعنوانك</div>
+          </div>
+        </div>
+
+        <div class="step-line" id="step-line-3"></div>
+
+        <div class="step-node" id="step-node-delivered">
+          <div class="step-icon-wrap">
+            <span class="step-icon">✅</span>
+          </div>
+          <div class="step-text-wrap">
+            <div class="step-title">تم التسليم بالهناء والشفاء!</div>
+            <div class="step-desc">شكراً لطلبك من مطعمنا ونرجو لك وجبة شهية</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Items Mini Breakdown -->
+      <div class="tracker-items-summary" id="tracker-items-summary">
+        <div class="tracker-summary-head">ملخص الأصناف:</div>
+        <div id="tracker-items-list" class="tracker-items-list"></div>
+        <div class="tracker-total-row">
+          <span>المبلغ المطلوب:</span>
+          <span class="font-num" id="track-order-total" style="font-weight:900; color:var(--primary); font-size:1.1rem;">0 ج.م</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="tracker-actions">
+        <a href="#" target="_blank" id="btn-tracker-whatsapp" class="btn btn-ghost" style="flex:1; border:1px solid var(--accent-wa); color:var(--accent-wa); font-weight:700; text-align:center; padding:10px; font-size:0.86rem; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:6px;">
+          <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          محادثة المطعم
+        </a>
+        <button id="btn-tracker-new-order" class="btn btn-primary" style="flex:1; padding:10px; font-weight:800; font-size:0.86rem;">
+          الرجوع للمنيو 🍽️
+        </button>
+      </div>
     </div>
   </div>
 

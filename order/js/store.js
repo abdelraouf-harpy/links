@@ -300,6 +300,24 @@ const Store = {
     }
   },
 
+  subscribeToOrder(slug, orderId, onUpdate) {
+    if (!db || !slug || !orderId) return () => {};
+    try {
+      const cleanId = orderId.replace(/[^a-zA-Z0-9_-]/g, '');
+      const orderRef = db.ref(`restaurants/${slug}/orders/${cleanId}`);
+      orderRef.on('value', snap => {
+        const data = snap.val();
+        if (data && typeof onUpdate === 'function') {
+          onUpdate(data);
+        }
+      });
+      return () => orderRef.off();
+    } catch (err) {
+      console.warn("Subscribe to order error:", err);
+      return () => {};
+    }
+  },
+
   async initTenantMeta(slug, userUid) {
     if (!db || !slug || !userUid) return false;
     try {

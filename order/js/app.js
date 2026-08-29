@@ -248,7 +248,19 @@ const elements = {
   btnRemoveReceipt: document.getElementById('btn-remove-receipt'),
   receiptStatus: document.getElementById('receipt-status'),
   btnBackToStep2: document.getElementById('btn-back-to-step2'),
+  btnConfirmOrderDirect: document.getElementById('btn-confirm-order-direct'),
   btnSendWhatsApp: document.getElementById('btn-send-whatsapp'),
+
+  // Live Order Tracker Modal
+  trackerModal: document.getElementById('tracker-modal'),
+  trackerModalBackdrop: document.getElementById('tracker-modal-backdrop'),
+  btnCloseTracker: document.getElementById('btn-close-tracker'),
+  btnTrackerNewOrder: document.getElementById('btn-tracker-new-order'),
+  btnTrackerWhatsapp: document.getElementById('btn-tracker-whatsapp'),
+  trackOrderId: document.getElementById('track-order-id'),
+  trackOrderEta: document.getElementById('track-order-eta'),
+  trackOrderTotal: document.getElementById('track-order-total'),
+  trackerItemsList: document.getElementById('tracker-items-list'),
 
   // Stories Modal
   storyModalBackdrop: document.getElementById('story-modal-backdrop'),
@@ -1630,7 +1642,6 @@ function setupEventListeners() {
         elements.receiptStatus.className = "upload-status-chip loading";
         elements.receiptStatus.style.display = "inline-block";
       }
-      elements.btnSendWhatsApp.disabled = true;
 
       try {
         uploadedReceiptUrl = await Store.uploadImage(file);
@@ -1638,14 +1649,11 @@ function setupEventListeners() {
           elements.receiptStatus.textContent = "تم تجهيز الإيصال بنجاح ✓";
           elements.receiptStatus.className = "upload-status-chip success";
         }
-        SoundFX.playChime();
       } catch (err) {
         if (elements.receiptStatus) {
-          elements.receiptStatus.textContent = "سيتم إرسال الطلب، ويمكنك إرفاق الصورة بالواتساب";
-          elements.receiptStatus.className = "upload-status-chip";
+          elements.receiptStatus.textContent = "تعذر الرفع، سيتم الإرسال لاحقاً";
+          elements.receiptStatus.className = "upload-status-chip error";
         }
-      } finally {
-        elements.btnSendWhatsApp.disabled = false;
       }
     });
   }
@@ -1663,8 +1671,22 @@ function setupEventListeners() {
     });
   }
 
+  if (elements.btnConfirmOrderDirect) {
+    elements.btnConfirmOrderDirect.addEventListener('click', () => handleDirectOrderSubmit(false));
+  }
+
   if (elements.btnSendWhatsApp) {
-    elements.btnSendWhatsApp.addEventListener('click', handleWhatsAppOrder);
+    elements.btnSendWhatsApp.addEventListener('click', () => handleDirectOrderSubmit(true));
+  }
+
+  if (elements.btnCloseTracker) {
+    elements.btnCloseTracker.addEventListener('click', closeLiveOrderTracker);
+  }
+  if (elements.btnTrackerNewOrder) {
+    elements.btnTrackerNewOrder.addEventListener('click', closeLiveOrderTracker);
+  }
+  if (elements.trackerModalBackdrop) {
+    elements.trackerModalBackdrop.addEventListener('click', closeLiveOrderTracker);
   }
 
   window.addEventListener('store_settings_updated', () => {
@@ -1730,34 +1752,35 @@ function setupSubscriptionWatcher() {
   });
 }
 
-// ── WhatsApp Order & Digital Boarding Pass Ticket ──────────
-function handleWhatsAppOrder() {
+// ── Direct In-App Ordering & Live Tracker Engine ────────────
+let activeTrackerUnsubscribe = null;
+
+function handleDirectOrderSubmit(openWhatsApp = false) {
   const cart = Store.getCart();
   if (cart.length === 0) {
     alert("السلة فارغة، أضف بعض المنتجات أولاً");
     return;
   }
 
-  const name = (elements.custName.value || '').trim();
-  const phone = (elements.custPhone.value || '').trim();
-  const address = (elements.custAddress.value || '').trim();
-  const notes = (elements.custNotes.value || '').trim();
+  const name = (elements.custName?.value || '').trim();
+  const phone = (elements.custPhone?.value || '').trim();
+  const address = (elements.custAddress?.value || '').trim();
+  const notes = (elements.custNotes?.value || '').trim();
 
   if (!name || !phone || !address) {
-    alert("يرجى استكمال بيانات التوصيل");
+    alert("يرجى استكمال بيانات التوصيل (الاسم، الهاتف، العنوان)");
     goToCheckoutStep(2);
     return;
   }
 
-  if (selectedPaymentMethod === 'wallet' && !uploadedReceiptUrl) {
-    const confirmSend = confirm("لم تقم بإرفاق سكرين التحويل. هل تود فتح الواتساب وإرسال السكرين مباشرة للمطعم؟");
-    if (!confirmSend) return;
-  }
-
   const settings = Store.getSettings();
   const currency = settings.currency || "ج.م";
-  
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+  if (settings.minOrder > 0 && subtotal < settings.minOrder) {
+    alert(`الحد الأدنى للطلب هو ${settings.minOrder} ${currency}`);
+    return;
+  }
 
   let spendTierDiscountAmount = 0;
   if (settings.enableSpendTierDiscount && settings.spendTierMinAmount > 0 && subtotal >= settings.spendTierMinAmount) {
@@ -1772,7 +1795,6 @@ function handleWhatsAppOrder() {
   }
 
   const subtotalAfterBase = Math.max(0, subtotal - spendTierDiscountAmount - couponDiscountAmount);
-
   const isWallet = selectedPaymentMethod === 'wallet';
   let walletDiscountAmount = 0;
   if (isWallet && settings.enableWalletDiscount !== false && subtotalAfterBase > 0) {
@@ -1781,11 +1803,15 @@ function handleWhatsAppOrder() {
     walletDiscountAmount = isPercent ? (subtotalAfterBase * (val / 100)) : val;
   }
 
+  const totalDiscounts = spendTierDiscountAmount + couponDiscountAmount + walletDiscountAmount;
+  const finalTotal = Math.max(0, subtotal - totalDiscounts);
+  const orderId = `#ORD-${Math.floor(1000 + Math.random() * 9000)}`;
+
   const orderData = {
     orderId,
     items: cart,
     customer: { name, phone, address, notes },
-    subtotal: subtotal,
+    subtotal,
     discounts: {
       spendTier: spendTierDiscountAmount,
       promo: couponDiscountAmount,
@@ -1800,84 +1826,14 @@ function handleWhatsAppOrder() {
     timestamp: Date.now()
   };
 
-  Store.saveLastOrder(orderData);
+  // 1. Push to Cloud (Firebase Realtime DB)
   Store.pushOrderToCloud(orderData);
 
-  const itemsText = cart.map(item => {
-    let line = `• ${item.qty}x ${item.name}`;
-    if (item.selectedSize) line += ` [${item.selectedSize.name}]`;
-    if (item.selectedAddons && item.selectedAddons.length > 0) {
-      line += ` (+ ${item.selectedAddons.map(a => a.name).join(', ')})`;
-    }
-    if (item.notes) line += ` (ملاحظة: ${item.notes})`;
-    line += ` = ${(item.price * item.qty).toFixed(2)} ${currency}`;
-    return line;
-  }).join('\n');
+  // 2. Save locally for recall
+  Store.saveLastOrder(orderData);
 
-  const paymentText = isWallet 
-    ? `تحويل محفظة إلكترونية (${settings.walletName || 'كاش'})`
-    : `دفع نقدي عند الاستلام (COD)`;
-
-  let message = `*طلب دليفري جديد من موقع ${settings.storeName}*\n`;
-  message += `━━━━━━━━━━━━━━━━━━━\n`;
-  message += `🔖 *رقم الطلب:* ${orderId}\n`;
-  message += `👤 *العميل:* ${name}\n`;
-  message += `📞 *الهاتف:* ${phone}\n`;
-  message += `📍 *عنوان التوصيل:* ${address}\n`;
-  if (notes) {
-    message += `📝 *ملاحظات:* ${notes}\n`;
-  }
-  message += `━━━━━━━━━━━━━━━━━━━\n`;
-  message += `🛒 *تفاصيل الأصناف والخيارات:*\n${itemsText}\n`;
-  message += `━━━━━━━━━━━━━━━━━━━\n`;
-  
-  if (totalDiscounts > 0) {
-    message += `💵 *إجمالي الأصناف:* ${subtotal.toFixed(2)} ${currency}\n`;
-    if (spendTierDiscountAmount > 0) {
-      message += `🎁 *خصم طلب مميز (> ${settings.spendTierMinAmount} ${currency}):* -${spendTierDiscountAmount.toFixed(2)} ${currency}\n`;
-    }
-    if (couponDiscountAmount > 0 && appliedCoupon) {
-      message += `🏷️ *كوبون خصم (${appliedCoupon.code}):* -${couponDiscountAmount.toFixed(2)} ${currency}\n`;
-    }
-    if (walletDiscountAmount > 0) {
-      message += `⚡ *خصم الدفع الإلكتروني:* -${walletDiscountAmount.toFixed(2)} ${currency}\n`;
-    }
-    message += `💰 *المبلغ النهائي المطلوب:* ${finalTotal.toFixed(2)} ${currency}\n`;
-  } else {
-    message += `💰 *المبلغ المطلوب:* ${finalTotal.toFixed(2)} ${currency}\n`;
-  }
-
-  message += `💳 *طريقة الدفع:* ${paymentText}\n`;
-
-  if (isWallet && uploadedReceiptUrl) {
-    message += `📸 *رابط سكرين التحويل:* ${uploadedReceiptUrl}\n`;
-  }
-  message += `━━━━━━━━━━━━━━━━━━━\n`;
-  message += `تم إرسال الطلب بنجاح.`;
-
-  const cleanWhatsApp = (settings.whatsappNumber || '').replace(/\D/g, '');
-  if (!cleanWhatsApp) {
-    alert("لم يتم إعداد رقم الواتساب بعد. تواصل مع المطعم مباشرة.");
-    return;
-  }
-
-  const encodedUrl = `https://wa.me/${cleanWhatsApp}?text=${encodeURIComponent(message)}`;
-
-  // Double-submit protection
-  if (elements.btnSendWhatsApp) {
-    elements.btnSendWhatsApp.disabled = true;
-    elements.btnSendWhatsApp.textContent = '...جاري الفتح';
-    setTimeout(() => {
-      if (elements.btnSendWhatsApp) {
-        elements.btnSendWhatsApp.disabled = false;
-        elements.btnSendWhatsApp.textContent = 'أرسل طلبك الآن عبر الواتساب';
-      }
-    }, 5000);
-  }
-
+  // 3. Audio & Cart Reset
   SoundFX.playCash();
-  window.open(encodedUrl, '_blank');
-
   Store.clearCart();
   closeCartDrawer();
   goToCheckoutStep(1);
@@ -1885,13 +1841,145 @@ function handleWhatsAppOrder() {
   renderProducts();
   renderLastOrderRecall();
 
-  elements.custName.value = '';
-  elements.custPhone.value = '';
-  elements.custAddress.value = '';
-  elements.custNotes.value = '';
-  if (elements.receiptPreview) elements.receiptPreview.style.display = 'none';
-  if (elements.receiptStatus) elements.receiptStatus.style.display = 'none';
-  uploadedReceiptUrl = null;
+  // 4. Open WhatsApp if requested
+  if (openWhatsApp) {
+    const itemsText = cart.map(item => {
+      let line = `• ${item.qty}x ${item.name}`;
+      if (item.selectedSize) line += ` [${item.selectedSize.name}]`;
+      if (item.selectedAddons && item.selectedAddons.length > 0) {
+        line += ` (+ ${item.selectedAddons.map(a => a.name).join(', ')})`;
+      }
+      if (item.notes) line += ` (ملاحظة: ${item.notes})`;
+      line += ` = ${(item.price * item.qty).toFixed(2)} ${currency}`;
+      return line;
+    }).join('\n');
+
+    const paymentText = isWallet 
+      ? `تحويل محفظة إلكترونية (${settings.walletName || 'كاش'})`
+      : `دفع نقدي عند الاستلام (COD)`;
+
+    let message = `*طلب دليفري جديد من موقع ${settings.storeName}*\n`;
+    message += `━━━━━━━━━━━━━━━━━━━\n`;
+    message += `🔖 *رقم الطلب:* ${orderId}\n`;
+    message += `👤 *العميل:* ${name}\n`;
+    message += `📞 *الهاتف:* ${phone}\n`;
+    message += `📍 *عنوان التوصيل:* ${address}\n`;
+    if (notes) message += `📝 *ملاحظات:* ${notes}\n`;
+    message += `━━━━━━━━━━━━━━━━━━━\n`;
+    message += `🛒 *تفاصيل الأصناف:*\n${itemsText}\n`;
+    message += `━━━━━━━━━━━━━━━━━━━\n`;
+    message += `💰 *المبلغ الإجمالي المطلوب:* ${finalTotal.toFixed(2)} ${currency}\n`;
+    message += `💳 *طريقة الدفع:* ${paymentText}\n`;
+    if (isWallet && uploadedReceiptUrl) {
+      message += `📸 *رابط سكرين التحويل:* ${uploadedReceiptUrl}\n`;
+    }
+
+    const cleanWhatsApp = (settings.whatsappNumber || '').replace(/\D/g, '');
+    if (cleanWhatsApp) {
+      const encodedUrl = `https://wa.me/${cleanWhatsApp}?text=${encodeURIComponent(message)}`;
+      window.open(encodedUrl, '_blank');
+    }
+  }
+
+  // 5. Immediately open the Live Order Tracker Screen
+  openLiveOrderTracker(orderId, orderData);
+}
+
+function openLiveOrderTracker(orderId, initialData = null) {
+  const slug = Store.getRestaurantSlug();
+  const settings = Store.getSettings();
+  const currency = settings.currency || "ج.م";
+
+  if (elements.trackOrderId) elements.trackOrderId.textContent = orderId;
+  if (elements.trackOrderEta) elements.trackOrderEta.textContent = settings.deliveryTime || "30-45 دقيقة";
+
+  if (elements.btnTrackerWhatsapp) {
+    const cleanWa = (settings.whatsappNumber || '').replace(/\D/g, '');
+    elements.btnTrackerWhatsapp.href = `https://wa.me/${cleanWa}?text=${encodeURIComponent(`مرحباً، أستفسر عن طلبي رقم ${orderId}`)}`;
+  }
+
+  if (initialData) {
+    renderTrackerOrderData(initialData, currency);
+  }
+
+  if (elements.trackerModal) elements.trackerModal.classList.add('open');
+  if (elements.trackerModalBackdrop) elements.trackerModalBackdrop.classList.add('open');
+
+  // Real-time listener for order status changes from restaurant admin
+  if (activeTrackerUnsubscribe) activeTrackerUnsubscribe();
+  activeTrackerUnsubscribe = Store.subscribeToOrder(slug, orderId, (updatedOrder) => {
+    if (updatedOrder) {
+      renderTrackerOrderData(updatedOrder, currency);
+      updateTrackerStepper(updatedOrder.status);
+    }
+  });
+
+  updateTrackerStepper(initialData?.status || 'pending');
+}
+
+function renderTrackerOrderData(order, currency) {
+  if (elements.trackOrderTotal) {
+    elements.trackOrderTotal.textContent = `${(parseFloat(order.finalTotal) || 0).toFixed(2)} ${currency}`;
+  }
+
+  if (elements.trackerItemsList && order.items) {
+    elements.trackerItemsList.innerHTML = order.items.map(it => `
+      <div style="display:flex; justify-content:space-between; font-size:11.5px; padding:2px 0;">
+        <span><b style="color:var(--primary);">${it.qty}x</b> ${it.name} ${it.selectedSize ? `[${it.selectedSize.name}]` : ''}</span>
+        <span class="font-num" style="font-weight:700;">${((it.price || 0) * it.qty).toFixed(2)} ${currency}</span>
+      </div>
+    `).join('');
+  }
+}
+
+function updateTrackerStepper(status = 'pending') {
+  const nodePending = document.getElementById('step-node-pending');
+  const nodePrep = document.getElementById('step-node-preparing');
+  const nodeDelivery = document.getElementById('step-node-out_for_delivery');
+  const nodeDelivered = document.getElementById('step-node-delivered');
+
+  const line1 = document.getElementById('step-line-1');
+  const line2 = document.getElementById('step-line-2');
+  const line3 = document.getElementById('step-line-3');
+
+  // Reset classes
+  [nodePending, nodePrep, nodeDelivery, nodeDelivered].forEach(n => {
+    if (n) { n.classList.remove('active', 'completed'); }
+  });
+  [line1, line2, line3].forEach(l => {
+    if (l) { l.classList.remove('active'); }
+  });
+
+  if (status === 'pending') {
+    if (nodePending) nodePending.classList.add('active');
+  } else if (status === 'preparing') {
+    if (nodePending) { nodePending.classList.add('completed'); }
+    if (line1) line1.classList.add('active');
+    if (nodePrep) nodePrep.classList.add('active');
+  } else if (status === 'out_for_delivery') {
+    if (nodePending) nodePending.classList.add('completed');
+    if (nodePrep) nodePrep.classList.add('completed');
+    if (line1) line1.classList.add('active');
+    if (line2) line2.classList.add('active');
+    if (nodeDelivery) nodeDelivery.classList.add('active');
+  } else if (status === 'delivered') {
+    if (nodePending) nodePending.classList.add('completed');
+    if (nodePrep) nodePrep.classList.add('completed');
+    if (nodeDelivery) nodeDelivery.classList.add('completed');
+    if (nodeDelivered) nodeDelivered.classList.add('completed', 'active');
+    if (line1) line1.classList.add('active');
+    if (line2) line2.classList.add('active');
+    if (line3) line3.classList.add('active');
+  }
+}
+
+function closeLiveOrderTracker() {
+  if (elements.trackerModal) elements.trackerModal.classList.remove('open');
+  if (elements.trackerModalBackdrop) elements.trackerModalBackdrop.classList.remove('open');
+  if (activeTrackerUnsubscribe) {
+    activeTrackerUnsubscribe();
+    activeTrackerUnsubscribe = null;
+  }
 }
 
 document.addEventListener('DOMContentLoaded', initApp);
