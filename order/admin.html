@@ -51,14 +51,14 @@
     <h2 style="font-size:1.15rem; font-weight:900; margin-bottom:6px; color:var(--text-main);">تسجيل دخول الإدارة السحابية</h2>
     <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:16px; line-height:1.5;">سجل الدخول بحساب إدارة هذا المطعم للوصول للوحة التحكم</p>
     
-    <form id="admin-login-form" onsubmit="return false;" style="text-align:right;">
+    <form id="admin-login-form" autocomplete="off" onsubmit="return false;" style="text-align:right;">
       <div class="form-group" style="margin-bottom:12px;">
         <label class="form-label" style="font-size:11px; margin-bottom:4px;">البريد الإلكتروني للإدارة</label>
-        <input type="email" id="admin-email-input" class="form-input" placeholder="admin@example.com" required dir="ltr" style="text-align:left;">
+        <input type="email" id="admin-email-input" class="form-input" placeholder="admin@example.com" autocomplete="off" required dir="ltr" style="text-align:left;">
       </div>
       <div class="form-group" style="margin-bottom:14px;">
         <label class="form-label" style="font-size:11px; margin-bottom:4px;">كلمة المرور</label>
-        <input type="password" id="admin-password-input" class="form-input font-num" placeholder="••••••••" required>
+        <input type="password" id="admin-password-input" class="form-input font-num" placeholder="••••••••" autocomplete="new-password" required>
       </div>
       <div id="login-error-msg" style="display:none; color:var(--danger); font-size:0.82rem; margin-bottom:12px; font-weight:700; text-align:center; background:rgba(239,68,68,0.1); padding:8px; border-radius:6px;"></div>
       <button type="submit" id="btn-login" class="btn btn-primary" style="width:100%; padding:12px; font-size:0.95rem; font-weight:800;">
