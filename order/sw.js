@@ -1,5 +1,5 @@
-// HarpyOrder Service Worker — Offline & Instant Cache Engine
-const CACHE_NAME = 'harpy-order-v3.0';
+// HarpyOrder Service Worker — Dynamic Fast-Update & Offline Engine
+const CACHE_NAME = 'harpy-order-v4.2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -12,10 +12,11 @@ const ASSETS_TO_CACHE = [
 ];
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS_TO_CACHE);
-    }).then(() => self.skipWaiting())
+    })
   );
 });
 
@@ -36,22 +37,23 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   
+  // Network-First strategy: Always fetch latest version from server, fall back to cache only if offline
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        // Return cached and update in background
-        fetch(event.request).then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse));
-          }
-        }).catch(() => {});
-        return cachedResponse;
-      }
-      return fetch(event.request).catch(() => {
-        if (event.request.headers.get('accept').includes('text/html')) {
-          return caches.match('./index.html');
+    fetch(event.request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const responseClone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
         }
-      });
-    })
+        return networkResponse;
+      })
+      .catch(() => {
+        return caches.match(event.request).then((cachedResponse) => {
+          if (cachedResponse) return cachedResponse;
+          if (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html')) {
+            return caches.match('./index.html');
+          }
+        });
+      })
   );
 });

@@ -106,13 +106,11 @@ const adminElements = {
   setSpendDiscountVal: document.getElementById('set-spend-discount-val'),
   newPromoCode: document.getElementById('new-promo-code'),
   newPromoType: document.getElementById('new-promo-type'),
-  newPromoVal: document.getElementById('new-promo-val'),
   btnAddPromoCode: document.getElementById('btn-add-promo-code'),
   promoCodesList: document.getElementById('promo-codes-list'),
   adminThemeToggleBtn: document.getElementById('admin-theme-toggle-btn'),
-  // New settings fields
+  // Operational settings
   setDeliveryTime: document.getElementById('set-delivery-time'),
-  setMinOrder: document.getElementById('set-min-order'),
   setShowAnnouncement: document.getElementById('set-show-announcement'),
   setAnnouncementText: document.getElementById('set-announcement-text')
 };
@@ -956,12 +954,31 @@ function setupCategoryManagement() {
 function renderCategoriesList() {
   if (!adminElements.categoriesListContainer) return;
   const cats = Store.getCategories();
-  adminElements.categoriesListContainer.innerHTML = cats.map(cat => `
-    <div style="display:flex; align-items:center; gap:8px; background:var(--surface-raised); border:1px solid var(--border); padding:8px 14px; border-radius:var(--radius-sm);">
-      <span style="font-size:13px; font-weight:700; color:var(--text-main);">${cat}</span>
-      <button class="btn btn-ghost btn-sm" style="color:var(--danger); padding:2px 4px;" onclick="deleteCategoryFast('${cat}')" title="حذف">✕</button>
-    </div>
-  `).join('');
+  const prods = Store.getProducts();
+
+  if (cats.length === 0) {
+    adminElements.categoriesListContainer.innerHTML = `
+      <div style="grid-column:1/-1; text-align:center; padding:30px; color:var(--text-muted);">
+        لا توجد أقسام مسجلة بعد. أضف أول قسم في الأعلى!
+      </div>
+    `;
+    return;
+  }
+
+  adminElements.categoriesListContainer.innerHTML = cats.map(cat => {
+    const count = prods.filter(p => p.category === cat).length;
+    return `
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; background:var(--surface-raised); border:1px solid var(--border); padding:12px 16px; border-radius:var(--radius-sm); min-height:52px;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:14px; font-weight:800; color:var(--text-main);">${cat}</span>
+          <span style="font-size:11px; background:var(--primary-subtle); color:var(--primary); padding:2px 8px; border-radius:10px; font-weight:700;">${count} صنف</span>
+        </div>
+        <button class="btn btn-ghost btn-sm" style="color:var(--danger); padding:4px 8px; border-radius:6px;" onclick="deleteCategoryFast('${cat}')" title="حذف القسم">
+          <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+        </button>
+      </div>
+    `;
+  }).join('');
 }
 
 window.deleteCategoryFast = function(cat) {
@@ -1265,10 +1282,8 @@ function loadSettingsIntoForm() {
   if (adminElements.setSpendDiscountType) adminElements.setSpendDiscountType.value = s.spendTierDiscountType || 'percent';
   if (adminElements.setSpendDiscountVal) adminElements.setSpendDiscountVal.value = s.spendTierDiscountValue || 15;
 
-  // New fields
-  if (adminElements.setImgbbKey) adminElements.setImgbbKey.value = s.imgbbApiKey || '';
+  // Operational settings
   if (adminElements.setDeliveryTime) adminElements.setDeliveryTime.value = s.deliveryTime || '';
-  if (adminElements.setMinOrder) adminElements.setMinOrder.value = s.minOrder !== undefined ? s.minOrder : 0;
   if (adminElements.setShowAnnouncement) adminElements.setShowAnnouncement.checked = s.showAnnouncement === true;
   if (adminElements.setAnnouncementText) adminElements.setAnnouncementText.value = s.announcementText || '';
 
@@ -1320,10 +1335,8 @@ function saveSettingsFromForm() {
     logo: (document.getElementById('set-logo-url')?.value || '').trim(),
     cover: (document.getElementById('set-cover-url')?.value || '').trim(),
 
-    // ImgBB and operational settings
-    imgbbApiKey: (adminElements.setImgbbKey?.value || '').trim(),
+    // Operational settings
     deliveryTime: (adminElements.setDeliveryTime?.value || '').trim() || '30-45 دقيقة',
-    minOrder: parseFloat(adminElements.setMinOrder?.value) || 0,
     showAnnouncement: adminElements.setShowAnnouncement?.checked === true,
     announcementText: (adminElements.setAnnouncementText?.value || '').trim(),
 

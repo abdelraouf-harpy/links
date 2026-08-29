@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700;800;900&family=Cairo:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/style.css?v=4.2">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23c2410c'><circle cx='12' cy='12' r='10'/></svg>">
 </head>
 <body style="padding-bottom: 60px;">
@@ -44,8 +44,8 @@
   </header>
 
   <!-- Login Gate Modal -->
-  <div class="modal-backdrop open" id="login-modal-backdrop"></div>
-  <div class="modal-box open" id="login-modal" style="max-width:390px; text-align:center;">
+  <div class="modal-backdrop" id="login-modal-backdrop"></div>
+  <div class="modal-box" id="login-modal" style="max-width:390px; text-align:center;">
     <div class="login-icon-bubble">
       <svg class="icon icon-lg" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     </div>
@@ -194,7 +194,7 @@
           <button id="btn-add-cat" class="btn btn-primary" style="white-space:nowrap;">+ إضافة</button>
         </div>
 
-        <div id="categories-list-container" style="display:flex; flex-wrap:wrap; gap:10px;"></div>
+        <div id="categories-list-container" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:12px; align-items:stretch;"></div>
       </div>
     </div>
 
@@ -331,75 +331,75 @@
             </div>
 
             <!-- 1. Digital Wallet Discount -->
-            <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:14px; margin-bottom:12px;">
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <div style="font-weight:700; font-size:13px; color:var(--text-main);">
+            <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:16px; margin-bottom:14px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <div style="font-weight:800; font-size:13.5px; color:var(--text-main);">
                   1. خصم الدفع الإلكتروني (فودافون كاش / إنستاباي)
                 </div>
-                <input type="checkbox" id="set-enable-wallet-discount" style="width:18px; height:18px; accent-color:var(--primary); cursor:pointer;">
+                <input type="checkbox" id="set-enable-wallet-discount" style="width:20px; height:20px; accent-color:var(--primary); cursor:pointer;">
               </div>
-              <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:12px;">
                 <div class="form-group" style="margin-bottom:0;">
-                  <label class="form-label">نوع الخصم</label>
+                  <label class="form-label" style="font-size:11px;">نوع الخصم</label>
                   <select id="set-wallet-discount-type" class="form-input">
                     <option value="percent">نسبة مئوية (%)</option>
                     <option value="fixed">مبلغ ثابت (ج.م)</option>
                   </select>
                 </div>
                 <div class="form-group" style="margin-bottom:0;">
-                  <label class="form-label">قيمة الخصم</label>
+                  <label class="form-label" style="font-size:11px;">قيمة الخصم</label>
                   <input type="number" id="set-wallet-discount-val" class="form-input font-num" placeholder="10" min="0" step="1">
                 </div>
               </div>
             </div>
 
             <!-- 2. Spend Tier Discount -->
-            <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:14px; margin-bottom:12px;">
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <div style="font-weight:700; font-size:13px; color:var(--text-main);">
+            <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:16px; margin-bottom:14px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <div style="font-weight:800; font-size:13.5px; color:var(--text-main);">
                   2. خصم قيمة الطلب الإجمالية (Spend Threshold Tier)
                 </div>
-                <input type="checkbox" id="set-enable-spend-tier" style="width:18px; height:18px; accent-color:var(--primary); cursor:pointer;">
+                <input type="checkbox" id="set-enable-spend-tier" style="width:20px; height:20px; accent-color:var(--primary); cursor:pointer;">
               </div>
-              <div style="display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:12px;">
+              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:12px;">
                 <div class="form-group" style="margin-bottom:0;">
-                  <label class="form-label">الحد الأدنى لقيمة الطلب</label>
+                  <label class="form-label" style="font-size:11px;">الحد الأدنى لقيمة الطلب</label>
                   <input type="number" id="set-spend-min-amount" class="form-input font-num" placeholder="300" min="0" step="10">
                 </div>
                 <div class="form-group" style="margin-bottom:0;">
-                  <label class="form-label">نوع الخصم</label>
+                  <label class="form-label" style="font-size:11px;">نوع الخصم</label>
                   <select id="set-spend-discount-type" class="form-input">
                     <option value="percent">نسبة مئوية (%)</option>
                     <option value="fixed">مبلغ ثابت (ج.م)</option>
                   </select>
                 </div>
                 <div class="form-group" style="margin-bottom:0;">
-                  <label class="form-label">قيمة الخصم</label>
+                  <label class="form-label" style="font-size:11px;">قيمة الخصم</label>
                   <input type="number" id="set-spend-discount-val" class="form-input font-num" placeholder="15" min="0" step="1">
                 </div>
               </div>
             </div>
 
             <!-- 3. Promo Codes -->
-            <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:14px;">
-              <div style="font-weight:700; font-size:13px; color:var(--text-main); margin-bottom:8px;">
+            <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:16px;">
+              <div style="font-weight:800; font-size:13.5px; color:var(--text-main); margin-bottom:10px;">
                 3. كوبونات الخصم والبروموكود (Promo Codes)
               </div>
-              <div style="display:grid; grid-template-columns:1.2fr 1fr 1fr auto; gap:8px; margin-bottom:10px;">
-                <input type="text" id="new-promo-code" class="form-input font-num" placeholder="كود الخصم (مثال: SAVE20)">
+              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)) auto; gap:10px; margin-bottom:12px;">
+                <input type="text" id="new-promo-code" class="form-input font-num" placeholder="كود الخصم (KING10)">
                 <select id="new-promo-type" class="form-input">
                   <option value="percent">نسبة مئوية (%)</option>
                   <option value="fixed">مبلغ ثابت (ج.م)</option>
                 </select>
                 <input type="number" id="new-promo-val" class="form-input font-num" placeholder="القيمة">
-                <button type="button" id="btn-add-promo-code" class="btn btn-primary btn-sm">+ إضافة كود</button>
+                <button type="button" id="btn-add-promo-code" class="btn btn-primary btn-sm" style="white-space:nowrap; padding:0 16px;">+ إضافة كود</button>
               </div>
               <div id="promo-codes-list" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
             </div>
           </div>
 
           <!-- Brand Images (Device Uploader) -->
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:18px;">
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-bottom:18px;">
             <!-- Logo Uploader -->
             <div class="form-group" style="margin-bottom:0;">
               <label class="form-label">شعار المطعم (Logo)</label>
@@ -442,9 +442,9 @@
           </div>
 
           <!-- Contact & Payment Information -->
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
             <div class="form-group">
-              <label class="form-label">رقم الواتساب لاستقبال الطلبات (مع كود الدولة) *</label>
+              <label class="form-label">رقم الواتساب لاستقبال الطلبات *</label>
               <input type="tel" id="set-whatsapp" class="form-input font-num" placeholder="2010xxxxxxxx" required>
             </div>
             <div class="form-group">
@@ -453,52 +453,29 @@
             </div>
           </div>
 
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
             <div class="form-group">
               <label class="form-label">اسم المحفظة التوضيحي للزبائن</label>
               <input type="text" id="set-wallet-name" class="form-input" placeholder="فودافون كاش / إنستاباي">
             </div>
-            <div class="form-group">
-              <label class="form-label">حساب الإدارة السحابية</label>
-              <div style="padding:10px 14px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); font-size:0.84rem; color:var(--text-main); font-weight:700; display:flex; align-items:center; gap:6px;">
-                <span>🔒 محمي بحساب البريد وكلمة المرور المشفرة</span>
-              </div>
-            </div>
-          </div>
-
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px;">
-            <!-- ImgBB API Key -->
-            <div class="form-group">
-              <label class="form-label">مفتاح ImgBB API (لرفع صور المنتجات)</label>
-              <input type="text" id="set-imgbb-key" class="form-input font-num" placeholder="مثال: abc123...">
-              <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">احصل على مفتاحك المجاني من <a href="https://imgbb.com" target="_blank" style="color:var(--primary);">imgbb.com</a></div>
-            </div>
-            <!-- Delivery Time -->
             <div class="form-group">
               <label class="form-label">وقت التوصيل المتوقع</label>
               <input type="text" id="set-delivery-time" class="form-input" placeholder="مثال: 30-45 دقيقة">
             </div>
           </div>
 
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:8px;">
-            <!-- Min Order -->
-            <div class="form-group">
-              <label class="form-label">الحد الأدنى لقيمة الطلب (ج.م)</label>
-              <input type="number" id="set-min-order" class="form-input font-num" placeholder="0 (بدون حد أدنى)" min="0" step="5">
+          <!-- Announcement Settings -->
+          <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:16px; margin-top:8px;">
+            <div class="form-group" style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+              <input type="checkbox" id="set-show-announcement" style="width:18px; height:18px; accent-color:var(--primary); cursor:pointer;">
+              <label for="set-show-announcement" style="font-size:0.88rem; font-weight:800; color:var(--text-main); cursor:pointer;">
+                تفعيل شريط الإعلانات الترويجي أعلى صفحة المنيو
+              </label>
             </div>
-            <!-- Announcement Toggle -->
-            <div class="form-group" style="display:flex; flex-direction:column; justify-content:flex-end; padding-bottom:2px;">
-              <div style="display:flex; align-items:center; gap:10px;">
-                <input type="checkbox" id="set-show-announcement" style="width:18px; height:18px; accent-color:var(--primary); cursor:pointer;">
-                <label for="set-show-announcement" style="font-size:0.88rem; font-weight:700; color:var(--text-main); cursor:pointer;">إظهار شريط الإعلانات</label>
-              </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" style="font-size:11px;">نص الإعلان الترويجي</label>
+              <input type="text" id="set-announcement-text" class="form-input" placeholder="مثال: خصم 10% عند الدفع بفودافون كاش | التوصيل متاح لجميع المناطق">
             </div>
-          </div>
-
-          <!-- Announcement Text -->
-          <div class="form-group" style="margin-top:8px;">
-            <label class="form-label">نص شريط الإعلانات (يظهر أعلى الصفحة)</label>
-            <input type="text" id="set-announcement-text" class="form-input" placeholder="مثال: خصم 10% عند الدفع بفودافون كاش">
           </div>
 
           <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; flex-wrap:wrap; gap:12px;">
@@ -527,7 +504,7 @@
         <input type="text" id="prod-name" class="form-input" placeholder="مثال: جراند بيرجر لحم دبل" required>
       </div>
 
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px;">
         <div class="form-group">
           <label class="form-label">القسم *</label>
           <select id="prod-category" class="form-select" required></select>
@@ -538,7 +515,7 @@
         </div>
       </div>
 
-      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:12px;">
         <div class="form-group">
           <label class="form-label">السعر قبل الخصم</label>
           <input type="number" id="prod-original-price" class="form-input font-num" placeholder="مثال: 140" step="0.5">
@@ -678,7 +655,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="./js/store.js"></script>
-  <script src="./js/admin.js"></script>
+  <script src="./js/store.js?v=4.2"></script>
+  <script src="./js/admin.js?v=4.2"></script>
 </body>
 </html>

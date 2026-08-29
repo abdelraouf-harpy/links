@@ -263,6 +263,22 @@ body {
   gap: 8px;
   flex-shrink: 0;
 }
+@media (max-width: 600px) {
+  .header-wrap {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .header-actions {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .brand-text h1 {
+    font-size: 14px;
+  }
+  .brand-text p {
+    font-size: 10.5px;
+  }
+}
 
 /* ── Modern Theme Toggle & Logout Buttons ────────────────── */
 .btn-theme-toggle {
@@ -794,19 +810,19 @@ body:not([data-theme="light"]) .btn-theme-toggle .icon-sun {
 .food-item-media {
   position: relative;
   width: 100%;
-  height: 200px;
+  height: 165px;
   background: var(--surface-raised);
   overflow: hidden;
   cursor: pointer;
 }
-@media (min-width: 768px) {
+@media (min-width: 640px) {
   .food-item-media {
-    height: 220px;
+    height: 195px;
   }
 }
-@media (min-width: 1200px) {
+@media (min-width: 1024px) {
   .food-item-media {
-    height: 235px;
+    height: 225px;
   }
 }
 .food-item-img {
@@ -2753,14 +2769,21 @@ body:not([data-theme="light"]) .btn-theme-toggle .icon-sun {
   display: flex;
   flex-direction: row;
   align-items: stretch;
-  padding: 16px;
-  gap: 18px;
+  padding: 12px 14px;
+  gap: 14px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-  min-height: 140px;
+  min-height: 110px;
+}
+@media (min-width: 640px) {
+  .products-flow.view-mode-list .food-item-card {
+    padding: 16px;
+    gap: 18px;
+    min-height: 135px;
+  }
 }
 .products-flow.view-mode-list .food-item-card:hover {
   transform: translateY(-2px);
@@ -2769,14 +2792,44 @@ body:not([data-theme="light"]) .btn-theme-toggle .icon-sun {
 }
 
 .products-flow.view-mode-list .food-item-media {
-  width: 125px;
-  height: 125px;
-  min-width: 125px;
+  width: 95px;
+  height: 95px;
+  min-width: 95px;
   border-radius: var(--radius-sm);
   flex-shrink: 0;
   overflow: hidden;
   align-self: center;
   position: relative;
+}
+@media (min-width: 640px) {
+  .products-flow.view-mode-list .food-item-media {
+    width: 120px;
+    height: 120px;
+    min-width: 120px;
+  }
+}
+
+/* Admin hidden item clear styling */
+.admin-product-card.hidden-item {
+  opacity: 0.55;
+  filter: grayscale(0.5);
+  border-style: dashed !important;
+  border-color: var(--border-strong) !important;
+  position: relative;
+}
+.admin-product-card.hidden-item::after {
+  content: '🚫 مخفي من المنيو';
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(239, 68, 68, 0.9);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: 5;
 }
 
 /* Hide favorite button in list thumbnail to stop overlapping */
