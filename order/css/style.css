@@ -281,8 +281,29 @@ body {
   .btn-live-preview span {
     display: none;
   }
-  .btn-logout-nav span {
-    display: none;
+}
+
+/* ── Store Cover Banner ─────────────────────────────────── */
+.store-cover-banner {
+  width: 100%;
+  max-height: 140px;
+  overflow: hidden;
+  background: var(--surface);
+}
+@media (min-width: 768px) {
+  .store-cover-banner {
+    max-height: 200px;
+  }
+}
+.store-cover-img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  display: block;
+}
+@media (min-width: 768px) {
+  .store-cover-img {
+    height: 200px;
   }
 }
 
