@@ -13,12 +13,16 @@ const FIREBASE_CONFIG = {
 };
 
 let db = null;
+let auth = null;
 try {
   if (typeof firebase !== 'undefined' && firebase.initializeApp) {
     if (!firebase.apps.length) {
       firebase.initializeApp(FIREBASE_CONFIG);
     }
     db = firebase.database();
+    if (firebase.auth) {
+      auth = firebase.auth();
+    }
   }
 } catch (e) {
   console.warn("Firebase Init:", e);
@@ -143,7 +147,7 @@ const DEFAULT_SETTINGS = {
   adminPin: "1234",
   logo: "",
   cover: "",
-  imgbbApiKey: "", // يجب على كل مطعم إدخال مفتاح ImgBB الخاص به من الإعدادات
+  imgbbApiKey: "",
   
   themePreset: "charcoal",
   siteColors: {
@@ -176,11 +180,165 @@ const DEFAULT_SETTINGS = {
 };
 
 const DEFAULT_CATEGORIES = [];
-
 const DEFAULT_PRODUCTS = [];
-
+const DEFAULT_STORIES = [];
 
 const Store = {
+  // ── Firebase Auth & Admin Session ─────────────────────────
+  async loginAdmin(email, password) {
+    if (!auth) throw new Error("Firebase Auth is not initialized");
+    return await auth.signInWithEmailAndPassword(email, password);
+  },
+
+  async logoutAdmin() {
+    if (!auth) return;
+    return await auth.signOut();
+  },
+
+  getCurrentUser() {
+    return auth ? auth.currentUser : null;
+  },
+
+  onAuthStateChanged(callback) {
+    if (!auth) return () => {};
+    return auth.onAuthStateChanged(callback);
+  },
+
+  // ── Cloud Sync Engine (Firebase Realtime DB) ───────────────
+  syncFromCloud(slug, onUpdate) {
+    if (!db || !slug) return;
+    try {
+      const restaurantRef = db.ref(`restaurants/${slug}`);
+      restaurantRef.on('value', snapshot => {
+        const data = snapshot.val();
+        if (data) {
+          if (data.settings) {
+            localStorage.setItem(this.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(data.settings));
+            this.applyTheme();
+            window.dispatchEvent(new Event('store_settings_updated'));
+          }
+          if (data.categories) {
+            localStorage.setItem(this.getKey(STORAGE_KEYS.CATEGORIES), JSON.stringify(data.categories));
+            window.dispatchEvent(new Event('store_categories_updated'));
+          }
+          if (data.products) {
+            localStorage.setItem(this.getKey(STORAGE_KEYS.PRODUCTS), JSON.stringify(data.products));
+            window.dispatchEvent(new Event('store_products_updated'));
+          }
+          if (data.stories) {
+            localStorage.setItem(this.getKey(STORAGE_KEYS.STORIES), JSON.stringify(data.stories));
+            window.dispatchEvent(new Event('store_stories_updated'));
+          }
+        }
+        if (typeof onUpdate === 'function') {
+          onUpdate({ success: true, hasData: !!data, data });
+        }
+      }, err => {
+        console.warn("Cloud sync read error:", err);
+      });
+    } catch (err) {
+      console.warn("Cloud sync init error:", err);
+    }
+  },
+
+  async pushToCloud(subPath, data) {
+    const slug = this.getRestaurantSlug();
+    if (!db || !slug) return false;
+    try {
+      const path = subPath ? `restaurants/${slug}/${subPath}` : `restaurants/${slug}`;
+      await db.ref(path).set(data);
+      return true;
+    } catch (err) {
+      console.warn(`Error pushing ${subPath} to cloud:`, err);
+      return false;
+    }
+  },
+
+  async pushOrderToCloud(orderData) {
+    const slug = this.getRestaurantSlug();
+    if (!db || !slug || !orderData || !orderData.orderId) return false;
+    try {
+      const cleanId = orderData.orderId.replace(/[^a-zA-Z0-9_-]/g, '');
+      await db.ref(`restaurants/${slug}/orders/${cleanId}`).set(orderData);
+      return true;
+    } catch (err) {
+      console.warn("Error pushing order to cloud:", err);
+      return false;
+    }
+  },
+
+  syncOrdersFromCloud(slug, onOrdersUpdate) {
+    if (!db || !slug) return () => {};
+    try {
+      const ordersRef = db.ref(`restaurants/${slug}/orders`);
+      ordersRef.on('value', snapshot => {
+        const data = snapshot.val() || {};
+        const ordersList = Object.values(data).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        if (typeof onOrdersUpdate === 'function') {
+          onOrdersUpdate(ordersList);
+        }
+      }, err => {
+        console.warn("Sync orders error:", err);
+      });
+      return () => ordersRef.off();
+    } catch (err) {
+      console.warn("Orders listener init error:", err);
+      return () => {};
+    }
+  },
+
+  async updateOrderStatus(orderId, newStatus) {
+    const slug = this.getRestaurantSlug();
+    if (!db || !slug || !orderId) return false;
+    try {
+      const cleanId = orderId.replace(/[^a-zA-Z0-9_-]/g, '');
+      await db.ref(`restaurants/${slug}/orders/${cleanId}/status`).set(newStatus);
+      return true;
+    } catch (err) {
+      console.warn("Update order status error:", err);
+      return false;
+    }
+  },
+
+  async initTenantMeta(slug, userUid) {
+    if (!db || !slug || !userUid) return false;
+    try {
+      const metaRef = db.ref(`restaurants/${slug}/meta`);
+      const snap = await metaRef.once('value');
+      if (!snap.exists()) {
+        await metaRef.set({
+          ownerUid: userUid,
+          createdAt: new Date().toISOString()
+        });
+      }
+      return true;
+    } catch (err) {
+      console.warn("Init tenant meta error:", err);
+      return false;
+    }
+  },
+
+  async verifyTenantOwnership(slug, userUid) {
+    if (!db || !slug || !userUid) return false;
+    try {
+      const metaRef = db.ref(`restaurants/${slug}/meta`);
+      const snap = await metaRef.once('value');
+      if (!snap.exists()) {
+        // Auto-claim first login if unclaimed
+        await metaRef.set({
+          ownerUid: userUid,
+          createdAt: new Date().toISOString()
+        });
+        return true;
+      }
+      const meta = snap.val();
+      return meta.ownerUid === userUid;
+    } catch (err) {
+      console.warn("Verify ownership error:", err);
+      return false;
+    }
+  },
+
   // ── Multi-Tenant Restaurant Engine ────────────────────────
   getRestaurantSlug() {
     try {
@@ -250,6 +408,7 @@ const Store = {
       this.registerRestaurant(this.getRestaurantSlug(), settings.storeName);
     }
     this.applyTheme();
+    this.pushToCloud('settings', settings);
     window.dispatchEvent(new Event('store_settings_updated'));
   },
 
@@ -318,6 +477,7 @@ const Store = {
   saveCategories(cats) {
     localStorage.setItem(this.getKey(STORAGE_KEYS.CATEGORIES), JSON.stringify(cats));
     localStorage.setItem('harpy_last_sync', Date.now().toString());
+    this.pushToCloud('categories', cats);
     window.dispatchEvent(new Event('store_categories_updated'));
   },
 
@@ -333,6 +493,7 @@ const Store = {
   saveProducts(prods) {
     localStorage.setItem(this.getKey(STORAGE_KEYS.PRODUCTS), JSON.stringify(prods));
     localStorage.setItem('harpy_last_sync', Date.now().toString());
+    this.pushToCloud('products', prods);
     window.dispatchEvent(new Event('store_products_updated'));
   },
   addProduct(prod) {
@@ -433,14 +594,16 @@ const Store = {
 
   getStories() {
     const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.STORIES));
+    if (!raw) return DEFAULT_STORIES;
     try {
-      return raw ? JSON.parse(raw) : DEFAULT_STORIES;
+      return JSON.parse(raw);
     } catch {
       return DEFAULT_STORIES;
     }
   },
   saveStories(stories) {
     localStorage.setItem(this.getKey(STORAGE_KEYS.STORIES), JSON.stringify(stories));
+    this.pushToCloud('stories', stories);
     window.dispatchEvent(new Event('store_stories_updated'));
   },
   addStory(story) {
@@ -516,7 +679,7 @@ const Store = {
   },
 
   resetAllDataToDefault() {
-    // ✅ Use getKey() so we remove slug-prefixed keys, not bare keys
+    // ✅ Remove local cache keys
     localStorage.removeItem(this.getKey(STORAGE_KEYS.SETTINGS));
     localStorage.removeItem(this.getKey(STORAGE_KEYS.CATEGORIES));
     localStorage.removeItem(this.getKey(STORAGE_KEYS.PRODUCTS));
@@ -525,6 +688,13 @@ const Store = {
     localStorage.removeItem(this.getKey(STORAGE_KEYS.APPLIED_COUPON));
     localStorage.removeItem(this.getKey(STORAGE_KEYS.THEME_MODE));
     this.initTheme();
+
+    // Reset cloud data to clean defaults while preserving owner metadata and license
+    this.pushToCloud('settings', DEFAULT_SETTINGS);
+    this.pushToCloud('categories', []);
+    this.pushToCloud('products', []);
+    this.pushToCloud('stories', []);
+
     window.dispatchEvent(new Event('store_settings_updated'));
     window.dispatchEvent(new Event('store_categories_updated'));
     window.dispatchEvent(new Event('store_products_updated'));

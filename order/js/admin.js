@@ -10,8 +10,12 @@ let currentEditingStoryId = null;
 const adminElements = {
   loginModal: document.getElementById('login-modal'),
   loginBackdrop: document.getElementById('login-modal-backdrop'),
-  adminPinInput: document.getElementById('admin-pin-input'),
+  adminLoginForm: document.getElementById('admin-login-form'),
+  adminEmailInput: document.getElementById('admin-email-input'),
+  adminPasswordInput: document.getElementById('admin-password-input'),
+  loginErrorMsg: document.getElementById('login-error-msg'),
   btnLogin: document.getElementById('btn-login'),
+  btnAdminLogout: document.getElementById('btn-admin-logout'),
 
   adminStoreName: document.getElementById('admin-store-name'),
   tabBtns: document.querySelectorAll('.admin-tab-btn'),
@@ -42,6 +46,13 @@ const adminElements = {
   btnAddAddonRow: document.getElementById('btn-add-addon-row'),
   btnCloseProductModal: document.getElementById('btn-close-product-modal'),
   btnCancelProduct: document.getElementById('btn-cancel-product'),
+
+  // Orders Tab
+  adminOrdersContainer: document.getElementById('admin-orders-container'),
+  statTotalOrders: document.getElementById('stat-total-orders'),
+  statPendingOrders: document.getElementById('stat-pending-orders'),
+  statTotalRevenue: document.getElementById('stat-total-revenue'),
+  ordersBadgeCount: document.getElementById('orders-badge-count'),
 
   // Categories Tab
   newCatInput: document.getElementById('new-cat-input'),
@@ -130,76 +141,110 @@ function setupAdminThemeToggle() {
   }
 }
 
-// ── Auth Gate ──────────────────────────────────────────────
+// ── Firebase Auth Gate ──────────────────────────────────────
 function setupAuth() {
-  let attempts = parseInt(sessionStorage.getItem('harpy_pin_attempts') || '0');
-  let lockedUntil = parseInt(sessionStorage.getItem('harpy_pin_locked_until') || '0');
+  const slug = Store.getRestaurantSlug();
 
-  const checkPin = () => {
-    // Lockout check
-    if (Date.now() < lockedUntil) {
-      const remaining = Math.ceil((lockedUntil - Date.now()) / 1000);
-      alert(`تم تجاوز عدد المحاولات المسموح به. حاول مرة أخرى بعد ${remaining} ثانية.`);
+  // Listen to Firebase Auth state
+  Store.onAuthStateChanged(async (user) => {
+    if (user) {
+      // Verify ownership of the current restaurant slug
+      const isOwner = await Store.verifyTenantOwnership(slug, user.uid);
+      if (isOwner) {
+        isAuthenticated = true;
+        if (adminElements.loginModal) adminElements.loginModal.classList.remove('open');
+        if (adminElements.loginBackdrop) adminElements.loginBackdrop.classList.remove('open');
+        if (adminElements.btnAdminLogout) adminElements.btnAdminLogout.style.display = 'inline-flex';
+        
+        loadAllDashboardData();
+
+        // Subscribe to real-time cloud changes
+        Store.syncFromCloud(slug, (status) => {
+          if (status && status.hasData) {
+            renderCatalog();
+            renderCategoriesList();
+            renderStoriesList();
+            loadSettingsIntoForm();
+          }
+        });
+
+        // Subscribe to real-time incoming orders
+        Store.syncOrdersFromCloud(slug, (orders) => {
+          renderOrdersList(orders);
+        });
+      } else {
+        if (adminElements.loginErrorMsg) {
+          adminElements.loginErrorMsg.textContent = "عفواً، هذا الحساب ليس لديه صلاحية إدارة هذا المطعم.";
+          adminElements.loginErrorMsg.style.display = 'block';
+        }
+        await Store.logoutAdmin();
+      }
+    } else {
+      isAuthenticated = false;
+      if (adminElements.loginModal) adminElements.loginModal.classList.add('open');
+      if (adminElements.loginBackdrop) adminElements.loginBackdrop.classList.add('open');
+      if (adminElements.btnAdminLogout) adminElements.btnAdminLogout.style.display = 'none';
+    }
+  });
+
+  // Handle Login Submission
+  const handleLoginSubmit = async (e) => {
+    if (e) e.preventDefault();
+    const email = (adminElements.adminEmailInput?.value || '').trim();
+    const password = (adminElements.adminPasswordInput?.value || '').trim();
+
+    if (!email || !password) {
+      if (adminElements.loginErrorMsg) {
+        adminElements.loginErrorMsg.textContent = "يرجى إدخال البريد الإلكتروني وكلمة المرور";
+        adminElements.loginErrorMsg.style.display = 'block';
+      }
       return;
     }
 
-    const entered = (adminElements.adminPinInput.value || '').trim();
-    const settings = Store.getSettings();
-    const pin = settings.adminPin || "1234";
+    if (adminElements.btnLogin) {
+      adminElements.btnLogin.disabled = true;
+      adminElements.btnLogin.textContent = "...جاري التحقق والدخول";
+    }
+    if (adminElements.loginErrorMsg) {
+      adminElements.loginErrorMsg.style.display = 'none';
+    }
 
-    if (entered === pin) {
-      isAuthenticated = true;
-      sessionStorage.removeItem('harpy_pin_attempts');
-      sessionStorage.removeItem('harpy_pin_locked_until');
-      if (adminElements.loginModal) adminElements.loginModal.classList.remove('open');
-      if (adminElements.loginBackdrop) adminElements.loginBackdrop.classList.remove('open');
-      loadAllDashboardData();
-      // Warn if still using default PIN
-      if (pin === '1234') {
-        setTimeout(() => {
-          const existing = document.getElementById('default-pin-warning');
-          if (!existing) {
-            const warn = document.createElement('div');
-            warn.id = 'default-pin-warning';
-            warn.style.cssText = `
-              background: #7c2d12; color: #fff; padding: 14px 18px; border-radius: 10px;
-              margin-bottom: 16px; font-size: 0.88rem; font-weight: 700; display: flex;
-              align-items: center; gap: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-            `;
-            warn.innerHTML = `
-              <span style="font-size:1.4rem;">🔐</span>
-              <div>
-                <div style="font-size:0.95rem; margin-bottom:4px;">رمز المرور لا يزال الافتراضي (1234) — يجب تغييره فوراً!</div>
-                <div style="font-weight:500; opacity:0.85;">اذهب إلى إعدادات → رمز مرور لوحة الإدارة وعيّن رمزاً سرياً خاصاً بك.</div>
-              </div>
-              <button onclick="this.parentElement.remove()" style="margin-right:auto; background:transparent; border:none; color:#fff; font-size:1.2rem; cursor:pointer;">✕</button>
-            `;
-            const container = document.querySelector('main.container') || document.body;
-            container.insertBefore(warn, container.firstChild);
-          }
-        }, 400);
+    try {
+      await Store.loginAdmin(email, password);
+      // Auth state listener handles the rest
+    } catch (err) {
+      console.warn("Login failed:", err);
+      let msg = "فشل تسجيل الدخول. تأكد من صحة البريد الإلكتروني وكلمة المرور.";
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+        msg = "البريد الإلكتروني أو كلمة المرور غير صحيحة.";
+      } else if (err.code === 'auth/too-many-requests') {
+        msg = "تم تجاوز عدد المحاولات المسموح به. يرجى المحاولة لاحقاً.";
       }
-    } else {
-      attempts++;
-      sessionStorage.setItem('harpy_pin_attempts', attempts.toString());
-      if (attempts >= 5) {
-        const lockDuration = 60 * 1000; // 60 seconds
-        const lockEnd = Date.now() + lockDuration;
-        sessionStorage.setItem('harpy_pin_locked_until', lockEnd.toString());
-        sessionStorage.setItem('harpy_pin_attempts', '0');
-        alert('تم إدخال رمز خاطئ 5 مرات. سيتم الإغلاق لمدة دقيقة واحدة.');
-      } else {
-        alert(`رمز المرور غير صحيح. المحاولات المتبقية: ${5 - attempts}`);
+      if (adminElements.loginErrorMsg) {
+        adminElements.loginErrorMsg.textContent = msg;
+        adminElements.loginErrorMsg.style.display = 'block';
       }
-      adminElements.adminPinInput.value = '';
-      adminElements.adminPinInput.focus();
+    } finally {
+      if (adminElements.btnLogin) {
+        adminElements.btnLogin.disabled = false;
+        adminElements.btnLogin.textContent = "دخول لوحة التحكم";
+      }
     }
   };
 
-  if (adminElements.btnLogin) adminElements.btnLogin.addEventListener('click', checkPin);
-  if (adminElements.adminPinInput) {
-    adminElements.adminPinInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') checkPin();
+  if (adminElements.adminLoginForm) {
+    adminElements.adminLoginForm.addEventListener('submit', handleLoginSubmit);
+  }
+  if (adminElements.btnLogin) {
+    adminElements.btnLogin.addEventListener('click', handleLoginSubmit);
+  }
+
+  // Handle Logout
+  if (adminElements.btnAdminLogout) {
+    adminElements.btnAdminLogout.addEventListener('click', async () => {
+      if (confirm("هل تود تسجيل الخروج من لوحة التحكم؟")) {
+        await Store.logoutAdmin();
+      }
     });
   }
 }
@@ -482,6 +527,118 @@ function setupProductManagement() {
     });
   }
 }
+
+function renderOrdersList(orders = []) {
+  if (!adminElements.adminOrdersContainer) return;
+  const currency = Store.getSettings().currency || "ج.م";
+
+  const totalOrders = orders.length;
+  const pendingOrders = orders.filter(o => !o.status || o.status === 'pending').length;
+  const totalRevenue = orders.filter(o => o.status !== 'cancelled').reduce((sum, o) => sum + (parseFloat(o.finalTotal) || 0), 0);
+
+  if (adminElements.statTotalOrders) adminElements.statTotalOrders.textContent = totalOrders;
+  if (adminElements.statPendingOrders) adminElements.statPendingOrders.textContent = pendingOrders;
+  if (adminElements.statTotalRevenue) adminElements.statTotalRevenue.textContent = `${totalRevenue.toFixed(0)} ${currency}`;
+
+  if (adminElements.ordersBadgeCount) {
+    if (pendingOrders > 0) {
+      adminElements.ordersBadgeCount.textContent = pendingOrders;
+      adminElements.ordersBadgeCount.style.display = 'inline-block';
+    } else {
+      adminElements.ordersBadgeCount.style.display = 'none';
+    }
+  }
+
+  if (orders.length === 0) {
+    adminElements.adminOrdersContainer.innerHTML = `
+      <div style="text-align:center; padding:40px 20px; color:var(--text-muted); background:var(--surface); border:1px dashed var(--border); border-radius:var(--radius-md);">
+        <div style="font-size:32px; margin-bottom:8px;">📥</div>
+        <div style="font-size:14px; font-weight:800; color:var(--text-main); margin-bottom:4px;">لا توجد طلبات واردة حتى الآن</div>
+        <div style="font-size:12px;">أي طلب يتم إرساله من المنيو سيظهر هنا فورياً ومباشرة.</div>
+      </div>
+    `;
+    return;
+  }
+
+  adminElements.adminOrdersContainer.innerHTML = orders.map(o => {
+    const timeStr = o.createdAt ? new Date(o.createdAt).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' }) : 'الآن';
+    const status = o.status || 'pending';
+
+    const statusBadge = {
+      pending: { bg: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', text: '🟡 قيد المراجعة' },
+      preparing: { bg: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', text: '🔵 جاري التحضير' },
+      delivered: { bg: 'rgba(34, 197, 94, 0.15)', color: '#22c55e', text: '🟢 تم التوصيل' },
+      cancelled: { bg: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', text: '🔴 تم الإلغاء' }
+    }[status] || { bg: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', text: '🟡 قيد المراجعة' };
+
+    const itemsHtml = (o.items || []).map(it => `
+      <div style="display:flex; justify-content:space-between; font-size:12px; padding:3px 0; border-bottom:1px dashed var(--border);">
+        <div>
+          <span style="font-weight:800; color:var(--primary);">${it.qty}x</span>
+          <span style="font-weight:700; color:var(--text-main);">${it.name}</span>
+          ${it.selectedSize ? `<span style="font-size:10.5px; color:var(--text-muted);">[${it.selectedSize.name}]</span>` : ''}
+          ${it.selectedAddons && it.selectedAddons.length ? `<span style="font-size:10.5px; color:var(--accent-wa);">(+${it.selectedAddons.map(a => a.name).join(', ')})</span>` : ''}
+          ${it.notes ? `<div style="font-size:10px; color:var(--amber, #f59e0b);">ملاحظة: ${it.notes}</div>` : ''}
+        </div>
+        <div class="font-num" style="font-weight:700;">${((it.price || 0) * it.qty).toFixed(2)} ${currency}</div>
+      </div>
+    `).join('');
+
+    const phoneRaw = (o.customer?.phone || '').replace(/[^0-9]/g, '');
+    const waUrl = phoneRaw ? `https://wa.me/${phoneRaw.startsWith('0') ? '2' + phoneRaw : phoneRaw}` : '#';
+
+    return `
+      <div class="order-card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; display:flex; flex-direction:column; gap:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; border-bottom:1px solid var(--border); padding-bottom:10px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="font-num" style="font-size:14px; font-weight:900; color:var(--text-main);">${o.orderId}</span>
+            <span style="font-size:11px; color:var(--text-muted);">${timeStr}</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="background:${statusBadge.bg}; color:${statusBadge.color}; font-size:11px; font-weight:800; padding:3px 8px; border-radius:6px;">
+              ${statusBadge.text}
+            </span>
+            <select class="form-select" style="font-size:11px; padding:4px 8px; font-weight:700; width:auto;" onchange="updateOrderStatusFast('${o.orderId}', this.value)">
+              <option value="pending" ${status === 'pending' ? 'selected' : ''}>قيد المراجعة</option>
+              <option value="preparing" ${status === 'preparing' ? 'selected' : ''}>جاري التحضير</option>
+              <option value="delivered" ${status === 'delivered' ? 'selected' : ''}>تم التوصيل</option>
+              <option value="cancelled" ${status === 'cancelled' ? 'selected' : ''}>إلغاء الطلب</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1.2fr 1fr; gap:16px; flex-wrap:wrap;">
+          <div>
+            <div style="font-size:11.5px; font-weight:800; color:var(--text-muted); margin-bottom:6px;">تفاصيل العميل:</div>
+            <div style="font-size:13px; font-weight:800; color:var(--text-main);">${o.customer?.name || 'عميل'}</div>
+            <div style="font-size:12px; color:var(--text-muted); display:flex; align-items:center; gap:6px; margin:2px 0;">
+              <span class="font-num">${o.customer?.phone || 'بدون هاتف'}</span>
+              ${phoneRaw ? `<a href="${waUrl}" target="_blank" class="btn btn-ghost btn-sm" style="padding:2px 6px; font-size:11px; color:var(--accent-wa);">واتساب 💬</a>` : ''}
+            </div>
+            <div style="font-size:12px; color:var(--text-muted);"><span style="font-weight:700;">العنوان:</span> ${o.customer?.address || 'استلام من المطعم'}</div>
+            ${o.customer?.notes ? `<div style="font-size:11.5px; color:var(--amber, #f59e0b); margin-top:3px;"><span style="font-weight:700;">ملاحظات العميل:</span> ${o.customer.notes}</div>` : ''}
+          </div>
+
+          <div>
+            <div style="font-size:11.5px; font-weight:800; color:var(--text-muted); margin-bottom:6px;">أصناف الطلب:</div>
+            <div style="background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:8px; max-height:140px; overflow-y:auto;">
+              ${itemsHtml}
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+              <span style="font-size:12px; color:var(--text-muted);">طريقة الدفع: ${o.paymentMethod === 'wallet' ? '💳 محفظة إلكترونية' : '💵 نقداً عند الاستلام'}</span>
+              <span class="font-num" style="font-size:15px; font-weight:900; color:var(--primary);">${(parseFloat(o.finalTotal) || 0).toFixed(2)} ${currency}</span>
+            </div>
+            ${o.receiptUrl ? `<div style="margin-top:6px; text-align:left;"><a href="${o.receiptUrl}" target="_blank" style="font-size:11px; color:var(--primary); font-weight:700;">🖼️ عرض إيصال التحويل</a></div>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+window.updateOrderStatusFast = function(orderId, newStatus) {
+  Store.updateOrderStatus(orderId, newStatus);
+};
 
 function renderCatalog() {
   if (!adminElements.catalogContainer) return;

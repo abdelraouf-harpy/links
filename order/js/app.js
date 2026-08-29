@@ -286,6 +286,19 @@ function initApp() {
   setupEventListeners();
   initCustomizerEvents();
   setupSubscriptionWatcher();
+
+  // Connect real-time cloud data sync from Firebase Realtime Database
+  const slug = Store.getRestaurantSlug();
+  Store.syncFromCloud(slug, (status) => {
+    if (status && status.hasData) {
+      renderStoreInfo();
+      renderAnnouncement();
+      renderStories();
+      renderCategories();
+      renderProducts();
+      updateLedgerUI();
+    }
+  });
 }
 
 function updateThemeToggleIcons() {
@@ -1768,17 +1781,27 @@ function handleWhatsAppOrder() {
     walletDiscountAmount = isPercent ? (subtotalAfterBase * (val / 100)) : val;
   }
 
-  const totalDiscounts = spendTierDiscountAmount + couponDiscountAmount + walletDiscountAmount;
-  const finalTotal = Math.max(0, subtotal - totalDiscounts);
-  const orderId = `#ORD-${Math.floor(1000 + Math.random() * 9000)}`;
-
-  Store.saveLastOrder({
+  const orderData = {
     orderId,
     items: cart,
     customer: { name, phone, address, notes },
+    subtotal: subtotal,
+    discounts: {
+      spendTier: spendTierDiscountAmount,
+      promo: couponDiscountAmount,
+      promoCode: appliedCoupon ? appliedCoupon.code : null,
+      wallet: walletDiscountAmount
+    },
     finalTotal,
+    paymentMethod: selectedPaymentMethod,
+    receiptUrl: uploadedReceiptUrl || null,
+    status: 'pending',
+    createdAt: new Date().toISOString(),
     timestamp: Date.now()
-  });
+  };
+
+  Store.saveLastOrder(orderData);
+  Store.pushOrderToCloud(orderData);
 
   const itemsText = cart.map(item => {
     let line = `• ${item.qty}x ${item.name}`;
