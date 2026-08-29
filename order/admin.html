@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700;800;900&family=Cairo:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./css/style.css?v=4.3">
+  <link rel="stylesheet" href="./css/style.css?v=4.4">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23c2410c'><circle cx='12' cy='12' r='10'/></svg>">
 </head>
 <body style="padding-bottom: 60px;">
@@ -31,9 +31,9 @@
           <svg id="theme-icon-dark" class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
           <svg id="theme-icon-light" class="icon icon-sm" style="display:none;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
         </button>
-        <a href="./index.html" class="btn btn-primary btn-sm" target="_blank" id="btn-live-preview">
+        <a href="./index.html" class="btn btn-primary btn-sm btn-live-preview" target="_blank" id="btn-live-preview">
           <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-          معاينة المنيو الحية
+          <span>معاينة المنيو</span>
         </a>
         <button id="btn-admin-logout" class="btn btn-ghost btn-sm" title="تسجيل الخروج من لوحة التحكم" style="display:none; color:var(--danger); border:1px solid rgba(239,68,68,0.25); background:rgba(239,68,68,0.06); font-weight:700;">
           <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
@@ -221,21 +221,21 @@
         <h2 style="font-size:17px; font-weight:900; margin-bottom:6px; color:var(--text-main);">النسخ الاحتياطي والاسترجاع (Backup & Restore)</h2>
         <p style="font-size:12px; color:var(--text-muted); margin-bottom:24px;">حفظ كافة أصناف المنيو، الأسعار، العروض، والإعدادات في ملف JSON واحد واسترجاعه في أي وقت</p>
 
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:16px;">
           <!-- Export Card -->
-          <div style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:20px;">
+          <div style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:18px;">
             <div style="font-size:15px; font-weight:800; color:var(--text-main); margin-bottom:8px;">تصدير نسخة احتياطية 📥</div>
             <p style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">تحميل ملف JSON كامل يحتوي على كل بيانات المنيو الخاصة بك.</p>
-            <button id="btn-export-backup" class="btn btn-primary" style="width:100%;">
+            <button id="btn-export-backup" class="btn btn-primary" style="width:100%; font-weight:800;">
               تحميل ملف النسخة الاحتياطية (JSON)
             </button>
           </div>
 
           <!-- Import Card -->
-          <div style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:20px;">
+          <div style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:18px;">
             <div style="font-size:15px; font-weight:800; color:var(--text-main); margin-bottom:8px;">استرجاع من ملف 📤</div>
-            <p style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">رفع ملف النسخة الاحتياطية لتحديث المنيو واسترجاع الأصناف والإعدادات فوراً.</p>
-            <label class="btn btn-ghost" style="width:100%; border:1px solid var(--border-strong); cursor:pointer; text-align:center; display:block;">
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">رفع ملف النسخة الاحتياطية لتحديث المنيو واسترجاع الأصناف فوراً.</p>
+            <label class="btn btn-ghost" style="width:100%; border:1px solid var(--border-strong); cursor:pointer; text-align:center; display:block; font-weight:800;">
               اختر ملف النسخة الاحتياطية
               <input type="file" id="import-file-input" accept=".json" style="display:none;">
             </label>
@@ -279,55 +279,16 @@
 
           <!-- Color Studio -->
           <div style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:18px; margin-bottom:18px;">
-            <div style="font-size:14px; font-weight:700; color:var(--text-main); margin-bottom:12px;">
-              <span>تخصيص ألوان وهوية الموقع بالكامل</span>
+            <div style="font-size:14px; font-weight:800; color:var(--text-main); margin-bottom:12px;">
+              <span>قوالب ألوان وهوية المنيو</span>
             </div>
-
-            <div style="margin-bottom:16px;">
-              <label class="form-label" style="margin-bottom:8px; font-weight:700;">قوالب ألوان جاهزة ومتناسقة:</label>
-              <div id="theme-presets-grid" class="theme-presets-grid"></div>
-            </div>
-
-            <label class="form-label" style="margin-bottom:8px; font-weight:700;">تخصيص درجات الألوان بالتفصيل:</label>
-            <div class="color-studio-grid">
-              <div class="color-picker-item">
-                <div>
-                  <div class="color-picker-label">خلفية الموقع الرئيسية</div>
-                  <div class="color-picker-sub">Background Color</div>
-                </div>
-                <input type="color" id="picker-bg" class="color-input-circle" value="#110e0c">
-              </div>
-
-              <div class="color-picker-item">
-                <div>
-                  <div class="color-picker-label">خلفية كروت الوجبات</div>
-                  <div class="color-picker-sub">Surface Color</div>
-                </div>
-                <input type="color" id="picker-surface" class="color-input-circle" value="#1c1713">
-              </div>
-
-              <div class="color-picker-item">
-                <div>
-                  <div class="color-picker-label">اللون الرئيسي المميز للعلامة</div>
-                  <div class="color-picker-sub">Primary Accent</div>
-                </div>
-                <input type="color" id="picker-primary" class="color-input-circle" value="#c2410c">
-              </div>
-
-              <div class="color-picker-item">
-                <div>
-                  <div class="color-picker-label">لون النصوص الرئيسية</div>
-                  <div class="color-picker-sub">Main Text</div>
-                </div>
-                <input type="color" id="picker-text" class="color-input-circle" value="#faf6f0">
-              </div>
-            </div>
+            <div id="theme-presets-grid" class="theme-presets-grid"></div>
           </div>
 
           <!-- Automatic Multi-Discount Matrix -->
           <div style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:18px; margin-bottom:18px;">
-            <div style="font-size:14px; font-weight:700; color:var(--text-main); margin-bottom:14px;">
-              <span>مصفوفة الخصومات التلقائية والتحفيزية (Multi-Tier Discounts)</span>
+            <div style="font-size:14.5px; font-weight:800; color:var(--text-main); margin-bottom:14px;">
+              <span>مصفوفة الخصومات التلقائية والتحفيزية</span>
             </div>
 
             <!-- 1. Digital Wallet Discount -->
@@ -338,7 +299,7 @@
                 </div>
                 <input type="checkbox" id="set-enable-wallet-discount" style="width:20px; height:20px; accent-color:var(--primary); cursor:pointer;">
               </div>
-              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:12px;">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                 <div class="form-group" style="margin-bottom:0;">
                   <label class="form-label" style="font-size:11px;">نوع الخصم</label>
                   <select id="set-wallet-discount-type" class="form-input">
@@ -357,15 +318,15 @@
             <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:16px; margin-bottom:14px;">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                 <div style="font-weight:800; font-size:13.5px; color:var(--text-main);">
-                  2. خصم قيمة الطلب الإجمالية (Spend Threshold Tier)
+                  2. خصم قيمة الطلب الإجمالية (Spend Tier)
                 </div>
                 <input type="checkbox" id="set-enable-spend-tier" style="width:20px; height:20px; accent-color:var(--primary); cursor:pointer;">
               </div>
-              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:12px;">
-                <div class="form-group" style="margin-bottom:0;">
-                  <label class="form-label" style="font-size:11px;">الحد الأدنى لقيمة الطلب</label>
-                  <input type="number" id="set-spend-min-amount" class="form-input font-num" placeholder="300" min="0" step="10">
-                </div>
+              <div class="form-group" style="margin-bottom:10px;">
+                <label class="form-label" style="font-size:11px;">الحد الأدنى لقيمة الطلب المؤهلة للخصم (ج.م)</label>
+                <input type="number" id="set-spend-min-amount" class="form-input font-num" placeholder="300" min="0" step="10">
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                 <div class="form-group" style="margin-bottom:0;">
                   <label class="form-label" style="font-size:11px;">نوع الخصم</label>
                   <select id="set-spend-discount-type" class="form-input">
@@ -382,18 +343,29 @@
 
             <!-- 3. Promo Codes -->
             <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:16px;">
-              <div style="font-weight:800; font-size:13.5px; color:var(--text-main); margin-bottom:10px;">
+              <div style="font-weight:800; font-size:13.5px; color:var(--text-main); margin-bottom:12px;">
                 3. كوبونات الخصم والبروموكود (Promo Codes)
               </div>
-              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)) auto; gap:10px; margin-bottom:12px;">
-                <input type="text" id="new-promo-code" class="form-input font-num" placeholder="كود الخصم (KING10)">
-                <select id="new-promo-type" class="form-input">
-                  <option value="percent">نسبة مئوية (%)</option>
-                  <option value="fixed">مبلغ ثابت (ج.م)</option>
-                </select>
-                <input type="number" id="new-promo-val" class="form-input font-num" placeholder="القيمة">
-                <button type="button" id="btn-add-promo-code" class="btn btn-primary btn-sm" style="white-space:nowrap; padding:0 16px;">+ إضافة كود</button>
+              <div class="form-group" style="margin-bottom:10px;">
+                <label class="form-label" style="font-size:11px;">كود الخصم (مثال: KING10)</label>
+                <input type="text" id="new-promo-code" class="form-input font-num" placeholder="KING10">
               </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label" style="font-size:11px;">نوع الخصم</label>
+                  <select id="new-promo-type" class="form-input">
+                    <option value="percent">نسبة مئوية (%)</option>
+                    <option value="fixed">مبلغ ثابت (ج.م)</option>
+                  </select>
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label" style="font-size:11px;">قيمة الخصم</label>
+                  <input type="number" id="new-promo-val" class="form-input font-num" placeholder="10">
+                </div>
+              </div>
+              <button type="button" id="btn-add-promo-code" class="btn btn-primary" style="width:100%; padding:10px; font-weight:800; margin-bottom:12px;">
+                + إضافة كود الخصم
+              </button>
               <div id="promo-codes-list" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
             </div>
           </div>
@@ -655,7 +627,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="./js/store.js?v=4.3"></script>
-  <script src="./js/admin.js?v=4.3"></script>
+  <script src="./js/store.js?v=4.4"></script>
+  <script src="./js/admin.js?v=4.4"></script>
 </body>
 </html>

@@ -262,19 +262,29 @@ body {
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
-}
 @media (max-width: 600px) {
   .header-wrap {
     flex-wrap: wrap;
     gap: 10px;
   }
   .header-actions {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 6px;
   }
   .brand-text h1 {
     font-size: 14px;
   }
+  .brand-text p {
+    font-size: 10.5px;
+  }
+  .btn-live-preview span {
+    display: none;
+  }
+  .btn-logout-nav span {
+    display: none;
+  }
+}
+
 /* ── Modern Toast Notification Pill ─────────────────────── */
 .admin-toast-pill {
   position: fixed;
@@ -2799,40 +2809,33 @@ body:not([data-theme="light"]) .btn-theme-toggle .icon-sun {
 .products-flow.view-mode-list {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 14px;
+  gap: 10px;
 }
 @media (min-width: 768px) {
   .products-flow.view-mode-list {
     grid-template-columns: repeat(2, 1fr);
-    gap: 18px;
+    gap: 14px;
   }
 }
 @media (min-width: 1400px) {
   .products-flow.view-mode-list {
     grid-template-columns: repeat(2, 1fr);
-    gap: 22px;
+    gap: 18px;
   }
 }
 
 .products-flow.view-mode-list .food-item-card {
   display: flex;
   flex-direction: row;
-  align-items: stretch;
-  padding: 12px 14px;
-  gap: 14px;
+  align-items: center;
+  padding: 10px 12px;
+  gap: 12px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-  min-height: 110px;
-}
-@media (min-width: 640px) {
-  .products-flow.view-mode-list .food-item-card {
-    padding: 16px;
-    gap: 18px;
-    min-height: 135px;
-  }
+  min-height: 90px;
 }
 .products-flow.view-mode-list .food-item-card:hover {
   transform: translateY(-2px);
@@ -2841,9 +2844,9 @@ body:not([data-theme="light"]) .btn-theme-toggle .icon-sun {
 }
 
 .products-flow.view-mode-list .food-item-media {
-  width: 95px;
-  height: 95px;
-  min-width: 95px;
+  width: 82px;
+  height: 82px;
+  min-width: 82px;
   border-radius: var(--radius-sm);
   flex-shrink: 0;
   overflow: hidden;
@@ -2852,50 +2855,29 @@ body:not([data-theme="light"]) .btn-theme-toggle .icon-sun {
 }
 @media (min-width: 640px) {
   .products-flow.view-mode-list .food-item-media {
-    width: 120px;
-    height: 120px;
-    min-width: 120px;
+    width: 95px;
+    height: 95px;
+    min-width: 95px;
   }
 }
 
-/* Admin hidden item clear styling */
-.admin-product-card.hidden-item {
-  opacity: 0.55;
-  filter: grayscale(0.5);
-  border-style: dashed !important;
-  border-color: var(--border-strong) !important;
-  position: relative;
-}
-.admin-product-card.hidden-item::after {
-  content: '🚫 مخفي من المنيو';
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: rgba(239, 68, 68, 0.9);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 800;
-  padding: 3px 8px;
-  border-radius: 4px;
-  pointer-events: none;
-  z-index: 5;
-}
-
-/* Hide favorite button in list thumbnail to stop overlapping */
-.products-flow.view-mode-list .food-item-media .btn-fav-toggle {
+/* Hide extra meta tags and favorite button in list mode for clean layout */
+.products-flow.view-mode-list .item-meta-tags,
+.products-flow.view-mode-list .btn-fav-toggle,
+.products-flow.view-mode-list .btn-fav-inline {
   display: none !important;
 }
 
 /* Make badge neat in list thumbnail */
 .products-flow.view-mode-list .food-item-media .card-top-actions {
-  top: 6px;
-  right: 6px;
-  left: 6px;
+  top: 4px;
+  right: 4px;
+  left: 4px;
   justify-content: flex-end;
 }
 .products-flow.view-mode-list .food-item-media .card-badge {
-  font-size: 0.72rem;
-  padding: 2px 7px;
+  font-size: 0.65rem;
+  padding: 2px 6px;
   border-radius: 4px;
   backdrop-filter: blur(6px);
   background: rgba(0, 0, 0, 0.82);
@@ -2908,42 +2890,52 @@ body:not([data-theme="light"]) .btn-theme-toggle .icon-sun {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 6px;
+  justify-content: center;
+  gap: 3px;
 }
 
 .products-flow.view-mode-list .food-item-title {
-  font-size: 1.15rem;
+  font-size: 0.96rem;
   font-weight: 800;
   color: var(--text-main);
-  margin-bottom: 2px;
-  white-space: normal;
-  line-height: 1.35;
+  margin-bottom: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.25;
 }
 
 .products-flow.view-mode-list .food-item-desc {
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  font-size: 0.84rem;
-  color: var(--text-body);
-  line-height: 1.5;
-  margin-bottom: 6px;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+  margin-bottom: 4px;
 }
 
 .products-flow.view-mode-list .food-item-footer {
-  margin-top: auto;
-  padding-top: 8px;
-  border-top: 1px solid var(--border);
+  margin-top: 0;
+  padding-top: 2px;
+  border-top: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
 }
 .products-flow.view-mode-list .food-item-price {
-  font-size: 1.25rem;
+  font-size: 1.05rem;
   font-weight: 900;
+  color: var(--primary);
+}
+.products-flow.view-mode-list .btn-quick-add {
+  padding: 4px 12px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  border-radius: 999px;
+  min-height: 28px;
 }
 
 /* ── Dynamic Island Floating Cart ── */
