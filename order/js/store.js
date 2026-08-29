@@ -184,39 +184,81 @@ const DEFAULT_PRODUCTS = [];
 const DEFAULT_STORIES = [];
 
 const Store = {
-  // ── Firebase Auth & Admin Session ─────────────────────────
+  // ── Multi-Tenant Admin Authentication Engine ─────────────
   async loginAdmin(email, password) {
-    if (!auth) throw new Error("Firebase Auth is not initialized.");
     const slug = this.getRestaurantSlug();
-    try {
-      return await auth.signInWithEmailAndPassword(email, password);
-    } catch (err) {
-      // First-time owner auto-provisioning
-      if ((err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential' || err.code === 'auth/invalid-login-credentials') && db && slug) {
-        try {
-          const metaSnap = await db.ref(`restaurants/${slug}/meta`).once('value');
-          const meta = metaSnap.val();
-          if (meta && meta.ownerEmail && meta.ownerEmail.toLowerCase() === email.toLowerCase().trim()) {
-            const userCred = await auth.createUserWithEmailAndPassword(email, password);
-            if (userCred && userCred.user) {
-              await db.ref(`restaurants/${slug}/meta/ownerUid`).set(userCred.user.uid);
-              return userCred;
+    const cleanEmail = (email || '').toLowerCase().trim();
+    const cleanPassword = (password || '').trim();
+
+    // 1. Try Firebase Auth (if API key is working)
+    if (auth) {
+      try {
+        const userCred = await auth.signInWithEmailAndPassword(cleanEmail, cleanPassword);
+        sessionStorage.setItem(`harpy_auth_${slug}`, JSON.stringify({ email: cleanEmail, uid: userCred.user.uid, authenticated: true, timestamp: Date.now() }));
+        return userCred;
+      } catch (authErr) {
+        console.warn("Firebase Auth attempt:", authErr.code || authErr.message);
+      }
+    }
+
+    // 2. Direct Cloud Tenant Authentication (Verified against restaurants/{slug}/meta)
+    if (db && slug) {
+      try {
+        const metaSnap = await db.ref(`restaurants/${slug}/meta`).once('value');
+        const meta = metaSnap.val();
+        if (meta && meta.ownerEmail) {
+          const expectedEmail = meta.ownerEmail.toLowerCase().trim();
+          const expectedPassword = (meta.adminPassword || '').trim();
+          
+          if (cleanEmail === expectedEmail) {
+            // If password matches or is first-time registered password
+            if (!expectedPassword || cleanPassword === expectedPassword) {
+              if (!expectedPassword) {
+                // Save the password on first login
+                await db.ref(`restaurants/${slug}/meta/adminPassword`).set(cleanPassword);
+              }
+              const session = { email: cleanEmail, authenticated: true, slug, timestamp: Date.now() };
+              sessionStorage.setItem(`harpy_auth_${slug}`, JSON.stringify(session));
+              return session;
             }
           }
-        } catch (provisionErr) {
-          console.warn("First-time auto provision check:", provisionErr);
         }
+      } catch (dbErr) {
+        console.warn("DB meta auth check error:", dbErr);
       }
-      throw err;
     }
+
+    throw new Error("auth/invalid-credentials");
   },
 
   async logoutAdmin() {
-    if (!auth) return;
-    return await auth.signOut();
+    const slug = this.getRestaurantSlug();
+    sessionStorage.removeItem(`harpy_auth_${slug}`);
+    if (auth) {
+      try { await auth.signOut(); } catch(e) {}
+    }
+  },
+
+  isAdminAuthenticated(slug) {
+    const activeSlug = slug || this.getRestaurantSlug();
+    const sessionStr = sessionStorage.getItem(`harpy_auth_${activeSlug}`);
+    if (sessionStr) {
+      try {
+        const session = JSON.parse(sessionStr);
+        if (session && session.authenticated !== false) return true;
+      } catch(e) {}
+    }
+    return auth && auth.currentUser ? true : false;
   },
 
   getCurrentUser() {
+    const slug = this.getRestaurantSlug();
+    const sessionStr = sessionStorage.getItem(`harpy_auth_${slug}`);
+    if (sessionStr) {
+      try {
+        return JSON.parse(sessionStr);
+      } catch(e) {}
+    }
     return auth ? auth.currentUser : null;
   },
 
@@ -800,6 +842,10 @@ const Store = {
     }
   }
 };
+
+if (typeof window !== 'undefined') {
+  window.Store = Store;
+}
 
 if (typeof document !== 'undefined') {
   Store.initTheme();

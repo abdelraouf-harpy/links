@@ -141,49 +141,61 @@ function setupAdminThemeToggle() {
   }
 }
 
-// ── Firebase Auth Gate ──────────────────────────────────────
+// ── Multi-Tenant Auth Gate ──────────────────────────────────
 function setupAuth() {
   const slug = Store.getRestaurantSlug();
+
+  const unlockDashboard = () => {
+    isAuthenticated = true;
+    if (adminElements.loginModal) adminElements.loginModal.classList.remove('open');
+    if (adminElements.loginBackdrop) adminElements.loginBackdrop.classList.remove('open');
+    if (adminElements.btnAdminLogout) adminElements.btnAdminLogout.style.display = 'inline-flex';
+    
+    loadAllDashboardData();
+
+    // Subscribe to real-time cloud changes
+    Store.syncFromCloud(slug, (status) => {
+      if (status && status.hasData) {
+        renderCatalog();
+        renderCategoriesList();
+        renderStoriesList();
+        loadSettingsIntoForm();
+      }
+    });
+
+    // Subscribe to real-time incoming orders
+    Store.syncOrdersFromCloud(slug, (orders) => {
+      renderOrdersList(orders);
+    });
+  };
+
+  const lockDashboard = () => {
+    isAuthenticated = false;
+    if (adminElements.loginModal) adminElements.loginModal.classList.add('open');
+    if (adminElements.loginBackdrop) adminElements.loginBackdrop.classList.add('open');
+    if (adminElements.btnAdminLogout) adminElements.btnAdminLogout.style.display = 'none';
+  };
+
+  // Check active session on load
+  if (Store.isAdminAuthenticated(slug)) {
+    unlockDashboard();
+  } else {
+    lockDashboard();
+  }
 
   // Listen to Firebase Auth state
   Store.onAuthStateChanged(async (user) => {
     if (user) {
-      // Verify ownership of the current restaurant slug
       const isOwner = await Store.verifyTenantOwnership(slug, user.uid);
       if (isOwner) {
-        isAuthenticated = true;
-        if (adminElements.loginModal) adminElements.loginModal.classList.remove('open');
-        if (adminElements.loginBackdrop) adminElements.loginBackdrop.classList.remove('open');
-        if (adminElements.btnAdminLogout) adminElements.btnAdminLogout.style.display = 'inline-flex';
-        
-        loadAllDashboardData();
-
-        // Subscribe to real-time cloud changes
-        Store.syncFromCloud(slug, (status) => {
-          if (status && status.hasData) {
-            renderCatalog();
-            renderCategoriesList();
-            renderStoriesList();
-            loadSettingsIntoForm();
-          }
-        });
-
-        // Subscribe to real-time incoming orders
-        Store.syncOrdersFromCloud(slug, (orders) => {
-          renderOrdersList(orders);
-        });
-      } else {
+        unlockDashboard();
+      } else if (!Store.isAdminAuthenticated(slug)) {
         if (adminElements.loginErrorMsg) {
           adminElements.loginErrorMsg.textContent = "عفواً، هذا الحساب ليس لديه صلاحية إدارة هذا المطعم.";
           adminElements.loginErrorMsg.style.display = 'block';
         }
         await Store.logoutAdmin();
       }
-    } else {
-      isAuthenticated = false;
-      if (adminElements.loginModal) adminElements.loginModal.classList.add('open');
-      if (adminElements.loginBackdrop) adminElements.loginBackdrop.classList.add('open');
-      if (adminElements.btnAdminLogout) adminElements.btnAdminLogout.style.display = 'none';
     }
   });
 
@@ -211,11 +223,11 @@ function setupAuth() {
 
     try {
       await Store.loginAdmin(email, password);
-      // Auth state listener handles the rest
+      unlockDashboard();
     } catch (err) {
       console.warn("Login failed:", err);
       let msg = "فشل تسجيل الدخول. تأكد من صحة البريد الإلكتروني وكلمة المرور.";
-      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential' || err.message === 'auth/invalid-credentials') {
         msg = "البريد الإلكتروني أو كلمة المرور غير صحيحة.";
       } else if (err.code === 'auth/too-many-requests') {
         msg = "تم تجاوز عدد المحاولات المسموح به. يرجى المحاولة لاحقاً.";
