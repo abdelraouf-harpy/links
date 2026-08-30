@@ -1821,7 +1821,7 @@ function setupSubscriptionWatcher() {
 // ── Direct In-App Ordering & Live Tracker Engine ────────────
 let activeTrackerUnsubscribe = null;
 
-function handleDirectOrderSubmit(openWhatsApp = false) {
+async function handleDirectOrderSubmit(openWhatsApp = false) {
   const cart = Store.getCart();
   if (cart.length === 0) {
     showToastNotification("السلة فارغة، أضف بعض الوجبات أولاً 🛒", "error");
@@ -1899,6 +1899,35 @@ function handleDirectOrderSubmit(openWhatsApp = false) {
 
   const subtotalAfterBase = Math.max(0, subtotal - spendTierDiscountAmount - couponDiscountAmount);
   const isWallet = selectedPaymentMethod === 'wallet';
+
+  // ── Mandatory Receipt Validation for Digital Wallet Payments ──
+  if (isWallet) {
+    // If a file was selected but not yet finished processing/uploading, upload it now
+    if (!uploadedReceiptUrl && elements.receiptInput?.files?.length > 0) {
+      const file = elements.receiptInput.files[0];
+      if (file) {
+        showToastNotification("⏳ جاري تجهيز صورة الإيصال... يرجى الانتظار", "info");
+        try {
+          uploadedReceiptUrl = await Store.uploadImage(file);
+        } catch (e) {
+          console.warn("[Checkout] Receipt upload fallback:", e);
+        }
+      }
+    }
+
+    // If still no receipt image provided, block submission and prompt user with luxury alert
+    if (!uploadedReceiptUrl) {
+      showToastNotification("📸 يرجى إرفاق صورة إيصال التحويل لتأكيد الطلب عبر فودافون كاش / إنستاباي", "warning");
+      const dropzone = document.querySelector('.receipt-luxury-dropzone') || elements.dropzonePrompt;
+      if (dropzone) {
+        dropzone.classList.add('dropzone-highlight-required');
+        dropzone.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => dropzone.classList.remove('dropzone-highlight-required'), 3000);
+      }
+      return;
+    }
+  }
+
   let walletDiscountAmount = 0;
   if (isWallet && settings.enableWalletDiscount !== false && subtotalAfterBase > 0) {
     const isPercent = settings.walletDiscountType !== 'fixed';

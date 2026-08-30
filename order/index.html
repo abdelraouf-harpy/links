@@ -12,7 +12,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="HarpyOrder">
-  <link rel="stylesheet" href="./css/style.css?v=5.4">
+  <link rel="stylesheet" href="./css/style.css?v=5.6">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23c2410c'><circle cx='12' cy='12' r='10'/></svg>">
 </head>
 <body>
@@ -381,8 +381,11 @@
                 <svg class="icon" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.08-3.08a2 2 0 0 0-2.82 0L6 21"/></svg>
               </div>
               <div class="dropzone-text-wrap">
-                <div class="dropzone-title">إرفاق إيصال / سكرين شوت التحويل (اختياري)</div>
-                <div class="dropzone-desc">انقر هنا لاختيار الصورة أو تصوير الإيصال</div>
+                <div class="dropzone-title" style="display:flex; align-items:center; justify-content:center; gap:6px; flex-wrap:wrap;">
+                  <span>إرفاق إيصال / سكرين شوت التحويل</span>
+                  <span style="font-size:10.5px; background:rgba(239,68,68,0.15); color:var(--danger); border:1px solid rgba(239,68,68,0.3); padding:1px 6px; border-radius:4px; font-weight:800;">مطلوب لتأكيد الدفع</span>
+                </div>
+                <div class="dropzone-desc">انقر هنا لرفع أو تصوير إيصال فودافون كاش / إنستاباي</div>
               </div>
             </div>
             <div id="receipt-preview-wrap" style="display:none; position:relative; margin-top:8px;">
@@ -694,7 +697,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="./js/store.js?v=5.4"></script>
-  <script src="./js/app.js?v=5.4"></script>
+  <script src="./js/store.js?v=5.6"></script>
+  <script src="./js/app.js?v=5.6"></script>
 </body>
 </html>

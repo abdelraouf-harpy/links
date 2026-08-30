@@ -349,6 +349,7 @@ function renderRestaurantHub() {
 
 function loadAllDashboardData() {
   renderRestaurantHub();
+  renderOrdersList(Store.getOrders());
   renderCatalog();
   renderCategoriesList();
   renderStoriesList();
@@ -404,25 +405,89 @@ function checkOnboardingSetup() {
   }
 }
 
-// ── Navigation Tabs ────────────────────────────────────────
+// ── Navigation Tabs with State Persistence & Zero-Latency Routing ────
+window.switchTab = function(targetTabId, updateHash = true) {
+  if (!targetTabId) targetTabId = 'tab-products';
+  if (!targetTabId.startsWith('tab-')) targetTabId = 'tab-' + targetTabId;
+
+  const targetPane = document.getElementById(targetTabId);
+  if (!targetPane) targetTabId = 'tab-products';
+
+  currentTab = targetTabId;
+
+  // 1. Update Tab Buttons
+  adminElements.tabBtns.forEach(b => {
+    if (b.dataset.tab === targetTabId) {
+      b.classList.add('active');
+    } else {
+      b.classList.remove('active');
+    }
+  });
+
+  // 2. Update Tab Panes
+  adminElements.tabPanes.forEach(pane => {
+    pane.style.display = pane.id === targetTabId ? 'block' : 'none';
+  });
+
+  // 3. Save Active Tab to Storage
+  try {
+    const slug = Store.getRestaurantSlug();
+    localStorage.setItem(`harpy_${slug}_admin_active_tab`, targetTabId);
+  } catch(e) {}
+
+  // 4. Update URL Hash without Page Reload
+  if (updateHash) {
+    const shortHash = targetTabId.replace('tab-', '');
+    if (window.location.hash !== '#' + shortHash) {
+      history.replaceState(null, '', '#' + shortHash);
+    }
+  }
+
+  // 5. Instantly render the active tab's cached data
+  if (targetTabId === 'tab-products') {
+    renderCatalog();
+  } else if (targetTabId === 'tab-orders') {
+    renderOrdersList(Store.getOrders());
+  } else if (targetTabId === 'tab-categories') {
+    renderCategoriesList();
+  } else if (targetTabId === 'tab-stories') {
+    renderStoriesList();
+  } else if (targetTabId === 'tab-settings') {
+    loadSettingsIntoForm();
+  }
+};
+
 function setupTabNavigation() {
+  // Bind click event to tab buttons
   adminElements.tabBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const targetTab = btn.dataset.tab;
-      currentTab = targetTab;
-
-      adminElements.tabBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-
-      adminElements.tabPanes.forEach(pane => {
-        pane.style.display = pane.id === targetTab ? 'block' : 'none';
-      });
-
-      if (targetTab === 'tab-products') renderCatalog();
-      else if (targetTab === 'tab-categories') renderCategoriesList();
-      else if (targetTab === 'tab-stories') renderStoriesList();
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.switchTab(btn.dataset.tab, true);
     });
   });
+
+  // Listen for hash changes (e.g. browser back/forward buttons)
+  window.addEventListener('hashchange', () => {
+    const hash = (window.location.hash || '').replace('#', '').trim();
+    if (hash) {
+      window.switchTab('tab-' + hash, false);
+    }
+  });
+
+  // Determine initial tab from Hash, or LocalStorage, or Default
+  const hash = (window.location.hash || '').replace('#', '').trim();
+  const slug = Store.getRestaurantSlug();
+  const savedTab = localStorage.getItem(`harpy_${slug}_admin_active_tab`);
+
+  let initialTab = 'tab-products';
+  if (hash && document.getElementById('tab-' + hash)) {
+    initialTab = 'tab-' + hash;
+  } else if (savedTab && document.getElementById(savedTab)) {
+    initialTab = savedTab;
+  }
+
+  // Switch to initial tab immediately
+  window.switchTab(initialTab, false);
 }
 
 // ── High-Efficiency Auto-Compressing Image Dropzone ─────────
@@ -811,8 +876,13 @@ window.openReceiptFullImage = function() {
   window.open(url, '_blank');
 };
 
-function renderOrdersList(orders = []) {
+let lastRenderedOrdersSignature = null;
+
+function renderOrdersList(orders = null) {
   if (!adminElements.adminOrdersContainer) return;
+  if (orders === null || orders === undefined) {
+    orders = Store.getOrders();
+  }
   const currency = Store.getSettings().currency || "ج.م";
 
   const totalOrders = orders.length;
@@ -841,6 +911,13 @@ function renderOrdersList(orders = []) {
       adminElements.ordersBadgeCount.style.display = 'none';
     }
   }
+
+  // Prevent repetitive DOM repaints if data signature is identical
+  const currentSignature = JSON.stringify(orders.map(o => ({ id: o.orderId, st: o.status, tot: o.finalTotal, rec: o.receiptUrl })));
+  if (lastRenderedOrdersSignature === currentSignature && adminElements.adminOrdersContainer.children.length > 0) {
+    return;
+  }
+  lastRenderedOrdersSignature = currentSignature;
 
   if (orders.length === 0) {
     adminElements.adminOrdersContainer.innerHTML = `
