@@ -597,11 +597,56 @@ function showAdminOrderNotification(newOrder) {
   }
 }
 
+// ── Luxury Status Picker Sheet Handlers ─────────────────────
+let currentEditingOrderId = null;
+
+window.openStatusSheet = function(orderId, currentStatus) {
+  currentEditingOrderId = orderId;
+  const sheet = document.getElementById('status-sheet');
+  const backdrop = document.getElementById('status-sheet-backdrop');
+  const orderIdSpan = document.getElementById('status-sheet-order-id');
+
+  if (orderIdSpan) orderIdSpan.textContent = orderId;
+
+  // Highlight active tile
+  document.querySelectorAll('.status-option-tile').forEach(tile => {
+    if (tile.dataset.status === currentStatus) {
+      tile.classList.add('active');
+    } else {
+      tile.classList.remove('active');
+    }
+  });
+
+  if (sheet) sheet.classList.add('open');
+  if (backdrop) backdrop.classList.add('open');
+};
+
+window.closeStatusSheet = function() {
+  currentEditingOrderId = null;
+  const sheet = document.getElementById('status-sheet');
+  const backdrop = document.getElementById('status-sheet-backdrop');
+  if (sheet) sheet.classList.remove('open');
+  if (backdrop) backdrop.classList.remove('open');
+};
+
+window.selectOrderStatus = async function(newStatus) {
+  if (!currentEditingOrderId) return;
+  const orderId = currentEditingOrderId;
+  closeStatusSheet();
+  await Store.updateOrderStatus(orderId, newStatus);
+  showToastNotification("تم تحديث حالة الطلب سحابياً بنجاح ✓", "success");
+};
+
+window.updateOrderStatusFast = async function(orderId, newStatus) {
+  await Store.updateOrderStatus(orderId, newStatus);
+  showToastNotification("تم تحديث حالة الطلب سحابياً بنجاح ✓", "success");
+};
+
 window.openReceiptModal = function(url) {
-  const modal = document.getElementById('receipt-modal');
-  const backdrop = document.getElementById('receipt-modal-backdrop');
-  const img = document.getElementById('receipt-modal-img');
-  const link = document.getElementById('receipt-modal-download');
+  const modal = document.getElementById('receipt-lightbox');
+  const backdrop = document.getElementById('receipt-lightbox-backdrop');
+  const img = document.getElementById('receipt-lightbox-img');
+  const link = document.getElementById('receipt-lightbox-download');
   if (img) img.src = url;
   if (link) link.href = url;
   if (modal) modal.classList.add('open');
@@ -609,8 +654,8 @@ window.openReceiptModal = function(url) {
 };
 
 window.closeReceiptModal = function() {
-  const modal = document.getElementById('receipt-modal');
-  const backdrop = document.getElementById('receipt-modal-backdrop');
+  const modal = document.getElementById('receipt-lightbox');
+  const backdrop = document.getElementById('receipt-lightbox-backdrop');
   if (modal) modal.classList.remove('open');
   if (backdrop) backdrop.classList.remove('open');
 };
@@ -662,20 +707,20 @@ function renderOrdersList(orders = []) {
     const status = o.status || 'pending';
 
     const statusBadge = {
-      pending: { bg: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', text: '1. استلام الطلب (قيد المراجعة) 📥' },
-      preparing: { bg: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', text: '2. المطبخ يجهز طلبك الآن 👨‍🍳' },
-      out_for_delivery: { bg: 'rgba(168, 85, 247, 0.15)', color: '#a855f7', text: '3. الطلب في الطريق إليك 🛵' },
-      delivered: { bg: 'rgba(34, 197, 94, 0.15)', color: '#22c55e', text: '4. تم التسليم بنجاح ✅' },
-      cancelled: { bg: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', text: 'تم الإلغاء ✕' }
-    }[status] || { bg: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', text: '1. استلام الطلب 📥' };
+      pending: { bg: 'rgba(245, 158, 11, 0.12)', color: '#f59e0b', borderColor: 'rgba(245, 158, 11, 0.3)', text: '1. استلام الطلب 📥' },
+      preparing: { bg: 'rgba(59, 130, 246, 0.12)', color: '#3b82f6', borderColor: 'rgba(59, 130, 246, 0.3)', text: '2. المطبخ يجهز 👨‍🍳' },
+      out_for_delivery: { bg: 'rgba(168, 85, 247, 0.12)', color: '#a855f7', borderColor: 'rgba(168, 85, 247, 0.3)', text: '3. في الطريق إليك 🛵' },
+      delivered: { bg: 'rgba(34, 197, 94, 0.12)', color: '#22c55e', borderColor: 'rgba(34, 197, 94, 0.3)', text: '4. تم التسليم ✅' },
+      cancelled: { bg: 'rgba(239, 68, 68, 0.12)', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)', text: 'تم الإلغاء ✕' }
+    }[status] || { bg: 'rgba(245, 158, 11, 0.12)', color: '#f59e0b', borderColor: 'rgba(245, 158, 11, 0.3)', text: '1. استلام الطلب 📥' };
 
     const itemsHtml = (o.items || []).map(it => `
       <div style="display:flex; justify-content:space-between; align-items:flex-start; font-size:12.5px; padding:6px 0; border-bottom:1px dashed var(--border);">
-        <div style="flex:1; padding-left:8px;">
+        <div style="flex:1; padding-left:8px; min-width:0;">
           <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-            <span style="font-weight:900; background:var(--primary-subtle); color:var(--primary); padding:1px 6px; border-radius:4px; font-size:11.5px;">${it.qty}x</span>
+            <span style="font-weight:900; background:var(--primary-subtle); color:var(--primary); padding:1px 6px; border-radius:4px; font-size:11px;">${it.qty}x</span>
             <span style="font-weight:800; color:var(--text-main);">${it.name}</span>
-            ${it.selectedSize ? `<span style="font-size:11px; background:var(--surface); border:1px solid var(--border); color:var(--text-muted); padding:1px 6px; border-radius:4px;">${it.selectedSize.name}</span>` : ''}
+            ${it.selectedSize ? `<span style="font-size:10.5px; background:var(--surface); border:1px solid var(--border); color:var(--text-muted); padding:1px 5px; border-radius:4px;">${it.selectedSize.name}</span>` : ''}
           </div>
           ${it.selectedAddons && it.selectedAddons.length ? `
             <div style="font-size:11px; color:var(--accent-wa); margin-top:2px;">
@@ -688,7 +733,7 @@ function renderOrdersList(orders = []) {
             </div>
           ` : ''}
         </div>
-        <div class="font-num" style="font-weight:800; color:var(--text-main); white-space:nowrap;">
+        <div class="font-num" style="font-weight:800; color:var(--text-main); white-space:nowrap; flex-shrink:0;">
           ${((it.price || 0) * it.qty).toFixed(2)} ${currency}
         </div>
       </div>
@@ -701,117 +746,109 @@ function renderOrdersList(orders = []) {
     const isWalletPayment = o.paymentMethod === 'wallet';
 
     return `
-      <div class="order-card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px 18px; display:flex; flex-direction:column; gap:14px; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+      <div class="order-card-pro">
         
-        <!-- Header: Order ID, Time & Status Controller -->
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; border-bottom:1px solid var(--border); padding-bottom:12px;">
-          <div style="display:flex; align-items:center; gap:10px;">
-            <span class="font-num" style="font-size:15px; font-weight:900; background:var(--primary); color:#ffffff; padding:3px 10px; border-radius:6px; letter-spacing:0.5px;">${o.orderId}</span>
-            <span style="font-size:12px; color:var(--text-muted); display:flex; align-items:center; gap:4px;">
+        <!-- Header: Order ID, Time & Luxury Status Trigger Button -->
+        <div class="order-card-header-row">
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span class="order-id-chip font-num">${o.orderId}</span>
+            <span class="order-time-chip">
               <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               ${timeStr}
             </span>
           </div>
 
-          <!-- Status Dropdown with 4 Sequential Stages -->
-          <div style="display:flex; align-items:center; gap:8px;">
-            <span style="background:${statusBadge.bg}; color:${statusBadge.color}; font-size:11.5px; font-weight:800; padding:4px 10px; border-radius:6px; white-space:nowrap;">
-              ${statusBadge.text}
-            </span>
-            <select class="form-select font-num" style="font-size:12px; padding:6px 10px; font-weight:800; width:auto; border-radius:6px; cursor:pointer;" onchange="updateOrderStatusFast('${o.orderId}', this.value)">
-              <option value="pending" ${status === 'pending' ? 'selected' : ''}>1. تم استلام الطلب (قيد المراجعة) 📥</option>
-              <option value="preparing" ${status === 'preparing' ? 'selected' : ''}>2. المطبخ يجهز طلبك الآن 👨‍🍳</option>
-              <option value="out_for_delivery" ${status === 'out_for_delivery' ? 'selected' : ''}>3. الطلب في الطريق إليك 🛵</option>
-              <option value="delivered" ${status === 'delivered' ? 'selected' : ''}>4. تم التسليم بالهناء والشفاء ✅</option>
-              <option value="cancelled" ${status === 'cancelled' ? 'selected' : ''}>إلغاء الطلب ✕</option>
-            </select>
-          </div>
+          <!-- Interactive Custom Status Sheet Trigger (No Native Select Dialog) -->
+          <button type="button" class="order-status-trigger-btn font-num" style="background:${statusBadge.bg}; color:${statusBadge.color}; border:1px solid ${statusBadge.borderColor};" onclick="openStatusSheet('${o.orderId}', '${status}')">
+            <span>${statusBadge.text}</span>
+            <span style="font-size:10px; margin-right:2px; opacity:0.8;">▾</span>
+          </button>
         </div>
 
-        <!-- Body: 2 Columns (Customer Details & Items Summary) -->
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px;">
+        <!-- Body: Responsive Columns (Customer Details & Items Summary) -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:12px; width:100%; box-sizing:border-box;">
           
           <!-- Column 1: Customer & Delivery Info -->
-          <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 14px; display:flex; flex-direction:column; justify-content:space-between;">
+          <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px; display:flex; flex-direction:column; justify-content:space-between; box-sizing:border-box;">
             <div>
-              <div style="font-size:11.5px; font-weight:800; color:var(--text-muted); margin-bottom:6px; display:flex; align-items:center; gap:5px;">
+              <div style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:6px; display:flex; align-items:center; gap:5px;">
                 <span>👤</span> بيانات العميل والتوصيل:
               </div>
               
-              <div style="font-size:14.5px; font-weight:900; color:var(--text-main); margin-bottom:6px;">
+              <div style="font-size:14px; font-weight:900; color:var(--text-main); margin-bottom:6px; word-break:break-word;">
                 ${o.customer?.name || 'عميل'}
               </div>
 
-              <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
-                <span class="font-num" style="font-size:13px; font-weight:800; color:var(--text-main); background:var(--surface-raised); padding:3px 8px; border-radius:4px; border:1px solid var(--border);">
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px; flex-wrap:wrap;">
+                <span class="font-num" style="font-size:12.5px; font-weight:800; color:var(--text-main); background:var(--surface-raised); padding:3px 8px; border-radius:4px; border:1px solid var(--border);">
                   ${o.customer?.phone || 'بدون هاتف'}
                 </span>
                 ${phoneRaw ? `
-                  <a href="${telUrl}" class="btn btn-ghost btn-sm" style="padding:3px 8px; font-size:11.5px; font-weight:700;" title="اتصال بالعميل">
+                  <a href="${telUrl}" class="btn btn-ghost btn-sm" style="padding:3px 8px; font-size:11px; font-weight:700;" title="اتصال بالعميل">
                     📞 اتصال
                   </a>
-                  <a href="${waUrl}" target="_blank" class="btn btn-ghost btn-sm" style="padding:3px 8px; font-size:11.5px; color:var(--accent-wa); font-weight:800;" title="محادثة واتساب">
+                  <a href="${waUrl}" target="_blank" class="btn btn-ghost btn-sm" style="padding:3px 8px; font-size:11px; color:var(--accent-wa); font-weight:800;" title="محادثة واتساب">
                     💬 واتساب
                   </a>
                 ` : ''}
               </div>
 
-              <div style="font-size:12px; color:var(--text-body); line-height:1.5; margin-bottom:6px; background:var(--surface-raised); padding:6px 10px; border-radius:6px;">
+              <div style="font-size:12px; color:var(--text-body); line-height:1.45; margin-bottom:6px; background:var(--surface-raised); padding:6px 10px; border-radius:6px; word-break:break-word;">
                 <span style="font-weight:800; color:var(--text-main);">📍 العنوان: </span>
                 ${o.customer?.address || 'استلام من المطعم'}
               </div>
 
               ${o.customer?.notes ? `
-                <div style="font-size:11.5px; color:#f59e0b; background:rgba(245, 158, 11, 0.08); border:1px dashed rgba(245, 158, 11, 0.3); padding:6px 10px; border-radius:6px; margin-top:4px;">
-                  <span style="font-weight:800;">📝 ملاحظات العميل: </span>
+                <div style="font-size:11.5px; color:#f59e0b; background:rgba(245, 158, 11, 0.08); border:1px dashed rgba(245, 158, 11, 0.3); padding:6px 10px; border-radius:6px; margin-top:4px; word-break:break-word;">
+                  <span style="font-weight:800;">📝 ملاحظات: </span>
                   ${o.customer.notes}
                 </div>
               ` : ''}
             </div>
 
             <!-- Payment Info Badge -->
-            <div style="margin-top:12px; padding-top:10px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
-              <span style="font-size:12px; font-weight:800; color:var(--text-muted);">طريقة الدفع:</span>
-              <span style="font-size:12px; font-weight:800; padding:3px 8px; border-radius:6px; ${isWalletPayment ? 'background:rgba(59, 130, 246, 0.12); color:#3b82f6;' : 'background:rgba(34, 197, 94, 0.12); color:#22c55e;'}">
-                ${isWalletPayment ? '💳 محفظة فودافون كاش / إنستاباي' : '💵 نقداً عند الاستلام (COD)'}
+            <div style="margin-top:10px; padding-top:8px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
+              <span style="font-size:11.5px; font-weight:800; color:var(--text-muted);">طريقة الدفع:</span>
+              <span style="font-size:11.5px; font-weight:800; padding:3px 8px; border-radius:6px; ${isWalletPayment ? 'background:rgba(59, 130, 246, 0.12); color:#3b82f6;' : 'background:rgba(34, 197, 94, 0.12); color:#22c55e;'}">
+                ${isWalletPayment ? '💳 فودافون كاش / إنستاباي' : '💵 نقداً عند الاستلام (COD)'}
               </span>
             </div>
           </div>
 
           <!-- Column 2: Order Items & Total -->
-          <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 14px; display:flex; flex-direction:column; justify-content:space-between;">
+          <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px; display:flex; flex-direction:column; justify-content:space-between; box-sizing:border-box;">
             <div>
-              <div style="font-size:11.5px; font-weight:800; color:var(--text-muted); margin-bottom:6px; display:flex; align-items:center; gap:5px;">
+              <div style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:6px; display:flex; align-items:center; gap:5px;">
                 <span>🍽️</span> محتويات الطلب:
               </div>
 
-              <div style="max-height:160px; overflow-y:auto; padding-right:4px;">
+              <div style="max-height:150px; overflow-y:auto; padding-right:2px;">
                 ${itemsHtml}
               </div>
             </div>
 
-            <div style="margin-top:12px; padding-top:10px; border-top:1px solid var(--border);">
+            <div style="margin-top:10px; padding-top:8px; border-top:1px solid var(--border);">
               
               <!-- Total summary row -->
               <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:13px; font-weight:800; color:var(--text-muted);">المبلغ المطلوب تحصيله:</span>
-                <span class="font-num" style="font-size:17px; font-weight:900; color:var(--primary);">
+                <span style="font-size:12.5px; font-weight:800; color:var(--text-muted);">المبلغ المطلوب:</span>
+                <span class="font-num" style="font-size:16px; font-weight:900; color:var(--primary);">
                   ${(parseFloat(o.finalTotal) || 0).toFixed(2)} ${currency}
                 </span>
               </div>
 
               <!-- Payment Receipt interactive widget if uploaded -->
               ${isWalletPayment && o.receiptUrl ? `
-                <div style="margin-top:10px; background:var(--surface-raised); border:1px solid var(--border); border-radius:6px; padding:8px 10px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
-                  <div style="display:flex; align-items:center; gap:8px;">
-                    <img src="${o.receiptUrl}" alt="Receipt" style="width:40px; height:40px; border-radius:4px; object-fit:cover; border:1px solid var(--border); cursor:pointer;" onclick="openReceiptModal('${o.receiptUrl}')">
-                    <div>
-                      <div style="font-size:11.5px; font-weight:800; color:var(--text-main);">📸 إيصال التحويل مرفق</div>
-                      <div style="font-size:10.5px; color:var(--accent-wa); font-weight:700;">تم الرفع بنجاح ✓</div>
+                <div style="margin-top:8px; background:var(--surface-raised); border:1px solid var(--border); border-radius:6px; padding:6px 10px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                  <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+                    <img src="${o.receiptUrl}" alt="Receipt" style="width:36px; height:36px; border-radius:4px; object-fit:cover; border:1px solid var(--border); cursor:pointer; flex-shrink:0;" onclick="openReceiptModal('${o.receiptUrl}')">
+                    <div style="min-width:0;">
+                      <div style="font-size:11px; font-weight:800; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">📸 إيصال التحويل</div>
+                      <div style="font-size:10px; color:var(--accent-wa); font-weight:700;">تم الرفع ✓</div>
                     </div>
                   </div>
-                  <button type="button" class="btn btn-primary btn-sm" onclick="openReceiptModal('${o.receiptUrl}')" style="padding:4px 10px; font-size:11px; font-weight:800;">
-                    🔍 معاينة الإيصال
+                  <button type="button" class="btn btn-primary btn-sm" onclick="openReceiptModal('${o.receiptUrl}')" style="padding:4px 8px; font-size:10.5px; font-weight:800; white-space:nowrap; flex-shrink:0;">
+                    🔍 معاينة
                   </button>
                 </div>
               ` : ''}

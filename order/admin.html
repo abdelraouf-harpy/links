@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700;800;900&family=Cairo:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./css/style.css?v=5.0">
+  <link rel="stylesheet" href="./css/style.css?v=5.2">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23c2410c'><circle cx='12' cy='12' r='10'/></svg>">
 </head>
 <body style="padding-bottom: 60px;">
@@ -623,23 +623,88 @@
     </form>
   </div>
 
-  <!-- Receipt Image Lightbox Modal -->
-  <div id="receipt-modal-backdrop" class="modal-backdrop" onclick="closeReceiptModal()"></div>
-  <div id="receipt-modal" class="custom-modal" style="max-width: 520px; padding: 20px; border-radius: var(--radius-md); text-align: center;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
-      <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+  <!-- ═══ LUXURY ORDER STATUS ACTION SHEET ═══════════════ -->
+  <div id="status-sheet-backdrop" class="status-sheet-backdrop" onclick="closeStatusSheet()"></div>
+  <div id="status-sheet" class="status-sheet-dialog">
+    <div class="status-sheet-handle"></div>
+    <div class="status-sheet-header">
+      <div>
+        <div class="status-sheet-title">تحديث حالة الطلب <span id="status-sheet-order-id" class="font-num" style="color:var(--primary);">#ORD-0000</span></div>
+        <div class="status-sheet-sub">اختر المرحلة الحالية ليتم إخطار الزبون وتحديث شاشة التتبع فورياً:</div>
+      </div>
+      <button type="button" class="btn-close-sheet" onclick="closeStatusSheet()" aria-label="إغلاق">✕</button>
+    </div>
+
+    <div class="status-options-grid">
+      <!-- Stage 1 -->
+      <button type="button" class="status-option-tile" data-status="pending" onclick="selectOrderStatus('pending')">
+        <div class="status-option-icon" style="background:rgba(245,158,11,0.15); color:#f59e0b;">📥</div>
+        <div class="status-option-info">
+          <div class="status-option-name">1. تم استلام الطلب (قيد المراجعة)</div>
+          <div class="status-option-desc">الطلب وصل المطعم وفي انتظار البدء والتأكيد</div>
+        </div>
+        <div class="status-option-radio"></div>
+      </button>
+
+      <!-- Stage 2 -->
+      <button type="button" class="status-option-tile" data-status="preparing" onclick="selectOrderStatus('preparing')">
+        <div class="status-option-icon" style="background:rgba(59,130,246,0.15); color:#3b82f6;">👨‍🍳</div>
+        <div class="status-option-info">
+          <div class="status-option-name">2. المطبخ يجهز طلبك الآن</div>
+          <div class="status-option-desc">طهاة المطعم بدأوا في تجهيز وطهي الوجبات</div>
+        </div>
+        <div class="status-option-radio"></div>
+      </button>
+
+      <!-- Stage 3 -->
+      <button type="button" class="status-option-tile" data-status="out_for_delivery" onclick="selectOrderStatus('out_for_delivery')">
+        <div class="status-option-icon" style="background:rgba(168,85,247,0.15); color:#a855f7;">🛵</div>
+        <div class="status-option-info">
+          <div class="status-option-name">3. الطلب في الطريق إليك</div>
+          <div class="status-option-desc">الكابتن استلم الأوردر وهو في طريقه لعنوان العميل</div>
+        </div>
+        <div class="status-option-radio"></div>
+      </button>
+
+      <!-- Stage 4 -->
+      <button type="button" class="status-option-tile" data-status="delivered" onclick="selectOrderStatus('delivered')">
+        <div class="status-option-icon" style="background:rgba(34,197,94,0.15); color:#22c55e;">✅</div>
+        <div class="status-option-info">
+          <div class="status-option-name">4. تم التسليم بالهناء والشفاء</div>
+          <div class="status-option-desc">تم تسليم الوجبات بنجاح وتحصيل الحساب</div>
+        </div>
+        <div class="status-option-radio"></div>
+      </button>
+
+      <!-- Cancel -->
+      <button type="button" class="status-option-tile cancel-tile" data-status="cancelled" onclick="selectOrderStatus('cancelled')">
+        <div class="status-option-icon" style="background:rgba(239,68,68,0.15); color:#ef4444;">✕</div>
+        <div class="status-option-info">
+          <div class="status-option-name" style="color:var(--danger);">إلغاء الطلب</div>
+          <div class="status-option-desc">إلغاء هذا الطلب وإيقاف التجهيز</div>
+        </div>
+        <div class="status-option-radio"></div>
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ RECEIPT LIGHTBOX FULL MODAL ═══════════════════════ -->
+  <div id="receipt-lightbox-backdrop" class="receipt-lightbox-backdrop" onclick="closeReceiptModal()"></div>
+  <div id="receipt-lightbox" class="receipt-lightbox-dialog">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid var(--border); padding-bottom:10px;">
+      <h3 style="margin:0; font-size:1.05rem; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:8px;">
         <span>📸</span> إيصال تحويل فودافون كاش / إنستاباي
       </h3>
-      <button type="button" class="btn btn-ghost btn-sm" onclick="closeReceiptModal()" style="font-size: 1.2rem; padding: 4px 8px; border-radius: 6px;">✕</button>
+      <button type="button" class="btn-close-sheet" onclick="closeReceiptModal()" aria-label="إغلاق">✕</button>
     </div>
-    <div style="border-radius: var(--radius-sm); overflow: hidden; background: #000; max-height: 65vh; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border);">
-      <img id="receipt-modal-img" src="" alt="Receipt Image" style="max-width: 100%; max-height: 62vh; object-fit: contain;">
+    <div style="border-radius:var(--radius-sm); overflow:hidden; background:#000; max-height:60vh; display:flex; align-items:center; justify-content:center; border:1px solid var(--border-strong);">
+      <img id="receipt-lightbox-img" src="" alt="Receipt Image" style="max-width:100%; max-height:58vh; object-fit:contain; display:block;">
     </div>
-    <div style="margin-top: 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
-      <a id="receipt-modal-download" href="#" target="_blank" class="btn btn-primary btn-sm" style="font-weight: 800; font-size: 0.85rem; padding: 8px 16px;">
+    <div style="margin-top:14px; display:flex; justify-content:space-between; align-items:center; gap:10px;">
+      <a id="receipt-lightbox-download" href="#" target="_blank" class="btn btn-primary btn-sm" style="font-weight:800; font-size:0.85rem; padding:8px 16px; text-decoration:none;">
         فتح الصورة بالحجم الكامل ↗
       </a>
-      <button type="button" class="btn btn-ghost btn-sm" onclick="closeReceiptModal()" style="font-weight: 700;">إغلاق</button>
+      <button type="button" class="btn btn-ghost btn-sm" onclick="closeReceiptModal()" style="font-weight:700;">إغلاق</button>
     </div>
   </div>
 
@@ -647,7 +712,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="./js/store.js?v=5.1"></script>
-  <script src="./js/admin.js?v=5.1"></script>
+  <script src="./js/store.js?v=5.2"></script>
+  <script src="./js/admin.js?v=5.2"></script>
 </body>
 </html>
