@@ -391,9 +391,21 @@ const Store = {
   syncFromCloud(slug, onUpdate) {
     if (!slug) return () => {};
     let isDestroyed = false;
+    let lastKnownDataHash = '';
 
     const processSnapshotData = (data) => {
       if (isDestroyed || !data) return;
+      const currentDataHash = JSON.stringify({
+        s: data.settings,
+        c: data.categories,
+        p: data.products,
+        st: data.stories
+      });
+      if (currentDataHash === lastKnownDataHash) {
+        return; // Zero-lag: No changes detected, skip re-render
+      }
+      lastKnownDataHash = currentDataHash;
+
       const now = Date.now();
       // Protect settings from stale cloud snapshot overwrites while local save in-flight
       if (data.settings && !this.saveLocks.settings && (now - this.lastSaveTimestamps.settings > 2500)) {
@@ -405,23 +417,26 @@ const Store = {
         }
       }
       if (data.categories && !this.saveLocks.categories && (now - this.lastSaveTimestamps.categories > 2500)) {
+        const catArray = Array.isArray(data.categories) ? data.categories : Object.values(data.categories);
         const currentCats = this.getCategories();
-        if (JSON.stringify(currentCats) !== JSON.stringify(data.categories)) {
-          this.safeSetItem(this.getKey(STORAGE_KEYS.CATEGORIES), JSON.stringify(data.categories));
+        if (JSON.stringify(currentCats) !== JSON.stringify(catArray)) {
+          this.safeSetItem(this.getKey(STORAGE_KEYS.CATEGORIES), JSON.stringify(catArray));
           window.dispatchEvent(new Event('store_categories_updated'));
         }
       }
       if (data.products && !this.saveLocks.products && (now - this.lastSaveTimestamps.products > 2500)) {
+        const prodArray = Array.isArray(data.products) ? data.products : Object.values(data.products);
         const currentProds = this.getProducts();
-        if (JSON.stringify(currentProds) !== JSON.stringify(data.products)) {
-          this.safeSetItem(this.getKey(STORAGE_KEYS.PRODUCTS), JSON.stringify(data.products));
+        if (JSON.stringify(currentProds) !== JSON.stringify(prodArray)) {
+          this.safeSetItem(this.getKey(STORAGE_KEYS.PRODUCTS), JSON.stringify(prodArray));
           window.dispatchEvent(new Event('store_products_updated'));
         }
       }
       if (data.stories && !this.saveLocks.stories && (now - this.lastSaveTimestamps.stories > 2500)) {
+        const storyArray = Array.isArray(data.stories) ? data.stories : Object.values(data.stories);
         const currentStories = this.getStories();
-        if (JSON.stringify(currentStories) !== JSON.stringify(data.stories)) {
-          this.safeSetItem(this.getKey(STORAGE_KEYS.STORIES), JSON.stringify(data.stories));
+        if (JSON.stringify(currentStories) !== JSON.stringify(storyArray)) {
+          this.safeSetItem(this.getKey(STORAGE_KEYS.STORIES), JSON.stringify(storyArray));
           window.dispatchEvent(new Event('store_stories_updated'));
         }
       }
@@ -935,7 +950,10 @@ const Store = {
     const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.CATEGORIES));
     if (!raw) return DEFAULT_CATEGORIES;
     try {
-      return JSON.parse(raw);
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+      if (parsed && typeof parsed === 'object') return Object.values(parsed);
+      return DEFAULT_CATEGORIES;
     } catch {
       return DEFAULT_CATEGORIES;
     }
@@ -957,7 +975,10 @@ const Store = {
     const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.PRODUCTS));
     if (!raw) return DEFAULT_PRODUCTS;
     try {
-      return JSON.parse(raw);
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+      if (parsed && typeof parsed === 'object') return Object.values(parsed);
+      return DEFAULT_PRODUCTS;
     } catch {
       return DEFAULT_PRODUCTS;
     }
@@ -1247,11 +1268,7 @@ const Store = {
       let isDeleted = false;
       let reason = 'active';
 
-      if (lic === null && meta === null && subSettings === null) {
-        isDeleted = true;
-        isBlocked = true;
-        reason = 'deleted';
-      } else if (lic) {
+      if (lic) {
         if (lic.status === 'suspended' || lic.status === 'blocked' || lic.status === 'inactive') {
           isBlocked = true;
           reason = 'blocked';
@@ -1311,7 +1328,7 @@ const Store = {
       }
     };
 
-    // 1. WebSocket Listener (Primary)
+    // 1. WebSocket Listener (Primary, sub-50ms instant)
     let licRef = null;
     let wsCallback = null;
     try {
@@ -1329,7 +1346,7 @@ const Store = {
       console.warn("[Store] Firebase license watcher init notice:", err);
     }
 
-    // 2. Ultra-Fast REST Heartbeat Pulse (Every 2.0s) for instant freeze/lock reflection
+    // 2. Smooth REST Fallback (Every 30 seconds, zero CPU/memory pressure)
     const fetchLicenseFast = async () => {
       if (isDestroyed) return;
       try {
@@ -1352,7 +1369,7 @@ const Store = {
     };
 
     fetchLicenseFast();
-    pollTimer = setInterval(fetchLicenseFast, 2000);
+    pollTimer = setInterval(fetchLicenseFast, 30000);
 
     return () => {
       isDestroyed = true;

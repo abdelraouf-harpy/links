@@ -217,7 +217,9 @@ function setupAuth() {
     if (user) {
       const isOwner = await Store.verifyTenantOwnership(slug, user.uid);
       if (isOwner) {
-        unlockDashboard();
+        if (!isAuthenticated) {
+          unlockDashboard();
+        }
       } else if (!Store.isAdminAuthenticated(slug)) {
         if (adminElements.loginErrorMsg) {
           adminElements.loginErrorMsg.textContent = "عفواً، هذا الحساب ليس لديه صلاحية إدارة هذا المطعم.";
@@ -770,13 +772,7 @@ window.confirmDeleteOrder = async function(orderId) {
   });
 
   if (confirmed) {
-    showToastNotification("جاري حذف الطلب... ⏳", "info");
-    const success = await Store.deleteOrder(orderId);
-    if (success) {
-      showToastNotification("تم مسح الطلب وبياناته نهائياً ✓", "success");
-    } else {
-      showToastNotification("تم حذف الطلب بنجاح ✓", "success");
-    }
+    await Store.deleteOrder(orderId);
   }
 };
 
@@ -1144,7 +1140,7 @@ function renderCatalog() {
         </div>
 
         <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:10px; margin-top:8px; gap:8px;">
-          <button class="btn btn-ghost btn-sm btn-admin-action ${p.visible === false ? 'btn-hidden-state' : ''}" onclick="toggleProductVisibilityFast('${p.id}')" title="${p.visible === false ? 'إظهار الصنف في المنيو' : 'إخفاء الصنف من المنيو'}" style="display:inline-flex; align-items:center; gap:5px; font-weight:700; font-size:12px; padding:5px 9px;">
+          <button class="btn btn-ghost btn-sm btn-admin-action btn-visibility-toggle ${p.visible === false ? 'btn-hidden-state' : ''}" onclick="toggleProductVisibilityFast('${p.id}', this)" title="${p.visible === false ? 'إظهار الصنف في المنيو' : 'إخفاء الصنف من المنيو'}" style="display:inline-flex; align-items:center; gap:5px; font-weight:700; font-size:12px; padding:5px 9px;">
             ${p.visible === false 
               ? `<svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-muted);"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg><span>مخفي</span>`
               : `<svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#22c55e;"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg><span>ظاهر</span>`
@@ -1169,16 +1165,31 @@ window.updateProductPriceFast = async function(id, newPrice) {
   const num = parseFloat(newPrice);
   if (isNaN(num) || num < 0) return;
   await Store.updateProduct(id, { price: num });
-  showToastNotification("تم حفظ السعر الجديد بنجاح ✓", "success");
 };
 
-window.toggleProductVisibilityFast = async function(id) {
-  const p = Store.getProducts().find(item => item.id === id);
+window.toggleProductVisibilityFast = async function(id, btnElement) {
+  const prods = Store.getProducts();
+  const p = prods.find(item => item.id === id);
   if (!p) return;
-  const newVis = p.visible === false ? true : false;
+
+  const newVis = p.visible === false;
+  
+  // Instant DOM update on the specific product card (0ms latency, single click)
+  const card = document.querySelector(`.admin-product-card[data-id="${id}"]`);
+  const btn = btnElement || (card ? card.querySelector('.btn-visibility-toggle') : null);
+
+  if (card) {
+    card.classList.toggle('hidden-item', !newVis);
+  }
+  if (btn) {
+    btn.classList.toggle('btn-hidden-state', !newVis);
+    btn.title = newVis ? 'إخفاء الصنف من المنيو' : 'إظهار الصنف في المنيو';
+    btn.innerHTML = newVis 
+      ? `<svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#22c55e;"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg><span>ظاهر</span>`
+      : `<svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-muted);"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg><span>مخفي</span>`;
+  }
+
   await Store.updateProduct(id, { visible: newVis });
-  renderCatalog();
-  showToastNotification(newVis ? "تم إظهار الصنف في المنيو ✓" : "تم إخفاء الصنف من المنيو 👁️", "success");
 };
 
 window.deleteProductFast = async function(id) {
@@ -1926,7 +1937,7 @@ function setupSubscriptionWatcher() {
       if (titleEl) titleEl.textContent = 'تم حذف حساب هذا المطعم نهائياً';
       if (msgEl) msgEl.textContent = 'تم حذف بيانات وترخيص هذا المطعم نهائياً من المنصة، ولم يعد متاحاً.';
       if (contactBtn) {
-        contactBtn.href = `https://wa.me/201604040086?text=${encodeURIComponent(`مرحباً إدارة هاربي، أود الاستفسار عن إنشاء مطعم جديد بدلاً من (${slug})`)}`;
+        contactBtn.href = `https://wa.me/201019971508?text=${encodeURIComponent(`مرحباً إدارة هاربي، أود الاستفسار عن إنشاء مطعم جديد بدلاً من (${slug})`)}`;
         contactBtn.textContent = '💬 تواصل مع الإدارة لإنشاء حساب جديد';
       }
     } else if (statusReason === 'expired') {
@@ -1934,7 +1945,7 @@ function setupSubscriptionWatcher() {
       if (titleEl) titleEl.textContent = 'انتهت صلاحية اشتراك هذا المطعم';
       if (msgEl) msgEl.textContent = 'انتهت صلاحية اشتراك هذا المطعم. يرجى تجديد الباقة لاستئناف استقبال طلبات الزبائن وتعديل المنيو.';
       if (contactBtn) {
-        contactBtn.href = `https://wa.me/201604040086?text=${encodeURIComponent(`مرحباً إدارة هاربي، أود تجديد اشتراك مطعمي (${slug})`)}`;
+        contactBtn.href = `https://wa.me/201019971508?text=${encodeURIComponent(`مرحباً إدارة هاربي، أود تجديد اشتراك مطعمي (${slug})`)}`;
         contactBtn.textContent = '💬 تواصل مع الإدارة لتجديد الاشتراك';
       }
     } else {
@@ -1942,7 +1953,7 @@ function setupSubscriptionWatcher() {
       if (titleEl) titleEl.textContent = 'حساب المطعم مجمّد / موقوف مؤقتاً';
       if (msgEl) msgEl.textContent = 'تم تجميد وإيقاف اشتراك هذا المطعم مؤقتاً من قبل الإدارة. يرجى التواصل لإلغاء التجميد والتفعيل.';
       if (contactBtn) {
-        contactBtn.href = `https://wa.me/201604040086?text=${encodeURIComponent(`مرحباً إدارة هاربي، أود تفعيل وإلغاء تجميد مطعمي (${slug})`)}`;
+        contactBtn.href = `https://wa.me/201019971508?text=${encodeURIComponent(`مرحباً إدارة هاربي، أود تفعيل وإلغاء تجميد مطعمي (${slug})`)}`;
         contactBtn.textContent = '💬 تواصل مع الإدارة للتفعيل والتجديد';
       }
     }

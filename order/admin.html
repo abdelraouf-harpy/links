@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700;800;900&family=Cairo:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./css/style.css?v=6.4">
+  <link rel="stylesheet" href="./css/style.css?v=6.7">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23c2410c'><circle cx='12' cy='12' r='10'/></svg>">
   <script>
     (function() {
@@ -283,14 +283,14 @@
         <p style="font-size:12px; color:var(--text-muted); margin-bottom:20px;">التحكم في بيانات المطعم، الخصومات التلقائية، وألوان الموقع بالكامل</p>
 
         <form id="settings-form">
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-            <div class="form-group">
-              <label class="form-label">اسم المطعم / المكان *</label>
-              <input type="text" id="set-store-name" class="form-input" required>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-bottom:16px;">
+            <div class="form-group" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:flex-end;">
+              <label class="form-label" style="height:22px; display:flex; align-items:center; margin-bottom:6px;">اسم المطعم / المكان *</label>
+              <input type="text" id="set-store-name" class="form-input" placeholder="اسم المطعم" required>
             </div>
-            <div class="form-group">
-              <label class="form-label">رمز العملة (مثال: ج.م أو ر.س)</label>
-              <input type="text" id="set-currency" class="form-input" required>
+            <div class="form-group" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:flex-end;">
+              <label class="form-label" style="height:22px; display:flex; align-items:center; margin-bottom:6px;">رمز العملة (مثال: ج.م أو ر.س) *</label>
+              <input type="text" id="set-currency" class="form-input" placeholder="ج.م" required>
             </div>
           </div>
 
@@ -776,7 +776,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="./js/store.js?v=6.4"></script>
-  <script src="./js/admin.js?v=6.4"></script>
+  <script src="./js/store.js?v=6.7"></script>
+  <script src="./js/admin.js?v=6.7"></script>
 </body>
 </html>

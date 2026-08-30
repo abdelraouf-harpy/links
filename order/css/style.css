@@ -185,7 +185,7 @@ body {
 .icon-lg { width: 1.4em; height: 1.4em; }
 .icon-sm { width: 0.95em; height: 0.95em; }
 
-/* ── Editorial Header ────────────────────────────────────── */
+/* ── Integrated Hero Header with Cover Background ───────── */
 .app-header {
   position: sticky;
   top: 0;
@@ -194,10 +194,51 @@ body {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
-  padding: 12px 0;
-  padding-top: max(12px, env(safe-area-inset-top, 12px));
-  transition: var(--tr-smooth);
+  padding: 14px 0;
+  padding-top: max(14px, env(safe-area-inset-top, 14px));
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  background-size: cover !important;
+  background-position: center !important;
 }
+
+.app-header.has-cover {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.45);
+}
+
+.app-header.has-cover .brand-text h1 {
+  color: #ffffff !important;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+}
+
+.app-header.has-cover .brand-text p {
+  color: rgba(255, 255, 255, 0.88) !important;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.7);
+}
+
+.app-header.has-cover .btn-ghost {
+  background: rgba(255, 255, 255, 0.14) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  color: #ffffff !important;
+}
+
+.app-header.has-cover .btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.25) !important;
+  border-color: rgba(255, 255, 255, 0.45) !important;
+}
+
+.app-header.has-cover .brand-logo {
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+.app-header.has-cover #btn-header-tracker {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 14px var(--primary-glow);
+}
+
 .header-wrap {
   display: flex;
   align-items: center;
@@ -217,30 +258,32 @@ body {
   flex-shrink: 0;
 }
 .brand-logo {
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
   border-radius: var(--radius-sm);
   object-fit: cover;
   background: var(--surface-raised);
   border: 1px solid var(--border-strong);
   display: block;
+  transition: transform 0.2s ease;
 }
 .brand-status-dot {
   position: absolute;
   bottom: -2px;
   right: -2px;
-  width: 10px;
-  height: 10px;
+  width: 11px;
+  height: 11px;
   background: var(--accent-wa);
   border: 2px solid var(--bg);
   border-radius: 50%;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.6);
 }
 .brand-text {
   min-width: 0;
 }
 .brand-text h1 {
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 16.5px;
+  font-weight: 800;
   color: var(--text-main);
   line-height: 1.25;
   white-space: nowrap;
@@ -250,11 +293,11 @@ body {
 .brand-text p {
   font-size: 11.5px;
   color: var(--text-muted);
-  font-weight: 400;
+  font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-top: 1px;
+  margin-top: 2px;
 }
 
 .header-actions {
@@ -273,37 +316,13 @@ body {
     gap: 6px;
   }
   .brand-text h1 {
-    font-size: 14px;
+    font-size: 14.5px;
   }
   .brand-text p {
     font-size: 10.5px;
   }
   .btn-live-preview span {
     display: none;
-  }
-}
-
-/* ── Store Cover Banner ─────────────────────────────────── */
-.store-cover-banner {
-  width: 100%;
-  max-height: 140px;
-  overflow: hidden;
-  background: var(--surface);
-}
-@media (min-width: 768px) {
-  .store-cover-banner {
-    max-height: 200px;
-  }
-}
-.store-cover-img {
-  width: 100%;
-  height: 140px;
-  object-fit: cover;
-  display: block;
-}
-@media (min-width: 768px) {
-  .store-cover-img {
-    height: 200px;
   }
 }
 
@@ -3640,71 +3659,99 @@ body.cart-drawer-open .dynamic-island-cart {
 }
 
 .customizer-footer {
-  padding: 14px 20px;
+  padding: 16px 20px;
   background: var(--surface);
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--border-strong);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-}
-.customizer-footer-calc {
-  display: flex;
-  align-items: center;
-  gap: 14px;
+  box-sizing: border-box;
 }
 .customizer-qty-stepper {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   background: var(--surface-raised);
-  border: 1px solid var(--border-strong);
+  border: 1.5px solid var(--border-strong);
   border-radius: var(--radius-sm);
-  padding: 2px;
+  padding: 3px;
+  height: 48px;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 .qty-btn {
-  width: 32px;
-  height: 32px;
-  background: transparent;
-  border: none;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  background: var(--surface);
+  border: 1px solid var(--border);
   color: var(--text-main);
-  font-size: 16px;
-  font-weight: 800;
+  font-size: 20px;
+  font-weight: 900;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-xs);
-  transition: var(--tr-fast);
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+.qty-btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
 }
 .qty-btn:active {
   background: var(--primary);
   color: #fff;
+  border-color: var(--primary);
+  transform: scale(0.95);
 }
 .qty-val {
-  min-width: 24px;
+  min-width: 36px;
   text-align: center;
-  font-weight: 800;
-  font-size: 0.95rem;
-  color: var(--text-main);
-}
-.customizer-footer-price .calc-label {
-  font-size: 11px;
-  color: var(--text-muted);
-}
-.customizer-footer-price .calc-val {
-  font-size: 1.15rem;
   font-weight: 900;
+  font-size: 1.15rem;
   color: var(--text-main);
 }
 .btn-add-customized {
   flex: 1;
-  padding: 12px 18px;
-  font-size: 0.96rem;
+  min-height: 48px;
+  padding: 10px 18px;
+  font-size: 0.98rem;
   font-weight: 800;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
+  justify-content: space-between;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--primary), #c2410c);
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 16px var(--primary-glow);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.btn-add-customized:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px var(--primary-glow);
+}
+.btn-add-customized:active {
+  transform: scale(0.98);
+}
+.btn-add-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+.btn-add-price-badge {
+  background: rgba(0, 0, 0, 0.24);
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.94rem;
+  font-weight: 900;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
 }
 
 /* ── Admin Tab Navigation & Buttons ───────────────────────── */

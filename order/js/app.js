@@ -301,7 +301,16 @@ function initApp() {
 
   // Connect real-time cloud data sync from Firebase Realtime Database
   const slug = Store.getRestaurantSlug();
-  Store.syncFromCloud(slug);
+  Store.syncFromCloud(slug, (status) => {
+    if (status && status.hasData) {
+      renderStoreInfo();
+      renderAnnouncement();
+      renderStories();
+      renderCategories();
+      renderProducts();
+      updateLedgerUI();
+    }
+  });
 }
 
 function showToastNotification(message, type = 'success') {
@@ -410,15 +419,15 @@ function renderStoreInfo() {
     }
   }
 
-  // Cover image banner
-  const coverBanner = document.getElementById('store-cover-banner');
-  const coverImg = document.getElementById('store-cover-img');
-  if (coverBanner && coverImg) {
+  // Cover image as Hero Header Background
+  const header = document.querySelector('.app-header');
+  if (header) {
     if (settings.cover) {
-      coverImg.src = settings.cover;
-      coverBanner.style.display = 'block';
+      header.classList.add('has-cover');
+      header.style.backgroundImage = `linear-gradient(180deg, rgba(12, 10, 9, 0.52) 0%, rgba(12, 10, 9, 0.88) 100%), url("${settings.cover}")`;
     } else {
-      coverBanner.style.display = 'none';
+      header.classList.remove('has-cover');
+      header.style.backgroundImage = '';
     }
   }
 
@@ -1822,7 +1831,7 @@ function setupSubscriptionWatcher() {
       if (titleEl) titleEl.textContent = 'المطعم غير موجود أو تم حذفه نهائياً';
       if (descEl) descEl.textContent = 'تم إيقاف هذا الرابط وحذف بيانات هذا المطعم بالكامل من منصة هاربي.';
       if (contactBtn) {
-        contactBtn.href = `https://wa.me/201604040086?text=${encodeURIComponent(`مرحباً إدارة هاربي، أود الاستفسار عن رابط المطعم (${slug})`)}`;
+        contactBtn.href = `https://wa.me/201019971508?text=${encodeURIComponent(`مرحباً إدارة منصة هاربي، أود الاستفسار عن رابط المطعم (${slug})`)}`;
         contactBtn.textContent = '💬 تواصل مع إدارة منصة هاربي';
       }
     } else if (statusReason === 'expired') {
