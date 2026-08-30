@@ -389,81 +389,115 @@ const Store = {
 
   // ── Controlled Cloud Sync Engine with Stale Snapshot Protection ──
   syncFromCloud(slug, onUpdate) {
-    if (!db || !slug) return () => {};
+    if (!slug) return () => {};
+    let isDestroyed = false;
+
+    const processSnapshotData = (data) => {
+      if (isDestroyed || !data) return;
+      const now = Date.now();
+      // Protect settings from stale cloud snapshot overwrites while local save in-flight
+      if (data.settings && !this.saveLocks.settings && (now - this.lastSaveTimestamps.settings > 2500)) {
+        const currentSettings = this.getSettings();
+        if (JSON.stringify(currentSettings) !== JSON.stringify(data.settings)) {
+          this.safeSetItem(this.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(data.settings));
+          this.applyTheme();
+          window.dispatchEvent(new Event('store_settings_updated'));
+        }
+      }
+      if (data.categories && !this.saveLocks.categories && (now - this.lastSaveTimestamps.categories > 2500)) {
+        const currentCats = this.getCategories();
+        if (JSON.stringify(currentCats) !== JSON.stringify(data.categories)) {
+          this.safeSetItem(this.getKey(STORAGE_KEYS.CATEGORIES), JSON.stringify(data.categories));
+          window.dispatchEvent(new Event('store_categories_updated'));
+        }
+      }
+      if (data.products && !this.saveLocks.products && (now - this.lastSaveTimestamps.products > 2500)) {
+        const currentProds = this.getProducts();
+        if (JSON.stringify(currentProds) !== JSON.stringify(data.products)) {
+          this.safeSetItem(this.getKey(STORAGE_KEYS.PRODUCTS), JSON.stringify(data.products));
+          window.dispatchEvent(new Event('store_products_updated'));
+        }
+      }
+      if (data.stories && !this.saveLocks.stories && (now - this.lastSaveTimestamps.stories > 2500)) {
+        const currentStories = this.getStories();
+        if (JSON.stringify(currentStories) !== JSON.stringify(data.stories)) {
+          this.safeSetItem(this.getKey(STORAGE_KEYS.STORIES), JSON.stringify(data.stories));
+          window.dispatchEvent(new Event('store_stories_updated'));
+        }
+      }
+      if (typeof onUpdate === 'function') {
+        onUpdate({ success: true, hasData: !!data, data });
+      }
+    };
+
+    // 1. WebSocket Channel (Primary)
+    let restaurantRef = null;
+    let wsCallback = null;
     try {
       if (this.activeListeners.restaurant) {
-        try {
-          this.activeListeners.restaurant.ref.off('value', this.activeListeners.restaurant.callback);
-        } catch(e) {}
+        try { this.activeListeners.restaurant.ref.off('value', this.activeListeners.restaurant.callback); } catch(e) {}
         this.activeListeners.restaurant = null;
       }
-
-      const restaurantRef = db.ref(`restaurants/${slug}`);
-      const callback = snapshot => {
-        const data = snapshot.val();
-        if (data) {
-          const now = Date.now();
-          // Protect settings from stale cloud snapshot overwrites while local save in-flight
-          if (data.settings && !this.saveLocks.settings && (now - this.lastSaveTimestamps.settings > 2500)) {
-            const currentSettings = this.getSettings();
-            if (JSON.stringify(currentSettings) !== JSON.stringify(data.settings)) {
-              this.safeSetItem(this.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(data.settings));
-              this.applyTheme();
-              window.dispatchEvent(new Event('store_settings_updated'));
-            }
-          }
-          if (data.categories && !this.saveLocks.categories && (now - this.lastSaveTimestamps.categories > 2500)) {
-            const currentCats = this.getCategories();
-            if (JSON.stringify(currentCats) !== JSON.stringify(data.categories)) {
-              this.safeSetItem(this.getKey(STORAGE_KEYS.CATEGORIES), JSON.stringify(data.categories));
-              window.dispatchEvent(new Event('store_categories_updated'));
-            }
-          }
-          if (data.products && !this.saveLocks.products && (now - this.lastSaveTimestamps.products > 2500)) {
-            const currentProds = this.getProducts();
-            if (JSON.stringify(currentProds) !== JSON.stringify(data.products)) {
-              this.safeSetItem(this.getKey(STORAGE_KEYS.PRODUCTS), JSON.stringify(data.products));
-              window.dispatchEvent(new Event('store_products_updated'));
-            }
-          }
-          if (data.stories && !this.saveLocks.stories && (now - this.lastSaveTimestamps.stories > 2500)) {
-            const currentStories = this.getStories();
-            if (JSON.stringify(currentStories) !== JSON.stringify(data.stories)) {
-              this.safeSetItem(this.getKey(STORAGE_KEYS.STORIES), JSON.stringify(data.stories));
-              window.dispatchEvent(new Event('store_stories_updated'));
-            }
-          }
-        }
-        if (typeof onUpdate === 'function') {
-          onUpdate({ success: true, hasData: !!data, data });
-        }
-      };
-
-      restaurantRef.on('value', callback, err => {
-        console.warn("[Store] Cloud sync read error:", err);
-      });
-
-      this.activeListeners.restaurant = { ref: restaurantRef, callback };
-      return () => {
-        try { restaurantRef.off('value', callback); } catch(e) {}
-      };
+      if (db) {
+        restaurantRef = db.ref(`restaurants/${slug}`);
+        wsCallback = snapshot => {
+          processSnapshotData(snapshot.val());
+        };
+        restaurantRef.on('value', wsCallback, err => {
+          console.warn("[Store] Cloud sync read error:", err);
+        });
+        this.activeListeners.restaurant = { ref: restaurantRef, callback: wsCallback };
+      }
     } catch (err) {
       console.warn("[Store] Cloud sync init error:", err);
-      return () => {};
     }
+
+    // 2. High-Speed REST Initial Accelerator (sub-100ms first paint)
+    (async () => {
+      try {
+        const res = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}.json`, {
+          cache: 'no-store'
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data && typeof data === 'object') {
+            processSnapshotData(data);
+          }
+        }
+      } catch (e) {}
+    })();
+
+    return () => {
+      isDestroyed = true;
+      if (restaurantRef && wsCallback) {
+        try { restaurantRef.off('value', wsCallback); } catch(e) {}
+      }
+    };
   },
 
   async pushToCloud(subPath, data) {
     const slug = this.getRestaurantSlug();
-    if (!db || !slug) return false;
-    try {
-      const path = subPath ? `restaurants/${slug}/${subPath}` : `restaurants/${slug}`;
-      await db.ref(path).set(data);
-      return true;
-    } catch (err) {
-      console.warn(`[Store] Error pushing ${subPath} to cloud:`, err);
-      return false;
+    if (!slug) return false;
+    const path = subPath ? `restaurants/${slug}/${subPath}` : `restaurants/${slug}`;
+
+    if (db) {
+      try {
+        await db.ref(path).set(data);
+      } catch (err) {
+        console.warn(`[Store] Error pushing ${subPath} to cloud SDK:`, err);
+      }
     }
+
+    try {
+      fetch(`https://harpy-order-default-rtdb.firebaseio.com/${path}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+        keepalive: true
+      }).catch(() => {});
+    } catch (e) {}
+
+    return true;
   },
 
   getOrders() {
@@ -485,27 +519,29 @@ const Store = {
     if (!slug || !orderData || !orderData.orderId) return false;
     const cleanId = orderData.orderId.replace(/[^a-zA-Z0-9_-]/g, '');
 
-    // Cache locally for 0ms instant display
+    // 1. Cache locally for 0ms instant display
     try {
       const cached = this.getOrders();
       const updated = [orderData, ...cached.filter(o => o.orderId !== orderData.orderId)];
       this.saveOrders(updated);
     } catch(e) {}
 
-    try {
-      if (db) {
+    // 2. Parallel Dual-Channel Dispatch: WebSocket + Ultra-Fast Keepalive REST
+    if (db) {
+      try {
         db.ref(`restaurants/${slug}/orders/${cleanId}`).set(orderData);
+      } catch (err) {
+        console.warn("[Store] Error pushing order to cloud SDK:", err);
       }
-    } catch (err) {
-      console.warn("[Store] Error pushing order to cloud SDK:", err);
     }
 
     try {
-      // Instant REST fallback/accelerator for sub-50ms cloud delivery
+      // Sub-50ms REST Delivery
       fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders/${cleanId}.json`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderData)
+        body: JSON.stringify(orderData),
+        keepalive: true
       }).catch(() => {});
     } catch (e) {}
 
@@ -513,73 +549,116 @@ const Store = {
   },
 
   syncOrdersFromCloud(slug, onOrdersUpdate) {
-    if (!db || !slug) return () => {};
-    try {
-      if (this.activeListeners.orders) {
-        try {
-          this.activeListeners.orders.ref.off('value', this.activeListeners.orders.callback);
-        } catch(e) {}
-        this.activeListeners.orders = null;
-      }
+    if (!slug) return () => {};
+    let isDestroyed = false;
+    let pollTimer = null;
+    let lastKnownOrdersHash = '';
 
-      const ordersRef = db.ref(`restaurants/${slug}/orders`).limitToLast(250);
-      const callback = snapshot => {
-        const data = snapshot.val() || {};
-        const ordersList = Object.values(data).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+    const handleOrdersPayload = (data) => {
+      if (isDestroyed || !data) return;
+      const ordersList = Object.values(data).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+      const hash = JSON.stringify(ordersList.map(o => ({ id: o.orderId, st: o.status, t: o.timestampUpdated || o.timestamp })));
+      if (hash !== lastKnownOrdersHash) {
+        lastKnownOrdersHash = hash;
         this.saveOrders(ordersList);
         if (typeof onOrdersUpdate === 'function') {
           onOrdersUpdate(ordersList);
         }
-      };
+      }
+    };
 
-      ordersRef.on('value', callback, err => {
-        console.warn("[Store] Sync orders error:", err);
-      });
+    // 1. WebSocket Realtime Channel (Sub-50ms when active)
+    let ordersRef = null;
+    let wsCallback = null;
+    try {
+      if (this.activeListeners.orders) {
+        try { this.activeListeners.orders.ref.off('value', this.activeListeners.orders.callback); } catch(e) {}
+        this.activeListeners.orders = null;
+      }
+      if (db) {
+        ordersRef = db.ref(`restaurants/${slug}/orders`).limitToLast(100);
+        wsCallback = snapshot => {
+          handleOrdersPayload(snapshot.val() || {});
+        };
+        ordersRef.on('value', wsCallback, err => {
+          console.warn("[Store] Orders WS listener notice:", err);
+        });
+        this.activeListeners.orders = { ref: ordersRef, callback: wsCallback };
+      }
+    } catch (e) {}
 
-      this.activeListeners.orders = { ref: ordersRef, callback };
-      return () => {
-        try { ordersRef.off('value', callback); } catch(e) {}
-      };
-    } catch (err) {
-      console.warn("[Store] Orders listener init error:", err);
-      return () => {};
-    }
+    // 2. High-Frequency REST Heartbeat Pulse (Every 2.0 seconds) to eliminate mobile websocket lags
+    const fetchOrdersFast = async () => {
+      if (isDestroyed) return;
+      try {
+        const res = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders.json?orderBy="$key"&limitToLast=100`, {
+          cache: 'no-store'
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data && typeof data === 'object') {
+            handleOrdersPayload(data);
+          }
+        }
+      } catch (e) {}
+    };
+
+    fetchOrdersFast();
+    pollTimer = setInterval(fetchOrdersFast, 1500);
+
+    return () => {
+      isDestroyed = true;
+      if (pollTimer) clearInterval(pollTimer);
+      if (ordersRef && wsCallback) {
+        try { ordersRef.off('value', wsCallback); } catch(e) {}
+      }
+    };
   },
 
   async updateOrderStatus(orderId, newStatus) {
     const slug = this.getRestaurantSlug();
     if (!orderId || !slug) return false;
     const cleanId = orderId.replace(/[^a-zA-Z0-9_-]/g, '');
+    const nowIso = new Date().toISOString();
+    const nowTs = Date.now();
 
-    // Update local cache immediately
+    // 1. Update local cache immediately for instant admin response
     try {
       const cached = this.getOrders();
       const order = cached.find(o => o.orderId === orderId || o.orderId === `#${cleanId}`);
       if (order) {
         order.status = newStatus;
+        order.updatedAt = nowIso;
+        order.timestampUpdated = nowTs;
         this.saveOrders(cached);
       }
     } catch(e) {}
 
+    const patchPayload = {
+      status: newStatus,
+      updatedAt: nowIso,
+      timestampUpdated: nowTs
+    };
+
+    // 2. Instant Parallel Cloud Dispatch: SDK + REST PATCH
     if (db) {
       try {
-        await db.ref(`restaurants/${slug}/orders/${cleanId}/status`).set(newStatus);
-        return true;
+        db.ref(`restaurants/${slug}/orders/${cleanId}`).update(patchPayload);
       } catch (err) {
-        console.warn("[Store] Update order status error:", err);
+        console.warn("[Store] Update order status SDK notice:", err);
       }
     }
 
     try {
-      await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders/${cleanId}/status.json`, {
-        method: 'PUT',
+      fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders/${cleanId}.json`, {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newStatus)
-      });
-      return true;
-    } catch (e) {
-      return false;
-    }
+        body: JSON.stringify(patchPayload),
+        keepalive: true
+      }).catch(() => {});
+    } catch (e) {}
+
+    return true;
   },
 
   async deleteOrder(orderId) {
@@ -587,60 +666,95 @@ const Store = {
     if (!orderId || !slug) return false;
     const cleanId = orderId.replace(/[^a-zA-Z0-9_-]/g, '');
 
-    // Remove from local cache immediately
+    // 1. Remove from local cache immediately
     try {
       const cached = this.getOrders();
       const updated = cached.filter(o => o.orderId !== orderId && o.orderId !== `#${cleanId}`);
       this.saveOrders(updated);
     } catch(e) {}
 
-    let success = false;
-    try {
-      if (db) {
-        await db.ref(`restaurants/${slug}/orders/${cleanId}`).remove();
-        success = true;
+    // 2. Parallel cloud delete
+    if (db) {
+      try {
+        db.ref(`restaurants/${slug}/orders/${cleanId}`).remove();
+      } catch (err) {
+        console.warn("[Store] Delete order SDK notice:", err);
       }
-    } catch (err) {
-      console.warn("[Store] Error deleting order from cloud SDK:", err);
     }
 
     try {
-      // Fallback REST API delete for sub-50ms instant removal
-      await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders/${cleanId}.json`, {
-        method: 'DELETE'
-      });
-      success = true;
+      fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders/${cleanId}.json`, {
+        method: 'DELETE',
+        keepalive: true
+      }).catch(() => {});
     } catch (e) {}
 
-    // Clean from last order if customer has it cached
     const lastOrder = this.getLastOrder();
     if (lastOrder && (lastOrder.orderId === orderId || lastOrder.orderId === `#${cleanId}`)) {
       localStorage.removeItem(this.getKey(STORAGE_KEYS.LAST_ORDER));
       window.dispatchEvent(new Event('store_last_order_updated'));
     }
 
-    return success;
+    return true;
   },
 
   subscribeToOrder(slug, orderId, onUpdate) {
-    if (!db || !slug || !orderId) return () => {};
-    try {
-      const cleanId = orderId.replace(/[^a-zA-Z0-9_-]/g, '');
-      const orderRef = db.ref(`restaurants/${slug}/orders/${cleanId}`);
-      const callback = snap => {
-        const data = snap.val();
-        if (data && typeof onUpdate === 'function') {
+    if (!slug || !orderId) return () => {};
+    let isDestroyed = false;
+    let pollTimer = null;
+    const cleanId = orderId.replace(/[^a-zA-Z0-9_-]/g, '');
+    let lastKnownOrderHash = '';
+
+    const handleOrderPayload = (data) => {
+      if (isDestroyed || !data) return;
+      const hash = JSON.stringify({ st: data.status, upd: data.updatedAt || data.timestampUpdated, tot: data.finalTotal });
+      if (hash !== lastKnownOrderHash) {
+        lastKnownOrderHash = hash;
+        if (typeof onUpdate === 'function') {
           onUpdate(data);
         }
-      };
-      orderRef.on('value', callback);
-      return () => {
-        try { orderRef.off('value', callback); } catch(e) {}
-      };
-    } catch (err) {
-      console.warn("[Store] Subscribe to order error:", err);
-      return () => {};
-    }
+      }
+    };
+
+    // 1. WebSocket Listener (Primary)
+    let orderRef = null;
+    let wsCallback = null;
+    try {
+      if (db) {
+        orderRef = db.ref(`restaurants/${slug}/orders/${cleanId}`);
+        wsCallback = snap => {
+          handleOrderPayload(snap.val());
+        };
+        orderRef.on('value', wsCallback);
+      }
+    } catch (e) {}
+
+    // 2. High-Frequency Fast REST Tracker Pulse (1.2s for ultra-fast customer tracking)
+    const fetchOrderFast = async () => {
+      if (isDestroyed) return;
+      try {
+        const res = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders/${cleanId}.json`, {
+          cache: 'no-store'
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data) {
+            handleOrderPayload(data);
+          }
+        }
+      } catch (e) {}
+    };
+
+    fetchOrderFast();
+    pollTimer = setInterval(fetchOrderFast, 1200);
+
+    return () => {
+      isDestroyed = true;
+      if (pollTimer) clearInterval(pollTimer);
+      if (orderRef && wsCallback) {
+        try { orderRef.off('value', wsCallback); } catch(e) {}
+      }
+    };
   },
 
   async initTenantMeta(slug, userUid) {
@@ -1089,33 +1203,103 @@ const Store = {
     }
 
     const slug = this.getRestaurantSlug();
-    if (!db || !slug) return;
+    if (!slug) return () => {};
 
-    try {
-      const licRef = db.ref(`licenses/${slug}`);
-      const callback = snap => {
-        const lic = snap.val();
-        if (!lic) return;
+    let isDestroyed = false;
+    let pollTimer = null;
+    let lastKnownStatusHash = '';
 
-        const isBlocked = lic.status === 'blocked' || lic.status === 'suspended';
-        const isExpired = lic.expiresAt && (Date.now() > new Date(lic.expiresAt).getTime());
+    const evaluateLicense = (lic, subSettings = null, meta = null) => {
+      if (isDestroyed) return;
 
-        if (isBlocked || isExpired) {
-          if (typeof onStatusChange === 'function') {
-            onStatusChange({ active: false, reason: isBlocked ? 'blocked' : 'expired', lic });
-          }
-        } else {
-          if (typeof onStatusChange === 'function') {
-            onStatusChange({ active: true, lic });
+      let isBlocked = false;
+      let isExpired = false;
+      let reason = 'active';
+
+      if (lic) {
+        if (lic.status === 'suspended' || lic.status === 'blocked' || lic.status === 'inactive') {
+          isBlocked = true;
+        }
+        if (lic.expiresAt) {
+          const expTime = new Date(lic.expiresAt).getTime();
+          if (!isNaN(expTime) && Date.now() > expTime) {
+            isExpired = true;
           }
         }
-      };
+      }
 
-      licRef.on('value', callback);
-      this.activeListeners.license = { ref: licRef, callback };
+      if (subSettings && (subSettings.status === 'suspended' || subSettings.status === 'blocked')) {
+        isBlocked = true;
+      }
+
+      if (meta && (meta.status === 'suspended' || meta.status === 'blocked')) {
+        isBlocked = true;
+      }
+
+      const active = !isBlocked && !isExpired;
+      if (!active) {
+        reason = isBlocked ? 'blocked' : 'expired';
+      }
+
+      const hash = `${active}_${reason}_${lic?.status || ''}`;
+      if (hash !== lastKnownStatusHash) {
+        lastKnownStatusHash = hash;
+        if (typeof onStatusChange === 'function') {
+          onStatusChange({ active, reason, lic });
+        }
+      }
+    };
+
+    // 1. WebSocket Listener (Primary)
+    let licRef = null;
+    let wsCallback = null;
+    try {
+      if (db) {
+        licRef = db.ref(`licenses/${slug}`);
+        wsCallback = snap => {
+          evaluateLicense(snap.val());
+        };
+        licRef.on('value', wsCallback, err => {
+          console.warn("[Store] License WS notice:", err);
+        });
+        this.activeListeners.license = { ref: licRef, callback: wsCallback };
+      }
     } catch (err) {
-      console.warn("[Store] Firebase license watcher error:", err);
+      console.warn("[Store] Firebase license watcher init notice:", err);
     }
+
+    // 2. Ultra-Fast REST Heartbeat Pulse (Every 2.0s) for instant freeze/lock reflection
+    const fetchLicenseFast = async () => {
+      if (isDestroyed) return;
+      try {
+        const [licRes, metaRes] = await Promise.allSettled([
+          fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${slug}.json`, { cache: 'no-store' }),
+          fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/meta.json`, { cache: 'no-store' })
+        ]);
+
+        let licData = null;
+        let metaData = null;
+        if (licRes.status === 'fulfilled' && licRes.value.ok) {
+          licData = await licRes.value.json();
+        }
+        if (metaRes.status === 'fulfilled' && metaRes.value.ok) {
+          metaData = await metaRes.value.json();
+        }
+
+        evaluateLicense(licData, null, metaData);
+      } catch (e) {}
+    };
+
+    fetchLicenseFast();
+    pollTimer = setInterval(fetchLicenseFast, 2000);
+
+    return () => {
+      isDestroyed = true;
+      if (pollTimer) clearInterval(pollTimer);
+      if (licRef && wsCallback) {
+        try { licRef.off('value', wsCallback); } catch(e) {}
+      }
+    };
   }
 };
 

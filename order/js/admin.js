@@ -120,6 +120,7 @@ function initAdmin() {
   Store.initTheme();
   setupAdminThemeToggle();
   setupAuth();
+  setupSubscriptionWatcher();
   setupRestaurantHub();
   setupTabNavigation();
   setupProductManagement();
@@ -1905,6 +1906,33 @@ function showToastNotification(message, type = 'success') {
     toast.classList.remove('show');
     setTimeout(() => toast.remove(), 400);
   }, 3500);
+}
+
+function setupSubscriptionWatcher() {
+  const suspendedBackdrop = document.getElementById('subscription-suspended-backdrop');
+  const suspendedOverlay = document.getElementById('subscription-suspended-overlay');
+  const contactBtn = document.getElementById('admin-sub-contact-btn');
+  const msgEl = document.getElementById('admin-sub-suspended-msg');
+
+  Store.startSubscriptionWatcher((status) => {
+    if (!status.active) {
+      if (suspendedBackdrop) suspendedBackdrop.style.display = 'block';
+      if (suspendedOverlay) suspendedOverlay.style.display = 'block';
+      if (msgEl) {
+        if (status.reason === 'expired') {
+          msgEl.textContent = "انتهت صلاحية اشتراك هذا المطعم. يرجى تجديد الباقة لاستئناف استقبال طلبات الزبائن وتعديل المنيو.";
+        } else {
+          msgEl.textContent = "تم تجميد وإيقاف اشتراك هذا المطعم مؤقتاً من قبل الإدارة. يرجى التواصل لإلغاء التجميد والتفعيل.";
+        }
+      }
+      if (contactBtn) {
+        contactBtn.href = `https://wa.me/201604040086?text=${encodeURIComponent(`مرحباً إدارة هاربي، أود الاستفسار عن تجديد وتفعيل اشتراك مطعمي (${Store.getRestaurantSlug()})`)}`;
+      }
+    } else {
+      if (suspendedBackdrop) suspendedBackdrop.style.display = 'none';
+      if (suspendedOverlay) suspendedOverlay.style.display = 'none';
+    }
+  });
 }
 
 document.addEventListener('DOMContentLoaded', initAdmin);
