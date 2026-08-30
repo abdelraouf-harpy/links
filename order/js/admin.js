@@ -1914,10 +1914,18 @@ function setupSubscriptionWatcher() {
   const contactBtn = document.getElementById('admin-sub-contact-btn');
   const msgEl = document.getElementById('admin-sub-suspended-msg');
 
+  const slug = Store.getRestaurantSlug();
+  if (Store.isSubscriptionSuspended(slug)) {
+    document.body.classList.add('harpy-account-locked');
+    if (suspendedBackdrop) suspendedBackdrop.classList.add('active');
+    if (suspendedOverlay) suspendedOverlay.classList.add('active');
+  }
+
   Store.startSubscriptionWatcher((status) => {
     if (!status.active) {
-      if (suspendedBackdrop) suspendedBackdrop.style.display = 'block';
-      if (suspendedOverlay) suspendedOverlay.style.display = 'block';
+      document.body.classList.add('harpy-account-locked');
+      if (suspendedBackdrop) suspendedBackdrop.classList.add('active');
+      if (suspendedOverlay) suspendedOverlay.classList.add('active');
       if (msgEl) {
         if (status.reason === 'expired') {
           msgEl.textContent = "انتهت صلاحية اشتراك هذا المطعم. يرجى تجديد الباقة لاستئناف استقبال طلبات الزبائن وتعديل المنيو.";
@@ -1926,11 +1934,12 @@ function setupSubscriptionWatcher() {
         }
       }
       if (contactBtn) {
-        contactBtn.href = `https://wa.me/201604040086?text=${encodeURIComponent(`مرحباً إدارة هاربي، أود الاستفسار عن تجديد وتفعيل اشتراك مطعمي (${Store.getRestaurantSlug()})`)}`;
+        contactBtn.href = `https://wa.me/201604040086?text=${encodeURIComponent(`مرحباً إدارة هاربي، أود الاستفسار عن تجديد وتفعيل اشتراك مطعمي (${slug})`)}`;
       }
     } else {
-      if (suspendedBackdrop) suspendedBackdrop.style.display = 'none';
-      if (suspendedOverlay) suspendedOverlay.style.display = 'none';
+      document.body.classList.remove('harpy-account-locked');
+      if (suspendedBackdrop) suspendedBackdrop.classList.remove('active');
+      if (suspendedOverlay) suspendedOverlay.classList.remove('active');
     }
   });
 }

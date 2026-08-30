@@ -12,7 +12,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="HarpyOrder">
-  <link rel="stylesheet" href="./css/style.css?v=5.9">
+  <link rel="stylesheet" href="./css/style.css?v=6.0">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23c2410c'><circle cx='12' cy='12' r='10'/></svg>">
 </head>
 <body>
@@ -679,17 +679,17 @@
   </div>
 
   <!-- Subscription Suspended Overlay -->
-  <div id="subscription-suspended-backdrop" class="modal-backdrop" style="display:none; z-index:9998; backdrop-filter:blur(10px); background:rgba(0,0,0,0.8);"></div>
-  <div id="subscription-suspended-overlay" class="modal-box" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index:9999; max-width:400px; text-align:center; box-shadow: 0 24px 60px rgba(0,0,0,0.85);">
-    <div style="width:58px; height:58px; border-radius:50%; background:var(--primary-subtle); color:var(--primary); display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
-      <svg class="icon icon-lg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  <div id="subscription-suspended-backdrop" class="harpy-lock-backdrop"></div>
+  <div id="subscription-suspended-overlay" class="harpy-lock-modal">
+    <div style="width:68px; height:68px; border-radius:50%; background:rgba(239, 68, 68, 0.12); color:var(--danger); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:32px;">
+      ❄️
     </div>
-    <h3 style="font-size:1.15rem; font-weight:900; color:var(--text-main); margin-bottom:8px;">عفواً، الخدمة متوقفة مؤقتاً</h3>
-    <p style="font-size:0.86rem; color:var(--text-muted); line-height:1.6; margin-bottom:20px;">
+    <h3 style="font-size:1.22rem; font-weight:900; color:var(--text-main); margin-bottom:8px;">عفواً، الخدمة متوقفة مؤقتاً</h3>
+    <p style="font-size:0.88rem; color:var(--text-muted); line-height:1.65; margin-bottom:22px;">
       قائمة هذا المطعم غير متاحة حالياً لتلقي طلبات الأونلاين أو جاري تجديد الاشتراك.
     </p>
-    <a id="sub-suspended-contact-btn" href="#" class="btn btn-primary" style="width:100%; padding:12px; font-weight:800; text-decoration:none; display:inline-block;">
-      تواصل مع المطعم عبر الواتساب
+    <a id="sub-suspended-contact-btn" href="#" class="btn btn-primary" style="width:100%; padding:13px; font-weight:800; text-decoration:none; display:inline-block; font-size:0.92rem; border-radius:var(--radius-sm);">
+      💬 تواصل مع المطعم عبر الواتساب
     </a>
   </div>
 
@@ -697,7 +697,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="./js/store.js?v=5.9"></script>
-  <script src="./js/app.js?v=5.9"></script>
+  <script src="./js/store.js?v=6.0"></script>
+  <script src="./js/app.js?v=6.0"></script>
 </body>
 </html>

@@ -1194,6 +1194,17 @@ const Store = {
     return { success: true };
   },
 
+  isSubscriptionSuspended(slug) {
+    const activeSlug = slug || this.getRestaurantSlug();
+    try {
+      const cached = localStorage.getItem(`harpy_${activeSlug}_sub_status`);
+      if (cached === 'suspended' || cached === 'blocked' || cached === 'expired') {
+        return true;
+      }
+    } catch(e) {}
+    return false;
+  },
+
   startSubscriptionWatcher(onStatusChange) {
     if (this.activeListeners.license) {
       try {
@@ -1239,6 +1250,9 @@ const Store = {
       const active = !isBlocked && !isExpired;
       if (!active) {
         reason = isBlocked ? 'blocked' : 'expired';
+        try { localStorage.setItem(`harpy_${slug}_sub_status`, reason); } catch(e) {}
+      } else {
+        try { localStorage.setItem(`harpy_${slug}_sub_status`, 'active'); } catch(e) {}
       }
 
       const hash = `${active}_${reason}_${lic?.status || ''}`;

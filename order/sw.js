@@ -1,5 +1,5 @@
 // HarpyOrder Service Worker — Dynamic Fast-Update & Offline Engine
-const CACHE_NAME = 'harpy-order-v5.9';
+const CACHE_NAME = 'harpy-order-v6.0';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',

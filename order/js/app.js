@@ -1803,18 +1803,27 @@ function setupSubscriptionWatcher() {
   const suspendedOverlay = document.getElementById('subscription-suspended-overlay');
   const contactBtn = document.getElementById('sub-suspended-contact-btn');
 
+  const slug = Store.getRestaurantSlug();
+  if (Store.isSubscriptionSuspended(slug)) {
+    document.body.classList.add('harpy-account-locked');
+    if (suspendedBackdrop) suspendedBackdrop.classList.add('active');
+    if (suspendedOverlay) suspendedOverlay.classList.add('active');
+  }
+
   Store.startSubscriptionWatcher((status) => {
     if (!status.active) {
-      if (suspendedBackdrop) suspendedBackdrop.style.display = 'block';
-      if (suspendedOverlay) suspendedOverlay.style.display = 'block';
+      document.body.classList.add('harpy-account-locked');
+      if (suspendedBackdrop) suspendedBackdrop.classList.add('active');
+      if (suspendedOverlay) suspendedOverlay.classList.add('active');
       if (contactBtn) {
         const settings = Store.getSettings();
         const cleanWa = (settings.whatsappNumber || '').replace(/\D/g, '');
-        contactBtn.href = `https://wa.me/${cleanWa}?text=${encodeURIComponent('مرحباً، أود الاستفسار عن تجديد اشتراك المنيو')}`;
+        contactBtn.href = `https://wa.me/${cleanWa}?text=${encodeURIComponent(`مرحباً، أود الاستفسار عن تجديد اشتراك منيو ${settings.storeName || slug}`)}`;
       }
     } else {
-      if (suspendedBackdrop) suspendedBackdrop.style.display = 'none';
-      if (suspendedOverlay) suspendedOverlay.style.display = 'none';
+      document.body.classList.remove('harpy-account-locked');
+      if (suspendedBackdrop) suspendedBackdrop.classList.remove('active');
+      if (suspendedOverlay) suspendedOverlay.classList.remove('active');
     }
   });
 }
@@ -1823,6 +1832,15 @@ function setupSubscriptionWatcher() {
 let activeTrackerUnsubscribe = null;
 
 async function handleDirectOrderSubmit(openWhatsApp = false) {
+  if (Store.isSubscriptionSuspended()) {
+    showToastNotification("عفواً، الخدمة متوقفة مؤقتاً لهذا المطعم.", "error");
+    const backdrop = document.getElementById('subscription-suspended-backdrop');
+    const overlay = document.getElementById('subscription-suspended-overlay');
+    if (backdrop) backdrop.classList.add('active');
+    if (overlay) overlay.classList.add('active');
+    return;
+  }
+
   const cart = Store.getCart();
   if (cart.length === 0) {
     showToastNotification("السلة فارغة، أضف بعض الوجبات أولاً 🛒", "error");
