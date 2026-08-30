@@ -523,9 +523,12 @@ const Store = {
     return [];
   },
 
+  orderStatusLocks: {},
+
   saveOrders(orders) {
     try {
       this.safeSetItem(this.getKey('harpy_orders_cache'), JSON.stringify(orders || []));
+      window.dispatchEvent(new CustomEvent('store_orders_updated', { detail: orders || [] }));
     } catch(e) {}
   },
 
@@ -571,7 +574,17 @@ const Store = {
 
     const handleOrdersPayload = (data) => {
       if (isDestroyed || !data) return;
-      const ordersList = Object.values(data).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+      const now = Date.now();
+      const rawList = Object.values(data);
+      const ordersList = rawList.map(o => {
+        const cid = (o.orderId || '').replace(/[^a-zA-Z0-9_-]/g, '');
+        const lock = this.orderStatusLocks && this.orderStatusLocks[cid];
+        if (lock && (now - lock.timestamp < 3500)) {
+          return { ...o, status: lock.status };
+        }
+        return o;
+      }).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
       const hash = JSON.stringify(ordersList.map(o => ({ id: o.orderId, st: o.status, t: o.timestampUpdated || o.timestamp })));
       if (hash !== lastKnownOrdersHash) {
         lastKnownOrdersHash = hash;
@@ -639,6 +652,7 @@ const Store = {
 
     // 1. Update local cache immediately for instant admin response
     try {
+      this.orderStatusLocks[cleanId] = { status: newStatus, timestamp: nowTs };
       const cached = this.getOrders();
       const order = cached.find(o => o.orderId === orderId || o.orderId === `#${cleanId}`);
       if (order) {

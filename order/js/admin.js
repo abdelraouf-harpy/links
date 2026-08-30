@@ -680,13 +680,19 @@ function showAdminOrderNotification(newOrder) {
 // ── Luxury Status Picker Sheet Handlers ─────────────────────
 let currentEditingOrderId = null;
 
-window.openStatusSheet = function(orderId, currentStatus) {
+window.openStatusSheet = function(orderId, passedStatus = null) {
   currentEditingOrderId = orderId;
   const sheet = document.getElementById('status-sheet');
   const backdrop = document.getElementById('status-sheet-backdrop');
   const orderIdSpan = document.getElementById('status-sheet-order-id');
 
   if (orderIdSpan) orderIdSpan.textContent = orderId;
+
+  // Always lookup real current status from memory to prevent any stale param
+  const orders = Store.getOrders();
+  const cleanId = orderId.replace(/[^a-zA-Z0-9_-]/g, '');
+  const currentOrder = orders.find(o => o.orderId === orderId || o.orderId === `#${cleanId}`);
+  const currentStatus = currentOrder?.status || passedStatus || 'pending';
 
   // Highlight active tile
   document.querySelectorAll('.status-option-tile').forEach(tile => {
@@ -713,11 +719,37 @@ window.selectOrderStatus = async function(newStatus) {
   if (!currentEditingOrderId) return;
   const orderId = currentEditingOrderId;
   closeStatusSheet();
+
+  // 1. Optimistic in-place DOM update (0ms)
+  const statusBadgeMap = {
+    pending: { bg: 'rgba(245, 158, 11, 0.12)', color: '#f59e0b', borderColor: 'rgba(245, 158, 11, 0.3)', text: '1. استلام الطلب 📥' },
+    preparing: { bg: 'rgba(59, 130, 246, 0.12)', color: '#3b82f6', borderColor: 'rgba(59, 130, 246, 0.3)', text: '2. المطبخ يجهز 👨‍🍳' },
+    out_for_delivery: { bg: 'rgba(168, 85, 247, 0.12)', color: '#a855f7', borderColor: 'rgba(168, 85, 247, 0.3)', text: '3. في الطريق إليك 🛵' },
+    delivered: { bg: 'rgba(34, 197, 94, 0.12)', color: '#22c55e', borderColor: 'rgba(34, 197, 94, 0.3)', text: '4. تم التسليم ✅' },
+    cancelled: { bg: 'rgba(239, 68, 68, 0.12)', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)', text: 'تم الإلغاء ✕' }
+  };
+  const badgeInfo = statusBadgeMap[newStatus] || statusBadgeMap.pending;
+
+  const card = document.querySelector(`.order-card-pro[data-order-id="${orderId}"]`);
+  if (card) {
+    const triggerBtn = card.querySelector('.order-status-trigger-btn');
+    if (triggerBtn) {
+      triggerBtn.style.background = badgeInfo.bg;
+      triggerBtn.style.color = badgeInfo.color;
+      triggerBtn.style.borderColor = badgeInfo.borderColor;
+      triggerBtn.innerHTML = `<span>${badgeInfo.text}</span><span style="font-size:10px; margin-right:2px; opacity:0.8;">▾</span>`;
+      triggerBtn.setAttribute('onclick', `openStatusSheet('${orderId}', '${newStatus}')`);
+    }
+  }
+
+  // 2. Persist to Store and Firebase
   await Store.updateOrderStatus(orderId, newStatus);
+  renderOrdersList();
 };
 
 window.updateOrderStatusFast = async function(orderId, newStatus) {
   await Store.updateOrderStatus(orderId, newStatus);
+  renderOrdersList();
 };
 
 // ── Luxury Branded Custom Confirm Dialog Engine ─────────────
@@ -973,7 +1005,7 @@ function renderOrdersList(orders = null) {
     const isWalletPayment = o.paymentMethod === 'wallet';
 
     return `
-      <div class="order-card-pro">
+      <div class="order-card-pro" data-order-id="${o.orderId}">
         
         <!-- Header: Order ID, Time & Luxury Status Trigger Button -->
         <div class="order-card-header-row">
