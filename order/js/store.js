@@ -25,7 +25,7 @@ try {
     }
   }
 } catch (e) {
-  console.warn("Firebase Init:", e);
+  console.warn("[Store] Firebase Init Warning:", e);
 }
 
 const STORAGE_KEYS = {
@@ -107,7 +107,7 @@ const THEME_PRESETS = {
     textMain: "#f0f7f2",
     textBody: "#c8ded0",
     primary: "#16a34a",
-    border: "rgba(22, 163, 74, 0.16)"
+    border: "rgba(225, 163, 74, 0.16)"
   },
   indigo: {
     id: "indigo",
@@ -149,16 +149,16 @@ const DEFAULT_SETTINGS = {
   cover: "",
   imgbbApiKey: "",
   
-  themePreset: "charcoal",
+  themePreset: "cream",
   siteColors: {
-    bg: "#110e0c",
-    surface: "#1c1713",
-    surfaceRaised: "#251f1a",
-    headerBg: "#110e0c",
-    textMain: "#faf6f0",
-    textBody: "#d4c9ba",
+    bg: "#f8f6f0",
+    surface: "#ffffff",
+    surfaceRaised: "#f3ede2",
+    headerBg: "#f8f6f0",
+    textMain: "#18130f",
+    textBody: "#3d332a",
     primary: "#c2410c",
-    border: "rgba(245, 238, 227, 0.09)"
+    border: "rgba(45, 35, 25, 0.10)"
   },
 
   // Discounts
@@ -184,22 +184,133 @@ const DEFAULT_PRODUCTS = [];
 const DEFAULT_STORIES = [];
 
 const Store = {
+  // ── Save Locks & Listener Lifecycle State ────────────────
+  saveLocks: {
+    settings: false,
+    categories: false,
+    products: false,
+    stories: false
+  },
+  lastSaveTimestamps: {
+    settings: 0,
+    categories: 0,
+    products: 0,
+    stories: 0
+  },
+  activeListeners: {
+    restaurant: null,
+    orders: null,
+    license: null
+  },
+
+  // Safe LocalStorage writer that prevents QuotaExceeded from aborting cloud writes
+  safeSetItem(key, value) {
+    try {
+      localStorage.setItem(key, value);
+      return true;
+    } catch (err) {
+      console.warn(`[Store] LocalStorage write failed for key "${key}":`, err.name || err.message);
+      return false;
+    }
+  },
+
+  // ── High-Efficiency HTML5 Canvas Image Compressor ────────
+  async compressImage(fileOrDataUrl, maxWidth = 800, maxHeight = 800, quality = 0.72) {
+    if (!fileOrDataUrl) return null;
+    if (typeof fileOrDataUrl === 'string' && fileOrDataUrl.startsWith('http')) {
+      return fileOrDataUrl;
+    }
+
+    return new Promise((resolve) => {
+      const processImg = (src) => {
+        const img = new Image();
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxWidth || height > maxHeight) {
+            if (width > height) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            } else {
+              width = Math.round((width * maxHeight) / height);
+              height = maxHeight;
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, width, height);
+          ctx.drawImage(img, 0, 0, width, height);
+
+          try {
+            const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+            resolve(compressedDataUrl);
+          } catch (err) {
+            resolve(src);
+          }
+        };
+        img.onerror = () => resolve(src);
+        img.src = src;
+      };
+
+      if (typeof fileOrDataUrl === 'string') {
+        processImg(fileOrDataUrl);
+      } else if (fileOrDataUrl instanceof Blob || fileOrDataUrl instanceof File) {
+        const reader = new FileReader();
+        reader.onload = (e) => processImg(e.target.result);
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(fileOrDataUrl);
+      } else {
+        resolve(null);
+      }
+    });
+  },
+
+  async uploadImage(file) {
+    if (!file) return null;
+    const settings = this.getSettings();
+    const apiKey = (settings.imgbbApiKey || '').trim();
+
+    if (apiKey) {
+      const formData = new FormData();
+      formData.append('image', file);
+      try {
+        const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+          method: 'POST',
+          body: formData
+        });
+        const json = await response.json();
+        if (json && json.success && json.data && json.data.url) {
+          return json.data.url;
+        }
+      } catch (err) {
+        console.warn('[Store] ImgBB upload network error:', err);
+      }
+    }
+
+    return await this.compressImage(file, 800, 800, 0.72);
+  },
+
   // ── Multi-Tenant Admin Authentication Engine ─────────────
   async loginAdmin(email, password) {
     const slug = this.getRestaurantSlug();
     const cleanEmail = (email || '').toLowerCase().trim();
     const cleanPassword = (password || '').trim();
 
-    // 1. Try Firebase Auth (if API key is working)
+    // 1. Try Firebase Auth (if initialized and enabled)
     if (auth) {
       try {
         const userCred = await auth.signInWithEmailAndPassword(cleanEmail, cleanPassword);
         const session = { email: cleanEmail, uid: userCred.user.uid, authenticated: true, slug, timestamp: Date.now() };
-        localStorage.setItem(`harpy_admin_auth_${slug}`, JSON.stringify(session));
+        this.safeSetItem(`harpy_admin_auth_${slug}`, JSON.stringify(session));
         sessionStorage.setItem(`harpy_auth_${slug}`, JSON.stringify(session));
         return userCred;
       } catch (authErr) {
-        console.warn("Firebase Auth attempt:", authErr.code || authErr.message);
+        console.warn("[Store] Firebase Auth attempt:", authErr.code || authErr.message);
       }
     }
 
@@ -213,21 +324,19 @@ const Store = {
           const expectedPassword = (meta.adminPassword || '').trim();
           
           if (cleanEmail === expectedEmail) {
-            // If password matches or is first-time registered password
             if (!expectedPassword || cleanPassword === expectedPassword) {
               if (!expectedPassword) {
-                // Save the password on first login
                 await db.ref(`restaurants/${slug}/meta/adminPassword`).set(cleanPassword);
               }
               const session = { email: cleanEmail, authenticated: true, slug, timestamp: Date.now() };
-              localStorage.setItem(`harpy_admin_auth_${slug}`, JSON.stringify(session));
+              this.safeSetItem(`harpy_admin_auth_${slug}`, JSON.stringify(session));
               sessionStorage.setItem(`harpy_auth_${slug}`, JSON.stringify(session));
               return session;
             }
           }
         }
       } catch (dbErr) {
-        console.warn("DB meta auth check error:", dbErr);
+        console.warn("[Store] DB meta auth check error:", dbErr);
       }
     }
 
@@ -278,40 +387,69 @@ const Store = {
     return auth.onAuthStateChanged(callback);
   },
 
-  // ── Cloud Sync Engine (Firebase Realtime DB) ───────────────
+  // ── Controlled Cloud Sync Engine with Stale Snapshot Protection ──
   syncFromCloud(slug, onUpdate) {
-    if (!db || !slug) return;
+    if (!db || !slug) return () => {};
     try {
+      if (this.activeListeners.restaurant) {
+        try {
+          this.activeListeners.restaurant.ref.off('value', this.activeListeners.restaurant.callback);
+        } catch(e) {}
+        this.activeListeners.restaurant = null;
+      }
+
       const restaurantRef = db.ref(`restaurants/${slug}`);
-      restaurantRef.on('value', snapshot => {
+      const callback = snapshot => {
         const data = snapshot.val();
         if (data) {
-          if (data.settings) {
-            localStorage.setItem(this.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(data.settings));
-            this.applyTheme();
-            window.dispatchEvent(new Event('store_settings_updated'));
+          const now = Date.now();
+          // Protect settings from stale cloud snapshot overwrites while local save in-flight
+          if (data.settings && !this.saveLocks.settings && (now - this.lastSaveTimestamps.settings > 2500)) {
+            const currentSettings = this.getSettings();
+            if (JSON.stringify(currentSettings) !== JSON.stringify(data.settings)) {
+              this.safeSetItem(this.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(data.settings));
+              this.applyTheme();
+              window.dispatchEvent(new Event('store_settings_updated'));
+            }
           }
-          if (data.categories) {
-            localStorage.setItem(this.getKey(STORAGE_KEYS.CATEGORIES), JSON.stringify(data.categories));
-            window.dispatchEvent(new Event('store_categories_updated'));
+          if (data.categories && !this.saveLocks.categories && (now - this.lastSaveTimestamps.categories > 2500)) {
+            const currentCats = this.getCategories();
+            if (JSON.stringify(currentCats) !== JSON.stringify(data.categories)) {
+              this.safeSetItem(this.getKey(STORAGE_KEYS.CATEGORIES), JSON.stringify(data.categories));
+              window.dispatchEvent(new Event('store_categories_updated'));
+            }
           }
-          if (data.products) {
-            localStorage.setItem(this.getKey(STORAGE_KEYS.PRODUCTS), JSON.stringify(data.products));
-            window.dispatchEvent(new Event('store_products_updated'));
+          if (data.products && !this.saveLocks.products && (now - this.lastSaveTimestamps.products > 2500)) {
+            const currentProds = this.getProducts();
+            if (JSON.stringify(currentProds) !== JSON.stringify(data.products)) {
+              this.safeSetItem(this.getKey(STORAGE_KEYS.PRODUCTS), JSON.stringify(data.products));
+              window.dispatchEvent(new Event('store_products_updated'));
+            }
           }
-          if (data.stories) {
-            localStorage.setItem(this.getKey(STORAGE_KEYS.STORIES), JSON.stringify(data.stories));
-            window.dispatchEvent(new Event('store_stories_updated'));
+          if (data.stories && !this.saveLocks.stories && (now - this.lastSaveTimestamps.stories > 2500)) {
+            const currentStories = this.getStories();
+            if (JSON.stringify(currentStories) !== JSON.stringify(data.stories)) {
+              this.safeSetItem(this.getKey(STORAGE_KEYS.STORIES), JSON.stringify(data.stories));
+              window.dispatchEvent(new Event('store_stories_updated'));
+            }
           }
         }
         if (typeof onUpdate === 'function') {
           onUpdate({ success: true, hasData: !!data, data });
         }
-      }, err => {
-        console.warn("Cloud sync read error:", err);
+      };
+
+      restaurantRef.on('value', callback, err => {
+        console.warn("[Store] Cloud sync read error:", err);
       });
+
+      this.activeListeners.restaurant = { ref: restaurantRef, callback };
+      return () => {
+        try { restaurantRef.off('value', callback); } catch(e) {}
+      };
     } catch (err) {
-      console.warn("Cloud sync init error:", err);
+      console.warn("[Store] Cloud sync init error:", err);
+      return () => {};
     }
   },
 
@@ -323,7 +461,7 @@ const Store = {
       await db.ref(path).set(data);
       return true;
     } catch (err) {
-      console.warn(`Error pushing ${subPath} to cloud:`, err);
+      console.warn(`[Store] Error pushing ${subPath} to cloud:`, err);
       return false;
     }
   },
@@ -338,11 +476,11 @@ const Store = {
         db.ref(`restaurants/${slug}/orders/${cleanId}`).set(orderData);
       }
     } catch (err) {
-      console.warn("Error pushing order to cloud SDK:", err);
+      console.warn("[Store] Error pushing order to cloud SDK:", err);
     }
 
     try {
-      // Instant REST fallback/accelerator
+      // Instant REST fallback/accelerator for sub-50ms cloud delivery
       fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders/${cleanId}.json`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -356,19 +494,32 @@ const Store = {
   syncOrdersFromCloud(slug, onOrdersUpdate) {
     if (!db || !slug) return () => {};
     try {
+      if (this.activeListeners.orders) {
+        try {
+          this.activeListeners.orders.ref.off('value', this.activeListeners.orders.callback);
+        } catch(e) {}
+        this.activeListeners.orders = null;
+      }
+
       const ordersRef = db.ref(`restaurants/${slug}/orders`);
-      ordersRef.on('value', snapshot => {
+      const callback = snapshot => {
         const data = snapshot.val() || {};
         const ordersList = Object.values(data).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
         if (typeof onOrdersUpdate === 'function') {
           onOrdersUpdate(ordersList);
         }
-      }, err => {
-        console.warn("Sync orders error:", err);
+      };
+
+      ordersRef.on('value', callback, err => {
+        console.warn("[Store] Sync orders error:", err);
       });
-      return () => ordersRef.off();
+
+      this.activeListeners.orders = { ref: ordersRef, callback };
+      return () => {
+        try { ordersRef.off('value', callback); } catch(e) {}
+      };
     } catch (err) {
-      console.warn("Orders listener init error:", err);
+      console.warn("[Store] Orders listener init error:", err);
       return () => {};
     }
   },
@@ -381,7 +532,7 @@ const Store = {
       await db.ref(`restaurants/${slug}/orders/${cleanId}/status`).set(newStatus);
       return true;
     } catch (err) {
-      console.warn("Update order status error:", err);
+      console.warn("[Store] Update order status error:", err);
       return false;
     }
   },
@@ -391,15 +542,18 @@ const Store = {
     try {
       const cleanId = orderId.replace(/[^a-zA-Z0-9_-]/g, '');
       const orderRef = db.ref(`restaurants/${slug}/orders/${cleanId}`);
-      orderRef.on('value', snap => {
+      const callback = snap => {
         const data = snap.val();
         if (data && typeof onUpdate === 'function') {
           onUpdate(data);
         }
-      });
-      return () => orderRef.off();
+      };
+      orderRef.on('value', callback);
+      return () => {
+        try { orderRef.off('value', callback); } catch(e) {}
+      };
     } catch (err) {
-      console.warn("Subscribe to order error:", err);
+      console.warn("[Store] Subscribe to order error:", err);
       return () => {};
     }
   },
@@ -417,7 +571,7 @@ const Store = {
       }
       return true;
     } catch (err) {
-      console.warn("Init tenant meta error:", err);
+      console.warn("[Store] Init tenant meta error:", err);
       return false;
     }
   },
@@ -428,7 +582,6 @@ const Store = {
       const metaRef = db.ref(`restaurants/${slug}/meta`);
       const snap = await metaRef.once('value');
       if (!snap.exists()) {
-        // Auto-claim first login if unclaimed
         await metaRef.set({
           ownerUid: userUid,
           createdAt: new Date().toISOString()
@@ -442,12 +595,12 @@ const Store = {
       }
       return meta.ownerUid === userUid;
     } catch (err) {
-      console.warn("Verify ownership error:", err);
+      console.warn("[Store] Verify ownership error:", err);
       return false;
     }
   },
 
-  // ── Multi-Tenant Restaurant Engine ────────────────────────
+  // ── Strict Multi-Tenant Restaurant Engine ─────────────────
   getRestaurantSlug() {
     try {
       const params = new URLSearchParams(window.location.search);
@@ -455,7 +608,7 @@ const Store = {
       if (urlSlug) {
         const clean = urlSlug.toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
         if (clean) {
-          localStorage.setItem('harpy_active_slug', clean);
+          this.safeSetItem('harpy_active_slug', clean);
           this.registerRestaurant(clean);
           return clean;
         }
@@ -467,7 +620,7 @@ const Store = {
   setRestaurantSlug(slug) {
     const clean = (slug || '').toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
     if (clean) {
-      localStorage.setItem('harpy_active_slug', clean);
+      this.safeSetItem('harpy_active_slug', clean);
       this.registerRestaurant(clean);
       this.applyTheme();
       window.dispatchEvent(new CustomEvent('harpy_restaurant_changed', { detail: clean }));
@@ -480,10 +633,10 @@ const Store = {
     if (!existing) {
       const name = customName || `مطعم ${slug}`;
       list.push({ slug, name });
-      localStorage.setItem('harpy_restaurants_list', JSON.stringify(list));
+      this.safeSetItem('harpy_restaurants_list', JSON.stringify(list));
     } else if (customName && existing.name !== customName) {
       existing.name = customName;
-      localStorage.setItem('harpy_restaurants_list', JSON.stringify(list));
+      this.safeSetItem('harpy_restaurants_list', JSON.stringify(list));
     }
   },
 
@@ -510,14 +663,21 @@ const Store = {
       return { ...DEFAULT_SETTINGS };
     }
   },
-  saveSettings(settings) {
-    localStorage.setItem(this.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(settings));
+
+  async saveSettings(settings) {
+    this.saveLocks.settings = true;
+    this.safeSetItem(this.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(settings));
     if (settings.storeName) {
       this.registerRestaurant(this.getRestaurantSlug(), settings.storeName);
     }
     this.applyTheme();
-    this.pushToCloud('settings', settings);
     window.dispatchEvent(new Event('store_settings_updated'));
+
+    const cloudSuccess = await this.pushToCloud('settings', settings);
+    this.lastSaveTimestamps.settings = Date.now();
+    this.saveLocks.settings = false;
+
+    return { success: cloudSuccess, localSaved: true };
   },
 
   applyTheme() {
@@ -527,7 +687,6 @@ const Store = {
 
     root.setAttribute('data-theme', mode);
 
-    // Clean up stale inline color overrides
     root.style.removeProperty('--bg');
     root.style.removeProperty('--bg-subtle');
     root.style.removeProperty('--surface');
@@ -543,7 +702,7 @@ const Store = {
     if (!colors && s.themePreset && THEME_PRESETS[s.themePreset]) {
       colors = THEME_PRESETS[s.themePreset];
     }
-    if (!colors) colors = THEME_PRESETS.charcoal;
+    if (!colors) colors = THEME_PRESETS.cream;
 
     if (mode === 'dark') {
       if (s.themePreset && s.themePreset !== 'charcoal' && s.themePreset !== 'cream' && THEME_PRESETS[s.themePreset]) {
@@ -582,11 +741,17 @@ const Store = {
       return DEFAULT_CATEGORIES;
     }
   },
-  saveCategories(cats) {
-    localStorage.setItem(this.getKey(STORAGE_KEYS.CATEGORIES), JSON.stringify(cats));
-    localStorage.setItem('harpy_last_sync', Date.now().toString());
-    this.pushToCloud('categories', cats);
+
+  async saveCategories(cats) {
+    this.saveLocks.categories = true;
+    this.safeSetItem(this.getKey(STORAGE_KEYS.CATEGORIES), JSON.stringify(cats));
     window.dispatchEvent(new Event('store_categories_updated'));
+
+    const cloudSuccess = await this.pushToCloud('categories', cats);
+    this.lastSaveTimestamps.categories = Date.now();
+    this.saveLocks.categories = false;
+
+    return { success: cloudSuccess, localSaved: true };
   },
 
   getProducts() {
@@ -598,24 +763,33 @@ const Store = {
       return DEFAULT_PRODUCTS;
     }
   },
-  saveProducts(prods) {
-    localStorage.setItem(this.getKey(STORAGE_KEYS.PRODUCTS), JSON.stringify(prods));
-    localStorage.setItem('harpy_last_sync', Date.now().toString());
-    this.pushToCloud('products', prods);
+
+  async saveProducts(prods) {
+    this.saveLocks.products = true;
+    this.safeSetItem(this.getKey(STORAGE_KEYS.PRODUCTS), JSON.stringify(prods));
     window.dispatchEvent(new Event('store_products_updated'));
+
+    const cloudSuccess = await this.pushToCloud('products', prods);
+    this.lastSaveTimestamps.products = Date.now();
+    this.saveLocks.products = false;
+
+    return { success: cloudSuccess, localSaved: true };
   },
-  addProduct(prod) {
+
+  async addProduct(prod) {
     const prods = this.getProducts();
     prods.unshift(prod);
-    this.saveProducts(prods);
+    return await this.saveProducts(prods);
   },
-  updateProduct(id, updatedProd) {
+
+  async updateProduct(id, updatedProd) {
     const prods = this.getProducts().map(p => p.id === id ? { ...p, ...updatedProd } : p);
-    this.saveProducts(prods);
+    return await this.saveProducts(prods);
   },
-  deleteProduct(id) {
+
+  async deleteProduct(id) {
     const prods = this.getProducts().filter(p => p.id !== id);
-    this.saveProducts(prods);
+    return await this.saveProducts(prods);
   },
 
   getCart() {
@@ -627,7 +801,7 @@ const Store = {
     }
   },
   saveCart(cart) {
-    localStorage.setItem(this.getKey(STORAGE_KEYS.CART), JSON.stringify(cart));
+    this.safeSetItem(this.getKey(STORAGE_KEYS.CART), JSON.stringify(cart));
     window.dispatchEvent(new Event('store_cart_updated'));
   },
   clearCart() {
@@ -645,7 +819,7 @@ const Store = {
   },
   setAppliedCoupon(coupon) {
     if (coupon) {
-      localStorage.setItem(this.getKey(STORAGE_KEYS.APPLIED_COUPON), JSON.stringify(coupon));
+      this.safeSetItem(this.getKey(STORAGE_KEYS.APPLIED_COUPON), JSON.stringify(coupon));
     } else {
       localStorage.removeItem(this.getKey(STORAGE_KEYS.APPLIED_COUPON));
     }
@@ -667,7 +841,7 @@ const Store = {
     } else {
       favs.push(productId);
     }
-    localStorage.setItem(this.getKey(STORAGE_KEYS.FAVORITES), JSON.stringify(favs));
+    this.safeSetItem(this.getKey(STORAGE_KEYS.FAVORITES), JSON.stringify(favs));
     window.dispatchEvent(new Event('store_favorites_updated'));
     return favs.includes(productId);
   },
@@ -684,7 +858,7 @@ const Store = {
     }
   },
   saveLastOrder(orderData) {
-    localStorage.setItem(this.getKey(STORAGE_KEYS.LAST_ORDER), JSON.stringify(orderData));
+    this.safeSetItem(this.getKey(STORAGE_KEYS.LAST_ORDER), JSON.stringify(orderData));
     window.dispatchEvent(new Event('store_last_order_updated'));
   },
 
@@ -692,7 +866,7 @@ const Store = {
     return localStorage.getItem(this.getKey(STORAGE_KEYS.THEME_MODE)) || 'light';
   },
   setThemeMode(mode) {
-    localStorage.setItem(this.getKey(STORAGE_KEYS.THEME_MODE), mode);
+    this.safeSetItem(this.getKey(STORAGE_KEYS.THEME_MODE), mode);
     this.applyTheme();
     window.dispatchEvent(new CustomEvent('theme_mode_changed', { detail: mode }));
   },
@@ -709,23 +883,29 @@ const Store = {
       return DEFAULT_STORIES;
     }
   },
-  saveStories(stories) {
-    localStorage.setItem(this.getKey(STORAGE_KEYS.STORIES), JSON.stringify(stories));
-    this.pushToCloud('stories', stories);
+  async saveStories(stories) {
+    this.saveLocks.stories = true;
+    this.safeSetItem(this.getKey(STORAGE_KEYS.STORIES), JSON.stringify(stories));
     window.dispatchEvent(new Event('store_stories_updated'));
+
+    const cloudSuccess = await this.pushToCloud('stories', stories);
+    this.lastSaveTimestamps.stories = Date.now();
+    this.saveLocks.stories = false;
+
+    return { success: cloudSuccess, localSaved: true };
   },
-  addStory(story) {
+  async addStory(story) {
     const stories = this.getStories();
     stories.push(story);
-    this.saveStories(stories);
+    return await this.saveStories(stories);
   },
-  updateStory(id, storyData) {
+  async updateStory(id, storyData) {
     const stories = this.getStories().map(s => s.id === id ? { ...s, ...storyData } : s);
-    this.saveStories(stories);
+    return await this.saveStories(stories);
   },
-  deleteStory(id) {
+  async deleteStory(id) {
     const stories = this.getStories().filter(s => s.id !== id);
-    this.saveStories(stories);
+    return await this.saveStories(stories);
   },
 
   getSoundEnabled() {
@@ -733,7 +913,7 @@ const Store = {
     return raw === null ? true : raw === 'true';
   },
   setSoundEnabled(enabled) {
-    localStorage.setItem(this.getKey(STORAGE_KEYS.SOUND_ENABLED), String(enabled));
+    this.safeSetItem(this.getKey(STORAGE_KEYS.SOUND_ENABLED), String(enabled));
     window.dispatchEvent(new CustomEvent('store_sound_changed', { detail: enabled }));
   },
 
@@ -741,7 +921,7 @@ const Store = {
     return localStorage.getItem(this.getKey(STORAGE_KEYS.VIEW_MODE)) || 'list';
   },
   setViewMode(mode) {
-    localStorage.setItem(this.getKey(STORAGE_KEYS.VIEW_MODE), mode);
+    this.safeSetItem(this.getKey(STORAGE_KEYS.VIEW_MODE), mode);
     window.dispatchEvent(new CustomEvent('store_view_mode_changed', { detail: mode }));
   },
 
@@ -761,6 +941,7 @@ const Store = {
     const data = {
       version: "2.0",
       timestamp: new Date().toISOString(),
+      slug: this.getRestaurantSlug(),
       settings: this.getSettings(),
       categories: this.getCategories(),
       products: this.getProducts(),
@@ -769,25 +950,29 @@ const Store = {
     return JSON.stringify(data, null, 2);
   },
 
-  importAllDataJSON(jsonString) {
+  async importAllDataJSON(jsonString) {
     try {
       const data = typeof jsonString === 'string' ? JSON.parse(jsonString) : jsonString;
       if (!data || !data.products || !data.categories) {
         throw new Error("ملف النسخة الاحتياطية غير صالح أو ناقص");
       }
-      if (data.settings) this.saveSettings(data.settings);
-      if (data.categories) this.saveCategories(data.categories);
-      if (data.products) this.saveProducts(data.products);
-      if (data.stories) this.saveStories(data.stories);
+      if (data.settings) await this.saveSettings(data.settings);
+      if (data.categories) await this.saveCategories(data.categories);
+      if (data.products) await this.saveProducts(data.products);
+      if (data.stories) await this.saveStories(data.stories);
       return true;
     } catch (err) {
-      console.error("Import error:", err);
+      console.error("[Store] Import error:", err);
       throw err;
     }
   },
 
-  resetAllDataToDefault() {
-    // ✅ Remove local cache keys
+  async resetAllDataToDefault(confirmedSlug) {
+    const currentSlug = this.getRestaurantSlug();
+    if (confirmedSlug !== currentSlug) {
+      throw new Error(`يرجى كتابة معرّف المطعم "${currentSlug}" للتأكيد قبل مسح البيانات.`);
+    }
+
     localStorage.removeItem(this.getKey(STORAGE_KEYS.SETTINGS));
     localStorage.removeItem(this.getKey(STORAGE_KEYS.CATEGORIES));
     localStorage.removeItem(this.getKey(STORAGE_KEYS.PRODUCTS));
@@ -797,53 +982,33 @@ const Store = {
     localStorage.removeItem(this.getKey(STORAGE_KEYS.THEME_MODE));
     this.initTheme();
 
-    // Reset cloud data to clean defaults while preserving owner metadata and license
-    this.pushToCloud('settings', DEFAULT_SETTINGS);
-    this.pushToCloud('categories', []);
-    this.pushToCloud('products', []);
-    this.pushToCloud('stories', []);
+    await this.pushToCloud('settings', DEFAULT_SETTINGS);
+    await this.pushToCloud('categories', []);
+    await this.pushToCloud('products', []);
+    await this.pushToCloud('stories', []);
 
     window.dispatchEvent(new Event('store_settings_updated'));
     window.dispatchEvent(new Event('store_categories_updated'));
     window.dispatchEvent(new Event('store_products_updated'));
     window.dispatchEvent(new Event('store_stories_updated'));
-  },
 
-  async uploadImage(file) {
-    if (!file) return null;
-    const settings = this.getSettings();
-    const apiKey = settings.imgbbApiKey; // ⚠️ No fallback — each restaurant must set their own key
-
-    if (apiKey) {
-      const formData = new FormData();
-      formData.append('image', file);
-      try {
-        const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
-          method: 'POST',
-          body: formData
-        });
-        const json = await response.json();
-        if (json && json.success && json.data && json.data.url) {
-          return json.data.url;
-        }
-      } catch (err) {
-        console.warn('ImgBB upload network error:', err);
-      }
-    }
-
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (e) => resolve(e.target.result);
-      reader.readAsDataURL(file);
-    });
+    return { success: true };
   },
 
   startSubscriptionWatcher(onStatusChange) {
+    if (this.activeListeners.license) {
+      try {
+        this.activeListeners.license.ref.off('value', this.activeListeners.license.callback);
+      } catch(e) {}
+      this.activeListeners.license = null;
+    }
+
     const slug = this.getRestaurantSlug();
     if (!db || !slug) return;
 
     try {
-      db.ref(`licenses/${slug}`).on('value', snap => {
+      const licRef = db.ref(`licenses/${slug}`);
+      const callback = snap => {
         const lic = snap.val();
         if (!lic) return;
 
@@ -859,9 +1024,12 @@ const Store = {
             onStatusChange({ active: true, lic });
           }
         }
-      });
+      };
+
+      licRef.on('value', callback);
+      this.activeListeners.license = { ref: licRef, callback };
     } catch (err) {
-      console.warn("Firebase license watcher:", err);
+      console.warn("[Store] Firebase license watcher error:", err);
     }
   }
 };

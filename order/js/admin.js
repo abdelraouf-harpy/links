@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// HarpyOrder — Admin Dashboard Controller
+// HarpyOrder — Admin Dashboard Controller (Production Grade)
 // ═══════════════════════════════════════════════════════════
 
 let isAuthenticated = false;
@@ -106,6 +106,7 @@ const adminElements = {
   setSpendDiscountVal: document.getElementById('set-spend-discount-val'),
   newPromoCode: document.getElementById('new-promo-code'),
   newPromoType: document.getElementById('new-promo-type'),
+  newPromoVal: document.getElementById('new-promo-val'),
   btnAddPromoCode: document.getElementById('btn-add-promo-code'),
   promoCodesList: document.getElementById('promo-codes-list'),
   adminThemeToggleBtn: document.getElementById('admin-theme-toggle-btn'),
@@ -156,9 +157,11 @@ function setupAdminThemeToggle() {
   }
 }
 
-// ── Multi-Tenant Auth Gate ──────────────────────────────────
+// ── Multi-Tenant Auth Gate with Safe Subscriptions ─────────
 function setupAuth() {
   const slug = Store.getRestaurantSlug();
+  let syncUnsubscribe = null;
+  let ordersUnsubscribe = null;
 
   const unlockDashboard = () => {
     isAuthenticated = true;
@@ -168,9 +171,13 @@ function setupAuth() {
     
     loadAllDashboardData();
 
-    // Subscribe to real-time cloud changes
-    Store.syncFromCloud(slug, (status) => {
-      if (status && status.hasData) {
+    // Clean up previous listeners
+    if (typeof syncUnsubscribe === 'function') syncUnsubscribe();
+    if (typeof ordersUnsubscribe === 'function') ordersUnsubscribe();
+
+    // Subscribe to real-time cloud changes with stale-snapshot protection
+    syncUnsubscribe = Store.syncFromCloud(slug, (status) => {
+      if (status && status.hasData && !Store.saveLocks.settings && !Store.saveLocks.products) {
         renderCatalog();
         renderCategoriesList();
         renderStoriesList();
@@ -179,13 +186,15 @@ function setupAuth() {
     });
 
     // Subscribe to real-time incoming orders
-    Store.syncOrdersFromCloud(slug, (orders) => {
+    ordersUnsubscribe = Store.syncOrdersFromCloud(slug, (orders) => {
       renderOrdersList(orders);
     });
   };
 
   const lockDashboard = () => {
     isAuthenticated = false;
+    if (typeof syncUnsubscribe === 'function') syncUnsubscribe();
+    if (typeof ordersUnsubscribe === 'function') ordersUnsubscribe();
     if (adminElements.loginModal) adminElements.loginModal.classList.add('open');
     if (adminElements.loginBackdrop) adminElements.loginBackdrop.classList.add('open');
     if (adminElements.btnAdminLogout) adminElements.btnAdminLogout.style.display = 'none';
@@ -240,7 +249,7 @@ function setupAuth() {
       await Store.loginAdmin(email, password);
       unlockDashboard();
     } catch (err) {
-      console.warn("Login failed:", err);
+      console.warn("[Admin] Login failed:", err);
       let msg = "فشل تسجيل الدخول. تأكد من صحة البريد الإلكتروني وكلمة المرور.";
       if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential' || err.message === 'auth/invalid-credentials') {
         msg = "البريد الإلكتروني أو كلمة المرور غير صحيحة.";
@@ -408,7 +417,7 @@ function setupTabNavigation() {
   });
 }
 
-// ── Image Device Dropzone Binder ───────────────────────────
+// ── High-Efficiency Auto-Compressing Image Dropzone ─────────
 function bindDeviceImageUploader({
   dropzoneId,
   fileInputId,
@@ -447,14 +456,14 @@ function bindDeviceImageUploader({
     }
   };
 
-  fileInput.addEventListener('change', (e) => {
+  fileInput.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      showPreview(ev.target.result);
-    };
-    reader.readAsDataURL(file);
+    if (prompt) prompt.innerHTML = '<span style="font-size:12px; color:var(--primary); font-weight:800;">جاري معالجة وضغط الصورة... ⏳</span>';
+    const compressed = await Store.uploadImage(file);
+    if (compressed) {
+      showPreview(compressed);
+    }
   });
 
   if (removeBtn) {
@@ -471,16 +480,16 @@ function bindDeviceImageUploader({
   dropzone.addEventListener('dragleave', () => {
     dropzone.style.borderColor = '';
   });
-  dropzone.addEventListener('drop', (e) => {
+  dropzone.addEventListener('drop', async (e) => {
     e.preventDefault();
     dropzone.style.borderColor = '';
     const file = e.dataTransfer.files[0];
     if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        showPreview(ev.target.result);
-      };
-      reader.readAsDataURL(file);
+      if (prompt) prompt.innerHTML = '<span style="font-size:12px; color:var(--primary); font-weight:800;">جاري معالجة وضغط الصورة... ⏳</span>';
+      const compressed = await Store.uploadImage(file);
+      if (compressed) {
+        showPreview(compressed);
+      }
     }
   });
 
@@ -538,15 +547,17 @@ function playKitchenOrderChime() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     if (!ctx) return;
+    if (ctx.state === 'suspended') {
+      ctx.resume().catch(() => {});
+    }
     
-    // Play two-tone restaurant bell chime (Ding-Dong!)
     const now = ctx.currentTime;
     
     // Note 1: High bell
     const osc1 = ctx.createOscillator();
     const gain1 = ctx.createGain();
     osc1.type = 'sine';
-    osc1.frequency.setValueAtTime(880, now); // A5
+    osc1.frequency.setValueAtTime(880, now);
     gain1.gain.setValueAtTime(0.3, now);
     gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
     osc1.connect(gain1);
@@ -558,7 +569,7 @@ function playKitchenOrderChime() {
     const osc2 = ctx.createOscillator();
     const gain2 = ctx.createGain();
     osc2.type = 'sine';
-    osc2.frequency.setValueAtTime(1174.66, now + 0.15); // D6
+    osc2.frequency.setValueAtTime(1174.66, now + 0.15);
     gain2.gain.setValueAtTime(0.35, now + 0.15);
     gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
     osc2.connect(gain2);
@@ -704,8 +715,9 @@ function renderOrdersList(orders = []) {
   }).join('');
 }
 
-window.updateOrderStatusFast = function(orderId, newStatus) {
-  Store.updateOrderStatus(orderId, newStatus);
+window.updateOrderStatusFast = async function(orderId, newStatus) {
+  await Store.updateOrderStatus(orderId, newStatus);
+  showToastNotification("تم تحديث حالة الطلب سحابياً ✓", "success");
 };
 
 function renderCatalog() {
@@ -769,23 +781,27 @@ function renderCatalog() {
   `).join('');
 }
 
-window.updateProductPriceFast = function(id, newPrice) {
+window.updateProductPriceFast = async function(id, newPrice) {
   const num = parseFloat(newPrice);
   if (isNaN(num) || num < 0) return;
-  Store.updateProduct(id, { price: num });
+  await Store.updateProduct(id, { price: num });
+  showToastNotification("تم تحديث السعر سحابياً بنجاح ✓", "success");
 };
 
-window.toggleProductVisibilityFast = function(id) {
+window.toggleProductVisibilityFast = async function(id) {
   const p = Store.getProducts().find(item => item.id === id);
   if (!p) return;
-  Store.updateProduct(id, { visible: p.visible === false ? true : false });
+  const newVis = p.visible === false ? true : false;
+  await Store.updateProduct(id, { visible: newVis });
   renderCatalog();
+  showToastNotification(newVis ? "تم إظهار الصنف في المنيو ✓" : "تم إخفاء الصنف من المنيو 👁️", "success");
 };
 
-window.deleteProductFast = function(id) {
+window.deleteProductFast = async function(id) {
   if (confirm("هل أنت متأكد من حذف هذا الصنف نهائياً؟")) {
-    Store.deleteProduct(id);
+    await Store.deleteProduct(id);
     renderCatalog();
+    showToastNotification("تم حذف الصنف بنجاح ✓", "success");
   }
 };
 
@@ -874,23 +890,32 @@ function addAddonRow(name = '', price = 10) {
   adminElements.prodAddonsList.appendChild(div);
 }
 
-function saveProductForm() {
-  const id = adminElements.prodId.value || ('p_' + Date.now());
-  const name = (adminElements.prodName.value || '').trim();
-  const category = adminElements.prodCategory.value;
-  const price = parseFloat(adminElements.prodPrice.value) || 0;
-  const originalPrice = parseFloat(adminElements.prodOriginalPrice.value) || 0;
-  const prepTime = (adminElements.prodPrepTime.value || '').trim();
-  const badge = (adminElements.prodBadge.value || '').trim();
-  const isFeatured = adminElements.prodFeatured.checked;
-  const desc = (adminElements.prodDesc.value || '').trim();
-  const image = (adminElements.prodImgUrl.value || '').trim() || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop&q=80";
+async function saveProductForm() {
+  const submitBtn = adminElements.productForm ? adminElements.productForm.querySelector('button[type="submit"]') : null;
+  const originalBtnText = submitBtn ? submitBtn.innerHTML : '';
+
+  const id = adminElements.prodId?.value || ('p_' + Date.now());
+  const name = (adminElements.prodName?.value || '').trim();
+  const category = adminElements.prodCategory?.value || 'عام';
+  const price = parseFloat(adminElements.prodPrice?.value) || 0;
+  const originalPrice = parseFloat(adminElements.prodOriginalPrice?.value) || 0;
+  const prepTime = (adminElements.prodPrepTime?.value || '').trim();
+  const badge = (adminElements.prodBadge?.value || '').trim();
+  const isFeatured = adminElements.prodFeatured?.checked === true;
+  const desc = (adminElements.prodDesc?.value || '').trim();
+  const image = (adminElements.prodImgUrl?.value || '').trim() || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop&q=80";
+
+  if (!name) {
+    showToastNotification("يرجى كتابة اسم الصنف أولاً", "error");
+    if (adminElements.prodName) adminElements.prodName.focus();
+    return;
+  }
 
   // Collect sizes
   const sizes = [];
   document.querySelectorAll('.size-row-item').forEach((row, idx) => {
-    const sName = (row.querySelector('.size-name-input').value || '').trim();
-    const sPrice = parseFloat(row.querySelector('.size-price-input').value) || 0;
+    const sName = (row.querySelector('.size-name-input')?.value || '').trim();
+    const sPrice = parseFloat(row.querySelector('.size-price-input')?.value) || 0;
     if (sName) {
       sizes.push({ id: 's_' + idx, name: sName, price: sPrice });
     }
@@ -899,8 +924,8 @@ function saveProductForm() {
   // Collect addons
   const addons = [];
   document.querySelectorAll('.addon-row-item').forEach((row, idx) => {
-    const aName = (row.querySelector('.addon-name-input').value || '').trim();
-    const aPrice = parseFloat(row.querySelector('.addon-price-input').value) || 0;
+    const aName = (row.querySelector('.addon-name-input')?.value || '').trim();
+    const aPrice = parseFloat(row.querySelector('.addon-price-input')?.value) || 0;
     if (aName) {
       addons.push({ id: 'a_' + idx, name: aName, price: aPrice });
     }
@@ -922,30 +947,47 @@ function saveProductForm() {
     visible: true
   };
 
-  if (currentEditingProductId) {
-    Store.updateProduct(currentEditingProductId, productData);
-    showToastNotification("تم تحديث بيانات الصنف سحابياً بنجاح! ✓", "success");
-  } else {
-    Store.addProduct(productData);
-    showToastNotification("تمت إضافة الصنف الجديد بنجاح! ✓", "success");
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = 'جاري الحفظ والمزامنة السحابية... ⏳';
   }
 
-  closeProductModal();
-  renderCatalog();
+  try {
+    if (currentEditingProductId) {
+      await Store.updateProduct(currentEditingProductId, productData);
+      showToastNotification("تم تحديث بيانات الصنف سحابياً بنجاح! ✓", "success");
+    } else {
+      await Store.addProduct(productData);
+      showToastNotification("تمت إضافة الصنف الجديد بنجاح! ✓", "success");
+    }
+    closeProductModal();
+    renderCatalog();
+  } catch (err) {
+    console.error("[Admin] Product save error:", err);
+    showToastNotification("حدث خطأ أثناء حفظ الصنف: " + err.message, "error");
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalBtnText;
+    }
+  }
 }
 
 // ── Categories Management ──────────────────────────────────
 function setupCategoryManagement() {
   if (adminElements.btnAddCat) {
-    adminElements.btnAddCat.addEventListener('click', () => {
+    adminElements.btnAddCat.addEventListener('click', async () => {
       const val = (adminElements.newCatInput.value || '').trim();
       if (!val) return;
       const cats = Store.getCategories();
       if (!cats.includes(val)) {
         cats.push(val);
-        Store.saveCategories(cats);
+        adminElements.btnAddCat.disabled = true;
+        await Store.saveCategories(cats);
+        adminElements.btnAddCat.disabled = false;
         adminElements.newCatInput.value = '';
         renderCategoriesList();
+        showToastNotification("تمت إضافة القسم الجديد بنجاح! ✓", "success");
       }
     });
   }
@@ -981,11 +1023,12 @@ function renderCategoriesList() {
   }).join('');
 }
 
-window.deleteCategoryFast = function(cat) {
+window.deleteCategoryFast = async function(cat) {
   if (confirm(`هل أنت متأكد من حذف قسم "${cat}"؟`)) {
     const cats = Store.getCategories().filter(c => c !== cat);
-    Store.saveCategories(cats);
+    await Store.saveCategories(cats);
     renderCategoriesList();
+    showToastNotification("تم حذف القسم بنجاح ✓", "success");
   }
 };
 
@@ -1089,31 +1132,55 @@ function closeStoryModal() {
   if (adminElements.storyModalBackdrop) adminElements.storyModalBackdrop.classList.remove('open');
 }
 
-function saveStoryForm() {
-  const id = adminElements.storyId.value || ('s_' + Date.now());
-  const title = (adminElements.storyTitleInput.value || '').trim();
-  const tagline = (adminElements.storyTaglineInput.value || '').trim();
-  const badge = (adminElements.storyBadgeInput.value || '').trim();
-  const productId = adminElements.storyProductSelect.value;
-  const desc = (adminElements.storyDescInput.value || '').trim();
-  const image = (adminElements.storyImgUrl.value || '').trim();
+async function saveStoryForm() {
+  const submitBtn = adminElements.storyForm ? adminElements.storyForm.querySelector('button[type="submit"]') : null;
+  const originalBtnText = submitBtn ? submitBtn.innerHTML : '';
+
+  const id = adminElements.storyId?.value || ('s_' + Date.now());
+  const title = (adminElements.storyTitleInput?.value || '').trim();
+  const tagline = (adminElements.storyTaglineInput?.value || '').trim();
+  const badge = (adminElements.storyBadgeInput?.value || '').trim();
+  const productId = adminElements.storyProductSelect?.value || '';
+  const desc = (adminElements.storyDescInput?.value || '').trim();
+  const image = (adminElements.storyImgUrl?.value || '').trim();
+
+  if (!title) {
+    showToastNotification("يرجى كتابة عنوان القصة", "error");
+    return;
+  }
 
   const storyData = { id, title, tagline, badge, productId, desc, image };
 
-  if (currentEditingStoryId) {
-    Store.updateStory(currentEditingStoryId, storyData);
-  } else {
-    Store.addStory(storyData);
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = 'جاري الحفظ... ⏳';
   }
 
-  closeStoryModal();
-  renderStoriesList();
+  try {
+    if (currentEditingStoryId) {
+      await Store.updateStory(currentEditingStoryId, storyData);
+      showToastNotification("تم تحديث القصة سحابياً بنجاح! ✓", "success");
+    } else {
+      await Store.addStory(storyData);
+      showToastNotification("تمت إضافة القصة بنجاح! ✓", "success");
+    }
+    closeStoryModal();
+    renderStoriesList();
+  } catch (err) {
+    showToastNotification("حدث خطأ أثناء حفظ القصة", "error");
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalBtnText;
+    }
+  }
 }
 
-window.deleteStoryFast = function(id) {
+window.deleteStoryFast = async function(id) {
   if (confirm("هل أنت متأكد من حذف هذه القصة؟")) {
-    Store.deleteStory(id);
+    await Store.deleteStory(id);
     renderStoriesList();
+    showToastNotification("تم حذف القصة بنجاح ✓", "success");
   }
 };
 
@@ -1138,10 +1205,10 @@ function setupBackupAndRestore() {
       if (!file) return;
 
       const reader = new FileReader();
-      reader.onload = (ev) => {
+      reader.onload = async (ev) => {
         try {
-          Store.importAllDataJSON(ev.target.result);
-          showToastNotification("تم استرجاع كافة بيانات المنيو بنجاح! 📦", "success");
+          await Store.importAllDataJSON(ev.target.result);
+          showToastNotification("تم استرجاع ومزامنة كافة بيانات المنيو سحابياً بنجاح! 📦", "success");
           loadAllDashboardData();
         } catch (err) {
           showToastNotification("حدث خطأ أثناء استرجاع الملف: " + err.message, "error");
@@ -1152,12 +1219,20 @@ function setupBackupAndRestore() {
   }
 
   if (adminElements.btnFactoryReset) {
-    adminElements.btnFactoryReset.addEventListener('click', () => {
-      const ok = confirm("تحذير: سيتم مسح كافة التعديلات واستعادة المنيو الافتراضي الأولي. هل تود المتابعة؟");
-      if (ok) {
-        Store.resetAllDataToDefault();
-        showToastNotification("تم استعادة إعدادات المصنع بنجاح!", "success");
-        loadAllDashboardData();
+    adminElements.btnFactoryReset.addEventListener('click', async () => {
+      const slug = Store.getRestaurantSlug();
+      const promptVal = prompt(`تحذير أمني: سيتم مسح كافة التعديلات واستعادة المنيو الافتراضي للمطعم (${slug}).
+لتأكيد العملية، يرجى كتابة اسم معرف المطعم (${slug}):`);
+      if (promptVal === slug) {
+        try {
+          await Store.resetAllDataToDefault(slug);
+          showToastNotification("تمت استعادة إعدادات المصنع بنجاح!", "success");
+          loadAllDashboardData();
+        } catch (err) {
+          showToastNotification("فشل إعادة التعيين: " + err.message, "error");
+        }
+      } else if (promptVal !== null) {
+        showToastNotification("معرف المطعم غير مطابق. تم إلغاء العملية بأمان.", "warning");
       }
     });
   }
@@ -1198,10 +1273,10 @@ function setupSettingsForm() {
   }
 
   if (adminElements.btnAddPromoCode) {
-    adminElements.btnAddPromoCode.addEventListener('click', () => {
-      const code = (adminElements.newPromoCode.value || '').trim().toUpperCase();
-      const type = adminElements.newPromoType.value;
-      const val = parseFloat(adminElements.newPromoVal.value) || 0;
+    adminElements.btnAddPromoCode.addEventListener('click', async () => {
+      const code = (adminElements.newPromoCode?.value || '').trim().toUpperCase();
+      const type = adminElements.newPromoType?.value || 'percent';
+      const val = parseFloat(adminElements.newPromoVal?.value) || 0;
 
       if (!code || val <= 0) {
         showToastNotification("يرجى إدخال كود وقيمة صحيحة للكوبون", "error");
@@ -1211,11 +1286,12 @@ function setupSettingsForm() {
       const settings = Store.getSettings();
       settings.promoCodes = settings.promoCodes || [];
       settings.promoCodes.push({ code, type, value: val, desc: `خصم ${val}${type === 'percent' ? '%' : ' ج.م'}` });
-      Store.saveSettings(settings);
+      await Store.saveSettings(settings);
 
-      adminElements.newPromoCode.value = '';
-      adminElements.newPromoVal.value = '';
+      if (adminElements.newPromoCode) adminElements.newPromoCode.value = '';
+      if (adminElements.newPromoVal) adminElements.newPromoVal.value = '';
       renderPromoCodesList(settings.promoCodes);
+      showToastNotification("تمت إضافة كود الخصم بنجاح! ✓", "success");
     });
   }
 
@@ -1227,7 +1303,7 @@ function setupSettingsForm() {
   }
 }
 
-window.applyPresetToPickers = function(presetId) {
+window.applyPresetToPickers = async function(presetId) {
   const p = THEME_PRESETS[presetId];
   if (!p) return;
   if (adminElements.pickerBg) adminElements.pickerBg.value = p.bg;
@@ -1238,7 +1314,8 @@ window.applyPresetToPickers = function(presetId) {
   const current = Store.getSettings();
   current.themePreset = presetId;
   current.siteColors = { ...p };
-  Store.saveSettings(current);
+  await Store.saveSettings(current);
+  showToastNotification(`تم تطبيق ثيم "${p.name}" بنجاح ✓`, "success");
 };
 
 function loadSettingsIntoForm() {
@@ -1251,6 +1328,7 @@ function loadSettingsIntoForm() {
   if (adminElements.setWhatsapp) adminElements.setWhatsapp.value = s.whatsappNumber || '';
   if (adminElements.setWalletNumber) adminElements.setWalletNumber.value = s.walletNumber || '';
   if (adminElements.setWalletName) adminElements.setWalletName.value = s.walletName || '';
+  if (adminElements.setImgbbKey) adminElements.setImgbbKey.value = s.imgbbApiKey || '';
   
   const logoInput = document.getElementById('set-logo-url');
   if (logoInput) logoInput.value = s.logo || '';
@@ -1301,17 +1379,18 @@ function renderPromoCodesList(promos) {
   `).join('');
 }
 
-window.deletePromoFast = function(index) {
+window.deletePromoFast = async function(index) {
   const settings = Store.getSettings();
   settings.promoCodes.splice(index, 1);
-  Store.saveSettings(settings);
+  await Store.saveSettings(settings);
   renderPromoCodesList(settings.promoCodes);
+  showToastNotification("تم حذف كود الخصم ✓", "success");
 };
 
-function saveSettingsFromForm() {
-  const current = Store.getSettings();
+async function saveSettingsFromForm() {
+  const submitBtn = adminElements.settingsForm ? adminElements.settingsForm.querySelector('button[type="submit"]') : null;
+  const originalBtnText = submitBtn ? submitBtn.innerHTML : '';
 
-  // Validate critical fields before saving
   const newWhatsApp = (adminElements.setWhatsapp?.value || '').replace(/\D/g, '');
   if (newWhatsApp && newWhatsApp.length < 10) {
     showToastNotification('رقم الواتساب غير صحيح — يجب أن يكون 10 أرقام على الأقل', 'error');
@@ -1319,53 +1398,73 @@ function saveSettingsFromForm() {
     return;
   }
 
-  const bg = adminElements.pickerBg.value || '#120e0c';
-  const surface = adminElements.pickerSurface.value || '#1e1814';
-  const primary = adminElements.pickerPrimary.value || '#ea580c';
-  const textMain = adminElements.pickerText.value || '#faf6f0';
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = 'جاري الحفظ والمزامنة السحابية... ⏳';
+  }
 
-  const updated = {
-    ...current,
-    storeName: (adminElements.setStoreName.value || '').trim(),
-    storeTagline: (adminElements.setStoreTagline.value || '').trim(),
-    currency: (adminElements.setCurrency.value || '').trim() || 'ج.م',
-    whatsappNumber: (adminElements.setWhatsapp.value || '').trim(),
-    walletNumber: (adminElements.setWalletNumber.value || '').trim(),
-    walletName: (adminElements.setWalletName.value || '').trim(),
-    logo: (document.getElementById('set-logo-url')?.value || '').trim(),
-    cover: (document.getElementById('set-cover-url')?.value || '').trim(),
+  try {
+    const current = Store.getSettings();
+    const bg = adminElements.pickerBg?.value || '#f8f6f0';
+    const surface = adminElements.pickerSurface?.value || '#ffffff';
+    const primary = adminElements.pickerPrimary?.value || '#c2410c';
+    const textMain = adminElements.pickerText?.value || '#18130f';
 
-    // Operational settings
-    deliveryTime: (adminElements.setDeliveryTime?.value || '').trim() || '30-45 دقيقة',
-    showAnnouncement: adminElements.setShowAnnouncement?.checked === true,
-    announcementText: (adminElements.setAnnouncementText?.value || '').trim(),
+    const updated = {
+      ...current,
+      storeName: (adminElements.setStoreName?.value || '').trim(),
+      storeTagline: (adminElements.setStoreTagline?.value || '').trim(),
+      currency: (adminElements.setCurrency?.value || '').trim() || 'ج.م',
+      whatsappNumber: (adminElements.setWhatsapp?.value || '').trim(),
+      walletNumber: (adminElements.setWalletNumber?.value || '').trim(),
+      walletName: (adminElements.setWalletName?.value || '').trim(),
+      logo: (document.getElementById('set-logo-url')?.value || '').trim(),
+      cover: (document.getElementById('set-cover-url')?.value || '').trim(),
+      imgbbApiKey: (adminElements.setImgbbKey?.value || '').trim(),
 
-    siteColors: {
-      bg,
-      surface,
-      surfaceRaised: surface,
-      headerBg: bg,
-      textMain,
-      textBody: '#d4c9ba',
-      primary: adminElements.pickerPrimary.value,
-      border: 'rgba(245, 238, 227, 0.09)'
-    },
+      deliveryTime: (adminElements.setDeliveryTime?.value || '').trim() || '30-45 دقيقة',
+      showAnnouncement: adminElements.setShowAnnouncement?.checked === true,
+      announcementText: (adminElements.setAnnouncementText?.value || '').trim(),
 
-    enableWalletDiscount: adminElements.setEnableWalletDiscount.checked,
-    walletDiscountType: adminElements.setWalletDiscountType.value,
-    walletDiscountValue: parseFloat(adminElements.setWalletDiscountVal.value) || 0,
+      siteColors: {
+        bg,
+        surface,
+        surfaceRaised: surface,
+        headerBg: bg,
+        textMain,
+        textBody: '#3d332a',
+        primary,
+        border: 'rgba(45, 35, 25, 0.10)'
+      },
 
-    enableSpendTierDiscount: adminElements.setEnableSpendTier.checked,
-    spendTierMinAmount: parseFloat(adminElements.setSpendMinAmount.value) || 0,
-    spendTierDiscountType: adminElements.setSpendDiscountType.value,
-    spendTierDiscountValue: parseFloat(adminElements.setSpendDiscountVal.value) || 0
-  };
+      enableWalletDiscount: adminElements.setEnableWalletDiscount?.checked === true,
+      walletDiscountType: adminElements.setWalletDiscountType?.value || 'percent',
+      walletDiscountValue: parseFloat(adminElements.setWalletDiscountVal?.value) || 0,
 
-  Store.saveSettings(updated);
-  showToastNotification("تم حفظ وتحديث كافة الإعدادات والمزامنة السحابية بنجاح! ✓", "success");
-  loadSettingsIntoForm();
-  checkOnboardingSetup();
-  renderRestaurantHub();
+      enableSpendTierDiscount: adminElements.setEnableSpendTier?.checked === true,
+      spendTierMinAmount: parseFloat(adminElements.setSpendMinAmount?.value) || 0,
+      spendTierDiscountType: adminElements.setSpendDiscountType?.value || 'percent',
+      spendTierDiscountValue: parseFloat(adminElements.setSpendDiscountVal?.value) || 0
+    };
+
+    const res = await Store.saveSettings(updated);
+    if (res && res.success) {
+      showToastNotification("تم حفظ وتحديث كافة الإعدادات والمزامنة السحابية بنجاح! ✓", "success");
+    } else {
+      showToastNotification("تم الحفظ محلياً — جاري تأكيد المزامنة السحابية في الخلفية", "warning");
+    }
+    loadSettingsIntoForm();
+    checkOnboardingSetup();
+    renderRestaurantHub();
+  } catch (err) {
+    console.error("[Admin] Settings save error:", err);
+    showToastNotification("حدث خطأ أثناء الحفظ: " + (err.message || 'فشل الاتصال'), "error");
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalBtnText;
+    }
+  }
 }
 
 function showToastNotification(message, type = 'success') {

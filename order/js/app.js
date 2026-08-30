@@ -301,16 +301,7 @@ function initApp() {
 
   // Connect real-time cloud data sync from Firebase Realtime Database
   const slug = Store.getRestaurantSlug();
-  Store.syncFromCloud(slug, (status) => {
-    if (status && status.hasData) {
-      renderStoreInfo();
-      renderAnnouncement();
-      renderStories();
-      renderCategories();
-      renderProducts();
-      updateLedgerUI();
-    }
-  });
+  Store.syncFromCloud(slug);
 }
 
 function showToastNotification(message, type = 'success') {
