@@ -466,10 +466,31 @@ const Store = {
     }
   },
 
+  getOrders() {
+    try {
+      const data = localStorage.getItem(this.getKey('harpy_orders_cache'));
+      if (data) return JSON.parse(data);
+    } catch(e) {}
+    return [];
+  },
+
+  saveOrders(orders) {
+    try {
+      this.safeSetItem(this.getKey('harpy_orders_cache'), JSON.stringify(orders || []));
+    } catch(e) {}
+  },
+
   async pushOrderToCloud(orderData) {
     const slug = this.getRestaurantSlug();
     if (!slug || !orderData || !orderData.orderId) return false;
     const cleanId = orderData.orderId.replace(/[^a-zA-Z0-9_-]/g, '');
+
+    // Cache locally for 0ms instant display
+    try {
+      const cached = this.getOrders();
+      const updated = [orderData, ...cached.filter(o => o.orderId !== orderData.orderId)];
+      this.saveOrders(updated);
+    } catch(e) {}
 
     try {
       if (db) {
@@ -505,6 +526,7 @@ const Store = {
       const callback = snapshot => {
         const data = snapshot.val() || {};
         const ordersList = Object.values(data).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        this.saveOrders(ordersList);
         if (typeof onOrdersUpdate === 'function') {
           onOrdersUpdate(ordersList);
         }
@@ -526,13 +548,36 @@ const Store = {
 
   async updateOrderStatus(orderId, newStatus) {
     const slug = this.getRestaurantSlug();
-    if (!db || !slug || !orderId) return false;
+    if (!orderId || !slug) return false;
+    const cleanId = orderId.replace(/[^a-zA-Z0-9_-]/g, '');
+
+    // Update local cache immediately
     try {
-      const cleanId = orderId.replace(/[^a-zA-Z0-9_-]/g, '');
-      await db.ref(`restaurants/${slug}/orders/${cleanId}/status`).set(newStatus);
+      const cached = this.getOrders();
+      const order = cached.find(o => o.orderId === orderId || o.orderId === `#${cleanId}`);
+      if (order) {
+        order.status = newStatus;
+        this.saveOrders(cached);
+      }
+    } catch(e) {}
+
+    if (db) {
+      try {
+        await db.ref(`restaurants/${slug}/orders/${cleanId}/status`).set(newStatus);
+        return true;
+      } catch (err) {
+        console.warn("[Store] Update order status error:", err);
+      }
+    }
+
+    try {
+      await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders/${cleanId}/status.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newStatus)
+      });
       return true;
-    } catch (err) {
-      console.warn("[Store] Update order status error:", err);
+    } catch (e) {
       return false;
     }
   },
@@ -541,6 +586,13 @@ const Store = {
     const slug = this.getRestaurantSlug();
     if (!orderId || !slug) return false;
     const cleanId = orderId.replace(/[^a-zA-Z0-9_-]/g, '');
+
+    // Remove from local cache immediately
+    try {
+      const cached = this.getOrders();
+      const updated = cached.filter(o => o.orderId !== orderId && o.orderId !== `#${cleanId}`);
+      this.saveOrders(updated);
+    } catch(e) {}
 
     let success = false;
     try {

@@ -973,6 +973,7 @@ window.handleQuickAddItem = function(productId, triggerElement) {
   updateLedgerUI();
   renderProducts();
 };
+window.handleQuickAddToCart = window.handleQuickAddItem;
 
 window.handleUpdateItemQty = function(cartItemId, change) {
   let cart = Store.getCart();
