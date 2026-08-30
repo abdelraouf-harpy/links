@@ -623,11 +623,31 @@
     </form>
   </div>
 
+  <!-- Receipt Image Lightbox Modal -->
+  <div id="receipt-modal-backdrop" class="modal-backdrop" onclick="closeReceiptModal()"></div>
+  <div id="receipt-modal" class="custom-modal" style="max-width: 520px; padding: 20px; border-radius: var(--radius-md); text-align: center;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+      <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+        <span>📸</span> إيصال تحويل فودافون كاش / إنستاباي
+      </h3>
+      <button type="button" class="btn btn-ghost btn-sm" onclick="closeReceiptModal()" style="font-size: 1.2rem; padding: 4px 8px; border-radius: 6px;">✕</button>
+    </div>
+    <div style="border-radius: var(--radius-sm); overflow: hidden; background: #000; max-height: 65vh; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border);">
+      <img id="receipt-modal-img" src="" alt="Receipt Image" style="max-width: 100%; max-height: 62vh; object-fit: contain;">
+    </div>
+    <div style="margin-top: 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+      <a id="receipt-modal-download" href="#" target="_blank" class="btn btn-primary btn-sm" style="font-weight: 800; font-size: 0.85rem; padding: 8px 16px;">
+        فتح الصورة بالحجم الكامل ↗
+      </a>
+      <button type="button" class="btn btn-ghost btn-sm" onclick="closeReceiptModal()" style="font-weight: 700;">إغلاق</button>
+    </div>
+  </div>
+
   <!-- Firebase App, Auth & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="./js/store.js?v=5.0"></script>
-  <script src="./js/admin.js?v=5.0"></script>
+  <script src="./js/store.js?v=5.1"></script>
+  <script src="./js/admin.js?v=5.1"></script>
 </body>
 </html>

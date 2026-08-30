@@ -624,18 +624,50 @@ function renderAnnouncement() {
   }
 }
 
+window.openLastOrderTracker = function() {
+  const lastOrder = Store.getLastOrder();
+  if (lastOrder && lastOrder.orderId) {
+    openLiveOrderTracker(lastOrder.orderId, lastOrder);
+  }
+};
+
 function renderLastOrderRecall() {
   const lastOrder = Store.getLastOrder();
-  if (elements.lastOrderBanner) {
-    if (lastOrder && lastOrder.items && lastOrder.items.length > 0) {
-      elements.lastOrderBanner.style.display = 'flex';
-      if (elements.lastOrderSummary) {
-        const itemNames = lastOrder.items.map(i => `${i.qty}x ${i.name}`).join('، ');
-        elements.lastOrderSummary.textContent = `طلبك السابق: ${itemNames}`;
-      }
-    } else {
-      elements.lastOrderBanner.style.display = 'none';
+  const headerTrackerBtn = document.getElementById('btn-header-tracker');
+  const headerTrackerText = document.getElementById('header-tracker-text');
+  const statusBadge = document.getElementById('last-order-status-badge');
+
+  if (lastOrder && lastOrder.items && lastOrder.items.length > 0 && lastOrder.orderId) {
+    if (elements.lastOrderBanner) elements.lastOrderBanner.style.display = 'flex';
+    if (elements.lastOrderSummary) {
+      const itemNames = lastOrder.items.map(i => `${i.qty}x ${i.name}`).join('، ');
+      elements.lastOrderSummary.textContent = `${lastOrder.orderId}: ${itemNames}`;
     }
+
+    if (headerTrackerBtn) {
+      headerTrackerBtn.style.display = 'inline-flex';
+      if (headerTrackerText) {
+        headerTrackerText.textContent = `تتبع ${lastOrder.orderId}`;
+      }
+    }
+
+    const st = lastOrder.status || 'pending';
+    const statusMap = {
+      pending: { text: '1. استلام الطلب 📥', color: '#f59e0b', bg: 'rgba(245,158,11,0.15)' },
+      preparing: { text: '2. المطبخ يجهز 👨‍🍳', color: '#3b82f6', bg: 'rgba(59,130,246,0.15)' },
+      out_for_delivery: { text: '3. في الطريق إليك 🛵', color: '#a855f7', bg: 'rgba(168,85,247,0.15)' },
+      delivered: { text: '4. تم التسليم بنجاح ✅', color: '#22c55e', bg: 'rgba(34,197,94,0.15)' },
+      cancelled: { text: 'تم الإلغاء ✕', color: '#ef4444', bg: 'rgba(239,68,68,0.15)' }
+    };
+    const sInfo = statusMap[st] || statusMap.pending;
+    if (statusBadge) {
+      statusBadge.textContent = sInfo.text;
+      statusBadge.style.color = sInfo.color;
+      statusBadge.style.background = sInfo.bg;
+    }
+  } else {
+    if (elements.lastOrderBanner) elements.lastOrderBanner.style.display = 'none';
+    if (headerTrackerBtn) headerTrackerBtn.style.display = 'none';
   }
 }
 
@@ -1981,8 +2013,11 @@ function openLiveOrderTracker(orderId, initialData = null) {
   if (activeTrackerUnsubscribe) activeTrackerUnsubscribe();
   activeTrackerUnsubscribe = Store.subscribeToOrder(slug, orderId, (updatedOrder) => {
     if (updatedOrder) {
-      renderTrackerOrderData(updatedOrder, currency);
-      updateTrackerStepper(updatedOrder.status);
+      const merged = { ...initialData, ...updatedOrder };
+      Store.saveLastOrder(merged);
+      renderTrackerOrderData(merged, currency);
+      updateTrackerStepper(merged.status);
+      renderLastOrderRecall();
     }
   });
 
@@ -2014,9 +2049,10 @@ function notifyCustomerOrderStatus(status) {
   }
   if (Notification.permission === 'granted') {
     const statusMessages = {
+      pending: { title: '📥 تم استلام طلبك بنجاح!', body: 'طلبك وصل المطعم وهو قيد المراجعة والتأكيد الآن.' },
       preparing: { title: '👨‍🍳 المطبخ يجهز طلبك الآن!', body: 'بدأ طهاة المطعم في تجهيز وطهي وجباتك الطازجة.' },
-      out_for_delivery: { title: '🛵 طلبك خرج للتوصيل!', body: 'الكابتن في طريقه إليك الآن لتسليم الأوردر.' },
-      delivered: { title: '✅ تم تسليم الطلب!', body: 'شكراً لطلبك من مطعمنا ونرجو لك وجبة شهية.' }
+      out_for_delivery: { title: '🛵 الطلب في الطريق إليك!', body: 'الكابتن استلم الأوردر وهو في طريقه إليك الآن.' },
+      delivered: { title: '✅ تم تسليم الطلب بالهناء والشفاء!', body: 'شكراً لطلبك من مطعمنا ونرجو لك وجبة شهية.' }
     };
     const info = statusMessages[status];
     if (info) {

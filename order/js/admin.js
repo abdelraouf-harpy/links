@@ -597,6 +597,24 @@ function showAdminOrderNotification(newOrder) {
   }
 }
 
+window.openReceiptModal = function(url) {
+  const modal = document.getElementById('receipt-modal');
+  const backdrop = document.getElementById('receipt-modal-backdrop');
+  const img = document.getElementById('receipt-modal-img');
+  const link = document.getElementById('receipt-modal-download');
+  if (img) img.src = url;
+  if (link) link.href = url;
+  if (modal) modal.classList.add('open');
+  if (backdrop) backdrop.classList.add('open');
+};
+
+window.closeReceiptModal = function() {
+  const modal = document.getElementById('receipt-modal');
+  const backdrop = document.getElementById('receipt-modal-backdrop');
+  if (modal) modal.classList.remove('open');
+  if (backdrop) backdrop.classList.remove('open');
+};
+
 function renderOrdersList(orders = []) {
   if (!adminElements.adminOrdersContainer) return;
   const currency = Store.getSettings().currency || "ج.م";
@@ -630,10 +648,10 @@ function renderOrdersList(orders = []) {
 
   if (orders.length === 0) {
     adminElements.adminOrdersContainer.innerHTML = `
-      <div style="text-align:center; padding:40px 20px; color:var(--text-muted); background:var(--surface); border:1px dashed var(--border); border-radius:var(--radius-md);">
-        <div style="font-size:32px; margin-bottom:8px;">📥</div>
-        <div style="font-size:14px; font-weight:800; color:var(--text-main); margin-bottom:4px;">لا توجد طلبات واردة حتى الآن</div>
-        <div style="font-size:12px;">أي طلب يتم إرساله من المنيو سيظهر هنا فورياً ومباشرة.</div>
+      <div style="text-align:center; padding:45px 20px; color:var(--text-muted); background:var(--surface); border:1px dashed var(--border); border-radius:var(--radius-md);">
+        <div style="font-size:36px; margin-bottom:10px;">📥</div>
+        <div style="font-size:15px; font-weight:800; color:var(--text-main); margin-bottom:4px;">لا توجد طلبات واردة حتى الآن</div>
+        <div style="font-size:12.5px;">أي طلب جديد يتم إرساله من المنيو سيظهر هنا فورياً ومباشرة مع صوت رنين المطبخ.</div>
       </div>
     `;
     return;
@@ -644,72 +662,165 @@ function renderOrdersList(orders = []) {
     const status = o.status || 'pending';
 
     const statusBadge = {
-      pending: { bg: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', text: '🟡 قيد المراجعة' },
-      preparing: { bg: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', text: '🔵 جاري التحضير' },
-      delivered: { bg: 'rgba(34, 197, 94, 0.15)', color: '#22c55e', text: '🟢 تم التوصيل' },
-      cancelled: { bg: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', text: '🔴 تم الإلغاء' }
-    }[status] || { bg: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', text: '🟡 قيد المراجعة' };
+      pending: { bg: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', text: '1. استلام الطلب (قيد المراجعة) 📥' },
+      preparing: { bg: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', text: '2. المطبخ يجهز طلبك الآن 👨‍🍳' },
+      out_for_delivery: { bg: 'rgba(168, 85, 247, 0.15)', color: '#a855f7', text: '3. الطلب في الطريق إليك 🛵' },
+      delivered: { bg: 'rgba(34, 197, 94, 0.15)', color: '#22c55e', text: '4. تم التسليم بنجاح ✅' },
+      cancelled: { bg: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', text: 'تم الإلغاء ✕' }
+    }[status] || { bg: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', text: '1. استلام الطلب 📥' };
 
     const itemsHtml = (o.items || []).map(it => `
-      <div style="display:flex; justify-content:space-between; font-size:12px; padding:3px 0; border-bottom:1px dashed var(--border);">
-        <div>
-          <span style="font-weight:800; color:var(--primary);">${it.qty}x</span>
-          <span style="font-weight:700; color:var(--text-main);">${it.name}</span>
-          ${it.selectedSize ? `<span style="font-size:10.5px; color:var(--text-muted);">[${it.selectedSize.name}]</span>` : ''}
-          ${it.selectedAddons && it.selectedAddons.length ? `<span style="font-size:10.5px; color:var(--accent-wa);">(+${it.selectedAddons.map(a => a.name).join(', ')})</span>` : ''}
-          ${it.notes ? `<div style="font-size:10px; color:var(--amber, #f59e0b);">ملاحظة: ${it.notes}</div>` : ''}
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; font-size:12.5px; padding:6px 0; border-bottom:1px dashed var(--border);">
+        <div style="flex:1; padding-left:8px;">
+          <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+            <span style="font-weight:900; background:var(--primary-subtle); color:var(--primary); padding:1px 6px; border-radius:4px; font-size:11.5px;">${it.qty}x</span>
+            <span style="font-weight:800; color:var(--text-main);">${it.name}</span>
+            ${it.selectedSize ? `<span style="font-size:11px; background:var(--surface); border:1px solid var(--border); color:var(--text-muted); padding:1px 6px; border-radius:4px;">${it.selectedSize.name}</span>` : ''}
+          </div>
+          ${it.selectedAddons && it.selectedAddons.length ? `
+            <div style="font-size:11px; color:var(--accent-wa); margin-top:2px;">
+              + إضافات: ${it.selectedAddons.map(a => a.name).join('، ')}
+            </div>
+          ` : ''}
+          ${it.notes ? `
+            <div style="font-size:11px; color:#f59e0b; margin-top:3px; background:rgba(245, 158, 11, 0.08); padding:2px 6px; border-radius:4px;">
+              📝 ملاحظة: ${it.notes}
+            </div>
+          ` : ''}
         </div>
-        <div class="font-num" style="font-weight:700;">${((it.price || 0) * it.qty).toFixed(2)} ${currency}</div>
+        <div class="font-num" style="font-weight:800; color:var(--text-main); white-space:nowrap;">
+          ${((it.price || 0) * it.qty).toFixed(2)} ${currency}
+        </div>
       </div>
     `).join('');
 
     const phoneRaw = (o.customer?.phone || '').replace(/[^0-9]/g, '');
-    const waUrl = phoneRaw ? `https://wa.me/${phoneRaw.startsWith('0') ? '2' + phoneRaw : phoneRaw}` : '#';
+    const waUrl = phoneRaw ? `https://wa.me/${phoneRaw.startsWith('0') ? '2' + phoneRaw : phoneRaw}?text=${encodeURIComponent(`مرحباً أستاذ ${o.customer?.name || ''}، بخصوص طلبك رقم ${o.orderId} من المطعم`)}` : '#';
+    const telUrl = phoneRaw ? `tel:${phoneRaw}` : '#';
+
+    const isWalletPayment = o.paymentMethod === 'wallet';
 
     return `
-      <div class="order-card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; display:flex; flex-direction:column; gap:12px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; border-bottom:1px solid var(--border); padding-bottom:10px;">
-          <div style="display:flex; align-items:center; gap:8px;">
-            <span class="font-num" style="font-size:14px; font-weight:900; color:var(--text-main);">${o.orderId}</span>
-            <span style="font-size:11px; color:var(--text-muted);">${timeStr}</span>
+      <div class="order-card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px 18px; display:flex; flex-direction:column; gap:14px; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+        
+        <!-- Header: Order ID, Time & Status Controller -->
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; border-bottom:1px solid var(--border); padding-bottom:12px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span class="font-num" style="font-size:15px; font-weight:900; background:var(--primary); color:#ffffff; padding:3px 10px; border-radius:6px; letter-spacing:0.5px;">${o.orderId}</span>
+            <span style="font-size:12px; color:var(--text-muted); display:flex; align-items:center; gap:4px;">
+              <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              ${timeStr}
+            </span>
           </div>
+
+          <!-- Status Dropdown with 4 Sequential Stages -->
           <div style="display:flex; align-items:center; gap:8px;">
-            <span style="background:${statusBadge.bg}; color:${statusBadge.color}; font-size:11px; font-weight:800; padding:3px 8px; border-radius:6px;">
+            <span style="background:${statusBadge.bg}; color:${statusBadge.color}; font-size:11.5px; font-weight:800; padding:4px 10px; border-radius:6px; white-space:nowrap;">
               ${statusBadge.text}
             </span>
-            <select class="form-select" style="font-size:11px; padding:4px 8px; font-weight:700; width:auto;" onchange="updateOrderStatusFast('${o.orderId}', this.value)">
-              <option value="pending" ${status === 'pending' ? 'selected' : ''}>قيد المراجعة</option>
-              <option value="preparing" ${status === 'preparing' ? 'selected' : ''}>جاري التحضير</option>
-              <option value="delivered" ${status === 'delivered' ? 'selected' : ''}>تم التوصيل</option>
-              <option value="cancelled" ${status === 'cancelled' ? 'selected' : ''}>إلغاء الطلب</option>
+            <select class="form-select font-num" style="font-size:12px; padding:6px 10px; font-weight:800; width:auto; border-radius:6px; cursor:pointer;" onchange="updateOrderStatusFast('${o.orderId}', this.value)">
+              <option value="pending" ${status === 'pending' ? 'selected' : ''}>1. تم استلام الطلب (قيد المراجعة) 📥</option>
+              <option value="preparing" ${status === 'preparing' ? 'selected' : ''}>2. المطبخ يجهز طلبك الآن 👨‍🍳</option>
+              <option value="out_for_delivery" ${status === 'out_for_delivery' ? 'selected' : ''}>3. الطلب في الطريق إليك 🛵</option>
+              <option value="delivered" ${status === 'delivered' ? 'selected' : ''}>4. تم التسليم بالهناء والشفاء ✅</option>
+              <option value="cancelled" ${status === 'cancelled' ? 'selected' : ''}>إلغاء الطلب ✕</option>
             </select>
           </div>
         </div>
 
-        <div style="display:grid; grid-template-columns:1.2fr 1fr; gap:16px; flex-wrap:wrap;">
-          <div>
-            <div style="font-size:11.5px; font-weight:800; color:var(--text-muted); margin-bottom:6px;">تفاصيل العميل:</div>
-            <div style="font-size:13px; font-weight:800; color:var(--text-main);">${o.customer?.name || 'عميل'}</div>
-            <div style="font-size:12px; color:var(--text-muted); display:flex; align-items:center; gap:6px; margin:2px 0;">
-              <span class="font-num">${o.customer?.phone || 'بدون هاتف'}</span>
-              ${phoneRaw ? `<a href="${waUrl}" target="_blank" class="btn btn-ghost btn-sm" style="padding:2px 6px; font-size:11px; color:var(--accent-wa);">واتساب 💬</a>` : ''}
+        <!-- Body: 2 Columns (Customer Details & Items Summary) -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px;">
+          
+          <!-- Column 1: Customer & Delivery Info -->
+          <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 14px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="font-size:11.5px; font-weight:800; color:var(--text-muted); margin-bottom:6px; display:flex; align-items:center; gap:5px;">
+                <span>👤</span> بيانات العميل والتوصيل:
+              </div>
+              
+              <div style="font-size:14.5px; font-weight:900; color:var(--text-main); margin-bottom:6px;">
+                ${o.customer?.name || 'عميل'}
+              </div>
+
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
+                <span class="font-num" style="font-size:13px; font-weight:800; color:var(--text-main); background:var(--surface-raised); padding:3px 8px; border-radius:4px; border:1px solid var(--border);">
+                  ${o.customer?.phone || 'بدون هاتف'}
+                </span>
+                ${phoneRaw ? `
+                  <a href="${telUrl}" class="btn btn-ghost btn-sm" style="padding:3px 8px; font-size:11.5px; font-weight:700;" title="اتصال بالعميل">
+                    📞 اتصال
+                  </a>
+                  <a href="${waUrl}" target="_blank" class="btn btn-ghost btn-sm" style="padding:3px 8px; font-size:11.5px; color:var(--accent-wa); font-weight:800;" title="محادثة واتساب">
+                    💬 واتساب
+                  </a>
+                ` : ''}
+              </div>
+
+              <div style="font-size:12px; color:var(--text-body); line-height:1.5; margin-bottom:6px; background:var(--surface-raised); padding:6px 10px; border-radius:6px;">
+                <span style="font-weight:800; color:var(--text-main);">📍 العنوان: </span>
+                ${o.customer?.address || 'استلام من المطعم'}
+              </div>
+
+              ${o.customer?.notes ? `
+                <div style="font-size:11.5px; color:#f59e0b; background:rgba(245, 158, 11, 0.08); border:1px dashed rgba(245, 158, 11, 0.3); padding:6px 10px; border-radius:6px; margin-top:4px;">
+                  <span style="font-weight:800;">📝 ملاحظات العميل: </span>
+                  ${o.customer.notes}
+                </div>
+              ` : ''}
             </div>
-            <div style="font-size:12px; color:var(--text-muted);"><span style="font-weight:700;">العنوان:</span> ${o.customer?.address || 'استلام من المطعم'}</div>
-            ${o.customer?.notes ? `<div style="font-size:11.5px; color:var(--amber, #f59e0b); margin-top:3px;"><span style="font-weight:700;">ملاحظات العميل:</span> ${o.customer.notes}</div>` : ''}
+
+            <!-- Payment Info Badge -->
+            <div style="margin-top:12px; padding-top:10px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+              <span style="font-size:12px; font-weight:800; color:var(--text-muted);">طريقة الدفع:</span>
+              <span style="font-size:12px; font-weight:800; padding:3px 8px; border-radius:6px; ${isWalletPayment ? 'background:rgba(59, 130, 246, 0.12); color:#3b82f6;' : 'background:rgba(34, 197, 94, 0.12); color:#22c55e;'}">
+                ${isWalletPayment ? '💳 محفظة فودافون كاش / إنستاباي' : '💵 نقداً عند الاستلام (COD)'}
+              </span>
+            </div>
           </div>
 
-          <div>
-            <div style="font-size:11.5px; font-weight:800; color:var(--text-muted); margin-bottom:6px;">أصناف الطلب:</div>
-            <div style="background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:8px; max-height:140px; overflow-y:auto;">
-              ${itemsHtml}
+          <!-- Column 2: Order Items & Total -->
+          <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 14px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="font-size:11.5px; font-weight:800; color:var(--text-muted); margin-bottom:6px; display:flex; align-items:center; gap:5px;">
+                <span>🍽️</span> محتويات الطلب:
+              </div>
+
+              <div style="max-height:160px; overflow-y:auto; padding-right:4px;">
+                ${itemsHtml}
+              </div>
             </div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
-              <span style="font-size:12px; color:var(--text-muted);">طريقة الدفع: ${o.paymentMethod === 'wallet' ? '💳 محفظة إلكترونية' : '💵 نقداً عند الاستلام'}</span>
-              <span class="font-num" style="font-size:15px; font-weight:900; color:var(--primary);">${(parseFloat(o.finalTotal) || 0).toFixed(2)} ${currency}</span>
+
+            <div style="margin-top:12px; padding-top:10px; border-top:1px solid var(--border);">
+              
+              <!-- Total summary row -->
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:13px; font-weight:800; color:var(--text-muted);">المبلغ المطلوب تحصيله:</span>
+                <span class="font-num" style="font-size:17px; font-weight:900; color:var(--primary);">
+                  ${(parseFloat(o.finalTotal) || 0).toFixed(2)} ${currency}
+                </span>
+              </div>
+
+              <!-- Payment Receipt interactive widget if uploaded -->
+              ${isWalletPayment && o.receiptUrl ? `
+                <div style="margin-top:10px; background:var(--surface-raised); border:1px solid var(--border); border-radius:6px; padding:8px 10px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <img src="${o.receiptUrl}" alt="Receipt" style="width:40px; height:40px; border-radius:4px; object-fit:cover; border:1px solid var(--border); cursor:pointer;" onclick="openReceiptModal('${o.receiptUrl}')">
+                    <div>
+                      <div style="font-size:11.5px; font-weight:800; color:var(--text-main);">📸 إيصال التحويل مرفق</div>
+                      <div style="font-size:10.5px; color:var(--accent-wa); font-weight:700;">تم الرفع بنجاح ✓</div>
+                    </div>
+                  </div>
+                  <button type="button" class="btn btn-primary btn-sm" onclick="openReceiptModal('${o.receiptUrl}')" style="padding:4px 10px; font-size:11px; font-weight:800;">
+                    🔍 معاينة الإيصال
+                  </button>
+                </div>
+              ` : ''}
             </div>
-            ${o.receiptUrl ? `<div style="margin-top:6px; text-align:left;"><a href="${o.receiptUrl}" target="_blank" style="font-size:11px; color:var(--primary); font-weight:700;">🖼️ عرض إيصال التحويل</a></div>` : ''}
+
           </div>
+
         </div>
+
       </div>
     `;
   }).join('');
