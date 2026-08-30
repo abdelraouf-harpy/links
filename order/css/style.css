@@ -4283,6 +4283,7 @@ body.harpy-account-locked {
 }
 
 /* ── Zero-Flicker Admin Auth Pre-Paint Shield ── */
+html.admin-locked .app-header,
 html.admin-locked #admin-main-container,
 html.admin-locked .multi-tenant-hub-bar,
 html.admin-locked .admin-header-actions,
@@ -4290,13 +4291,35 @@ html.admin-locked #btn-admin-logout {
   display: none !important;
 }
 
-html.admin-locked #login-modal,
 html.admin-locked #login-modal-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: var(--bg) !important;
   opacity: 1 !important;
   visibility: visible !important;
   pointer-events: auto !important;
   display: block !important;
+  transform: none !important;
+  z-index: 80 !important;
+}
+
+html.admin-locked #login-modal {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
   transform: translate(-50%, -50%) scale(1) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  display: block !important;
+  z-index: 85 !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15) !important;
+}
+
+html.admin-unlocked .app-header {
+  display: block !important;
 }
 
 html.admin-unlocked #login-modal,
