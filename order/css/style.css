@@ -2905,23 +2905,47 @@ body:not([data-theme="light"]) .btn-theme-toggle .icon-sun {
   }
 }
 
-/* Hide extra meta tags and favorite button in list mode for clean layout */
+/* Show favorite heart button on thumbnail in list mode */
 .products-flow.view-mode-list .item-meta-tags,
-.products-flow.view-mode-list .btn-fav-toggle,
 .products-flow.view-mode-list .btn-fav-inline {
   display: none !important;
 }
 
-/* Make badge neat in list thumbnail */
+.products-flow.view-mode-list .btn-fav-toggle {
+  display: flex !important;
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px !important;
+  min-height: 24px !important;
+  background: rgba(18, 14, 12, 0.88) !important;
+  border-radius: 50% !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  padding: 0 !important;
+}
+
+.products-flow.view-mode-list .btn-fav-toggle svg {
+  width: 13px !important;
+  height: 13px !important;
+}
+
+.products-flow.view-mode-list .btn-fav-toggle.active {
+  color: var(--favorite) !important;
+  background: rgba(225, 29, 72, 0.25) !important;
+  border-color: rgba(225, 29, 72, 0.6) !important;
+}
+
+/* Make badge and actions neat in list thumbnail */
 .products-flow.view-mode-list .food-item-media .card-top-actions {
   top: 4px;
   right: 4px;
   left: 4px;
-  justify-content: flex-end;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: flex-start !important;
 }
 .products-flow.view-mode-list .food-item-media .card-badge {
-  font-size: 0.65rem;
-  padding: 2px 6px;
+  font-size: 0.62rem;
+  padding: 2px 5px;
   border-radius: 4px;
   backdrop-filter: blur(6px);
   background: rgba(0, 0, 0, 0.82);

@@ -783,6 +783,17 @@ function renderProducts() {
     );
   }
 
+  // Priority Sorting: Favorited products appear at the top of the list
+  if (activeDiscoveryFilter !== 'fav' && favorites.length > 0) {
+    prods = [...prods].sort((a, b) => {
+      const aFav = favorites.includes(a.id);
+      const bFav = favorites.includes(b.id);
+      if (aFav && !bFav) return -1;
+      if (!aFav && bFav) return 1;
+      return 0;
+    });
+  }
+
   // Hero Featured
   const featured = allProds.find(p => p.isFeatured);
   if (elements.heroShowcaseContainer) {
