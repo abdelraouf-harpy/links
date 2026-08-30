@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700;800;900&family=Cairo:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./css/style.css?v=5.2">
+  <link rel="stylesheet" href="./css/style.css?v=5.4">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23c2410c'><circle cx='12' cy='12' r='10'/></svg>">
 </head>
 <body style="padding-bottom: 60px;">
@@ -680,19 +680,10 @@
       <button type="button" class="status-option-tile cancel-tile" data-status="cancelled" onclick="selectOrderStatus('cancelled')">
         <div class="status-option-icon" style="background:rgba(239,68,68,0.15); color:#ef4444;">✕</div>
         <div class="status-option-info">
-          <div class="status-option-name" style="color:var(--danger);">إلغاء الطلب مؤقتاً</div>
-          <div class="status-option-desc">إيقاف تجهيز الطلب مع بقائه في السجل</div>
+          <div class="status-option-name" style="color:var(--danger);">إلغاء الطلب</div>
+          <div class="status-option-desc">إيقاف تجهيز هذا الطلب</div>
         </div>
         <div class="status-option-radio"></div>
-      </button>
-
-      <!-- Permanent Delete Option -->
-      <button type="button" class="status-option-tile" style="border-color:rgba(239,68,68,0.4); background:rgba(239,68,68,0.06); margin-top:4px;" onclick="confirmDeleteCurrentOrder()">
-        <div class="status-option-icon" style="background:rgba(239,68,68,0.18); color:#ef4444;">🗑️</div>
-        <div class="status-option-info">
-          <div class="status-option-name" style="color:var(--danger); font-weight:900;">حذف الطلب نهائياً من السيستم</div>
-          <div class="status-option-desc">مسح بيانات وإيصال هذا الأوردر نهائياً من السحابة والنظام</div>
-        </div>
       </button>
     </div>
   </div>
@@ -722,11 +713,33 @@
     </div>
   </div>
 
+  <!-- ═══ LUXURY BRANDED CONFIRMATION MODAL ═════════════════ -->
+  <div id="custom-confirm-backdrop" class="status-sheet-backdrop" onclick="closeCustomConfirm(false)"></div>
+  <div id="custom-confirm-modal" class="custom-confirm-dialog">
+    <div id="custom-confirm-icon" style="width: 52px; height: 52px; border-radius: 50%; background: rgba(239, 68, 68, 0.15); color: #ef4444; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 12px auto;">
+      🗑️
+    </div>
+    <h3 id="custom-confirm-title" style="margin: 0 0 8px 0; font-size: 1.1rem; font-weight: 900; color: var(--text-main); text-align: center;">
+      تأكيد الحذف
+    </h3>
+    <div id="custom-confirm-msg" style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; text-align: center; margin: 0 0 20px 0;">
+      هل أنت متأكد من رغبتك في حذف هذا العنصر نهائياً؟
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <button type="button" id="btn-custom-confirm-accept" class="btn btn-danger" style="flex: 1; padding: 12px; font-weight: 800; font-size: 0.88rem; border-radius: var(--radius-sm); background: var(--danger); color: #fff; border: none; cursor: pointer;">
+        تأكيد الحذف 🗑️
+      </button>
+      <button type="button" class="btn btn-ghost" onclick="closeCustomConfirm(false)" style="flex: 1; padding: 12px; font-weight: 700; font-size: 0.88rem; border-radius: var(--radius-sm); border: 1px solid var(--border); cursor: pointer;">
+        إلغاء
+      </button>
+    </div>
+  </div>
+
   <!-- Firebase App, Auth & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="./js/store.js?v=5.2"></script>
-  <script src="./js/admin.js?v=5.2"></script>
+  <script src="./js/store.js?v=5.4"></script>
+  <script src="./js/admin.js?v=5.4"></script>
 </body>
 </html>

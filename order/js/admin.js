@@ -278,7 +278,15 @@ function setupAuth() {
   // Handle Logout
   if (adminElements.btnAdminLogout) {
     adminElements.btnAdminLogout.addEventListener('click', async () => {
-      if (confirm("هل تود تسجيل الخروج من لوحة التحكم؟")) {
+      const confirmed = await showCustomConfirm({
+        title: "تسجيل الخروج",
+        message: "هل تود تسجيل الخروج من لوحة التحكم؟",
+        icon: "🚪",
+        confirmText: "تسجيل الخروج",
+        cancelText: "إلغاء",
+        isDanger: false
+      });
+      if (confirmed) {
         await Store.logoutAdmin();
       }
     });
@@ -642,9 +650,57 @@ window.updateOrderStatusFast = async function(orderId, newStatus) {
   showToastNotification("تم تحديث حالة الطلب سحابياً بنجاح ✓", "success");
 };
 
+// ── Luxury Branded Custom Confirm Dialog Engine ─────────────
+let customConfirmResolve = null;
+
+window.showCustomConfirm = function({ title, message, icon = '🗑️', confirmText = 'تأكيد الحذف 🗑️', cancelText = 'إلغاء', isDanger = true }) {
+  return new Promise((resolve) => {
+    customConfirmResolve = resolve;
+    const modal = document.getElementById('custom-confirm-modal');
+    const backdrop = document.getElementById('custom-confirm-backdrop');
+    const titleEl = document.getElementById('custom-confirm-title');
+    const msgEl = document.getElementById('custom-confirm-msg');
+    const iconEl = document.getElementById('custom-confirm-icon');
+    const acceptBtn = document.getElementById('btn-custom-confirm-accept');
+
+    if (titleEl) titleEl.textContent = title || "تأكيد الإجراء";
+    if (msgEl) msgEl.innerHTML = message || "";
+    if (iconEl) iconEl.textContent = icon || "🗑️";
+    if (acceptBtn) {
+      acceptBtn.textContent = confirmText;
+      acceptBtn.style.background = isDanger ? 'var(--danger)' : 'var(--primary)';
+      acceptBtn.onclick = () => window.closeCustomConfirm(true);
+    }
+
+    if (modal) modal.classList.add('open');
+    if (backdrop) backdrop.classList.add('open');
+  });
+};
+
+window.closeCustomConfirm = function(result = false) {
+  const modal = document.getElementById('custom-confirm-modal');
+  const backdrop = document.getElementById('custom-confirm-backdrop');
+  if (modal) modal.classList.remove('open');
+  if (backdrop) backdrop.classList.remove('open');
+
+  if (typeof customConfirmResolve === 'function') {
+    const res = customConfirmResolve;
+    customConfirmResolve = null;
+    res(result);
+  }
+};
+
 window.confirmDeleteOrder = async function(orderId) {
   if (!orderId) return;
-  const confirmed = confirm(`هل أنت متأكد من حذف الطلب (${orderId}) نهائياً؟\n\nسيتم مسح بيانات الطلب وصورة الإيصال من السحابة بالكامل.`);
+  const confirmed = await showCustomConfirm({
+    title: `حذف الطلب ${orderId} نهائياً`,
+    message: `هل أنت متأكد من رغبتك في حذف هذا الطلب نهائياً؟<br><br><span style="font-size:12px; color:var(--text-muted);">سيتم مسح بيانات الطلب وصورة الإيصال من السحابة بالكامل ولا يمكن التراجع.</span>`,
+    icon: '🗑️',
+    confirmText: 'نعم، احذف الطلب 🗑️',
+    cancelText: 'إلغاء',
+    isDanger: true
+  });
+
   if (confirmed) {
     showToastNotification("جاري حذف الطلب سحابياً... ⏳", "info");
     const success = await Store.deleteOrder(orderId);
@@ -860,9 +916,12 @@ function renderOrdersList(orders = []) {
               <span style="font-size:10px; margin-right:2px; opacity:0.8;">▾</span>
             </button>
 
-            <!-- Permanent Delete Button -->
-            <button type="button" class="btn btn-ghost btn-sm" style="padding:5px 8px; font-size:11px; color:var(--danger); border:1px solid rgba(239,68,68,0.25); border-radius:8px; font-weight:800;" onclick="confirmDeleteOrder('${o.orderId}')" title="حذف هذا الطلب نهائياً">
-              🗑️
+            <!-- Sleek Chic ✕ Delete Button -->
+            <button type="button" class="btn-order-delete-chic" onclick="confirmDeleteOrder('${o.orderId}')" title="حذف هذا الطلب نهائياً" aria-label="حذف الطلب">
+              <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
             </button>
           </div>
         </div>
@@ -1048,7 +1107,17 @@ window.toggleProductVisibilityFast = async function(id) {
 };
 
 window.deleteProductFast = async function(id) {
-  if (confirm("هل أنت متأكد من حذف هذا الصنف نهائياً؟")) {
+  const p = Store.getProducts().find(item => item.id === id);
+  const name = p ? p.name : 'هذا الصنف';
+  const confirmed = await showCustomConfirm({
+    title: "حذف صنف من المنيو",
+    message: `هل أنت متأكد من رغبتك في حذف الصنف "<strong>${name}</strong>" نهائياً من المنيو؟`,
+    icon: "🍔",
+    confirmText: "حذف الصنف 🗑️",
+    cancelText: "إلغاء",
+    isDanger: true
+  });
+  if (confirmed) {
     await Store.deleteProduct(id);
     renderCatalog();
     showToastNotification("تم حذف الصنف بنجاح ✓", "success");
@@ -1274,7 +1343,15 @@ function renderCategoriesList() {
 }
 
 window.deleteCategoryFast = async function(cat) {
-  if (confirm(`هل أنت متأكد من حذف قسم "${cat}"؟`)) {
+  const confirmed = await showCustomConfirm({
+    title: "حذف قسم من المنيو",
+    message: `هل أنت متأكد من رغبتك في حذف قسم "<strong>${cat}</strong>"؟`,
+    icon: "📂",
+    confirmText: "حذف القسم 🗑️",
+    cancelText: "إلغاء",
+    isDanger: true
+  });
+  if (confirmed) {
     const cats = Store.getCategories().filter(c => c !== cat);
     await Store.saveCategories(cats);
     renderCategoriesList();
@@ -1427,7 +1504,15 @@ async function saveStoryForm() {
 }
 
 window.deleteStoryFast = async function(id) {
-  if (confirm("هل أنت متأكد من حذف هذه القصة؟")) {
+  const confirmed = await showCustomConfirm({
+    title: "حذف القصة / العرض",
+    message: "هل أنت متأكد من رغبتك في حذف هذه القصة أو العرض الترويجي؟",
+    icon: "⭐",
+    confirmText: "حذف القصة 🗑️",
+    cancelText: "إلغاء",
+    isDanger: true
+  });
+  if (confirmed) {
     await Store.deleteStory(id);
     renderStoriesList();
     showToastNotification("تم حذف القصة بنجاح ✓", "success");
