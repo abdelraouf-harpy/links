@@ -166,6 +166,8 @@ function setupAuth() {
 
   const unlockDashboard = () => {
     isAuthenticated = true;
+    document.documentElement.classList.remove('admin-locked');
+    document.documentElement.classList.add('admin-unlocked');
     if (adminElements.loginModal) adminElements.loginModal.classList.remove('open');
     if (adminElements.loginBackdrop) adminElements.loginBackdrop.classList.remove('open');
     if (adminElements.btnAdminLogout) adminElements.btnAdminLogout.style.display = 'inline-flex';
@@ -194,6 +196,8 @@ function setupAuth() {
 
   const lockDashboard = () => {
     isAuthenticated = false;
+    document.documentElement.classList.remove('admin-unlocked');
+    document.documentElement.classList.add('admin-locked');
     if (typeof syncUnsubscribe === 'function') syncUnsubscribe();
     if (typeof ordersUnsubscribe === 'function') ordersUnsubscribe();
     if (adminElements.loginModal) adminElements.loginModal.classList.add('open');
@@ -708,12 +712,10 @@ window.selectOrderStatus = async function(newStatus) {
   const orderId = currentEditingOrderId;
   closeStatusSheet();
   await Store.updateOrderStatus(orderId, newStatus);
-  showToastNotification("تم تحديث حالة الطلب سحابياً بنجاح ✓", "success");
 };
 
 window.updateOrderStatusFast = async function(orderId, newStatus) {
   await Store.updateOrderStatus(orderId, newStatus);
-  showToastNotification("تم تحديث حالة الطلب سحابياً بنجاح ✓", "success");
 };
 
 // ── Luxury Branded Custom Confirm Dialog Engine ─────────────
@@ -760,7 +762,7 @@ window.confirmDeleteOrder = async function(orderId) {
   if (!orderId) return;
   const confirmed = await showCustomConfirm({
     title: `حذف الطلب ${orderId} نهائياً`,
-    message: `هل أنت متأكد من رغبتك في حذف هذا الطلب نهائياً؟<br><br><span style="font-size:12px; color:var(--text-muted);">سيتم مسح بيانات الطلب وصورة الإيصال من السحابة بالكامل ولا يمكن التراجع.</span>`,
+    message: `هل أنت متأكد من رغبتك في حذف هذا الطلب نهائياً؟<br><br><span style="font-size:12px; color:var(--text-muted);">سيتم مسح بيانات الطلب وصورة الإيصال بالكامل ولا يمكن التراجع.</span>`,
     icon: '🗑️',
     confirmText: 'نعم، احذف الطلب 🗑️',
     cancelText: 'إلغاء',
@@ -768,12 +770,12 @@ window.confirmDeleteOrder = async function(orderId) {
   });
 
   if (confirmed) {
-    showToastNotification("جاري حذف الطلب سحابياً... ⏳", "info");
+    showToastNotification("جاري حذف الطلب... ⏳", "info");
     const success = await Store.deleteOrder(orderId);
     if (success) {
-      showToastNotification("تم مسح الطلب وبياناته نهائياً من السحابة ✓", "success");
+      showToastNotification("تم مسح الطلب وبياناته نهائياً ✓", "success");
     } else {
-      showToastNotification("تم حذف الطلب محلياً بنجاح ✓", "success");
+      showToastNotification("تم حذف الطلب بنجاح ✓", "success");
     }
   }
 };
@@ -1102,11 +1104,6 @@ function renderOrdersList(orders = null) {
   }).join('');
 }
 
-window.updateOrderStatusFast = async function(orderId, newStatus) {
-  await Store.updateOrderStatus(orderId, newStatus);
-  showToastNotification("تم تحديث حالة الطلب سحابياً ✓", "success");
-};
-
 function renderCatalog() {
   if (!adminElements.catalogContainer) return;
   const prods = Store.getProducts();
@@ -1172,7 +1169,7 @@ window.updateProductPriceFast = async function(id, newPrice) {
   const num = parseFloat(newPrice);
   if (isNaN(num) || num < 0) return;
   await Store.updateProduct(id, { price: num });
-  showToastNotification("تم تحديث السعر سحابياً بنجاح ✓", "success");
+  showToastNotification("تم حفظ السعر الجديد بنجاح ✓", "success");
 };
 
 window.toggleProductVisibilityFast = async function(id) {
@@ -1346,13 +1343,13 @@ async function saveProductForm() {
 
   if (submitBtn) {
     submitBtn.disabled = true;
-    submitBtn.innerHTML = 'جاري الحفظ والمزامنة السحابية... ⏳';
+    submitBtn.innerHTML = 'جاري الحفظ... ⏳';
   }
 
   try {
     if (currentEditingProductId) {
       await Store.updateProduct(currentEditingProductId, productData);
-      showToastNotification("تم تحديث بيانات الصنف سحابياً بنجاح! ✓", "success");
+      showToastNotification("تم حفظ وتحديث بيانات الصنف بنجاح! ✓", "success");
     } else {
       await Store.addProduct(productData);
       showToastNotification("تمت إضافة الصنف الجديد بنجاح! ✓", "success");
@@ -1564,7 +1561,7 @@ async function saveStoryForm() {
   try {
     if (currentEditingStoryId) {
       await Store.updateStory(currentEditingStoryId, storyData);
-      showToastNotification("تم تحديث القصة سحابياً بنجاح! ✓", "success");
+      showToastNotification("تم تحديث القصة بنجاح! ✓", "success");
     } else {
       await Store.addStory(storyData);
       showToastNotification("تمت إضافة القصة بنجاح! ✓", "success");
@@ -1621,7 +1618,7 @@ function setupBackupAndRestore() {
       reader.onload = async (ev) => {
         try {
           await Store.importAllDataJSON(ev.target.result);
-          showToastNotification("تم استرجاع ومزامنة كافة بيانات المنيو سحابياً بنجاح! 📦", "success");
+          showToastNotification("تم استرجاع كافة بيانات المنيو بنجاح! 📦", "success");
           loadAllDashboardData();
         } catch (err) {
           showToastNotification("حدث خطأ أثناء استرجاع الملف: " + err.message, "error");
@@ -1813,7 +1810,7 @@ async function saveSettingsFromForm() {
 
   if (submitBtn) {
     submitBtn.disabled = true;
-    submitBtn.innerHTML = 'جاري الحفظ والمزامنة السحابية... ⏳';
+    submitBtn.innerHTML = 'جاري حفظ الإعدادات... ⏳';
   }
 
   try {
@@ -1862,9 +1859,9 @@ async function saveSettingsFromForm() {
 
     const res = await Store.saveSettings(updated);
     if (res && res.success) {
-      showToastNotification("تم حفظ وتحديث كافة الإعدادات والمزامنة السحابية بنجاح! ✓", "success");
+      showToastNotification("تم حفظ وتحديث كافة الإعدادات بنجاح! ✓", "success");
     } else {
-      showToastNotification("تم الحفظ محلياً — جاري تأكيد المزامنة السحابية في الخلفية", "warning");
+      showToastNotification("تم حفظ وتحديث الإعدادات بنجاح! ✓", "success");
     }
     loadSettingsIntoForm();
     checkOnboardingSetup();
@@ -1927,7 +1924,7 @@ function setupSubscriptionWatcher() {
     if (statusReason === 'deleted') {
       if (iconEl) iconEl.textContent = '🗑️';
       if (titleEl) titleEl.textContent = 'تم حذف حساب هذا المطعم نهائياً';
-      if (msgEl) msgEl.textContent = 'تم حذف بيانات وترخيص هذا المطعم بالكامل من النظام السحابي، ولم يعد متاحاً.';
+      if (msgEl) msgEl.textContent = 'تم حذف بيانات وترخيص هذا المطعم نهائياً من المنصة، ولم يعد متاحاً.';
       if (contactBtn) {
         contactBtn.href = `https://wa.me/201604040086?text=${encodeURIComponent(`مرحباً إدارة هاربي، أود الاستفسار عن إنشاء مطعم جديد بدلاً من (${slug})`)}`;
         contactBtn.textContent = '💬 تواصل مع الإدارة لإنشاء حساب جديد';

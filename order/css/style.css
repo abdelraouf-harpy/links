@@ -4277,11 +4277,34 @@ body.harpy-account-locked {
   animation: harpyLockBounce 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
   box-sizing: border-box !important;
 }
-.harpy-lock-modal.active {
-  display: block !important;
-}
 @keyframes harpyLockBounce {
   from { opacity: 0; transform: translate(-50%, -46%) scale(0.92); }
   to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 }
+
+/* ── Zero-Flicker Admin Auth Pre-Paint Shield ── */
+html.admin-locked #admin-main-container,
+html.admin-locked .multi-tenant-hub-bar,
+html.admin-locked .admin-header-actions,
+html.admin-locked #btn-admin-logout {
+  display: none !important;
+}
+
+html.admin-locked #login-modal,
+html.admin-locked #login-modal-backdrop {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  display: block !important;
+  transform: translate(-50%, -50%) scale(1) !important;
+}
+
+html.admin-unlocked #login-modal,
+html.admin-unlocked #login-modal-backdrop {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
 

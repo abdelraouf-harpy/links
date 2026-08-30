@@ -1772,6 +1772,9 @@ function setupEventListeners() {
     renderProducts();
     updateLedgerUI();
   });
+  window.addEventListener('store_stories_updated', () => {
+    renderStories();
+  });
   window.addEventListener('store_favorites_updated', () => {
     renderDiscoveryRibbon();
     renderProducts();
