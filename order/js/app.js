@@ -1802,24 +1802,56 @@ function setupSubscriptionWatcher() {
   const suspendedBackdrop = document.getElementById('subscription-suspended-backdrop');
   const suspendedOverlay = document.getElementById('subscription-suspended-overlay');
   const contactBtn = document.getElementById('sub-suspended-contact-btn');
+  const titleEl = document.getElementById('sub-suspended-title');
+  const descEl = document.getElementById('sub-suspended-desc');
+  const iconEl = document.getElementById('sub-suspended-icon');
 
   const slug = Store.getRestaurantSlug();
-  if (Store.isSubscriptionSuspended(slug)) {
+  const cachedStatus = localStorage.getItem(`harpy_${slug}_sub_status`);
+
+  const applyStatusUI = (statusReason) => {
     document.body.classList.add('harpy-account-locked');
     if (suspendedBackdrop) suspendedBackdrop.classList.add('active');
     if (suspendedOverlay) suspendedOverlay.classList.add('active');
-  }
 
-  Store.startSubscriptionWatcher((status) => {
-    if (!status.active) {
-      document.body.classList.add('harpy-account-locked');
-      if (suspendedBackdrop) suspendedBackdrop.classList.add('active');
-      if (suspendedOverlay) suspendedOverlay.classList.add('active');
+    if (statusReason === 'deleted') {
+      if (iconEl) iconEl.textContent = '🗑️';
+      if (titleEl) titleEl.textContent = 'المطعم غير موجود أو تم حذفه نهائياً';
+      if (descEl) descEl.textContent = 'تم إيقاف هذا الرابط وحذف بيانات هذا المطعم بالكامل من منصة هاربي.';
+      if (contactBtn) {
+        contactBtn.href = `https://wa.me/201604040086?text=${encodeURIComponent(`مرحباً إدارة هاربي، أود الاستفسار عن رابط المطعم (${slug})`)}`;
+        contactBtn.textContent = '💬 تواصل مع إدارة منصة هاربي';
+      }
+    } else if (statusReason === 'expired') {
+      if (iconEl) iconEl.textContent = '⏳';
+      if (titleEl) titleEl.textContent = 'انتهت صلاحية اشتراك هذا المطعم';
+      if (descEl) descEl.textContent = 'قائمة هذا المطعم متوقفة مؤقتاً لانتهاء الباقة. يرجى التجديد للاستمرار.';
       if (contactBtn) {
         const settings = Store.getSettings();
         const cleanWa = (settings.whatsappNumber || '').replace(/\D/g, '');
         contactBtn.href = `https://wa.me/${cleanWa}?text=${encodeURIComponent(`مرحباً، أود الاستفسار عن تجديد اشتراك منيو ${settings.storeName || slug}`)}`;
+        contactBtn.textContent = '💬 تواصل مع المطعم لتجديد الاشتراك';
       }
+    } else {
+      if (iconEl) iconEl.textContent = '❄️';
+      if (titleEl) titleEl.textContent = 'عفواً، الخدمة متوقفة مؤقتاً';
+      if (descEl) descEl.textContent = 'قائمة هذا المطعم غير متاحة حالياً لتلقي طلبات الأونلاين أو جاري تجديد الاشتراك.';
+      if (contactBtn) {
+        const settings = Store.getSettings();
+        const cleanWa = (settings.whatsappNumber || '').replace(/\D/g, '');
+        contactBtn.href = `https://wa.me/${cleanWa}?text=${encodeURIComponent(`مرحباً، أود الاستفسار عن منيو ${settings.storeName || slug}`)}`;
+        contactBtn.textContent = '💬 تواصل مع المطعم عبر الواتساب';
+      }
+    }
+  };
+
+  if (cachedStatus === 'suspended' || cachedStatus === 'blocked' || cachedStatus === 'expired' || cachedStatus === 'deleted') {
+    applyStatusUI(cachedStatus);
+  }
+
+  Store.startSubscriptionWatcher((status) => {
+    if (!status.active) {
+      applyStatusUI(status.reason);
     } else {
       document.body.classList.remove('harpy-account-locked');
       if (suspendedBackdrop) suspendedBackdrop.classList.remove('active');

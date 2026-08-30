@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700;800;900&family=Cairo:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./css/style.css?v=6.0">
+  <link rel="stylesheet" href="./css/style.css?v=6.1">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23c2410c'><circle cx='12' cy='12' r='10'/></svg>">
 </head>
 <body style="padding-bottom: 60px;">
@@ -736,10 +736,10 @@
   <!-- Subscription Suspended Overlay for Admin -->
   <div id="subscription-suspended-backdrop" class="harpy-lock-backdrop"></div>
   <div id="subscription-suspended-overlay" class="harpy-lock-modal">
-    <div style="width:68px; height:68px; border-radius:50%; background:rgba(239,68,68,0.12); color:var(--danger); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:32px;">
+    <div id="admin-sub-suspended-icon" style="width:68px; height:68px; border-radius:50%; background:rgba(239,68,68,0.12); color:var(--danger); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:32px;">
       ❄️
     </div>
-    <h3 style="font-size:1.22rem; font-weight:900; color:var(--text-main); margin-bottom:8px;">حساب المطعم مجمّد / موقوف مؤقتاً</h3>
+    <h3 id="admin-sub-suspended-title" style="font-size:1.22rem; font-weight:900; color:var(--text-main); margin-bottom:8px;">حساب المطعم مجمّد / موقوف مؤقتاً</h3>
     <p id="admin-sub-suspended-msg" style="font-size:0.88rem; color:var(--text-muted); line-height:1.65; margin-bottom:22px;">
       تم تجميد وإيقاف اشتراك هذا المطعم مؤقتاً من قبل الإدارة. يرجى التواصل لإلغاء التجميد والتفعيل.
     </p>
@@ -752,7 +752,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="./js/store.js?v=6.0"></script>
-  <script src="./js/admin.js?v=6.0"></script>
+  <script src="./js/store.js?v=6.1"></script>
+  <script src="./js/admin.js?v=6.1"></script>
 </body>
 </html>

@@ -1194,11 +1194,30 @@ const Store = {
     return { success: true };
   },
 
+  purgeRestaurantCache(slug) {
+    const targetSlug = slug || this.getRestaurantSlug();
+    try {
+      const keysToRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (key.startsWith(`harpy_${targetSlug}_`) || key.startsWith(`harpy_${targetSlug}:`) || key === `harpy_${targetSlug}`)) {
+          if (key !== `harpy_${targetSlug}_sub_status`) {
+            keysToRemove.push(key);
+          }
+        }
+      }
+      keysToRemove.forEach(k => localStorage.removeItem(k));
+      
+      let list = this.getAllRestaurants().filter(r => r.slug !== targetSlug);
+      this.safeSetItem('harpy_restaurants_list', JSON.stringify(list));
+    } catch(e) {}
+  },
+
   isSubscriptionSuspended(slug) {
     const activeSlug = slug || this.getRestaurantSlug();
     try {
       const cached = localStorage.getItem(`harpy_${activeSlug}_sub_status`);
-      if (cached === 'suspended' || cached === 'blocked' || cached === 'expired') {
+      if (cached === 'suspended' || cached === 'blocked' || cached === 'expired' || cached === 'deleted') {
         return true;
       }
     } catch(e) {}
@@ -1225,32 +1244,60 @@ const Store = {
 
       let isBlocked = false;
       let isExpired = false;
+      let isDeleted = false;
       let reason = 'active';
 
-      if (lic) {
+      if (lic === null && meta === null && subSettings === null) {
+        isDeleted = true;
+        isBlocked = true;
+        reason = 'deleted';
+      } else if (lic) {
         if (lic.status === 'suspended' || lic.status === 'blocked' || lic.status === 'inactive') {
           isBlocked = true;
+          reason = 'blocked';
+        } else if (lic.status === 'deleted') {
+          isDeleted = true;
+          isBlocked = true;
+          reason = 'deleted';
         }
         if (lic.expiresAt) {
           const expTime = new Date(lic.expiresAt).getTime();
           if (!isNaN(expTime) && Date.now() > expTime) {
             isExpired = true;
+            if (!isBlocked) reason = 'expired';
           }
         }
       }
 
-      if (subSettings && (subSettings.status === 'suspended' || subSettings.status === 'blocked')) {
+      if (subSettings && (subSettings.status === 'suspended' || subSettings.status === 'blocked' || subSettings.status === 'deleted')) {
         isBlocked = true;
+        if (subSettings.status === 'deleted') {
+          isDeleted = true;
+          reason = 'deleted';
+        } else if (reason === 'active') {
+          reason = 'blocked';
+        }
       }
 
-      if (meta && (meta.status === 'suspended' || meta.status === 'blocked')) {
+      if (meta && (meta.status === 'suspended' || meta.status === 'blocked' || meta.status === 'deleted')) {
         isBlocked = true;
+        if (meta.status === 'deleted') {
+          isDeleted = true;
+          reason = 'deleted';
+        } else if (reason === 'active') {
+          reason = 'blocked';
+        }
       }
 
-      const active = !isBlocked && !isExpired;
+      const active = !isBlocked && !isExpired && !isDeleted;
       if (!active) {
-        reason = isBlocked ? 'blocked' : 'expired';
+        if (!reason || reason === 'active') {
+          reason = isDeleted ? 'deleted' : (isBlocked ? 'blocked' : 'expired');
+        }
         try { localStorage.setItem(`harpy_${slug}_sub_status`, reason); } catch(e) {}
+        if (isDeleted) {
+          this.purgeRestaurantCache(slug);
+        }
       } else {
         try { localStorage.setItem(`harpy_${slug}_sub_status`, 'active'); } catch(e) {}
       }

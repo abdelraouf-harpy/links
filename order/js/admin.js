@@ -1913,29 +1913,51 @@ function setupSubscriptionWatcher() {
   const suspendedOverlay = document.getElementById('subscription-suspended-overlay');
   const contactBtn = document.getElementById('admin-sub-contact-btn');
   const msgEl = document.getElementById('admin-sub-suspended-msg');
+  const titleEl = document.getElementById('admin-sub-suspended-title');
+  const iconEl = document.getElementById('admin-sub-suspended-icon');
 
   const slug = Store.getRestaurantSlug();
-  if (Store.isSubscriptionSuspended(slug)) {
+  const cachedStatus = localStorage.getItem(`harpy_${slug}_sub_status`);
+
+  const applyAdminStatusUI = (statusReason) => {
     document.body.classList.add('harpy-account-locked');
     if (suspendedBackdrop) suspendedBackdrop.classList.add('active');
     if (suspendedOverlay) suspendedOverlay.classList.add('active');
+
+    if (statusReason === 'deleted') {
+      if (iconEl) iconEl.textContent = '🗑️';
+      if (titleEl) titleEl.textContent = 'تم حذف حساب هذا المطعم نهائياً';
+      if (msgEl) msgEl.textContent = 'تم حذف بيانات وترخيص هذا المطعم بالكامل من النظام السحابي، ولم يعد متاحاً.';
+      if (contactBtn) {
+        contactBtn.href = `https://wa.me/201604040086?text=${encodeURIComponent(`مرحباً إدارة هاربي، أود الاستفسار عن إنشاء مطعم جديد بدلاً من (${slug})`)}`;
+        contactBtn.textContent = '💬 تواصل مع الإدارة لإنشاء حساب جديد';
+      }
+    } else if (statusReason === 'expired') {
+      if (iconEl) iconEl.textContent = '⏳';
+      if (titleEl) titleEl.textContent = 'انتهت صلاحية اشتراك هذا المطعم';
+      if (msgEl) msgEl.textContent = 'انتهت صلاحية اشتراك هذا المطعم. يرجى تجديد الباقة لاستئناف استقبال طلبات الزبائن وتعديل المنيو.';
+      if (contactBtn) {
+        contactBtn.href = `https://wa.me/201604040086?text=${encodeURIComponent(`مرحباً إدارة هاربي، أود تجديد اشتراك مطعمي (${slug})`)}`;
+        contactBtn.textContent = '💬 تواصل مع الإدارة لتجديد الاشتراك';
+      }
+    } else {
+      if (iconEl) iconEl.textContent = '❄️';
+      if (titleEl) titleEl.textContent = 'حساب المطعم مجمّد / موقوف مؤقتاً';
+      if (msgEl) msgEl.textContent = 'تم تجميد وإيقاف اشتراك هذا المطعم مؤقتاً من قبل الإدارة. يرجى التواصل لإلغاء التجميد والتفعيل.';
+      if (contactBtn) {
+        contactBtn.href = `https://wa.me/201604040086?text=${encodeURIComponent(`مرحباً إدارة هاربي، أود تفعيل وإلغاء تجميد مطعمي (${slug})`)}`;
+        contactBtn.textContent = '💬 تواصل مع الإدارة للتفعيل والتجديد';
+      }
+    }
+  };
+
+  if (cachedStatus === 'suspended' || cachedStatus === 'blocked' || cachedStatus === 'expired' || cachedStatus === 'deleted') {
+    applyAdminStatusUI(cachedStatus);
   }
 
   Store.startSubscriptionWatcher((status) => {
     if (!status.active) {
-      document.body.classList.add('harpy-account-locked');
-      if (suspendedBackdrop) suspendedBackdrop.classList.add('active');
-      if (suspendedOverlay) suspendedOverlay.classList.add('active');
-      if (msgEl) {
-        if (status.reason === 'expired') {
-          msgEl.textContent = "انتهت صلاحية اشتراك هذا المطعم. يرجى تجديد الباقة لاستئناف استقبال طلبات الزبائن وتعديل المنيو.";
-        } else {
-          msgEl.textContent = "تم تجميد وإيقاف اشتراك هذا المطعم مؤقتاً من قبل الإدارة. يرجى التواصل لإلغاء التجميد والتفعيل.";
-        }
-      }
-      if (contactBtn) {
-        contactBtn.href = `https://wa.me/201604040086?text=${encodeURIComponent(`مرحباً إدارة هاربي، أود الاستفسار عن تجديد وتفعيل اشتراك مطعمي (${slug})`)}`;
-      }
+      applyAdminStatusUI(status.reason);
     } else {
       document.body.classList.remove('harpy-account-locked');
       if (suspendedBackdrop) suspendedBackdrop.classList.remove('active');
