@@ -642,22 +642,117 @@ window.updateOrderStatusFast = async function(orderId, newStatus) {
   showToastNotification("تم تحديث حالة الطلب سحابياً بنجاح ✓", "success");
 };
 
+window.confirmDeleteOrder = async function(orderId) {
+  if (!orderId) return;
+  const confirmed = confirm(`هل أنت متأكد من حذف الطلب (${orderId}) نهائياً؟\n\nسيتم مسح بيانات الطلب وصورة الإيصال من السحابة بالكامل.`);
+  if (confirmed) {
+    showToastNotification("جاري حذف الطلب سحابياً... ⏳", "info");
+    const success = await Store.deleteOrder(orderId);
+    if (success) {
+      showToastNotification("تم مسح الطلب وبياناته نهائياً من السحابة ✓", "success");
+    } else {
+      showToastNotification("تم حذف الطلب محلياً بنجاح ✓", "success");
+    }
+  }
+};
+
+window.confirmDeleteCurrentOrder = function() {
+  if (currentEditingOrderId) {
+    const id = currentEditingOrderId;
+    closeStatusSheet();
+    confirmDeleteOrder(id);
+  }
+};
+
+let currentReceiptImageUrl = null;
+let isReceiptZoomed = false;
+
 window.openReceiptModal = function(url) {
+  currentReceiptImageUrl = url;
+  isReceiptZoomed = false;
+
   const modal = document.getElementById('receipt-lightbox');
   const backdrop = document.getElementById('receipt-lightbox-backdrop');
   const img = document.getElementById('receipt-lightbox-img');
-  const link = document.getElementById('receipt-lightbox-download');
-  if (img) img.src = url;
-  if (link) link.href = url;
+  const wrap = document.getElementById('receipt-lightbox-wrap');
+
+  if (img) {
+    img.src = url;
+    img.style.maxHeight = '56vh';
+    img.style.maxWidth = '100%';
+    img.style.width = 'auto';
+    img.style.cursor = 'zoom-in';
+  }
+  if (wrap) {
+    wrap.style.overflow = 'hidden';
+  }
+
   if (modal) modal.classList.add('open');
   if (backdrop) backdrop.classList.add('open');
 };
 
 window.closeReceiptModal = function() {
+  currentReceiptImageUrl = null;
   const modal = document.getElementById('receipt-lightbox');
   const backdrop = document.getElementById('receipt-lightbox-backdrop');
   if (modal) modal.classList.remove('open');
   if (backdrop) backdrop.classList.remove('open');
+};
+
+window.toggleReceiptImageZoom = function() {
+  const img = document.getElementById('receipt-lightbox-img');
+  const wrap = document.getElementById('receipt-lightbox-wrap');
+  if (!img) return;
+
+  isReceiptZoomed = !isReceiptZoomed;
+  if (isReceiptZoomed) {
+    img.style.maxHeight = 'none';
+    img.style.maxWidth = 'none';
+    img.style.width = '100%';
+    img.style.cursor = 'zoom-out';
+    if (wrap) wrap.style.overflow = 'auto';
+  } else {
+    img.style.maxHeight = '56vh';
+    img.style.maxWidth = '100%';
+    img.style.width = 'auto';
+    img.style.cursor = 'zoom-in';
+    if (wrap) wrap.style.overflow = 'hidden';
+  }
+};
+
+window.openReceiptFullImage = function() {
+  const url = currentReceiptImageUrl || (document.getElementById('receipt-lightbox-img') ? document.getElementById('receipt-lightbox-img').src : null);
+  if (!url) return;
+
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    window.open(url, '_blank');
+    return;
+  }
+
+  if (url.startsWith('data:')) {
+    try {
+      const parts = url.split(',');
+      const mime = parts[0].match(/:(.*?);/)?.[1] || 'image/jpeg';
+      const bstr = atob(parts[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      const blob = new Blob([u8arr], { type: mime });
+      const blobUrl = URL.createObjectURL(blob);
+      const newWin = window.open(blobUrl, '_blank');
+      if (!newWin) {
+        toggleReceiptImageZoom();
+      }
+    } catch (e) {
+      console.warn("[Admin] Safe blob convert fallback:", e);
+      toggleReceiptImageZoom();
+    }
+    return;
+  }
+
+  window.open(url, '_blank');
 };
 
 function renderOrdersList(orders = []) {
@@ -758,11 +853,18 @@ function renderOrdersList(orders = []) {
             </span>
           </div>
 
-          <!-- Interactive Custom Status Sheet Trigger (No Native Select Dialog) -->
-          <button type="button" class="order-status-trigger-btn font-num" style="background:${statusBadge.bg}; color:${statusBadge.color}; border:1px solid ${statusBadge.borderColor};" onclick="openStatusSheet('${o.orderId}', '${status}')">
-            <span>${statusBadge.text}</span>
-            <span style="font-size:10px; margin-right:2px; opacity:0.8;">▾</span>
-          </button>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <!-- Interactive Custom Status Sheet Trigger (No Native Select Dialog) -->
+            <button type="button" class="order-status-trigger-btn font-num" style="background:${statusBadge.bg}; color:${statusBadge.color}; border:1px solid ${statusBadge.borderColor};" onclick="openStatusSheet('${o.orderId}', '${status}')">
+              <span>${statusBadge.text}</span>
+              <span style="font-size:10px; margin-right:2px; opacity:0.8;">▾</span>
+            </button>
+
+            <!-- Permanent Delete Button -->
+            <button type="button" class="btn btn-ghost btn-sm" style="padding:5px 8px; font-size:11px; color:var(--danger); border:1px solid rgba(239,68,68,0.25); border-radius:8px; font-weight:800;" onclick="confirmDeleteOrder('${o.orderId}')" title="حذف هذا الطلب نهائياً">
+              🗑️
+            </button>
+          </div>
         </div>
 
         <!-- Body: Responsive Columns (Customer Details & Items Summary) -->

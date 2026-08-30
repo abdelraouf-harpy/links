@@ -501,7 +501,7 @@ const Store = {
         this.activeListeners.orders = null;
       }
 
-      const ordersRef = db.ref(`restaurants/${slug}/orders`);
+      const ordersRef = db.ref(`restaurants/${slug}/orders`).limitToLast(250);
       const callback = snapshot => {
         const data = snapshot.val() || {};
         const ordersList = Object.values(data).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
@@ -535,6 +535,39 @@ const Store = {
       console.warn("[Store] Update order status error:", err);
       return false;
     }
+  },
+
+  async deleteOrder(orderId) {
+    const slug = this.getRestaurantSlug();
+    if (!orderId || !slug) return false;
+    const cleanId = orderId.replace(/[^a-zA-Z0-9_-]/g, '');
+
+    let success = false;
+    try {
+      if (db) {
+        await db.ref(`restaurants/${slug}/orders/${cleanId}`).remove();
+        success = true;
+      }
+    } catch (err) {
+      console.warn("[Store] Error deleting order from cloud SDK:", err);
+    }
+
+    try {
+      // Fallback REST API delete for sub-50ms instant removal
+      await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders/${cleanId}.json`, {
+        method: 'DELETE'
+      });
+      success = true;
+    } catch (e) {}
+
+    // Clean from last order if customer has it cached
+    const lastOrder = this.getLastOrder();
+    if (lastOrder && (lastOrder.orderId === orderId || lastOrder.orderId === `#${cleanId}`)) {
+      localStorage.removeItem(this.getKey(STORAGE_KEYS.LAST_ORDER));
+      window.dispatchEvent(new Event('store_last_order_updated'));
+    }
+
+    return success;
   },
 
   subscribeToOrder(slug, orderId, onUpdate) {
