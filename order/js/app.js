@@ -298,6 +298,16 @@ function initApp() {
   setupEventListeners();
   initCustomizerEvents();
   setupSubscriptionWatcher();
+  initBackgroundOrderTracking();
+
+  // Dismiss native splash shield smoothly
+  const splash = document.getElementById('app-splash-shield');
+  if (splash) {
+    requestAnimationFrame(() => {
+      splash.classList.add('fade-out');
+      setTimeout(() => { try { splash.remove(); } catch(e) {} }, 250);
+    });
+  }
 
   // Connect real-time cloud data sync from Firebase Realtime Database
   const slug = Store.getRestaurantSlug();
@@ -646,7 +656,7 @@ function renderLastOrderRecall() {
   const headerTrackerText = document.getElementById('header-tracker-text');
   const statusBadge = document.getElementById('last-order-status-badge');
 
-  if (lastOrder && lastOrder.items && lastOrder.items.length > 0 && lastOrder.orderId) {
+  if (lastOrder && !lastOrder.archived && lastOrder.items && lastOrder.items.length > 0 && lastOrder.orderId) {
     if (elements.lastOrderBanner) elements.lastOrderBanner.style.display = 'flex';
     if (elements.lastOrderSummary) {
       const itemNames = lastOrder.items.map(i => `${i.qty}x ${i.name}`).join('، ');
@@ -2092,8 +2102,72 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
   openLiveOrderTracker(orderId, orderData);
 }
 
-function openLiveOrderTracker(orderId, initialData = null) {
+// ── Persistent Background Order Tracking & Audio Alerts Engine ──
+let backgroundOrderWatcherUnsub = null;
+let lastKnownBackgroundStatus = null;
+
+function initBackgroundOrderTracking() {
   const slug = Store.getRestaurantSlug();
+  const lastOrder = Store.getLastOrder();
+  if (!slug || !lastOrder || !lastOrder.orderId || lastOrder.archived) {
+    if (backgroundOrderWatcherUnsub) {
+      backgroundOrderWatcherUnsub();
+      backgroundOrderWatcherUnsub = null;
+    }
+    return;
+  }
+
+  if (lastKnownBackgroundStatus === null) {
+    lastKnownBackgroundStatus = lastOrder.status || 'pending';
+  }
+
+  if (backgroundOrderWatcherUnsub) {
+    backgroundOrderWatcherUnsub();
+    backgroundOrderWatcherUnsub = null;
+  }
+
+  backgroundOrderWatcherUnsub = Store.subscribeToOrder(slug, lastOrder.orderId, (updatedOrder) => {
+    if (!updatedOrder) return;
+    const newStatus = updatedOrder.status || 'pending';
+    const prevStatus = lastKnownBackgroundStatus;
+    lastKnownBackgroundStatus = newStatus;
+
+    const currentStored = Store.getLastOrder();
+    if (currentStored && !currentStored.archived) {
+      const merged = { ...currentStored, ...updatedOrder };
+      Store.saveLastOrder(merged);
+      renderLastOrderRecall();
+
+      // If tracker modal is open, update UI in real-time
+      if (elements.trackerModal && elements.trackerModal.classList.contains('open')) {
+        const settings = Store.getSettings();
+        const currency = settings.currency || "ج.م";
+        renderTrackerOrderData(merged, currency);
+        updateTrackerStepper(newStatus);
+      }
+
+      // Audio chime and toast notification on status transition even when modal is closed!
+      if (prevStatus && prevStatus !== newStatus) {
+        const statusAlerts = {
+          pending: { text: "📥 تم استلام وتأكيد طلبك في المطعم!", sound: 'pop' },
+          preparing: { text: "👨‍🍳 بدأ المطبخ في تجهيز وطهي طلبك الآن!", sound: 'pop' },
+          out_for_delivery: { text: "🛵 طلبك استلمه الكابتن وهو في الطريق إليك الآن!", sound: 'chime' },
+          delivered: { text: "🎉 تم تسليم طلبك بنجاح! بالهناء والشفاء", sound: 'cash' },
+          cancelled: { text: "✕ تم إلغاء الطلب من قِبل المطعم", sound: 'pop' }
+        };
+        const alertInfo = statusAlerts[newStatus] || statusAlerts.pending;
+        if (alertInfo.sound === 'chime') SoundFX.playChime();
+        else if (alertInfo.sound === 'cash') SoundFX.playCash();
+        else SoundFX.playPop();
+
+        showToastNotification(alertInfo.text, newStatus === 'delivered' ? 'success' : 'info');
+        notifyCustomerOrderStatus(newStatus);
+      }
+    }
+  });
+}
+
+function openLiveOrderTracker(orderId, initialData = null) {
   const settings = Store.getSettings();
   const currency = settings.currency || "ج.م";
 
@@ -2105,26 +2179,16 @@ function openLiveOrderTracker(orderId, initialData = null) {
     elements.btnTrackerWhatsapp.href = `https://wa.me/${cleanWa}?text=${encodeURIComponent(`مرحباً، أستفسر عن طلبي رقم ${orderId}`)}`;
   }
 
-  if (initialData) {
-    renderTrackerOrderData(initialData, currency);
+  const currentOrder = initialData || Store.getLastOrder();
+  if (currentOrder) {
+    renderTrackerOrderData(currentOrder, currency);
+    updateTrackerStepper(currentOrder.status || 'pending');
   }
 
   if (elements.trackerModal) elements.trackerModal.classList.add('open');
   if (elements.trackerModalBackdrop) elements.trackerModalBackdrop.classList.add('open');
 
-  // Real-time listener for order status changes from restaurant admin
-  if (activeTrackerUnsubscribe) activeTrackerUnsubscribe();
-  activeTrackerUnsubscribe = Store.subscribeToOrder(slug, orderId, (updatedOrder) => {
-    if (updatedOrder) {
-      const merged = { ...initialData, ...updatedOrder };
-      Store.saveLastOrder(merged);
-      renderTrackerOrderData(merged, currency);
-      updateTrackerStepper(merged.status);
-      renderLastOrderRecall();
-    }
-  });
-
-  updateTrackerStepper(initialData?.status || 'pending');
+  initBackgroundOrderTracking();
 }
 
 function renderTrackerOrderData(order, currency) {
@@ -2141,8 +2205,6 @@ function renderTrackerOrderData(order, currency) {
     `).join('');
   }
 }
-
-let lastTrackerStatus = null;
 
 function notifyCustomerOrderStatus(status) {
   if (!('Notification' in window)) return;
@@ -2175,21 +2237,6 @@ function updateTrackerStepper(status = 'pending') {
   const line1 = document.getElementById('step-line-1');
   const line2 = document.getElementById('step-line-2');
   const line3 = document.getElementById('step-line-3');
-
-  // Trigger audio chime and browser push notification on status transition
-  if (lastTrackerStatus !== null && lastTrackerStatus !== status) {
-    if (status === 'preparing') {
-      SoundFX.playPop();
-      notifyCustomerOrderStatus('preparing');
-    } else if (status === 'out_for_delivery') {
-      SoundFX.playChime();
-      notifyCustomerOrderStatus('out_for_delivery');
-    } else if (status === 'delivered') {
-      SoundFX.playCash();
-      notifyCustomerOrderStatus('delivered');
-    }
-  }
-  lastTrackerStatus = status;
 
   // Reset classes
   [nodePending, nodePrep, nodeDelivery, nodeDelivered].forEach(n => {
@@ -2225,9 +2272,17 @@ function updateTrackerStepper(status = 'pending') {
 function closeLiveOrderTracker() {
   if (elements.trackerModal) elements.trackerModal.classList.remove('open');
   if (elements.trackerModalBackdrop) elements.trackerModalBackdrop.classList.remove('open');
-  if (activeTrackerUnsubscribe) {
-    activeTrackerUnsubscribe();
-    activeTrackerUnsubscribe = null;
+
+  const lastOrder = Store.getLastOrder();
+  // If order is delivered or cancelled, dismissing/closing modal archives the tracking badge so header is clean!
+  if (lastOrder && (lastOrder.status === 'delivered' || lastOrder.status === 'cancelled')) {
+    lastOrder.archived = true;
+    Store.saveLastOrder(lastOrder);
+    if (backgroundOrderWatcherUnsub) {
+      backgroundOrderWatcherUnsub();
+      backgroundOrderWatcherUnsub = null;
+    }
+    renderLastOrderRecall();
   }
 }
 

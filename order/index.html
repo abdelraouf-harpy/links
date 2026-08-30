@@ -12,10 +12,39 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="HarpyOrder">
-  <link rel="stylesheet" href="./css/style.css?v=6.8">
+  <link rel="stylesheet" href="./css/style.css?v=6.9">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23c2410c'><circle cx='12' cy='12' r='10'/></svg>">
+  <script>
+    (function() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        let slug = params.get('m') || params.get('r') || params.get('restaurant');
+        if (!slug) {
+          const host = window.location.hostname;
+          if (host.includes('.')) {
+            const part = host.split('.')[0].toLowerCase();
+            if (part && part !== 'www' && part !== 'localhost') slug = part;
+          }
+        }
+        if (!slug) slug = localStorage.getItem('harpy_active_slug') || 'hermel';
+        const mode = localStorage.getItem('harpy_' + slug + '_theme_mode') || 'light';
+        document.documentElement.setAttribute('data-theme', mode);
+      } catch(e) {}
+    })();
+  </script>
 </head>
 <body>
+
+  <!-- Ultra-Fast Native Splash Shimmer Shield (Eliminates reload flash & element shifting) -->
+  <div id="app-splash-shield" class="app-splash-shield">
+    <div class="splash-shimmer-content">
+      <div class="splash-logo-pulse">
+        <div class="splash-wave-ring"></div>
+        <svg viewBox="0 0 24 24" class="splash-harpy-icon"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6Z"/></svg>
+      </div>
+      <div class="splash-loading-bar"><div class="splash-loading-progress"></div></div>
+    </div>
+  </div>
 
   <!-- Editorial Header -->
   <header class="app-header">
@@ -689,7 +718,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="./js/store.js?v=6.8"></script>
-  <script src="./js/app.js?v=6.8"></script>
+  <script src="./js/store.js?v=6.9"></script>
+  <script src="./js/app.js?v=6.9"></script>
 </body>
 </html>
