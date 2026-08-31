@@ -544,7 +544,10 @@
   <div class="customizer-modal" id="customizer-modal">
     <div class="customizer-header">
       <div class="customizer-head-info">
-        <h3 id="customizer-title">تخصيص الوجبة</h3>
+        <div class="customizer-title-row">
+          <h3 id="customizer-title">تخصيص الوجبة</h3>
+          <span class="customizer-header-price font-num" id="customizer-total-price">0 ج.م</span>
+        </div>
         <p id="customizer-desc">اختر الحجم والإضافات المفضلة</p>
       </div>
       <button class="btn-close-customizer" id="btn-close-customizer">✕</button>
@@ -580,7 +583,7 @@
         <div class="customizer-section-title">
           <span>ملاحظات خاصة للشيف</span>
         </div>
-        <input type="text" id="customizer-notes" class="customizer-notes-input" placeholder="مثال: بدون بصل، صوص زيادة، حار جداً...">
+        <input type="text" id="customizer-notes" class="customizer-notes-input" placeholder="مثال: بدون بصل، صصوص زيادة، حار جداً...">
       </div>
     </div>
 
@@ -592,11 +595,8 @@
         <button id="btn-customizer-qty-plus" class="qty-btn" type="button" aria-label="زيادة الكمية">+</button>
       </div>
       <button id="btn-add-customized-cart" class="btn btn-primary btn-add-customized" type="button">
-        <span class="btn-add-text">
-          <svg class="icon icon-sm" viewBox="0 0 24 24" style="margin-left:4px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          إضافة إلى السلة
-        </span>
-        <span class="btn-add-price-badge font-num" id="customizer-total-price">0 ج.م</span>
+        <svg class="icon icon-sm" viewBox="0 0 24 24" style="margin-left:6px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span>إضافة إلى السلة</span>
       </button>
     </div>
   </div>

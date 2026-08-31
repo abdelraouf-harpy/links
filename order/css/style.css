@@ -3617,13 +3617,33 @@ body.cart-drawer-open .dynamic-island-cart {
   min-width: 0;
   padding-left: 6px;
 }
+.customizer-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
 .customizer-head-info h3 {
   font-size: 1.12rem;
   font-weight: 900;
   color: var(--text-main);
-  margin-bottom: 4px;
+  margin: 0;
   line-height: 1.35;
   word-break: break-word;
+}
+.customizer-header-price {
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: var(--primary);
+  background: var(--primary-subtle);
+  padding: 2px 9px;
+  border-radius: 99px;
+  border: 1px solid var(--primary-glow);
+  display: inline-flex;
+  align-items: center;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 .customizer-head-info p {
   font-size: 0.8rem;
@@ -3871,13 +3891,13 @@ body.cart-drawer-open .dynamic-island-cart {
   min-width: 0;
   height: 44px;
   min-height: 44px;
-  padding: 0 10px;
-  font-size: 0.88rem;
+  padding: 0 16px;
+  font-size: 0.92rem;
   font-weight: 800;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 6px;
+  justify-content: center;
+  gap: 8px;
   border-radius: var(--radius-sm, 10px);
   background: linear-gradient(135deg, var(--primary), #c2410c);
   color: #fff;
@@ -3886,7 +3906,6 @@ body.cart-drawer-open .dynamic-island-cart {
   cursor: pointer;
   white-space: nowrap;
   box-sizing: border-box;
-  overflow: hidden;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 .btn-add-customized:hover {
@@ -3896,26 +3915,10 @@ body.cart-drawer-open .dynamic-island-cart {
 .btn-add-customized:active {
   transform: scale(0.98);
 }
-.btn-add-text {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  font-size: 0.82rem;
-  font-weight: 800;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-.btn-add-price-badge {
-  background: rgba(0, 0, 0, 0.25);
-  padding: 3px 7px;
-  border-radius: 6px;
-  font-size: 0.8rem;
-  font-weight: 900;
-  white-space: nowrap;
-  flex-shrink: 0;
-  letter-spacing: 0.01em;
-  display: inline-flex;
-  align-items: center;
+.btn-add-customized svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2.5;
 }
 
 /* ── Admin Tab Navigation & Buttons ───────────────────────── */
