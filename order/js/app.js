@@ -737,6 +737,13 @@ window.handleDiscoveryFilter = function(filterId) {
   renderCategories();
   renderProducts();
   SoundFX.playPop();
+
+  if (elements.discoveryContainer) {
+    const activeBtn = elements.discoveryContainer.querySelector('.discovery-chip.active');
+    if (activeBtn) {
+      activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+  }
 };
 
 function renderCategories() {
@@ -765,6 +772,13 @@ window.handleCategoryFilter = function(cat) {
   renderDiscoveryRibbon();
   renderProducts();
   SoundFX.playPop();
+
+  if (elements.categoriesContainer) {
+    const activeBtn = elements.categoriesContainer.querySelector('.cat-pill.active');
+    if (activeBtn) {
+      activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+  }
 };
 
 let lastRenderedProductsSignature = '';

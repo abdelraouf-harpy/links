@@ -681,6 +681,11 @@ function showAdminOrderNotification(newOrder) {
 let currentEditingOrderId = null;
 
 window.openStatusSheet = function(orderId, passedStatus = null) {
+  if (!orderId || orderId === 'undefined') {
+    const orders = Store.getOrders();
+    const firstOrder = orders.find(o => o.orderId === orderId || !o.orderId || o.orderId === 'undefined');
+    if (firstOrder) orderId = firstOrder.orderId || firstOrder._fbKey || firstOrder.id || 'ORD-UNKNOWN';
+  }
   currentEditingOrderId = orderId;
   const sheet = document.getElementById('status-sheet');
   const backdrop = document.getElementById('status-sheet-backdrop');
@@ -690,8 +695,14 @@ window.openStatusSheet = function(orderId, passedStatus = null) {
 
   // Always lookup real current status from memory to prevent any stale param
   const orders = Store.getOrders();
-  const cleanId = orderId.replace(/[^a-zA-Z0-9_-]/g, '');
-  const currentOrder = orders.find(o => o.orderId === orderId || o.orderId === `#${cleanId}`);
+  const cleanId = String(orderId).replace(/[^a-zA-Z0-9_-]/g, '');
+  const currentOrder = orders.find(o => 
+    o.orderId === orderId || 
+    o.orderId === `#${cleanId}` || 
+    o._fbKey === orderId || 
+    o.id === orderId ||
+    (o.orderId && String(o.orderId).replace(/[^a-zA-Z0-9_-]/g, '') === cleanId)
+  );
   const currentStatus = currentOrder?.status || passedStatus || 'pending';
 
   // Highlight active tile
@@ -909,7 +920,7 @@ window.openReceiptFullImage = function() {
 
 let lastRenderedOrdersSignature = null;
 
-function renderOrdersList(orders = null) {
+window.renderOrdersList = function(orders = null) {
   if (!adminElements.adminOrdersContainer) return;
   if (orders === null || orders === undefined) {
     orders = Store.getOrders();
@@ -962,6 +973,7 @@ function renderOrdersList(orders = null) {
   }
 
   adminElements.adminOrdersContainer.innerHTML = orders.map(o => {
+    const safeOrderId = o.orderId || o.id || o._fbKey || (`#ORD-${(o.timestamp || Date.now()).toString().slice(-4)}`);
     const timeStr = o.createdAt ? new Date(o.createdAt).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' }) : 'الآن';
     const status = o.status || 'pending';
 
@@ -999,18 +1011,18 @@ function renderOrdersList(orders = null) {
     `).join('');
 
     const phoneRaw = (o.customer?.phone || '').replace(/[^0-9]/g, '');
-    const waUrl = phoneRaw ? `https://wa.me/${phoneRaw.startsWith('0') ? '2' + phoneRaw : phoneRaw}?text=${encodeURIComponent(`مرحباً أستاذ ${o.customer?.name || ''}، بخصوص طلبك رقم ${o.orderId} من المطعم`)}` : '#';
+    const waUrl = phoneRaw ? `https://wa.me/${phoneRaw.startsWith('0') ? '2' + phoneRaw : phoneRaw}?text=${encodeURIComponent(`مرحباً أستاذ ${o.customer?.name || ''}، بخصوص طلبك رقم ${safeOrderId} من المطعم`)}` : '#';
     const telUrl = phoneRaw ? `tel:${phoneRaw}` : '#';
 
     const isWalletPayment = o.paymentMethod === 'wallet';
 
     return `
-      <div class="order-card-pro" data-order-id="${o.orderId}">
+      <div class="order-card-pro" data-order-id="${safeOrderId}">
         
         <!-- Header: Order ID, Time & Luxury Status Trigger Button -->
         <div class="order-card-header-row">
           <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-            <span class="order-id-chip font-num">${o.orderId}</span>
+            <span class="order-id-chip font-num">${safeOrderId}</span>
             <span class="order-time-chip">
               <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               ${timeStr}
@@ -1019,13 +1031,13 @@ function renderOrdersList(orders = null) {
 
           <div style="display:flex; align-items:center; gap:6px;">
             <!-- Interactive Custom Status Sheet Trigger (No Native Select Dialog) -->
-            <button type="button" class="order-status-trigger-btn font-num" style="background:${statusBadge.bg}; color:${statusBadge.color}; border:1px solid ${statusBadge.borderColor};" onclick="openStatusSheet('${o.orderId}', '${status}')">
+            <button type="button" class="order-status-trigger-btn font-num" style="background:${statusBadge.bg}; color:${statusBadge.color}; border:1px solid ${statusBadge.borderColor};" onclick="openStatusSheet('${safeOrderId}', '${status}')">
               <span>${statusBadge.text}</span>
               <span style="font-size:10px; margin-right:2px; opacity:0.8;">▾</span>
             </button>
 
             <!-- Sleek Chic ✕ Delete Button -->
-            <button type="button" class="btn-order-delete-chic" onclick="confirmDeleteOrder('${o.orderId}')" title="حذف هذا الطلب نهائياً" aria-label="حذف الطلب">
+            <button type="button" class="btn-order-delete-chic" onclick="confirmDeleteOrder('${safeOrderId}')" title="حذف هذا الطلب نهائياً" aria-label="حذف الطلب">
               <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>

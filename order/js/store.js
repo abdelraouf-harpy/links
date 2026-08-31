@@ -550,8 +550,15 @@ const Store = {
       const data = localStorage.getItem(this.getKey('harpy_orders_cache'));
       if (data) {
         const parsed = JSON.parse(data);
-        this._memoryCache.orders = parsed;
-        return parsed;
+        const normalized = (Array.isArray(parsed) ? parsed : Object.values(parsed)).map(o => {
+          if (!o || typeof o !== 'object') return null;
+          if (!o.orderId || o.orderId === 'undefined') {
+            o.orderId = o.id || o._fbKey || (`#ORD-${(o.timestamp || Date.now()).toString().slice(-4)}`);
+          }
+          return o;
+        }).filter(Boolean);
+        this._memoryCache.orders = normalized;
+        return normalized;
       }
     } catch(e) {}
     this._memoryCache.orders = [];
@@ -561,10 +568,19 @@ const Store = {
   orderStatusLocks: {},
 
   saveOrders(orders) {
-    this._memoryCache.orders = orders || [];
+    const rawList = Array.isArray(orders) ? orders : Object.values(orders || {});
+    const normalized = rawList.map(o => {
+      if (!o || typeof o !== 'object') return null;
+      if (!o.orderId || o.orderId === 'undefined') {
+        o.orderId = o.id || o._fbKey || (`#ORD-${(o.timestamp || Date.now()).toString().slice(-4)}`);
+      }
+      return o;
+    }).filter(Boolean);
+
+    this._memoryCache.orders = normalized;
     try {
-      this.safeSetItem(this.getKey('harpy_orders_cache'), JSON.stringify(orders || []));
-      window.dispatchEvent(new CustomEvent('store_orders_updated', { detail: orders || [] }));
+      this.safeSetItem(this.getKey('harpy_orders_cache'), JSON.stringify(normalized));
+      window.dispatchEvent(new CustomEvent('store_orders_updated', { detail: normalized }));
     } catch(e) {}
   },
 
@@ -611,15 +627,32 @@ const Store = {
     const handleOrdersPayload = (data) => {
       if (isDestroyed || !data) return;
       const now = Date.now();
-      const rawList = Object.values(data);
-      const ordersList = rawList.map(o => {
-        const cid = (o.orderId || '').replace(/[^a-zA-Z0-9_-]/g, '');
-        const lock = this.orderStatusLocks && this.orderStatusLocks[cid];
-        if (lock && (now - lock.timestamp < 3500)) {
-          return { ...o, status: lock.status };
+      const entries = Object.entries(data);
+      const ordersList = entries.map(([fbKey, o]) => {
+        if (!o || typeof o !== 'object') return null;
+
+        // Auto-clean: skip corrupt keys named "undefined" with empty data
+        if (fbKey === 'undefined' && (!o.items || o.items.length === 0) && (!o.customer || !o.customer.phone)) {
+          // Trigger async delete of ghost undefined record from cloud
+          if (db) { try { db.ref(`restaurants/${slug}/orders/undefined`).remove(); } catch(e) {} }
+          try { fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders/undefined.json`, { method: 'DELETE', keepalive: true }).catch(() => {}); } catch(e) {}
+          return null;
         }
-        return o;
-      }).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+        const resolvedId = o.orderId || o.id || (fbKey !== 'undefined' ? fbKey : `#ORD-${Math.floor(1000 + Math.random() * 9000)}`);
+        const cid = resolvedId.replace(/[^a-zA-Z0-9_-]/g, '');
+        const lock = this.orderStatusLocks && (this.orderStatusLocks[cid] || this.orderStatusLocks[fbKey]);
+        let finalStatus = o.status || 'pending';
+        if (lock && (now - lock.timestamp < 3500)) {
+          finalStatus = lock.status;
+        }
+        return {
+          ...o,
+          _fbKey: fbKey,
+          orderId: resolvedId,
+          status: finalStatus
+        };
+      }).filter(Boolean).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
       const hash = JSON.stringify(ordersList.map(o => ({ id: o.orderId, st: o.status, t: o.timestampUpdated || o.timestamp })));
       if (hash !== lastKnownOrdersHash) {
@@ -682,19 +715,27 @@ const Store = {
   async updateOrderStatus(orderId, newStatus) {
     const slug = this.getRestaurantSlug();
     if (!orderId || !slug) return false;
-    const cleanId = orderId.replace(/[^a-zA-Z0-9_-]/g, '');
+    const cleanId = String(orderId).replace(/[^a-zA-Z0-9_-]/g, '');
     const nowIso = new Date().toISOString();
     const nowTs = Date.now();
 
     // 1. Update local cache immediately for instant admin response
+    let targetFbKey = cleanId;
     try {
       this.orderStatusLocks[cleanId] = { status: newStatus, timestamp: nowTs };
       const cached = this.getOrders();
-      const order = cached.find(o => o.orderId === orderId || o.orderId === `#${cleanId}`);
+      const order = cached.find(o => 
+        o.orderId === orderId || 
+        o.orderId === `#${cleanId}` || 
+        o.id === orderId || 
+        o._fbKey === orderId || 
+        (o.orderId && String(o.orderId).replace(/[^a-zA-Z0-9_-]/g, '') === cleanId)
+      );
       if (order) {
         order.status = newStatus;
         order.updatedAt = nowIso;
         order.timestampUpdated = nowTs;
+        if (order._fbKey) targetFbKey = order._fbKey;
         this.saveOrders(cached);
       }
     } catch(e) {}
@@ -709,6 +750,9 @@ const Store = {
     if (db) {
       try {
         db.ref(`restaurants/${slug}/orders/${cleanId}`).update(patchPayload);
+        if (targetFbKey && targetFbKey !== cleanId) {
+          db.ref(`restaurants/${slug}/orders/${targetFbKey}`).update(patchPayload);
+        }
       } catch (err) {
         console.warn("[Store] Update order status SDK notice:", err);
       }
@@ -721,6 +765,15 @@ const Store = {
         body: JSON.stringify(patchPayload),
         keepalive: true
       }).catch(() => {});
+
+      if (targetFbKey && targetFbKey !== cleanId) {
+        fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders/${targetFbKey}.json`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(patchPayload),
+          keepalive: true
+        }).catch(() => {});
+      }
     } catch (e) {}
 
     return true;
@@ -729,35 +782,58 @@ const Store = {
   async deleteOrder(orderId) {
     const slug = this.getRestaurantSlug();
     if (!orderId || !slug) return false;
-    const cleanId = orderId.replace(/[^a-zA-Z0-9_-]/g, '');
+    const cleanId = String(orderId).replace(/[^a-zA-Z0-9_-]/g, '');
 
     // 1. Remove from local cache immediately
+    let targetFbKey = cleanId;
     try {
       const cached = this.getOrders();
-      const updated = cached.filter(o => o.orderId !== orderId && o.orderId !== `#${cleanId}`);
+      const target = cached.find(o => 
+        o.orderId === orderId || 
+        o.orderId === `#${cleanId}` || 
+        o.id === orderId || 
+        o._fbKey === orderId || 
+        (o.orderId && String(o.orderId).replace(/[^a-zA-Z0-9_-]/g, '') === cleanId) ||
+        (orderId === 'undefined' && (!o.orderId || o.orderId === 'undefined'))
+      );
+      if (target && target._fbKey) targetFbKey = target._fbKey;
+
+      const updated = cached.filter(o => 
+        o.orderId !== orderId && 
+        o.orderId !== `#${cleanId}` && 
+        o._fbKey !== orderId && 
+        o._fbKey !== targetFbKey && 
+        !(orderId === 'undefined' && (!o.orderId || o.orderId === 'undefined'))
+      );
       this.saveOrders(updated);
     } catch(e) {}
 
     // 2. Parallel cloud delete
-    if (db) {
-      try {
-        db.ref(`restaurants/${slug}/orders/${cleanId}`).remove();
-      } catch (err) {
-        console.warn("[Store] Delete order SDK notice:", err);
-      }
+    const keysToDelete = new Set([cleanId, targetFbKey]);
+    if (orderId === 'undefined' || cleanId === 'undefined') {
+      keysToDelete.add('undefined');
     }
 
-    try {
-      fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders/${cleanId}.json`, {
-        method: 'DELETE',
-        keepalive: true
-      }).catch(() => {});
-    } catch (e) {}
+    keysToDelete.forEach(k => {
+      if (!k) return;
+      if (db) {
+        try {
+          db.ref(`restaurants/${slug}/orders/${k}`).remove();
+        } catch (err) {
+          console.warn("[Store] Delete order SDK notice:", err);
+        }
+      }
+      try {
+        fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders/${k}.json`, {
+          method: 'DELETE',
+          keepalive: true
+        }).catch(() => {});
+      } catch (e) {}
+    });
 
     const lastOrder = this.getLastOrder();
     if (lastOrder && (lastOrder.orderId === orderId || lastOrder.orderId === `#${cleanId}`)) {
-      localStorage.removeItem(this.getKey(STORAGE_KEYS.LAST_ORDER));
-      window.dispatchEvent(new Event('store_last_order_updated'));
+      this.saveLastOrder(null);
     }
 
     return true;
