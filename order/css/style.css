@@ -3602,28 +3602,40 @@ body.cart-drawer-open .dynamic-island-cart {
 }
 
 .customizer-header {
-  padding: 16px 20px;
+  padding: 14px 18px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   border-bottom: 1px solid var(--border);
   background: var(--surface);
   position: relative;
   z-index: 2;
+  gap: 12px;
+}
+.customizer-head-info {
+  flex: 1;
+  min-width: 0;
+  padding-left: 6px;
 }
 .customizer-head-info h3 {
-  font-size: 1.15rem;
+  font-size: 1.12rem;
   font-weight: 900;
   color: var(--text-main);
-  margin-bottom: 2px;
+  margin-bottom: 4px;
+  line-height: 1.35;
+  word-break: break-word;
 }
 .customizer-head-info p {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   color: var(--text-muted);
+  line-height: 1.45;
+  word-break: break-word;
+  margin: 0;
 }
 .btn-close-customizer {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
   border-radius: 50%;
   background: var(--surface-raised);
   border: 1px solid var(--border);
@@ -3632,8 +3644,11 @@ body.cart-drawer-open .dynamic-island-cart {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 15px;
+  font-size: 14px;
   transition: var(--tr-fast);
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 2px;
 }
 .btn-close-customizer:hover {
   color: var(--text-main);
@@ -3789,14 +3804,14 @@ body.cart-drawer-open .dynamic-island-cart {
 }
 
 .customizer-footer {
-  padding: 12px 16px;
+  padding: 10px 14px;
   padding-bottom: max(12px, env(safe-area-inset-bottom, 12px));
   background: var(--surface);
   border-top: 1px solid var(--border-strong);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
   box-sizing: border-box;
   width: 100%;
 }
@@ -3807,20 +3822,20 @@ body.cart-drawer-open .dynamic-island-cart {
   background: var(--surface-raised);
   border: 1.5px solid var(--border-strong);
   border-radius: var(--radius-sm, 10px);
-  padding: 3px;
-  height: 46px;
+  padding: 2px;
+  height: 44px;
   box-sizing: border-box;
   flex-shrink: 0;
-  gap: 2px;
+  gap: 1px;
 }
 .qty-btn {
-  width: 36px;
+  width: 32px;
   height: 38px;
-  min-width: 36px;
+  min-width: 32px;
   background: var(--surface);
   border: 1px solid var(--border);
   color: var(--text-main);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 900;
   cursor: pointer;
   display: flex;
@@ -3844,20 +3859,20 @@ body.cart-drawer-open .dynamic-island-cart {
   transform: scale(0.95);
 }
 .qty-val {
-  min-width: 26px;
+  min-width: 22px;
   text-align: center;
   font-weight: 900;
-  font-size: 1.05rem;
+  font-size: 0.96rem;
   color: var(--text-main);
   user-select: none;
 }
 .btn-add-customized {
   flex: 1;
   min-width: 0;
-  height: 46px;
-  min-height: 46px;
-  padding: 0 12px;
-  font-size: 0.9rem;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 10px;
+  font-size: 0.88rem;
   font-weight: 800;
   display: flex;
   align-items: center;
@@ -3871,6 +3886,7 @@ body.cart-drawer-open .dynamic-island-cart {
   cursor: pointer;
   white-space: nowrap;
   box-sizing: border-box;
+  overflow: hidden;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 .btn-add-customized:hover {
@@ -3883,21 +3899,23 @@ body.cart-drawer-open .dynamic-island-cart {
 .btn-add-text {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 0.88rem;
+  gap: 3px;
+  font-size: 0.82rem;
   font-weight: 800;
   white-space: nowrap;
   flex-shrink: 0;
 }
 .btn-add-price-badge {
-  background: rgba(0, 0, 0, 0.28);
-  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 3px 7px;
   border-radius: 6px;
-  font-size: 0.88rem;
+  font-size: 0.8rem;
   font-weight: 900;
   white-space: nowrap;
   flex-shrink: 0;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
+  display: inline-flex;
+  align-items: center;
 }
 
 /* ── Admin Tab Navigation & Buttons ───────────────────────── */
