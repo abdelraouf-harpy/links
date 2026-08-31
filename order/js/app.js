@@ -767,41 +767,129 @@ window.handleCategoryFilter = function(cat) {
   SoundFX.playPop();
 };
 
-function renderProducts() {
+let lastRenderedProductsSignature = '';
+
+function renderProducts(forceRebuild = false) {
   if (!elements.productsContainer) return;
 
   const allProds = Store.getProducts().filter(p => p.visible !== false);
   const settings = Store.getSettings();
   const currency = settings.currency || "ج.م";
   const favorites = Store.getFavorites();
+  const cart = Store.getCart();
   const searchQuery = (elements.searchInput && elements.searchInput.value || '').trim().toLowerCase();
 
-  let prods = allProds;
+  // Fast content signature to detect real product data changes
+  const currentSig = allProds.map(p => `${p.id}_${p.price}_${p.originalPrice || 0}_${p.name}_${p.category}_${p.isFeatured ? 1 : 0}_${p.badge || ''}_${(p.sizes || []).length}_${(p.addons || []).length}`).join('|');
 
-  if (activeDiscoveryFilter === 'fav') {
-    prods = prods.filter(p => favorites.includes(p.id));
-  } else if (activeCategoryFilter !== 'all') {
-    prods = prods.filter(p => p.category === activeCategoryFilter);
+  const existingCards = elements.productsContainer.querySelectorAll('.food-item-card');
+  const needsFullBuild = forceRebuild || existingCards.length === 0 || currentSig !== lastRenderedProductsSignature || allProds.length !== existingCards.length;
+
+  if (needsFullBuild) {
+    lastRenderedProductsSignature = currentSig;
+
+    // Priority Sorting: Favorited products appear at the top
+    let sortedProds = [...allProds];
+    if (favorites.length > 0) {
+      sortedProds.sort((a, b) => {
+        const aFav = favorites.includes(a.id);
+        const bFav = favorites.includes(b.id);
+        if (aFav && !bFav) return -1;
+        if (!aFav && bFav) return 1;
+        return 0;
+      });
+    }
+
+    if (sortedProds.length === 0) {
+      elements.productsContainer.innerHTML = `
+        <div class="empty-state" style="grid-column: 1 / -1; padding: 60px 20px;">
+          <svg class="empty-icon" viewBox="0 0 24 24" style="width:64px;height:64px;opacity:0.3;"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <div class="empty-title" style="font-size:1.1rem;">المنيو قيد الإعداد</div>
+          <p style="font-size:13px; color:var(--text-muted); max-width:260px; margin: 8px auto 0;">يقوم المطعم حالياً بإضافة قائمة الأصناف. ارجع قريباً!</p>
+        </div>
+      `;
+    } else {
+      elements.productsContainer.innerHTML = sortedProds.map(p => renderProductCard(p, currency)).join('');
+    }
   }
 
-  if (searchQuery) {
-    prods = prods.filter(p => 
+  // 0ms Fast In-Place Visibility Filtering & In-Place Stepper Updates
+  let visibleCount = 0;
+  const cards = elements.productsContainer.querySelectorAll('.food-item-card');
+  cards.forEach(card => {
+    const pid = card.dataset.productId;
+    const p = allProds.find(item => item.id === pid);
+    if (!p) {
+      card.style.display = 'none';
+      return;
+    }
+
+    const isFav = favorites.includes(p.id);
+    const catMatch = (activeDiscoveryFilter === 'fav')
+      ? isFav
+      : (activeCategoryFilter === 'all' || p.category === activeCategoryFilter);
+
+    const searchMatch = !searchQuery || (
       p.name.toLowerCase().includes(searchQuery) ||
       (p.desc && p.desc.toLowerCase().includes(searchQuery)) ||
       (p.category && p.category.toLowerCase().includes(searchQuery)) ||
       (p.badge && p.badge.toLowerCase().includes(searchQuery))
     );
-  }
 
-  // Priority Sorting: Favorited products appear at the top of the list
-  if (activeDiscoveryFilter !== 'fav' && favorites.length > 0) {
-    prods = [...prods].sort((a, b) => {
-      const aFav = favorites.includes(a.id);
-      const bFav = favorites.includes(b.id);
-      if (aFav && !bFav) return -1;
-      if (!aFav && bFav) return 1;
-      return 0;
-    });
+    if (catMatch && searchMatch) {
+      card.style.display = '';
+      visibleCount++;
+
+      // In-place button stepper update
+      const hasOptions = (p.sizes && p.sizes.length > 0) || (p.addons && p.addons.length > 0);
+      if (!hasOptions) {
+        const cartItem = cart.find(i => (i.productId === p.id || i.id === p.id) && !i.selectedSize && (!i.selectedAddons || i.selectedAddons.length === 0));
+        const qty = cartItem ? cartItem.qty : 0;
+        const btnContainer = card.querySelector('.food-item-footer > div:last-child');
+        if (btnContainer) {
+          const stepperValEl = btnContainer.querySelector('.qty-stepper-val');
+          const currentRenderedQty = stepperValEl ? parseInt(stepperValEl.textContent) : 0;
+          if (currentRenderedQty !== qty) {
+            btnContainer.innerHTML = renderCardActionButton(p, qty);
+          }
+        }
+      }
+
+      // In-place heart icon active state sync
+      const favBtnTop = card.querySelector('.card-top-actions .btn-fav-toggle');
+      if (favBtnTop) {
+        favBtnTop.classList.toggle('active', isFav);
+        const svg = favBtnTop.querySelector('svg');
+        if (svg) svg.style.fill = isFav ? 'currentColor' : 'none';
+      }
+      const favBtnInline = card.querySelector('.btn-fav-inline');
+      if (favBtnInline) {
+        favBtnInline.classList.toggle('active', isFav);
+        const svg = favBtnInline.querySelector('svg');
+        if (svg) svg.style.fill = isFav ? 'currentColor' : 'none';
+      }
+    } else {
+      card.style.display = 'none';
+    }
+  });
+
+  // Handle Search / Filter Empty State Overlay
+  let emptyOverlay = elements.productsContainer.querySelector('.dynamic-empty-filter-state');
+  if (visibleCount === 0 && allProds.length > 0) {
+    if (!emptyOverlay) {
+      emptyOverlay = document.createElement('div');
+      emptyOverlay.className = 'empty-state dynamic-empty-filter-state';
+      emptyOverlay.style.gridColumn = '1 / -1';
+      emptyOverlay.innerHTML = `
+        <svg class="empty-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <div class="empty-title">لا توجد أصناف مطابقة</div>
+        <p style="font-size:12px; color:var(--text-muted);">جرب البحث بكلمة أخرى أو تصفح باقي الأقسام</p>
+      `;
+      elements.productsContainer.appendChild(emptyOverlay);
+    }
+    emptyOverlay.style.display = 'block';
+  } else if (emptyOverlay) {
+    emptyOverlay.style.display = 'none';
   }
 
   // Hero Featured
@@ -814,31 +902,6 @@ function renderProducts() {
       elements.heroShowcaseContainer.style.display = 'none';
     }
   }
-
-  if (prods.length === 0) {
-    const totalProds = Store.getProducts().filter(p => p.visible !== false).length;
-    if (totalProds === 0) {
-      // Restaurant has no products at all yet
-      elements.productsContainer.innerHTML = `
-        <div class="empty-state" style="grid-column: 1 / -1; padding: 60px 20px;">
-          <svg class="empty-icon" viewBox="0 0 24 24" style="width:64px;height:64px;opacity:0.3;"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-          <div class="empty-title" style="font-size:1.1rem;">المنيو قيد الإعداد</div>
-          <p style="font-size:13px; color:var(--text-muted); max-width:260px; margin: 8px auto 0;">يقوم المطعم حالياً بإضافة قائمة الأصناف. ارجع قريباً!</p>
-        </div>
-      `;
-    } else {
-      elements.productsContainer.innerHTML = `
-        <div class="empty-state" style="grid-column: 1 / -1;">
-          <svg class="empty-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          <div class="empty-title">لا توجد أصناف مطابقة</div>
-          <p style="font-size:12px; color:var(--text-muted);">جرب البحث بكلمة أخرى أو تصفح باقي الأقسام</p>
-        </div>
-      `;
-    }
-    return;
-  }
-
-  elements.productsContainer.innerHTML = prods.map(p => renderProductCard(p, currency)).join('');
 }
 
 function renderHeroShowcase(p, currency) {
@@ -963,7 +1026,7 @@ window.handleToggleFav = function(productId) {
   Store.toggleFavorite(productId);
   SoundFX.playPop();
   renderDiscoveryRibbon();
-  renderProducts();
+  renderProducts(true);
 };
 
 window.handleQuickAddItem = function(productId, triggerElement) {

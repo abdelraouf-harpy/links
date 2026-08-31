@@ -184,6 +184,33 @@ const DEFAULT_PRODUCTS = [];
 const DEFAULT_STORIES = [];
 
 const Store = {
+  // ── High-Speed In-Memory State Cache ───────────────────────
+  _memoryCache: {
+    slug: null,
+    products: null,
+    categories: null,
+    settings: null,
+    stories: null,
+    cart: null,
+    favorites: null,
+    lastOrder: null,
+    orders: null
+  },
+
+  clearMemoryCache() {
+    this._memoryCache = {
+      slug: null,
+      products: null,
+      categories: null,
+      settings: null,
+      stories: null,
+      cart: null,
+      favorites: null,
+      lastOrder: null,
+      orders: null
+    };
+  },
+
   // ── Save Locks & Listener Lifecycle State ────────────────
   saveLocks: {
     settings: false,
@@ -516,16 +543,25 @@ const Store = {
   },
 
   getOrders() {
+    if (this._memoryCache.orders !== null) {
+      return this._memoryCache.orders;
+    }
     try {
       const data = localStorage.getItem(this.getKey('harpy_orders_cache'));
-      if (data) return JSON.parse(data);
+      if (data) {
+        const parsed = JSON.parse(data);
+        this._memoryCache.orders = parsed;
+        return parsed;
+      }
     } catch(e) {}
+    this._memoryCache.orders = [];
     return [];
   },
 
   orderStatusLocks: {},
 
   saveOrders(orders) {
+    this._memoryCache.orders = orders || [];
     try {
       this.safeSetItem(this.getKey('harpy_orders_cache'), JSON.stringify(orders || []));
       window.dispatchEvent(new CustomEvent('store_orders_updated', { detail: orders || [] }));
@@ -615,7 +651,7 @@ const Store = {
       }
     } catch (e) {}
 
-    // 2. High-Frequency REST Heartbeat Pulse (Every 2.0 seconds) to eliminate mobile websocket lags
+    // 2. High-Frequency REST Heartbeat Pulse (Every 4.0 seconds fallback)
     const fetchOrdersFast = async () => {
       if (isDestroyed) return;
       try {
@@ -632,7 +668,7 @@ const Store = {
     };
 
     fetchOrdersFast();
-    pollTimer = setInterval(fetchOrdersFast, 1500);
+    pollTimer = setInterval(fetchOrdersFast, 4000);
 
     return () => {
       isDestroyed = true;
@@ -758,7 +794,7 @@ const Store = {
       }
     } catch (e) {}
 
-    // 2. High-Frequency Fast REST Tracker Pulse (1.2s for ultra-fast customer tracking)
+    // 2. High-Frequency Fast REST Tracker Pulse (3.5s fallback)
     const fetchOrderFast = async () => {
       if (isDestroyed) return;
       try {
@@ -775,7 +811,7 @@ const Store = {
     };
 
     fetchOrderFast();
-    pollTimer = setInterval(fetchOrderFast, 1200);
+    pollTimer = setInterval(fetchOrderFast, 3500);
 
     return () => {
       isDestroyed = true;
@@ -848,6 +884,7 @@ const Store = {
   setRestaurantSlug(slug) {
     const clean = (slug || '').toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
     if (clean) {
+      this.clearMemoryCache();
       this.safeSetItem('harpy_active_slug', clean);
       this.registerRestaurant(clean);
       this.applyTheme();
@@ -883,16 +920,26 @@ const Store = {
   },
 
   getSettings() {
+    if (this._memoryCache.settings !== null) {
+      return this._memoryCache.settings;
+    }
     const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.SETTINGS));
-    if (!raw) return { ...DEFAULT_SETTINGS };
+    if (!raw) {
+      this._memoryCache.settings = { ...DEFAULT_SETTINGS };
+      return { ...DEFAULT_SETTINGS };
+    }
     try {
-      return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
+      const parsed = { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
+      this._memoryCache.settings = parsed;
+      return parsed;
     } catch {
+      this._memoryCache.settings = { ...DEFAULT_SETTINGS };
       return { ...DEFAULT_SETTINGS };
     }
   },
 
   async saveSettings(settings) {
+    this._memoryCache.settings = settings;
     this.saveLocks.settings = true;
     this.safeSetItem(this.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(settings));
     if (settings.storeName) {
@@ -961,19 +1008,27 @@ const Store = {
   },
 
   getCategories() {
+    if (this._memoryCache.categories !== null) {
+      return this._memoryCache.categories;
+    }
     const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.CATEGORIES));
-    if (!raw) return DEFAULT_CATEGORIES;
+    if (!raw) {
+      this._memoryCache.categories = DEFAULT_CATEGORIES;
+      return DEFAULT_CATEGORIES;
+    }
     try {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) return parsed;
-      if (parsed && typeof parsed === 'object') return Object.values(parsed);
-      return DEFAULT_CATEGORIES;
+      const res = Array.isArray(parsed) ? parsed : (parsed && typeof parsed === 'object' ? Object.values(parsed) : DEFAULT_CATEGORIES);
+      this._memoryCache.categories = res;
+      return res;
     } catch {
+      this._memoryCache.categories = DEFAULT_CATEGORIES;
       return DEFAULT_CATEGORIES;
     }
   },
 
   async saveCategories(cats) {
+    this._memoryCache.categories = cats;
     this.saveLocks.categories = true;
     this.safeSetItem(this.getKey(STORAGE_KEYS.CATEGORIES), JSON.stringify(cats));
     window.dispatchEvent(new Event('store_categories_updated'));
@@ -986,19 +1041,27 @@ const Store = {
   },
 
   getProducts() {
+    if (this._memoryCache.products !== null) {
+      return this._memoryCache.products;
+    }
     const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.PRODUCTS));
-    if (!raw) return DEFAULT_PRODUCTS;
+    if (!raw) {
+      this._memoryCache.products = DEFAULT_PRODUCTS;
+      return DEFAULT_PRODUCTS;
+    }
     try {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) return parsed;
-      if (parsed && typeof parsed === 'object') return Object.values(parsed);
-      return DEFAULT_PRODUCTS;
+      const res = Array.isArray(parsed) ? parsed : (parsed && typeof parsed === 'object' ? Object.values(parsed) : DEFAULT_PRODUCTS);
+      this._memoryCache.products = res;
+      return res;
     } catch {
+      this._memoryCache.products = DEFAULT_PRODUCTS;
       return DEFAULT_PRODUCTS;
     }
   },
 
   async saveProducts(prods) {
+    this._memoryCache.products = prods;
     this.saveLocks.products = true;
     this.safeSetItem(this.getKey(STORAGE_KEYS.PRODUCTS), JSON.stringify(prods));
     window.dispatchEvent(new Event('store_products_updated'));
@@ -1027,18 +1090,26 @@ const Store = {
   },
 
   getCart() {
+    if (this._memoryCache.cart !== null) {
+      return this._memoryCache.cart;
+    }
     const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.CART));
     try {
-      return raw ? JSON.parse(raw) : [];
+      const res = raw ? JSON.parse(raw) : [];
+      this._memoryCache.cart = res;
+      return res;
     } catch {
+      this._memoryCache.cart = [];
       return [];
     }
   },
   saveCart(cart) {
-    this.safeSetItem(this.getKey(STORAGE_KEYS.CART), JSON.stringify(cart));
+    this._memoryCache.cart = cart || [];
+    this.safeSetItem(this.getKey(STORAGE_KEYS.CART), JSON.stringify(cart || []));
     window.dispatchEvent(new Event('store_cart_updated'));
   },
   clearCart() {
+    this._memoryCache.cart = [];
     localStorage.removeItem(this.getKey(STORAGE_KEYS.CART));
     window.dispatchEvent(new Event('store_cart_updated'));
   },
@@ -1061,10 +1132,16 @@ const Store = {
   },
 
   getFavorites() {
+    if (this._memoryCache.favorites !== null) {
+      return this._memoryCache.favorites;
+    }
     const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.FAVORITES));
     try {
-      return raw ? JSON.parse(raw) : [];
+      const res = raw ? JSON.parse(raw) : [];
+      this._memoryCache.favorites = res;
+      return res;
     } catch {
+      this._memoryCache.favorites = [];
       return [];
     }
   },
@@ -1075,6 +1152,7 @@ const Store = {
     } else {
       favs.push(productId);
     }
+    this._memoryCache.favorites = favs;
     this.safeSetItem(this.getKey(STORAGE_KEYS.FAVORITES), JSON.stringify(favs));
     window.dispatchEvent(new Event('store_favorites_updated'));
     return favs.includes(productId);
@@ -1084,15 +1162,26 @@ const Store = {
   },
 
   getLastOrder() {
+    if (this._memoryCache.lastOrder !== null) {
+      return this._memoryCache.lastOrder;
+    }
     const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.LAST_ORDER));
     try {
-      return raw ? JSON.parse(raw) : null;
+      const res = raw ? JSON.parse(raw) : null;
+      this._memoryCache.lastOrder = res;
+      return res;
     } catch {
+      this._memoryCache.lastOrder = null;
       return null;
     }
   },
   saveLastOrder(orderData) {
-    this.safeSetItem(this.getKey(STORAGE_KEYS.LAST_ORDER), JSON.stringify(orderData));
+    this._memoryCache.lastOrder = orderData;
+    if (orderData) {
+      this.safeSetItem(this.getKey(STORAGE_KEYS.LAST_ORDER), JSON.stringify(orderData));
+    } else {
+      localStorage.removeItem(this.getKey(STORAGE_KEYS.LAST_ORDER));
+    }
     window.dispatchEvent(new Event('store_last_order_updated'));
   },
 
@@ -1109,15 +1198,26 @@ const Store = {
   },
 
   getStories() {
+    if (this._memoryCache.stories !== null) {
+      return this._memoryCache.stories;
+    }
     const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.STORIES));
-    if (!raw) return DEFAULT_STORIES;
+    if (!raw) {
+      this._memoryCache.stories = DEFAULT_STORIES;
+      return DEFAULT_STORIES;
+    }
     try {
-      return JSON.parse(raw);
+      const parsed = JSON.parse(raw);
+      const res = Array.isArray(parsed) ? parsed : (parsed && typeof parsed === 'object' ? Object.values(parsed) : DEFAULT_STORIES);
+      this._memoryCache.stories = res;
+      return res;
     } catch {
+      this._memoryCache.stories = DEFAULT_STORIES;
       return DEFAULT_STORIES;
     }
   },
   async saveStories(stories) {
+    this._memoryCache.stories = stories;
     this.saveLocks.stories = true;
     this.safeSetItem(this.getKey(STORAGE_KEYS.STORIES), JSON.stringify(stories));
     window.dispatchEvent(new Event('store_stories_updated'));
