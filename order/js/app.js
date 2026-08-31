@@ -2165,7 +2165,11 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
     message += `💰 *المبلغ الإجمالي المطلوب:* ${finalTotal.toFixed(2)} ${currency}\n`;
     message += `💳 *طريقة الدفع:* ${paymentText}\n`;
     if (isWallet && uploadedReceiptUrl) {
-      message += `📸 *رابط سكرين التحويل:* ${uploadedReceiptUrl}\n`;
+      if (uploadedReceiptUrl.startsWith('http')) {
+        message += `📸 *رابط إيصال التحويل:* ${uploadedReceiptUrl}\n`;
+      } else {
+        message += `📸 *إيصال التحويل:* تم إرفاق صورة الإيصال ومحفوظة في لوحة إدارة المطعم (طلب رقم ${orderId})\n`;
+      }
     }
 
     const cleanWhatsApp = (settings.whatsappNumber || '').replace(/\D/g, '');
