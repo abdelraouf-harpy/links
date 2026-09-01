@@ -2018,4 +2018,8 @@ function setupSubscriptionWatcher() {
   });
 }
 
-document.addEventListener('DOMContentLoaded', initAdmin);
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initAdmin);
+} else {
+  initAdmin();
+}

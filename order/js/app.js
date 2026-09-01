@@ -2276,7 +2276,18 @@ function initBackgroundOrderTracking() {
   });
 }
 
-function openLiveOrderTracker(orderId, initialData = null) {
+function openLiveOrderTracker(orderOrId, initialData = null) {
+  let orderId = '';
+  let currentOrder = null;
+
+  if (typeof orderOrId === 'object' && orderOrId !== null) {
+    currentOrder = orderOrId;
+    orderId = orderOrId.orderId || orderOrId.id || 'ORD-NEW';
+  } else {
+    orderId = orderOrId;
+    currentOrder = initialData || Store.getLastOrder();
+  }
+
   const settings = Store.getSettings();
   const currency = settings.currency || "ج.م";
 
@@ -2288,7 +2299,6 @@ function openLiveOrderTracker(orderId, initialData = null) {
     elements.btnTrackerWhatsapp.href = `https://wa.me/${cleanWa}?text=${encodeURIComponent(`مرحباً، أستفسر عن طلبي رقم ${orderId}`)}`;
   }
 
-  const currentOrder = initialData || Store.getLastOrder();
   if (currentOrder) {
     renderTrackerOrderData(currentOrder, currency);
     updateTrackerStepper(currentOrder.status || 'pending');
@@ -2395,4 +2405,8 @@ function closeLiveOrderTracker() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', initApp);
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
