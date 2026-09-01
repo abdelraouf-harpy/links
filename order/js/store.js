@@ -138,15 +138,15 @@ const THEME_PRESETS = {
 };
 
 const DEFAULT_SETTINGS = {
-  storeName: "",
-  storeTagline: "",
-  whatsappNumber: "",
-  walletNumber: "",
+  storeName: "سوبر برجر | Super Burger 🍔🔥",
+  storeTagline: "أشهى المأكولات الطازجة",
+  whatsappNumber: "01019971508",
+  walletNumber: "01019971508",
   walletName: "فودافون كاش / إنستاباي",
   currency: "ج.م",
   adminPin: "1234",
-  logo: "",
-  cover: "",
+  logo: "https://images.unsplash.com/photo-1586190848861-99aa4a171e9c?w=200&auto=format&fit=crop&q=80",
+  cover: "https://images.unsplash.com/photo-1568901346375-23c9450c58c9?w=1200&auto=format&fit=crop&q=80",
   imgbbApiKey: "",
   
   themePreset: "cream",
@@ -173,15 +173,48 @@ const DEFAULT_SETTINGS = {
 
   promoCodes: [],
 
-  announcementText: "",
-  showAnnouncement: false,
-  deliveryTime: "30-45 دقيقة",
+  announcementText: "خصم 15% على جميع الوجبات لفترة محدودة 🔥",
+  showAnnouncement: true,
+  deliveryTime: "25 - 40 دقيقة",
   minOrder: 0
 };
 
 const DEFAULT_CATEGORIES = [];
 const DEFAULT_PRODUCTS = [];
-const DEFAULT_STORIES = [];
+const DEFAULT_STORIES = [
+  {
+    id: "st-1",
+    title: "سوبر برجر 👑",
+    tagline: "عرض خاص ومميز",
+    badge: "الأكثر طلباً",
+    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58c9?w=800&auto=format&fit=crop&q=80",
+    desc: "برجر بقري صافي مع الجبنة الذائبة والصوص السري"
+  },
+  {
+    id: "st-2",
+    title: "كريب سوبر 🌯",
+    tagline: "طازج ومقرمش",
+    badge: "جديدنا",
+    image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=800&auto=format&fit=crop&q=80",
+    desc: "أشهى أنواع الكريب المحشو بقطع الفراخ المقرمشة والجبن"
+  },
+  {
+    id: "st-3",
+    title: "فرايز بوكس 🍟",
+    tagline: "مقرمش وساخن",
+    badge: "سناكس",
+    image: "https://images.unsplash.com/photo-1576107232684-1279f3908594?w=800&auto=format&fit=crop&q=80",
+    desc: "بطاطس ذهبية متبلة بأشهى البهارات"
+  },
+  {
+    id: "st-4",
+    title: "راب سوري 🥙",
+    tagline: "على أصوله",
+    badge: "طعم أصيل",
+    image: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=800&auto=format&fit=crop&q=80",
+    desc: "شاورما دجاج متبلة بالثومية والخيار المخلل"
+  }
+];
 
 const Store = {
   // ── High-Speed In-Memory State Cache ───────────────────────
@@ -1019,7 +1052,17 @@ const Store = {
         }
       }
     } catch {}
-    return localStorage.getItem('harpy_active_slug') || 'hermel';
+    const fallbackSlug = localStorage.getItem('harpy_active_slug') || 'king';
+    if (typeof window !== 'undefined' && window.location && window.history) {
+      if (!window.location.search.includes('m=') && !window.location.search.includes('restaurant=')) {
+        try {
+          const url = new URL(window.location.href);
+          url.searchParams.set('m', fallbackSlug);
+          window.history.replaceState({}, '', url.toString());
+        } catch(e) {}
+      }
+    }
+    return fallbackSlug;
   },
 
   setRestaurantSlug(slug) {

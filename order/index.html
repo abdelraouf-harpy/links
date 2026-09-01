@@ -19,7 +19,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="HarpyOrder">
-  <link rel="stylesheet" href="css/style.css?v=7.6">
+  <link rel="stylesheet" href="css/style.css?v=7.8">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23c2410c'><circle cx='12' cy='12' r='10'/></svg>">
   <script>
     (function() {
@@ -29,13 +29,27 @@
         if (!slug) {
           const host = window.location.hostname;
           if (host.includes('.')) {
-            const part = host.split('.')[0].toLowerCase();
-            if (part && part !== 'www' && part !== 'localhost') slug = part;
+            const parts = host.split('.');
+            if (parts.length > 2) {
+              const sub = parts[0].toLowerCase();
+              if (sub && sub !== 'www' && sub !== 'harpymenu' && sub !== 'harpy-order' && sub !== 'harpy' && sub !== 'localhost') {
+                slug = sub;
+              }
+            }
           }
         }
-        if (!slug) slug = localStorage.getItem('harpy_active_slug') || 'hermel';
+        if (!slug) slug = localStorage.getItem('harpy_active_slug') || 'king';
         slug = slug.toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
         window.__harpySlug = slug;
+
+        // Auto-preserve query parameter in URL bar
+        if (!window.location.search.includes('m=') && !window.location.search.includes('restaurant=')) {
+          try {
+            const url = new URL(window.location.href);
+            url.searchParams.set('m', slug);
+            window.history.replaceState({}, '', url.toString());
+          } catch(e) {}
+        }
 
         const mode = localStorage.getItem('harpy_' + slug + '_theme_mode') || 'light';
         document.documentElement.setAttribute('data-theme', mode);
@@ -733,7 +747,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/store.js?v=7.6"></script>
-  <script src="js/app.js?v=7.6"></script>
+  <script src="js/store.js?v=7.8"></script>
+  <script src="js/app.js?v=7.8"></script>
 </body>
 </html>
