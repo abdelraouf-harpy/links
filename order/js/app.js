@@ -314,16 +314,30 @@ async function initApp() {
   setupSubscriptionWatcher();
   initBackgroundOrderTracking();
 
-  // Dismiss native splash shield smoothly
+  // 3. Pre-decode above-the-fold images so there is zero pop-in when splash disappears
+  const topImgs = Array.from(document.querySelectorAll('.food-item-img')).slice(0, 6);
+  if (topImgs.length > 0) {
+    const decodePromises = topImgs.map(img => {
+      if (img.complete) return Promise.resolve();
+      if (typeof img.decode === 'function') return img.decode().catch(() => {});
+      return new Promise(r => { img.onload = r; img.onerror = r; });
+    });
+    await Promise.race([
+      Promise.allSettled(decodePromises),
+      new Promise(r => setTimeout(r, 180))
+    ]);
+  }
+
+  // 4. Dismiss native splash shield smoothly with instant complete reveal
   const splash = document.getElementById('app-splash-shield');
   if (splash) {
     requestAnimationFrame(() => {
       splash.classList.add('fade-out');
-      setTimeout(() => { try { splash.remove(); } catch(e) {} }, 250);
+      setTimeout(() => { try { splash.remove(); } catch(e) {} }, 220);
     });
   }
 
-  // 3. Connect real-time cloud data sync from Firebase Realtime Database
+  // 5. Connect real-time cloud data sync from Firebase Realtime Database
   Store.syncFromCloud(slug, (status) => {
     if (status && status.hasData) {
       renderStoreInfo();
@@ -836,7 +850,7 @@ function renderProducts(forceRebuild = false) {
         </div>
       `;
     } else {
-      elements.productsContainer.innerHTML = sortedProds.map(p => renderProductCard(p, currency)).join('');
+      elements.productsContainer.innerHTML = sortedProds.map((p, idx) => renderProductCard(p, currency, idx)).join('');
     }
   }
 
@@ -941,7 +955,7 @@ function renderHeroShowcase(p, currency) {
   return `
     <div class="hero-product-card">
       <div class="hero-product-img-wrap" onclick="openQuickPreview('${p.id}')">
-        <img src="${p.image}" class="hero-product-img" alt="${p.name}" loading="lazy">
+        <img src="${p.image}" class="hero-product-img" alt="${p.name}" loading="eager" fetchpriority="high" decoding="async">
         <span class="hero-badge-tag">${p.badge || '👑 اختيار الشيف'}</span>
       </div>
       <div class="hero-product-content">
@@ -974,17 +988,18 @@ function renderHeroShowcase(p, currency) {
   `;
 }
 
-function renderProductCard(p, currency) {
+function renderProductCard(p, currency, index = 0) {
   const isFav = Store.isFavorite(p.id);
   const cart = Store.getCart();
   const cartItem = cart.find(i => (i.productId === p.id || i.id === p.id) && !i.selectedSize && (!i.selectedAddons || i.selectedAddons.length === 0));
   const qty = cartItem ? cartItem.qty : 0;
   const hasOptions = (p.sizes && p.sizes.length > 0) || (p.addons && p.addons.length > 0);
+  const isAboveFold = index < 6;
 
   return `
     <div class="food-item-card" data-product-id="${p.id}">
       <div class="food-item-media" onclick="openQuickPreview('${p.id}')">
-        <img src="${p.image}" class="food-item-img" alt="${p.name}" loading="lazy">
+        <img src="${p.image}" class="food-item-img" alt="${p.name}" ${isAboveFold ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"'} decoding="async">
         <div class="card-top-actions">
           ${p.badge ? `<span class="card-badge">${p.badge}</span>` : '<span></span>'}
           <button class="btn-fav-toggle ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); handleToggleFav('${p.id}')" title="إضافة للمفضلة">
