@@ -136,25 +136,29 @@ function updateAdminThemeToggleIcons() {
   const lightIcon = document.getElementById('theme-icon-light');
   if (darkIcon && lightIcon) {
     if (mode === 'light') {
-      darkIcon.style.display = 'none';
-      lightIcon.style.display = 'block';
-    } else {
+      // In light mode: Show Moon icon (clicking switches to dark mode)
       darkIcon.style.display = 'block';
       lightIcon.style.display = 'none';
+    } else {
+      // In dark mode: Show Sun icon (clicking switches to light mode)
+      darkIcon.style.display = 'none';
+      lightIcon.style.display = 'block';
     }
   }
 }
+
+window.handleThemeToggle = function() {
+  const current = Store.getThemeMode();
+  const next = current === 'light' ? 'dark' : 'light';
+  Store.setThemeMode(next);
+  updateAdminThemeToggleIcons();
+};
 
 function setupAdminThemeToggle() {
   updateAdminThemeToggleIcons();
   const themeBtn = document.getElementById('theme-toggle-btn');
   if (themeBtn) {
-    themeBtn.addEventListener('click', () => {
-      const current = Store.getThemeMode();
-      const next = current === 'light' ? 'dark' : 'light';
-      Store.setThemeMode(next);
-      updateAdminThemeToggleIcons();
-    });
+    themeBtn.addEventListener('click', window.handleThemeToggle);
   }
 }
 

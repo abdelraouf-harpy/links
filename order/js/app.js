@@ -380,23 +380,29 @@ function showToastNotification(message, type = 'success') {
 
 function updateThemeToggleIcons() {
   const currentMode = Store.getThemeMode();
-  if (elements.themeIconDark && elements.themeIconLight) {
+  const iconDark = elements.themeIconDark || document.getElementById('theme-icon-dark');
+  const iconLight = elements.themeIconLight || document.getElementById('theme-icon-light');
+
+  if (iconDark && iconLight) {
     if (currentMode === 'light') {
-      elements.themeIconDark.style.display = 'none';
-      elements.themeIconLight.style.display = 'inline-block';
+      // In light mode: Show Moon icon (clicking switches to dark mode)
+      iconDark.style.display = 'inline-block';
+      iconLight.style.display = 'none';
     } else {
-      elements.themeIconDark.style.display = 'inline-block';
-      elements.themeIconLight.style.display = 'none';
+      // In dark mode: Show Sun icon (clicking switches to light mode)
+      iconDark.style.display = 'none';
+      iconLight.style.display = 'inline-block';
     }
   }
 }
 
-function handleThemeToggle() {
+window.handleThemeToggle = function() {
   const currentMode = Store.getThemeMode();
   const newMode = currentMode === 'light' ? 'dark' : 'light';
   Store.setThemeMode(newMode);
   updateThemeToggleIcons();
-}
+  SoundFX.playPop();
+};
 
 function updateSoundToggleIcon() {
   const enabled = Store.getSoundEnabled();

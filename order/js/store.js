@@ -1146,46 +1146,14 @@ const Store = {
 
     root.setAttribute('data-theme', mode);
 
-    root.style.removeProperty('--bg');
-    root.style.removeProperty('--bg-subtle');
-    root.style.removeProperty('--surface');
-    root.style.removeProperty('--surface-raised');
-    root.style.removeProperty('--surface-hover');
-    root.style.removeProperty('--header-bg');
-    root.style.removeProperty('--text-main');
-    root.style.removeProperty('--text-body');
-    root.style.removeProperty('--border');
-    root.style.removeProperty('--border-strong');
+    const themeProps = [
+      '--bg', '--bg-subtle', '--surface', '--surface-raised', '--surface-hover',
+      '--header-bg', '--text-main', '--text-body', '--text-muted', '--text-faint',
+      '--border', '--border-strong', '--primary', '--primary-hover', '--primary-subtle', '--primary-glow'
+    ];
+    themeProps.forEach(p => root.style.removeProperty(p));
 
-    let colors = s.siteColors;
-    if (!colors && s.themePreset && THEME_PRESETS[s.themePreset]) {
-      colors = THEME_PRESETS[s.themePreset];
-    }
-    if (!colors) colors = THEME_PRESETS.cream;
-
-    if (mode === 'dark') {
-      if (s.themePreset && s.themePreset !== 'charcoal' && s.themePreset !== 'cream' && THEME_PRESETS[s.themePreset]) {
-        const p = THEME_PRESETS[s.themePreset];
-        root.style.setProperty('--bg', p.bg);
-        root.style.setProperty('--surface', p.surface);
-        root.style.setProperty('--surface-raised', p.surfaceRaised);
-        root.style.setProperty('--header-bg', p.bg);
-        root.style.setProperty('--text-main', p.textMain);
-        root.style.setProperty('--text-body', p.textBody);
-        root.style.setProperty('--border', p.border);
-        root.style.setProperty('--border-strong', p.border);
-      } else if (colors && colors.bg && colors.surface && s.themePreset !== 'cream') {
-        root.style.setProperty('--bg', colors.bg);
-        root.style.setProperty('--surface', colors.surface);
-        root.style.setProperty('--surface-raised', colors.surfaceRaised || colors.surface);
-        root.style.setProperty('--header-bg', colors.headerBg || colors.bg);
-        root.style.setProperty('--text-main', colors.textMain || '#faf6f0');
-        root.style.setProperty('--text-body', colors.textBody || '#d4c9ba');
-        root.style.setProperty('--border', colors.border || 'rgba(245, 238, 227, 0.09)');
-      }
-    }
-
-    const primaryColor = colors?.primary || (mode === 'light' ? '#c2410c' : '#ea580c');
+    const primaryColor = s.siteColors?.primary || (mode === 'light' ? '#c2410c' : '#ea580c');
     root.style.setProperty('--primary', primaryColor);
     root.style.setProperty('--primary-glow', `${primaryColor}44`);
     root.style.setProperty('--primary-subtle', `${primaryColor}22`);
