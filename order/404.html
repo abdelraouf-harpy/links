@@ -32,36 +32,36 @@
   </style>
   <script>
     (function() {
-      var path = window.location.pathname;
-      var search = window.location.search;
-      var hash = window.location.hash;
+      try {
+        var path = window.location.pathname || '';
+        var search = window.location.search || '';
+        var hash = window.location.hash || '';
 
-      // Extract parts from path: e.g. /order/hermel or /order/admin/hermel
-      var segments = path.split('/').filter(Boolean);
-      
-      if (segments.length > 0) {
-        var last = segments[segments.length - 1];
-        var isOrderRoot = segments[0] === 'order';
+        var segments = path.split('/').filter(Boolean);
         
-        // Check if asking for admin
-        if (segments.indexOf('admin') !== -1) {
-          var slug = (last === 'admin') ? '' : last;
-          var target = (isOrderRoot ? '/order/admin.html' : '/admin.html') + (slug ? '?m=' + encodeURIComponent(slug) : search) + hash;
-          window.location.replace(target);
+        // If asking for admin
+        if (segments.indexOf('admin') !== -1 || path.indexOf('/admin') !== -1) {
+          var remaining = segments.filter(function(s) { return s !== 'admin' && s !== 'order' && !s.endsWith('.html'); });
+          var slug = remaining.length > 0 ? remaining[0] : '';
+          var params = new URLSearchParams(search);
+          if (slug && !params.get('m')) params.set('m', slug);
+          var queryString = params.toString() ? ('?' + params.toString()) : '';
+          window.location.replace('/admin.html' + queryString + hash);
           return;
         }
 
-        // If path is e.g. /order/hermel or /hermel
-        var slug = last.replace(/\.html$/, '');
-        if (slug && slug !== 'order' && slug !== 'index') {
-          var target = (isOrderRoot ? '/order/' : '/') + '?m=' + encodeURIComponent(slug) + (hash || '');
-          window.location.replace(target);
-          return;
-        }
+        // If asking for order or restaurant slug in path
+        var remaining = segments.filter(function(s) { return s !== 'order' && s !== 'index' && !s.endsWith('.html'); });
+        var slug = remaining.length > 0 ? remaining[0] : '';
+        var params = new URLSearchParams(search);
+        if (slug && !params.get('m')) params.set('m', slug);
+        var queryString = params.toString() ? ('?' + params.toString()) : '';
+
+        // Always redirect to absolute /index.html (never relative ./)
+        window.location.replace('/index.html' + queryString + hash);
+      } catch (e) {
+        window.location.replace('/index.html' + (window.location.search || ''));
       }
-
-      // Default fallback
-      window.location.replace('./index.html' + search + hash);
     })();
   </script>
 </head>

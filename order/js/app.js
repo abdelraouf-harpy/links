@@ -279,7 +279,7 @@ const elements = {
   storyTouchNext: document.getElementById('story-touch-next')
 };
 
-function initApp() {
+async function initApp() {
   Store.initTheme();
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(() => {});
@@ -287,13 +287,27 @@ function initApp() {
   updateThemeToggleIcons();
   updateSoundToggleIcon();
   initViewMode();
+
+  const slug = Store.getRestaurantSlug();
+
+  // 1. Fast-resolve preloaded cloud data from head fetch (0ms UI delay)
+  if (window.__harpyPreloadPromise) {
+    try {
+      const preloadData = await window.__harpyPreloadPromise;
+      if (preloadData && typeof preloadData === 'object') {
+        Store.applySnapshotData(preloadData);
+      }
+    } catch(e) {}
+  }
+
+  // 2. Render initial UI with preloaded or cached data
   renderStoreInfo();
   renderStories();
   renderAnnouncement();
   renderLastOrderRecall();
   renderDiscoveryRibbon();
   renderCategories();
-  renderProducts();
+  renderProducts(true);
   updateLedgerUI();
   setupEventListeners();
   initCustomizerEvents();
@@ -309,15 +323,14 @@ function initApp() {
     });
   }
 
-  // Connect real-time cloud data sync from Firebase Realtime Database
-  const slug = Store.getRestaurantSlug();
+  // 3. Connect real-time cloud data sync from Firebase Realtime Database
   Store.syncFromCloud(slug, (status) => {
     if (status && status.hasData) {
       renderStoreInfo();
       renderAnnouncement();
       renderStories();
       renderCategories();
-      renderProducts();
+      renderProducts(true);
       updateLedgerUI();
     }
   });

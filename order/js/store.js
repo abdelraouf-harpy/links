@@ -475,6 +475,39 @@ const Store = {
   },
 
   // ── Controlled Cloud Sync Engine with Stale Snapshot Protection ──
+  applySnapshotData(data) {
+    if (!data || typeof data !== 'object') return false;
+
+    const now = Date.now();
+    let hasChanges = false;
+
+    if (data.settings && !this.saveLocks.settings && (now - this.lastSaveTimestamps.settings > 2500)) {
+      this._memoryCache.settings = { ...DEFAULT_SETTINGS, ...data.settings };
+      this.safeSetItem(this.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(data.settings));
+      this.applyTheme();
+      hasChanges = true;
+    }
+    if (data.categories && !this.saveLocks.categories && (now - this.lastSaveTimestamps.categories > 2500)) {
+      const catArray = Array.isArray(data.categories) ? data.categories : Object.values(data.categories);
+      this._memoryCache.categories = catArray;
+      this.safeSetItem(this.getKey(STORAGE_KEYS.CATEGORIES), JSON.stringify(catArray));
+      hasChanges = true;
+    }
+    if (data.products && !this.saveLocks.products && (now - this.lastSaveTimestamps.products > 2500)) {
+      const prodArray = Array.isArray(data.products) ? data.products : Object.values(data.products);
+      this._memoryCache.products = prodArray;
+      this.safeSetItem(this.getKey(STORAGE_KEYS.PRODUCTS), JSON.stringify(prodArray));
+      hasChanges = true;
+    }
+    if (data.stories && !this.saveLocks.stories && (now - this.lastSaveTimestamps.stories > 2500)) {
+      const storyArray = Array.isArray(data.stories) ? data.stories : Object.values(data.stories);
+      this._memoryCache.stories = storyArray;
+      this.safeSetItem(this.getKey(STORAGE_KEYS.STORIES), JSON.stringify(storyArray));
+      hasChanges = true;
+    }
+    return hasChanges;
+  },
+
   syncFromCloud(slug, onUpdate) {
     if (!slug) return () => {};
     let isDestroyed = false;
@@ -493,40 +526,12 @@ const Store = {
       }
       lastKnownDataHash = currentDataHash;
 
-      const now = Date.now();
-      // Protect settings from stale cloud snapshot overwrites while local save in-flight
-      if (data.settings && !this.saveLocks.settings && (now - this.lastSaveTimestamps.settings > 2500)) {
-        const currentSettings = this.getSettings();
-        if (JSON.stringify(currentSettings) !== JSON.stringify(data.settings)) {
-          this.safeSetItem(this.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(data.settings));
-          this.applyTheme();
-          window.dispatchEvent(new Event('store_settings_updated'));
-        }
-      }
-      if (data.categories && !this.saveLocks.categories && (now - this.lastSaveTimestamps.categories > 2500)) {
-        const catArray = Array.isArray(data.categories) ? data.categories : Object.values(data.categories);
-        const currentCats = this.getCategories();
-        if (JSON.stringify(currentCats) !== JSON.stringify(catArray)) {
-          this.safeSetItem(this.getKey(STORAGE_KEYS.CATEGORIES), JSON.stringify(catArray));
-          window.dispatchEvent(new Event('store_categories_updated'));
-        }
-      }
-      if (data.products && !this.saveLocks.products && (now - this.lastSaveTimestamps.products > 2500)) {
-        const prodArray = Array.isArray(data.products) ? data.products : Object.values(data.products);
-        const currentProds = this.getProducts();
-        if (JSON.stringify(currentProds) !== JSON.stringify(prodArray)) {
-          this.safeSetItem(this.getKey(STORAGE_KEYS.PRODUCTS), JSON.stringify(prodArray));
-          window.dispatchEvent(new Event('store_products_updated'));
-        }
-      }
-      if (data.stories && !this.saveLocks.stories && (now - this.lastSaveTimestamps.stories > 2500)) {
-        const storyArray = Array.isArray(data.stories) ? data.stories : Object.values(data.stories);
-        const currentStories = this.getStories();
-        if (JSON.stringify(currentStories) !== JSON.stringify(storyArray)) {
-          this.safeSetItem(this.getKey(STORAGE_KEYS.STORIES), JSON.stringify(storyArray));
-          window.dispatchEvent(new Event('store_stories_updated'));
-        }
-      }
+      this.applySnapshotData(data);
+      window.dispatchEvent(new Event('store_settings_updated'));
+      window.dispatchEvent(new Event('store_categories_updated'));
+      window.dispatchEvent(new Event('store_products_updated'));
+      window.dispatchEvent(new Event('store_stories_updated'));
+
       if (typeof onUpdate === 'function') {
         onUpdate({ success: true, hasData: !!data, data });
       }

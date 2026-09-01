@@ -1,21 +1,21 @@
 // HarpyOrder Service Worker — Dynamic Fast-Update & Offline Engine
-const CACHE_NAME = 'harpy-order-v6.9';
+const CACHE_NAME = 'harpy-order-v7.2';
 const ASSETS_TO_CACHE = [
-  './',
-  './index.html',
-  './admin.html',
-  './css/style.css',
-  './js/store.js',
-  './js/app.js',
-  './js/admin.js',
-  './manifest.json'
+  '/',
+  '/index.html',
+  '/admin.html',
+  '/css/style.css',
+  '/js/store.js',
+  '/js/app.js',
+  '/js/admin.js',
+  '/manifest.json'
 ];
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
+      return cache.addAll(ASSETS_TO_CACHE).catch(() => {});
     })
   );
 });
@@ -51,7 +51,10 @@ self.addEventListener('fetch', (event) => {
         return caches.match(event.request).then((cachedResponse) => {
           if (cachedResponse) return cachedResponse;
           if (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html')) {
-            return caches.match('./index.html');
+            if (event.request.url.includes('/admin')) {
+              return caches.match('/admin.html') || caches.match('./admin.html');
+            }
+            return caches.match('/index.html') || caches.match('./index.html');
           }
         });
       })

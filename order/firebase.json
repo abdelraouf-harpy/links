@@ -6,14 +6,28 @@
       "**/.*",
       "**/node_modules/**"
     ],
+    "cleanUrls": true,
+    "trailingSlash": false,
     "rewrites": [
       {
         "source": "/order",
         "destination": "/index.html"
       },
       {
+        "source": "/order/**",
+        "destination": "/index.html"
+      },
+      {
         "source": "/admin",
         "destination": "/admin.html"
+      },
+      {
+        "source": "/admin/**",
+        "destination": "/admin.html"
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
       }
     ],
     "headers": [
