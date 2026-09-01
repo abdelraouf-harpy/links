@@ -676,16 +676,14 @@ body:not([data-theme="light"]) .btn-theme-toggle .icon-sun {
   display: flex;
   gap: 8px;
   overflow-x: auto;
+  overflow-y: hidden;
   padding-bottom: 4px;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
-  touch-action: pan-x;
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -webkit-touch-callout: none;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x pan-y;
+  scroll-snap-type: x proximity;
+  -webkit-tap-highlight-color: transparent;
 }
 .discovery-scroll::-webkit-scrollbar {
   display: none;
@@ -705,14 +703,16 @@ body:not([data-theme="light"]) .btn-theme-toggle .icon-sun {
   align-items: center;
   gap: 6px;
   min-height: 38px;
-  transition: var(--tr-fast);
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   -webkit-touch-callout: none;
   -webkit-tap-highlight-color: transparent;
-  touch-action: pan-x;
+  touch-action: manipulation;
 }
 .discovery-chip:active {
   transform: scale(0.96);
@@ -749,16 +749,13 @@ body:not([data-theme="light"]) .btn-theme-toggle .icon-sun {
   border-radius: var(--radius-sm);
   padding: 11px 40px 11px 14px;
   font-family: inherit;
-  font-size: 0.92rem;
-  font-weight: 500;
+  font-size: 13.5px;
   color: var(--text-main);
   outline: none;
   transition: var(--tr-fast);
-  min-height: 44px;
 }
 .search-input:focus {
   border-color: var(--primary);
-  background: var(--surface-raised);
   box-shadow: 0 0 0 3px var(--primary-subtle);
 }
 .search-icon {
@@ -768,15 +765,16 @@ body:not([data-theme="light"]) .btn-theme-toggle .icon-sun {
   transform: translateY(-50%);
   color: var(--text-muted);
   pointer-events: none;
-  font-size: 1.1rem;
+  width: 18px;
+  height: 18px;
 }
 .view-controls {
   display: flex;
-  gap: 4px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 3px;
+  gap: 2px;
   flex-shrink: 0;
 }
 .btn-view-mode {
@@ -803,57 +801,65 @@ body:not([data-theme="light"]) .btn-theme-toggle .icon-sun {
 }
 
 
-/* ── Category Filter Bar ─────────────────────────────────── */
+/* ── Next-Gen Ultra-Smooth Category Strip ─────────────────── */
 .category-strip {
   display: flex;
   gap: 8px;
   overflow-x: auto;
-  padding-bottom: 10px;
-  margin-bottom: 24px;
+  overflow-y: hidden;
+  padding: 2px 4px 12px 4px;
+  margin-bottom: 20px;
   border-bottom: 1px solid var(--border);
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
-  touch-action: pan-x;
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -webkit-touch-callout: none;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x pan-y;
+  scroll-snap-type: x proximity;
+  -webkit-tap-highlight-color: transparent;
+  will-change: scroll-position;
 }
 .category-strip::-webkit-scrollbar {
   display: none;
 }
 .cat-pill {
-  background: transparent;
+  background: var(--surface);
   color: var(--text-muted);
-  border: 1px solid transparent;
-  padding: 8px 18px;
+  border: 1px solid var(--border);
+  padding: 9px 20px;
   border-radius: var(--radius-sm);
   font-family: inherit;
-  font-size: 0.92rem;
+  font-size: 0.94rem;
   font-weight: 700;
   white-space: nowrap;
   cursor: pointer;
-  min-height: 40px;
-  transition: var(--tr-fast);
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
   user-select: none;
   -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -webkit-touch-callout: none;
   -webkit-tap-highlight-color: transparent;
-  touch-action: pan-x;
+  touch-action: manipulation;
 }
 .cat-pill:active {
-  transform: scale(0.96);
+  transform: scale(0.95);
+  background: var(--surface-raised);
 }
 .cat-pill.active {
   color: var(--text-main);
   background: var(--surface-raised);
-  border-color: var(--border-strong);
+  border-color: var(--primary);
   font-weight: 800;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06), 0 0 0 1px var(--primary);
+}
+[data-theme="dark"] .cat-pill.active {
+  background: var(--surface-raised);
+  border-color: var(--primary);
+  color: #fff;
+  box-shadow: 0 4px 14px var(--primary-glow);
 }
 
 /* ── Hero / Featured Product Showcase ────────────────────── */

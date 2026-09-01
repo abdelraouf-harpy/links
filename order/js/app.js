@@ -768,44 +768,98 @@ window.handleDiscoveryFilter = function(filterId) {
   if (elements.discoveryContainer) {
     const activeBtn = elements.discoveryContainer.querySelector('.discovery-chip.active');
     if (activeBtn) {
-      activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      scrollPillToCenter(elements.discoveryContainer, activeBtn);
     }
   }
 };
 
+let lastRenderedCategoriesSignature = '';
+
 function renderCategories() {
   if (!elements.categoriesContainer) return;
   const categories = Store.getCategories();
+  const currentSig = JSON.stringify(categories);
 
-  let html = `
-    <button class="cat-pill ${activeCategoryFilter === 'all' && activeDiscoveryFilter === 'all' ? 'active' : ''}" onclick="handleCategoryFilter('all')">
-      كل القائمة
-    </button>
-  `;
+  // Only re-build DOM if the list of categories actually changed!
+  if (lastRenderedCategoriesSignature !== currentSig) {
+    lastRenderedCategoriesSignature = currentSig;
+    let html = `
+      <button class="cat-pill ${activeCategoryFilter === 'all' && activeDiscoveryFilter === 'all' ? 'active' : ''}" data-cat="all" onclick="handleCategoryFilter('all')">
+        كل القائمة
+      </button>
+    `;
 
-  html += categories.map(cat => `
-    <button class="cat-pill ${activeCategoryFilter === cat ? 'active' : ''}" onclick="handleCategoryFilter('${cat}')">
-      ${cat}
-    </button>
-  `).join('');
+    html += categories.map(cat => {
+      const isSelected = (activeCategoryFilter === cat);
+      const safeEscaped = cat.replace(/'/g, "\\'");
+      return `
+        <button class="cat-pill ${isSelected ? 'active' : ''}" data-cat="${encodeURIComponent(cat)}" onclick="handleCategoryFilter('${safeEscaped}')">
+          ${cat}
+        </button>
+      `;
+    }).join('');
 
-  elements.categoriesContainer.innerHTML = html;
+    elements.categoriesContainer.innerHTML = html;
+  } else {
+    // Fast in-place class toggle with 0 DOM reconstruction
+    updateCategoryPillsActiveState();
+  }
+}
+
+function updateCategoryPillsActiveState() {
+  if (!elements.categoriesContainer) return;
+  const pills = elements.categoriesContainer.querySelectorAll('.cat-pill');
+  pills.forEach(pill => {
+    const rawCat = pill.dataset.cat;
+    const isMatch = (activeCategoryFilter === 'all' && activeDiscoveryFilter === 'all' && rawCat === 'all') ||
+                    (rawCat !== 'all' && decodeURIComponent(rawCat) === activeCategoryFilter);
+    pill.classList.toggle('active', isMatch);
+  });
+}
+
+function scrollPillToCenter(container, pillEl) {
+  if (!container || !pillEl) return;
+  const containerWidth = container.clientWidth;
+  const pillLeft = pillEl.offsetLeft;
+  const pillWidth = pillEl.offsetWidth;
+  const targetScroll = pillLeft - (containerWidth / 2) + (pillWidth / 2);
+  container.scrollTo({
+    left: targetScroll,
+    behavior: 'smooth'
+  });
 }
 
 window.handleCategoryFilter = function(cat) {
+  if (activeCategoryFilter === cat && activeDiscoveryFilter === 'all') {
+    return; // Already active, avoid redundant operations
+  }
+
   activeCategoryFilter = cat;
   activeDiscoveryFilter = 'all';
-  renderCategories();
-  renderDiscoveryRibbon();
-  renderProducts();
-  SoundFX.playPop();
 
+  // 1. Instant in-place UI active state update (0ms, 0 DOM recreation)
+  updateCategoryPillsActiveState();
+
+  // 2. Smoothly center selected pill in horizontal strip
   if (elements.categoriesContainer) {
     const activeBtn = elements.categoriesContainer.querySelector('.cat-pill.active');
     if (activeBtn) {
-      activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      scrollPillToCenter(elements.categoriesContainer, activeBtn);
     }
   }
+
+  // 3. Fast discovery ribbon sync
+  if (elements.discoveryContainer) {
+    elements.discoveryContainer.querySelectorAll('.discovery-chip').forEach(c => {
+      c.classList.toggle('active', c.getAttribute('onclick')?.includes("'all'"));
+    });
+  }
+
+  // 4. Instant 0ms product filtering (CSS display toggle)
+  renderProducts();
+
+  // 5. Sound feedback
+  SoundFX.playPop();
 };
 
 let lastRenderedProductsSignature = '';
