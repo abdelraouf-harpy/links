@@ -1038,25 +1038,36 @@ const Store = {
     }
   },
 
-  // ── Strict Multi-Tenant Restaurant Engine (Subdomain & Query Support) ──
+  // ── Strict Multi-Tenant Restaurant Engine (Path, Query & Domain Support) ──
   getRestaurantSlug() {
     try {
-      // 1. Subdomain Resolution (e.g. king.harpymenu.com or shawarma.harpymenu.com)
-      if (typeof window !== 'undefined' && window.location && window.location.hostname) {
-        const host = window.location.hostname.toLowerCase();
-        if (host.includes('harpymenu.com') && !host.startsWith('www.') && host !== 'harpymenu.com') {
-          const subdomain = host.split('.')[0].trim().replace(/[^a-z0-9_-]/g, '');
-          if (subdomain && subdomain !== 'www' && subdomain !== 'order' && subdomain !== 'api') {
-            this.safeSetItem('harpy_active_slug', subdomain);
-            this.registerRestaurant(subdomain);
-            return subdomain;
+      // 1. Query Parameter Resolution (?m=slug or ?restaurant=slug)
+      const params = new URLSearchParams(window.location.search);
+      let urlSlug = params.get('m') || params.get('restaurant') || params.get('store') || params.get('slug');
+
+      // 2. Clean Path-based Resolution (e.g. harpymenu.com/king or harpymenu.com/order/king)
+      if (!urlSlug && typeof window !== 'undefined' && window.location && window.location.pathname) {
+        const pathParts = window.location.pathname.split('/').filter(p => p && p !== 'index.html' && p !== 'admin.html' && p !== 'order');
+        if (pathParts.length > 0) {
+          const firstPart = pathParts[0].toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
+          const reservedNames = ['css', 'js', 'assets', 'api', 'admin', 'manifest', 'sw', 'favicon', 'icons'];
+          if (firstPart && !reservedNames.includes(firstPart)) {
+            urlSlug = firstPart;
           }
         }
       }
 
-      // 2. Query Parameter Fallback (?m=slug or ?restaurant=slug)
-      const params = new URLSearchParams(window.location.search);
-      const urlSlug = params.get('m') || params.get('restaurant') || params.get('store') || params.get('slug');
+      // 3. Subdomain Resolution Fallback (e.g. king.harpymenu.com)
+      if (!urlSlug && typeof window !== 'undefined' && window.location && window.location.hostname) {
+        const host = window.location.hostname.toLowerCase();
+        if (host.includes('harpymenu.com') && !host.startsWith('www.') && host !== 'harpymenu.com') {
+          const subdomain = host.split('.')[0].trim().replace(/[^a-z0-9_-]/g, '');
+          if (subdomain && subdomain !== 'www' && subdomain !== 'order' && subdomain !== 'api') {
+            urlSlug = subdomain;
+          }
+        }
+      }
+
       if (urlSlug) {
         const clean = urlSlug.toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
         if (clean) {
@@ -1068,15 +1079,6 @@ const Store = {
     } catch {}
 
     const fallbackSlug = localStorage.getItem('harpy_active_slug') || 'king';
-    if (typeof window !== 'undefined' && window.location && window.history) {
-      if (!window.location.search.includes('m=') && !window.location.search.includes('restaurant=') && !window.location.hostname.includes('harpymenu.com')) {
-        try {
-          const url = new URL(window.location.href);
-          url.searchParams.set('m', fallbackSlug);
-          window.history.replaceState({}, '', url.toString());
-        } catch(e) {}
-      }
-    }
     return fallbackSlug;
   },
 

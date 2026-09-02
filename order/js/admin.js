@@ -380,7 +380,7 @@ function renderRestaurantHub() {
   const targetUrl = isFile
     ? window.location.href.replace('admin.html', 'index.html').split('?')[0] + `?m=${slug}`
     : (window.location.hostname.includes('harpymenu.com') 
-        ? `https://${slug}.harpymenu.com` 
+        ? `https://harpymenu.com/${slug}` 
         : window.location.origin + window.location.pathname.replace('admin.html', 'index.html').replace(/\/$/, '') + `?m=${slug}`);
 
   if (shareLink) {
