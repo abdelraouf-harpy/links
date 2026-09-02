@@ -1059,6 +1059,14 @@ function renderProducts(forceRebuild = false) {
   }
 }
 
+window.handleCardClick = function(event, productId) {
+  // If clicked directly on or inside interactive buttons/steppers, do not trigger preview
+  if (event.target.closest('.btn-fav-toggle, .btn-fav-inline, .btn-quick-add, .qty-stepper, .qty-stepper-btn')) {
+    return;
+  }
+  openQuickPreview(productId);
+};
+
 function renderHeroShowcase(p, currency) {
   const isFav = Store.isFavorite(p.id);
   const cart = Store.getCart();
@@ -1067,8 +1075,8 @@ function renderHeroShowcase(p, currency) {
   const hasOptions = (p.sizes && p.sizes.length > 0) || (p.addons && p.addons.length > 0);
 
   return `
-    <div class="hero-product-card">
-      <div class="hero-product-img-wrap" onclick="openQuickPreview('${p.id}')">
+    <div class="hero-product-card" onclick="handleCardClick(event, '${p.id}')">
+      <div class="hero-product-img-wrap">
         <img src="${p.image}" class="hero-product-img" alt="${p.name}" loading="eager" fetchpriority="high" decoding="async">
         <span class="hero-badge-tag">${p.badge || '👑 اختيار الشيف'}</span>
       </div>
@@ -1078,7 +1086,7 @@ function renderHeroShowcase(p, currency) {
             <span class="meta-chip">${p.category}</span>
             <span class="meta-chip"><svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ${p.prepTime || '15 دقيقة'}</span>
           </div>
-          <h2 class="hero-product-title" onclick="openQuickPreview('${p.id}')" style="cursor:pointer;">${p.name}</h2>
+          <h2 class="hero-product-title">${p.name}</h2>
           <p class="hero-product-desc">${p.desc}</p>
         </div>
         <div class="hero-product-footer">
@@ -1087,7 +1095,7 @@ function renderHeroShowcase(p, currency) {
             ${p.price} <span>${currency}</span>
           </div>
           <div style="display:flex; align-items:center; gap:8px;">
-            <button class="btn-fav-toggle ${isFav ? 'active' : ''}" onclick="handleToggleFav('${p.id}')" title="إضافة للمفضلة">
+            <button class="btn-fav-toggle ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); handleToggleFav('${p.id}')" title="إضافة للمفضلة">
               <svg class="icon" viewBox="0 0 24 24" style="fill: ${isFav ? 'currentColor' : 'none'};"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
             </button>
             ${hasOptions ? `
@@ -1111,8 +1119,8 @@ function renderProductCard(p, currency, index = 0) {
   const isAboveFold = index < 6;
 
   return `
-    <div class="food-item-card" data-product-id="${p.id}">
-      <div class="food-item-media" onclick="openQuickPreview('${p.id}')">
+    <div class="food-item-card" data-product-id="${p.id}" onclick="handleCardClick(event, '${p.id}')">
+      <div class="food-item-media">
         <img src="${p.image}" class="food-item-img" alt="${p.name}" ${isAboveFold ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"'} decoding="async">
         <div class="card-top-actions">
           ${p.badge ? `<span class="card-badge">${p.badge}</span>` : '<span></span>'}
@@ -1136,7 +1144,7 @@ function renderProductCard(p, currency, index = 0) {
           </button>
         </div>
 
-        <h3 class="food-item-title" onclick="openQuickPreview('${p.id}')">${p.name}</h3>
+        <h3 class="food-item-title">${p.name}</h3>
         <p class="food-item-desc">${p.desc}</p>
 
         <div class="food-item-footer">

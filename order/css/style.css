@@ -205,8 +205,8 @@ body {
 }
 
 .app-header.has-cover {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
-  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.45);
+  border-bottom: none !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.40);
 }
 
 .app-header.has-cover .brand-text h1 {
@@ -876,6 +876,7 @@ body:not([data-theme="light"]) .btn-theme-toggle .icon-sun {
   grid-template-columns: 1.25fr 1fr;
   transition: var(--tr-smooth);
   box-shadow: var(--shadow-md);
+  cursor: pointer;
 }
 @media (max-width: 860px) {
   .hero-product-card {
@@ -1018,6 +1019,7 @@ body:not([data-theme="light"]) .btn-theme-toggle .icon-sun {
   transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.25s ease, box-shadow 0.25s ease;
   position: relative;
   box-shadow: var(--shadow-sm);
+  cursor: pointer;
 }
 .food-item-card:hover {
   transform: translateY(-4px);

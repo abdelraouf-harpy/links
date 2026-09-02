@@ -28,6 +28,14 @@ window.addEventListener('popstate', () => {
     window.closeReceiptModal(false);
     return;
   }
+
+  // Handle Tab Back Navigation from Hash
+  const hash = (window.location.hash || '').replace('#', '').trim();
+  if (hash && document.getElementById('tab-' + hash)) {
+    window.switchTab('tab-' + hash, false);
+  } else {
+    window.switchTab('tab-products', false);
+  }
 });
 
 const adminElements = {
@@ -470,11 +478,13 @@ window.switchTab = function(targetTabId, updateHash = true) {
     localStorage.setItem(`harpy_${slug}_admin_active_tab`, targetTabId);
   } catch(e) {}
 
-  // 4. Update URL Hash without Page Reload
+  // 4. Update URL Hash with History Navigation
   if (updateHash) {
     const shortHash = targetTabId.replace('tab-', '');
     if (window.location.hash !== '#' + shortHash) {
-      history.replaceState(null, '', '#' + shortHash);
+      try {
+        history.pushState({ adminTab: targetTabId }, '', '#' + shortHash);
+      } catch(e) {}
     }
   }
 
