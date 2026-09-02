@@ -147,20 +147,20 @@ function updateAdminThemeToggleIcons() {
   }
 }
 
+let lastAdminThemeToggleTime = 0;
 window.handleThemeToggle = function() {
+  const now = Date.now();
+  if (now - lastAdminThemeToggleTime < 350) return;
+  lastAdminThemeToggleTime = now;
+
   const current = Store.getThemeMode();
   const next = current === 'light' ? 'dark' : 'light';
   Store.setThemeMode(next);
   updateAdminThemeToggleIcons();
-  showToastNotification(next === 'dark' ? '🌙 تم تفعيل الوضع الليلي' : '☀️ تم تفعيل الوضع النهاري', 'success');
 };
 
 function setupAdminThemeToggle() {
   updateAdminThemeToggleIcons();
-  const themeBtn = document.getElementById('theme-toggle-btn');
-  if (themeBtn) {
-    themeBtn.addEventListener('click', window.handleThemeToggle);
-  }
 }
 
 // ── Multi-Tenant Auth Gate with Safe Subscriptions ─────────

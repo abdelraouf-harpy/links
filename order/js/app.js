@@ -396,14 +396,17 @@ function updateThemeToggleIcons() {
   }
 }
 
+let lastThemeToggleTimestamp = 0;
 window.handleThemeToggle = function() {
+  const now = Date.now();
+  if (now - lastThemeToggleTimestamp < 350) return; // Prevent double-trigger from multiple bindings
+  lastThemeToggleTimestamp = now;
+
   const currentMode = Store.getThemeMode();
   const newMode = currentMode === 'light' ? 'dark' : 'light';
   Store.setThemeMode(newMode);
   updateThemeToggleIcons();
-  renderStoreInfo();
   SoundFX.playPop();
-  showToastNotification(newMode === 'dark' ? '🌙 تم تفعيل الوضع الليلي' : '☀️ تم تفعيل الوضع النهاري', 'success');
 };
 
 function updateSoundToggleIcon() {
@@ -452,7 +455,6 @@ function handleViewModeChange(mode) {
 
 function renderStoreInfo() {
   const settings = Store.getSettings();
-  const mode = Store.getThemeMode();
   if (elements.storeName) elements.storeName.textContent = settings.storeName || "منيو المطعم";
   if (elements.storeTagline) elements.storeTagline.textContent = settings.storeTagline || "أشهى المأكولات الطازجة";
   
@@ -465,16 +467,12 @@ function renderStoreInfo() {
     }
   }
 
-  // Cover image with Day/Night adaptive glass gradient
+  // Cover image as Hero Header Background (Vibrant & Sharp)
   const header = document.querySelector('.app-header');
   if (header) {
     if (settings.cover) {
       header.classList.add('has-cover');
-      if (mode === 'light') {
-        header.style.backgroundImage = `linear-gradient(180deg, rgba(248, 246, 240, 0.78) 0%, rgba(248, 246, 240, 0.94) 100%), url("${settings.cover}")`;
-      } else {
-        header.style.backgroundImage = `linear-gradient(180deg, rgba(12, 10, 9, 0.58) 0%, rgba(12, 10, 9, 0.90) 100%), url("${settings.cover}")`;
-      }
+      header.style.backgroundImage = `linear-gradient(180deg, rgba(12, 10, 9, 0.40) 0%, rgba(12, 10, 9, 0.82) 100%), url("${settings.cover}")`;
     } else {
       header.classList.remove('has-cover');
       header.style.backgroundImage = '';
@@ -1751,10 +1749,6 @@ function setPaymentOption(opt) {
 function setupEventListeners() {
   if (elements.soundToggleBtn) {
     elements.soundToggleBtn.addEventListener('click', handleSoundToggle);
-  }
-
-  if (elements.themeToggleBtn) {
-    elements.themeToggleBtn.addEventListener('click', handleThemeToggle);
   }
 
   if (elements.btnReorder) {
