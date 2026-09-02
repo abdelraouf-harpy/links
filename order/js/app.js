@@ -279,6 +279,51 @@ const elements = {
   storyTouchNext: document.getElementById('story-touch-next')
 };
 
+// ── Mobile Back-Button & Modal History Navigation Controller ──
+function pushNavState(type, data = {}) {
+  try {
+    history.pushState({ harpyNav: type, ...data }, '');
+  } catch(e) {}
+}
+
+function handlePopStateNavigation(event) {
+  // 1. Story Viewer
+  if (elements.storyViewerModal && elements.storyViewerModal.classList.contains('active')) {
+    closeStoryViewer(false);
+    return;
+  }
+  // 2. Live Order Tracker
+  if (elements.trackerModal && elements.trackerModal.classList.contains('open')) {
+    closeLiveOrderTracker(false);
+    return;
+  }
+  // 3. Item Customizer
+  if (elements.customizerModal && elements.customizerModal.classList.contains('open')) {
+    closeCustomizer(false);
+    return;
+  }
+  // 4. Quick Preview
+  if (elements.previewModal && elements.previewModal.classList.contains('open')) {
+    closeQuickPreview(false);
+    return;
+  }
+  // 5. Cart Drawer & Multi-Step Checkout
+  if (elements.cartDrawer && elements.cartDrawer.classList.contains('open')) {
+    if (currentCheckoutStep === 3) {
+      goToCheckoutStep(2, false);
+      return;
+    } else if (currentCheckoutStep === 2) {
+      goToCheckoutStep(1, false);
+      return;
+    } else {
+      closeCartDrawer(false);
+      return;
+    }
+  }
+}
+
+window.addEventListener('popstate', handlePopStateNavigation);
+
 async function initApp() {
   Store.initTheme();
   if ('serviceWorker' in navigator) {
@@ -540,6 +585,7 @@ window.openStoryViewer = function(index) {
   if (elements.storyModalBackdrop) elements.storyModalBackdrop.classList.add('active');
   if (elements.storyViewerModal) elements.storyViewerModal.classList.add('active');
 
+  pushNavState('story', { index: currentStoryIndex });
   SoundFX.playPop();
   loadCurrentStory();
 };
@@ -615,10 +661,13 @@ function prevStory() {
   }
 }
 
-function closeStoryViewer() {
+function closeStoryViewer(triggerHistoryBack = true) {
   clearInterval(storyInterval);
   if (elements.storyModalBackdrop) elements.storyModalBackdrop.classList.remove('active');
   if (elements.storyViewerModal) elements.storyViewerModal.classList.remove('active');
+  if (triggerHistoryBack && window.history.state && window.history.state.harpyNav === 'story') {
+    try { history.back(); } catch(e) {}
+  }
 }
 
 // ── Fly-to-Cart Particle Animation ─────────────────────────
@@ -1223,6 +1272,7 @@ window.openQuickPreview = function(productId) {
 
   if (elements.previewModal) elements.previewModal.classList.add('open');
   if (elements.previewModalBackdrop) elements.previewModalBackdrop.classList.add('open');
+  pushNavState('preview', { productId });
   SoundFX.playPop();
 };
 
@@ -1249,10 +1299,13 @@ function updatePreviewModalActions(productId) {
   elements.previewActionWrap.innerHTML = renderCardActionButton(p, qty);
 }
 
-function closeQuickPreview() {
+function closeQuickPreview(triggerHistoryBack = true) {
   currentPreviewProductId = null;
   if (elements.previewModal) elements.previewModal.classList.remove('open');
   if (elements.previewModalBackdrop) elements.previewModalBackdrop.classList.remove('open');
+  if (triggerHistoryBack && window.history.state && window.history.state.harpyNav === 'preview') {
+    try { history.back(); } catch(e) {}
+  }
 }
 
 // ── Advanced Item Customizer Modal ─────────────────────────
@@ -1315,6 +1368,7 @@ window.openCustomizer = function(productId) {
 
   if (elements.customizerBackdrop) elements.customizerBackdrop.classList.add('open');
   if (elements.customizerModal) elements.customizerModal.classList.add('open');
+  pushNavState('customizer', { productId });
   SoundFX.playPop();
 };
 
@@ -1439,10 +1493,13 @@ function initCustomizerEvents() {
   }
 }
 
-function closeCustomizer() {
+function closeCustomizer(triggerHistoryBack = true) {
   customizerProduct = null;
   if (elements.customizerBackdrop) elements.customizerBackdrop.classList.remove('open');
   if (elements.customizerModal) elements.customizerModal.classList.remove('open');
+  if (triggerHistoryBack && window.history.state && window.history.state.harpyNav === 'customizer') {
+    try { history.back(); } catch(e) {}
+  }
 }
 
 // ── Smart Upselling / Pairing Engine ───────────────────────
@@ -1681,24 +1738,34 @@ function renderCartDrawerItems() {
   }).join('');
 }
 
-function openCartDrawer() {
+window.openCartDrawer = function() {
   document.body.classList.add('cart-drawer-open');
   if (elements.dynamicIslandCart) elements.dynamicIslandCart.classList.add('hidden-during-drawer');
   if (elements.cartDrawer) elements.cartDrawer.classList.add('open');
   if (elements.cartDrawerBackdrop) elements.cartDrawerBackdrop.classList.add('open');
-  goToCheckoutStep(1);
+  pushNavState('cart_step_1', { step: 1 });
+  goToCheckoutStep(1, false);
   SoundFX.playPop();
-}
+};
 
-function closeCartDrawer() {
+window.closeCartDrawer = function(triggerHistoryBack = true) {
   document.body.classList.remove('cart-drawer-open');
   if (elements.dynamicIslandCart) elements.dynamicIslandCart.classList.remove('hidden-during-drawer');
   if (elements.cartDrawer) elements.cartDrawer.classList.remove('open');
   if (elements.cartDrawerBackdrop) elements.cartDrawerBackdrop.classList.remove('open');
-}
+  if (triggerHistoryBack && window.history.state && window.history.state.harpyNav && window.history.state.harpyNav.startsWith('cart_step')) {
+    try { history.back(); } catch(e) {}
+  }
+};
 
-function goToCheckoutStep(stepNumber) {
+window.goToCheckoutStep = function(stepNumber, pushHistory = true) {
+  const prevStep = currentCheckoutStep;
   currentCheckoutStep = stepNumber;
+
+  if (pushHistory && stepNumber > prevStep) {
+    pushNavState('cart_step_' + stepNumber, { step: stepNumber });
+  }
+
   elements.checkoutSteps.forEach(step => {
     const sNum = parseInt(step.dataset.step);
     step.style.display = sNum === stepNumber ? 'block' : 'none';
@@ -1726,6 +1793,10 @@ function goToCheckoutStep(stepNumber) {
         labelSpan.textContent = "تأكيد وإرسال الطلب مباشرة ⚡";
       }
     }
+  }
+
+  if (elements.cartDrawer) {
+    elements.cartDrawer.scrollTop = 0;
   }
 
   updateLedgerUI();
@@ -2368,6 +2439,7 @@ function openLiveOrderTracker(orderOrId, initialData = null) {
   if (elements.trackerModal) elements.trackerModal.classList.add('open');
   if (elements.trackerModalBackdrop) elements.trackerModalBackdrop.classList.add('open');
 
+  pushNavState('tracker', { orderId });
   initBackgroundOrderTracking();
 }
 
@@ -2449,9 +2521,12 @@ function updateTrackerStepper(status = 'pending') {
   }
 }
 
-function closeLiveOrderTracker() {
+function closeLiveOrderTracker(triggerHistoryBack = true) {
   if (elements.trackerModal) elements.trackerModal.classList.remove('open');
   if (elements.trackerModalBackdrop) elements.trackerModalBackdrop.classList.remove('open');
+  if (triggerHistoryBack && window.history.state && window.history.state.harpyNav === 'tracker') {
+    try { history.back(); } catch(e) {}
+  }
 
   const lastOrder = Store.getLastOrder();
   // If order is delivered or cancelled, dismissing/closing modal archives the tracking badge so header is clean!

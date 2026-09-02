@@ -7,6 +7,29 @@ let currentTab = 'tab-products';
 let currentEditingProductId = null;
 let currentEditingStoryId = null;
 
+// ── Mobile Back-Button Navigation in Admin Dashboard ──────────
+function pushAdminNavState(type) {
+  try {
+    history.pushState({ adminNav: type }, '');
+  } catch(e) {}
+}
+
+window.addEventListener('popstate', () => {
+  if (adminElements.productModal && adminElements.productModal.classList.contains('open')) {
+    closeProductModal(false);
+    return;
+  }
+  if (adminElements.storyModal && adminElements.storyModal.classList.contains('open')) {
+    closeStoryModal(false);
+    return;
+  }
+  const receiptModal = document.getElementById('receipt-lightbox');
+  if (receiptModal && receiptModal.classList.contains('open')) {
+    window.closeReceiptModal(false);
+    return;
+  }
+});
+
 const adminElements = {
   loginModal: document.getElementById('login-modal'),
   loginBackdrop: document.getElementById('login-modal-backdrop'),
@@ -857,14 +880,18 @@ window.openReceiptModal = function(url) {
 
   if (modal) modal.classList.add('open');
   if (backdrop) backdrop.classList.add('open');
+  pushAdminNavState('admin_receipt');
 };
 
-window.closeReceiptModal = function() {
+window.closeReceiptModal = function(triggerHistoryBack = true) {
   currentReceiptImageUrl = null;
   const modal = document.getElementById('receipt-lightbox');
   const backdrop = document.getElementById('receipt-lightbox-backdrop');
   if (modal) modal.classList.remove('open');
   if (backdrop) backdrop.classList.remove('open');
+  if (triggerHistoryBack && window.history.state && window.history.state.adminNav === 'admin_receipt') {
+    try { history.back(); } catch(e) {}
+  }
 };
 
 window.toggleReceiptImageZoom = function() {
@@ -1306,12 +1333,16 @@ function openProductModal(productId) {
 
   if (adminElements.productModal) adminElements.productModal.classList.add('open');
   if (adminElements.productModalBackdrop) adminElements.productModalBackdrop.classList.add('open');
+  pushAdminNavState('admin_product');
 }
 
-function closeProductModal() {
+function closeProductModal(triggerHistoryBack = true) {
   currentEditingProductId = null;
   if (adminElements.productModal) adminElements.productModal.classList.remove('open');
   if (adminElements.productModalBackdrop) adminElements.productModalBackdrop.classList.remove('open');
+  if (triggerHistoryBack && window.history.state && window.history.state.adminNav === 'admin_product') {
+    try { history.back(); } catch(e) {}
+  }
 }
 
 function addSizeRow(name = '', price = 0) {
@@ -1586,12 +1617,16 @@ function openStoryModal(storyId) {
 
   if (adminElements.storyModal) adminElements.storyModal.classList.add('open');
   if (adminElements.storyModalBackdrop) adminElements.storyModalBackdrop.classList.add('open');
+  pushAdminNavState('admin_story');
 }
 
-function closeStoryModal() {
+function closeStoryModal(triggerHistoryBack = true) {
   currentEditingStoryId = null;
   if (adminElements.storyModal) adminElements.storyModal.classList.remove('open');
   if (adminElements.storyModalBackdrop) adminElements.storyModalBackdrop.classList.remove('open');
+  if (triggerHistoryBack && window.history.state && window.history.state.adminNav === 'admin_story') {
+    try { history.back(); } catch(e) {}
+  }
 }
 
 async function saveStoryForm() {
