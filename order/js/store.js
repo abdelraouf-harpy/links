@@ -1038,9 +1038,23 @@ const Store = {
     }
   },
 
-  // ── Strict Multi-Tenant Restaurant Engine ─────────────────
+  // ── Strict Multi-Tenant Restaurant Engine (Subdomain & Query Support) ──
   getRestaurantSlug() {
     try {
+      // 1. Subdomain Resolution (e.g. king.harpymenu.com or shawarma.harpymenu.com)
+      if (typeof window !== 'undefined' && window.location && window.location.hostname) {
+        const host = window.location.hostname.toLowerCase();
+        if (host.includes('harpymenu.com') && !host.startsWith('www.') && host !== 'harpymenu.com') {
+          const subdomain = host.split('.')[0].trim().replace(/[^a-z0-9_-]/g, '');
+          if (subdomain && subdomain !== 'www' && subdomain !== 'order' && subdomain !== 'api') {
+            this.safeSetItem('harpy_active_slug', subdomain);
+            this.registerRestaurant(subdomain);
+            return subdomain;
+          }
+        }
+      }
+
+      // 2. Query Parameter Fallback (?m=slug or ?restaurant=slug)
       const params = new URLSearchParams(window.location.search);
       const urlSlug = params.get('m') || params.get('restaurant') || params.get('store') || params.get('slug');
       if (urlSlug) {
@@ -1052,9 +1066,10 @@ const Store = {
         }
       }
     } catch {}
+
     const fallbackSlug = localStorage.getItem('harpy_active_slug') || 'king';
     if (typeof window !== 'undefined' && window.location && window.history) {
-      if (!window.location.search.includes('m=') && !window.location.search.includes('restaurant=')) {
+      if (!window.location.search.includes('m=') && !window.location.search.includes('restaurant=') && !window.location.hostname.includes('harpymenu.com')) {
         try {
           const url = new URL(window.location.href);
           url.searchParams.set('m', fallbackSlug);

@@ -379,14 +379,16 @@ function renderRestaurantHub() {
   const isFile = window.location.protocol === 'file:';
   const targetUrl = isFile
     ? window.location.href.replace('admin.html', 'index.html').split('?')[0] + `?m=${slug}`
-    : window.location.origin + window.location.pathname.replace('admin.html', 'index.html').replace(/\/$/, '') + `?m=${slug}`;
+    : (window.location.hostname.includes('harpymenu.com') 
+        ? `https://${slug}.harpymenu.com` 
+        : window.location.origin + window.location.pathname.replace('admin.html', 'index.html').replace(/\/$/, '') + `?m=${slug}`);
 
   if (shareLink) {
     shareLink.textContent = targetUrl.replace(/^https?:\/\//, '');
     shareLink.href = targetUrl;
   }
   if (previewBtn) {
-    previewBtn.href = `./index.html?m=${slug}`;
+    previewBtn.href = isFile ? `./index.html?m=${slug}` : targetUrl;
   }
 }
 
