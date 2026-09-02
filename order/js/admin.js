@@ -152,6 +152,7 @@ window.handleThemeToggle = function() {
   const next = current === 'light' ? 'dark' : 'light';
   Store.setThemeMode(next);
   updateAdminThemeToggleIcons();
+  showToastNotification(next === 'dark' ? '🌙 تم تفعيل الوضع الليلي' : '☀️ تم تفعيل الوضع النهاري', 'success');
 };
 
 function setupAdminThemeToggle() {
