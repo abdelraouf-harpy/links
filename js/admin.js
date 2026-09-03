@@ -206,7 +206,7 @@ function setupAuth() {
   let syncUnsubscribe = null;
   let ordersUnsubscribe = null;
 
-  const unlockDashboard = () => {
+  const unlockDashboard = async () => {
     isAuthenticated = true;
     document.documentElement.classList.remove('admin-locked');
     document.documentElement.classList.add('admin-unlocked');
@@ -214,6 +214,19 @@ function setupAuth() {
     if (adminElements.loginBackdrop) adminElements.loginBackdrop.classList.remove('open');
     if (adminElements.btnAdminLogout) adminElements.btnAdminLogout.style.display = 'inline-flex';
     
+    // Fast-resolve preloaded cloud data before rendering to eliminate flash on refresh
+    if (window.__harpyPreloadPromise) {
+      try {
+        const preloadData = await Promise.race([
+          window.__harpyPreloadPromise,
+          new Promise(r => setTimeout(() => r(null), 350))
+        ]);
+        if (preloadData && typeof preloadData === 'object') {
+          Store.applySnapshotData(preloadData);
+        }
+      } catch(e) {}
+    }
+
     loadAllDashboardData();
 
     // Clean up previous listeners

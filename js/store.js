@@ -2822,6 +2822,22 @@ const Store = {
     let isDestroyed = false;
     let lastKnownDataHash = '';
 
+    // Initialize with current local cache hash to prevent initial re-render flicker
+    try {
+      const curSettings = localStorage.getItem(this.getKey(STORAGE_KEYS.SETTINGS));
+      const curCats = localStorage.getItem(this.getKey(STORAGE_KEYS.CATEGORIES));
+      const curProds = localStorage.getItem(this.getKey(STORAGE_KEYS.PRODUCTS));
+      const curStories = localStorage.getItem(this.getKey(STORAGE_KEYS.STORIES));
+      if (curSettings || curProds) {
+        lastKnownDataHash = JSON.stringify({
+          s: curSettings ? JSON.parse(curSettings) : null,
+          c: curCats ? JSON.parse(curCats) : null,
+          p: curProds ? JSON.parse(curProds) : null,
+          st: curStories ? JSON.parse(curStories) : null
+        });
+      }
+    } catch(e) {}
+
     const processSnapshotData = (data) => {
       if (isDestroyed || !data) return;
       const currentDataHash = JSON.stringify({
@@ -3004,6 +3020,14 @@ const Store = {
     let isDestroyed = false;
     let pollTimer = null;
     let lastKnownOrdersHash = '';
+
+    // Initialize with cached orders hash to prevent redundant table wipe on startup
+    try {
+      const curOrders = this.getOrders();
+      if (curOrders && curOrders.length > 0) {
+        lastKnownOrdersHash = JSON.stringify(curOrders.map(o => ({ id: o.orderId, st: o.status, t: o.timestampUpdated || o.timestamp })));
+      }
+    } catch(e) {}
 
     const handleOrdersPayload = (data) => {
       if (isDestroyed || !data) return;
@@ -3806,6 +3830,17 @@ const Store = {
     window.dispatchEvent(new Event('store_stories_updated'));
 
     return { success: true };
+  },
+
+  hasCachedData(slug) {
+    const targetSlug = slug || this.getRestaurantSlug();
+    try {
+      const rawSettings = localStorage.getItem(`harpy_${targetSlug}_${STORAGE_KEYS.SETTINGS}`);
+      const rawProds = localStorage.getItem(`harpy_${targetSlug}_${STORAGE_KEYS.PRODUCTS}`);
+      return !!(rawSettings && rawProds);
+    } catch {
+      return false;
+    }
   },
 
   purgeRestaurantCache(slug) {

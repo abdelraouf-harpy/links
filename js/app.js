@@ -341,29 +341,35 @@ async function initApp() {
   initViewMode();
 
   const slug = Store.getRestaurantSlug();
+  const hasLocalCache = Store.hasCachedData(slug);
 
-  // 1. Fast-resolve preloaded cloud data with maximum 250ms race timeout (Never blocks UI)
+  // 1. Intelligent Dual-Speed Hydration Engine
+  // On new device (no local cache), wait up to 2800ms for cloud data so the user sees the real menu right away
+  // On device with cache, wait at most 160ms so cached UI opens instantly
   if (window.__harpyPreloadPromise) {
+    const maxWaitTime = hasLocalCache ? 160 : 2800;
     try {
       const preloadData = await Promise.race([
         window.__harpyPreloadPromise,
-        new Promise(r => setTimeout(() => r(null), 250))
+        new Promise(r => setTimeout(() => r(null), maxWaitTime))
       ]);
       if (preloadData && typeof preloadData === 'object') {
         Store.applySnapshotData(preloadData);
       }
     } catch(e) {}
 
-    // Non-blocking background receiver: updates UI whenever cloud fetch completes
+    // Non-blocking background receiver: updates UI only if data actually changed
     window.__harpyPreloadPromise.then(freshData => {
       if (freshData && typeof freshData === 'object' && (!Store.saveLocks || !Store.saveLocks.products)) {
-        Store.applySnapshotData(freshData);
-        renderStoreInfo();
-        renderStories();
-        renderAnnouncement();
-        renderDiscoveryRibbon();
-        renderCategories();
-        renderProducts();
+        const changed = Store.applySnapshotData(freshData);
+        if (changed) {
+          renderStoreInfo();
+          renderStories();
+          renderAnnouncement();
+          renderDiscoveryRibbon();
+          renderCategories();
+          renderProducts();
+        }
       }
     }).catch(() => {});
   }
@@ -386,13 +392,23 @@ async function initApp() {
   const topImgs = Array.from(document.querySelectorAll('.food-item-img')).slice(0, 6);
   if (topImgs.length > 0) {
     const decodePromises = topImgs.map(img => {
-      if (img.complete) return Promise.resolve();
-      if (typeof img.decode === 'function') return img.decode().catch(() => {});
-      return new Promise(r => { img.onload = r; img.onerror = r; });
+      if (img.complete) {
+        img.classList.add('loaded');
+        return Promise.resolve();
+      }
+      if (typeof img.decode === 'function') {
+        return img.decode().then(() => { img.classList.add('loaded'); }).catch(() => {});
+      }
+      return new Promise(r => {
+        img.onload = () => { img.classList.add('loaded'); r(); };
+        img.onerror = () => { img.classList.add('loaded'); r(); };
+      });
     });
+    // On new phone give images up to 550ms to decode; on cached phone 150ms
+    const maxImageWait = hasLocalCache ? 150 : 550;
     await Promise.race([
       Promise.allSettled(decodePromises),
-      new Promise(r => setTimeout(r, 180))
+      new Promise(r => setTimeout(r, maxImageWait))
     ]);
   }
 
@@ -401,7 +417,7 @@ async function initApp() {
   if (splash) {
     requestAnimationFrame(() => {
       splash.classList.add('fade-out');
-      setTimeout(() => { try { splash.remove(); } catch(e) {} }, 220);
+      setTimeout(() => { try { splash.remove(); } catch(e) {} }, 240);
     });
   }
 
@@ -1145,7 +1161,7 @@ function renderProductCard(p, currency, index = 0) {
   return `
     <div class="food-item-card" data-product-id="${p.id}" onclick="handleCardClick(event, '${p.id}')">
       <div class="food-item-media">
-        <img src="${p.image}" class="food-item-img" alt="${p.name}" ${isAboveFold ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"'} decoding="async">
+        <img src="${p.image}" class="food-item-img" alt="${p.name}" ${isAboveFold ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"'} decoding="async" onload="this.classList.add('loaded')" onerror="this.classList.add('loaded')">
         <div class="card-top-actions">
           ${p.badge ? `<span class="card-badge">${p.badge}</span>` : '<span></span>'}
           <button class="btn-fav-toggle ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); handleToggleFav('${p.id}')" title="إضافة للمفضلة">

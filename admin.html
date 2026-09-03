@@ -8,7 +8,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css?v=9.0">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23c2410c'><circle cx='12' cy='12' r='10'/></svg>">
+  <link rel="preconnect" href="https://harpy-order-default-rtdb.firebaseio.com" crossorigin>
+  <link rel="dns-prefetch" href="https://harpy-order-default-rtdb.firebaseio.com">
+  <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
+  <link rel="dns-prefetch" href="https://images.unsplash.com">
+  <link rel="preconnect" href="https://i.ibb.co" crossorigin>
+  <link rel="dns-prefetch" href="https://i.ibb.co">
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
   <script>
     (function() {
       try {
@@ -27,6 +33,10 @@
           document.documentElement.classList.add('admin-locked');
         } else {
           document.documentElement.classList.add('admin-unlocked');
+          // Parallel fast cloud preload while scripts load
+          window.__harpyPreloadPromise = fetch('https://harpy-order-default-rtdb.firebaseio.com/restaurants/' + slug + '.json', {
+            cache: 'no-store'
+          }).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; });
         }
       } catch(e) {
         document.documentElement.classList.add('admin-locked');
@@ -828,7 +838,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/store.js?v=9.5"></script>
-  <script src="js/admin.js?v=9.5"></script>
+  <script src="js/store.js?v=9.6"></script>
+  <script src="js/admin.js?v=9.6"></script>
 </body>
 </html>
