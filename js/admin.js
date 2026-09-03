@@ -1295,7 +1295,7 @@ window.renderOrdersList = function(orders = null) {
 
               ${(parseFloat(o.deliveryFee) > 0 || o.deliveryZone) ? `
                 <div style="font-size:11.5px; color:var(--primary); background:var(--primary-subtle); padding:4px 8px; border-radius:6px; margin-bottom:6px; font-weight:800; display:flex; align-items:center; justify-content:space-between;">
-                  <span>🛵 خدمة التوصيل (${o.deliveryZone || 'السعر الموحد'}):</span>
+                  <span>خدمة التوصيل (${o.deliveryZone || 'السعر الموحد'}):</span>
                   <span class="font-num">+${(parseFloat(o.deliveryFee) || 0).toFixed(2)} ${currency}</span>
                 </div>
               ` : ''}
@@ -2138,7 +2138,7 @@ function renderDeliveryZonesList(zones = []) {
     <div style="display:flex; justify-content:space-between; align-items:center; background:var(--surface-raised); border:1px solid var(--border); padding:8px 12px; border-radius:6px; font-size:12px; gap:8px;">
       <div style="min-width:0;">
         <div style="font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-          <span>📍 ${z.name}</span>
+          <span>${z.name}</span>
           <span class="font-num" style="color:var(--primary); font-weight:900;">${parseFloat(z.fee).toFixed(0)} ج.م</span>
         </div>
         <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">

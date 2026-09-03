@@ -1638,9 +1638,8 @@ function updateDeliveryFeedbackUI() {
   if (!elements.deliveryZoneBadgeWrap) return;
 
   if (zoneInfo.isCustom) {
-    if (elements.deliveryZoneIcon) elements.deliveryZoneIcon.textContent = '✨';
     if (elements.deliveryZoneStatusText) {
-      elements.deliveryZoneStatusText.textContent = `تم التعرف على نطاق: ${zoneInfo.zoneName}`;
+      elements.deliveryZoneStatusText.textContent = `نطاق التوصيل: ${zoneInfo.zoneName}`;
       elements.deliveryZoneStatusText.style.color = 'var(--accent-wa)';
     }
     if (elements.deliveryZoneFeeBadge) {
@@ -1650,7 +1649,6 @@ function updateDeliveryFeedbackUI() {
     elements.deliveryZoneBadgeWrap.style.borderColor = 'rgba(22, 163, 74, 0.35)';
     elements.deliveryZoneBadgeWrap.style.background = 'var(--accent-wa-subtle)';
   } else {
-    if (elements.deliveryZoneIcon) elements.deliveryZoneIcon.textContent = '🛵';
     if (elements.deliveryZoneStatusText) {
       elements.deliveryZoneStatusText.textContent = `خدمة التوصيل (${zoneInfo.zoneName}):`;
       elements.deliveryZoneStatusText.style.color = 'var(--text-main)';
@@ -2510,7 +2508,7 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
     message += `🛒 *تفاصيل الأصناف:*\n${itemsText}\n`;
     message += `━━━━━━━━━━━━━━━━━━━\n`;
     if (deliveryFee > 0) {
-      message += `🛵 *خدمة التوصيل (${deliveryInfo.zoneName}):* ${deliveryFee.toFixed(2)} ${currency}\n`;
+      message += `*خدمة التوصيل (${deliveryInfo.zoneName}):* ${deliveryFee.toFixed(2)} ${currency}\n`;
     }
     message += `💰 *المبلغ الإجمالي المطلوب:* ${finalTotal.toFixed(2)} ${currency}\n`;
     message += `💳 *طريقة الدفع:* ${paymentText}\n`;
