@@ -42,6 +42,15 @@
         slug = slug.toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
         window.__harpySlug = slug;
 
+        // Safety Recovery: If browser lands on index.html with an admin tab hash, route directly to admin.html
+        var adminTabs = ['orders', 'products', 'categories', 'stories', 'settings'];
+        var currentAdminHash = (window.location.hash || '').replace('#', '').trim();
+        if (adminTabs.indexOf(currentAdminHash) !== -1) {
+          var adminDest = 'admin.html?m=' + encodeURIComponent(slug) + '#' + currentAdminHash;
+          window.location.replace(adminDest);
+          return;
+        }
+
         // Auto-preserve query parameter in URL bar
         if (!window.location.search.includes('m=') && !window.location.search.includes('restaurant=')) {
           try {

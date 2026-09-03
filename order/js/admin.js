@@ -480,13 +480,17 @@ window.switchTab = function(targetTabId, updateHash = true) {
     localStorage.setItem(`harpy_${slug}_admin_active_tab`, targetTabId);
   } catch(e) {}
 
-  // 4. Update URL Hash with History Navigation
+  // 4. Update URL Hash with History Navigation (Preserves pathname & query so <base href> never strips admin.html)
   if (updateHash) {
     const shortHash = targetTabId.replace('tab-', '');
     if (window.location.hash !== '#' + shortHash) {
       try {
-        history.pushState({ adminTab: targetTabId }, '', '#' + shortHash);
-      } catch(e) {}
+        const url = new URL(window.location.href);
+        url.hash = shortHash;
+        history.pushState({ adminTab: targetTabId }, '', url.pathname + url.search + url.hash);
+      } catch(e) {
+        window.location.hash = shortHash;
+      }
     }
   }
 
@@ -516,8 +520,20 @@ function setupTabNavigation() {
   // Listen for hash changes (e.g. browser back/forward buttons)
   window.addEventListener('hashchange', () => {
     const hash = (window.location.hash || '').replace('#', '').trim();
-    if (hash) {
+    if (hash && document.getElementById('tab-' + hash)) {
       window.switchTab('tab-' + hash, false);
+    }
+  });
+
+  // Listen for popstate (e.g. browser history back/forward navigation)
+  window.addEventListener('popstate', (e) => {
+    if (e.state && e.state.adminTab && document.getElementById(e.state.adminTab)) {
+      window.switchTab(e.state.adminTab, false);
+    } else {
+      const hash = (window.location.hash || '').replace('#', '').trim();
+      if (hash && document.getElementById('tab-' + hash)) {
+        window.switchTab('tab-' + hash, false);
+      }
     }
   });
 
@@ -535,6 +551,16 @@ function setupTabNavigation() {
 
   // Switch to initial tab immediately
   window.switchTab(initialTab, false);
+
+  // Synchronize URL hash with initialTab without stripping pathname or search params
+  try {
+    const shortHash = initialTab.replace('tab-', '');
+    const url = new URL(window.location.href);
+    if (url.hash !== '#' + shortHash) {
+      url.hash = shortHash;
+      history.replaceState({ adminTab: initialTab }, '', url.pathname + url.search + url.hash);
+    }
+  } catch(e) {}
 }
 
 // ── High-Efficiency Auto-Compressing Image Dropzone ─────────
