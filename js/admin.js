@@ -229,6 +229,15 @@ function setupAuth() {
 
     loadAllDashboardData();
 
+    // Dismiss native splash shield smoothly with instant complete reveal
+    const splash = document.getElementById('admin-splash-shield');
+    if (splash) {
+      requestAnimationFrame(() => {
+        splash.classList.add('fade-out');
+        setTimeout(() => { try { splash.remove(); } catch(e) {} }, 240);
+      });
+    }
+
     // Clean up previous listeners
     if (typeof syncUnsubscribe === 'function') syncUnsubscribe();
     if (typeof ordersUnsubscribe === 'function') ordersUnsubscribe();
@@ -253,6 +262,11 @@ function setupAuth() {
     isAuthenticated = false;
     document.documentElement.classList.remove('admin-unlocked');
     document.documentElement.classList.add('admin-locked');
+    const splash = document.getElementById('admin-splash-shield');
+    if (splash) {
+      splash.classList.add('fade-out');
+      setTimeout(() => { try { splash.remove(); } catch(e) {} }, 150);
+    }
     if (typeof syncUnsubscribe === 'function') syncUnsubscribe();
     if (typeof ordersUnsubscribe === 'function') ordersUnsubscribe();
     if (adminElements.loginModal) adminElements.loginModal.classList.add('open');

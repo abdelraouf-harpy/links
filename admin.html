@@ -29,6 +29,9 @@
         if (!isAuth && sessionAuth) {
           try { var s2 = JSON.parse(sessionAuth); isAuth = s2 && s2.authenticated === true; } catch(e) {}
         }
+        var mode = localStorage.getItem('harpy_' + slug + '_theme_mode') || 'light';
+        document.documentElement.setAttribute('data-theme', mode);
+
         if (!isAuth) {
           document.documentElement.classList.add('admin-locked');
         } else {
@@ -45,6 +48,17 @@
   </script>
 </head>
 <body style="padding-bottom: 60px;">
+
+  <!-- Ultra-Fast Native Splash Shimmer Shield (Eliminates reload flash & element shifting) -->
+  <div id="admin-splash-shield" class="app-splash-shield">
+    <div class="splash-shimmer-content">
+      <div class="splash-logo-pulse">
+        <div class="splash-wave-ring"></div>
+        <svg viewBox="0 0 24 24" class="splash-harpy-icon"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6Z"/></svg>
+      </div>
+      <div class="splash-loading-bar"><div class="splash-loading-progress"></div></div>
+    </div>
+  </div>
 
   <!-- Editorial Header -->
   <header class="app-header">
@@ -838,7 +852,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/store.js?v=9.6"></script>
-  <script src="js/admin.js?v=9.6"></script>
+  <script src="js/store.js?v=9.7"></script>
+  <script src="js/admin.js?v=9.7"></script>
 </body>
 </html>
