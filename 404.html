@@ -35,29 +35,34 @@
       try {
         var path = window.location.pathname || '';
         var search = window.location.search || '';
+        var hash = window.location.hash || '';
         var segments = path.split('/').filter(Boolean);
 
-        // Check if landing with an admin tab hash
-        var adminHashes = ['orders', 'products', 'categories', 'stories', 'settings'];
-        var cleanHash = (hash || '').replace('#', '').trim();
+        // Check if landing with an admin tab hash (#orders, #products, #categories, etc.)
+        var adminHashes = ['orders', 'products', 'categories', 'stories', 'settings', 'backup'];
+        var cleanHash = hash.replace('#', '').trim();
         if (adminHashes.indexOf(cleanHash) !== -1) {
           var slug = localStorage.getItem('harpy_active_slug') || 'king';
           window.location.replace('/admin.html?m=' + encodeURIComponent(slug) + '#' + cleanHash);
           return;
         }
         
-        // If asking for admin
+        // If asking for admin (/admin, /admin/, /admin?m=slug)
         if (segments.indexOf('admin') !== -1 || path.indexOf('/admin') !== -1) {
           var remaining = segments.filter(function(s) { return s !== 'admin' && s !== 'order' && !s.endsWith('.html'); });
           var slug = remaining.length > 0 ? remaining[0] : '';
           var params = new URLSearchParams(search);
           if (slug && !params.get('m')) params.set('m', slug);
-          var queryString = params.toString() ? ('?' + params.toString()) : '';
+          if (!params.get('m')) {
+            var savedSlug = localStorage.getItem('harpy_active_slug') || 'king';
+            params.set('m', savedSlug);
+          }
+          var queryString = '?' + params.toString();
           window.location.replace('/admin.html' + queryString + hash);
           return;
         }
 
-        // If asking for order or restaurant slug in path
+        // If asking for order or restaurant slug in path (/king, /hermel, etc.)
         var remaining = segments.filter(function(s) { return s !== 'order' && s !== 'index' && !s.endsWith('.html'); });
         var slug = remaining.length > 0 ? remaining[0] : '';
         var params = new URLSearchParams(search);
