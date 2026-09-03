@@ -1584,6 +1584,21 @@ function normalizeArabic(text) {
     .trim();
 }
 
+function matchKeywordInAddress(normAddress, kw) {
+  const normKw = normalizeArabic(kw);
+  if (!normKw || normKw.length < 2) return false;
+
+  // 1. Direct standard include
+  if (normAddress.includes(normKw)) return true;
+
+  // 2. Space-insensitive match (handles 'ابو خصير' vs 'ابوخصير', 'عبد الرحمن' vs 'عبدالرحمن')
+  const noSpaceAddress = normAddress.replace(/\s+/g, '');
+  const noSpaceKw = normKw.replace(/\s+/g, '');
+  if (noSpaceKw.length >= 3 && noSpaceAddress.includes(noSpaceKw)) return true;
+
+  return false;
+}
+
 function detectDeliveryZone(addressText, settings) {
   const ds = (settings && settings.deliverySettings) ? settings.deliverySettings : {};
   let defaultFee = 15;
@@ -1604,13 +1619,27 @@ function detectDeliveryZone(addressText, settings) {
 
   for (const zone of customZones) {
     if (!zone) continue;
-    const keywords = Array.isArray(zone.keywords) 
-      ? zone.keywords 
-      : (zone.keywords ? String(zone.keywords).split(/[,،]+/) : [zone.name]);
+    let rawKws = [];
+    if (Array.isArray(zone.keywords)) {
+      rawKws = [...zone.keywords];
+    } else if (zone.keywords) {
+      rawKws = [zone.keywords];
+    }
+    if (zone.name) rawKws.push(zone.name);
 
-    for (let kw of keywords) {
-      const normKw = normalizeArabic(kw);
-      if (normKw && normKw.length >= 2 && normAddress.includes(normKw)) {
+    // Expand & split any keywords containing dashes, hyphens, commas, slashes, pipes, newlines
+    const expandedKeywords = [];
+    for (const rk of rawKws) {
+      if (typeof rk === 'string') {
+        rk.split(/[,،\-\/\|—–\n\r;]+/).forEach(piece => {
+          const clean = piece.trim();
+          if (clean) expandedKeywords.push(clean);
+        });
+      }
+    }
+
+    for (const kw of expandedKeywords) {
+      if (matchKeywordInAddress(normAddress, kw)) {
         const fee = typeof zone.fee === 'number' ? zone.fee : (parseFloat(zone.fee) || 0);
         return {
           fee,

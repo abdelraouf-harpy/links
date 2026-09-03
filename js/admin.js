@@ -2007,9 +2007,15 @@ function setupSettingsForm() {
         return;
       }
 
+      // Support separating keywords with commas, Arabic commas, hyphens/dashes, slashes, or newlines
       const keywords = rawKeywords
-        ? rawKeywords.split(/[,،]+/).map(k => k.trim()).filter(Boolean)
+        ? rawKeywords.split(/[,،\-\/\|—–\n\r;]+/).map(k => k.trim()).filter(Boolean)
         : [name];
+
+      // Ensure zone name itself is included in matching keywords
+      if (!keywords.includes(name)) {
+        keywords.unshift(name);
+      }
 
       const settings = Store.getSettings();
       settings.deliverySettings = settings.deliverySettings || { defaultFee: 15, customZones: [] };
