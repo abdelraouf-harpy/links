@@ -335,14 +335,30 @@ async function initApp() {
 
   const slug = Store.getRestaurantSlug();
 
-  // 1. Fast-resolve preloaded cloud data from head fetch (0ms UI delay)
+  // 1. Fast-resolve preloaded cloud data with maximum 250ms race timeout (Never blocks UI)
   if (window.__harpyPreloadPromise) {
     try {
-      const preloadData = await window.__harpyPreloadPromise;
+      const preloadData = await Promise.race([
+        window.__harpyPreloadPromise,
+        new Promise(r => setTimeout(() => r(null), 250))
+      ]);
       if (preloadData && typeof preloadData === 'object') {
         Store.applySnapshotData(preloadData);
       }
     } catch(e) {}
+
+    // Non-blocking background receiver: updates UI whenever cloud fetch completes
+    window.__harpyPreloadPromise.then(freshData => {
+      if (freshData && typeof freshData === 'object' && (!Store.saveLocks || !Store.saveLocks.products)) {
+        Store.applySnapshotData(freshData);
+        renderStoreInfo();
+        renderStories();
+        renderAnnouncement();
+        renderDiscoveryRibbon();
+        renderCategories();
+        renderProducts();
+      }
+    }).catch(() => {});
   }
 
   // 2. Render initial UI with preloaded or cached data
@@ -1953,16 +1969,42 @@ function setupEventListeners() {
   if (elements.btnCopyNum) {
     elements.btnCopyNum.addEventListener('click', () => {
       const num = (elements.walletNumDisplay.textContent || '').trim();
-      navigator.clipboard.writeText(num);
-      SoundFX.playPop();
+      const doSuccessFeedback = () => {
+        SoundFX.playPop();
+        if (elements.copyBtnText) elements.copyBtnText.textContent = "تم النسخ ✓";
+        elements.btnCopyNum.classList.add('copied');
+        showToastNotification("تم نسخ رقم المحفظة بنجاح ✓", "success");
+        setTimeout(() => {
+          if (elements.copyBtnText) elements.copyBtnText.textContent = "نسخ الرقم";
+          elements.btnCopyNum.classList.remove('copied');
+        }, 2500);
+      };
 
-      if (elements.copyBtnText) elements.copyBtnText.textContent = "تم النسخ ✓";
-      elements.btnCopyNum.classList.add('copied');
+      const copyFallback = (str) => {
+        const ta = document.createElement('textarea');
+        ta.value = str;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch(e) {}
+        document.body.removeChild(ta);
+      };
 
-      setTimeout(() => {
-        if (elements.copyBtnText) elements.copyBtnText.textContent = "نسخ الرقم";
-        elements.btnCopyNum.classList.remove('copied');
-      }, 2500);
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(num).then(doSuccessFeedback).catch(() => {
+            copyFallback(num);
+            doSuccessFeedback();
+          });
+        } else {
+          copyFallback(num);
+          doSuccessFeedback();
+        }
+      } catch(e) {
+        copyFallback(num);
+        doSuccessFeedback();
+      }
     });
   }
 

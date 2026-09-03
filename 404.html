@@ -35,9 +35,16 @@
       try {
         var path = window.location.pathname || '';
         var search = window.location.search || '';
-        var hash = window.location.hash || '';
-
         var segments = path.split('/').filter(Boolean);
+
+        // Check if landing with an admin tab hash
+        var adminHashes = ['orders', 'products', 'categories', 'stories', 'settings'];
+        var cleanHash = (hash || '').replace('#', '').trim();
+        if (adminHashes.indexOf(cleanHash) !== -1) {
+          var slug = localStorage.getItem('harpy_active_slug') || 'king';
+          window.location.replace('/admin.html?m=' + encodeURIComponent(slug) + '#' + cleanHash);
+          return;
+        }
         
         // If asking for admin
         if (segments.indexOf('admin') !== -1 || path.indexOf('/admin') !== -1) {

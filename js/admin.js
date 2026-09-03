@@ -480,13 +480,17 @@ window.switchTab = function(targetTabId, updateHash = true) {
     localStorage.setItem(`harpy_${slug}_admin_active_tab`, targetTabId);
   } catch(e) {}
 
-  // 4. Update URL Hash with History Navigation
+  // 4. Update URL Hash with History Navigation (Preserves pathname & query so <base href> never strips admin.html)
   if (updateHash) {
     const shortHash = targetTabId.replace('tab-', '');
     if (window.location.hash !== '#' + shortHash) {
       try {
-        history.pushState({ adminTab: targetTabId }, '', '#' + shortHash);
-      } catch(e) {}
+        const url = new URL(window.location.href);
+        url.hash = shortHash;
+        history.pushState({ adminTab: targetTabId }, '', url.pathname + url.search + url.hash);
+      } catch(e) {
+        window.location.hash = shortHash;
+      }
     }
   }
 
@@ -516,8 +520,20 @@ function setupTabNavigation() {
   // Listen for hash changes (e.g. browser back/forward buttons)
   window.addEventListener('hashchange', () => {
     const hash = (window.location.hash || '').replace('#', '').trim();
-    if (hash) {
+    if (hash && document.getElementById('tab-' + hash)) {
       window.switchTab('tab-' + hash, false);
+    }
+  });
+
+  // Listen for popstate (e.g. browser history back/forward navigation)
+  window.addEventListener('popstate', (e) => {
+    if (e.state && e.state.adminTab && document.getElementById(e.state.adminTab)) {
+      window.switchTab(e.state.adminTab, false);
+    } else {
+      const hash = (window.location.hash || '').replace('#', '').trim();
+      if (hash && document.getElementById('tab-' + hash)) {
+        window.switchTab('tab-' + hash, false);
+      }
     }
   });
 
@@ -535,6 +551,16 @@ function setupTabNavigation() {
 
   // Switch to initial tab immediately
   window.switchTab(initialTab, false);
+
+  // Synchronize URL hash with initialTab without stripping pathname or search params
+  try {
+    const shortHash = initialTab.replace('tab-', '');
+    const url = new URL(window.location.href);
+    if (url.hash !== '#' + shortHash) {
+      url.hash = shortHash;
+      history.replaceState({ adminTab: initialTab }, '', url.pathname + url.search + url.hash);
+    }
+  } catch(e) {}
 }
 
 // ── High-Efficiency Auto-Compressing Image Dropzone ─────────
@@ -962,6 +988,138 @@ window.openReceiptFullImage = function() {
   window.open(url, '_blank');
 };
 
+// ── Instant Thermal POS / Kitchen Receipt Printing Engine ────
+window.printOrderReceipt = function(orderId) {
+  const orders = Store.getOrders();
+  const order = orders.find(o => (o.orderId === orderId || o.id === orderId || o._fbKey === orderId));
+  if (!order) {
+    if (typeof showToastNotification === 'function') showToastNotification("الطلب غير موجود للطباعة", "error");
+    return;
+  }
+  const settings = Store.getSettings();
+  const storeName = settings.storeName || "منيو المطعم";
+  const currency = settings.currency || "ج.م";
+  const timeStr = order.createdAt 
+    ? new Date(order.createdAt).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' }) 
+    : new Date(order.timestamp || Date.now()).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' });
+
+  const itemsRows = (order.items || []).map(it => `
+    <tr>
+      <td style="text-align:right; padding:5px 0; font-weight:bold; border-bottom:1px dotted #ccc;">
+        ${it.name}${it.selectedSize ? ` (${it.selectedSize.name})` : ''}
+        ${it.selectedAddons && it.selectedAddons.length ? `<br><small style="color:#555; font-size:10px;">+ ${it.selectedAddons.map(a => a.name).join('، ')}</small>` : ''}
+        ${it.notes ? `<br><small style="color:#c2410c; font-size:10px;">📝 ${it.notes}</small>` : ''}
+      </td>
+      <td style="text-align:center; padding:5px 0; border-bottom:1px dotted #ccc; font-weight:bold;">${it.qty}x</td>
+      <td style="text-align:left; padding:5px 0; border-bottom:1px dotted #ccc; font-family:monospace; font-weight:bold;">${((it.price || 0) * it.qty).toFixed(0)}</td>
+    </tr>
+  `).join('');
+
+  const printHtml = `
+    <!DOCTYPE html>
+    <html lang="ar" dir="rtl">
+    <head>
+      <meta charset="UTF-8">
+      <title>فاتورة طلب ${order.orderId || orderId}</title>
+      <style>
+        @page { size: 80mm auto; margin: 2mm; }
+        body {
+          font-family: 'Courier New', Tahoma, -apple-system, sans-serif;
+          font-size: 13px;
+          line-height: 1.35;
+          color: #000;
+          margin: 0;
+          padding: 6px;
+          width: 72mm;
+          direction: rtl;
+        }
+        .center { text-align: center; }
+        .divider { border-top: 1px dashed #000; margin: 6px 0; }
+        .bold { font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 6px 0; }
+        th { border-bottom: 1px dashed #000; padding: 4px 0; font-size: 11px; }
+        .total-row { font-size: 15px; font-weight: 900; }
+      </style>
+    </head>
+    <body>
+      <div class="center bold" style="font-size:18px; margin-bottom:2px;">${storeName}</div>
+      <div class="center" style="font-size:11px; font-weight:bold;">بون طلب رقم: <span style="font-family:monospace;">${order.orderId || orderId}</span></div>
+      <div class="center" style="font-size:10px; color:#444;">${timeStr}</div>
+      
+      <div class="divider"></div>
+      <div><strong>العميل:</strong> ${order.customer?.name || 'عميل'}</div>
+      <div><strong>الهاتف:</strong> <span style="font-family:monospace;">${order.customer?.phone || 'بدون'}</span></div>
+      <div><strong>العنوان:</strong> ${order.customer?.address || 'استلام من المحل'}</div>
+      ${order.customer?.notes ? `<div style="margin-top:2px;"><strong>ملاحظات:</strong> ${order.customer.notes}</div>` : ''}
+      
+      <div class="divider"></div>
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align:right;">الصنف</th>
+            <th style="text-align:center;">العدد</th>
+            <th style="text-align:left;">السعر</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${itemsRows}
+        </tbody>
+      </table>
+
+      <div class="divider"></div>
+      <div style="display:flex; justify-content:space-between; margin:3px 0;">
+        <span>المجموع:</span>
+        <span style="font-family:monospace; font-weight:bold;">${(parseFloat(order.subtotal) || parseFloat(order.finalTotal) || 0).toFixed(0)} ${currency}</span>
+      </div>
+      ${order.deliveryFee ? `
+      <div style="display:flex; justify-content:space-between; margin:3px 0;">
+        <span>خدمة التوصيل:</span>
+        <span style="font-family:monospace; font-weight:bold;">${parseFloat(order.deliveryFee).toFixed(0)} ${currency}</span>
+      </div>` : ''}
+      <div class="divider"></div>
+      <div class="total-row" style="display:flex; justify-content:space-between; margin:4px 0;">
+        <span>المطلوب تحصيله:</span>
+        <span style="font-family:monospace;">${(parseFloat(order.finalTotal) || 0).toFixed(0)} ${currency}</span>
+      </div>
+      <div style="font-size:11px; margin-top:3px;"><strong>طريقة الدفع:</strong> ${order.paymentMethod === 'wallet' ? 'فودافون كاش / إنستاباي' : 'نقداً عند الاستلام (COD)'}</div>
+      <div class="divider"></div>
+      <div class="center" style="font-size:10.5px; margin-top:5px; font-weight:bold;">نتمنى لكم وجبة شهية! ❤️</div>
+      <div class="center" style="font-size:9px; color:#555; margin-top:2px;">منظومة Harpy Menu الذكية</div>
+      <script>
+        window.onload = function() {
+          window.print();
+          setTimeout(function() { window.close(); }, 700);
+        };
+      </script>
+    </body>
+    </html>
+  `;
+
+  const printWindow = window.open('', '_blank', 'width=380,height=600');
+  if (printWindow) {
+    printWindow.document.open();
+    printWindow.document.write(printHtml);
+    printWindow.document.close();
+  } else {
+    let printIframe = document.getElementById('print-receipt-iframe');
+    if (!printIframe) {
+      printIframe = document.createElement('iframe');
+      printIframe.id = 'print-receipt-iframe';
+      printIframe.style.position = 'fixed';
+      printIframe.style.right = '0';
+      printIframe.style.bottom = '0';
+      printIframe.style.width = '0';
+      printIframe.style.height = '0';
+      printIframe.style.border = '0';
+      document.body.appendChild(printIframe);
+    }
+    const doc = printIframe.contentWindow.document;
+    doc.open();
+    doc.write(printHtml);
+    doc.close();
+  }
+};
+
 let lastRenderedOrdersSignature = null;
 
 window.renderOrdersList = function(orders = null) {
@@ -1074,6 +1232,12 @@ window.renderOrdersList = function(orders = null) {
           </div>
 
           <div style="display:flex; align-items:center; gap:6px;">
+            <!-- Instant Thermal Print Button -->
+            <button type="button" class="btn btn-ghost btn-sm" onclick="printOrderReceipt('${safeOrderId}')" style="padding:4px 9px; font-size:11px; font-weight:800; border:1px solid var(--border); color:var(--text-main); background:var(--surface-raised); display:inline-flex; align-items:center; gap:4px;" title="طباعة بون الفاتورة الحرارية">
+              <span>🖨️</span>
+              <span>طباعة الفاتورة</span>
+            </button>
+
             <!-- Interactive Custom Status Sheet Trigger (No Native Select Dialog) -->
             <button type="button" class="order-status-trigger-btn font-num" style="background:${statusBadge.bg}; color:${statusBadge.color}; border:1px solid ${statusBadge.borderColor};" onclick="openStatusSheet('${safeOrderId}', '${status}')">
               <span>${statusBadge.text}</span>
