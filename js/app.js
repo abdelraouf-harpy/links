@@ -230,6 +230,13 @@ const elements = {
   custPhone: document.getElementById('cust-phone'),
   custAddress: document.getElementById('cust-address'),
   custNotes: document.getElementById('cust-notes'),
+  deliveryZoneBadgeWrap: document.getElementById('delivery-zone-badge-wrap'),
+  deliveryZoneIcon: document.getElementById('delivery-zone-icon'),
+  deliveryZoneStatusText: document.getElementById('delivery-zone-status-text'),
+  deliveryZoneFeeBadge: document.getElementById('delivery-zone-fee-badge'),
+  deliveryFeeRow: document.getElementById('delivery-fee-row'),
+  deliveryZoneNameBadge: document.getElementById('delivery-zone-name-badge'),
+  deliveryFeeVal: document.getElementById('delivery-fee-val'),
   btnBackToStep1: document.getElementById('btn-back-to-step1'),
   btnProceedToStep3: document.getElementById('btn-proceed-to-step3'),
 
@@ -1563,6 +1570,100 @@ function renderSmartPairing(cart, prods, currency) {
   `).join('');
 }
 
+// ── Smart Delivery Zone & Address Keyword Matching Engine ──
+function normalizeArabic(text) {
+  if (!text || typeof text !== 'string') return '';
+  return text
+    .replace(/[\u064B-\u065F\u0670]/g, '')
+    .replace(/[أإآ]/g, 'ا')
+    .replace(/ة/g, 'ه')
+    .replace(/ى/g, 'ي')
+    .replace(/[\r\n\t]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .toLowerCase()
+    .trim();
+}
+
+function detectDeliveryZone(addressText, settings) {
+  const ds = (settings && settings.deliverySettings) ? settings.deliverySettings : {};
+  let defaultFee = 15;
+  if (typeof ds.defaultFee === 'number') defaultFee = ds.defaultFee;
+  else if (typeof settings.deliveryFee === 'number') defaultFee = settings.deliveryFee;
+  else if (ds.defaultFee !== undefined) defaultFee = parseFloat(ds.defaultFee) || 0;
+
+  const customZones = Array.isArray(ds.customZones) ? ds.customZones : [];
+  const normAddress = normalizeArabic(addressText);
+
+  if (!normAddress || normAddress.length < 2) {
+    return {
+      fee: defaultFee,
+      zoneName: 'السعر الموحد',
+      isCustom: false
+    };
+  }
+
+  for (const zone of customZones) {
+    if (!zone) continue;
+    const keywords = Array.isArray(zone.keywords) 
+      ? zone.keywords 
+      : (zone.keywords ? String(zone.keywords).split(/[,،]+/) : [zone.name]);
+
+    for (let kw of keywords) {
+      const normKw = normalizeArabic(kw);
+      if (normKw && normKw.length >= 2 && normAddress.includes(normKw)) {
+        const fee = typeof zone.fee === 'number' ? zone.fee : (parseFloat(zone.fee) || 0);
+        return {
+          fee,
+          zoneName: zone.name || kw,
+          isCustom: true,
+          matchedKeyword: kw
+        };
+      }
+    }
+  }
+
+  return {
+    fee: defaultFee,
+    zoneName: 'السعر الموحد',
+    isCustom: false
+  };
+}
+
+function updateDeliveryFeedbackUI() {
+  const settings = Store.getSettings();
+  const currency = settings.currency || "ج.م";
+  const addressVal = elements.custAddress?.value || '';
+  const zoneInfo = detectDeliveryZone(addressVal, settings);
+
+  if (!elements.deliveryZoneBadgeWrap) return;
+
+  if (zoneInfo.isCustom) {
+    if (elements.deliveryZoneIcon) elements.deliveryZoneIcon.textContent = '✨';
+    if (elements.deliveryZoneStatusText) {
+      elements.deliveryZoneStatusText.textContent = `تم التعرف على نطاق: ${zoneInfo.zoneName}`;
+      elements.deliveryZoneStatusText.style.color = 'var(--accent-wa)';
+    }
+    if (elements.deliveryZoneFeeBadge) {
+      elements.deliveryZoneFeeBadge.textContent = `+${zoneInfo.fee.toFixed(2)} ${currency}`;
+      elements.deliveryZoneFeeBadge.style.color = 'var(--accent-wa)';
+    }
+    elements.deliveryZoneBadgeWrap.style.borderColor = 'rgba(22, 163, 74, 0.35)';
+    elements.deliveryZoneBadgeWrap.style.background = 'var(--accent-wa-subtle)';
+  } else {
+    if (elements.deliveryZoneIcon) elements.deliveryZoneIcon.textContent = '🛵';
+    if (elements.deliveryZoneStatusText) {
+      elements.deliveryZoneStatusText.textContent = `خدمة التوصيل (${zoneInfo.zoneName}):`;
+      elements.deliveryZoneStatusText.style.color = 'var(--text-main)';
+    }
+    if (elements.deliveryZoneFeeBadge) {
+      elements.deliveryZoneFeeBadge.textContent = `+${zoneInfo.fee.toFixed(2)} ${currency}`;
+      elements.deliveryZoneFeeBadge.style.color = 'var(--primary)';
+    }
+    elements.deliveryZoneBadgeWrap.style.borderColor = 'var(--border)';
+    elements.deliveryZoneBadgeWrap.style.background = 'var(--surface-raised)';
+  }
+}
+
 // ── Dynamic Island & Cart UI Updates ───────────────────────
 function updateLedgerUI() {
   const cart = Store.getCart();
@@ -1633,7 +1734,11 @@ function updateLedgerUI() {
   }
 
   const totalDiscounts = spendTierDiscountAmount + couponDiscountAmount + walletDiscountAmount;
-  const finalTotal = Math.max(0, subtotal - totalDiscounts);
+
+  // Smart Delivery Calculation
+  const deliveryInfo = detectDeliveryZone(elements.custAddress?.value || '', settings);
+  const deliveryFee = (cart.length > 0) ? deliveryInfo.fee : 0;
+  const finalTotal = Math.max(0, subtotal - totalDiscounts) + deliveryFee;
 
   // Update Dynamic Island
   if (elements.dynamicIslandCart) {
@@ -1696,6 +1801,16 @@ function updateLedgerUI() {
       elements.walletDiscountBadge.textContent = `${val}${settings.walletDiscountType === 'fixed' ? ' ج.م' : '%'}`;
     }
     if (elements.walletDiscountVal) elements.walletDiscountVal.textContent = `-${walletDiscountAmount.toFixed(2)} ${currency}`;
+  }
+
+  if (elements.deliveryFeeRow) {
+    if (deliveryFee > 0 && cart.length > 0) {
+      elements.deliveryFeeRow.style.display = 'flex';
+      if (elements.deliveryZoneNameBadge) elements.deliveryZoneNameBadge.textContent = deliveryInfo.zoneName;
+      if (elements.deliveryFeeVal) elements.deliveryFeeVal.textContent = `+${deliveryFee.toFixed(2)} ${currency}`;
+    } else {
+      elements.deliveryFeeRow.style.display = 'none';
+    }
   }
 
   if (elements.walletAmountReminder) {
@@ -1824,6 +1939,10 @@ window.goToCheckoutStep = function(stepNumber, pushHistory = true) {
     elements.cartDrawer.scrollTop = 0;
   }
 
+  if (stepNumber === 2) {
+    updateDeliveryFeedbackUI();
+  }
+
   updateLedgerUI();
 }
 
@@ -1884,6 +2003,13 @@ function setupEventListeners() {
     });
   }
   if (elements.btnBackToStep1) elements.btnBackToStep1.addEventListener('click', () => goToCheckoutStep(1));
+
+  if (elements.custAddress) {
+    elements.custAddress.addEventListener('input', () => {
+      updateDeliveryFeedbackUI();
+      updateLedgerUI();
+    });
+  }
 
   if (elements.btnProceedToStep3) {
     elements.btnProceedToStep3.addEventListener('click', () => {
@@ -2314,7 +2440,9 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
   }
 
   const totalDiscounts = spendTierDiscountAmount + couponDiscountAmount + walletDiscountAmount;
-  const finalTotal = Math.max(0, subtotal - totalDiscounts);
+  const deliveryInfo = detectDeliveryZone(address, settings);
+  const deliveryFee = deliveryInfo.fee;
+  const finalTotal = Math.max(0, subtotal - totalDiscounts) + deliveryFee;
   const orderId = `#ORD-${Math.floor(1000 + Math.random() * 9000)}`;
 
   const orderData = {
@@ -2328,6 +2456,8 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
       promoCode: appliedCoupon ? appliedCoupon.code : null,
       wallet: walletDiscountAmount
     },
+    deliveryFee: deliveryFee,
+    deliveryZone: deliveryInfo.zoneName,
     finalTotal,
     paymentMethod: selectedPaymentMethod,
     receiptUrl: uploadedReceiptUrl || null,
@@ -2379,6 +2509,9 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
     message += `━━━━━━━━━━━━━━━━━━━\n`;
     message += `🛒 *تفاصيل الأصناف:*\n${itemsText}\n`;
     message += `━━━━━━━━━━━━━━━━━━━\n`;
+    if (deliveryFee > 0) {
+      message += `🛵 *خدمة التوصيل (${deliveryInfo.zoneName}):* ${deliveryFee.toFixed(2)} ${currency}\n`;
+    }
     message += `💰 *المبلغ الإجمالي المطلوب:* ${finalTotal.toFixed(2)} ${currency}\n`;
     message += `💳 *طريقة الدفع:* ${paymentText}\n`;
     if (isWallet && uploadedReceiptUrl) {

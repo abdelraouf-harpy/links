@@ -176,7 +176,11 @@ const DEFAULT_SETTINGS = {
   announcementText: "خصم 15% على جميع الوجبات لفترة محدودة 🔥",
   showAnnouncement: true,
   deliveryTime: "25 - 40 دقيقة",
-  minOrder: 0
+  minOrder: 0,
+  deliverySettings: {
+    defaultFee: 15,
+    customZones: []
+  }
 };
 
 const DEFAULT_CATEGORIES = [

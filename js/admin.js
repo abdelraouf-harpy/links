@@ -143,6 +143,12 @@ const adminElements = {
   adminThemeToggleBtn: document.getElementById('admin-theme-toggle-btn'),
   // Operational settings
   setDeliveryTime: document.getElementById('set-delivery-time'),
+  setDefaultDeliveryFee: document.getElementById('set-default-delivery-fee'),
+  newZoneName: document.getElementById('new-zone-name'),
+  newZoneKeywords: document.getElementById('new-zone-keywords'),
+  newZoneFee: document.getElementById('new-zone-fee'),
+  btnAddDeliveryZone: document.getElementById('btn-add-delivery-zone'),
+  deliveryZonesList: document.getElementById('delivery-zones-list'),
   setShowAnnouncement: document.getElementById('set-show-announcement'),
   setAnnouncementText: document.getElementById('set-announcement-text')
 };
@@ -1287,6 +1293,13 @@ window.renderOrdersList = function(orders = null) {
                 ${o.customer?.address || 'استلام من المطعم'}
               </div>
 
+              ${(parseFloat(o.deliveryFee) > 0 || o.deliveryZone) ? `
+                <div style="font-size:11.5px; color:var(--primary); background:var(--primary-subtle); padding:4px 8px; border-radius:6px; margin-bottom:6px; font-weight:800; display:flex; align-items:center; justify-content:space-between;">
+                  <span>🛵 خدمة التوصيل (${o.deliveryZone || 'السعر الموحد'}):</span>
+                  <span class="font-num">+${(parseFloat(o.deliveryFee) || 0).toFixed(2)} ${currency}</span>
+                </div>
+              ` : ''}
+
               ${o.customer?.notes ? `
                 <div style="font-size:11.5px; color:#f59e0b; background:rgba(245, 158, 11, 0.08); border:1px dashed rgba(245, 158, 11, 0.3); padding:6px 10px; border-radius:6px; margin-top:4px; word-break:break-word;">
                   <span style="font-weight:800;">📝 ملاحظات: </span>
@@ -1977,6 +1990,47 @@ function setupSettingsForm() {
     });
   }
 
+  if (adminElements.btnAddDeliveryZone) {
+    adminElements.btnAddDeliveryZone.addEventListener('click', async () => {
+      const name = (adminElements.newZoneName?.value || '').trim();
+      const rawKeywords = (adminElements.newZoneKeywords?.value || '').trim();
+      const fee = parseFloat(adminElements.newZoneFee?.value);
+
+      if (!name) {
+        showToastNotification("يرجى كتابة اسم المنطقة أو النطاق", "error");
+        adminElements.newZoneName?.focus();
+        return;
+      }
+      if (isNaN(fee) || fee < 0) {
+        showToastNotification("يرجى تحديد سعر توصيل صحيح للمنطقة", "error");
+        adminElements.newZoneFee?.focus();
+        return;
+      }
+
+      const keywords = rawKeywords
+        ? rawKeywords.split(/[,،]+/).map(k => k.trim()).filter(Boolean)
+        : [name];
+
+      const settings = Store.getSettings();
+      settings.deliverySettings = settings.deliverySettings || { defaultFee: 15, customZones: [] };
+      settings.deliverySettings.customZones = settings.deliverySettings.customZones || [];
+      settings.deliverySettings.customZones.push({
+        name,
+        keywords,
+        fee
+      });
+
+      await Store.saveSettings(settings);
+
+      if (adminElements.newZoneName) adminElements.newZoneName.value = '';
+      if (adminElements.newZoneKeywords) adminElements.newZoneKeywords.value = '';
+      if (adminElements.newZoneFee) adminElements.newZoneFee.value = '';
+
+      renderDeliveryZonesList(settings.deliverySettings.customZones);
+      showToastNotification(`تمت إضافة نطاق "${name}" بسعر ${fee} ج.م بنجاح! ✓`, "success");
+    });
+  }
+
   if (adminElements.settingsForm) {
     adminElements.settingsForm.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -2060,9 +2114,51 @@ function loadSettingsIntoForm() {
   if (adminElements.setShowAnnouncement) adminElements.setShowAnnouncement.checked = s.showAnnouncement === true;
   if (adminElements.setAnnouncementText) adminElements.setAnnouncementText.value = s.announcementText || '';
 
+  const ds = s.deliverySettings || { defaultFee: (s.deliveryFee !== undefined ? s.deliveryFee : 15), customZones: [] };
+  if (adminElements.setDefaultDeliveryFee) {
+    adminElements.setDefaultDeliveryFee.value = ds.defaultFee !== undefined ? ds.defaultFee : 15;
+  }
+  renderDeliveryZonesList(ds.customZones || []);
+
   renderPromoCodesList(s.promoCodes || []);
   updateThemePresetCardsUI(s.themePreset);
 }
+
+function renderDeliveryZonesList(zones = []) {
+  if (!adminElements.deliveryZonesList) return;
+  if (!zones || zones.length === 0) {
+    adminElements.deliveryZonesList.innerHTML = `
+      <div style="font-size:11.5px; color:var(--text-muted); padding:6px 0;">
+        لا توجد نطاقات مخصصة مضافة حالياً. (يطبق السعر الموحد على كافة الأماكن)
+      </div>
+    `;
+    return;
+  }
+  adminElements.deliveryZonesList.innerHTML = zones.map((z, idx) => `
+    <div style="display:flex; justify-content:space-between; align-items:center; background:var(--surface-raised); border:1px solid var(--border); padding:8px 12px; border-radius:6px; font-size:12px; gap:8px;">
+      <div style="min-width:0;">
+        <div style="font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+          <span>📍 ${z.name}</span>
+          <span class="font-num" style="color:var(--primary); font-weight:900;">${parseFloat(z.fee).toFixed(0)} ج.م</span>
+        </div>
+        <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">
+          الكلمات: <span style="color:var(--text-body); font-weight:600;">${(z.keywords || []).join('، ')}</span>
+        </div>
+      </div>
+      <button type="button" class="btn btn-ghost btn-sm" style="color:var(--danger); padding:4px 8px; font-weight:800; flex-shrink:0;" onclick="deleteDeliveryZoneFast(${idx})">✕ حذف</button>
+    </div>
+  `).join('');
+}
+
+window.deleteDeliveryZoneFast = async function(index) {
+  const settings = Store.getSettings();
+  settings.deliverySettings = settings.deliverySettings || { defaultFee: 15, customZones: [] };
+  settings.deliverySettings.customZones = settings.deliverySettings.customZones || [];
+  settings.deliverySettings.customZones.splice(index, 1);
+  await Store.saveSettings(settings);
+  renderDeliveryZonesList(settings.deliverySettings.customZones);
+  showToastNotification("تم حذف النطاق السعري بنجاح ✓", "success");
+};
 
 function renderPromoCodesList(promos) {
   if (!adminElements.promoCodesList) return;
@@ -2128,6 +2224,12 @@ async function saveSettingsFromForm() {
 
       themePreset: activePresetId,
       siteColors: siteColors,
+
+      deliverySettings: {
+        defaultFee: isNaN(parseFloat(adminElements.setDefaultDeliveryFee?.value)) ? 15 : parseFloat(adminElements.setDefaultDeliveryFee?.value),
+        customZones: (current.deliverySettings && current.deliverySettings.customZones) ? current.deliverySettings.customZones : []
+      },
+      deliveryFee: isNaN(parseFloat(adminElements.setDefaultDeliveryFee?.value)) ? 15 : parseFloat(adminElements.setDefaultDeliveryFee?.value),
 
       enableWalletDiscount: adminElements.setEnableWalletDiscount?.checked === true,
       walletDiscountType: adminElements.setWalletDiscountType?.value || 'percent',
