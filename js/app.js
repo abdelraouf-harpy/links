@@ -1659,36 +1659,7 @@ function detectDeliveryZone(addressText, settings) {
 }
 
 function updateDeliveryFeedbackUI() {
-  const settings = Store.getSettings();
-  const currency = settings.currency || "ج.م";
-  const addressVal = elements.custAddress?.value || '';
-  const zoneInfo = detectDeliveryZone(addressVal, settings);
-
-  if (!elements.deliveryZoneBadgeWrap) return;
-
-  if (zoneInfo.isCustom) {
-    if (elements.deliveryZoneStatusText) {
-      elements.deliveryZoneStatusText.textContent = `نطاق التوصيل: ${zoneInfo.zoneName}`;
-      elements.deliveryZoneStatusText.style.color = 'var(--accent-wa)';
-    }
-    if (elements.deliveryZoneFeeBadge) {
-      elements.deliveryZoneFeeBadge.textContent = `+${zoneInfo.fee.toFixed(2)} ${currency}`;
-      elements.deliveryZoneFeeBadge.style.color = 'var(--accent-wa)';
-    }
-    elements.deliveryZoneBadgeWrap.style.borderColor = 'rgba(22, 163, 74, 0.35)';
-    elements.deliveryZoneBadgeWrap.style.background = 'var(--accent-wa-subtle)';
-  } else {
-    if (elements.deliveryZoneStatusText) {
-      elements.deliveryZoneStatusText.textContent = `خدمة التوصيل (${zoneInfo.zoneName}):`;
-      elements.deliveryZoneStatusText.style.color = 'var(--text-main)';
-    }
-    if (elements.deliveryZoneFeeBadge) {
-      elements.deliveryZoneFeeBadge.textContent = `+${zoneInfo.fee.toFixed(2)} ${currency}`;
-      elements.deliveryZoneFeeBadge.style.color = 'var(--primary)';
-    }
-    elements.deliveryZoneBadgeWrap.style.borderColor = 'var(--border)';
-    elements.deliveryZoneBadgeWrap.style.background = 'var(--surface-raised)';
-  }
+  // Zone badge hidden from customer view as per privacy & anti-manipulation requirements
 }
 
 // ── Dynamic Island & Cart UI Updates ───────────────────────
@@ -1761,10 +1732,11 @@ function updateLedgerUI() {
   }
 
   const totalDiscounts = spendTierDiscountAmount + couponDiscountAmount + walletDiscountAmount;
-
-  // Smart Delivery Calculation
+  
+  // Smart Delivery Calculation: Only reveal and calculate at Step 3 (Payment stage)
+  const isPaymentStep = (currentCheckoutStep === 3);
   const deliveryInfo = detectDeliveryZone(elements.custAddress?.value || '', settings);
-  const deliveryFee = (cart.length > 0) ? deliveryInfo.fee : 0;
+  const deliveryFee = (cart.length > 0 && isPaymentStep) ? deliveryInfo.fee : 0;
   const finalTotal = Math.max(0, subtotal - totalDiscounts) + deliveryFee;
 
   // Update Dynamic Island
@@ -1831,9 +1803,8 @@ function updateLedgerUI() {
   }
 
   if (elements.deliveryFeeRow) {
-    if (deliveryFee > 0 && cart.length > 0) {
+    if (isPaymentStep && deliveryFee > 0 && cart.length > 0) {
       elements.deliveryFeeRow.style.display = 'flex';
-      if (elements.deliveryZoneNameBadge) elements.deliveryZoneNameBadge.textContent = deliveryInfo.zoneName;
       if (elements.deliveryFeeVal) elements.deliveryFeeVal.textContent = `+${deliveryFee.toFixed(2)} ${currency}`;
     } else {
       elements.deliveryFeeRow.style.display = 'none';
@@ -2537,7 +2508,7 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
     message += `🛒 *تفاصيل الأصناف:*\n${itemsText}\n`;
     message += `━━━━━━━━━━━━━━━━━━━\n`;
     if (deliveryFee > 0) {
-      message += `*خدمة التوصيل (${deliveryInfo.zoneName}):* ${deliveryFee.toFixed(2)} ${currency}\n`;
+      message += `*خدمة التوصيل:* ${deliveryFee.toFixed(2)} ${currency}\n`;
     }
     message += `💰 *المبلغ الإجمالي المطلوب:* ${finalTotal.toFixed(2)} ${currency}\n`;
     message += `💳 *طريقة الدفع:* ${paymentText}\n`;
