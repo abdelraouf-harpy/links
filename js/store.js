@@ -2891,25 +2891,32 @@ const Store = {
     const slug = this.getRestaurantSlug();
     if (!slug) return false;
     const path = subPath ? `restaurants/${slug}/${subPath}` : `restaurants/${slug}`;
+    let success = false;
 
     if (db) {
       try {
         await db.ref(path).set(data);
+        success = true;
       } catch (err) {
-        console.warn(`[Store] Error pushing ${subPath} to cloud SDK:`, err);
+        console.warn(`[Store] Cloud SDK push error for ${subPath}:`, err);
       }
     }
 
     try {
-      fetch(`https://harpy-order-default-rtdb.firebaseio.com/${path}.json`, {
+      const res = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/${path}.json`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
         keepalive: true
-      }).catch(() => {});
-    } catch (e) {}
+      });
+      if (res && res.ok) {
+        success = true;
+      }
+    } catch (e) {
+      console.warn(`[Store] REST cloud push error for ${subPath}:`, e);
+    }
 
-    return true;
+    return success;
   },
 
   getOrders() {
@@ -3438,14 +3445,41 @@ const Store = {
     const themeProps = [
       '--bg', '--bg-subtle', '--surface', '--surface-raised', '--surface-hover',
       '--header-bg', '--text-main', '--text-body', '--text-muted', '--text-faint',
-      '--border', '--border-strong', '--primary', '--primary-hover', '--primary-subtle', '--primary-glow'
+      '--border', '--border-strong', '--primary', '--primary-hover', '--primary-subtle', '--primary-glow', '--border-focus'
     ];
     themeProps.forEach(p => root.style.removeProperty(p));
 
     const primaryColor = s.siteColors?.primary || (mode === 'light' ? '#c2410c' : '#ea580c');
     root.style.setProperty('--primary', primaryColor);
+    root.style.setProperty('--primary-hover', primaryColor);
+    root.style.setProperty('--border-focus', primaryColor);
     root.style.setProperty('--primary-glow', `${primaryColor}44`);
     root.style.setProperty('--primary-subtle', `${primaryColor}22`);
+
+    if (s.siteColors) {
+      const c = s.siteColors;
+      const isDarkPreset = c.id === 'charcoal' || c.id === 'midnight' || c.id === 'sunset' || c.id === 'olive' || c.id === 'indigo';
+      const shouldApplyFull = (mode === 'dark' && isDarkPreset) || (mode === 'light' && !isDarkPreset) || !c.id;
+      if (shouldApplyFull) {
+        if (c.bg) {
+          root.style.setProperty('--bg', c.bg);
+          root.style.setProperty('--header-bg', c.headerBg || c.bg);
+        }
+        if (c.surface) {
+          root.style.setProperty('--surface', c.surface);
+          root.style.setProperty('--surface-raised', c.surfaceRaised || c.surface);
+        }
+        if (c.textMain) {
+          root.style.setProperty('--text-main', c.textMain);
+        }
+        if (c.textBody) {
+          root.style.setProperty('--text-body', c.textBody);
+        }
+        if (c.border) {
+          root.style.setProperty('--border', c.border);
+        }
+      }
+    }
   },
 
   getCategories() {

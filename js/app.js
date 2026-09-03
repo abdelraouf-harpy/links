@@ -401,6 +401,7 @@ async function initApp() {
   // 5. Connect real-time cloud data sync from Firebase Realtime Database
   Store.syncFromCloud(slug, (status) => {
     if (status && status.hasData) {
+      Store.applyTheme();
       renderStoreInfo();
       renderAnnouncement();
       renderStories();
@@ -2074,7 +2075,8 @@ function setupEventListeners() {
   }
 
   window.addEventListener('store_settings_updated', () => {
-    Store.initTheme();
+    Store.clearMemoryCache();
+    Store.applyTheme();
     renderStoreInfo();
     renderAnnouncement();
     renderStories();
@@ -2082,14 +2084,17 @@ function setupEventListeners() {
     updateLedgerUI();
   });
   window.addEventListener('store_categories_updated', () => {
+    Store.clearMemoryCache();
     renderCategories();
     renderProducts();
   });
   window.addEventListener('store_products_updated', () => {
+    Store.clearMemoryCache();
     renderProducts();
     updateLedgerUI();
   });
   window.addEventListener('store_stories_updated', () => {
+    Store.clearMemoryCache();
     renderStories();
   });
   window.addEventListener('store_favorites_updated', () => {
@@ -2097,7 +2102,8 @@ function setupEventListeners() {
     renderProducts();
   });
   window.addEventListener('harpy_restaurant_changed', () => {
-    Store.initTheme();
+    Store.clearMemoryCache();
+    Store.applyTheme();
     renderStoreInfo();
     renderAnnouncement();
     renderStories();
@@ -2108,7 +2114,8 @@ function setupEventListeners() {
 
   // Real-Time Cross-Tab Synchronization (When changes occur in admin.html)
   window.addEventListener('storage', () => {
-    Store.initTheme();
+    Store.clearMemoryCache();
+    Store.applyTheme();
     renderStoreInfo();
     renderAnnouncement();
     renderStories();

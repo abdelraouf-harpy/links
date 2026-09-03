@@ -1943,7 +1943,7 @@ function setupSettingsForm() {
 
   if (adminElements.themePresetsGrid) {
     adminElements.themePresetsGrid.innerHTML = Object.values(THEME_PRESETS).map(preset => `
-      <div class="theme-preset-card" onclick="applyPresetToPickers('${preset.id}')" style="background:var(--surface); border:1px solid var(--border); padding:10px; border-radius:var(--radius-xs); cursor:pointer;">
+      <div class="theme-preset-card" data-preset="${preset.id}" onclick="applyPresetToPickers('${preset.id}')" style="background:var(--surface); border:1px solid var(--border); padding:10px; border-radius:var(--radius-xs); cursor:pointer; transition:all 0.15s ease;">
         <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
           <span style="width:14px; height:14px; border-radius:50%; background:${preset.primary};"></span>
           <span style="font-size:12px; font-weight:800; color:var(--text-main);">${preset.name}</span>
@@ -1951,6 +1951,7 @@ function setupSettingsForm() {
         <div style="font-size:10.5px; color:var(--text-muted);">${preset.badge}</div>
       </div>
     `).join('');
+    updateThemePresetCardsUI();
   }
 
   if (adminElements.btnAddPromoCode) {
@@ -1984,6 +1985,18 @@ function setupSettingsForm() {
   }
 }
 
+function updateThemePresetCardsUI(selectedPresetId) {
+  const s = Store.getSettings();
+  const currentId = selectedPresetId || s.themePreset || 'charcoal';
+  const cards = document.querySelectorAll('.theme-preset-card');
+  cards.forEach(card => {
+    const isSelected = card.getAttribute('data-preset') === currentId;
+    card.style.border = isSelected ? '2px solid var(--primary)' : '1px solid var(--border)';
+    card.style.background = isSelected ? 'var(--surface-raised)' : 'var(--surface)';
+    card.style.boxShadow = isSelected ? '0 0 10px var(--primary-glow)' : 'none';
+  });
+}
+
 window.applyPresetToPickers = async function(presetId) {
   const p = THEME_PRESETS[presetId];
   if (!p) return;
@@ -1996,7 +2009,8 @@ window.applyPresetToPickers = async function(presetId) {
   current.themePreset = presetId;
   current.siteColors = { ...p };
   await Store.saveSettings(current);
-  showToastNotification(`تم تطبيق ثيم "${p.name}" بنجاح ✓`, "success");
+  updateThemePresetCardsUI(presetId);
+  showToastNotification(`تم تطبيق ثيم "${p.name}" والمزامنة بنجاح ✓`, "success");
 };
 
 function loadSettingsIntoForm() {
@@ -2047,6 +2061,7 @@ function loadSettingsIntoForm() {
   if (adminElements.setAnnouncementText) adminElements.setAnnouncementText.value = s.announcementText || '';
 
   renderPromoCodesList(s.promoCodes || []);
+  updateThemePresetCardsUI(s.themePreset);
 }
 
 function renderPromoCodesList(promos) {
@@ -2086,10 +2101,14 @@ async function saveSettingsFromForm() {
 
   try {
     const current = Store.getSettings();
-    const bg = adminElements.pickerBg?.value || '#f8f6f0';
-    const surface = adminElements.pickerSurface?.value || '#ffffff';
-    const primary = adminElements.pickerPrimary?.value || '#c2410c';
-    const textMain = adminElements.pickerText?.value || '#18130f';
+    const activePresetId = current.themePreset || 'charcoal';
+    const fallbackColors = THEME_PRESETS[activePresetId] || THEME_PRESETS.charcoal;
+    const siteColors = current.siteColors ? { ...current.siteColors } : { ...fallbackColors };
+
+    if (adminElements.pickerPrimary?.value) siteColors.primary = adminElements.pickerPrimary.value;
+    if (adminElements.pickerBg?.value) siteColors.bg = adminElements.pickerBg.value;
+    if (adminElements.pickerSurface?.value) siteColors.surface = adminElements.pickerSurface.value;
+    if (adminElements.pickerText?.value) siteColors.textMain = adminElements.pickerText.value;
 
     const updated = {
       ...current,
@@ -2107,16 +2126,8 @@ async function saveSettingsFromForm() {
       showAnnouncement: adminElements.setShowAnnouncement?.checked === true,
       announcementText: (adminElements.setAnnouncementText?.value || '').trim(),
 
-      siteColors: {
-        bg,
-        surface,
-        surfaceRaised: surface,
-        headerBg: bg,
-        textMain,
-        textBody: '#3d332a',
-        primary,
-        border: 'rgba(45, 35, 25, 0.10)'
-      },
+      themePreset: activePresetId,
+      siteColors: siteColors,
 
       enableWalletDiscount: adminElements.setEnableWalletDiscount?.checked === true,
       walletDiscountType: adminElements.setWalletDiscountType?.value || 'percent',
