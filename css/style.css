@@ -4542,4 +4542,28 @@ html.admin-unlocked #login-modal-backdrop {
   pointer-events: none !important;
 }
 
+/* ── Kitchen & Archive Operational Filter Buttons ────────── */
+.btn-filter-kitchen, .btn-filter-archive {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-weight: 700;
+  padding: 6px 13px;
+  border-radius: var(--radius-xs, 8px);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 11.5px;
+}
+.btn-filter-kitchen:hover, .btn-filter-archive:hover {
+  border-color: var(--border-strong);
+  color: var(--text-main);
+}
+.btn-filter-kitchen.active, .btn-filter-archive.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  font-weight: 800;
+  box-shadow: 0 2px 8px var(--primary-glow, rgba(234, 88, 12, 0.3));
+}
+
 

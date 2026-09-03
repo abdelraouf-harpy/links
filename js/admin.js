@@ -78,12 +78,25 @@ const adminElements = {
   btnCloseProductModal: document.getElementById('btn-close-product-modal'),
   btnCancelProduct: document.getElementById('btn-cancel-product'),
 
-  // Orders Tab
+  // Kitchen & Active Orders Tab
   adminOrdersContainer: document.getElementById('admin-orders-container'),
-  statTotalOrders: document.getElementById('stat-total-orders'),
+  statActiveOrders: document.getElementById('stat-active-orders'),
   statPendingOrders: document.getElementById('stat-pending-orders'),
-  statTotalRevenue: document.getElementById('stat-total-revenue'),
+  statPreparingOrders: document.getElementById('stat-preparing-orders'),
+  statDeliveryOrders: document.getElementById('stat-delivery-orders'),
   ordersBadgeCount: document.getElementById('orders-badge-count'),
+  countFilterAll: document.getElementById('count-filter-all'),
+  countFilterPending: document.getElementById('count-filter-pending'),
+  countFilterPreparing: document.getElementById('count-filter-preparing'),
+  countFilterDelivery: document.getElementById('count-filter-delivery'),
+
+  // Invoices Archive Tab
+  adminArchiveContainer: document.getElementById('admin-archive-container'),
+  statArchivedOrders: document.getElementById('stat-archived-orders'),
+  statArchivedRevenue: document.getElementById('stat-archived-revenue'),
+  statCancelledOrders: document.getElementById('stat-cancelled-orders'),
+  archiveBadgeCount: document.getElementById('archive-badge-count'),
+  archiveSearchInput: document.getElementById('archive-search-input'),
 
   // Categories Tab
   newCatInput: document.getElementById('new-cat-input'),
@@ -255,6 +268,7 @@ function setupAuth() {
     // Subscribe to real-time incoming orders
     ordersUnsubscribe = Store.syncOrdersFromCloud(slug, (orders) => {
       renderOrdersList(orders);
+      renderInvoicesArchive(orders);
     });
   };
 
@@ -428,6 +442,7 @@ function renderRestaurantHub() {
 function loadAllDashboardData() {
   renderRestaurantHub();
   renderOrdersList(Store.getOrders());
+  renderInvoicesArchive(Store.getOrders());
   renderCatalog();
   renderCategoriesList();
   renderStoriesList();
@@ -532,6 +547,8 @@ window.switchTab = function(targetTabId, updateHash = true) {
     renderCatalog();
   } else if (targetTabId === 'tab-orders') {
     renderOrdersList(Store.getOrders());
+  } else if (targetTabId === 'tab-archive') {
+    renderInvoicesArchive(Store.getOrders());
   } else if (targetTabId === 'tab-categories') {
     renderCategoriesList();
   } else if (targetTabId === 'tab-stories') {
@@ -855,11 +872,13 @@ window.selectOrderStatus = async function(newStatus) {
   // 2. Persist to Store and Firebase
   await Store.updateOrderStatus(orderId, newStatus);
   renderOrdersList();
+  renderInvoicesArchive();
 };
 
 window.updateOrderStatusFast = async function(orderId, newStatus) {
   await Store.updateOrderStatus(orderId, newStatus);
   renderOrdersList();
+  renderInvoicesArchive();
 };
 
 // ── Luxury Branded Custom Confirm Dialog Engine ─────────────
@@ -1153,8 +1172,53 @@ window.printOrderReceipt = function(orderId) {
   }
 };
 
-let lastRenderedOrdersSignature = null;
+let lastRenderedKitchenSignature = null;
+let lastRenderedArchiveSignature = null;
+let currentKitchenFilter = 'all'; // 'all', 'pending', 'preparing', 'out_for_delivery'
+let currentArchiveFilter = 'delivered'; // 'delivered', 'cancelled', 'all'
+let archiveSearchQuery = '';
 
+window.filterKitchenOrders = function(filter) {
+  currentKitchenFilter = filter;
+  document.querySelectorAll('.btn-filter-kitchen').forEach(b => {
+    b.classList.toggle('active', b.dataset.kitchenFilter === filter);
+  });
+  renderOrdersList();
+};
+
+window.advanceOrderStatus = async function(orderId, targetStatus) {
+  const statusLabels = {
+    preparing: 'المطبخ يجهز الطلب الآن 👨‍🍳',
+    out_for_delivery: 'الطلب في الطريق للتوصيل 🛵',
+    delivered: 'تم تسليم الطلب ونقله لأرشيف الفواتير بنجاح ✅'
+  };
+  await Store.updateOrderStatus(orderId, targetStatus);
+  renderOrdersList();
+  renderInvoicesArchive();
+  showToastNotification(statusLabels[targetStatus] || `تم تحديث حالة الطلب ✓`, 'success');
+};
+
+window.reopenOrderToKitchen = async function(orderId) {
+  await Store.updateOrderStatus(orderId, 'preparing');
+  renderOrdersList();
+  renderInvoicesArchive();
+  showToastNotification(`تمت إعادة الطلب ${orderId} إلى شاشة المطبخ النشطة بنجاح ✓`, 'success');
+};
+
+window.filterArchiveOrders = function(filter) {
+  currentArchiveFilter = filter;
+  document.querySelectorAll('.btn-filter-archive').forEach(b => {
+    b.classList.toggle('active', b.dataset.archiveFilter === filter);
+  });
+  renderInvoicesArchive();
+};
+
+window.handleArchiveSearch = function(query) {
+  archiveSearchQuery = (query || '').trim().toLowerCase();
+  renderInvoicesArchive();
+};
+
+// ═══ 1. LIVE KITCHEN & ACTIVE ORDERS ENGINE ══════════════════
 window.renderOrdersList = function(orders = null) {
   if (!adminElements.adminOrdersContainer) return;
   if (orders === null || orders === undefined) {
@@ -1162,52 +1226,80 @@ window.renderOrdersList = function(orders = null) {
   }
   const currency = Store.getSettings().currency || "ج.م";
 
-  const totalOrders = orders.length;
-  const pendingOrders = orders.filter(o => !o.status || o.status === 'pending').length;
-  const totalRevenue = orders.filter(o => o.status !== 'cancelled').reduce((sum, o) => sum + (parseFloat(o.finalTotal) || 0), 0);
+  // Active orders are: pending, preparing, out_for_delivery (never delivered or cancelled)
+  const isOrderActive = (o) => !o.status || o.status === 'pending' || o.status === 'preparing' || o.status === 'out_for_delivery';
+  const allActiveOrders = orders.filter(isOrderActive);
+
+  const activeCount = allActiveOrders.length;
+  const pendingCount = orders.filter(o => !o.status || o.status === 'pending').length;
+  const preparingCount = orders.filter(o => o.status === 'preparing').length;
+  const deliveryCount = orders.filter(o => o.status === 'out_for_delivery').length;
 
   // Trigger Audio Chime & Browser Notification on New Incoming Order
-  if (lastKnownOrderCount !== null && totalOrders > lastKnownOrderCount) {
+  if (lastKnownOrderCount !== null && orders.length > lastKnownOrderCount) {
     const latestOrder = orders[0];
     playKitchenOrderChime();
     if (latestOrder) {
       showAdminOrderNotification(latestOrder);
     }
   }
-  lastKnownOrderCount = totalOrders;
+  lastKnownOrderCount = orders.length;
 
-  if (adminElements.statTotalOrders) adminElements.statTotalOrders.textContent = totalOrders;
-  if (adminElements.statPendingOrders) adminElements.statPendingOrders.textContent = pendingOrders;
-  if (adminElements.statTotalRevenue) adminElements.statTotalRevenue.textContent = `${totalRevenue.toFixed(0)} ${currency}`;
+  // Update Kitchen Header Statistics
+  if (adminElements.statActiveOrders) adminElements.statActiveOrders.textContent = activeCount;
+  if (adminElements.statPendingOrders) adminElements.statPendingOrders.textContent = pendingCount;
+  if (adminElements.statPreparingOrders) adminElements.statPreparingOrders.textContent = preparingCount;
+  if (adminElements.statDeliveryOrders) adminElements.statDeliveryOrders.textContent = deliveryCount;
+
+  if (adminElements.countFilterAll) adminElements.countFilterAll.textContent = activeCount;
+  if (adminElements.countFilterPending) adminElements.countFilterPending.textContent = pendingCount;
+  if (adminElements.countFilterPreparing) adminElements.countFilterPreparing.textContent = preparingCount;
+  if (adminElements.countFilterDelivery) adminElements.countFilterDelivery.textContent = deliveryCount;
 
   if (adminElements.ordersBadgeCount) {
-    if (pendingOrders > 0) {
-      adminElements.ordersBadgeCount.textContent = pendingOrders;
+    if (activeCount > 0) {
+      adminElements.ordersBadgeCount.textContent = activeCount;
       adminElements.ordersBadgeCount.style.display = 'inline-block';
     } else {
       adminElements.ordersBadgeCount.style.display = 'none';
     }
   }
 
+  // Filter according to selected kitchen filter tab
+  let displayOrders = allActiveOrders;
+  if (currentKitchenFilter === 'pending') {
+    displayOrders = allActiveOrders.filter(o => !o.status || o.status === 'pending');
+  } else if (currentKitchenFilter === 'preparing') {
+    displayOrders = allActiveOrders.filter(o => o.status === 'preparing');
+  } else if (currentKitchenFilter === 'out_for_delivery') {
+    displayOrders = allActiveOrders.filter(o => o.status === 'out_for_delivery');
+  }
+
   // Prevent repetitive DOM repaints if data signature is identical
-  const currentSignature = JSON.stringify(orders.map(o => ({ id: o.orderId, st: o.status, tot: o.finalTotal, rec: o.receiptUrl })));
-  if (lastRenderedOrdersSignature === currentSignature && adminElements.adminOrdersContainer.children.length > 0) {
+  const currentSignature = JSON.stringify({
+    filter: currentKitchenFilter,
+    orders: displayOrders.map(o => ({ id: o.orderId, st: o.status, tot: o.finalTotal, rec: o.receiptUrl }))
+  });
+  if (lastRenderedKitchenSignature === currentSignature && adminElements.adminOrdersContainer.children.length > 0) {
     return;
   }
-  lastRenderedOrdersSignature = currentSignature;
+  lastRenderedKitchenSignature = currentSignature;
 
-  if (orders.length === 0) {
+  if (displayOrders.length === 0) {
     adminElements.adminOrdersContainer.innerHTML = `
       <div style="text-align:center; padding:45px 20px; color:var(--text-muted); background:var(--surface); border:1px dashed var(--border); border-radius:var(--radius-md);">
-        <div style="font-size:36px; margin-bottom:10px;">📥</div>
-        <div style="font-size:15px; font-weight:800; color:var(--text-main); margin-bottom:4px;">لا توجد طلبات واردة حتى الآن</div>
-        <div style="font-size:12.5px;">أي طلب جديد يتم إرساله من المنيو سيظهر هنا فورياً ومباشرة مع صوت رنين المطبخ.</div>
+        <div style="font-size:38px; margin-bottom:12px;">👨‍🍳</div>
+        <div style="font-size:16px; font-weight:800; color:var(--text-main); margin-bottom:4px;">المطبخ جاهز ونظيف! لا توجد طلبات جارية حالياً</div>
+        <div style="font-size:12.5px; color:var(--text-muted); margin-bottom:16px;">أي طلب جديد يتم إرساله من المنيو سيظهر هنا فورياً ومباشرة مع صوت رنين المطبخ.</div>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="switchTab('tab-archive', true)" style="font-weight:800; font-size:12px; border:1px solid var(--border);">
+          📁 مراجعة أرشيف الفواتير المسلّمة ←
+        </button>
       </div>
     `;
     return;
   }
 
-  adminElements.adminOrdersContainer.innerHTML = orders.map(o => {
+  adminElements.adminOrdersContainer.innerHTML = displayOrders.map(o => {
     const safeOrderId = o.orderId || o.id || o._fbKey || (`#ORD-${(o.timestamp || Date.now()).toString().slice(-4)}`);
     const timeStr = o.createdAt ? new Date(o.createdAt).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' }) : 'الآن';
     const status = o.status || 'pending';
@@ -1219,6 +1311,31 @@ window.renderOrdersList = function(orders = null) {
       delivered: { bg: 'rgba(34, 197, 94, 0.12)', color: '#22c55e', borderColor: 'rgba(34, 197, 94, 0.3)', text: '4. تم التسليم ✅' },
       cancelled: { bg: 'rgba(239, 68, 68, 0.12)', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)', text: 'تم الإلغاء ✕' }
     }[status] || { bg: 'rgba(245, 158, 11, 0.12)', color: '#f59e0b', borderColor: 'rgba(245, 158, 11, 0.3)', text: '1. استلام الطلب 📥' };
+
+    // 1-Click Fast Workflow Progression Action Button
+    let nextActionBtnHtml = '';
+    if (status === 'pending') {
+      nextActionBtnHtml = `
+        <button type="button" class="btn btn-primary btn-sm" onclick="advanceOrderStatus('${safeOrderId}', 'preparing')" style="font-weight:800; padding:6px 14px; font-size:12px; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 10px rgba(234, 88, 12, 0.3);">
+          <span>👨‍🍳</span>
+          <span>بدء التجهيز بالمطبخ</span>
+        </button>
+      `;
+    } else if (status === 'preparing') {
+      nextActionBtnHtml = `
+        <button type="button" class="btn btn-sm" onclick="advanceOrderStatus('${safeOrderId}', 'out_for_delivery')" style="background:#a855f7; color:#fff; font-weight:800; padding:6px 14px; font-size:12px; border:none; border-radius:var(--radius-xs); display:inline-flex; align-items:center; gap:6px; cursor:pointer; box-shadow:0 2px 10px rgba(168, 85, 247, 0.3);">
+          <span>🛵</span>
+          <span>إرسال للتوصيل (مع الطيار)</span>
+        </button>
+      `;
+    } else if (status === 'out_for_delivery') {
+      nextActionBtnHtml = `
+        <button type="button" class="btn btn-sm" onclick="advanceOrderStatus('${safeOrderId}', 'delivered')" style="background:#16a34a; color:#fff; font-weight:800; padding:6px 14px; font-size:12px; border:none; border-radius:var(--radius-xs); display:inline-flex; align-items:center; gap:6px; cursor:pointer; box-shadow:0 2px 12px rgba(22, 163, 74, 0.35);">
+          <span>✅</span>
+          <span>تم التسليم بنجاح (نقل للأرشيف)</span>
+        </button>
+      `;
+    }
 
     const itemsHtml = (o.items || []).map(it => `
       <div style="display:flex; justify-content:space-between; align-items:flex-start; font-size:12.5px; padding:6px 0; border-bottom:1px dashed var(--border);">
@@ -1248,13 +1365,12 @@ window.renderOrdersList = function(orders = null) {
     const phoneRaw = (o.customer?.phone || '').replace(/[^0-9]/g, '');
     const waUrl = phoneRaw ? `https://wa.me/${phoneRaw.startsWith('0') ? '2' + phoneRaw : phoneRaw}?text=${encodeURIComponent(`مرحباً أستاذ ${o.customer?.name || ''}، بخصوص طلبك رقم ${safeOrderId} من المطعم`)}` : '#';
     const telUrl = phoneRaw ? `tel:${phoneRaw}` : '#';
-
     const isWalletPayment = o.paymentMethod === 'wallet';
 
     return `
       <div class="order-card-pro" data-order-id="${safeOrderId}">
         
-        <!-- Header: Order ID, Time & Luxury Status Trigger Button -->
+        <!-- Header: Order ID, Time, Progression Action & Status Sheet Trigger -->
         <div class="order-card-header-row">
           <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
             <span class="order-id-chip font-num">${safeOrderId}</span>
@@ -1264,20 +1380,22 @@ window.renderOrdersList = function(orders = null) {
             </span>
           </div>
 
-          <div style="display:flex; align-items:center; gap:6px;">
+          <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+            ${nextActionBtnHtml}
+
             <!-- Instant Thermal Print Button -->
-            <button type="button" class="btn btn-ghost btn-sm" onclick="printOrderReceipt('${safeOrderId}')" style="padding:4px 9px; font-size:11px; font-weight:800; border:1px solid var(--border); color:var(--text-main); background:var(--surface-raised); display:inline-flex; align-items:center; gap:4px;" title="طباعة بون الفاتورة الحرارية">
+            <button type="button" class="btn btn-ghost btn-sm" onclick="printOrderReceipt('${safeOrderId}')" style="padding:5px 9px; font-size:11px; font-weight:800; border:1px solid var(--border); color:var(--text-main); background:var(--surface-raised); display:inline-flex; align-items:center; gap:4px;" title="طباعة بون الفاتورة الحرارية">
               <span>🖨️</span>
-              <span>طباعة الفاتورة</span>
+              <span>طباعة</span>
             </button>
 
-            <!-- Interactive Custom Status Sheet Trigger (No Native Select Dialog) -->
+            <!-- Custom Status Sheet Trigger -->
             <button type="button" class="order-status-trigger-btn font-num" style="background:${statusBadge.bg}; color:${statusBadge.color}; border:1px solid ${statusBadge.borderColor};" onclick="openStatusSheet('${safeOrderId}', '${status}')">
               <span>${statusBadge.text}</span>
               <span style="font-size:10px; margin-right:2px; opacity:0.8;">▾</span>
             </button>
 
-            <!-- Sleek Chic ✕ Delete Button -->
+            <!-- Delete Button -->
             <button type="button" class="btn-order-delete-chic" onclick="confirmDeleteOrder('${safeOrderId}')" title="حذف هذا الطلب نهائياً" aria-label="حذف الطلب">
               <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -1357,7 +1475,6 @@ window.renderOrdersList = function(orders = null) {
             </div>
 
             <div style="margin-top:10px; padding-top:8px; border-top:1px solid var(--border);">
-              
               <!-- Total summary row -->
               <div style="display:flex; justify-content:space-between; align-items:center;">
                 <span style="font-size:12.5px; font-weight:800; color:var(--text-muted);">المبلغ المطلوب:</span>
@@ -1390,7 +1507,204 @@ window.renderOrdersList = function(orders = null) {
       </div>
     `;
   }).join('');
-}
+};
+
+// ═══ 2. INVOICES & DELIVERED ORDERS ARCHIVE ENGINE ═══════════
+window.renderInvoicesArchive = function(orders = null) {
+  if (!adminElements.adminArchiveContainer) return;
+  if (orders === null || orders === undefined) {
+    orders = Store.getOrders();
+  }
+  const currency = Store.getSettings().currency || "ج.م";
+
+  // Archived orders are delivered or cancelled
+  const isOrderArchived = (o) => o.status === 'delivered' || o.status === 'cancelled';
+  const allArchived = orders.filter(isOrderArchived);
+
+  const deliveredOrders = orders.filter(o => o.status === 'delivered');
+  const cancelledOrders = orders.filter(o => o.status === 'cancelled');
+  const deliveredRevenue = deliveredOrders.reduce((sum, o) => sum + (parseFloat(o.finalTotal) || 0), 0);
+
+  // Update Archive Header Statistics
+  if (adminElements.statArchivedOrders) adminElements.statArchivedOrders.textContent = deliveredOrders.length;
+  if (adminElements.statArchivedRevenue) adminElements.statArchivedRevenue.textContent = `${deliveredRevenue.toFixed(0)} ${currency}`;
+  if (adminElements.statCancelledOrders) adminElements.statCancelledOrders.textContent = cancelledOrders.length;
+
+  if (adminElements.archiveBadgeCount) {
+    if (allArchived.length > 0) {
+      adminElements.archiveBadgeCount.textContent = allArchived.length;
+      adminElements.archiveBadgeCount.style.display = 'inline-block';
+    } else {
+      adminElements.archiveBadgeCount.style.display = 'none';
+    }
+  }
+
+  // Filter according to status chip
+  let displayArchived = allArchived;
+  if (currentArchiveFilter === 'delivered') {
+    displayArchived = deliveredOrders;
+  } else if (currentArchiveFilter === 'cancelled') {
+    displayArchived = cancelledOrders;
+  }
+
+  // Filter according to search query
+  if (archiveSearchQuery) {
+    displayArchived = displayArchived.filter(o => {
+      const id = String(o.orderId || o.id || o._fbKey || '').toLowerCase();
+      const name = String(o.customer?.name || '').toLowerCase();
+      const phone = String(o.customer?.phone || '').replace(/[^0-9]/g, '');
+      const addr = String(o.customer?.address || '').toLowerCase();
+      return id.includes(archiveSearchQuery) || name.includes(archiveSearchQuery) || phone.includes(archiveSearchQuery) || addr.includes(archiveSearchQuery);
+    });
+  }
+
+  // Signature check
+  const currentArchiveSig = JSON.stringify({
+    filter: currentArchiveFilter,
+    query: archiveSearchQuery,
+    orders: displayArchived.map(o => ({ id: o.orderId, st: o.status, tot: o.finalTotal, rec: o.receiptUrl }))
+  });
+  if (lastRenderedArchiveSignature === currentArchiveSig && adminElements.adminArchiveContainer.children.length > 0) {
+    return;
+  }
+  lastRenderedArchiveSignature = currentArchiveSig;
+
+  if (displayArchived.length === 0) {
+    adminElements.adminArchiveContainer.innerHTML = `
+      <div style="text-align:center; padding:45px 20px; color:var(--text-muted); background:var(--surface); border:1px dashed var(--border); border-radius:var(--radius-md);">
+        <div style="font-size:38px; margin-bottom:12px;">📁</div>
+        <div style="font-size:16px; font-weight:800; color:var(--text-main); margin-bottom:4px;">لا توجد فواتير مطابقة في الأرشيف</div>
+        <div style="font-size:12.5px; color:var(--text-muted);">كافة الطلبات التي تكتمل وتصل لحالة (تم التسليم) أو تُلغى ستُحفظ هنا تلقائياً.</div>
+      </div>
+    `;
+    return;
+  }
+
+  adminElements.adminArchiveContainer.innerHTML = displayArchived.map(o => {
+    const safeOrderId = o.orderId || o.id || o._fbKey || (`#ORD-${(o.timestamp || Date.now()).toString().slice(-4)}`);
+    const timeStr = o.createdAt ? new Date(o.createdAt).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' }) : 'الآن';
+    const isDelivered = o.status === 'delivered';
+
+    const itemsHtml = (o.items || []).map(it => `
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; font-size:12px; padding:5px 0; border-bottom:1px dashed var(--border);">
+        <div style="flex:1; padding-left:8px; min-width:0;">
+          <span style="font-weight:900; background:var(--primary-subtle); color:var(--primary); padding:1px 5px; border-radius:4px; font-size:10.5px;">${it.qty}x</span>
+          <span style="font-weight:800; color:var(--text-main);">${it.name}</span>
+          ${it.selectedSize ? `<span style="font-size:10px; color:var(--text-muted);">(${it.selectedSize.name})</span>` : ''}
+          ${it.selectedAddons && it.selectedAddons.length ? `<span style="font-size:10px; color:var(--accent-wa);">+ ${it.selectedAddons.map(a => a.name).join('، ')}</span>` : ''}
+        </div>
+        <div class="font-num" style="font-weight:800; color:var(--text-main); white-space:nowrap; flex-shrink:0;">
+          ${((it.price || 0) * it.qty).toFixed(2)} ${currency}
+        </div>
+      </div>
+    `).join('');
+
+    const phoneRaw = (o.customer?.phone || '').replace(/[^0-9]/g, '');
+    const waUrl = phoneRaw ? `https://wa.me/${phoneRaw.startsWith('0') ? '2' + phoneRaw : phoneRaw}?text=${encodeURIComponent(`مرحباً أستاذ ${o.customer?.name || ''}، بخصوص فاتورتك رقم ${safeOrderId} من المطعم`)}` : '#';
+    const telUrl = phoneRaw ? `tel:${phoneRaw}` : '#';
+    const isWalletPayment = o.paymentMethod === 'wallet';
+
+    return `
+      <div class="order-card-pro" data-order-id="${safeOrderId}" style="opacity:${isDelivered ? '1' : '0.85'}; border-color:${isDelivered ? 'rgba(34, 197, 94, 0.25)' : 'rgba(239, 68, 68, 0.25)'};">
+        
+        <!-- Header: Order ID, Time, Archive Badge, Reprint & Reopen Actions -->
+        <div class="order-card-header-row">
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span class="order-id-chip font-num">${safeOrderId}</span>
+            <span class="order-time-chip">
+              <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              ${timeStr}
+            </span>
+            <span style="font-size:11px; font-weight:800; padding:2px 8px; border-radius:6px; ${isDelivered ? 'background:rgba(34, 197, 94, 0.12); color:#22c55e; border:1px solid rgba(34, 197, 94, 0.3);' : 'background:rgba(239, 68, 68, 0.12); color:#ef4444; border:1px solid rgba(239, 68, 68, 0.3);'}">
+              ${isDelivered ? 'تم التسليم بنجاح ✅' : 'ملغي ✕'}
+            </span>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+            <!-- Instant Thermal Print Button -->
+            <button type="button" class="btn btn-ghost btn-sm" onclick="printOrderReceipt('${safeOrderId}')" style="padding:5px 9px; font-size:11px; font-weight:800; border:1px solid var(--border); color:var(--text-main); background:var(--surface-raised); display:inline-flex; align-items:center; gap:4px;" title="إعادة طباعة بون الفاتورة الحرارية">
+              <span>🖨️</span>
+              <span>طباعة الفاتورة</span>
+            </button>
+
+            <!-- Reopen to Kitchen Button -->
+            <button type="button" class="btn btn-ghost btn-sm" onclick="reopenOrderToKitchen('${safeOrderId}')" style="padding:5px 9px; font-size:11px; font-weight:800; border:1px solid var(--border); color:var(--text-main); background:var(--surface-raised); display:inline-flex; align-items:center; gap:4px;" title="إعادة فتح الطلب وإرجاعه لشاشة المطبخ النشطة">
+              <span>↩️</span>
+              <span>إعادة للمطبخ</span>
+            </button>
+
+            <!-- Delete Button -->
+            <button type="button" class="btn-order-delete-chic" onclick="confirmDeleteOrder('${safeOrderId}')" title="حذف الفاتورة نهائياً من الأرشيف" aria-label="حذف الفاتورة">
+              <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Body: Responsive Columns -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:12px; width:100%; box-sizing:border-box;">
+          
+          <!-- Column 1: Customer & Delivery Info -->
+          <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px; display:flex; flex-direction:column; justify-content:space-between; box-sizing:border-box;">
+            <div>
+              <div style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:6px;">
+                <span>👤</span> العميل: <span style="font-size:13.5px; font-weight:900; color:var(--text-main);">${o.customer?.name || 'عميل'}</span>
+              </div>
+
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px; flex-wrap:wrap;">
+                <span class="font-num" style="font-size:12px; font-weight:800; color:var(--text-main); background:var(--surface-raised); padding:2px 7px; border-radius:4px; border:1px solid var(--border);">
+                  ${o.customer?.phone || 'بدون هاتف'}
+                </span>
+                ${phoneRaw ? `
+                  <a href="${telUrl}" class="btn btn-ghost btn-sm" style="padding:2px 6px; font-size:10.5px; font-weight:700;">📞 اتصال</a>
+                  <a href="${waUrl}" target="_blank" class="btn btn-ghost btn-sm" style="padding:2px 6px; font-size:10.5px; color:var(--accent-wa); font-weight:800;">💬 واتساب</a>
+                ` : ''}
+              </div>
+
+              <div style="font-size:11.5px; color:var(--text-body); line-height:1.4; margin-bottom:6px; background:var(--surface-raised); padding:5px 8px; border-radius:6px;">
+                <span style="font-weight:800; color:var(--text-main);">📍 العنوان: </span>
+                ${o.customer?.address || 'استلام من المطعم'}
+              </div>
+
+              ${(parseFloat(o.deliveryFee) > 0 || o.deliveryZone) ? `
+                <div style="font-size:11px; color:var(--primary); background:var(--primary-subtle); padding:3px 7px; border-radius:5px; margin-bottom:4px; font-weight:800; display:flex; justify-content:space-between;">
+                  <span>خدمة التوصيل (${o.deliveryZone || 'السعر الموحد'}):</span>
+                  <span class="font-num">+${(parseFloat(o.deliveryFee) || 0).toFixed(2)} ${currency}</span>
+                </div>
+              ` : ''}
+            </div>
+
+            <div style="margin-top:8px; padding-top:6px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--text-muted);">
+              <span>طريقة الدفع:</span>
+              <span style="font-weight:800; color:var(--text-main);">${isWalletPayment ? '💳 إلكتروني (محفظة)' : '💵 نقداً (COD)'}</span>
+            </div>
+          </div>
+
+          <!-- Column 2: Items & Financial Total -->
+          <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px; display:flex; flex-direction:column; justify-content:space-between; box-sizing:border-box;">
+            <div>
+              <div style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:5px;">🍽️ الأصناف:</div>
+              <div style="max-height:130px; overflow-y:auto; padding-right:2px;">
+                ${itemsHtml}
+              </div>
+            </div>
+
+            <div style="margin-top:8px; padding-top:6px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:12px; font-weight:800; color:var(--text-muted);">إجمالي الفاتورة:</span>
+              <span class="font-num" style="font-size:16px; font-weight:900; color:${isDelivered ? '#16a34a' : 'var(--danger)'};">
+                ${(parseFloat(o.finalTotal) || 0).toFixed(2)} ${currency}
+              </span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    `;
+  }).join('');
+};
 
 function renderCatalog() {
   if (!adminElements.catalogContainer) return;
