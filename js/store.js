@@ -180,7 +180,9 @@ const DEFAULT_SETTINGS = {
   deliverySettings: {
     defaultFee: 15,
     customZones: []
-  }
+  },
+  isOrderingPaused: false,
+  orderingPausedMessage: "المطعم متوقف حالياً عن استقبال الطلبات. مواعيد العمل يومياً من 12 ظهراً حتى 2 صباحاً. نسعد بخدمتكم قريباً!"
 };
 
 const DEFAULT_CATEGORIES = [

@@ -4566,4 +4566,44 @@ html.admin-unlocked #login-modal-backdrop {
   box-shadow: 0 2px 8px var(--primary-glow, rgba(234, 88, 12, 0.3));
 }
 
+/* ── Screen Wake Lock Toggle Button ── */
+.btn-wake-lock-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  font-size: 11.5px;
+  font-weight: 800;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+.btn-wake-lock-toggle:hover {
+  border-color: var(--border-strong);
+  color: var(--text-main);
+  background: var(--surface-raised);
+}
+.btn-wake-lock-toggle.active {
+  border-color: rgba(245, 158, 11, 0.4);
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.2);
+}
+.btn-wake-lock-toggle .wake-lock-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+  background: transparent;
+  transition: all 0.2s ease;
+}
+.btn-wake-lock-toggle.active .wake-lock-dot {
+  background: #22c55e !important;
+  box-shadow: 0 0 6px #22c55e;
+}
+
 

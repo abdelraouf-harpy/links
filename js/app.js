@@ -744,6 +744,18 @@ function animateFlyToCart(sourceElement, imageUrl) {
 function renderAnnouncement() {
   const settings = Store.getSettings();
   if (elements.announcementBar) {
+    if (settings.isOrderingPaused) {
+      elements.announcementBar.style.display = 'flex';
+      if (elements.announcementText) {
+        elements.announcementText.textContent = '🛑 المطعم متوقف حالياً عن استقبال الطلبات (وضع تصفح المنيو فقط)';
+        elements.announcementText.style.display = '';
+      }
+      if (elements.deliveryTimeBadge) {
+        elements.deliveryTimeBadge.style.display = 'none';
+      }
+      return;
+    }
+
     const hasAnnouncement = settings.showAnnouncement && settings.announcementText;
     const hasDeliveryTime = settings.deliveryTime;
 
@@ -818,6 +830,7 @@ function renderLastOrderRecall() {
 }
 
 function handleReorderClick() {
+  if (checkOrderingPaused()) return;
   const lastOrder = Store.getLastOrder();
   if (!lastOrder || !lastOrder.items) return;
 
@@ -1233,7 +1246,38 @@ window.handleToggleFav = function(productId) {
   renderProducts(true);
 };
 
+// ── Store Ordering Paused (Closed Mode) Handler ─────────────
+function checkOrderingPaused() {
+  const s = Store.getSettings();
+  if (s.isOrderingPaused === true) {
+    openOrderingPausedModal(s.orderingPausedMessage);
+    return true;
+  }
+  return false;
+}
+
+window.openOrderingPausedModal = function(customMsg) {
+  const modal = document.getElementById('ordering-paused-modal');
+  const backdrop = document.getElementById('ordering-paused-backdrop');
+  const msgEl = document.getElementById('ordering-paused-modal-msg');
+  if (msgEl) {
+    msgEl.textContent = customMsg || "المطعم متوقف حالياً عن استقبال الطلبات. مواعيد العمل يومياً من 12 ظهراً حتى 2 صباحاً. نسعد بخدمتكم قريباً!";
+  }
+  if (modal) modal.classList.add('open');
+  if (backdrop) backdrop.classList.add('open');
+  SoundFX.playPop();
+};
+
+window.closeOrderingPausedModal = function() {
+  const modal = document.getElementById('ordering-paused-modal');
+  const backdrop = document.getElementById('ordering-paused-backdrop');
+  if (modal) modal.classList.remove('open');
+  if (backdrop) backdrop.classList.remove('open');
+};
+
 window.handleQuickAddItem = function(productId, triggerElement) {
+  if (checkOrderingPaused()) return;
+
   const prods = Store.getProducts();
   const p = prods.find(item => item.id === productId);
   if (!p) return;
@@ -1273,6 +1317,8 @@ window.handleQuickAddItem = function(productId, triggerElement) {
 window.handleQuickAddToCart = window.handleQuickAddItem;
 
 window.handleUpdateItemQty = function(cartItemId, change) {
+  if (change > 0 && checkOrderingPaused()) return;
+
   let cart = Store.getCart();
   const existing = cart.find(i => i.id === cartItemId || i.productId === cartItemId);
   if (!existing) return;
@@ -1503,6 +1549,7 @@ function initCustomizerEvents() {
 
   if (elements.btnAddCustomizedCart) {
     elements.btnAddCustomizedCart.addEventListener('click', () => {
+      if (checkOrderingPaused()) return;
       if (!customizerProduct) return;
 
       let unitPrice = customizerProduct.price;
@@ -1913,6 +1960,7 @@ window.closeCartDrawer = function(triggerHistoryBack = true) {
 };
 
 window.goToCheckoutStep = function(stepNumber, pushHistory = true) {
+  if (stepNumber > 1 && checkOrderingPaused()) return;
   const prevStep = currentCheckoutStep;
   currentCheckoutStep = stepNumber;
 
@@ -2331,6 +2379,7 @@ function setupSubscriptionWatcher() {
 let activeTrackerUnsubscribe = null;
 
 async function handleDirectOrderSubmit(openWhatsApp = false) {
+  if (checkOrderingPaused()) return;
   if (Store.isSubscriptionSuspended()) {
     showToastNotification("عفواً، الخدمة متوقفة مؤقتاً لهذا المطعم.", "error");
     const backdrop = document.getElementById('subscription-suspended-backdrop');

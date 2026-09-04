@@ -763,10 +763,25 @@
     </a>
   </div>
 
+  <!-- Ordering Paused / Store Closed Modal -->
+  <div id="ordering-paused-backdrop" class="modal-backdrop" onclick="closeOrderingPausedModal()"></div>
+  <div id="ordering-paused-modal" class="modal-box" style="max-width:440px; text-align:center; padding:28px 22px;">
+    <div style="width:64px; height:64px; border-radius:50%; background:rgba(239, 68, 68, 0.12); color:var(--danger, #ef4444); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:30px;">
+      🛑
+    </div>
+    <h3 style="font-size:1.18rem; font-weight:900; color:var(--text-main); margin-bottom:8px;">المطعم متوقف حالياً عن استقبال الطلبات</h3>
+    <p id="ordering-paused-modal-msg" style="font-size:0.9rem; color:var(--text-body); line-height:1.65; margin-bottom:22px; background:var(--surface-raised); padding:12px 14px; border-radius:8px; border:1px dashed var(--border);">
+      المطعم متوقف حالياً عن استقبال الطلبات. مواعيد العمل يومياً من 12 ظهراً حتى 2 صباحاً. نسعد بخدمتكم قريباً!
+    </p>
+    <button type="button" class="btn btn-primary" onclick="closeOrderingPausedModal()" style="width:100%; padding:13px; font-weight:800; font-size:0.95rem; border-radius:var(--radius-sm);">
+      تصفح المنيو والأسعار 🍽️
+    </button>
+  </div>
+
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/store.js?v=9.8"></script>
-  <script src="js/app.js?v=9.8"></script>
+  <script src="js/store.js?v=9.9"></script>
+  <script src="js/app.js?v=9.9"></script>
 </body>
 </html>

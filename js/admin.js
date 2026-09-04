@@ -163,7 +163,10 @@ const adminElements = {
   btnAddDeliveryZone: document.getElementById('btn-add-delivery-zone'),
   deliveryZonesList: document.getElementById('delivery-zones-list'),
   setShowAnnouncement: document.getElementById('set-show-announcement'),
-  setAnnouncementText: document.getElementById('set-announcement-text')
+  setAnnouncementText: document.getElementById('set-announcement-text'),
+  btnToggleWakeLock: document.getElementById('btn-toggle-wake-lock'),
+  setOrderingPaused: document.getElementById('set-ordering-paused'),
+  setOrderingPausedMsg: document.getElementById('set-ordering-paused-msg')
 };
 
 function initAdmin() {
@@ -173,6 +176,7 @@ function initAdmin() {
   setupSubscriptionWatcher();
   setupRestaurantHub();
   setupTabNavigation();
+  initKitchenWakeLock();
   setupProductManagement();
   setupCategoryManagement();
   setupStoriesManagement();
@@ -880,6 +884,106 @@ window.updateOrderStatusFast = async function(orderId, newStatus) {
   renderOrdersList();
   renderInvoicesArchive();
 };
+
+// ── Screen Wake Lock Engine (Keep Kitchen Display Awake) ─────────
+let wakeLockSentinel = null;
+let isWakeLockRequested = false;
+
+window.initKitchenWakeLock = async function() {
+  const savedState = localStorage.getItem('harpy_kitchen_wake_lock');
+  if (savedState === 'true') {
+    isWakeLockRequested = true;
+    await requestKitchenWakeLock(false);
+  } else {
+    updateWakeLockUI(false);
+  }
+
+  // Handle visibility change (re-acquire lock when returning to the tab)
+  document.addEventListener('visibilitychange', async () => {
+    if (document.visibilityState === 'visible' && isWakeLockRequested) {
+      await requestKitchenWakeLock(false);
+    }
+  });
+};
+
+window.requestKitchenWakeLock = async function(showToast = true) {
+  if (!('wakeLock' in navigator)) {
+    if (showToast) {
+      showToastNotification('خاصية إبقاء الشاشة مضاءة غير مدعومة في هذا المتصفح', 'info');
+    }
+    updateWakeLockUI(false);
+    return false;
+  }
+
+  try {
+    if (wakeLockSentinel) {
+      try { await wakeLockSentinel.release(); } catch(e) {}
+      wakeLockSentinel = null;
+    }
+
+    wakeLockSentinel = await navigator.wakeLock.request('screen');
+    wakeLockSentinel.addEventListener('release', () => {
+      if (document.visibilityState !== 'visible' && isWakeLockRequested) {
+        updateWakeLockUI(false);
+      }
+    });
+
+    isWakeLockRequested = true;
+    localStorage.setItem('harpy_kitchen_wake_lock', 'true');
+    updateWakeLockUI(true);
+    if (showToast) {
+      showToastNotification('تم تفعيل إبقاء الشاشة مضاءة دائماً 💡', 'success');
+    }
+    return true;
+  } catch (err) {
+    console.warn('[WakeLock] Request failed:', err);
+    updateWakeLockUI(false);
+    if (showToast) {
+      showToastNotification('تعذر قفل إضاءة الشاشة (تحقق من وضع توفير الطاقة)', 'error');
+    }
+    return false;
+  }
+};
+
+window.releaseKitchenWakeLock = async function(showToast = true) {
+  isWakeLockRequested = false;
+  localStorage.setItem('harpy_kitchen_wake_lock', 'false');
+  if (wakeLockSentinel) {
+    try {
+      await wakeLockSentinel.release();
+    } catch(e) {}
+    wakeLockSentinel = null;
+  }
+  updateWakeLockUI(false);
+  if (showToast) {
+    showToastNotification('تم إيقاف إبقاء الشاشة مضاءة (الوضع التلقائي)', 'info');
+  }
+};
+
+window.toggleKitchenWakeLock = async function() {
+  if (isWakeLockRequested && wakeLockSentinel) {
+    await releaseKitchenWakeLock(true);
+  } else {
+    await requestKitchenWakeLock(true);
+  }
+};
+
+function updateWakeLockUI(isActive) {
+  const btn = document.getElementById('btn-toggle-wake-lock');
+  const label = document.getElementById('wake-lock-label');
+  const dot = document.getElementById('wake-lock-status-dot');
+  if (!btn) return;
+
+  if (isActive) {
+    btn.classList.add('active');
+    if (label) label.textContent = 'الشاشة مضاءة دائماً';
+    if (dot) dot.style.background = '#22c55e';
+  } else {
+    btn.classList.remove('active');
+    if (label) label.textContent = 'إبقاء الشاشة مضاءة';
+    if (dot) dot.style.background = 'transparent';
+  }
+}
 
 // ── Luxury Branded Custom Confirm Dialog Engine ─────────────
 let customConfirmResolve = null;
@@ -2456,10 +2560,11 @@ function loadSettingsIntoForm() {
   if (adminElements.setSpendDiscountType) adminElements.setSpendDiscountType.value = s.spendTierDiscountType || 'percent';
   if (adminElements.setSpendDiscountVal) adminElements.setSpendDiscountVal.value = s.spendTierDiscountValue || 15;
 
-  // Operational settings
   if (adminElements.setDeliveryTime) adminElements.setDeliveryTime.value = s.deliveryTime || '';
   if (adminElements.setShowAnnouncement) adminElements.setShowAnnouncement.checked = s.showAnnouncement === true;
   if (adminElements.setAnnouncementText) adminElements.setAnnouncementText.value = s.announcementText || '';
+  if (adminElements.setOrderingPaused) adminElements.setOrderingPaused.checked = s.isOrderingPaused === true;
+  if (adminElements.setOrderingPausedMsg) adminElements.setOrderingPausedMsg.value = s.orderingPausedMessage || '';
 
   const ds = s.deliverySettings || { defaultFee: (s.deliveryFee !== undefined ? s.deliveryFee : 15), customZones: [] };
   if (adminElements.setDefaultDeliveryFee) {
@@ -2568,6 +2673,8 @@ async function saveSettingsFromForm() {
       deliveryTime: (adminElements.setDeliveryTime?.value || '').trim() || '30-45 دقيقة',
       showAnnouncement: adminElements.setShowAnnouncement?.checked === true,
       announcementText: (adminElements.setAnnouncementText?.value || '').trim(),
+      isOrderingPaused: adminElements.setOrderingPaused?.checked === true,
+      orderingPausedMessage: (adminElements.setOrderingPausedMsg?.value || '').trim(),
 
       themePreset: activePresetId,
       siteColors: siteColors,
