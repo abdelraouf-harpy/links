@@ -1,14 +1,15 @@
 // HarpyOrder Service Worker — Dynamic Fast-Update & Offline Engine
-const CACHE_NAME = 'harpy-order-v10.0';
+const CACHE_NAME = 'harpy-order-v10.1';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/admin.html',
-  '/css/style.css?v=9.0',
-  '/js/store.js?v=10.0',
-  '/js/app.js?v=10.0',
-  '/js/admin.js?v=10.0',
-  '/manifest.json'
+  '/css/style.css?v=10.1',
+  '/js/store.js?v=10.1',
+  '/js/app.js?v=10.1',
+  '/js/admin.js?v=10.1',
+  '/manifest.json',
+  '/saj-logo.png'
 ];
 
 self.addEventListener('install', (event) => {

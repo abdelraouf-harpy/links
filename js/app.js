@@ -976,8 +976,27 @@ window.handleCategoryFilter = function(cat) {
 };
 
 let lastRenderedProductsSignature = '';
+let renderProductsRAF = null;
+
+function scheduleRenderProducts(forceRebuild = false) {
+  if (forceRebuild) {
+    if (renderProductsRAF) cancelAnimationFrame(renderProductsRAF);
+    renderProductsRAF = null;
+    renderProducts(true);
+    return;
+  }
+  if (renderProductsRAF) return;
+  renderProductsRAF = requestAnimationFrame(() => {
+    renderProductsRAF = null;
+    renderProducts(false);
+  });
+}
 
 function renderProducts(forceRebuild = false) {
+  if (renderProductsRAF) {
+    cancelAnimationFrame(renderProductsRAF);
+    renderProductsRAF = null;
+  }
   if (!elements.productsContainer) return;
 
   const allProds = Store.getProducts().filter(p => p.visible !== false);
@@ -1021,12 +1040,24 @@ function renderProducts(forceRebuild = false) {
     }
   }
 
+  // Precompute Lookup Maps for O(1) instantaneous access
+  const prodMap = new Map();
+  allProds.forEach(p => prodMap.set(p.id, p));
+
+  const cartQtyMap = new Map();
+  cart.forEach(i => {
+    if (!i.selectedSize && (!i.selectedAddons || i.selectedAddons.length === 0)) {
+      const id = i.productId || i.id;
+      cartQtyMap.set(id, (cartQtyMap.get(id) || 0) + (i.qty || 1));
+    }
+  });
+
   // 0ms Fast In-Place Visibility Filtering & In-Place Stepper Updates
   let visibleCount = 0;
   const cards = elements.productsContainer.querySelectorAll('.food-item-card');
   cards.forEach(card => {
     const pid = card.dataset.productId;
-    const p = allProds.find(item => item.id === pid);
+    const p = prodMap.get(pid);
     if (!p) {
       card.style.display = 'none';
       return;
@@ -1037,44 +1068,50 @@ function renderProducts(forceRebuild = false) {
       ? isFav
       : (activeCategoryFilter === 'all' || p.category === activeCategoryFilter);
 
+    const pDesc = (p.desc || p.description || '').toLowerCase();
+    const pCategory = (p.category || '').toLowerCase();
+    const pBadge = (p.badge || '').toLowerCase();
     const searchMatch = !searchQuery || (
       p.name.toLowerCase().includes(searchQuery) ||
-      (p.desc && p.desc.toLowerCase().includes(searchQuery)) ||
-      (p.category && p.category.toLowerCase().includes(searchQuery)) ||
-      (p.badge && p.badge.toLowerCase().includes(searchQuery))
+      pDesc.includes(searchQuery) ||
+      pCategory.includes(searchQuery) ||
+      pBadge.includes(searchQuery)
     );
 
     if (catMatch && searchMatch) {
       card.style.display = '';
       visibleCount++;
 
-      // In-place button stepper update
+      // In-place button stepper update (skips DOM traversal if qty didn't change)
       const hasOptions = (p.sizes && p.sizes.length > 0) || (p.addons && p.addons.length > 0);
       if (!hasOptions) {
-        const cartItem = cart.find(i => (i.productId === p.id || i.id === p.id) && !i.selectedSize && (!i.selectedAddons || i.selectedAddons.length === 0));
-        const qty = cartItem ? cartItem.qty : 0;
-        const btnContainer = card.querySelector('.food-item-footer > div:last-child');
-        if (btnContainer) {
-          const stepperValEl = btnContainer.querySelector('.qty-stepper-val');
-          const currentRenderedQty = stepperValEl ? parseInt(stepperValEl.textContent) : 0;
-          if (currentRenderedQty !== qty) {
+        const qty = cartQtyMap.get(p.id) || 0;
+        const qtyStr = String(qty);
+        if (card.dataset.renderedQty !== qtyStr) {
+          card.dataset.renderedQty = qtyStr;
+          const btnContainer = card.querySelector('.food-item-footer > div:last-child');
+          if (btnContainer) {
             btnContainer.innerHTML = renderCardActionButton(p, qty);
           }
         }
       }
 
-      // In-place heart icon active state sync
-      const favBtnTop = card.querySelector('.card-top-actions .btn-fav-toggle');
-      if (favBtnTop) {
-        favBtnTop.classList.toggle('active', isFav);
-        const svg = favBtnTop.querySelector('svg');
-        if (svg) svg.style.fill = isFav ? 'currentColor' : 'none';
-      }
-      const favBtnInline = card.querySelector('.btn-fav-inline');
-      if (favBtnInline) {
-        favBtnInline.classList.toggle('active', isFav);
-        const svg = favBtnInline.querySelector('svg');
-        if (svg) svg.style.fill = isFav ? 'currentColor' : 'none';
+      // In-place heart icon active state sync (skips DOM traversal if fav status didn't change)
+      const favStr = isFav ? '1' : '0';
+      if (card.dataset.renderedFav !== favStr) {
+        card.dataset.renderedFav = favStr;
+        const favBtnTop = card.querySelector('.card-top-actions .btn-fav-toggle');
+        if (favBtnTop) {
+          favBtnTop.classList.toggle('active', isFav);
+          const svg = favBtnTop.querySelector('svg');
+          if (svg) svg.style.fill = isFav ? 'currentColor' : 'none';
+        }
+        const favBtnInline = card.querySelector('.btn-fav-inline');
+        if (favBtnInline) {
+          favBtnInline.classList.toggle('active', isFav);
+          const svg = favBtnInline.querySelector('svg');
+          if (svg) svg.style.fill = isFav ? 'currentColor' : 'none';
+        }
       }
     } else {
       card.style.display = 'none';
@@ -1140,7 +1177,7 @@ function renderHeroShowcase(p, currency) {
             <span class="meta-chip"><svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ${p.prepTime || '15 دقيقة'}</span>
           </div>
           <h2 class="hero-product-title">${p.name}</h2>
-          <p class="hero-product-desc">${p.desc}</p>
+          <p class="hero-product-desc">${p.desc || p.description || ''}</p>
         </div>
         <div class="hero-product-footer">
           <div class="hero-price font-num">
@@ -1172,7 +1209,7 @@ function renderProductCard(p, currency, index = 0) {
   const isAboveFold = index < 6;
 
   return `
-    <div class="food-item-card" data-product-id="${p.id}" onclick="handleCardClick(event, '${p.id}')">
+    <div class="food-item-card" data-product-id="${p.id}" data-rendered-qty="${qty}" data-rendered-fav="${isFav ? '1' : '0'}" onclick="handleCardClick(event, '${p.id}')">
       <div class="food-item-media">
         <img src="${p.image}" class="food-item-img" alt="${p.name}" ${isAboveFold ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"'} decoding="async" onload="this.classList.add('loaded')" onerror="this.classList.add('loaded')">
         <div class="card-top-actions">
@@ -1198,7 +1235,7 @@ function renderProductCard(p, currency, index = 0) {
         </div>
 
         <h3 class="food-item-title">${p.name}</h3>
-        <p class="food-item-desc">${p.desc}</p>
+        <p class="food-item-desc">${p.desc || p.description || ''}</p>
 
         <div class="food-item-footer">
           <div class="food-item-price font-num">
@@ -2268,17 +2305,17 @@ function setupEventListeners() {
     renderStoreInfo();
     renderAnnouncement();
     renderStories();
-    renderProducts();
+    scheduleRenderProducts();
     updateLedgerUI();
   });
   window.addEventListener('store_categories_updated', () => {
     Store.clearMemoryCache();
     renderCategories();
-    renderProducts();
+    scheduleRenderProducts();
   });
   window.addEventListener('store_products_updated', () => {
     Store.clearMemoryCache();
-    renderProducts();
+    scheduleRenderProducts();
     updateLedgerUI();
   });
   window.addEventListener('store_stories_updated', () => {
@@ -2287,7 +2324,7 @@ function setupEventListeners() {
   });
   window.addEventListener('store_favorites_updated', () => {
     renderDiscoveryRibbon();
-    renderProducts();
+    scheduleRenderProducts();
   });
   window.addEventListener('harpy_restaurant_changed', () => {
     Store.clearMemoryCache();
@@ -2296,7 +2333,7 @@ function setupEventListeners() {
     renderAnnouncement();
     renderStories();
     renderCategories();
-    renderProducts();
+    scheduleRenderProducts(true);
     updateLedgerUI();
   });
 
@@ -2308,7 +2345,7 @@ function setupEventListeners() {
     renderAnnouncement();
     renderStories();
     renderCategories();
-    renderProducts();
+    scheduleRenderProducts();
     updateLedgerUI();
   });
 }

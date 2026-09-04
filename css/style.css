@@ -1020,6 +1020,8 @@ body:not([data-theme="light"]) .btn-theme-toggle .icon-sun {
   position: relative;
   box-shadow: var(--shadow-sm);
   cursor: pointer;
+  content-visibility: auto;
+  contain-intrinsic-size: 0 240px;
 }
 .food-item-card:hover {
   transform: translateY(-4px);
@@ -2845,11 +2847,17 @@ body:not([data-theme="light"]) .btn-theme-toggle .icon-sun {
   box-shadow: var(--shadow-sm);
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   min-height: 90px;
+  contain-intrinsic-size: 0 100px;
 }
 .products-flow.view-mode-list .food-item-card:hover {
   transform: translateY(-2px);
   border-color: var(--border-strong);
   box-shadow: var(--shadow-md);
+}
+
+.admin-product-card {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 250px;
 }
 
 .products-flow.view-mode-list .food-item-media {

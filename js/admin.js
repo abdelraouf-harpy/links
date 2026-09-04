@@ -1834,7 +1834,7 @@ function renderCatalog() {
   adminElements.catalogContainer.innerHTML = prods.map(p => `
     <div class="admin-product-card ${p.visible === false ? 'hidden-item' : ''}" data-id="${p.id}" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden; display:flex; flex-direction:column;">
       <div style="position:relative; width:100%; height:140px; background:var(--bg);">
-        <img src="${p.image}" alt="${p.name}" style="width:100%; height:100%; object-fit:cover;">
+        <img src="${p.image}" alt="${p.name}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover;">
         ${p.badge ? `<span style="position:absolute; top:8px; right:8px; background:rgba(0,0,0,0.75); color:#fff; font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px;">${p.badge}</span>` : ''}
         ${p.isFeatured ? `<span style="position:absolute; top:8px; left:8px; background:var(--primary); color:#fff; font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px;">👑 هيرو</span>` : ''}
       </div>
@@ -2203,7 +2203,7 @@ function renderStoriesList() {
 
   adminElements.adminStoriesContainer.innerHTML = stories.map(s => `
     <div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px; display:flex; gap:12px; align-items:center;">
-      <img src="${s.image}" alt="${s.title}" style="width:60px; height:60px; border-radius:50%; object-fit:cover; border:2px solid var(--primary);">
+      <img src="${s.image}" alt="${s.title}" loading="lazy" decoding="async" style="width:60px; height:60px; border-radius:50%; object-fit:cover; border:2px solid var(--primary);">
       <div style="flex:1;">
         <div style="font-size:13.5px; font-weight:800; color:var(--text-main);">${s.title}</div>
         <div style="font-size:11.5px; color:var(--text-muted);">${s.tagline || 'بدون نص ترويجي'}</div>
