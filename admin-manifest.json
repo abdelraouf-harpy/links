@@ -1,7 +1,7 @@
 {
-  "name": "أوردر",
-  "short_name": "أوردر",
-  "start_url": "index.html",
+  "name": "إدارة أوردر",
+  "short_name": "إدارة أوردر",
+  "start_url": "admin.html",
   "display": "standalone",
   "background_color": "#120e0c",
   "theme_color": "#ea580c",

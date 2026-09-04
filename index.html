@@ -3,22 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>اطلب الآن — منيو وطلبات أونلاين</title>
+  <title>أوردر — منيو وطلبات أونلاين</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
-  <script>
-    (function() {
-      var isSubfolder = window.location.hostname.includes('harpymenu.com') || window.location.hostname.includes('github.io');
-      var b = (isSubfolder && window.location.pathname.indexOf('/order') !== -1) ? '/order/' : '/';
-      document.write('<base href="' + b + '">');
-    })();
-  </script>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#c2410c">
+  <!-- Web App Manifest (PWA / WebAPK) -->
+  <link rel="manifest" href="manifest.json?v=12.0">
+  
+  <!-- Favicons & High-Res App Icons -->
+  <link rel="icon" type="image/png" href="pwa_icon.png">
+  <link rel="apple-touch-icon" href="pwa_icon.png">
+  
+  <!-- Android & Modern PWA Meta -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="أوردر">
+  <meta name="theme-color" content="#ea580c">
+  
+  <!-- Apple iOS / iPadOS PWA Meta -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="HarpyOrder">
+  <meta name="apple-mobile-web-app-title" content="أوردر">
+
   <link rel="preconnect" href="https://harpy-order-default-rtdb.firebaseio.com" crossorigin>
   <link rel="dns-prefetch" href="https://harpy-order-default-rtdb.firebaseio.com">
   <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
@@ -26,8 +31,7 @@
   <link rel="preconnect" href="https://i.ibb.co" crossorigin>
   <link rel="dns-prefetch" href="https://i.ibb.co">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/style.css?v=10.1">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23c2410c'><circle cx='12' cy='12' r='10'/></svg>">
+  <link rel="stylesheet" href="css/style.css?v=11.0">
   <script>
     (function() {
       try {
@@ -105,6 +109,10 @@
         </div>
       </a>
       <div class="header-actions">
+        <button id="btn-header-install-app" class="btn btn-primary btn-sm btn-pwa-install" style="display:none; align-items:center; gap:5px; font-weight:800; font-size:11.5px; padding:5px 12px; border-radius:20px; background:linear-gradient(135deg, #ea580c, #f97316); color:#fff; cursor:pointer;" onclick="window.triggerPWAInstall()" title="تثبيت تطبيق أوردر على هاتفك">
+          <span>📲</span>
+          <span>تثبيت التطبيق</span>
+        </button>
         <button id="btn-header-tracker" class="btn btn-primary btn-sm" style="display:none; align-items:center; gap:5px; font-weight:800; font-size:11.5px; padding:5px 10px; border-radius:20px; text-decoration:none;" onclick="openLastOrderTracker()" title="متابعة وتتبع طلبك المباشر">
           <span style="font-size:13px;">🛵</span>
           <span id="header-tracker-text">تتبع الطلب</span>
@@ -781,7 +789,8 @@
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/store.js?v=10.1"></script>
-  <script src="js/app.js?v=10.1"></script>
+  <script src="js/store.js?v=11.0"></script>
+  <script src="js/app.js?v=11.0"></script>
+  <script src="js/pwa.js?v=11.0"></script>
 </body>
 </html>

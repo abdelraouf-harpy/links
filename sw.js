@@ -1,15 +1,25 @@
-// HarpyOrder Service Worker — Dynamic Fast-Update & Offline Engine
-const CACHE_NAME = 'harpy-order-v10.1';
+// Order PWA Service Worker — Native App Shell & Offline Engine
+const CACHE_NAME = 'order-pwa-v12.0';
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/admin.html',
-  '/css/style.css?v=10.1',
-  '/js/store.js?v=10.1',
-  '/js/app.js?v=10.1',
-  '/js/admin.js?v=10.1',
-  '/manifest.json',
-  '/saj-logo.png'
+  './',
+  './index.html',
+  './admin.html',
+  './manifest.json',
+  './admin-manifest.json',
+  './pwa_icon.png',
+  './icon-192.png',
+  './icon-512.png',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
+  './icons/icon-maskable-192.png',
+  './icons/icon-maskable-512.png',
+  './icons/apple-touch-icon.png',
+  './favicon.png',
+  './css/style.css?v=11.0',
+  './js/store.js?v=11.0',
+  './js/app.js?v=11.0',
+  './js/admin.js?v=11.0',
+  './js/pwa.js?v=11.0'
 ];
 
 self.addEventListener('install', (event) => {
