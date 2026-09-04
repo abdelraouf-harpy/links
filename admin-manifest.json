@@ -1,6 +1,6 @@
 {
-  "name": "إدارة أوردر",
-  "short_name": "إدارة أوردر",
+  "name": "Order Admin",
+  "short_name": "Order Admin",
   "start_url": "admin.html",
   "display": "standalone",
   "background_color": "#120e0c",

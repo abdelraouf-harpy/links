@@ -1,6 +1,6 @@
 {
-  "name": "أوردر",
-  "short_name": "أوردر",
+  "name": "Order",
+  "short_name": "Order",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#120e0c",
