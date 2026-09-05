@@ -333,9 +333,6 @@ window.addEventListener('popstate', handlePopStateNavigation);
 
 async function initApp() {
   Store.initTheme();
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
-  }
   updateThemeToggleIcons();
   updateSoundToggleIcon();
   initViewMode();
@@ -404,8 +401,8 @@ async function initApp() {
         img.onerror = () => { img.classList.add('loaded'); r(); };
       });
     });
-    // On new phone give images up to 550ms to decode; on cached phone 150ms
-    const maxImageWait = hasLocalCache ? 150 : 550;
+    // On new phone give images up to 450ms to decode; on cached phone 30ms
+    const maxImageWait = hasLocalCache ? 30 : 450;
     await Promise.race([
       Promise.allSettled(decodePromises),
       new Promise(r => setTimeout(r, maxImageWait))

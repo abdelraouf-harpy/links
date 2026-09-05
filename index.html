@@ -8,11 +8,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
   <!-- Web App Manifest (PWA / WebAPK) -->
-  <link rel="manifest" href="manifest.json?v=23.0">
+  <link rel="manifest" href="manifest.json?v=24.0">
   
   <!-- Favicons & High-Res App Icons -->
-  <link rel="icon" type="image/png" href="pwa_icon.png?v=23.0">
-  <link rel="apple-touch-icon" href="pwa_icon.png?v=23.0">
+  <link rel="icon" type="image/png" href="pwa_icon.png?v=24.0">
+  <link rel="apple-touch-icon" href="pwa_icon.png?v=24.0">
   
   <!-- Android & Modern PWA Meta -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -31,7 +31,7 @@
   <link rel="preconnect" href="https://i.ibb.co" crossorigin>
   <link rel="dns-prefetch" href="https://i.ibb.co">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/style.css?v=23.0">
+  <link rel="stylesheet" href="css/style.css?v=24.0">
   <script>
     (function() {
       try {
@@ -74,6 +74,22 @@
         const mode = localStorage.getItem('harpy_' + slug + '_theme_mode') || 'light';
         document.documentElement.setAttribute('data-theme', mode);
 
+        // Pre-fill store branding from cache immediately before DOM render to eliminate flash or jumping on refresh
+        try {
+          const cachedSettingsRaw = localStorage.getItem('harpy_' + slug + '_settings');
+          if (cachedSettingsRaw) {
+            const cs = JSON.parse(cachedSettingsRaw);
+            if (cs && cs.storeName) {
+              document.addEventListener('DOMContentLoaded', function() {
+                const elName = document.getElementById('store-name');
+                if (elName && !elName.textContent) elName.textContent = cs.storeName;
+                const elLogo = document.getElementById('store-logo');
+                if (elLogo && cs.logoUrl && !elLogo.src) elLogo.src = cs.logoUrl;
+              }, { once: true });
+            }
+          }
+        } catch(e) {}
+
         // Preload restaurant cloud data in parallel with browser asset downloading
         window.__harpyPreloadPromise = fetch('https://harpy-order-default-rtdb.firebaseio.com/restaurants/' + slug + '.json', {
           cache: 'no-store'
@@ -104,7 +120,7 @@
           <span class="brand-status-dot" title="نستقبل الطلبات الآن"></span>
         </div>
         <div class="brand-text">
-          <h1 id="store-name">جاري التحميل...</h1>
+          <h1 id="store-name"></h1>
           <p id="store-tagline">أشهى الأطباق والوجبات السريعة</p>
         </div>
       </a>
@@ -122,8 +138,8 @@
           <svg id="sound-icon-off" class="icon icon-sm" style="display:none;" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
         </button>
         <a id="store-whatsapp-link" href="#" target="_blank" class="btn btn-ghost btn-sm" title="محادثة المطعم عبر الواتساب">
-          <svg class="icon icon-sm" style="color:var(--accent-wa);" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-          تواصل
+          <svg class="icon icon-sm" style="color:var(--accent-wa, #22c55e); fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          <span class="btn-wa-text">تواصل</span>
         </a>
         <button id="theme-toggle-btn" class="btn btn-ghost btn-sm" onclick="handleThemeToggle()" title="تبديل الإضاءة (نهاري / ليلي)" aria-label="تبديل الإضاءة">
           <svg id="theme-icon-dark" class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
@@ -789,8 +805,8 @@
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/store.js?v=23.0"></script>
-  <script src="js/app.js?v=23.0"></script>
-  <script src="js/pwa.js?v=23.0"></script>
+  <script src="js/store.js?v=24.0"></script>
+  <script src="js/app.js?v=24.0"></script>
+  <script src="js/pwa.js?v=24.0"></script>
 </body>
 </html>

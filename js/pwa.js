@@ -11,14 +11,19 @@
                        window.navigator.standalone === true || 
                        document.referrer.includes('android-app://');
 
-  const isAdmin = window.location.pathname.includes('admin') || document.title.includes('Admin') || document.title.includes('إدارة');
+  const isAdmin = window.location.pathname.includes('admin') || 
+                  window.location.search.includes('admin') || 
+                  window.location.href.includes('admin') || 
+                  document.title.includes('Admin') || 
+                  document.title.includes('إدارة');
   const appName = isAdmin ? 'Order Admin' : 'Order';
-  const appIcon = isAdmin ? 'admin_pwa_icon.png?v=23.0' : 'pwa_icon.png?v=23.0';
+  const appDisplayName = isAdmin ? 'تثبيت تطبيق Order Admin' : 'تثبيت تطبيق Order';
+  const appIcon = isAdmin ? 'admin_pwa_icon.png?v=24.0' : 'pwa_icon.png?v=24.0';
 
   // 1. Register Service Worker
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      const swUrl = window.location.pathname.includes('/order') ? './sw.js?v=23.0' : '/sw.js?v=23.0';
+      const swUrl = window.location.pathname.includes('/order') ? './sw.js?v=24.0' : '/sw.js?v=24.0';
       navigator.serviceWorker.register(swUrl)
         .then(reg => {
           try { reg.update(); } catch(e) {}
@@ -33,7 +38,9 @@
             }
           });
         })
-        .catch(err => console.warn('[PWA] SW register failed:', err));
+        .catch(() => {
+          navigator.serviceWorker.register('./sw.js?v=24.0').catch(() => {});
+        });
     });
   }
 
@@ -59,10 +66,7 @@
     document.querySelectorAll('.btn-pwa-install').forEach(btn => {
       btn.style.display = 'inline-flex';
     });
-
-    if (!sessionStorage.getItem('order_pwa_banner_dismissed') && !document.getElementById('order-pwa-banner')) {
-      setTimeout(renderInstallBanner, 2000);
-    }
+    renderInstallBanner();
   }
 
   function hideInstallTriggers() {
@@ -78,21 +82,24 @@
 
     const banner = document.createElement('div');
     banner.id = 'order-pwa-banner';
-    banner.style.cssText = 'position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(120%); z-index: 9999; background: var(--surface-raised, #1e1814); color: var(--text-main, #ffffff); border: 1px solid var(--border-strong, rgba(234, 88, 12, 0.4)); box-shadow: 0 16px 36px rgba(0,0,0,0.5), 0 0 20px rgba(234,88,12,0.2); border-radius: 16px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; max-width: 92vw; width: 420px; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); direction: rtl; font-family: inherit;';
+    banner.style.cssText = 'position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%) translateY(140%); z-index: 99999; background: var(--surface-raised, #1e1814); color: var(--text-main, #ffffff); border: 1.5px solid var(--border-strong, rgba(234, 88, 12, 0.45)); box-shadow: 0 12px 32px rgba(0,0,0,0.6), 0 0 16px rgba(234,88,12,0.25); border-radius: 16px; padding: 9px 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; width: calc(100% - 20px); max-width: 480px; box-sizing: border-box; transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); direction: rtl; font-family: inherit;';
 
     banner.innerHTML = `
-      <div style="position:relative; width:44px; height:44px; border-radius:11px; overflow:hidden; flex-shrink:0; background:#120e0c; border:1px solid rgba(255,255,255,0.1);">
-        <img src="${appIcon}" alt="${appName}" style="width:100%; height:100%; object-fit:cover;">
+      <div style="display:flex; align-items:center; gap:9px; flex:1; min-width:0;">
+        <div style="position:relative; width:40px; height:40px; border-radius:10px; overflow:hidden; flex-shrink:0; background:#120e0c; border:1px solid rgba(255,255,255,0.12);">
+          <img src="${appIcon}" alt="${appDisplayName}" style="width:100%; height:100%; object-fit:cover; display:block;">
+        </div>
+        <div style="flex:1; min-width:0;">
+          <div style="font-size:13px; font-weight:800; color:var(--text-main, #fff); line-height:1.25; word-break:break-word;">
+            ${appDisplayName}
+          </div>
+        </div>
       </div>
-      <div style="flex:1; min-width:0;">
-        <div style="font-size:13.5px; font-weight:800; color:var(--text-main, #fff); line-height:1.3;">تثبيت تطبيق ${appName} 💻📱</div>
-        <div style="font-size:11.5px; color:var(--text-muted, #a8a29e); margin-top:2px;">يعمل كبرنامج أصلي بدون متصفح وبدون علامة كروم</div>
-      </div>
-      <div style="display:flex; align-items:center; gap:6px;">
-        <button id="btn-pwa-banner-install" style="background:linear-gradient(135deg, #ea580c, #f97316); color:#fff; border:none; border-radius:10px; padding:7px 14px; font-size:12px; font-weight:800; cursor:pointer; font-family:inherit; white-space:nowrap;">
+      <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+        <button id="btn-pwa-banner-install" style="background:linear-gradient(135deg, #ea580c, #f97316); color:#fff; border:none; border-radius:9px; padding:7px 13px; font-size:12px; font-weight:800; cursor:pointer; font-family:inherit; white-space:nowrap; box-shadow:0 4px 12px rgba(234,88,12,0.35);">
           تثبيت الآن
         </button>
-        <button id="btn-pwa-banner-close" style="background:transparent; color:var(--text-muted, #888); border:none; border-radius:8px; width:28px; height:28px; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center;" title="إغلاق">
+        <button id="btn-pwa-banner-close" style="background:transparent; color:var(--text-muted, #a8a29e); border:none; border-radius:8px; width:26px; height:26px; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; flex-shrink:0;" title="إغلاق">
           ✕
         </button>
       </div>
@@ -108,9 +115,8 @@
     });
 
     document.getElementById('btn-pwa-banner-close').addEventListener('click', () => {
-      banner.style.transform = 'translateX(-50%) translateY(140%)';
-      setTimeout(() => banner.remove(), 400);
-      sessionStorage.setItem('order_pwa_banner_dismissed', 'true');
+      banner.style.transform = 'translateX(-50%) translateY(160%)';
+      setTimeout(() => banner.remove(), 350);
     });
   }
 
@@ -222,7 +228,7 @@
   // Auto-init on DOM ready
   function initInstallState() {
     if (!isStandalone) {
-      setTimeout(showInstallTriggers, 1500);
+      setTimeout(showInstallTriggers, 400);
     }
   }
 
