@@ -4066,6 +4066,24 @@ body.cart-drawer-open .dynamic-island-cart {
   color: #ffffff;
 }
 
+@media (max-width: 600px) {
+  .admin-tabs {
+    gap: 6px;
+    padding: 4px 2px 10px 2px;
+    margin-bottom: 14px;
+  }
+  .admin-tab-btn {
+    padding: 7px 12px;
+    font-size: 0.78rem;
+    gap: 5px;
+    border-radius: 10px;
+  }
+  .admin-tab-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
 /* ═══════════════════════════════════════════════════════════
    HARPY PRO: LUXURY STATUS PICKER SHEET (No Ugly Native Select)
    ═══════════════════════════════════════════════════════════ */
@@ -4619,14 +4637,112 @@ html.admin-unlocked #login-modal-backdrop {
 ═══════════════════════════════════════════════════════════════════ */
 .pos-layout {
   display: grid;
-  grid-template-columns: 1fr 380px;
+  grid-template-columns: 1fr 390px;
   gap: 18px;
   align-items: start;
   margin-top: 14px;
 }
+
+/* Mobile Segmented Toggle (Menu vs Ticket) */
+.pos-mobile-toggle {
+  display: none;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 14px;
+  gap: 6px;
+}
+.pos-mobile-tab-btn {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13.5px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+.pos-mobile-tab-btn.active {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 3px 12px var(--primary-glow);
+}
+.pos-badge-bubble {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 900;
+}
+.pos-mobile-tab-btn:not(.active) .pos-badge-bubble {
+  background: var(--primary);
+  color: #fff;
+}
+
+.pos-back-to-menu-btn {
+  display: none;
+  width: 100%;
+  padding: 11px;
+  background: var(--surface);
+  border: 1.5px dashed var(--primary);
+  border-radius: 10px;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 800;
+  margin-bottom: 14px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+.pos-back-to-menu-btn:hover {
+  background: var(--primary-subtle);
+}
+
 @media (max-width: 980px) {
   .pos-layout {
     grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .pos-mobile-toggle {
+    display: flex;
+  }
+  .pos-layout.view-menu .pos-ticket-col {
+    display: none !important;
+  }
+  .pos-layout.view-menu .pos-menu-col {
+    display: flex !important;
+    padding: 12px;
+  }
+  .pos-layout.view-ticket .pos-menu-col {
+    display: none !important;
+  }
+  .pos-layout.view-ticket .pos-ticket-col {
+    display: flex !important;
+    position: static;
+    width: 100%;
+    box-sizing: border-box;
+    box-shadow: none;
+    padding: 12px;
+  }
+  .pos-back-to-menu-btn {
+    display: flex;
+  }
+  .pos-products-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    padding-bottom: 85px !important; /* Space for floating quick cart bar */
+    max-height: calc(100vh - 280px) !important;
   }
 }
 
@@ -4757,12 +4873,12 @@ html.admin-unlocked #login-modal-backdrop {
 }
 .pos-type-btn {
   flex: 1;
-  padding: 8px 10px;
+  padding: 9px 12px;
   border: none;
   border-radius: 8px;
   background: transparent;
   color: var(--text-muted);
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 800;
   cursor: pointer;
   display: flex;
@@ -4781,28 +4897,37 @@ html.admin-unlocked #login-modal-backdrop {
 .pos-tables-row {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   overflow-x: auto;
-  padding-bottom: 6px;
+  padding: 4px 2px 10px 2px;
   margin-bottom: 12px;
   scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
 }
 .pos-table-pill {
-  padding: 5px 11px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
+  min-width: 48px;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
   background: var(--surface);
   color: var(--text-main);
-  font-size: 11.5px;
+  font-size: 13px;
   font-weight: 800;
   cursor: pointer;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 .pos-table-pill.active {
   background: #0ea5e9;
   border-color: #0ea5e9;
   color: #fff;
+  box-shadow: 0 3px 10px rgba(14, 165, 233, 0.4);
 }
 
 /* POS Ticket Items List */
@@ -4820,23 +4945,21 @@ html.admin-unlocked #login-modal-backdrop {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 10px;
+  padding: 9px 12px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  gap: 8px;
+  border-radius: 10px;
+  gap: 10px;
 }
 .pos-ticket-info {
   flex: 1;
   min-width: 0;
 }
 .pos-ticket-title {
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 800;
   color: var(--text-main);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  word-break: break-word;
 }
 .pos-ticket-unit {
   font-size: 10px;
@@ -4845,11 +4968,12 @@ html.admin-unlocked #login-modal-backdrop {
 .pos-ticket-qty-wrap {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
+  flex-shrink: 0;
 }
 .pos-qty-btn {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 6px;
   border: 1px solid var(--border);
   background: var(--surface-raised);
@@ -4858,7 +4982,7 @@ html.admin-unlocked #login-modal-backdrop {
   align-items: center;
   justify-content: center;
   font-weight: 900;
-  font-size: 13px;
+  font-size: 14px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -4867,21 +4991,111 @@ html.admin-unlocked #login-modal-backdrop {
   color: var(--primary);
 }
 .pos-ticket-total {
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 900;
-  color: var(--text-main);
+  color: var(--primary);
   min-width: 55px;
   text-align: left;
+  direction: ltr;
 }
 .pos-ticket-del {
   color: var(--text-muted);
   cursor: pointer;
-  font-size: 14px;
-  padding: 2px;
+  font-size: 15px;
+  padding: 4px;
+  border: none;
+  background: transparent;
   transition: color 0.15s ease;
 }
 .pos-ticket-del:hover {
   color: var(--danger);
+}
+
+/* POS Structured Calculation Card */
+.pos-calc-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+}
+.pos-calc-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+.pos-calc-title {
+  color: var(--text-muted);
+  font-weight: 700;
+  font-size: 12.5px;
+}
+.pos-calc-num {
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--text-main);
+  direction: ltr;
+}
+.pos-calc-divider {
+  border-top: 1.5px dashed var(--border);
+  margin: 8px 0;
+}
+.pos-calc-total-line {
+  margin-bottom: 0;
+  padding-top: 2px;
+}
+.pos-calc-total-label {
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--text-main);
+}
+.pos-calc-total-num {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--primary);
+  direction: ltr;
+}
+
+/* POS Payment Method Buttons */
+.pos-pay-method-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 8px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text-main);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.pos-pay-method-btn:hover {
+  border-color: var(--primary);
+  background: var(--surface-raised);
+}
+.pos-pay-method-btn.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  box-shadow: 0 3px 12px rgba(234, 88, 12, 0.35);
+}
+
+/* POS Cash Calculator Box */
+.pos-cash-calc-box {
+  margin-top: 10px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 /* Order Badges for Kitchen & Archive */

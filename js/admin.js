@@ -518,6 +518,9 @@ window.switchTab = function(targetTabId, updateHash = true) {
   adminElements.tabBtns.forEach(b => {
     if (b.dataset.tab === targetTabId) {
       b.classList.add('active');
+      try {
+        b.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      } catch(e) {}
     } else {
       b.classList.remove('active');
     }
@@ -3000,6 +3003,9 @@ window.initPOS = function() {
   renderPOSTables();
   renderPOSProducts();
   updatePOSCartUI();
+  if (window.innerWidth <= 980 && typeof switchPOSMobileTab === 'function') {
+    switchPOSMobileTab('menu');
+  }
 };
 
 window.renderPOSCategories = function() {
@@ -3338,10 +3344,52 @@ window.removePOSItem = function(cartItemId) {
   updatePOSCartUI();
 };
 
+window.posMobileCurrentTab = 'menu';
+
+window.switchPOSMobileTab = function(tab) {
+  window.posMobileCurrentTab = tab;
+  const layout = document.querySelector('.pos-layout');
+  const btnMenu = document.getElementById('btn-pos-tab-menu');
+  const btnTicket = document.getElementById('btn-pos-tab-ticket');
+  const mobileBar = document.getElementById('pos-mobile-cart-bar');
+
+  if (layout) {
+    if (tab === 'ticket') {
+      layout.classList.remove('view-menu');
+      layout.classList.add('view-ticket');
+    } else {
+      layout.classList.remove('view-ticket');
+      layout.classList.add('view-menu');
+    }
+  }
+
+  if (btnMenu) btnMenu.classList.toggle('active', tab === 'menu');
+  if (btnTicket) btnTicket.classList.toggle('active', tab === 'ticket');
+
+  if (mobileBar) {
+    if (tab === 'ticket' || posCart.length === 0) {
+      mobileBar.classList.remove('show');
+    } else if (tab === 'menu' && posCart.length > 0) {
+      mobileBar.classList.add('show');
+    }
+  }
+
+  if (window.innerWidth <= 980) {
+    const posSection = document.getElementById('tab-pos');
+    if (posSection) {
+      posSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+};
+
 window.scrollPOSToTicket = function() {
-  const ticketCol = document.querySelector('.pos-ticket-col');
-  if (ticketCol) {
-    ticketCol.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (window.innerWidth <= 980) {
+    switchPOSMobileTab('ticket');
+  } else {
+    const ticketCol = document.querySelector('.pos-ticket-col');
+    if (ticketCol) {
+      ticketCol.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 };
 
@@ -3409,14 +3457,20 @@ window.updatePOSCalculations = function() {
 
   document.querySelectorAll('.pos-currency-symbol').forEach(el => el.textContent = currency);
 
-  // Mobile floating quick cart bar
+  // Mobile segmented toggle badge
   const totalItemCount = posCart.reduce((s, it) => s + it.qty, 0);
+  const posTabBadge = document.getElementById('pos-tab-badge');
+  if (posTabBadge) {
+    posTabBadge.textContent = totalItemCount;
+  }
+
+  // Mobile floating quick cart bar
   const mobileBar = document.getElementById('pos-mobile-cart-bar');
   const mobileItemsText = document.getElementById('pos-mobile-items-text');
   const mobileTotalPrice = document.getElementById('pos-mobile-total-price');
 
   if (mobileBar) {
-    if (posCart.length > 0) {
+    if (posCart.length > 0 && window.posMobileCurrentTab !== 'ticket') {
       mobileBar.classList.add('show');
       if (mobileItemsText) mobileItemsText.textContent = `${totalItemCount} صنف بالفاتورة`;
       if (mobileTotalPrice) mobileTotalPrice.textContent = `${finalTotal.toFixed(0)} ${currency}`;
@@ -3478,6 +3532,9 @@ window.resetPOSCart = function(ask = false) {
   if (cashInput) cashInput.value = '';
 
   updatePOSCartUI();
+  if (window.innerWidth <= 980 && typeof switchPOSMobileTab === 'function') {
+    switchPOSMobileTab('menu');
+  }
 };
 
 window.submitPOSOrder = async function(printReceipt = true) {

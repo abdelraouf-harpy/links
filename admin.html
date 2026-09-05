@@ -9,11 +9,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
   
   <!-- Web App Manifest (PWA / WebAPK) -->
-  <link rel="manifest" href="admin-manifest.json?v=14.0">
+  <link rel="manifest" href="admin-manifest.json?v=20.0">
   
   <!-- Favicons & High-Res App Icons -->
-  <link rel="icon" type="image/png" href="admin_pwa_icon.png?v=14.0">
-  <link rel="apple-touch-icon" href="admin_pwa_icon.png?v=14.0">
+  <link rel="icon" type="image/png" href="admin_pwa_icon.png?v=20.0">
+  <link rel="apple-touch-icon" href="admin_pwa_icon.png?v=20.0">
   
   <!-- Android & Modern PWA Meta -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -25,7 +25,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Order Admin">
 
-  <link rel="stylesheet" href="css/style.css?v=13.0">
+  <link rel="stylesheet" href="css/style.css?v=20.0">
   <link rel="preconnect" href="https://harpy-order-default-rtdb.firebaseio.com" crossorigin>
   <link rel="dns-prefetch" href="https://harpy-order-default-rtdb.firebaseio.com">
   <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
@@ -240,7 +240,18 @@
           </div>
         </div>
 
-        <div class="pos-layout">
+        <!-- Mobile Segmented View Switcher (Menu vs Ticket) -->
+        <div class="pos-mobile-toggle">
+          <button type="button" class="pos-mobile-tab-btn active" id="btn-pos-tab-menu" onclick="switchPOSMobileTab('menu')">
+            <span>🍽️ الأصناف والمنيو</span>
+          </button>
+          <button type="button" class="pos-mobile-tab-btn" id="btn-pos-tab-ticket" onclick="switchPOSMobileTab('ticket')">
+            <span>🛒 الفاتورة والدفع</span>
+            <span id="pos-tab-badge" class="pos-badge-bubble">0</span>
+          </button>
+        </div>
+
+        <div class="pos-layout view-menu">
           <!-- Right Column: Products & Categories -->
           <div class="pos-menu-col">
             <!-- Search Bar -->
@@ -261,6 +272,11 @@
 
           <!-- Left Column: Current Order Ticket -->
           <div class="pos-ticket-col">
+            <!-- Return to Menu button (shown on mobile) -->
+            <button type="button" class="pos-back-to-menu-btn" onclick="switchPOSMobileTab('menu')">
+              <span>← العودة لاختيار أصناف أخرى من المنيو</span>
+            </button>
+
             <!-- Order Type Selector -->
             <div class="pos-type-toggle">
               <button type="button" id="pos-type-dinein-btn" class="pos-type-btn active" onclick="setPOSOrderType('dine_in')">
@@ -274,25 +290,25 @@
             </div>
 
             <!-- Dine-in Table Selector -->
-            <div id="pos-table-selector-wrap" style="margin-bottom:10px;">
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                <label style="font-size:11.5px; font-weight:800; color:var(--text-main);">رقم الطاولة:</label>
-                <span id="pos-selected-table-label" style="font-size:12px; font-weight:900; color:#0ea5e9;">طاولة 1</span>
+            <div id="pos-table-selector-wrap" style="margin-bottom:12px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <label style="font-size:12px; font-weight:800; color:var(--text-main);">رقم الطاولة:</label>
+                <span id="pos-selected-table-label" style="font-size:12px; font-weight:900; background:rgba(14,165,233,0.14); color:#0ea5e9; padding:2px 10px; border-radius:6px; border:1px solid rgba(14,165,233,0.3);">طاولة 1</span>
               </div>
               <div id="pos-tables-strip" class="pos-tables-row">
-                <!-- Tables 1..10 + custom generated dynamically -->
+                <!-- Tables 1..12 generated dynamically -->
               </div>
             </div>
 
             <!-- Takeaway Customer Name (shown if takeaway) -->
-            <div id="pos-takeaway-wrap" style="display:none; margin-bottom:10px;">
-              <input type="text" id="pos-takeaway-name" class="form-input" placeholder="اسم العميل أو رقم النداء (اختياري)..." style="font-size:12px; padding:8px 10px;">
+            <div id="pos-takeaway-wrap" style="display:none; margin-bottom:12px;">
+              <input type="text" id="pos-takeaway-name" class="form-input" placeholder="اسم العميل أو رقم النداء (اختياري)..." style="font-size:12.5px; padding:9px 12px;">
             </div>
 
             <!-- Ticket Items List -->
-            <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:800; color:var(--text-muted); border-bottom:1px solid var(--border); padding-bottom:6px; margin-bottom:6px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:11.5px; font-weight:800; color:var(--text-muted); border-bottom:1px solid var(--border); padding-bottom:6px; margin-bottom:8px;">
               <span>الأصناف المختارة</span>
-              <span id="pos-items-count-badge" class="font-num">0 صنف</span>
+              <span id="pos-items-count-badge" class="font-num" style="background:var(--surface); padding:2px 8px; border-radius:10px; border:1px solid var(--border);">0 صنف</span>
             </div>
             
             <div id="pos-ticket-items" class="pos-ticket-items">
@@ -304,33 +320,33 @@
             </div>
 
             <!-- Note input -->
-            <div style="margin-bottom:10px;">
-              <input type="text" id="pos-order-note" class="form-input" placeholder="📝 ملاحظات خاصة (بدون بصل، ثلج زيادة...)" style="font-size:11.5px; padding:7px 10px;">
+            <div style="margin-bottom:12px;">
+              <input type="text" id="pos-order-note" class="form-input" placeholder="📝 ملاحظات خاصة (بدون بصل، ثلج زيادة...)" style="font-size:12px; padding:8px 10px;">
             </div>
 
             <!-- Calculation Breakdown -->
-            <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:10px; margin-bottom:12px;">
-              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;">
-                <span style="color:var(--text-muted);">المجموع:</span>
-                <span id="pos-subtotal" class="font-num" style="font-weight:800; color:var(--text-main);">0 ج.م</span>
+            <div class="pos-calc-card">
+              <div class="pos-calc-line">
+                <span class="pos-calc-title">المجموع:</span>
+                <span id="pos-subtotal" class="font-num pos-calc-num">0 ج.م</span>
               </div>
-              <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; margin-bottom:4px;">
-                <span style="color:var(--text-muted);">خصم خاص:</span>
-                <div style="display:flex; align-items:center; gap:4px;">
-                  <input type="number" id="pos-discount-input" min="0" value="0" class="form-input font-num" style="width:65px; padding:2px 6px; font-size:11px; text-align:center;" oninput="updatePOSCalculations()">
-                  <span class="pos-currency-symbol" style="font-size:11px; color:var(--text-muted);">ج.م</span>
+              <div class="pos-calc-line">
+                <span class="pos-calc-title">خصم خاص:</span>
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <input type="number" id="pos-discount-input" min="0" value="0" class="form-input font-num" style="width:70px; padding:3px 8px; font-size:12px; font-weight:800; text-align:center;" oninput="updatePOSCalculations()">
+                  <span class="pos-currency-symbol" style="font-size:12px; color:var(--text-muted); font-weight:700;">ج.م</span>
                 </div>
               </div>
-              <div style="border-top:1px dashed var(--border); margin:6px 0;"></div>
-              <div style="display:flex; justify-content:space-between; font-size:15px; font-weight:900;">
-                <span style="color:var(--text-main);">المطلوب تحصيله:</span>
-                <span id="pos-final-total" class="font-num" style="color:var(--primary); font-size:17px;">0 ج.م</span>
+              <div class="pos-calc-divider"></div>
+              <div class="pos-calc-line pos-calc-total-line">
+                <span class="pos-calc-total-label">المطلوب تحصيله:</span>
+                <span id="pos-final-total" class="font-num pos-calc-total-num">0 ج.م</span>
               </div>
             </div>
 
             <!-- Payment Method & Quick Cash Calculator -->
-            <div style="margin-bottom:12px;">
-              <div style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:5px;">طريقة الدفع:</div>
+            <div style="margin-bottom:14px;">
+              <div style="font-size:11.5px; font-weight:800; color:var(--text-muted); margin-bottom:6px;">طريقة الدفع:</div>
               <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
                 <button type="button" class="btn btn-sm pos-pay-method-btn active" id="pos-pay-cash-btn" data-pay="cash" onclick="setPOSPayMethod('cash')">💵 كاش</button>
                 <button type="button" class="btn btn-sm pos-pay-method-btn" id="pos-pay-card-btn" data-pay="card" onclick="setPOSPayMethod('card')">💳 فيزا</button>
@@ -338,29 +354,29 @@
               </div>
 
               <!-- Cash Calculator (Cash Given & Change) -->
-              <div id="pos-cash-calc" style="margin-top:8px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:8px 10px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
+              <div id="pos-cash-calc" class="pos-cash-calc-box">
                 <div style="flex:1;">
-                  <label style="font-size:10.5px; font-weight:800; color:var(--text-muted); display:block; margin-bottom:2px;">المبلغ المستلم:</label>
-                  <input type="number" id="pos-cash-received" min="0" placeholder="0" class="form-input font-num" style="padding:4px 8px; font-size:12px; font-weight:800;" oninput="updatePOSChange()">
+                  <label style="font-size:11px; font-weight:800; color:var(--text-muted); display:block; margin-bottom:3px;">المبلغ المستلم:</label>
+                  <input type="number" id="pos-cash-received" min="0" placeholder="0" class="form-input font-num" style="padding:5px 8px; font-size:13px; font-weight:800; width:100%; box-sizing:border-box;" oninput="updatePOSChange()">
                 </div>
-                <div style="text-align:left;">
-                  <div style="font-size:10.5px; font-weight:800; color:var(--text-muted);">الباقي للزبون:</div>
-                  <div id="pos-cash-change" class="font-num" style="font-size:14px; font-weight:900; color:#22c55e;">0 ج.م</div>
+                <div style="text-align:left; flex-shrink:0;">
+                  <div style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:3px;">الباقي للزبون:</div>
+                  <div id="pos-cash-change" class="font-num" style="font-size:16px; font-weight:900; color:#22c55e; direction:ltr;">0 ج.م</div>
                 </div>
               </div>
             </div>
 
             <!-- Action Buttons -->
-            <div style="display:flex; flex-direction:column; gap:8px;">
-              <button type="button" id="btn-pos-submit-print" class="btn btn-primary" onclick="submitPOSOrder(true)" style="padding:13px; font-size:13.5px; font-weight:900; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 16px rgba(234,88,12,0.4);">
-                <span>🖨️</span>
+            <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
+              <button type="button" id="btn-pos-submit-print" class="btn btn-primary" onclick="submitPOSOrder(true)" style="padding:14px; font-size:14px; font-weight:900; display:flex; align-items:center; justify-content:center; gap:8px; border-radius:12px; box-shadow:0 4px 18px rgba(234,88,12,0.45); cursor:pointer;">
+                <span style="font-size:18px;">🖨️</span>
                 <span>حفظ وإرسال للمطبخ وطباعة</span>
               </button>
               <div style="display:flex; gap:8px;">
-                <button type="button" id="btn-pos-submit-only" class="btn btn-ghost" onclick="submitPOSOrder(false)" style="flex:1; padding:9px; font-size:11.5px; font-weight:800; border:1px solid var(--border);" title="إرسال الطلب لشاشة المطبخ للتجهيز بدون طباعة بون ورقي">
+                <button type="button" id="btn-pos-submit-only" class="btn btn-ghost" onclick="submitPOSOrder(false)" style="flex:1; padding:10px; font-size:12px; font-weight:800; border:1px solid var(--border); border-radius:10px;" title="إرسال الطلب لشاشة المطبخ للتجهيز بدون طباعة بون ورقي">
                   <span>👨‍🍳 إرسال للمطبخ فقط</span>
                 </button>
-                <button type="button" class="btn btn-ghost" onclick="resetPOSCart(true)" style="padding:9px 14px; font-size:11.5px; font-weight:700; border:1px solid var(--border); color:var(--text-muted);" title="تفريغ الفاتورة">
+                <button type="button" class="btn btn-ghost" onclick="resetPOSCart(true)" style="padding:10px 14px; font-size:12px; font-weight:700; border:1px solid var(--border); color:var(--text-muted); border-radius:10px;" title="تفريغ الفاتورة">
                   <span>🗑️ تفريغ</span>
                 </button>
               </div>
@@ -1183,8 +1199,8 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/store.js?v=13.0"></script>
-  <script src="js/admin.js?v=13.0"></script>
-  <script src="js/pwa.js?v=13.0"></script>
+  <script src="js/store.js?v=20.0"></script>
+  <script src="js/admin.js?v=20.0"></script>
+  <script src="js/pwa.js?v=20.0"></script>
 </body>
 </html>
