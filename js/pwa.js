@@ -57,7 +57,7 @@
   // 1. Register Service Worker with instant update
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      const swUrl = './sw.js?v=28.0';
+      const swUrl = './sw.js?v=29.0';
       navigator.serviceWorker.register(swUrl)
         .then(reg => {
           try { reg.update(); } catch(e) {}
@@ -154,93 +154,69 @@
     });
   }
 
-  // 3. Global Install Trigger
+  // 3. Direct Native App Install Trigger
   window.triggerPWAInstall = async function() {
+    const installBtn = document.getElementById('btn-pwa-banner-install');
+    const origText = installBtn ? installBtn.textContent : 'تثبيت الآن';
+
+    // Fast-wait for deferredPrompt if user clicked immediately upon page load
+    if (!deferredPrompt && !isIOS) {
+      if (installBtn) {
+        installBtn.textContent = 'جاري التثبيت...';
+        installBtn.disabled = true;
+      }
+      await new Promise((resolve) => {
+        let timer = null;
+        const handler = (e) => {
+          clearTimeout(timer);
+          window.removeEventListener('beforeinstallprompt', handler);
+          resolve(e);
+        };
+        window.addEventListener('beforeinstallprompt', handler);
+        timer = setTimeout(() => {
+          window.removeEventListener('beforeinstallprompt', handler);
+          resolve(null);
+        }, 1800);
+      });
+      if (installBtn) {
+        installBtn.textContent = origText;
+        installBtn.disabled = false;
+      }
+    }
+
+    // 1. Direct Native Browser Prompt (Android / Windows Chrome & Edge / Mac Chrome)
     if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const choice = await deferredPrompt.userChoice;
-      if (choice && choice.outcome === 'accepted') {
-        markAppAsInstalled();
+      try {
+        deferredPrompt.prompt();
+        const choice = await deferredPrompt.userChoice;
+        if (choice && choice.outcome === 'accepted') {
+          markAppAsInstalled();
+          showToast(`🎉 تم تثبيت ${appDisplayName} بنجاح كبرنامج مستقل.`);
+        }
         deferredPrompt = null;
         window.__deferredPWAInstallPrompt = null;
+      } catch (err) {
+        console.warn('[PWA] Native prompt error:', err);
       }
       return;
     }
 
+    // 2. Apple iOS Safari Guidance (Clean toast, zero blocking modal)
     if (isIOS) {
-      showIOSInstallModal();
+      showToast(`📲 لتثبيت ${appDisplayName} على iPhone: اضغط زر المشاركة (Share ⎋) أسفل المتصفح واختر "إضافة إلى الشاشة الرئيسية ➕".`);
       return;
     }
 
-    showFallbackInstallModal();
+    // 3. Standalone mode check
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+      showToast(`✅ ${appDisplayName} مثبت بالفعل ويعمل كبرنامج مستقل.`);
+      markAppAsInstalled();
+      return;
+    }
+
+    // 4. Incognito or unsupported browser warning
+    showToast('⚠️ إذا كنت تتصفح في الوضع المتخفي (Incognito)، يرجى فتح الرابط في نافذة عادية ليتمكن المتصفح من تثبيته مباشرة بنقرة واحدة.');
   };
-
-  function showIOSInstallModal() {
-    let modal = document.getElementById('ios-pwa-modal');
-    if (!modal) {
-      modal = document.createElement('div');
-      modal.id = 'ios-pwa-modal';
-      modal.style.cssText = 'position: fixed; inset: 0; z-index: 100000; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 24px; direction: rtl; font-family: inherit;';
-      modal.innerHTML = `
-        <div style="background:var(--surface, #1c1714); border:1px solid var(--border-strong, #ea580c); border-radius:20px; padding:22px; max-width:92vw; width:380px; box-shadow:0 20px 40px rgba(0,0,0,0.6); color:var(--text-main, #fff);">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-            <div style="display:flex; align-items:center; gap:10px;">
-              <img src="${appIcon}" style="width:38px; height:38px; border-radius:10px; object-fit:cover;">
-              <div style="font-weight:800; font-size:15px;">تثبيت ${appName} على iPhone / iPad</div>
-            </div>
-            <button onclick="document.getElementById('ios-pwa-modal').remove()" style="background:transparent; border:none; color:#888; font-size:18px; cursor:pointer;">✕</button>
-          </div>
-          <div style="font-size:13px; color:var(--text-body, #ddd); line-height:1.7;">
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
-              <span style="background:rgba(234,88,12,0.15); color:#ea580c; border-radius:50%; width:24px; height:24px; display:inline-flex; align-items:center; justify-content:center; font-weight:800; font-size:12px;">1</span>
-              <span>اضغط على أيقونة المشاركة <b>(Share) ⎋</b> في شريط متصفح سفاري بالأسفل.</span>
-            </div>
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
-              <span style="background:rgba(234,88,12,0.15); color:#ea580c; border-radius:50%; width:24px; height:24px; display:inline-flex; align-items:center; justify-content:center; font-weight:800; font-size:12px;">2</span>
-              <span>مرر لأسفل واختر <b>'إضافة إلى الصفحة الرئيسية ➕'</b> (Add to Home Screen).</span>
-            </div>
-            <div style="display:flex; align-items:center; gap:8px;">
-              <span style="background:rgba(234,88,12,0.15); color:#ea580c; border-radius:50%; width:24px; height:24px; display:inline-flex; align-items:center; justify-content:center; font-weight:800; font-size:12px;">3</span>
-              <span>اضغط <b>'إضافة' (Add)</b> أعلى اليمين وسيعمل التطبيق كبرنامج مستقل بدون متصفح.</span>
-            </div>
-          </div>
-          <button onclick="document.getElementById('ios-pwa-modal').remove()" style="width:100%; margin-top:16px; background:linear-gradient(135deg, #ea580c, #f97316); color:#fff; border:none; padding:10px; border-radius:12px; font-weight:800; font-size:13.5px; cursor:pointer;">فهمت ذلك</button>
-        </div>
-      `;
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.remove();
-      });
-      document.body.appendChild(modal);
-    }
-  }
-
-  function showFallbackInstallModal() {
-    let modal = document.getElementById('fallback-pwa-modal');
-    if (!modal) {
-      modal = document.createElement('div');
-      modal.id = 'fallback-pwa-modal';
-      modal.style.cssText = 'position: fixed; inset: 0; z-index: 100000; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 16px; direction: rtl; font-family: inherit;';
-      modal.innerHTML = `
-        <div style="background:var(--surface, #1c1714); border:1px solid var(--border-strong, #ea580c); border-radius:20px; padding:24px; max-width:92vw; width:430px; box-shadow:0 20px 40px rgba(0,0,0,0.6); color:var(--text-main, #fff); text-align:center;">
-          <div style="width:56px; height:56px; border-radius:14px; margin:0 auto 12px; overflow:hidden; background:#120e0c; border:1px solid rgba(255,255,255,0.1);">
-            <img src="${appIcon}" style="width:100%; height:100%; object-fit:cover;">
-          </div>
-          <div style="font-weight:800; font-size:16.5px; margin-bottom:8px;">تثبيت ${appName} كبرنامج مستقل</div>
-          <div style="font-size:13px; color:var(--text-muted, #aaa); margin-bottom:18px; line-height:1.7; text-align:right; background:rgba(0,0,0,0.25); padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.06);">
-            <p style="margin:0 0 10px 0;"><b>💻 على الكمبيوتر (Windows / Mac):</b><br>
-            ستجد أيقونة التثبيت <b>(⊕ أو 💻)</b> في شريط عنوان المتصفح أعلى اليمين (بجانب زر الإشارة المرجعية ⭐).<br>
-            أو اضغط على قائمة المتصفح <b>(الثلاث نقاط ⋮)</b> ثم اختر <b>"تثبيت ${appName}"</b>.</p>
-            <p style="margin:0;"><b>📱 على الهاتف (Android):</b><br>من قائمة المتصفح <b>(الـ 3 نقاط ⋮ أعلى الشاشة)</b>، اختر <b>"تثبيت التطبيق" (Install app)</b> أو <b>"إضافة إلى الشاشة الرئيسية"</b>.</p>
-          </div>
-          <button onclick="document.getElementById('fallback-pwa-modal').remove()" style="background:linear-gradient(135deg, #ea580c, #f97316); color:#fff; border:none; padding:10px 28px; border-radius:12px; font-weight:800; font-size:13.5px; cursor:pointer;">حسناً، فهمت</button>
-        </div>
-      `;
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.remove();
-      });
-      document.body.appendChild(modal);
-    }
-  }
 
   function showToast(msg) {
     const toast = document.createElement('div');
