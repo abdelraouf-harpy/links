@@ -57,7 +57,7 @@
   // 1. Register Service Worker with instant update
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      const swUrl = './sw.js?v=29.0';
+      const swUrl = './sw.js?v=30.0';
       navigator.serviceWorker.register(swUrl)
         .then(reg => {
           try { reg.update(); } catch(e) {}
@@ -207,15 +207,9 @@
       return;
     }
 
-    // 3. Standalone mode check
-    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
-      showToast(`✅ ${appDisplayName} مثبت بالفعل ويعمل كبرنامج مستقل.`);
-      markAppAsInstalled();
-      return;
-    }
-
-    // 4. Incognito or unsupported browser warning
-    showToast('⚠️ إذا كنت تتصفح في الوضع المتخفي (Incognito)، يرجى فتح الرابط في نافذة عادية ليتمكن المتصفح من تثبيته مباشرة بنقرة واحدة.');
+    // 3. Standalone mode or already installed check
+    markAppAsInstalled();
+    showToast(`✅ ${appDisplayName} مثبت بالفعل على جهازك! يمكنك فتحه مباشرة من قائمة برامج الويندوز أو من زر (Open in app 💻) أعلى المتصفح.`);
   };
 
   function showToast(msg) {
@@ -236,7 +230,16 @@
   window.isAppInstalled = isAppInstalled;
 
   // Auto-init on DOM ready - guaranteed execution for new & returning visitors on any account
-  function initInstallState() {
+  async function initInstallState() {
+    if ('getInstalledRelatedApps' in navigator) {
+      try {
+        const apps = await navigator.getInstalledRelatedApps();
+        if (apps && apps.length > 0) {
+          markAppAsInstalled();
+          return;
+        }
+      } catch (e) {}
+    }
     if (!isAppInstalled()) {
       renderInstallBanner();
     }
