@@ -4635,6 +4635,34 @@ html.admin-unlocked #login-modal-backdrop {
 /* ═══════════════════════════════════════════════════════════════════
    POS DINE-IN & TAKEAWAY CASHIER ENGINE STYLES
 ═══════════════════════════════════════════════════════════════════ */
+.pos-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  gap: 12px;
+}
+.pos-header-title {
+  font-size: 17px;
+  font-weight: 900;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 2px 0;
+}
+.pos-header-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+}
+.pos-new-ticket-btn {
+  font-weight: 800;
+  font-size: 12px;
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+
 .pos-layout {
   display: grid;
   grid-template-columns: 1fr 390px;
@@ -4646,29 +4674,35 @@ html.admin-unlocked #login-modal-backdrop {
 /* Mobile Segmented Toggle (Menu vs Ticket) */
 .pos-mobile-toggle {
   display: none;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
   background: var(--surface);
   border: 1.5px solid var(--border);
   border-radius: 12px;
   padding: 4px;
-  margin-bottom: 14px;
+  margin: 8px 0 14px 0;
   gap: 6px;
 }
 .pos-mobile-tab-btn {
-  flex: 1;
-  padding: 10px 14px;
+  flex: 1 1 50% !important;
+  width: 50% !important;
+  box-sizing: border-box !important;
+  padding: 10px 12px;
   border-radius: 9px;
   border: none;
   background: transparent;
   color: var(--text-muted);
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 800;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   transition: all 0.2s ease;
   user-select: none;
+  white-space: nowrap !important;
 }
 .pos-mobile-tab-btn.active {
   background: var(--primary);
@@ -4678,10 +4712,14 @@ html.admin-unlocked #login-modal-backdrop {
 .pos-badge-bubble {
   background: rgba(255, 255, 255, 0.25);
   color: #fff;
-  padding: 2px 7px;
+  padding: 1px 7px;
   border-radius: 10px;
   font-size: 11px;
   font-weight: 900;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
 }
 .pos-mobile-tab-btn:not(.active) .pos-badge-bubble {
   background: var(--primary);
@@ -4710,19 +4748,33 @@ html.admin-unlocked #login-modal-backdrop {
 }
 
 @media (max-width: 980px) {
+  .pos-header-bar {
+    margin-bottom: 8px !important;
+  }
+  .pos-header-subtitle {
+    display: none !important; /* Hide long subtitle on mobile */
+  }
+  .pos-header-title {
+    font-size: 14.5px !important;
+  }
+  .pos-new-ticket-btn {
+    font-size: 11.5px !important;
+    padding: 6px 10px !important;
+  }
   .pos-layout {
     grid-template-columns: 1fr;
     gap: 0;
   }
   .pos-mobile-toggle {
-    display: flex;
+    display: flex !important;
+    width: 100% !important;
   }
   .pos-layout.view-menu .pos-ticket-col {
     display: none !important;
   }
   .pos-layout.view-menu .pos-menu-col {
     display: flex !important;
-    padding: 12px;
+    padding: 10px;
   }
   .pos-layout.view-ticket .pos-menu-col {
     display: none !important;
@@ -4733,16 +4785,32 @@ html.admin-unlocked #login-modal-backdrop {
     width: 100%;
     box-sizing: border-box;
     box-shadow: none;
-    padding: 12px;
+    padding: 10px;
   }
   .pos-back-to-menu-btn {
     display: flex;
   }
   .pos-products-grid {
     grid-template-columns: repeat(2, 1fr) !important;
-    gap: 8px !important;
-    padding-bottom: 85px !important; /* Space for floating quick cart bar */
-    max-height: calc(100vh - 280px) !important;
+    gap: 10px !important;
+    padding-bottom: 95px !important; /* Space for floating quick cart bar */
+    max-height: none !important;
+    overflow-y: visible !important;
+  }
+  .pos-card-img-wrap {
+    height: 120px !important;
+  }
+}
+@media (max-width: 420px) {
+  .pos-card-img-wrap {
+    height: 105px !important;
+  }
+  .pos-card-title {
+    font-size: 12px !important;
+    min-height: 32px !important;
+  }
+  .pos-card-price {
+    font-size: 12.5px !important;
   }
 }
 
@@ -4812,7 +4880,7 @@ html.admin-unlocked #login-modal-backdrop {
 .pos-card {
   background: var(--surface-raised);
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border-radius: 14px;
   padding: 8px;
   display: flex;
   flex-direction: column;
@@ -4820,45 +4888,89 @@ html.admin-unlocked #login-modal-backdrop {
   transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
   user-select: none;
   position: relative;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
 }
 .pos-card:hover {
   transform: translateY(-2px);
   border-color: var(--primary);
-  box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
 }
 .pos-card:active {
-  transform: scale(0.97);
+  transform: scale(0.96);
 }
 .pos-card-img-wrap {
   width: 100%;
-  height: 85px;
-  border-radius: var(--radius-xs);
+  height: 115px;
+  border-radius: 10px;
   overflow: hidden;
   background: #120e0c;
-  margin-bottom: 6px;
   position: relative;
 }
 .pos-card-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
+}
+.pos-card-size-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(0, 0, 0, 0.72);
+  color: #fff;
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  backdrop-filter: blur(4px);
+}
+.pos-card-body {
+  padding: 8px 2px 2px 2px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: space-between;
 }
 .pos-card-title {
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 800;
   color: var(--text-main);
   line-height: 1.35;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  min-height: 34px;
+}
+.pos-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
 }
 .pos-card-price {
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 900;
   color: var(--primary);
-  margin-top: auto;
+}
+.pos-card-add-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: var(--primary-subtle);
+  color: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 15px;
+  transition: all 0.15s ease;
+}
+.pos-card:hover .pos-card-add-btn,
+.pos-card:active .pos-card-add-btn {
+  background: var(--primary);
+  color: #fff;
 }
 
 /* POS Order Type Selector */

@@ -13,12 +13,12 @@
 
   const isAdmin = window.location.pathname.includes('admin') || document.title.includes('Admin') || document.title.includes('إدارة');
   const appName = isAdmin ? 'Order Admin' : 'Order';
-  const appIcon = isAdmin ? 'admin_pwa_icon.png?v=20.0' : 'pwa_icon.png?v=20.0';
+  const appIcon = isAdmin ? 'admin_pwa_icon.png?v=21.0' : 'pwa_icon.png?v=21.0';
 
   // 1. Register Service Worker
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      const swUrl = window.location.pathname.includes('/order') ? './sw.js?v=20.0' : '/sw.js?v=20.0';
+      const swUrl = window.location.pathname.includes('/order') ? './sw.js?v=21.0' : '/sw.js?v=21.0';
       navigator.serviceWorker.register(swUrl)
         .then(reg => {
           try { reg.update(); } catch(e) {}

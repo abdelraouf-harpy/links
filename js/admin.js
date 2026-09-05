@@ -3133,11 +3133,13 @@ window.renderPOSProducts = function() {
           ` : `
             <div class="pos-card-img" style="display:flex; align-items:center; justify-content:center; font-size:26px; background:var(--surface);">🍽️</div>
           `}
+          ${hasMultipleSizes ? `<span class="pos-card-size-badge">عدة أحجام</span>` : ''}
         </div>
         <div class="pos-card-body">
           <div class="pos-card-title">${p.name}</div>
-          <div class="pos-card-price">
-            <span>${displayPrice}</span>
+          <div class="pos-card-footer">
+            <span class="pos-card-price font-num">${displayPrice}</span>
+            <span class="pos-card-add-btn" title="إضافة">+</span>
           </div>
         </div>
       </div>
