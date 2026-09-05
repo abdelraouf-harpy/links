@@ -37,7 +37,8 @@
     (function() {
       try {
         var params = new URLSearchParams(window.location.search);
-        var slug = params.get('m') || params.get('restaurant') || localStorage.getItem('harpy_active_slug') || 'king';
+        var slug = params.get('m') || params.get('restaurant') || 'king';
+        window.__harpySlug = slug;
         var localAuth = localStorage.getItem('harpy_admin_auth_' + slug);
         var sessionAuth = sessionStorage.getItem('harpy_auth_' + slug);
         var isAuth = false;

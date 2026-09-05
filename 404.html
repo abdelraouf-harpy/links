@@ -42,7 +42,7 @@
         var adminHashes = ['orders', 'products', 'categories', 'stories', 'settings', 'backup'];
         var cleanHash = hash.replace('#', '').trim();
         if (adminHashes.indexOf(cleanHash) !== -1) {
-          var slug = localStorage.getItem('harpy_active_slug') || 'king';
+          var slug = 'king';
           window.location.replace('/admin?m=' + encodeURIComponent(slug) + '#' + cleanHash);
           return;
         }
@@ -54,8 +54,7 @@
           var params = new URLSearchParams(search);
           if (slug && !params.get('m')) params.set('m', slug);
           if (!params.get('m')) {
-            var savedSlug = localStorage.getItem('harpy_active_slug') || 'king';
-            params.set('m', savedSlug);
+            params.set('m', 'king');
           }
           var queryString = '?' + params.toString();
           window.location.replace('/admin.html' + queryString + hash);

@@ -49,9 +49,13 @@
             }
           }
         }
-        if (!slug) slug = localStorage.getItem('harpy_active_slug') || 'king';
+        if (!slug) {
+          slug = 'king';
+          try { localStorage.setItem('harpy_active_slug', 'king'); } catch(e) {}
+        }
         slug = slug.toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
         window.__harpySlug = slug;
+        try { localStorage.setItem('harpy_active_slug', slug); } catch(e) {}
 
         // Safety Recovery: If browser lands on index.html with an admin tab hash, route directly to /admin
         var adminTabs = ['orders', 'products', 'categories', 'stories', 'settings', 'backup'];

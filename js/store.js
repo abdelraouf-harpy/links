@@ -3537,6 +3537,10 @@ const Store = {
   // ── Strict Multi-Tenant Restaurant Engine (Path, Query & Domain Support) ──
   getRestaurantSlug() {
     try {
+      if (typeof window !== 'undefined' && window.__harpySlug) {
+        return window.__harpySlug;
+      }
+
       // 1. Query Parameter Resolution (?m=slug or ?restaurant=slug)
       const params = new URLSearchParams(window.location.search);
       let urlSlug = params.get('m') || params.get('restaurant') || params.get('store') || params.get('slug');
@@ -3574,7 +3578,7 @@ const Store = {
       }
     } catch {}
 
-    const fallbackSlug = localStorage.getItem('harpy_active_slug') || 'king';
+    const fallbackSlug = 'king';
     return fallbackSlug;
   },
 
