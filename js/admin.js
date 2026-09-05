@@ -3015,11 +3015,14 @@ window.renderPOSCategories = function() {
   `;
 
   cats.forEach(c => {
-    const isActive = posCurrentCategory === c.id;
+    const catName = typeof c === 'string' ? c : (c.name || c.id || '');
+    const catId = typeof c === 'string' ? c : (c.id || c.name || '');
+    if (!catName) return;
+    const isActive = posCurrentCategory === catId;
+    const escapedCatId = encodeURIComponent(catId);
     html += `
-      <button type="button" class="pos-cat-pill ${isActive ? 'active' : ''}" onclick="setPOSCategory('${c.id}')">
-        ${c.icon ? `<span>${c.icon}</span>` : ''}
-        <span>${c.name}</span>
+      <button type="button" class="pos-cat-pill ${isActive ? 'active' : ''}" onclick="setPOSCategory(decodeURIComponent('${escapedCatId}'))">
+        <span>${catName}</span>
       </button>
     `;
   });
@@ -3047,8 +3050,8 @@ window.renderPOSTables = function() {
   let html = '';
   for (let i = 1; i <= 12; i++) {
     html += `
-      <button type="button" class="pos-table-btn ${posTableNumber === i ? 'active' : ''}" onclick="setPOSTable(${i})">
-        ${i}
+      <button type="button" class="pos-table-pill ${posTableNumber === i ? 'active' : ''}" onclick="setPOSTable(${i})">
+        طاولة ${i}
       </button>
     `;
   }
@@ -3089,7 +3092,10 @@ window.renderPOSProducts = function() {
 
   let filtered = prods.filter(p => p.visible !== false);
   if (posCurrentCategory !== 'all') {
-    filtered = filtered.filter(p => p.category === posCurrentCategory);
+    filtered = filtered.filter(p => {
+      const pCat = typeof p.category === 'string' ? p.category : (p.category?.name || p.category?.id || '');
+      return pCat === posCurrentCategory;
+    });
   }
   if (posSearchQuery) {
     filtered = filtered.filter(p => {
@@ -3110,20 +3116,21 @@ window.renderPOSProducts = function() {
 
   container.innerHTML = filtered.map(p => {
     const hasMultipleSizes = p.sizes && p.sizes.length > 0;
-    const basePrice = hasMultipleSizes ? p.sizes[0].price : p.price;
-    const displayPrice = `${basePrice} ${currency}`;
+    const basePrice = parseFloat(p.price) || (hasMultipleSizes ? parseFloat(p.sizes[0].price) || 0 : 0);
+    const displayPrice = hasMultipleSizes ? `يبدأ من ${basePrice} ${currency}` : `${basePrice} ${currency}`;
 
     return `
       <div class="pos-card" onclick="handlePOSProductClick('${p.id}')">
-        ${p.image ? `
-          <img src="${p.image}" class="pos-card-img" alt="${p.name}" loading="lazy">
-        ` : `
-          <div class="pos-card-img" style="display:flex; align-items:center; justify-content:center; font-size:24px; background:var(--surface);">🍽️</div>
-        `}
+        <div class="pos-card-img-wrap">
+          ${p.image ? `
+            <img src="${p.image}" class="pos-card-img" alt="${p.name}" loading="lazy">
+          ` : `
+            <div class="pos-card-img" style="display:flex; align-items:center; justify-content:center; font-size:26px; background:var(--surface);">🍽️</div>
+          `}
+        </div>
         <div class="pos-card-body">
           <div class="pos-card-title">${p.name}</div>
           <div class="pos-card-price">
-            ${hasMultipleSizes ? `<span style="font-size:10px; color:var(--text-muted); margin-left:3px;">يبدأ من</span>` : ''}
             <span>${displayPrice}</span>
           </div>
         </div>
@@ -3165,6 +3172,7 @@ window.openPOSItemModal = function(prod) {
   const title = document.getElementById('pos-item-modal-title');
   const body = document.getElementById('pos-item-modal-body');
   const currency = Store.getSettings().currency || "ج.م";
+  const basePrice = parseFloat(prod.price) || 0;
 
   if (title) title.textContent = `تخصيص: ${prod.name}`;
 
@@ -3175,13 +3183,17 @@ window.openPOSItemModal = function(prod) {
     html += `
       <div style="margin-bottom:14px;">
         <div style="font-size:12px; font-weight:800; color:var(--text-main); margin-bottom:8px;">اختر الحجم:</div>
-        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(100px, 1fr)); gap:8px;">
-          ${prod.sizes.map((s, idx) => `
-            <div id="pos-size-opt-${idx}" onclick="selectPOSModalSize(${idx})" style="border:1.5px solid ${idx === 0 ? 'var(--primary)' : 'var(--border)'}; background:${idx === 0 ? 'var(--primary-subtle)' : 'var(--surface)'}; padding:8px 10px; border-radius:var(--radius-xs); cursor:pointer; text-align:center; transition:all 0.15s ease;">
-              <div style="font-size:12px; font-weight:800; color:var(--text-main);">${s.name}</div>
-              <div class="font-num" style="font-size:11.5px; font-weight:900; color:var(--primary);">${s.price} ${currency}</div>
-            </div>
-          `).join('')}
+        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(110px, 1fr)); gap:8px;">
+          ${prod.sizes.map((s, idx) => {
+            const sizeModifier = parseFloat(s.price) || 0;
+            const sizeTotalPrice = basePrice > 0 ? (basePrice + sizeModifier) : sizeModifier;
+            return `
+              <div id="pos-size-opt-${idx}" onclick="selectPOSModalSize(${idx})" style="border:1.5px solid ${idx === 0 ? 'var(--primary)' : 'var(--border)'}; background:${idx === 0 ? 'var(--primary-subtle)' : 'var(--surface)'}; padding:8px 10px; border-radius:var(--radius-xs); cursor:pointer; text-align:center; transition:all 0.15s ease;">
+                <div style="font-size:12px; font-weight:800; color:var(--text-main);">${s.name}</div>
+                <div class="font-num" style="font-size:11.5px; font-weight:900; color:var(--primary);">${sizeTotalPrice} ${currency}</div>
+              </div>
+            `;
+          }).join('')}
         </div>
       </div>
     `;
@@ -3268,10 +3280,10 @@ window.confirmPOSItemCustomization = function() {
 
   let finalPrice = parseFloat(posModalProduct.price) || 0;
   if (posModalSelectedSize) {
-    finalPrice = parseFloat(posModalSelectedSize.price) || 0;
+    finalPrice += (parseFloat(posModalSelectedSize.price) || 0);
   }
   posModalSelectedAddons.forEach(a => {
-    finalPrice += parseFloat(a.price) || 0;
+    finalPrice += (parseFloat(a.price) || 0);
   });
 
   addPOSToCart({
@@ -3326,6 +3338,13 @@ window.removePOSItem = function(cartItemId) {
   updatePOSCartUI();
 };
 
+window.scrollPOSToTicket = function() {
+  const ticketCol = document.querySelector('.pos-ticket-col');
+  if (ticketCol) {
+    ticketCol.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+};
+
 window.updatePOSCartUI = function() {
   const container = document.getElementById('pos-ticket-items');
   const countBadge = document.getElementById('pos-items-count-badge');
@@ -3345,28 +3364,28 @@ window.updatePOSCartUI = function() {
     `;
   } else {
     container.innerHTML = posCart.map(it => `
-      <div class="pos-ticket-item">
-        <div style="flex:1; min-width:0;">
-          <div style="font-size:12.5px; font-weight:800; color:var(--text-main); word-break:break-word;">
+      <div class="pos-ticket-row">
+        <div class="pos-ticket-info">
+          <div class="pos-ticket-title">
             ${it.name}
             ${it.selectedSize ? `<span style="font-size:10.5px; color:var(--text-muted); font-weight:normal;">(${it.selectedSize.name})</span>` : ''}
           </div>
           ${it.selectedAddons && it.selectedAddons.length ? `
-            <div style="font-size:10.5px; color:var(--accent-wa);">+ ${it.selectedAddons.map(a => a.name).join('، ')}</div>
+            <div style="font-size:10px; color:var(--accent-wa);">+ ${it.selectedAddons.map(a => a.name).join('، ')}</div>
           ` : ''}
           ${it.notes ? `
-            <div style="font-size:10.5px; color:#f59e0b;">📝 ${it.notes}</div>
+            <div style="font-size:10px; color:#f59e0b;">📝 ${it.notes}</div>
           ` : ''}
           <div class="font-num" style="font-size:11.5px; font-weight:800; color:var(--primary); margin-top:2px;">
             ${(it.price * it.qty).toFixed(0)} ${currency}
           </div>
         </div>
 
-        <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+        <div class="pos-ticket-qty-wrap">
           <button type="button" class="pos-qty-btn" onclick="changePOSItemQty('${it.cartItemId}', -1)">-</button>
           <span class="font-num" style="font-size:13px; font-weight:900; min-width:18px; text-align:center;">${it.qty}</span>
           <button type="button" class="pos-qty-btn" onclick="changePOSItemQty('${it.cartItemId}', 1)">+</button>
-          <button type="button" onclick="removePOSItem('${it.cartItemId}')" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:14px; padding:2px 4px;" title="حذف">✕</button>
+          <button type="button" class="pos-ticket-del" onclick="removePOSItem('${it.cartItemId}')" title="حذف">✕</button>
         </div>
       </div>
     `).join('');
@@ -3389,6 +3408,22 @@ window.updatePOSCalculations = function() {
   if (finalTotalEl) finalTotalEl.textContent = `${finalTotal.toFixed(0)} ${currency}`;
 
   document.querySelectorAll('.pos-currency-symbol').forEach(el => el.textContent = currency);
+
+  // Mobile floating quick cart bar
+  const totalItemCount = posCart.reduce((s, it) => s + it.qty, 0);
+  const mobileBar = document.getElementById('pos-mobile-cart-bar');
+  const mobileItemsText = document.getElementById('pos-mobile-items-text');
+  const mobileTotalPrice = document.getElementById('pos-mobile-total-price');
+
+  if (mobileBar) {
+    if (posCart.length > 0) {
+      mobileBar.classList.add('show');
+      if (mobileItemsText) mobileItemsText.textContent = `${totalItemCount} صنف بالفاتورة`;
+      if (mobileTotalPrice) mobileTotalPrice.textContent = `${finalTotal.toFixed(0)} ${currency}`;
+    } else {
+      mobileBar.classList.remove('show');
+    }
+  }
 
   updatePOSChange();
 };

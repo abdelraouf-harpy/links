@@ -25,7 +25,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Order Admin">
 
-  <link rel="stylesheet" href="css/style.css?v=12.0">
+  <link rel="stylesheet" href="css/style.css?v=13.0">
   <link rel="preconnect" href="https://harpy-order-default-rtdb.firebaseio.com" crossorigin>
   <link rel="dns-prefetch" href="https://harpy-order-default-rtdb.firebaseio.com">
   <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
@@ -365,6 +365,21 @@
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Mobile Floating Quick Cart Bar -->
+        <div id="pos-mobile-cart-bar" class="pos-mobile-cart-bar" onclick="scrollPOSToTicket()">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:22px;">🛒</span>
+            <div>
+              <div id="pos-mobile-items-text" style="font-size:12.5px; font-weight:900; color:#fff;">0 صنف بالفاتورة</div>
+              <div style="font-size:10px; color:rgba(255,255,255,0.85);">اضغط للمراجعة والدفع</div>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span id="pos-mobile-total-price" class="font-num" style="font-size:16px; font-weight:900; color:#fff;">0 ج.م</span>
+            <span style="background:rgba(255,255,255,0.25); padding:4px 10px; border-radius:6px; font-size:11.5px; font-weight:800; color:#fff;">مراجعة الفاتورة ←</span>
           </div>
         </div>
       </div>
@@ -1168,8 +1183,8 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/store.js?v=12.0"></script>
-  <script src="js/admin.js?v=12.0"></script>
-  <script src="js/pwa.js?v=12.0"></script>
+  <script src="js/store.js?v=13.0"></script>
+  <script src="js/admin.js?v=13.0"></script>
+  <script src="js/pwa.js?v=13.0"></script>
 </body>
 </html>
