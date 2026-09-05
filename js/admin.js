@@ -551,6 +551,9 @@ window.switchTab = function(targetTabId, updateHash = true) {
     }
   }
 
+  // Toggle POS active state on body for specialized responsive layout
+  document.body.classList.toggle('tab-pos-active', targetTabId === 'tab-pos');
+
   // 5. Instantly render the active tab's cached data
   if (targetTabId === 'tab-products') {
     renderCatalog();

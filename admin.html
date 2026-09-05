@@ -9,11 +9,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
   
   <!-- Web App Manifest (PWA / WebAPK) -->
-  <link rel="manifest" href="admin-manifest.json?v=21.0">
+  <link rel="manifest" href="admin-manifest.json?v=23.0">
   
   <!-- Favicons & High-Res App Icons -->
-  <link rel="icon" type="image/png" href="admin_pwa_icon.png?v=21.0">
-  <link rel="apple-touch-icon" href="admin_pwa_icon.png?v=21.0">
+  <link rel="icon" type="image/png" href="admin_pwa_icon.png?v=23.0">
+  <link rel="apple-touch-icon" href="admin_pwa_icon.png?v=23.0">
   
   <!-- Android & Modern PWA Meta -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -25,7 +25,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Order Admin">
 
-  <link rel="stylesheet" href="css/style.css?v=21.0">
+  <link rel="stylesheet" href="css/style.css?v=23.0">
   <link rel="preconnect" href="https://harpy-order-default-rtdb.firebaseio.com" crossorigin>
   <link rel="dns-prefetch" href="https://harpy-order-default-rtdb.firebaseio.com">
   <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
@@ -254,9 +254,15 @@
         <div class="pos-layout view-menu">
           <!-- Right Column: Products & Categories -->
           <div class="pos-menu-col">
-            <!-- Search Bar -->
-            <div style="position:relative;">
-              <input type="text" id="pos-search-input" class="form-input" placeholder="🔍 بحث سريع عن وجبة، صنف، أو مشروب..." oninput="handlePOSSearch(this.value)">
+            <!-- Search Bar & Mobile Quick Reset Row -->
+            <div class="pos-search-row">
+              <div class="pos-search-input-wrap">
+                <input type="text" id="pos-search-input" class="form-input" placeholder="🔍 بحث سريع عن وجبة، صنف، أو مشروب..." oninput="handlePOSSearch(this.value)">
+              </div>
+              <button type="button" class="btn btn-ghost pos-mobile-quick-reset" onclick="resetPOSCart(true)" title="تفريغ وبدء فاتورة جديدة">
+                <span>🧹</span>
+                <span>فاتورة جديدة</span>
+              </button>
             </div>
 
             <!-- Categories Strip -->
@@ -1199,8 +1205,8 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/store.js?v=21.0"></script>
-  <script src="js/admin.js?v=21.0"></script>
-  <script src="js/pwa.js?v=21.0"></script>
+  <script src="js/store.js?v=23.0"></script>
+  <script src="js/admin.js?v=23.0"></script>
+  <script src="js/pwa.js?v=23.0"></script>
 </body>
 </html>
