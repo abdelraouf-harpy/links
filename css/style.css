@@ -4614,4 +4614,315 @@ html.admin-unlocked #login-modal-backdrop {
   box-shadow: 0 0 6px #22c55e;
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   POS DINE-IN & TAKEAWAY CASHIER ENGINE STYLES
+═══════════════════════════════════════════════════════════════════ */
+.pos-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 18px;
+  align-items: start;
+  margin-top: 14px;
+}
+@media (max-width: 980px) {
+  .pos-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pos-menu-col {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pos-ticket-col {
+  background: var(--surface-raised);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  position: sticky;
+  top: 16px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+}
+
+.pos-categories-strip {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scrollbar-width: thin;
+}
+.pos-cat-pill {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface-raised);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+.pos-cat-pill:hover {
+  border-color: var(--primary);
+  color: var(--text-main);
+}
+.pos-cat-pill.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  box-shadow: 0 2px 10px rgba(234, 88, 12, 0.35);
+}
+
+.pos-products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
+  max-height: 620px;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-width: thin;
+}
+
+.pos-card {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  user-select: none;
+  position: relative;
+}
+.pos-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+}
+.pos-card:active {
+  transform: scale(0.97);
+}
+.pos-card-img-wrap {
+  width: 100%;
+  height: 85px;
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  background: #120e0c;
+  margin-bottom: 6px;
+  position: relative;
+}
+.pos-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.pos-card-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.35;
+  margin-bottom: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.pos-card-price {
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--primary);
+  margin-top: auto;
+}
+
+/* POS Order Type Selector */
+.pos-type-toggle {
+  display: flex;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 4px;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+.pos-type-btn {
+  flex: 1;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+.pos-type-btn.active {
+  background: linear-gradient(135deg, #ea580c, #f97316);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3);
+}
+
+/* POS Tables Selector */
+.pos-tables-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+  scrollbar-width: thin;
+}
+.pos-table-pill {
+  padding: 5px 11px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-main);
+  font-size: 11.5px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+.pos-table-pill.active {
+  background: #0ea5e9;
+  border-color: #0ea5e9;
+  color: #fff;
+}
+
+/* POS Ticket Items List */
+.pos-ticket-items {
+  max-height: 280px;
+  overflow-y: auto;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-right: 2px;
+  scrollbar-width: thin;
+}
+.pos-ticket-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  gap: 8px;
+}
+.pos-ticket-info {
+  flex: 1;
+  min-width: 0;
+}
+.pos-ticket-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pos-ticket-unit {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+.pos-ticket-qty-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.pos-qty-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface-raised);
+  color: var(--text-main);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.pos-qty-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.pos-ticket-total {
+  font-size: 12.5px;
+  font-weight: 900;
+  color: var(--text-main);
+  min-width: 55px;
+  text-align: left;
+}
+.pos-ticket-del {
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px;
+  transition: color 0.15s ease;
+}
+.pos-ticket-del:hover {
+  color: var(--danger);
+}
+
+/* Order Badges for Kitchen & Archive */
+.order-type-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+.order-type-dinein {
+  background: rgba(14, 165, 233, 0.14);
+  color: #0ea5e9;
+  border: 1px solid rgba(14, 165, 233, 0.3);
+}
+.order-type-takeaway {
+  background: rgba(168, 85, 247, 0.14);
+  color: #a855f7;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+.order-type-delivery {
+  background: rgba(234, 88, 12, 0.14);
+  color: #ea580c;
+  border: 1px solid rgba(234, 88, 12, 0.3);
+}
+
+/* Clean Receipt Print Styles */
+@media print {
+  @page {
+    size: 80mm auto;
+    margin: 0 !important;
+  }
+  body * {
+    visibility: hidden;
+  }
+  #print-receipt-iframe, #print-receipt-iframe * {
+    visibility: visible;
+  }
+}
+
 

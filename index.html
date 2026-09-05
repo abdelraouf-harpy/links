@@ -8,11 +8,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
   <!-- Web App Manifest (PWA / WebAPK) -->
-  <link rel="manifest" href="manifest.json?v=12.0">
+  <link rel="manifest" href="manifest.json?v=14.0">
   
   <!-- Favicons & High-Res App Icons -->
-  <link rel="icon" type="image/png" href="pwa_icon.png">
-  <link rel="apple-touch-icon" href="pwa_icon.png">
+  <link rel="icon" type="image/png" href="pwa_icon.png?v=14.0">
+  <link rel="apple-touch-icon" href="pwa_icon.png?v=14.0">
   
   <!-- Android & Modern PWA Meta -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -53,11 +53,11 @@
         slug = slug.toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
         window.__harpySlug = slug;
 
-        // Safety Recovery: If browser lands on index.html with an admin tab hash, route directly to admin.html
+        // Safety Recovery: If browser lands on index.html with an admin tab hash, route directly to /admin
         var adminTabs = ['orders', 'products', 'categories', 'stories', 'settings', 'backup'];
         var currentAdminHash = (window.location.hash || '').replace('#', '').trim();
         if (adminTabs.indexOf(currentAdminHash) !== -1) {
-          var adminDest = '/admin.html?m=' + encodeURIComponent(slug) + '#' + currentAdminHash;
+          var adminDest = '/admin?m=' + encodeURIComponent(slug) + '#' + currentAdminHash;
           window.location.replace(adminDest);
           return;
         }

@@ -11,12 +11,14 @@
                        window.navigator.standalone === true || 
                        document.referrer.includes('android-app://');
 
-  const appName = (document.title.includes('Admin') || document.title.includes('إدارة')) ? 'Order Admin' : 'Order';
+  const isAdmin = window.location.pathname.includes('admin') || document.title.includes('Admin') || document.title.includes('إدارة');
+  const appName = isAdmin ? 'Order Admin' : 'Order';
+  const appIcon = isAdmin ? 'admin_pwa_icon.png?v=14.0' : 'pwa_icon.png?v=14.0';
 
   // 1. Register Service Worker
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=12.0')
+      navigator.serviceWorker.register('/sw.js?v=14.0', { scope: '/' })
         .then(reg => {
           reg.addEventListener('updatefound', () => {
             const newWorker = reg.installing;
@@ -78,7 +80,7 @@
 
     banner.innerHTML = `
       <div style="position:relative; width:44px; height:44px; border-radius:11px; overflow:hidden; flex-shrink:0; background:#120e0c; border:1px solid rgba(255,255,255,0.1);">
-        <img src="pwa_icon.png" alt="App Icon" style="width:100%; height:100%; object-fit:cover;">
+        <img src="${appIcon}" alt="${appName}" style="width:100%; height:100%; object-fit:cover;">
       </div>
       <div style="flex:1; min-width:0;">
         <div style="font-size:13.5px; font-weight:800; color:var(--text-main, #fff); line-height:1.3;">تثبيت تطبيق ${appName} 💻📱</div>
@@ -146,7 +148,7 @@
         <div style="background:var(--surface, #1c1714); border:1px solid var(--border-strong, #ea580c); border-radius:20px; padding:22px; max-width:92vw; width:380px; box-shadow:0 20px 40px rgba(0,0,0,0.6); color:var(--text-main, #fff);">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
             <div style="display:flex; align-items:center; gap:10px;">
-              <img src="pwa_icon.png" style="width:38px; height:38px; border-radius:10px;">
+              <img src="${appIcon}" style="width:38px; height:38px; border-radius:10px; object-fit:cover;">
               <div style="font-weight:800; font-size:15px;">تثبيت ${appName} على iPhone / iPad</div>
             </div>
             <button onclick="document.getElementById('ios-pwa-modal').remove()" style="background:transparent; border:none; color:#888; font-size:18px; cursor:pointer;">✕</button>
@@ -184,11 +186,13 @@
       modal.innerHTML = `
         <div style="background:var(--surface, #1c1714); border:1px solid var(--border-strong, #ea580c); border-radius:20px; padding:24px; max-width:92vw; width:430px; box-shadow:0 20px 40px rgba(0,0,0,0.6); color:var(--text-main, #fff); text-align:center;">
           <div style="width:56px; height:56px; border-radius:14px; margin:0 auto 12px; overflow:hidden; background:#120e0c; border:1px solid rgba(255,255,255,0.1);">
-            <img src="pwa_icon.png" style="width:100%; height:100%; object-fit:cover;">
+            <img src="${appIcon}" style="width:100%; height:100%; object-fit:cover;">
           </div>
-          <div style="font-weight:800; font-size:16.5px; margin-bottom:8px;">تثبيت ${appName} كبرنامج على جهازك</div>
+          <div style="font-weight:800; font-size:16.5px; margin-bottom:8px;">تثبيت ${appName} كبرنامج مستقل</div>
           <div style="font-size:13px; color:var(--text-muted, #aaa); margin-bottom:18px; line-height:1.7; text-align:right; background:rgba(0,0,0,0.25); padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.06);">
-            <p style="margin:0 0 8px 0;"><b>💻 على الكمبيوتر (Windows / Mac):</b><br>اضغط على أيقونة التثبيت <b>(⊕ أو 💻)</b> في شريط العنوان أعلى متصفح كروم أو إيدج، أو اضغط على القائمة (⋮) ثم اختر <b>"تثبيت ${appName}"</b>.</p>
+            <p style="margin:0 0 10px 0;"><b>💻 على الكمبيوتر (Windows / Mac):</b><br>
+            ستجد أيقونة التثبيت <b>(⊕ أو 💻)</b> في شريط عنوان المتصفح أعلى اليمين (بجانب زر الإشارة المرجعية ⭐).<br>
+            أو اضغط على قائمة المتصفح <b>(الثلاث نقاط ⋮)</b> ثم اختر <b>"تثبيت ${appName}"</b>.</p>
             <p style="margin:0;"><b>📱 على الهاتف (Android):</b><br>من قائمة المتصفح <b>(الـ 3 نقاط ⋮ أعلى الشاشة)</b>، اختر <b>"تثبيت التطبيق" (Install app)</b>.</p>
           </div>
           <button onclick="document.getElementById('fallback-pwa-modal').remove()" style="background:linear-gradient(135deg, #ea580c, #f97316); color:#fff; border:none; padding:10px 28px; border-radius:12px; font-weight:800; font-size:13.5px; cursor:pointer;">حسناً، فهمت</button>
@@ -214,15 +218,15 @@
   }
 
   // Auto-init on DOM ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      if (isIOS && !isStandalone) {
-        showInstallTriggers();
-      }
-    });
-  } else {
-    if (isIOS && !isStandalone) {
-      showInstallTriggers();
+  function initInstallState() {
+    if (!isStandalone) {
+      setTimeout(showInstallTriggers, 1500);
     }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initInstallState);
+  } else {
+    initInstallState();
   }
 })();

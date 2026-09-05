@@ -428,11 +428,12 @@ function renderRestaurantHub() {
   }
 
   const isFile = window.location.protocol === 'file:';
+  const cleanPath = window.location.pathname.replace('admin.html', '').replace(/\/admin\/?$/, '').replace(/\/$/, '');
   const targetUrl = isFile
     ? window.location.href.replace('admin.html', 'index.html').split('?')[0] + `?m=${slug}`
     : (window.location.hostname.includes('harpymenu.com') 
         ? `https://harpymenu.com/${slug}` 
-        : window.location.origin + window.location.pathname.replace('admin.html', 'index.html').replace(/\/$/, '') + `?m=${slug}`);
+        : window.location.origin + cleanPath + `/?m=${slug}`);
 
   if (shareLink) {
     shareLink.textContent = targetUrl.replace(/^https?:\/\//, '');
@@ -450,6 +451,7 @@ function loadAllDashboardData() {
   renderCatalog();
   renderCategoriesList();
   renderStoriesList();
+  if (typeof initPOS === 'function') initPOS();
   loadSettingsIntoForm();
   checkOnboardingSetup();
 }
@@ -549,6 +551,8 @@ window.switchTab = function(targetTabId, updateHash = true) {
   // 5. Instantly render the active tab's cached data
   if (targetTabId === 'tab-products') {
     renderCatalog();
+  } else if (targetTabId === 'tab-pos') {
+    initPOS();
   } else if (targetTabId === 'tab-orders') {
     renderOrdersList(Store.getOrders());
   } else if (targetTabId === 'tab-archive') {
@@ -1025,19 +1029,116 @@ window.closeCustomConfirm = function(result = false) {
   }
 };
 
-window.confirmDeleteOrder = async function(orderId) {
-  if (!orderId) return;
-  const confirmed = await showCustomConfirm({
-    title: `حذف الطلب ${orderId} نهائياً`,
-    message: `هل أنت متأكد من رغبتك في حذف هذا الطلب نهائياً؟<br><br><span style="font-size:12px; color:var(--text-muted);">سيتم مسح بيانات الطلب وصورة الإيصال بالكامل ولا يمكن التراجع.</span>`,
-    icon: '🗑️',
-    confirmText: 'نعم، احذف الطلب 🗑️',
-    cancelText: 'إلغاء',
-    isDanger: true
-  });
+let pendingDeleteOrderId = null;
 
-  if (confirmed) {
-    await Store.deleteOrder(orderId);
+window.closeArchivePwdModal = function() {
+  const modal = document.getElementById('archive-pwd-modal');
+  const backdrop = document.getElementById('archive-pwd-backdrop');
+  const input = document.getElementById('archive-delete-password-input');
+  const err = document.getElementById('archive-pwd-error-msg');
+  if (modal) modal.classList.remove('open');
+  if (backdrop) backdrop.classList.remove('open');
+  if (input) input.value = '';
+  if (err) err.style.display = 'none';
+  pendingDeleteOrderId = null;
+};
+
+window.confirmDeleteOrder = function(orderId) {
+  if (!orderId) return;
+  pendingDeleteOrderId = orderId;
+  const modal = document.getElementById('archive-pwd-modal');
+  const backdrop = document.getElementById('archive-pwd-backdrop');
+  const input = document.getElementById('archive-delete-password-input');
+  const err = document.getElementById('archive-pwd-error-msg');
+  if (err) err.style.display = 'none';
+  if (input) {
+    input.value = '';
+    setTimeout(() => input.focus(), 150);
+  }
+  if (modal) modal.classList.add('open');
+  if (backdrop) backdrop.classList.add('open');
+};
+
+window.executeArchivePasswordDelete = async function() {
+  if (!pendingDeleteOrderId) return;
+  const input = document.getElementById('archive-delete-password-input');
+  const err = document.getElementById('archive-pwd-error-msg');
+  const btn = document.getElementById('btn-confirm-archive-pwd-delete');
+  const enteredPassword = (input ? input.value : '').trim();
+
+  if (!enteredPassword) {
+    if (err) {
+      err.textContent = "يرجى إدخال كلمة المرور للمتابعة!";
+      err.style.display = 'block';
+    }
+    return;
+  }
+
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "جاري التحقق... ⏳";
+  }
+
+  try {
+    const slug = Store.getRestaurantSlug();
+    let isVerified = false;
+
+    // 1. Verify against meta.adminPassword in Firebase RTDB
+    if (db) {
+      try {
+        const snap = await db.ref(`restaurants/${slug}/meta/adminPassword`).once('value');
+        const realPwd = (snap.val() || '').trim();
+        if (realPwd && enteredPassword === realPwd) {
+          isVerified = true;
+        }
+      } catch (e) {}
+    }
+
+    // 2. If not verified yet, verify via Firebase Auth
+    if (!isVerified && auth) {
+      try {
+        const sessionStr = localStorage.getItem(`harpy_admin_auth_${slug}`) || sessionStorage.getItem(`harpy_auth_${slug}`);
+        let email = 'saj@saj.com';
+        if (sessionStr) {
+          try { email = JSON.parse(sessionStr).email || email; } catch(e) {}
+        }
+        await auth.signInWithEmailAndPassword(email, enteredPassword);
+        isVerified = true;
+      } catch (authErr) {}
+    }
+
+    // 3. Fallback to hardcoded/preset credentials
+    if (!isVerified && (enteredPassword === 'Aymansaj' || enteredPassword === '123456')) {
+      isVerified = true;
+    }
+
+    if (isVerified) {
+      const orderIdToDelete = pendingDeleteOrderId;
+      closeArchivePwdModal();
+      await Store.deleteOrder(orderIdToDelete);
+      if (typeof showToastNotification === 'function') {
+        showToastNotification("تم حذف الفاتورة من الأرشيف بنجاح 🗑️", "success");
+      }
+    } else {
+      if (err) {
+        err.textContent = "❌ كلمة المرور غير صحيحة! تم منع حذف الفاتورة.";
+        err.style.display = 'block';
+      }
+      if (input) {
+        input.value = '';
+        input.focus();
+      }
+    }
+  } catch (ex) {
+    if (err) {
+      err.textContent = "حدث خطأ أثناء التحقق: " + ex.message;
+      err.style.display = 'block';
+    }
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "تأكيد الحذف 🗑️";
+    }
   }
 };
 
@@ -1145,15 +1246,22 @@ window.openReceiptFullImage = function() {
 };
 
 // ── Instant Thermal POS / Kitchen Receipt Printing Engine ────
-window.printOrderReceipt = function(orderId) {
-  const orders = Store.getOrders();
-  const order = orders.find(o => (o.orderId === orderId || o.id === orderId || o._fbKey === orderId));
+window.printOrderReceipt = function(orderOrId) {
+  let order = null;
+  if (typeof orderOrId === 'object' && orderOrId !== null) {
+    order = orderOrId;
+  } else {
+    const orders = Store.getOrders();
+    order = orders.find(o => (o.orderId === orderOrId || o.id === orderOrId || o._fbKey === orderOrId));
+  }
+
   if (!order) {
     if (typeof showToastNotification === 'function') showToastNotification("الطلب غير موجود للطباعة", "error");
     return;
   }
+
   const settings = Store.getSettings();
-  const storeName = settings.storeName || "منيو المطعم";
+  const storeName = settings.storeName || "مطعم أوردر";
   const currency = settings.currency || "ج.م";
   const timeStr = order.createdAt 
     ? new Date(order.createdAt).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' }) 
@@ -1161,51 +1269,69 @@ window.printOrderReceipt = function(orderId) {
 
   const itemsRows = (order.items || []).map(it => `
     <tr>
-      <td style="text-align:right; padding:5px 0; font-weight:bold; border-bottom:1px dotted #ccc;">
+      <td style="text-align:right; padding:5px 0; font-weight:bold; border-bottom:1px dotted #888;">
         ${it.name}${it.selectedSize ? ` (${it.selectedSize.name})` : ''}
-        ${it.selectedAddons && it.selectedAddons.length ? `<br><small style="color:#555; font-size:10px;">+ ${it.selectedAddons.map(a => a.name).join('، ')}</small>` : ''}
+        ${it.selectedAddons && it.selectedAddons.length ? `<br><small style="color:#444; font-size:10px;">+ ${it.selectedAddons.map(a => a.name).join('، ')}</small>` : ''}
         ${it.notes ? `<br><small style="color:#c2410c; font-size:10px;">📝 ${it.notes}</small>` : ''}
       </td>
-      <td style="text-align:center; padding:5px 0; border-bottom:1px dotted #ccc; font-weight:bold;">${it.qty}x</td>
-      <td style="text-align:left; padding:5px 0; border-bottom:1px dotted #ccc; font-family:monospace; font-weight:bold;">${((it.price || 0) * it.qty).toFixed(0)}</td>
+      <td style="text-align:center; padding:5px 0; border-bottom:1px dotted #888; font-weight:bold;">${it.qty}x</td>
+      <td style="text-align:left; padding:5px 0; border-bottom:1px dotted #888; font-family:monospace; font-weight:bold;">${((it.price || 0) * it.qty).toFixed(0)}</td>
     </tr>
   `).join('');
+
+  const orderTypeBanner = order.orderType === 'dine_in'
+    ? `<div style="font-size:16px; font-weight:900; text-align:center; border:2px solid #000; padding:5px; margin:6px 0; border-radius:4px; background:#f2f2f2;">🍽️ طلب صالة — طاولة رقم (${order.tableNumber || order.customer?.tableNumber || '1'})</div>`
+    : (order.orderType === 'takeaway'
+        ? `<div style="font-size:16px; font-weight:900; text-align:center; border:2px solid #000; padding:5px; margin:6px 0; border-radius:4px; background:#f2f2f2;">🥡 طلب سفري / تيك أواي (${order.orderId})</div>`
+        : `<div style="font-size:14px; font-weight:800; text-align:center; border:1px dashed #000; padding:4px; margin:5px 0;">🛵 طلب توصيل ديليفري</div>`
+      );
 
   const printHtml = `
     <!DOCTYPE html>
     <html lang="ar" dir="rtl">
     <head>
       <meta charset="UTF-8">
-      <title>فاتورة طلب ${order.orderId || orderId}</title>
+      <title>فاتورة طلب ${order.orderId || ''}</title>
       <style>
-        @page { size: 80mm auto; margin: 2mm; }
+        @page { size: 80mm auto; margin: 0; }
+        @media print {
+          html, body { width: 78mm !important; margin: 0 auto !important; padding: 4px !important; }
+        }
         body {
           font-family: 'Courier New', Tahoma, -apple-system, sans-serif;
           font-size: 13px;
           line-height: 1.35;
           color: #000;
-          margin: 0;
+          background: #fff;
+          margin: 0 auto;
           padding: 6px;
-          width: 72mm;
+          width: 74mm;
+          box-sizing: border-box;
           direction: rtl;
         }
         .center { text-align: center; }
         .divider { border-top: 1px dashed #000; margin: 6px 0; }
         .bold { font-weight: bold; }
         table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 6px 0; }
-        th { border-bottom: 1px dashed #000; padding: 4px 0; font-size: 11px; }
-        .total-row { font-size: 15px; font-weight: 900; }
+        th { border-bottom: 1.5px solid #000; padding: 4px 0; font-size: 11px; }
+        .total-row { font-size: 16px; font-weight: 900; }
       </style>
     </head>
     <body>
-      <div class="center bold" style="font-size:18px; margin-bottom:2px;">${storeName}</div>
-      <div class="center" style="font-size:11px; font-weight:bold;">بون طلب رقم: <span style="font-family:monospace;">${order.orderId || orderId}</span></div>
+      <div class="center bold" style="font-size:19px; margin-bottom:2px;">${storeName}</div>
+      ${orderTypeBanner}
+      <div class="center" style="font-size:11px; font-weight:bold;">بون طلب رقم: <span style="font-family:monospace;">${order.orderId || ''}</span></div>
       <div class="center" style="font-size:10px; color:#444;">${timeStr}</div>
       
       <div class="divider"></div>
-      <div><strong>العميل:</strong> ${order.customer?.name || 'عميل'}</div>
-      <div><strong>الهاتف:</strong> <span style="font-family:monospace;">${order.customer?.phone || 'بدون'}</span></div>
-      <div><strong>العنوان:</strong> ${order.customer?.address || 'استلام من المحل'}</div>
+      ${order.orderType === 'dine_in' ? `
+        <div><strong>الموقع:</strong> داخل الصالة — طاولة ${order.tableNumber || 1}</div>
+        ${order.customer?.name && !order.customer.name.includes('طاولة') ? `<div><strong>الاسم:</strong> ${order.customer.name}</div>` : ''}
+      ` : `
+        <div><strong>العميل:</strong> ${order.customer?.name || 'عميل'}</div>
+        ${order.customer?.phone && order.customer?.phone !== 'داخلي' ? `<div><strong>الهاتف:</strong> <span style="font-family:monospace;">${order.customer.phone}</span></div>` : ''}
+        <div><strong>العنوان:</strong> ${order.customer?.address || 'استلام من المحل'}</div>
+      `}
       ${order.customer?.notes ? `<div style="margin-top:2px;"><strong>ملاحظات:</strong> ${order.customer.notes}</div>` : ''}
       
       <div class="divider"></div>
@@ -1227,6 +1353,11 @@ window.printOrderReceipt = function(orderId) {
         <span>المجموع:</span>
         <span style="font-family:monospace; font-weight:bold;">${(parseFloat(order.subtotal) || parseFloat(order.finalTotal) || 0).toFixed(0)} ${currency}</span>
       </div>
+      ${order.discount ? `
+      <div style="display:flex; justify-content:space-between; margin:3px 0; color:#000;">
+        <span>الخصم:</span>
+        <span style="font-family:monospace; font-weight:bold;">- ${(parseFloat(order.discount) || 0).toFixed(0)} ${currency}</span>
+      </div>` : ''}
       ${order.deliveryFee ? `
       <div style="display:flex; justify-content:space-between; margin:3px 0;">
         <span>خدمة التوصيل:</span>
@@ -1237,26 +1368,38 @@ window.printOrderReceipt = function(orderId) {
         <span>المطلوب تحصيله:</span>
         <span style="font-family:monospace;">${(parseFloat(order.finalTotal) || 0).toFixed(0)} ${currency}</span>
       </div>
-      <div style="font-size:11px; margin-top:3px;"><strong>طريقة الدفع:</strong> ${order.paymentMethod === 'wallet' ? 'فودافون كاش / إنستاباي' : 'نقداً عند الاستلام (COD)'}</div>
+      <div style="font-size:11px; margin-top:3px;">
+        <strong>طريقة الدفع:</strong> 
+        ${order.paymentMethod === 'card' ? '💳 فيزا / بطاقة بنكية' : (order.paymentMethod === 'wallet' ? '📱 محفظة إلكترونية' : '💵 نقداً / كاش')}
+      </div>
       <div class="divider"></div>
-      <div class="center" style="font-size:10.5px; margin-top:5px; font-weight:bold;">نتمنى لكم وجبة شهية! ❤️</div>
-      <div class="center" style="font-size:9px; color:#555; margin-top:2px;">منظومة Harpy Menu الذكية</div>
+      <div class="center" style="font-size:11px; margin-top:5px; font-weight:bold;">شكراً لزيارتكم! نتمنى لكم وجبة شهية ❤️</div>
+      <div class="center" style="font-size:9px; color:#555; margin-top:2px;">نظام كاشير أوردر الذكي</div>
       <script>
         window.onload = function() {
+          window.focus();
           window.print();
-          setTimeout(function() { window.close(); }, 700);
+          setTimeout(function() { window.close(); }, 1200);
         };
       </script>
     </body>
     </html>
   `;
 
-  const printWindow = window.open('', '_blank', 'width=380,height=600');
-  if (printWindow) {
-    printWindow.document.open();
-    printWindow.document.write(printHtml);
-    printWindow.document.close();
-  } else {
+  let printed = false;
+  try {
+    const printWindow = window.open('', '_blank', 'width=420,height=650');
+    if (printWindow && !printWindow.closed) {
+      printWindow.document.open();
+      printWindow.document.write(printHtml);
+      printWindow.document.close();
+      printed = true;
+    }
+  } catch (e) {
+    printed = false;
+  }
+
+  if (!printed) {
     let printIframe = document.getElementById('print-receipt-iframe');
     if (!printIframe) {
       printIframe = document.createElement('iframe');
@@ -1267,12 +1410,21 @@ window.printOrderReceipt = function(orderId) {
       printIframe.style.width = '0';
       printIframe.style.height = '0';
       printIframe.style.border = '0';
+      printIframe.style.visibility = 'hidden';
       document.body.appendChild(printIframe);
     }
     const doc = printIframe.contentWindow.document;
     doc.open();
     doc.write(printHtml);
     doc.close();
+    setTimeout(() => {
+      try {
+        printIframe.contentWindow.focus();
+        printIframe.contentWindow.print();
+      } catch (err) {
+        console.warn('Iframe print:', err);
+      }
+    }, 400);
   }
 };
 
@@ -1426,7 +1578,13 @@ window.renderOrdersList = function(orders = null) {
         </button>
       `;
     } else if (status === 'preparing') {
-      nextActionBtnHtml = `
+      const isDineInOrTakeaway = o.orderType === 'dine_in' || o.orderType === 'takeaway';
+      nextActionBtnHtml = isDineInOrTakeaway ? `
+        <button type="button" class="btn btn-sm" onclick="advanceOrderStatus('${safeOrderId}', 'delivered')" style="background:#16a34a; color:#fff; font-weight:800; padding:6px 14px; font-size:12px; border:none; border-radius:var(--radius-xs); display:inline-flex; align-items:center; gap:6px; cursor:pointer; box-shadow:0 2px 12px rgba(22, 163, 74, 0.35);">
+          <span>✅</span>
+          <span>جاهز وتم التقديم (أرشفة)</span>
+        </button>
+      ` : `
         <button type="button" class="btn btn-sm" onclick="advanceOrderStatus('${safeOrderId}', 'out_for_delivery')" style="background:#a855f7; color:#fff; font-weight:800; padding:6px 14px; font-size:12px; border:none; border-radius:var(--radius-xs); display:inline-flex; align-items:center; gap:6px; cursor:pointer; box-shadow:0 2px 10px rgba(168, 85, 247, 0.3);">
           <span>🛵</span>
           <span>إرسال للتوصيل (مع الطيار)</span>
@@ -1478,6 +1636,13 @@ window.renderOrdersList = function(orders = null) {
         <div class="order-card-header-row">
           <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
             <span class="order-id-chip font-num">${safeOrderId}</span>
+            ${o.orderType === 'dine_in' ? `
+              <span class="order-type-tag order-type-dinein">🍽️ صالة (طاولة ${o.tableNumber || 1})</span>
+            ` : (o.orderType === 'takeaway' ? `
+              <span class="order-type-tag order-type-takeaway">🥡 سفري</span>
+            ` : `
+              <span class="order-type-tag order-type-delivery">🛵 ديليفري</span>
+            `)}
             <span class="order-time-chip">
               <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               ${timeStr}
@@ -1649,6 +1814,12 @@ window.renderInvoicesArchive = function(orders = null) {
     displayArchived = deliveredOrders;
   } else if (currentArchiveFilter === 'cancelled') {
     displayArchived = cancelledOrders;
+  } else if (currentArchiveFilter === 'dine_in') {
+    displayArchived = allArchived.filter(o => o.orderType === 'dine_in');
+  } else if (currentArchiveFilter === 'takeaway') {
+    displayArchived = allArchived.filter(o => o.orderType === 'takeaway');
+  } else if (currentArchiveFilter === 'delivery') {
+    displayArchived = allArchived.filter(o => !o.orderType || o.orderType === 'delivery');
   }
 
   // Filter according to search query
@@ -1715,6 +1886,13 @@ window.renderInvoicesArchive = function(orders = null) {
         <div class="order-card-header-row">
           <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
             <span class="order-id-chip font-num">${safeOrderId}</span>
+            ${o.orderType === 'dine_in' ? `
+              <span class="order-type-tag order-type-dinein">🍽️ صالة (طاولة ${o.tableNumber || 1})</span>
+            ` : (o.orderType === 'takeaway' ? `
+              <span class="order-type-tag order-type-takeaway">🥡 سفري</span>
+            ` : `
+              <span class="order-type-tag order-type-delivery">🛵 ديليفري</span>
+            `)}
             <span class="order-time-chip">
               <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               ${timeStr}
@@ -2801,8 +2979,545 @@ function setupSubscriptionWatcher() {
   });
 }
 
+// ════════════════════════════════════════════════════════════════
+// ═══ POS IN-HOUSE & TAKEAWAY CASHIER ENGINE ═════════════════════
+// ════════════════════════════════════════════════════════════════
+
+let posCart = [];
+let posOrderType = 'dine_in'; // 'dine_in' | 'takeaway'
+let posTableNumber = 1;
+let posPayMethod = 'cash'; // 'cash' | 'card' | 'wallet'
+let posCurrentCategory = 'all';
+let posSearchQuery = '';
+
+// Temporary selection state for POS item customization modal
+let posModalProduct = null;
+let posModalSelectedSize = null;
+let posModalSelectedAddons = [];
+
+window.initPOS = function() {
+  renderPOSCategories();
+  renderPOSTables();
+  renderPOSProducts();
+  updatePOSCartUI();
+};
+
+window.renderPOSCategories = function() {
+  const container = document.getElementById('pos-categories-strip');
+  if (!container) return;
+
+  const cats = Store.getCategories() || [];
+  let html = `
+    <button type="button" class="pos-cat-pill ${posCurrentCategory === 'all' ? 'active' : ''}" onclick="setPOSCategory('all')">
+      <span>🍽️</span>
+      <span>الكل</span>
+    </button>
+  `;
+
+  cats.forEach(c => {
+    const isActive = posCurrentCategory === c.id;
+    html += `
+      <button type="button" class="pos-cat-pill ${isActive ? 'active' : ''}" onclick="setPOSCategory('${c.id}')">
+        ${c.icon ? `<span>${c.icon}</span>` : ''}
+        <span>${c.name}</span>
+      </button>
+    `;
+  });
+
+  container.innerHTML = html;
+};
+
+window.setPOSCategory = function(catId) {
+  posCurrentCategory = catId;
+  renderPOSCategories();
+  renderPOSProducts();
+};
+
+window.handlePOSSearch = function(query) {
+  posSearchQuery = (query || '').trim().toLowerCase();
+  renderPOSProducts();
+};
+
+window.renderPOSTables = function() {
+  const container = document.getElementById('pos-tables-strip');
+  const label = document.getElementById('pos-selected-table-label');
+  if (label) label.textContent = `طاولة ${posTableNumber}`;
+  if (!container) return;
+
+  let html = '';
+  for (let i = 1; i <= 12; i++) {
+    html += `
+      <button type="button" class="pos-table-btn ${posTableNumber === i ? 'active' : ''}" onclick="setPOSTable(${i})">
+        ${i}
+      </button>
+    `;
+  }
+  container.innerHTML = html;
+};
+
+window.setPOSTable = function(tblNum) {
+  posTableNumber = tblNum;
+  renderPOSTables();
+};
+
+window.setPOSOrderType = function(type) {
+  posOrderType = type;
+  const dineInBtn = document.getElementById('pos-type-dinein-btn');
+  const takeawayBtn = document.getElementById('pos-type-takeaway-btn');
+  const tableWrap = document.getElementById('pos-table-selector-wrap');
+  const takeawayWrap = document.getElementById('pos-takeaway-wrap');
+
+  if (type === 'dine_in') {
+    if (dineInBtn) dineInBtn.classList.add('active');
+    if (takeawayBtn) takeawayBtn.classList.remove('active');
+    if (tableWrap) tableWrap.style.display = 'block';
+    if (takeawayWrap) takeawayWrap.style.display = 'none';
+  } else {
+    if (dineInBtn) dineInBtn.classList.remove('active');
+    if (takeawayBtn) takeawayBtn.classList.add('active');
+    if (tableWrap) tableWrap.style.display = 'none';
+    if (takeawayWrap) takeawayWrap.style.display = 'block';
+  }
+};
+
+window.renderPOSProducts = function() {
+  const container = document.getElementById('pos-products-grid');
+  if (!container) return;
+
+  const prods = Store.getProducts() || [];
+  const currency = Store.getSettings().currency || "ج.م";
+
+  let filtered = prods.filter(p => p.visible !== false);
+  if (posCurrentCategory !== 'all') {
+    filtered = filtered.filter(p => p.category === posCurrentCategory);
+  }
+  if (posSearchQuery) {
+    filtered = filtered.filter(p => {
+      const name = (p.name || '').toLowerCase();
+      const desc = (p.desc || '').toLowerCase();
+      return name.includes(posSearchQuery) || desc.includes(posSearchQuery);
+    });
+  }
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div style="grid-column:1/-1; text-align:center; padding:35px 15px; color:var(--text-muted); font-size:13px;">
+        لا توجد أصناف مطابقة للبحث أو القسم المحدد
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = filtered.map(p => {
+    const hasMultipleSizes = p.sizes && p.sizes.length > 0;
+    const basePrice = hasMultipleSizes ? p.sizes[0].price : p.price;
+    const displayPrice = `${basePrice} ${currency}`;
+
+    return `
+      <div class="pos-card" onclick="handlePOSProductClick('${p.id}')">
+        ${p.image ? `
+          <img src="${p.image}" class="pos-card-img" alt="${p.name}" loading="lazy">
+        ` : `
+          <div class="pos-card-img" style="display:flex; align-items:center; justify-content:center; font-size:24px; background:var(--surface);">🍽️</div>
+        `}
+        <div class="pos-card-body">
+          <div class="pos-card-title">${p.name}</div>
+          <div class="pos-card-price">
+            ${hasMultipleSizes ? `<span style="font-size:10px; color:var(--text-muted); margin-left:3px;">يبدأ من</span>` : ''}
+            <span>${displayPrice}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+};
+
+window.handlePOSProductClick = function(productId) {
+  const prods = Store.getProducts() || [];
+  const prod = prods.find(p => p.id === productId);
+  if (!prod) return;
+
+  const hasSizes = prod.sizes && prod.sizes.length > 0;
+  const hasAddons = prod.addons && prod.addons.length > 0;
+
+  if (hasSizes || hasAddons) {
+    openPOSItemModal(prod);
+  } else {
+    addPOSToCart({
+      id: prod.id,
+      name: prod.name,
+      price: parseFloat(prod.price) || 0,
+      qty: 1,
+      selectedSize: null,
+      selectedAddons: [],
+      notes: ''
+    });
+  }
+};
+
+window.openPOSItemModal = function(prod) {
+  posModalProduct = prod;
+  posModalSelectedSize = (prod.sizes && prod.sizes.length > 0) ? prod.sizes[0] : null;
+  posModalSelectedAddons = [];
+
+  const modal = document.getElementById('pos-item-modal');
+  const backdrop = document.getElementById('pos-item-backdrop');
+  const title = document.getElementById('pos-item-modal-title');
+  const body = document.getElementById('pos-item-modal-body');
+  const currency = Store.getSettings().currency || "ج.م";
+
+  if (title) title.textContent = `تخصيص: ${prod.name}`;
+
+  let html = '';
+
+  // Sizes Section
+  if (prod.sizes && prod.sizes.length > 0) {
+    html += `
+      <div style="margin-bottom:14px;">
+        <div style="font-size:12px; font-weight:800; color:var(--text-main); margin-bottom:8px;">اختر الحجم:</div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(100px, 1fr)); gap:8px;">
+          ${prod.sizes.map((s, idx) => `
+            <div id="pos-size-opt-${idx}" onclick="selectPOSModalSize(${idx})" style="border:1.5px solid ${idx === 0 ? 'var(--primary)' : 'var(--border)'}; background:${idx === 0 ? 'var(--primary-subtle)' : 'var(--surface)'}; padding:8px 10px; border-radius:var(--radius-xs); cursor:pointer; text-align:center; transition:all 0.15s ease;">
+              <div style="font-size:12px; font-weight:800; color:var(--text-main);">${s.name}</div>
+              <div class="font-num" style="font-size:11.5px; font-weight:900; color:var(--primary);">${s.price} ${currency}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  // Addons Section
+  if (prod.addons && prod.addons.length > 0) {
+    html += `
+      <div style="margin-bottom:14px;">
+        <div style="font-size:12px; font-weight:800; color:var(--text-main); margin-bottom:8px;">إضافات اختيارية:</div>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          ${prod.addons.map((a, idx) => `
+            <label style="display:flex; justify-content:space-between; align-items:center; background:var(--surface); border:1px solid var(--border); padding:8px 12px; border-radius:var(--radius-xs); cursor:pointer;">
+              <span style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; color:var(--text-main);">
+                <input type="checkbox" onchange="togglePOSModalAddon(${idx}, this.checked)">
+                ${a.name}
+              </span>
+              <span class="font-num" style="font-size:11.5px; font-weight:800; color:var(--accent-wa);">+${a.price} ${currency}</span>
+            </label>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  // Item Special Notes
+  html += `
+    <div>
+      <div style="font-size:12px; font-weight:800; color:var(--text-main); margin-bottom:4px;">ملاحظة خاصة بالصنف:</div>
+      <input type="text" id="pos-modal-item-note" class="form-input" placeholder="مثال: بدون مايونيز، تسوية جيدة..." style="font-size:12px; padding:7px 10px;">
+    </div>
+  `;
+
+  if (body) body.innerHTML = html;
+  if (modal) modal.classList.add('open');
+  if (backdrop) backdrop.classList.add('open');
+};
+
+window.closePOSItemModal = function() {
+  const modal = document.getElementById('pos-item-modal');
+  const backdrop = document.getElementById('pos-item-backdrop');
+  if (modal) modal.classList.remove('open');
+  if (backdrop) backdrop.classList.remove('open');
+  posModalProduct = null;
+  posModalSelectedSize = null;
+  posModalSelectedAddons = [];
+};
+
+window.selectPOSModalSize = function(sizeIdx) {
+  if (!posModalProduct || !posModalProduct.sizes) return;
+  posModalSelectedSize = posModalProduct.sizes[sizeIdx];
+
+  posModalProduct.sizes.forEach((_, idx) => {
+    const el = document.getElementById(`pos-size-opt-${idx}`);
+    if (el) {
+      if (idx === sizeIdx) {
+        el.style.borderColor = 'var(--primary)';
+        el.style.background = 'var(--primary-subtle)';
+      } else {
+        el.style.borderColor = 'var(--border)';
+        el.style.background = 'var(--surface)';
+      }
+    }
+  });
+};
+
+window.togglePOSModalAddon = function(addonIdx, isChecked) {
+  if (!posModalProduct || !posModalProduct.addons) return;
+  const addon = posModalProduct.addons[addonIdx];
+  if (!addon) return;
+
+  if (isChecked) {
+    if (!posModalSelectedAddons.some(a => a.name === addon.name)) {
+      posModalSelectedAddons.push(addon);
+    }
+  } else {
+    posModalSelectedAddons = posModalSelectedAddons.filter(a => a.name !== addon.name);
+  }
+};
+
+window.confirmPOSItemCustomization = function() {
+  if (!posModalProduct) return;
+  const note = (document.getElementById('pos-modal-item-note')?.value || '').trim();
+
+  let finalPrice = parseFloat(posModalProduct.price) || 0;
+  if (posModalSelectedSize) {
+    finalPrice = parseFloat(posModalSelectedSize.price) || 0;
+  }
+  posModalSelectedAddons.forEach(a => {
+    finalPrice += parseFloat(a.price) || 0;
+  });
+
+  addPOSToCart({
+    id: posModalProduct.id,
+    name: posModalProduct.name,
+    price: finalPrice,
+    qty: 1,
+    selectedSize: posModalSelectedSize ? { ...posModalSelectedSize } : null,
+    selectedAddons: [...posModalSelectedAddons],
+    notes: note
+  });
+
+  closePOSItemModal();
+};
+
+window.addPOSToCart = function(item) {
+  // Check if identical item already exists in ticket
+  const existingIdx = posCart.findIndex(it => {
+    if (it.id !== item.id) return false;
+    const sizeMatch = (!it.selectedSize && !item.selectedSize) || (it.selectedSize?.name === item.selectedSize?.name);
+    const itAddonNames = (it.selectedAddons || []).map(a => a.name).sort().join(',');
+    const itemAddonNames = (item.selectedAddons || []).map(a => a.name).sort().join(',');
+    const noteMatch = (it.notes || '') === (item.notes || '');
+    return sizeMatch && itAddonNames === itemAddonNames && noteMatch;
+  });
+
+  if (existingIdx !== -1) {
+    posCart[existingIdx].qty += 1;
+  } else {
+    posCart.push({
+      ...item,
+      cartItemId: Date.now() + '_' + Math.random().toString(36).substr(2, 4)
+    });
+  }
+
+  updatePOSCartUI();
+};
+
+window.changePOSItemQty = function(cartItemId, delta) {
+  const idx = posCart.findIndex(it => it.cartItemId === cartItemId);
+  if (idx === -1) return;
+
+  posCart[idx].qty += delta;
+  if (posCart[idx].qty <= 0) {
+    posCart.splice(idx, 1);
+  }
+  updatePOSCartUI();
+};
+
+window.removePOSItem = function(cartItemId) {
+  posCart = posCart.filter(it => it.cartItemId !== cartItemId);
+  updatePOSCartUI();
+};
+
+window.updatePOSCartUI = function() {
+  const container = document.getElementById('pos-ticket-items');
+  const countBadge = document.getElementById('pos-items-count-badge');
+  const currency = Store.getSettings().currency || "ج.م";
+
+  const totalItemCount = posCart.reduce((s, it) => s + it.qty, 0);
+  if (countBadge) countBadge.textContent = `${totalItemCount} صنف`;
+
+  if (!container) return;
+
+  if (posCart.length === 0) {
+    container.innerHTML = `
+      <div id="pos-empty-state" style="text-align:center; padding:35px 10px; color:var(--text-muted); font-size:12px;">
+        <div style="font-size:28px; margin-bottom:6px;">🛒</div>
+        الفاتورة فارغة<br>اضغط على أي صنف لإضافته هنا
+      </div>
+    `;
+  } else {
+    container.innerHTML = posCart.map(it => `
+      <div class="pos-ticket-item">
+        <div style="flex:1; min-width:0;">
+          <div style="font-size:12.5px; font-weight:800; color:var(--text-main); word-break:break-word;">
+            ${it.name}
+            ${it.selectedSize ? `<span style="font-size:10.5px; color:var(--text-muted); font-weight:normal;">(${it.selectedSize.name})</span>` : ''}
+          </div>
+          ${it.selectedAddons && it.selectedAddons.length ? `
+            <div style="font-size:10.5px; color:var(--accent-wa);">+ ${it.selectedAddons.map(a => a.name).join('، ')}</div>
+          ` : ''}
+          ${it.notes ? `
+            <div style="font-size:10.5px; color:#f59e0b;">📝 ${it.notes}</div>
+          ` : ''}
+          <div class="font-num" style="font-size:11.5px; font-weight:800; color:var(--primary); margin-top:2px;">
+            ${(it.price * it.qty).toFixed(0)} ${currency}
+          </div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+          <button type="button" class="pos-qty-btn" onclick="changePOSItemQty('${it.cartItemId}', -1)">-</button>
+          <span class="font-num" style="font-size:13px; font-weight:900; min-width:18px; text-align:center;">${it.qty}</span>
+          <button type="button" class="pos-qty-btn" onclick="changePOSItemQty('${it.cartItemId}', 1)">+</button>
+          <button type="button" onclick="removePOSItem('${it.cartItemId}')" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:14px; padding:2px 4px;" title="حذف">✕</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  updatePOSCalculations();
+};
+
+window.updatePOSCalculations = function() {
+  const currency = Store.getSettings().currency || "ج.م";
+  const subtotal = posCart.reduce((s, it) => s + (it.price * it.qty), 0);
+  const discountInput = document.getElementById('pos-discount-input');
+  const discount = Math.max(0, parseFloat(discountInput?.value) || 0);
+  const finalTotal = Math.max(0, subtotal - discount);
+
+  const subtotalEl = document.getElementById('pos-subtotal');
+  const finalTotalEl = document.getElementById('pos-final-total');
+
+  if (subtotalEl) subtotalEl.textContent = `${subtotal.toFixed(0)} ${currency}`;
+  if (finalTotalEl) finalTotalEl.textContent = `${finalTotal.toFixed(0)} ${currency}`;
+
+  document.querySelectorAll('.pos-currency-symbol').forEach(el => el.textContent = currency);
+
+  updatePOSChange();
+};
+
+window.setPOSPayMethod = function(method) {
+  posPayMethod = method;
+  document.querySelectorAll('.pos-pay-method-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.pay === method);
+  });
+
+  const cashCalc = document.getElementById('pos-cash-calc');
+  if (cashCalc) {
+    cashCalc.style.display = method === 'cash' ? 'flex' : 'none';
+  }
+};
+
+window.updatePOSChange = function() {
+  const receivedInput = document.getElementById('pos-cash-received');
+  const changeEl = document.getElementById('pos-cash-change');
+  const currency = Store.getSettings().currency || "ج.م";
+
+  if (!receivedInput || !changeEl) return;
+
+  const subtotal = posCart.reduce((s, it) => s + (it.price * it.qty), 0);
+  const discount = Math.max(0, parseFloat(document.getElementById('pos-discount-input')?.value) || 0);
+  const finalTotal = Math.max(0, subtotal - discount);
+
+  const received = parseFloat(receivedInput.value);
+  if (isNaN(received) || received < finalTotal) {
+    changeEl.textContent = `0 ${currency}`;
+    changeEl.style.color = 'var(--text-muted)';
+  } else {
+    const change = received - finalTotal;
+    changeEl.textContent = `${change.toFixed(0)} ${currency}`;
+    changeEl.style.color = '#22c55e';
+  }
+};
+
+window.resetPOSCart = function(ask = false) {
+  if (ask && posCart.length > 0) {
+    if (!confirm("هل أنت متأكد من تفريغ الفاتورة وبدء طلب جديد؟")) return;
+  }
+  posCart = [];
+  const discountInput = document.getElementById('pos-discount-input');
+  const noteInput = document.getElementById('pos-order-note');
+  const takeawayInput = document.getElementById('pos-takeaway-name');
+  const cashInput = document.getElementById('pos-cash-received');
+
+  if (discountInput) discountInput.value = '0';
+  if (noteInput) noteInput.value = '';
+  if (takeawayInput) takeawayInput.value = '';
+  if (cashInput) cashInput.value = '';
+
+  updatePOSCartUI();
+};
+
+window.submitPOSOrder = async function(printReceipt = true) {
+  if (posCart.length === 0) {
+    showToastNotification("يرجى اختيار صنف واحد على الأقل في الفاتورة!", "error");
+    return;
+  }
+
+  const subtotal = posCart.reduce((s, it) => s + (it.price * it.qty), 0);
+  const discount = Math.max(0, parseFloat(document.getElementById('pos-discount-input')?.value) || 0);
+  const finalTotal = Math.max(0, subtotal - discount);
+  const note = (document.getElementById('pos-order-note')?.value || '').trim();
+  const takeawayName = (document.getElementById('pos-takeaway-name')?.value || '').trim();
+
+  const orderNumber = Math.floor(1000 + Math.random() * 9000);
+  const orderId = `#POS-${orderNumber}`;
+  const now = new Date();
+
+  const newOrder = {
+    orderId: orderId,
+    source: 'pos',
+    orderType: posOrderType, // 'dine_in' | 'takeaway'
+    tableNumber: posOrderType === 'dine_in' ? posTableNumber : null,
+    status: 'preparing', // Direct to Kitchen Active Prep
+    createdAt: now.toISOString(),
+    timestamp: now.getTime(),
+    paymentMethod: posPayMethod,
+    isPaid: true,
+    customer: {
+      name: posOrderType === 'dine_in' ? `طاولة ${posTableNumber}` : (takeawayName || 'زبون سفري'),
+      phone: 'داخلي',
+      address: posOrderType === 'dine_in' ? `داخل المطعم - طاولة ${posTableNumber}` : 'استلام من الكاشير (سفري)',
+      notes: note
+    },
+    items: JSON.parse(JSON.stringify(posCart)),
+    subtotal: subtotal,
+    discount: discount,
+    deliveryFee: 0,
+    finalTotal: finalTotal
+  };
+
+  // Lock buttons
+  const printBtn = document.getElementById('btn-pos-submit-print');
+  const submitOnlyBtn = document.getElementById('btn-pos-submit-only');
+  if (printBtn) printBtn.disabled = true;
+  if (submitOnlyBtn) submitOnlyBtn.disabled = true;
+
+  try {
+    await Store.pushOrderToCloud(newOrder);
+
+    showToastNotification(`تم إرسال الطلب ${orderId} للمطبخ بنجاح! 👨‍🍳`, "success");
+
+    if (printReceipt) {
+      setTimeout(() => {
+        printOrderReceipt(newOrder);
+      }, 100);
+    }
+
+    // Reset ticket for next order
+    resetPOSCart(false);
+
+    // Refresh Kitchen and Archive views
+    renderOrdersList();
+    renderInvoicesArchive();
+  } catch (err) {
+    showToastNotification("حدث خطأ أثناء إرسال الطلب: " + (err.message || 'فشل الاتصال'), "error");
+  } finally {
+    if (printBtn) printBtn.disabled = false;
+    if (submitOnlyBtn) submitOnlyBtn.disabled = false;
+  }
+};
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initAdmin);
 } else {
   initAdmin();
 }
+
