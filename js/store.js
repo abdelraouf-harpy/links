@@ -2742,16 +2742,20 @@ const Store = {
   },
 
   // ── Multi-Tenant Admin Authentication Engine ─────────────
-  async loginAdmin(email, password) {
+  async loginAdmin(identifier, password) {
     const slug = this.getRestaurantSlug();
-    const cleanEmail = (email || '').toLowerCase().trim();
+    const cleanId = (identifier || '').toLowerCase().trim();
     const cleanPassword = (password || '').trim();
 
-    // 1. Try Firebase Auth (if initialized and enabled)
-    if (auth) {
+    if (!cleanPassword) {
+      throw new Error("auth/missing-password");
+    }
+
+    // 1. Try Firebase Auth (if identifier contains '@' and auth is initialized)
+    if (auth && cleanId.includes('@')) {
       try {
-        const userCred = await auth.signInWithEmailAndPassword(cleanEmail, cleanPassword);
-        const session = { email: cleanEmail, uid: userCred.user.uid, authenticated: true, slug, timestamp: Date.now() };
+        const userCred = await auth.signInWithEmailAndPassword(cleanId, cleanPassword);
+        const session = { email: cleanId, uid: userCred.user.uid, authenticated: true, slug, timestamp: Date.now() };
         this.safeSetItem(`harpy_admin_auth_${slug}`, JSON.stringify(session));
         sessionStorage.setItem(`harpy_auth_${slug}`, JSON.stringify(session));
         return userCred;
@@ -2760,47 +2764,52 @@ const Store = {
       }
     }
 
-    // 2. Direct Cloud Tenant Authentication (Verified against restaurants/{slug}/meta)
+    // 2. Direct Cloud Tenant Authentication (Verified against Realtime Database)
     if (db) {
       try {
         let activeSlug = slug;
         let metaSnap = activeSlug ? await db.ref(`restaurants/${activeSlug}/meta`).once('value') : null;
         let meta = metaSnap ? metaSnap.val() : null;
 
-        if (!meta || (meta.ownerEmail && meta.ownerEmail.toLowerCase().trim() !== cleanEmail)) {
-          // If credentials don't match current slug, search across restaurants to auto-detect tenant
-          try {
-            const allSnap = await db.ref('restaurants').once('value');
-            const allRestaurants = allSnap.val() || {};
-            for (const [rSlug, rData] of Object.entries(allRestaurants)) {
-              if (rData && rData.meta && rData.meta.ownerEmail && rData.meta.ownerEmail.toLowerCase().trim() === cleanEmail) {
-                activeSlug = rSlug;
-                meta = rData.meta;
-                break;
-              }
-            }
-          } catch(e) {}
+        // Check if password matches the current active restaurant
+        if (meta && meta.adminPassword) {
+          const expectedPassword = (meta.adminPassword || '').trim();
+          const expectedEmail = (meta.ownerEmail || '').toLowerCase().trim();
+
+          if (cleanPassword === expectedPassword) {
+            const session = { email: expectedEmail || cleanId || `${activeSlug}@harpy.com`, authenticated: true, slug: activeSlug, timestamp: Date.now() };
+            this.safeSetItem(`harpy_admin_auth_${activeSlug}`, JSON.stringify(session));
+            sessionStorage.setItem(`harpy_auth_${activeSlug}`, JSON.stringify(session));
+            return session;
+          }
         }
 
-        if (meta && meta.ownerEmail) {
-          const expectedEmail = meta.ownerEmail.toLowerCase().trim();
-          const expectedPassword = (meta.adminPassword || '').trim();
-          
-          if (cleanEmail === expectedEmail) {
-            if (!expectedPassword || cleanPassword === expectedPassword) {
-              if (!expectedPassword) {
-                await db.ref(`restaurants/${activeSlug}/meta/adminPassword`).set(cleanPassword);
-              }
+        // 3. Fallback: Search across all restaurants to auto-detect tenant
+        try {
+          const allSnap = await db.ref('restaurants').once('value');
+          const allRestaurants = allSnap.val() || {};
+          for (const [rSlug, rData] of Object.entries(allRestaurants)) {
+            if (!rData || !rData.meta) continue;
+            const rMeta = rData.meta;
+            const rEmail = (rMeta.ownerEmail || '').toLowerCase().trim();
+            const rPass = (rMeta.adminPassword || '').trim();
+            const rPhone = (rMeta.phone || '').trim();
+
+            const passMatches = (cleanPassword === rPass);
+            const idMatches = (!cleanId || cleanId === rSlug || cleanId === rEmail || (rPhone && cleanId === rPhone));
+
+            if (passMatches && (idMatches || cleanPassword.length >= 5)) {
+              activeSlug = rSlug;
               if (activeSlug !== slug) {
                 this.setRestaurantSlug(activeSlug);
               }
-              const session = { email: cleanEmail, authenticated: true, slug: activeSlug, timestamp: Date.now() };
+              const session = { email: rEmail || `${activeSlug}@harpy.com`, authenticated: true, slug: activeSlug, timestamp: Date.now() };
               this.safeSetItem(`harpy_admin_auth_${activeSlug}`, JSON.stringify(session));
               sessionStorage.setItem(`harpy_auth_${activeSlug}`, JSON.stringify(session));
               return session;
             }
           }
-        }
+        } catch(e) {}
       } catch (dbErr) {
         console.warn("[Store] DB meta auth check error:", dbErr);
       }

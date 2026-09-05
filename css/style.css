@@ -344,9 +344,31 @@ body {
     gap: 4px !important;
     flex-shrink: 0 !important;
   }
-  /* On mobile, PWA install prompt is cleanly handled by the bottom floating banner */
+  /* Header PWA install button - cleanly styled and visible on all screens */
   .header-actions .btn-pwa-install {
-    display: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    padding: 6px 10px !important;
+    font-size: 11.5px !important;
+    font-weight: 800 !important;
+    border-radius: var(--radius-full) !important;
+    background: linear-gradient(135deg, #ea580c, #f97316) !important;
+    color: #fff !important;
+    border: none !important;
+    cursor: pointer !important;
+    flex-shrink: 0 !important;
+    text-decoration: none !important;
+  }
+  @media (max-width: 480px) {
+    .header-actions .btn-pwa-install .btn-pwa-text {
+      display: none !important;
+    }
+    .header-actions .btn-pwa-install {
+      padding: 6px 8px !important;
+      font-size: 13px !important;
+    }
   }
   .btn-live-preview span,
   #btn-admin-logout span {
@@ -4581,7 +4603,7 @@ html.admin-locked #login-modal-backdrop {
   pointer-events: auto !important;
   display: block !important;
   transform: none !important;
-  z-index: 80 !important;
+  z-index: 99998 !important;
 }
 
 html.admin-locked #login-modal {
@@ -4593,8 +4615,8 @@ html.admin-locked #login-modal {
   visibility: visible !important;
   pointer-events: auto !important;
   display: block !important;
-  z-index: 85 !important;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15) !important;
+  z-index: 99999 !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45) !important;
 }
 
 html.admin-unlocked .app-header {

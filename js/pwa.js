@@ -1,5 +1,6 @@
 // ===================================================================
 // Order PWA Engine - Native App Experience & Installation (Android / iOS / PC)
+// Version 26.0 - Guaranteed Install Banner & Button for All Accounts
 // ===================================================================
 
 (function() {
@@ -7,9 +8,6 @@
 
   let deferredPrompt = null;
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
-                       window.navigator.standalone === true || 
-                       document.referrer.includes('android-app://');
 
   const isAdmin = window.location.pathname.includes('admin') || 
                   window.location.search.includes('admin') || 
@@ -18,12 +16,12 @@
                   document.title.includes('إدارة');
   const appName = isAdmin ? 'Order Admin' : 'Order';
   const appDisplayName = isAdmin ? 'تثبيت تطبيق Order Admin' : 'تثبيت تطبيق Order';
-  const appIcon = isAdmin ? 'admin_pwa_icon.png?v=24.0' : 'pwa_icon.png?v=24.0';
+  const appIcon = isAdmin ? 'admin_pwa_icon.png?v=26.0' : 'pwa_icon.png?v=26.0';
 
-  // 1. Register Service Worker
+  // 1. Register Service Worker with instant update
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      const swUrl = window.location.pathname.includes('/order') ? './sw.js?v=24.0' : '/sw.js?v=24.0';
+      const swUrl = './sw.js?v=26.0';
       navigator.serviceWorker.register(swUrl)
         .then(reg => {
           try { reg.update(); } catch(e) {}
@@ -38,9 +36,7 @@
             }
           });
         })
-        .catch(() => {
-          navigator.serviceWorker.register('./sw.js?v=24.0').catch(() => {});
-        });
+        .catch(() => {});
     });
   }
 
@@ -49,40 +45,47 @@
     e.preventDefault();
     deferredPrompt = e;
     window.__deferredPWAInstallPrompt = e;
-
-    if (!isStandalone) {
-      showInstallTriggers();
-    }
+    showInstallTriggers();
   });
 
   window.addEventListener('appinstalled', () => {
     deferredPrompt = null;
     window.__deferredPWAInstallPrompt = null;
-    hideInstallTriggers();
     showToast(`🎉 تم تثبيت تطبيق ${appName} بنجاح! تجده الآن على جهازك كبرنامج مستقل.`);
+    const banner = document.getElementById('order-pwa-banner');
+    if (banner) banner.remove();
   });
 
   function showInstallTriggers() {
     document.querySelectorAll('.btn-pwa-install').forEach(btn => {
-      btn.style.display = 'inline-flex';
+      btn.style.setProperty('display', 'inline-flex', 'important');
     });
     renderInstallBanner();
   }
 
-  function hideInstallTriggers() {
-    document.querySelectorAll('.btn-pwa-install').forEach(btn => {
-      btn.style.display = 'none';
-    });
-    const banner = document.getElementById('order-pwa-banner');
-    if (banner) banner.remove();
-  }
-
   function renderInstallBanner() {
-    if (isStandalone || document.getElementById('order-pwa-banner')) return;
+    if (document.getElementById('order-pwa-banner')) return;
+
+    // Ensure CSS keyframe animations are present
+    if (!document.getElementById('pwa-slide-anim')) {
+      const style = document.createElement('style');
+      style.id = 'pwa-slide-anim';
+      style.textContent = `
+        @keyframes pwaSlideUp {
+          0% { transform: translateX(-50%) translateY(140%); opacity: 0; }
+          100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+        @keyframes pwaSlideDown {
+          0% { transform: translateX(-50%) translateY(0); opacity: 1; }
+          100% { transform: translateX(-50%) translateY(160%); opacity: 0; }
+        }
+      `;
+      document.head.appendChild(style);
+    }
 
     const banner = document.createElement('div');
     banner.id = 'order-pwa-banner';
-    banner.style.cssText = 'position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%) translateY(140%); z-index: 99999; background: var(--surface-raised, #1e1814); color: var(--text-main, #ffffff); border: 1.5px solid var(--border-strong, rgba(234, 88, 12, 0.45)); box-shadow: 0 12px 32px rgba(0,0,0,0.6), 0 0 16px rgba(234,88,12,0.25); border-radius: 16px; padding: 9px 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; width: calc(100% - 20px); max-width: 480px; box-sizing: border-box; transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); direction: rtl; font-family: inherit;';
+    banner.style.cssText = 'position: fixed; bottom: 14px; left: 50%; z-index: 99999; background: var(--surface-raised, #1e1814); color: var(--text-main, #ffffff); border: 1.5px solid var(--border-strong, rgba(234, 88, 12, 0.45)); box-shadow: 0 12px 32px rgba(0,0,0,0.6), 0 0 16px rgba(234,88,12,0.25); border-radius: 16px; padding: 9px 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; width: calc(100% - 20px); max-width: 480px; box-sizing: border-box; animation: pwaSlideUp 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards; direction: rtl; font-family: inherit;';
 
     banner.innerHTML = `
       <div style="display:flex; align-items:center; gap:9px; flex:1; min-width:0;">
@@ -106,34 +109,27 @@
     `;
 
     document.body.appendChild(banner);
-    requestAnimationFrame(() => {
-      banner.style.transform = 'translateX(-50%) translateY(0)';
-    });
 
     document.getElementById('btn-pwa-banner-install').addEventListener('click', () => {
       window.triggerPWAInstall();
     });
 
     document.getElementById('btn-pwa-banner-close').addEventListener('click', () => {
-      banner.style.transform = 'translateX(-50%) translateY(160%)';
+      banner.style.animation = 'pwaSlideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards';
       setTimeout(() => banner.remove(), 350);
     });
   }
 
   // 3. Global Install Trigger
   window.triggerPWAInstall = async function() {
-    if (isStandalone) {
-      showToast(`🚀 تطبيق ${appName} مثبت بالفعل ويعمل كبرنامج مستقل!`);
-      return;
-    }
-
     if (deferredPrompt) {
       deferredPrompt.prompt();
       const choice = await deferredPrompt.userChoice;
       if (choice.outcome === 'accepted') {
         deferredPrompt = null;
         window.__deferredPWAInstallPrompt = null;
-        hideInstallTriggers();
+        const banner = document.getElementById('order-pwa-banner');
+        if (banner) banner.remove();
       }
       return;
     }
@@ -201,7 +197,7 @@
             <p style="margin:0 0 10px 0;"><b>💻 على الكمبيوتر (Windows / Mac):</b><br>
             ستجد أيقونة التثبيت <b>(⊕ أو 💻)</b> في شريط عنوان المتصفح أعلى اليمين (بجانب زر الإشارة المرجعية ⭐).<br>
             أو اضغط على قائمة المتصفح <b>(الثلاث نقاط ⋮)</b> ثم اختر <b>"تثبيت ${appName}"</b>.</p>
-            <p style="margin:0;"><b>📱 على الهاتف (Android):</b><br>من قائمة المتصفح <b>(الـ 3 نقاط ⋮ أعلى الشاشة)</b>، اختر <b>"تثبيت التطبيق" (Install app)</b>.</p>
+            <p style="margin:0;"><b>📱 على الهاتف (Android):</b><br>من قائمة المتصفح <b>(الـ 3 نقاط ⋮ أعلى الشاشة)</b>، اختر <b>"تثبيت التطبيق" (Install app)</b> أو <b>"إضافة إلى الشاشة الرئيسية"</b>.</p>
           </div>
           <button onclick="document.getElementById('fallback-pwa-modal').remove()" style="background:linear-gradient(135deg, #ea580c, #f97316); color:#fff; border:none; padding:10px 28px; border-radius:12px; font-weight:800; font-size:13.5px; cursor:pointer;">حسناً، فهمت</button>
         </div>
@@ -225,16 +221,19 @@
     }, 4000);
   }
 
-  // Auto-init on DOM ready
+  // Expose global methods
+  window.renderInstallBanner = renderInstallBanner;
+
+  // Auto-init on DOM ready - guaranteed execution for new & returning visitors on any account
   function initInstallState() {
-    if (!isStandalone) {
-      setTimeout(showInstallTriggers, 400);
-    }
+    showInstallTriggers();
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initInstallState);
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(initInstallState, 250);
+    });
   } else {
-    initInstallState();
+    setTimeout(initInstallState, 250);
   }
 })();

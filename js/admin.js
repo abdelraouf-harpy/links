@@ -290,13 +290,42 @@ function setupAuth() {
     if (adminElements.loginModal) adminElements.loginModal.classList.add('open');
     if (adminElements.loginBackdrop) adminElements.loginBackdrop.classList.add('open');
     if (adminElements.btnAdminLogout) adminElements.btnAdminLogout.style.display = 'none';
+
+    // Populate restaurant identity in login modal
+    const modalTitle = document.getElementById('login-modal-restaurant-name');
+    const modalSub = document.getElementById('login-modal-subtitle');
+    const storeSettings = Store.getSettings ? Store.getSettings(slug) : null;
+    const storeName = (storeSettings && storeSettings.name) ? storeSettings.name : (slug === 'saj' ? 'مطعم صاج' : slug);
+    if (modalTitle) modalTitle.textContent = `إدارة: ${storeName}`;
+    if (modalSub) modalSub.textContent = 'أدخل كلمة مرور الإدارة للدخول المباشر إلى لوحة التحكم';
+    if (adminElements.adminEmailInput && !adminElements.adminEmailInput.value) {
+      adminElements.adminEmailInput.value = slug;
+    }
+  };
+
+  // Check URL for direct login query params (?p=... or ?pass=...)
+  const checkUrlAutoAuth = async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const pass = urlParams.get('p') || urlParams.get('pass') || urlParams.get('password');
+    if (pass) {
+      try {
+        await Store.loginAdmin(slug, pass);
+        unlockDashboard();
+        return true;
+      } catch(e) {}
+    }
+    return false;
   };
 
   // Check active session on load
   if (Store.isAdminAuthenticated(slug)) {
     unlockDashboard();
   } else {
-    lockDashboard();
+    checkUrlAutoAuth().then(autoSuccess => {
+      if (!autoSuccess && !isAuthenticated) {
+        lockDashboard();
+      }
+    });
   }
 
   // Listen to Firebase Auth state
@@ -320,12 +349,12 @@ function setupAuth() {
   // Handle Login Submission
   const handleLoginSubmit = async (e) => {
     if (e) e.preventDefault();
-    const email = (adminElements.adminEmailInput?.value || '').trim();
+    const identifier = (adminElements.adminEmailInput?.value || '').trim();
     const password = (adminElements.adminPasswordInput?.value || '').trim();
 
-    if (!email || !password) {
+    if (!password) {
       if (adminElements.loginErrorMsg) {
-        adminElements.loginErrorMsg.textContent = "يرجى إدخال البريد الإلكتروني وكلمة المرور";
+        adminElements.loginErrorMsg.textContent = "يرجى إدخال كلمة مرور الإدارة";
         adminElements.loginErrorMsg.style.display = 'block';
       }
       return;
@@ -340,14 +369,12 @@ function setupAuth() {
     }
 
     try {
-      await Store.loginAdmin(email, password);
+      await Store.loginAdmin(identifier || slug, password);
       unlockDashboard();
     } catch (err) {
       console.warn("[Admin] Login failed:", err);
-      let msg = "فشل تسجيل الدخول. تأكد من صحة البريد الإلكتروني وكلمة المرور.";
-      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential' || err.message === 'auth/invalid-credentials') {
-        msg = "البريد الإلكتروني أو كلمة المرور غير صحيحة.";
-      } else if (err.code === 'auth/too-many-requests') {
+      let msg = "كلمة المرور غير صحيحة لهذا المطعم. يرجى التأكد والمحاولة مجدداً.";
+      if (err.code === 'auth/too-many-requests') {
         msg = "تم تجاوز عدد المحاولات المسموح به. يرجى المحاولة لاحقاً.";
       }
       if (adminElements.loginErrorMsg) {
@@ -357,7 +384,7 @@ function setupAuth() {
     } finally {
       if (adminElements.btnLogin) {
         adminElements.btnLogin.disabled = false;
-        adminElements.btnLogin.textContent = "دخول لوحة التحكم";
+        adminElements.btnLogin.textContent = "دخول لوحة التحكم 🚀";
       }
     }
   };

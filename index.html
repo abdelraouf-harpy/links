@@ -8,11 +8,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
   <!-- Web App Manifest (PWA / WebAPK) -->
-  <link rel="manifest" href="manifest.json?v=24.0">
+  <link rel="manifest" href="manifest.json?v=26.0">
   
   <!-- Favicons & High-Res App Icons -->
-  <link rel="icon" type="image/png" href="pwa_icon.png?v=24.0">
-  <link rel="apple-touch-icon" href="pwa_icon.png?v=24.0">
+  <link rel="icon" type="image/png" href="pwa_icon.png?v=26.0">
+  <link rel="apple-touch-icon" href="pwa_icon.png?v=26.0">
   
   <!-- Android & Modern PWA Meta -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -31,7 +31,7 @@
   <link rel="preconnect" href="https://i.ibb.co" crossorigin>
   <link rel="dns-prefetch" href="https://i.ibb.co">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/style.css?v=24.0">
+  <link rel="stylesheet" href="css/style.css?v=26.0">
   <script>
     (function() {
       try {
@@ -124,10 +124,9 @@
           <p id="store-tagline">أشهى الأطباق والوجبات السريعة</p>
         </div>
       </a>
-      <div class="header-actions">
-        <button id="btn-header-install-app" class="btn btn-primary btn-sm btn-pwa-install" style="display:none; align-items:center; gap:5px; font-weight:800; font-size:11.5px; padding:5px 12px; border-radius:20px; background:linear-gradient(135deg, #ea580c, #f97316); color:#fff; cursor:pointer;" onclick="window.triggerPWAInstall()" title="تثبيت تطبيق أوردر على هاتفك">
+        <button id="btn-header-install-app" class="btn btn-primary btn-sm btn-pwa-install" onclick="window.triggerPWAInstall()" title="تثبيت تطبيق أوردر على هاتفك">
           <span>📲</span>
-          <span>تثبيت التطبيق</span>
+          <span class="btn-pwa-text">تثبيت التطبيق</span>
         </button>
         <button id="btn-header-tracker" class="btn btn-primary btn-sm" style="display:none; align-items:center; gap:5px; font-weight:800; font-size:11.5px; padding:5px 10px; border-radius:20px; text-decoration:none;" onclick="openLastOrderTracker()" title="متابعة وتتبع طلبك المباشر">
           <span style="font-size:13px;">🛵</span>
@@ -805,8 +804,8 @@
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/store.js?v=24.0"></script>
-  <script src="js/app.js?v=24.0"></script>
-  <script src="js/pwa.js?v=24.0"></script>
+  <script src="js/store.js?v=26.0"></script>
+  <script src="js/app.js?v=26.0"></script>
+  <script src="js/pwa.js?v=26.0"></script>
 </body>
 </html>
