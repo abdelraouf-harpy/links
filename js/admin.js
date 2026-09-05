@@ -2723,61 +2723,6 @@ function setupSettingsForm() {
       saveSettingsFromForm();
     });
   }
-
-  // Handle Admin Password Change from Settings
-  const btnSavePassword = document.getElementById('btn-save-new-password');
-  const inputNewPassword = document.getElementById('new-admin-password-input');
-  const chkLogoutAll = document.getElementById('chk-logout-all-devices');
-  const pwdStatusMsg = document.getElementById('pwd-change-status-msg');
-
-  if (btnSavePassword && inputNewPassword) {
-    btnSavePassword.addEventListener('click', async () => {
-      const newPass = (inputNewPassword.value || '').trim();
-      const logoutAll = !!chkLogoutAll?.checked;
-
-      if (!newPass || newPass.length < 5) {
-        showToastNotification("يرجى إدخال كلمة مرور جديدة لا تقل عن 5 أحرف أو أرقام", "error");
-        inputNewPassword.focus();
-        return;
-      }
-
-      const confirmed = await showCustomConfirm({
-        title: "تأكيد تغيير كلمة المرور",
-        message: logoutAll 
-          ? `هل تود تغيير كلمة المرور وتسجيل الخروج من كافة الأجهزة الأخرى فوراً؟`
-          : `هل تود تغيير كلمة المرور لهذا المطعم؟`,
-        icon: "🔐",
-        confirmText: "تغيير كلمة المرور",
-        cancelText: "إلغاء",
-        isDanger: false
-      });
-
-      if (!confirmed) return;
-
-      btnSavePassword.disabled = true;
-      btnSavePassword.textContent = "جاري التحديث...";
-
-      try {
-        await Store.changeAdminPassword(newPass, logoutAll);
-        inputNewPassword.value = '';
-        if (chkLogoutAll) chkLogoutAll.checked = false;
-
-        showToastNotification("🎉 تم تحديث كلمة مرور لوحة التحكم بنجاح!", "success");
-        if (pwdStatusMsg) {
-          pwdStatusMsg.style.display = 'inline-block';
-          pwdStatusMsg.style.color = 'var(--accent-wa, #22c55e)';
-          pwdStatusMsg.textContent = "تم الحفظ بنجاح ✓";
-          setTimeout(() => { pwdStatusMsg.style.display = 'none'; }, 4000);
-        }
-      } catch (err) {
-        console.error("Change password error:", err);
-        showToastNotification(err.message || "حدث خطأ أثناء تغيير كلمة المرور", "error");
-      } finally {
-        btnSavePassword.disabled = false;
-        btnSavePassword.textContent = "حفظ وتحديث كلمة المرور 🔑";
-      }
-    });
-  }
 }
 
 function updateThemePresetCardsUI(selectedPresetId) {

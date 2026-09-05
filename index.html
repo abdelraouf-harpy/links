@@ -48,6 +48,16 @@
               }
             }
           }
+        if (!slug) {
+          const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                               window.navigator.standalone === true ||
+                               document.referrer.includes('android-app://');
+          if (isStandalone) {
+            const savedAppSlug = localStorage.getItem('harpy_customer_installed_slug') || localStorage.getItem('harpy_active_slug');
+            if (savedAppSlug && savedAppSlug !== 'king') {
+              slug = savedAppSlug;
+            }
+          }
         }
         if (!slug) {
           slug = 'king';

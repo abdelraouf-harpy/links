@@ -14,10 +14,62 @@
                   window.location.href.includes('admin') || 
                   document.title.includes('Admin') || 
                   document.title.includes('إدارة');
-  const appName = isAdmin ? 'Order Admin' : 'Order';
-  const appDisplayName = isAdmin ? 'تطبيق إدارة أوردر' : 'تطبيق أوردر للمطاعم';
-  const appIcon = isAdmin ? 'admin_pwa_icon.png?v=28.0' : 'pwa_icon.png?v=28.0';
-  const storageKey = 'pwa_installed_' + (isAdmin ? 'admin' : 'menu');
+
+  const slug = (window.__harpySlug || (new URLSearchParams(window.location.search)).get('m') || 'king').toLowerCase().trim();
+
+  // Resolve Store Branding for Native App Identity
+  let storeName = '';
+  try {
+    const cached = localStorage.getItem('harpy_' + slug + '_settings');
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      if (parsed && parsed.storeName) storeName = parsed.storeName;
+    }
+  } catch(e) {}
+
+  const appName = isAdmin ? (storeName ? `إدارة ${storeName}` : 'Order Admin') : (storeName || 'Order');
+  const appDisplayName = isAdmin 
+    ? (storeName ? `لوحة تحكم: ${storeName}` : 'تطبيق إدارة أوردر') 
+    : (storeName ? `منيو: ${storeName}` : 'تطبيق أوردر للمطاعم');
+  const appIcon = isAdmin ? 'admin_pwa_icon.png?v=30.0' : 'pwa_icon.png?v=30.0';
+  const storageKey = 'pwa_installed_' + (isAdmin ? ('admin_' + slug) : ('menu_' + slug));
+
+  // Dynamic Web App Manifest Engine: Binds PWA start_url and ID to the active restaurant
+  function updateDynamicManifest() {
+    try {
+      const manifestLink = document.querySelector('link[rel="manifest"]');
+      if (!manifestLink) return;
+
+      const dynamicId = (isAdmin ? 'order-admin-' : 'order-menu-') + slug;
+      const startUrl = isAdmin ? ('./admin.html?m=' + encodeURIComponent(slug)) : ('./index.html?m=' + encodeURIComponent(slug));
+
+      const manifestObj = {
+        id: dynamicId,
+        name: appDisplayName,
+        short_name: storeName ? (isAdmin ? `إدارة ${storeName.slice(0, 10)}` : storeName.slice(0, 12)) : (isAdmin ? 'Order Admin' : 'Order'),
+        description: isAdmin ? `لوحة تحكم وإدارة طلبات ${appDisplayName}` : `قائمة طعام وطلبات ${appDisplayName}`,
+        start_url: startUrl,
+        scope: './',
+        display: 'standalone',
+        background_color: '#120e0c',
+        theme_color: '#ea580c',
+        orientation: 'portrait',
+        icons: [
+          { src: appIcon, sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: 'icons/icon-maskable-192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
+          { src: 'icons/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
+        ]
+      };
+
+      const blob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
+      manifestLink.setAttribute('href', URL.createObjectURL(blob));
+    } catch (err) {
+      console.warn('[PWA] Dynamic manifest error:', err);
+    }
+  }
+  updateDynamicManifest();
 
   // Check if app is installed (either standalone mode or marked installed)
   function isAppInstalled() {
@@ -28,6 +80,11 @@
       try {
         localStorage.setItem(storageKey, 'true');
         localStorage.setItem('pwa_installed_' + appName, 'true');
+        if (isAdmin) {
+          localStorage.setItem('harpy_admin_active_slug', slug);
+        } else {
+          localStorage.setItem('harpy_customer_installed_slug', slug);
+        }
       } catch (e) {}
       return true;
     }
@@ -46,6 +103,11 @@
     try {
       localStorage.setItem(storageKey, 'true');
       localStorage.setItem('pwa_installed_' + appName, 'true');
+      if (isAdmin) {
+        localStorage.setItem('harpy_admin_active_slug', slug);
+      } else {
+        localStorage.setItem('harpy_customer_installed_slug', slug);
+      }
     } catch (e) {}
     const banner = document.getElementById('order-pwa-banner');
     if (banner) {

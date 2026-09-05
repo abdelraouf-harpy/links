@@ -37,8 +37,50 @@
     (function() {
       try {
         var params = new URLSearchParams(window.location.search);
-        var slug = params.get('m') || params.get('restaurant') || 'king';
+        var slug = params.get('m') || params.get('restaurant') || params.get('store') || params.get('slug');
+
+        // Standalone PWA & Active Admin Recovery:
+        // If app launched from home screen icon or without query param, recover the authenticated tenant
+        if (!slug) {
+          var lastAdminSlug = localStorage.getItem('harpy_admin_active_slug');
+          if (lastAdminSlug && lastAdminSlug !== 'king') {
+            slug = lastAdminSlug;
+          }
+        }
+        if (!slug) {
+          try {
+            for (var i = 0; i < localStorage.length; i++) {
+              var key = localStorage.key(i);
+              if (key && key.indexOf('harpy_admin_auth_') === 0) {
+                var raw = localStorage.getItem(key);
+                if (raw) {
+                  var parsed = JSON.parse(raw);
+                  if (parsed && parsed.authenticated === true && parsed.slug) {
+                    slug = parsed.slug;
+                    break;
+                  }
+                }
+              }
+            }
+          } catch(e) {}
+        }
+        if (!slug) {
+          var genSlug = localStorage.getItem('harpy_active_slug');
+          if (genSlug && genSlug !== 'king') slug = genSlug;
+        }
+        if (!slug) slug = 'king';
+        slug = slug.toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
         window.__harpySlug = slug;
+        try { localStorage.setItem('harpy_admin_active_slug', slug); } catch(e) {}
+
+        // Auto-fix URL parameter so address bar and internal routing stay consistent
+        if (!window.location.search.includes('m=') && !window.location.search.includes('restaurant=')) {
+          try {
+            var url = new URL(window.location.href);
+            url.searchParams.set('m', slug);
+            window.history.replaceState({}, '', url.toString());
+          } catch(e) {}
+        }
         var localAuth = localStorage.getItem('harpy_admin_auth_' + slug);
         var sessionAuth = sessionStorage.getItem('harpy_auth_' + slug);
         var isAuth = false;
@@ -851,35 +893,6 @@
             <div id="set-paused-msg-group" class="form-group" style="margin-bottom:0;">
               <label class="form-label" style="font-size:11px;">الرسالة التوضيحية للزبائن عند محاولة الطلب</label>
               <textarea id="set-ordering-paused-msg" class="form-input" rows="2" placeholder="المطعم متوقف حالياً عن استقبال الطلبات. مواعيد العمل يومياً من 12 ظهراً حتى 2 صباحاً. نسعد بخدمتكم قريباً!"></textarea>
-            </div>
-          </div>
-
-          <!-- Account Security & Password Management -->
-          <div style="background:var(--surface); border:1.5px solid var(--border-strong); border-radius:var(--radius-xs); padding:18px; margin-top:16px;">
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-              <span style="font-size:18px;">🔐</span>
-              <div style="font-size:14px; font-weight:800; color:var(--text-main);">أمان الحساب وكلمة مرور لوحة التحكم</div>
-            </div>
-            <p style="font-size:12px; color:var(--text-muted); margin-bottom:14px; line-height:1.6;">
-              يمكنك تغيير كلمة المرور في أي وقت مع الحفاظ الكامل على كافة بيانات المطعم، المنيو، وقائمة المبيعات.
-            </p>
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-bottom:12px;">
-              <div class="form-group" style="margin-bottom:0;">
-                <label class="form-label" style="font-size:11px; font-weight:700;">كلمة المرور الجديدة</label>
-                <input type="password" id="new-admin-password-input" class="form-input font-num" placeholder="أدخل كلمة المرور الجديدة (6 أحرف أو أرقام على الأقل)" autocomplete="new-password">
-              </div>
-            </div>
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:14px; background:var(--surface-raised); padding:10px 12px; border-radius:8px; border:1px solid var(--border);">
-              <input type="checkbox" id="chk-logout-all-devices" style="width:18px; height:18px; accent-color:var(--primary); cursor:pointer;">
-              <label for="chk-logout-all-devices" style="font-size:12px; font-weight:700; color:var(--text-main); cursor:pointer;">
-                تسجيل الخروج وقفل الجلسة من كافة الأجهزة الأخرى فوراً
-              </label>
-            </div>
-            <div style="display:flex; align-items:center; gap:10px;">
-              <button type="button" id="btn-save-new-password" class="btn btn-primary" style="padding:9px 18px; font-size:12.5px; font-weight:800;">
-                حفظ وتحديث كلمة المرور 🔑
-              </button>
-              <span id="pwd-change-status-msg" style="font-size:12px; font-weight:700; display:none;"></span>
             </div>
           </div>
 

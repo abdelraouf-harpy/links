@@ -2786,6 +2786,7 @@ const Store = {
             };
             this.safeSetItem(`harpy_admin_auth_${activeSlug}`, JSON.stringify(session));
             sessionStorage.setItem(`harpy_auth_${activeSlug}`, JSON.stringify(session));
+            this.safeSetItem('harpy_admin_active_slug', activeSlug);
             return session;
           }
         }
@@ -2818,6 +2819,7 @@ const Store = {
               };
               this.safeSetItem(`harpy_admin_auth_${activeSlug}`, JSON.stringify(session));
               sessionStorage.setItem(`harpy_auth_${activeSlug}`, JSON.stringify(session));
+              this.safeSetItem('harpy_admin_active_slug', activeSlug);
               return session;
             }
           }
@@ -2869,6 +2871,7 @@ const Store = {
     const slug = this.getRestaurantSlug();
     localStorage.removeItem(`harpy_admin_auth_${slug}`);
     sessionStorage.removeItem(`harpy_auth_${slug}`);
+    localStorage.removeItem('harpy_admin_active_slug');
     if (auth) {
       try { await auth.signOut(); } catch(e) {}
     }
@@ -3577,6 +3580,11 @@ const Store = {
         }
       }
     } catch {}
+
+    if (typeof window !== 'undefined' && window.location && (window.location.pathname.includes('admin') || window.location.href.includes('admin'))) {
+      const adminSlug = localStorage.getItem('harpy_admin_active_slug');
+      if (adminSlug && adminSlug !== 'king') return adminSlug;
+    }
 
     const fallbackSlug = 'king';
     return fallbackSlug;
