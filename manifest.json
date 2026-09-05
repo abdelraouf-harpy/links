@@ -3,15 +3,15 @@
   "name": "Order",
   "short_name": "Order",
   "description": "Order - Digital Luxury Restaurant Menu & Live Tracking",
-  "start_url": "/?source=pwa",
-  "scope": "/",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#120e0c",
   "theme_color": "#ea580c",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "pwa_icon.png?v=14.0",
+      "src": "pwa_icon.png?v=28.0",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

@@ -274,6 +274,30 @@ function setupAuth() {
       renderOrdersList(orders);
       renderInvoicesArchive(orders);
     });
+
+    listenToSessionRevocation();
+  };
+
+  const listenToSessionRevocation = () => {
+    if (typeof db === 'undefined' || !db) return;
+    const slug = Store.getRestaurantSlug();
+    const localAuth = Store.safeGetItem(`harpy_admin_auth_${slug}`);
+    if (!localAuth) return;
+    let session = null;
+    try { session = JSON.parse(localAuth); } catch(e) { return; }
+    if (!session || !session.sessionVersion) return;
+
+    db.ref(`restaurants/${slug}/meta/sessionVersion`).on('value', (snap) => {
+      const liveVersion = snap.val();
+      if (liveVersion && session.sessionVersion && liveVersion > session.sessionVersion) {
+        db.ref(`restaurants/${slug}/meta/sessionVersion`).off();
+        showToastNotification("تم تغيير كلمة مرور هذا المطعم وتم إنهاء جلستك من كافة الأجهزة.", "error");
+        setTimeout(async () => {
+          await Store.logoutAdmin();
+          window.location.reload();
+        }, 1200);
+      }
+    });
   };
 
   const lockDashboard = () => {
@@ -2697,6 +2721,61 @@ function setupSettingsForm() {
     adminElements.settingsForm.addEventListener('submit', (e) => {
       e.preventDefault();
       saveSettingsFromForm();
+    });
+  }
+
+  // Handle Admin Password Change from Settings
+  const btnSavePassword = document.getElementById('btn-save-new-password');
+  const inputNewPassword = document.getElementById('new-admin-password-input');
+  const chkLogoutAll = document.getElementById('chk-logout-all-devices');
+  const pwdStatusMsg = document.getElementById('pwd-change-status-msg');
+
+  if (btnSavePassword && inputNewPassword) {
+    btnSavePassword.addEventListener('click', async () => {
+      const newPass = (inputNewPassword.value || '').trim();
+      const logoutAll = !!chkLogoutAll?.checked;
+
+      if (!newPass || newPass.length < 5) {
+        showToastNotification("يرجى إدخال كلمة مرور جديدة لا تقل عن 5 أحرف أو أرقام", "error");
+        inputNewPassword.focus();
+        return;
+      }
+
+      const confirmed = await showCustomConfirm({
+        title: "تأكيد تغيير كلمة المرور",
+        message: logoutAll 
+          ? `هل تود تغيير كلمة المرور وتسجيل الخروج من كافة الأجهزة الأخرى فوراً؟`
+          : `هل تود تغيير كلمة المرور لهذا المطعم؟`,
+        icon: "🔐",
+        confirmText: "تغيير كلمة المرور",
+        cancelText: "إلغاء",
+        isDanger: false
+      });
+
+      if (!confirmed) return;
+
+      btnSavePassword.disabled = true;
+      btnSavePassword.textContent = "جاري التحديث...";
+
+      try {
+        await Store.changeAdminPassword(newPass, logoutAll);
+        inputNewPassword.value = '';
+        if (chkLogoutAll) chkLogoutAll.checked = false;
+
+        showToastNotification("🎉 تم تحديث كلمة مرور لوحة التحكم بنجاح!", "success");
+        if (pwdStatusMsg) {
+          pwdStatusMsg.style.display = 'inline-block';
+          pwdStatusMsg.style.color = 'var(--accent-wa, #22c55e)';
+          pwdStatusMsg.textContent = "تم الحفظ بنجاح ✓";
+          setTimeout(() => { pwdStatusMsg.style.display = 'none'; }, 4000);
+        }
+      } catch (err) {
+        console.error("Change password error:", err);
+        showToastNotification(err.message || "حدث خطأ أثناء تغيير كلمة المرور", "error");
+      } finally {
+        btnSavePassword.disabled = false;
+        btnSavePassword.textContent = "حفظ وتحديث كلمة المرور 🔑";
+      }
     });
   }
 }

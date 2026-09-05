@@ -9,11 +9,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
   
   <!-- Web App Manifest (PWA / WebAPK) -->
-  <link rel="manifest" href="admin-manifest.json?v=27.0">
+  <link rel="manifest" href="admin-manifest.json?v=28.0">
   
   <!-- Favicons & High-Res App Icons -->
-  <link rel="icon" type="image/png" href="admin_pwa_icon.png?v=27.0">
-  <link rel="apple-touch-icon" href="admin_pwa_icon.png?v=27.0">
+  <link rel="icon" type="image/png" href="admin_pwa_icon.png?v=28.0">
+  <link rel="apple-touch-icon" href="admin_pwa_icon.png?v=28.0">
   
   <!-- Android & Modern PWA Meta -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -25,7 +25,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Order Admin">
 
-  <link rel="stylesheet" href="css/style.css?v=27.0">
+  <link rel="stylesheet" href="css/style.css?v=28.0">
   <link rel="preconnect" href="https://harpy-order-default-rtdb.firebaseio.com" crossorigin>
   <link rel="dns-prefetch" href="https://harpy-order-default-rtdb.firebaseio.com">
   <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
@@ -128,12 +128,9 @@
     <p id="login-modal-subtitle" style="font-size:0.84rem; color:var(--text-muted); margin-bottom:16px; line-height:1.5;">أدخل كلمة مرور إدارة المطعم للوصول المباشر</p>
     
     <form id="admin-login-form" autocomplete="off" onsubmit="return false;" style="text-align:right;">
-      <div class="form-group" style="margin-bottom:12px;">
-        <label class="form-label" style="font-size:11px; margin-bottom:4px;">معرّف المطعم أو البريد الإلكتروني (اختياري)</label>
-        <input type="text" id="admin-email-input" class="form-input" placeholder="اسم المطعم (مثال: saj)" autocomplete="username" dir="ltr" style="text-align:left;">
-      </div>
+      <input type="hidden" id="admin-email-input" value="">
       <div class="form-group" style="margin-bottom:14px;">
-        <label class="form-label" style="font-size:11px; margin-bottom:4px; font-weight:800;">كلمة مرور الإدارة</label>
+        <label class="form-label" style="font-size:12px; margin-bottom:6px; font-weight:800;">كلمة مرور لوحة التحكم</label>
         <input type="password" id="admin-password-input" class="form-input font-num" placeholder="أدخل كلمة المرور" autocomplete="current-password" required autofocus>
       </div>
       <div id="login-error-msg" style="display:none; color:var(--danger); font-size:0.82rem; margin-bottom:12px; font-weight:700; text-align:center; background:rgba(239,68,68,0.1); padding:8px; border-radius:6px;"></div>
@@ -856,6 +853,35 @@
             </div>
           </div>
 
+          <!-- Account Security & Password Management -->
+          <div style="background:var(--surface); border:1.5px solid var(--border-strong); border-radius:var(--radius-xs); padding:18px; margin-top:16px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+              <span style="font-size:18px;">🔐</span>
+              <div style="font-size:14px; font-weight:800; color:var(--text-main);">أمان الحساب وكلمة مرور لوحة التحكم</div>
+            </div>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:14px; line-height:1.6;">
+              يمكنك تغيير كلمة المرور في أي وقت مع الحفاظ الكامل على كافة بيانات المطعم، المنيو، وقائمة المبيعات.
+            </p>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-bottom:12px;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" style="font-size:11px; font-weight:700;">كلمة المرور الجديدة</label>
+                <input type="password" id="new-admin-password-input" class="form-input font-num" placeholder="أدخل كلمة المرور الجديدة (6 أحرف أو أرقام على الأقل)" autocomplete="new-password">
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:14px; background:var(--surface-raised); padding:10px 12px; border-radius:8px; border:1px solid var(--border);">
+              <input type="checkbox" id="chk-logout-all-devices" style="width:18px; height:18px; accent-color:var(--primary); cursor:pointer;">
+              <label for="chk-logout-all-devices" style="font-size:12px; font-weight:700; color:var(--text-main); cursor:pointer;">
+                تسجيل الخروج وقفل الجلسة من كافة الأجهزة الأخرى فوراً
+              </label>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <button type="button" id="btn-save-new-password" class="btn btn-primary" style="padding:9px 18px; font-size:12.5px; font-weight:800;">
+                حفظ وتحديث كلمة المرور 🔑
+              </button>
+              <span id="pwd-change-status-msg" style="font-size:12px; font-weight:700; display:none;"></span>
+            </div>
+          </div>
+
           <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; flex-wrap:wrap; gap:12px;">
             <button type="submit" class="btn btn-primary" style="padding:12px 28px; font-size:0.95rem; font-weight:800;">
               حفظ جميع التعديلات
@@ -1210,8 +1236,8 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/store.js?v=27.0"></script>
-  <script src="js/admin.js?v=27.0"></script>
-  <script src="js/pwa.js?v=27.0"></script>
+  <script src="js/store.js?v=28.0"></script>
+  <script src="js/admin.js?v=28.0"></script>
+  <script src="js/pwa.js?v=28.0"></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 // ===================================================================
 // Order PWA Engine - Native App Experience & Installation (Android / iOS / PC)
-// Version 27.0 - Zero Lag & Smart Persistent Install Banner
+// Version 28.0 - Native App Installation & Smart Persistence
 // ===================================================================
 
 (function() {
@@ -16,7 +16,7 @@
                   document.title.includes('إدارة');
   const appName = isAdmin ? 'Order Admin' : 'Order';
   const appDisplayName = isAdmin ? 'تطبيق إدارة أوردر' : 'تطبيق أوردر للمطاعم';
-  const appIcon = isAdmin ? 'admin_pwa_icon.png?v=27.0' : 'pwa_icon.png?v=27.0';
+  const appIcon = isAdmin ? 'admin_pwa_icon.png?v=28.0' : 'pwa_icon.png?v=28.0';
   const storageKey = 'pwa_installed_' + (isAdmin ? 'admin' : 'menu');
 
   // Check if app is installed (either standalone mode or marked installed)
@@ -57,7 +57,7 @@
   // 1. Register Service Worker with instant update
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      const swUrl = './sw.js?v=27.0';
+      const swUrl = './sw.js?v=28.0';
       navigator.serviceWorker.register(swUrl)
         .then(reg => {
           try { reg.update(); } catch(e) {}

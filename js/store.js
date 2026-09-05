@@ -2777,7 +2777,13 @@ const Store = {
           const expectedEmail = (meta.ownerEmail || '').toLowerCase().trim();
 
           if (cleanPassword === expectedPassword) {
-            const session = { email: expectedEmail || cleanId || `${activeSlug}@harpy.com`, authenticated: true, slug: activeSlug, timestamp: Date.now() };
+            const session = { 
+              email: expectedEmail || cleanId || `${activeSlug}@harpy.com`, 
+              authenticated: true, 
+              slug: activeSlug, 
+              sessionVersion: meta.sessionVersion || 1,
+              timestamp: Date.now() 
+            };
             this.safeSetItem(`harpy_admin_auth_${activeSlug}`, JSON.stringify(session));
             sessionStorage.setItem(`harpy_auth_${activeSlug}`, JSON.stringify(session));
             return session;
@@ -2803,7 +2809,13 @@ const Store = {
               if (activeSlug !== slug) {
                 this.setRestaurantSlug(activeSlug);
               }
-              const session = { email: rEmail || `${activeSlug}@harpy.com`, authenticated: true, slug: activeSlug, timestamp: Date.now() };
+              const session = { 
+                email: rEmail || `${activeSlug}@harpy.com`, 
+                authenticated: true, 
+                slug: activeSlug, 
+                sessionVersion: rMeta.sessionVersion || 1,
+                timestamp: Date.now() 
+              };
               this.safeSetItem(`harpy_admin_auth_${activeSlug}`, JSON.stringify(session));
               sessionStorage.setItem(`harpy_auth_${activeSlug}`, JSON.stringify(session));
               return session;
@@ -2816,6 +2828,41 @@ const Store = {
     }
 
     throw new Error("auth/invalid-credentials");
+  },
+
+  async changeAdminPassword(newPassword, logoutAllDevices = false) {
+    const slug = this.getRestaurantSlug();
+    const cleanPassword = (newPassword || '').trim();
+    if (!cleanPassword || cleanPassword.length < 5) {
+      throw new Error("كلمة المرور يجب ألا تقل عن 5 أحرف أو أرقام");
+    }
+
+    if (!db) {
+      throw new Error("قاعدة البيانات السحابية غير متصلة حالياً");
+    }
+
+    const updates = {
+      adminPassword: cleanPassword,
+      lastPasswordChange: new Date().toISOString()
+    };
+
+    if (logoutAllDevices) {
+      const newVersion = Date.now();
+      updates.sessionVersion = newVersion;
+      // Keep this current device session valid with the new version
+      const localAuth = this.safeGetItem(`harpy_admin_auth_${slug}`);
+      if (localAuth) {
+        try {
+          const session = JSON.parse(localAuth);
+          session.sessionVersion = newVersion;
+          this.safeSetItem(`harpy_admin_auth_${slug}`, JSON.stringify(session));
+          sessionStorage.setItem(`harpy_auth_${slug}`, JSON.stringify(session));
+        } catch(e) {}
+      }
+    }
+
+    await db.ref(`restaurants/${slug}/meta`).update(updates);
+    return true;
   },
 
   async logoutAdmin() {
