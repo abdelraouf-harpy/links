@@ -104,7 +104,7 @@
       // Always resolve authentic server manifest file per tenant so WebAPK builds natively without Chrome badge
       const manifestLink = document.querySelector('link[rel="manifest"]');
       if (manifestLink) {
-        const knownTenants = ['saj', 'king', 'hermel'];
+        const knownTenants = ['saj', 'king'];
         const authenticHref = knownTenants.includes(slug)
           ? (isAdmin ? `admin-manifest-${slug}.json?v=31.0` : `manifest-${slug}.json?v=31.0`)
           : (isAdmin ? `admin-manifest.json?v=31.0` : `manifest.json?v=31.0`);

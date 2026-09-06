@@ -3581,11 +3581,6 @@ const Store = {
       }
     } catch {}
 
-    if (typeof window !== 'undefined' && window.location && (window.location.pathname.includes('admin') || window.location.href.includes('admin'))) {
-      const adminSlug = localStorage.getItem('harpy_admin_active_slug');
-      if (adminSlug && adminSlug !== 'king') return adminSlug;
-    }
-
     const fallbackSlug = 'king';
     return fallbackSlug;
   },

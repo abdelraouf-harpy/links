@@ -53,8 +53,8 @@
                                window.navigator.standalone === true ||
                                document.referrer.includes('android-app://');
           if (isStandalone) {
-            const savedAppSlug = localStorage.getItem('harpy_customer_installed_slug') || localStorage.getItem('harpy_active_slug');
-            if (savedAppSlug && savedAppSlug !== 'king') {
+            const savedAppSlug = localStorage.getItem('harpy_customer_installed_slug');
+            if (savedAppSlug) {
               slug = savedAppSlug;
             }
           }
@@ -67,7 +67,7 @@
         window.__harpySlug = slug;
         try { localStorage.setItem('harpy_active_slug', slug); } catch(e) {}
 
-        var knownTenants = ['saj', 'king', 'hermel'];
+        var knownTenants = ['saj', 'king'];
         if (knownTenants.indexOf(slug) !== -1) {
           var mLink = document.querySelector('link[rel="manifest"]');
           if (mLink) mLink.href = 'manifest-' + slug + '.json?v=31.0';

@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 const FIREBASE_BASE = 'https://harpy-order-default-rtdb.firebaseio.com/restaurants';
-const KNOWN_SLUGS = ['saj', 'king', 'hermel', 'super', 'one'];
+const KNOWN_SLUGS = ['saj', 'king'];
 
 async function generate() {
   console.log('Fetching active restaurant settings from Firebase...');

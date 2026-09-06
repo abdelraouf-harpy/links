@@ -39,41 +39,40 @@
         var params = new URLSearchParams(window.location.search);
         var slug = params.get('m') || params.get('restaurant') || params.get('store') || params.get('slug');
 
-        // Standalone PWA & Active Admin Recovery:
-        // If app launched from home screen icon or without query param, recover the authenticated tenant
+        // Subdomain resolution (e.g. saj.harpymenu.com)
         if (!slug) {
-          var lastAdminSlug = localStorage.getItem('harpy_admin_active_slug');
-          if (lastAdminSlug && lastAdminSlug !== 'king') {
-            slug = lastAdminSlug;
-          }
-        }
-        if (!slug) {
-          try {
-            for (var i = 0; i < localStorage.length; i++) {
-              var key = localStorage.key(i);
-              if (key && key.indexOf('harpy_admin_auth_') === 0) {
-                var raw = localStorage.getItem(key);
-                if (raw) {
-                  var parsed = JSON.parse(raw);
-                  if (parsed && parsed.authenticated === true && parsed.slug) {
-                    slug = parsed.slug;
-                    break;
-                  }
-                }
+          var host = window.location.hostname;
+          if (host.includes('.')) {
+            var parts = host.split('.');
+            if (parts.length > 2) {
+              var sub = parts[0].toLowerCase();
+              if (sub && sub !== 'www' && sub !== 'harpymenu' && sub !== 'harpy-order' && sub !== 'harpy' && sub !== 'localhost') {
+                slug = sub;
               }
             }
-          } catch(e) {}
+          }
         }
+
+        // Standalone PWA installed app recovery:
         if (!slug) {
-          var genSlug = localStorage.getItem('harpy_active_slug');
-          if (genSlug && genSlug !== 'king') slug = genSlug;
+          var isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                             window.navigator.standalone === true ||
+                             document.referrer.includes('android-app://');
+          if (isStandalone) {
+            var savedAdminSlug = localStorage.getItem('harpy_admin_installed_slug');
+            if (savedAdminSlug) slug = savedAdminSlug;
+          }
         }
-        if (!slug) slug = 'king';
+
+        // Clean default: on harpymenu.com/admin without ?m=, always load demo restaurant 'king'
+        if (!slug) {
+          slug = 'king';
+        }
         slug = slug.toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
         window.__harpySlug = slug;
         try { localStorage.setItem('harpy_admin_active_slug', slug); } catch(e) {}
 
-        var knownTenants = ['saj', 'king', 'hermel'];
+        var knownTenants = ['saj', 'king'];
         if (knownTenants.indexOf(slug) !== -1) {
           var mLink = document.querySelector('link[rel="manifest"]');
           if (mLink) mLink.href = 'admin-manifest-' + slug + '.json?v=31.0';
