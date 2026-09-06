@@ -19,29 +19,60 @@
 
   // Resolve Store Branding for Native App Identity
   let storeName = '';
+  let storeLogo = '';
   try {
     const cached = localStorage.getItem('harpy_' + slug + '_settings');
     if (cached) {
       const parsed = JSON.parse(cached);
-      if (parsed && parsed.storeName) storeName = parsed.storeName;
+      if (parsed) {
+        if (parsed.storeName) storeName = parsed.storeName;
+        if (!storeName && parsed.name) storeName = parsed.name;
+        if (parsed.logo) storeLogo = parsed.logo;
+      }
     }
   } catch(e) {}
 
-  const appName = isAdmin ? (storeName ? `إدارة ${storeName}` : 'Order Admin') : (storeName || 'Order');
-  const appDisplayName = isAdmin 
+  let appName = isAdmin ? (storeName ? `إدارة ${storeName}` : 'Order Admin') : (storeName || 'Order');
+  let appDisplayName = isAdmin 
     ? (storeName ? `لوحة تحكم: ${storeName}` : 'تطبيق إدارة أوردر') 
     : (storeName ? `منيو: ${storeName}` : 'تطبيق أوردر للمطاعم');
-  const appIcon = isAdmin ? 'admin_pwa_icon.png?v=30.0' : 'pwa_icon.png?v=30.0';
+  const fallbackIcon = isAdmin ? 'admin_pwa_icon.png?v=30.0' : 'pwa_icon.png?v=30.0';
+  let appIcon = storeLogo || fallbackIcon;
   const storageKey = 'pwa_installed_' + (isAdmin ? ('admin_' + slug) : ('menu_' + slug));
 
-  // Dynamic Web App Manifest Engine: Binds PWA start_url and ID to the active restaurant
-  function updateDynamicManifest() {
+  // Dynamic Web App Manifest Engine: Binds PWA start_url, name, and custom logo to the active restaurant
+  function updateDynamicManifest(customSettings = null) {
     try {
+      if (customSettings) {
+        if (customSettings.storeName || customSettings.name) {
+          storeName = customSettings.storeName || customSettings.name;
+          appName = isAdmin ? `إدارة ${storeName}` : storeName;
+          appDisplayName = isAdmin ? `لوحة تحكم: ${storeName}` : `منيو: ${storeName}`;
+        }
+        if (customSettings.logo) {
+          storeLogo = customSettings.logo;
+          appIcon = storeLogo;
+        }
+      }
+
       const manifestLink = document.querySelector('link[rel="manifest"]');
       if (!manifestLink) return;
 
       const dynamicId = (isAdmin ? 'order-admin-' : 'order-menu-') + slug;
       const startUrl = isAdmin ? ('./admin.html?m=' + encodeURIComponent(slug)) : ('./index.html?m=' + encodeURIComponent(slug));
+
+      const manifestIcons = storeLogo ? [
+        { src: storeLogo, sizes: '512x512', type: 'image/png', purpose: 'any' },
+        { src: storeLogo, sizes: '192x192', type: 'image/png', purpose: 'any' },
+        { src: storeLogo, sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        { src: fallbackIcon, sizes: '512x512', type: 'image/png', purpose: 'any' }
+      ] : [
+        { src: fallbackIcon, sizes: '512x512', type: 'image/png', purpose: 'any' },
+        { src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+        { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+        { src: 'icons/icon-maskable-192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
+        { src: 'icons/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
+      ];
 
       const manifestObj = {
         id: dynamicId,
@@ -54,22 +85,35 @@
         background_color: '#120e0c',
         theme_color: '#ea580c',
         orientation: 'portrait',
-        icons: [
-          { src: appIcon, sizes: '512x512', type: 'image/png', purpose: 'any' },
-          { src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
-          { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
-          { src: 'icons/icon-maskable-192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
-          { src: 'icons/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
-        ]
+        icons: manifestIcons
       };
 
       const blob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
       manifestLink.setAttribute('href', URL.createObjectURL(blob));
+
+      // Update Apple iOS Safari home screen icon dynamically
+      if (storeLogo) {
+        try {
+          let appleTouch = document.querySelector('link[rel="apple-touch-icon"]');
+          if (!appleTouch) {
+            appleTouch = document.createElement('link');
+            appleTouch.rel = 'apple-touch-icon';
+            document.head.appendChild(appleTouch);
+          }
+          appleTouch.href = storeLogo;
+        } catch(e) {}
+      }
     } catch (err) {
       console.warn('[PWA] Dynamic manifest error:', err);
     }
   }
   updateDynamicManifest();
+
+  // Listen for live store settings update to immediately update PWA manifest and icon
+  window.addEventListener('harpy_settings_updated', (e) => {
+    if (e && e.detail) updateDynamicManifest(e.detail);
+  });
+  window.updateDynamicManifest = updateDynamicManifest;
 
   // Check if app is installed (either standalone mode or marked installed)
   function isAppInstalled() {

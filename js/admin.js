@@ -2939,6 +2939,9 @@ async function saveSettingsFromForm() {
     loadSettingsIntoForm();
     checkOnboardingSetup();
     renderRestaurantHub();
+    if (typeof window.updateDynamicManifest === 'function') {
+      window.updateDynamicManifest(updated);
+    }
   } catch (err) {
     console.error("[Admin] Settings save error:", err);
     showToastNotification("حدث خطأ أثناء الحفظ: " + (err.message || 'فشل الاتصال'), "error");
