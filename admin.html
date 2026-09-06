@@ -73,9 +73,13 @@
         try { localStorage.setItem('harpy_admin_active_slug', slug); } catch(e) {}
 
         var knownTenants = ['saj', 'king'];
-        if (knownTenants.indexOf(slug) !== -1) {
-          var mLink = document.querySelector('link[rel="manifest"]');
-          if (mLink) mLink.href = 'admin-manifest-' + slug + '.json?v=31.0';
+        var mLink = document.querySelector('link[rel="manifest"]');
+        if (mLink) {
+          if (knownTenants.indexOf(slug) !== -1) {
+            mLink.href = 'admin-manifest-' + slug + '.json?v=31.0';
+          } else {
+            mLink.href = 'admin-manifest.json?m=' + encodeURIComponent(slug) + '&v=31.0';
+          }
         }
 
         // Auto-fix URL parameter so address bar and internal routing stay consistent
@@ -86,17 +90,36 @@
             window.history.replaceState({}, '', url.toString());
           } catch(e) {}
         }
+        var subStatus = localStorage.getItem('harpy_' + slug + '_sub_status');
         var localAuth = localStorage.getItem('harpy_admin_auth_' + slug);
         var sessionAuth = sessionStorage.getItem('harpy_auth_' + slug);
         var isAuth = false;
-        if (localAuth) {
-          try { var s = JSON.parse(localAuth); isAuth = s && s.authenticated === true; } catch(e) {}
-        }
-        if (!isAuth && sessionAuth) {
-          try { var s2 = JSON.parse(sessionAuth); isAuth = s2 && s2.authenticated === true; } catch(e) {}
+        if (subStatus === 'deleted' || subStatus === 'suspended' || subStatus === 'blocked') {
+          isAuth = false;
+        } else {
+          if (localAuth) {
+            try { var s = JSON.parse(localAuth); isAuth = s && s.authenticated === true; } catch(e) {}
+          }
+          if (!isAuth && sessionAuth) {
+            try { var s2 = JSON.parse(sessionAuth); isAuth = s2 && s2.authenticated === true; } catch(e) {}
+          }
         }
         var mode = localStorage.getItem('harpy_' + slug + '_theme_mode') || 'light';
         document.documentElement.setAttribute('data-theme', mode);
+
+        try {
+          var csRaw = localStorage.getItem('harpy_' + slug + '_settings');
+          if (csRaw) {
+            var csData = JSON.parse(csRaw);
+            if (csData && csData.storeName) {
+              document.title = 'لوحة تحكم: ' + csData.storeName;
+            }
+            if (csData && (csData.logo || csData.logoUrl)) {
+              var ap = document.querySelector('link[rel="apple-touch-icon"]');
+              if (ap) ap.href = csData.logo || csData.logoUrl;
+            }
+          }
+        } catch(e) {}
 
         if (!isAuth) {
           document.documentElement.classList.add('admin-locked');

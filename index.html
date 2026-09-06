@@ -68,9 +68,13 @@
         try { localStorage.setItem('harpy_active_slug', slug); } catch(e) {}
 
         var knownTenants = ['saj', 'king'];
-        if (knownTenants.indexOf(slug) !== -1) {
-          var mLink = document.querySelector('link[rel="manifest"]');
-          if (mLink) mLink.href = 'manifest-' + slug + '.json?v=31.0';
+        var mLink = document.querySelector('link[rel="manifest"]');
+        if (mLink) {
+          if (knownTenants.indexOf(slug) !== -1) {
+            mLink.href = 'manifest-' + slug + '.json?v=31.0';
+          } else {
+            mLink.href = 'manifest.json?m=' + encodeURIComponent(slug) + '&v=31.0';
+          }
         }
 
         // Safety Recovery: If browser lands on index.html with an admin tab hash, route directly to /admin
@@ -99,13 +103,20 @@
           const cachedSettingsRaw = localStorage.getItem('harpy_' + slug + '_settings');
           if (cachedSettingsRaw) {
             const cs = JSON.parse(cachedSettingsRaw);
-            if (cs && cs.storeName) {
-              document.addEventListener('DOMContentLoaded', function() {
-                const elName = document.getElementById('store-name');
-                if (elName && !elName.textContent) elName.textContent = cs.storeName;
-                const elLogo = document.getElementById('store-logo');
-                if (elLogo && cs.logoUrl && !elLogo.src) elLogo.src = cs.logoUrl;
-              }, { once: true });
+            if (cs) {
+              if (cs.storeName) {
+                document.title = cs.storeName;
+                document.addEventListener('DOMContentLoaded', function() {
+                  const elName = document.getElementById('store-name');
+                  if (elName && !elName.textContent) elName.textContent = cs.storeName;
+                  const elLogo = document.getElementById('store-logo');
+                  if (elLogo && (cs.logo || cs.logoUrl) && !elLogo.src) elLogo.src = cs.logo || cs.logoUrl;
+                }, { once: true });
+              }
+              if (cs.logo || cs.logoUrl) {
+                var apTouch = document.querySelector('link[rel="apple-touch-icon"]');
+                if (apTouch) apTouch.href = cs.logo || cs.logoUrl;
+              }
             }
           }
         } catch(e) {}

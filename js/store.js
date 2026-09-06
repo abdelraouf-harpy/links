@@ -2879,6 +2879,9 @@ const Store = {
 
   isAdminAuthenticated(slug) {
     const activeSlug = slug || this.getRestaurantSlug();
+    if (this.isSubscriptionSuspended(activeSlug)) {
+      return false;
+    }
     const localSession = localStorage.getItem(`harpy_admin_auth_${activeSlug}`);
     if (localSession) {
       try {
@@ -2914,11 +2917,22 @@ const Store = {
 
   // ── Controlled Cloud Sync Engine with Stale Snapshot Protection ──
   applySnapshotData(data) {
-    if (!data || typeof data !== 'object') return false;
+    const slug = this.getRestaurantSlug();
+    const isDemo = (slug === 'king');
+
+    if (!data || typeof data !== 'object') {
+      if (!isDemo && data === null) {
+        this.purgeRestaurantCache(slug);
+        try { localStorage.setItem(`harpy_${slug}_sub_status`, 'deleted'); } catch(e) {}
+        window.dispatchEvent(new CustomEvent('harpy_subscription_status', { 
+          detail: { active: false, reason: 'deleted', lic: null } 
+        }));
+      }
+      return false;
+    }
 
     const now = Date.now();
     let hasChanges = false;
-    const isDemo = (this.getRestaurantSlug() === 'king');
     const defaults = isDemo ? DEFAULT_SETTINGS : BLANK_SETTINGS;
 
     if (!this.saveLocks.settings && (now - this.lastSaveTimestamps.settings > 2500)) {
@@ -3065,7 +3079,15 @@ const Store = {
       if (db) {
         restaurantRef = db.ref(`restaurants/${slug}`);
         wsCallback = snapshot => {
-          processSnapshotData(snapshot.val());
+          const val = snapshot ? snapshot.val() : null;
+          if (val === null && slug !== 'king') {
+            this.purgeRestaurantCache(slug);
+            try { localStorage.setItem(`harpy_${slug}_sub_status`, 'deleted'); } catch(e) {}
+            window.dispatchEvent(new CustomEvent('harpy_subscription_status', { 
+              detail: { active: false, reason: 'deleted', lic: null } 
+            }));
+          }
+          processSnapshotData(val);
         };
         restaurantRef.on('value', wsCallback, err => {
           console.warn("[Store] Cloud sync read error:", err);
@@ -3086,6 +3108,12 @@ const Store = {
           const data = await res.json();
           if (data && typeof data === 'object') {
             processSnapshotData(data);
+          } else if (data === null && slug !== 'king') {
+            this.purgeRestaurantCache(slug);
+            try { localStorage.setItem(`harpy_${slug}_sub_status`, 'deleted'); } catch(e) {}
+            window.dispatchEvent(new CustomEvent('harpy_subscription_status', { 
+              detail: { active: false, reason: 'deleted', lic: null } 
+            }));
           }
         }
       } catch (e) {}
@@ -4079,18 +4107,33 @@ const Store = {
   },
 
   purgeRestaurantCache(slug) {
-    const targetSlug = slug || this.getRestaurantSlug();
+    const targetSlug = (slug || this.getRestaurantSlug() || '').toLowerCase().trim();
+    if (!targetSlug) return;
     try {
+      this.clearMemoryCache();
       const keysToRemove = [];
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && (key.startsWith(`harpy_${targetSlug}_`) || key.startsWith(`harpy_${targetSlug}:`) || key === `harpy_${targetSlug}`)) {
-          if (key !== `harpy_${targetSlug}_sub_status`) {
-            keysToRemove.push(key);
+        if (key) {
+          if (
+            key.startsWith(`harpy_${targetSlug}_`) ||
+            key.startsWith(`harpy_${targetSlug}:`) ||
+            key === `harpy_${targetSlug}` ||
+            key === `harpy_admin_auth_${targetSlug}` ||
+            key === `harpy_auth_${targetSlug}` ||
+            key === `pwa_installed_admin_${targetSlug}` ||
+            key === `pwa_installed_menu_${targetSlug}` ||
+            key.includes(`_${targetSlug}`)
+          ) {
+            if (key !== `harpy_${targetSlug}_sub_status`) {
+              keysToRemove.push(key);
+            }
           }
         }
       }
       keysToRemove.forEach(k => localStorage.removeItem(k));
+      sessionStorage.removeItem(`harpy_auth_${targetSlug}`);
+      sessionStorage.removeItem(`harpy_admin_auth_${targetSlug}`);
       
       let list = this.getAllRestaurants().filter(r => r.slug !== targetSlug);
       this.safeSetItem('harpy_restaurants_list', JSON.stringify(list));
@@ -4130,8 +4173,13 @@ const Store = {
       let isExpired = false;
       let isDeleted = false;
       let reason = 'active';
+      const isDemo = (slug === 'king');
 
-      if (lic) {
+      if (!isDemo && (lic === null || lic === undefined)) {
+        isDeleted = true;
+        isBlocked = true;
+        reason = 'deleted';
+      } else if (lic) {
         if (lic.status === 'suspended' || lic.status === 'blocked' || lic.status === 'inactive') {
           isBlocked = true;
           reason = 'blocked';

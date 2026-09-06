@@ -101,20 +101,74 @@
         bannerImg.onerror = function() { this.src = fallbackIcon; };
       }
 
-      // Always resolve authentic server manifest file per tenant so WebAPK builds natively without Chrome badge
+      // Dynamic manifest resolution with custom identity per tenant
+      const manifestObj = {
+        id: `harpy-${isAdmin ? 'admin' : 'menu'}-${slug}-v31`,
+        name: appDisplayName || (isAdmin ? `إدارة ${slug}` : `مطعم ${slug}`),
+        short_name: (storeName || slug).slice(0, 15),
+        description: `${appDisplayName} - منيو ذكي وطلب مباشر`,
+        start_url: isAdmin ? `./admin.html?m=${slug}` : `./index.html?m=${slug}`,
+        scope: isAdmin ? `./admin.html` : `./index.html`,
+        display: "standalone",
+        background_color: "#120e0c",
+        theme_color: "#ea580c",
+        orientation: "portrait",
+        icons: [
+          {
+            src: appIcon,
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "any"
+          },
+          {
+            src: appIcon,
+            sizes: "192x192",
+            type: "image/png",
+            purpose: "any"
+          },
+          {
+            src: appIcon,
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "maskable"
+          }
+        ]
+      };
+
       const manifestLink = document.querySelector('link[rel="manifest"]');
       if (manifestLink) {
         const knownTenants = ['saj', 'king'];
-        const authenticHref = knownTenants.includes(slug)
-          ? (isAdmin ? `admin-manifest-${slug}.json?v=31.0` : `manifest-${slug}.json?v=31.0`)
-          : (isAdmin ? `admin-manifest.json?v=31.0` : `manifest.json?v=31.0`);
+        const isStaticTenant = knownTenants.includes(slug);
 
-        if (manifestLink.getAttribute('href') !== authenticHref) {
-          manifestLink.setAttribute('href', authenticHref);
+        if (isStaticTenant && !customSettings) {
+          const authenticHref = isAdmin ? `admin-manifest-${slug}.json?v=31.0` : `manifest-${slug}.json?v=31.0`;
+          if (manifestLink.getAttribute('href') !== authenticHref) {
+            manifestLink.setAttribute('href', authenticHref);
+          }
+        } else {
+          try {
+            const manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
+            const dynamicUrl = URL.createObjectURL(manifestBlob);
+            manifestLink.setAttribute('href', dynamicUrl);
+          } catch(e) {
+            manifestLink.setAttribute('href', isAdmin ? `admin-manifest.json?v=31.0` : `manifest.json?v=31.0`);
+          }
         }
       }
 
-      // Update Apple iOS Safari home screen icon & title dynamically
+      // Notify Service Worker of the dynamic manifest
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        try {
+          navigator.serviceWorker.controller.postMessage({
+            type: 'SET_DYNAMIC_MANIFEST',
+            slug: slug,
+            isAdmin: isAdmin,
+            manifest: manifestObj
+          });
+        } catch(e) {}
+      }
+
+      // Update Apple iOS Safari home screen icon, favicon & titles dynamically
       if (storeLogo) {
         try {
           let appleTouch = document.querySelector('link[rel="apple-touch-icon"]');
@@ -124,12 +178,17 @@
             document.head.appendChild(appleTouch);
           }
           appleTouch.href = storeLogo;
+          let favicon = document.querySelector('link[rel="icon"]');
+          if (favicon) favicon.href = storeLogo;
         } catch(e) {}
       }
       if (storeName) {
         try {
+          document.title = isAdmin ? `لوحة تحكم: ${storeName}` : `منيو: ${storeName}`;
           let appleTitle = document.querySelector('meta[name="apple-mobile-web-app-title"]');
           if (appleTitle) appleTitle.content = appName;
+          let appMeta = document.querySelector('meta[name="application-name"]');
+          if (appMeta) appMeta.content = appName;
         } catch(e) {}
       }
     } catch (err) {

@@ -3049,10 +3049,22 @@ function setupSubscriptionWatcher() {
   Store.startSubscriptionWatcher((status) => {
     if (!status.active) {
       applyAdminStatusUI(status.reason);
+      if (status.reason === 'deleted') {
+        try { Store.logoutAdmin(slug); } catch(err) {}
+      }
     } else {
       document.body.classList.remove('harpy-account-locked');
       if (suspendedBackdrop) suspendedBackdrop.classList.remove('active');
       if (suspendedOverlay) suspendedOverlay.classList.remove('active');
+    }
+  });
+
+  window.addEventListener('harpy_subscription_status', (e) => {
+    if (e && e.detail && !e.detail.active) {
+      applyAdminStatusUI(e.detail.reason);
+      if (e.detail.reason === 'deleted') {
+        try { Store.logoutAdmin(slug); } catch(err) {}
+      }
     }
   });
 }

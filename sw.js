@@ -53,6 +53,8 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+const dynamicManifests = {};
+
 // Real-time message listener from client UI for instant update execution
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
@@ -65,10 +67,49 @@ self.addEventListener('message', (event) => {
       })
     );
   }
+  if (event.data && event.data.type === 'SET_DYNAMIC_MANIFEST') {
+    const { slug, isAdmin, manifest } = event.data;
+    if (slug && manifest) {
+      const fileName = isAdmin ? `admin-manifest-${slug}.json` : `manifest-${slug}.json`;
+      dynamicManifests[fileName] = manifest;
+      const jsonStr = JSON.stringify(manifest);
+      const res = new Response(jsonStr, {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/manifest+json; charset=utf-8',
+          'Cache-Control': 'no-cache, no-store, must-revalidate'
+        }
+      });
+      caches.open(CACHE_NAME).then(cache => {
+        cache.put('./' + fileName, res.clone());
+        cache.put('/' + fileName, res);
+      });
+    }
+  }
 });
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+
+  // Serve dynamic manifest immediately if registered
+  try {
+    const reqUrl = new URL(event.request.url);
+    const fileName = reqUrl.pathname.split('/').pop();
+    if (fileName && (fileName.startsWith('manifest-') || fileName.startsWith('admin-manifest-')) && fileName.endsWith('.json')) {
+      if (dynamicManifests[fileName]) {
+        event.respondWith(
+          new Response(JSON.stringify(dynamicManifests[fileName]), {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/manifest+json; charset=utf-8',
+              'Cache-Control': 'no-cache, no-store, must-revalidate'
+            }
+          })
+        );
+        return;
+      }
+    }
+  } catch(e) {}
   
   // Network-First strategy: Always fetch latest version from server, fall back to cache if offline or 404 navigation
   event.respondWith(

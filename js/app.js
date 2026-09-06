@@ -2427,6 +2427,12 @@ function setupSubscriptionWatcher() {
       if (suspendedOverlay) suspendedOverlay.classList.remove('active');
     }
   });
+
+  window.addEventListener('harpy_subscription_status', (e) => {
+    if (e && e.detail && !e.detail.active) {
+      applyStatusUI(e.detail.reason);
+    }
+  });
 }
 
 // ── Direct In-App Ordering & Live Tracker Engine ────────────
