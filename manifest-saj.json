@@ -1,0 +1,32 @@
+{
+  "id": "harpy-menu-saj-v2",
+  "name": "مـطـعـم صــاج",
+  "short_name": "مـطـعـم صــا",
+  "description": "مـطـعـم صــاج - منيو ذكي وطلب أونلاين مباشر",
+  "start_url": "./index.html?m=saj",
+  "scope": "./index.html",
+  "display": "standalone",
+  "background_color": "#120e0c",
+  "theme_color": "#ea580c",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icons/saj-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/saj-logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/saj-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

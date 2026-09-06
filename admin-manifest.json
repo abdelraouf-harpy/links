@@ -1,10 +1,10 @@
 {
-  "id": "order-admin-app-v1",
+  "id": "harpy-admin-app-v2",
   "name": "Order Admin",
   "short_name": "Order Admin",
   "description": "Order Admin - Restaurant Management & Kitchen Display",
   "start_url": "./admin.html",
-  "scope": "./",
+  "scope": "./admin.html",
   "display": "standalone",
   "background_color": "#120e0c",
   "theme_color": "#ea580c",

@@ -73,6 +73,12 @@
         window.__harpySlug = slug;
         try { localStorage.setItem('harpy_admin_active_slug', slug); } catch(e) {}
 
+        var knownTenants = ['saj', 'king', 'hermel'];
+        if (knownTenants.indexOf(slug) !== -1) {
+          var mLink = document.querySelector('link[rel="manifest"]');
+          if (mLink) mLink.href = 'admin-manifest-' + slug + '.json?v=31.0';
+        }
+
         // Auto-fix URL parameter so address bar and internal routing stay consistent
         if (!window.location.search.includes('m=') && !window.location.search.includes('restaurant=')) {
           try {

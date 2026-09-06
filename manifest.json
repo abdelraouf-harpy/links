@@ -1,10 +1,10 @@
 {
-  "id": "order-client-app-v1",
+  "id": "harpy-menu-app-v2",
   "name": "Order",
   "short_name": "Order",
   "description": "Order - Digital Luxury Restaurant Menu & Live Tracking",
   "start_url": "./index.html",
-  "scope": "./",
+  "scope": "./index.html",
   "display": "standalone",
   "background_color": "#120e0c",
   "theme_color": "#ea580c",

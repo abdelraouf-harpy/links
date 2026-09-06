@@ -101,10 +101,40 @@
         bannerImg.onerror = function() { this.src = fallbackIcon; };
       }
 
-      // Ensure manifest link points to authentic server file so Google Play WebAPK builds natively
+      // Resolve authentic server manifest file per tenant so Google Play WebAPK builds natively with real restaurant name & logo
       const manifestLink = document.querySelector('link[rel="manifest"]');
       if (manifestLink) {
-        const authenticHref = isAdmin ? 'admin-manifest.json' : 'manifest.json';
+        const knownTenants = ['saj', 'king', 'hermel'];
+        let authenticHref;
+        if (knownTenants.includes(slug)) {
+          authenticHref = isAdmin ? `admin-manifest-${slug}.json?v=31.0` : `manifest-${slug}.json?v=31.0`;
+        } else if (storeName) {
+          try {
+            const dynManifest = {
+              id: isAdmin ? `harpy-admin-${slug}-v2` : `harpy-menu-${slug}-v2`,
+              name: appDisplayName,
+              short_name: appName.length > 12 ? appName.substring(0, 12) : appName,
+              start_url: isAdmin ? `./admin.html?m=${slug}` : `./index.html?m=${slug}`,
+              scope: isAdmin ? `./admin.html` : `./index.html`,
+              display: 'standalone',
+              background_color: '#120e0c',
+              theme_color: '#ea580c',
+              orientation: 'portrait',
+              icons: [
+                { src: appIcon, sizes: '512x512', type: 'image/png', purpose: 'any' },
+                { src: appIcon, sizes: '192x192', type: 'image/png', purpose: 'any' },
+                { src: appIcon, sizes: '512x512', type: 'image/png', purpose: 'maskable' }
+              ]
+            };
+            const blob = new Blob([JSON.stringify(dynManifest)], { type: 'application/manifest+json' });
+            authenticHref = URL.createObjectURL(blob);
+          } catch(e) {
+            authenticHref = isAdmin ? 'admin-manifest.json?v=31.0' : 'manifest.json?v=31.0';
+          }
+        } else {
+          authenticHref = isAdmin ? 'admin-manifest.json?v=31.0' : 'manifest.json?v=31.0';
+        }
+
         if (manifestLink.getAttribute('href') !== authenticHref) {
           manifestLink.setAttribute('href', authenticHref);
         }

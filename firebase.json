@@ -45,7 +45,7 @@
         ]
       },
       {
-        "source": "manifest.json",
+        "source": "manifest*.json",
         "headers": [
           {
             "key": "Cache-Control",
@@ -58,7 +58,7 @@
         ]
       },
       {
-        "source": "admin-manifest.json",
+        "source": "admin-manifest*.json",
         "headers": [
           {
             "key": "Cache-Control",
