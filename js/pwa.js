@@ -74,42 +74,9 @@
   }
   ensurePwaStyles();
 
-  const BASELINE_DATA = {
-    saj: {
-      menuName: 'مـطـعـم صــاج',
-      adminName: 'لوحة تحكم صــاج',
-      iconUrl: 'icons/saj-logo.png'
-    },
-    king: {
-      menuName: 'مطعم كينج | King',
-      adminName: 'إدارة مطعم كينج',
-      iconUrl: 'icons/king-logo.png'
-    },
-    hermel: {
-      menuName: 'King Food & Burger',
-      adminName: 'إدارة King Food & Burger',
-      iconUrl: 'icons/hermel-logo.png'
-    }
-  };
-
-  function hasBrandingChangedFromBaseline(targetSlug, currentName, currentLogo, isAdminMode) {
-    const base = BASELINE_DATA[targetSlug];
-    if (!base) return true;
-
-    const baseTargetName = isAdminMode ? base.adminName : base.menuName;
-    if (currentName && currentName.trim() && currentName.trim() !== baseTargetName.trim() && currentName.trim() !== base.menuName.trim()) {
-      return true;
-    }
-
-    if (currentLogo && !currentLogo.includes(base.iconUrl) && !currentLogo.includes(targetSlug + '-logo.png')) {
-      return true;
-    }
-
-    return false;
-  }
-
   // ── 1. Real-Time PWA Branding Engine ────────────────────────
   // Updates in-app banner, iOS Touch Icon, and page branding dynamically
+  // Ensures authentic HTTPS manifest is ALWAYS used so Google Play WebAPK builds natively WITHOUT any Chrome badge
   function updatePwaBranding(customSettings = null) {
     try {
       slug = getActiveSlug();
@@ -134,43 +101,13 @@
         bannerImg.onerror = function() { this.src = fallbackIcon; };
       }
 
-      // Resolve manifest link:
-      // If branding matches static baseline: use HTTPS static manifest for native WebAPK
-      // If branding was updated/changed: dynamically generate manifest with the NEW logo & NEW name!
+      // Always resolve authentic server manifest file per tenant so WebAPK builds natively without Chrome badge
       const manifestLink = document.querySelector('link[rel="manifest"]');
       if (manifestLink) {
-        const isCustomized = hasBrandingChangedFromBaseline(slug, storeName, storeLogo, isAdmin);
-        let authenticHref;
-
-        if (!isCustomized && BASELINE_DATA[slug]) {
-          authenticHref = isAdmin ? `admin-manifest-${slug}.json?v=31.0` : `manifest-${slug}.json?v=31.0`;
-        } else if (storeName || storeLogo) {
-          try {
-            const dynManifest = {
-              id: isAdmin ? `harpy-admin-${slug}-v3` : `harpy-menu-${slug}-v3`,
-              name: appDisplayName,
-              short_name: appName.length > 12 ? appName.substring(0, 12) : appName,
-              description: `${storeName} - ${isAdmin ? 'لوحة التحكم' : 'المنيو الذكي'}`,
-              start_url: isAdmin ? `./admin.html?m=${slug}` : `./index.html?m=${slug}`,
-              scope: isAdmin ? `./admin.html` : `./index.html`,
-              display: 'standalone',
-              background_color: '#120e0c',
-              theme_color: '#ea580c',
-              orientation: 'portrait',
-              icons: [
-                { src: appIcon, sizes: '512x512', type: 'image/png', purpose: 'any' },
-                { src: appIcon, sizes: '192x192', type: 'image/png', purpose: 'any' },
-                { src: appIcon, sizes: '512x512', type: 'image/png', purpose: 'maskable' }
-              ]
-            };
-            const blob = new Blob([JSON.stringify(dynManifest)], { type: 'application/manifest+json' });
-            authenticHref = URL.createObjectURL(blob);
-          } catch(e) {
-            authenticHref = isAdmin ? 'admin-manifest.json?v=31.0' : 'manifest.json?v=31.0';
-          }
-        } else {
-          authenticHref = isAdmin ? 'admin-manifest.json?v=31.0' : 'manifest.json?v=31.0';
-        }
+        const knownTenants = ['saj', 'king', 'hermel'];
+        const authenticHref = knownTenants.includes(slug)
+          ? (isAdmin ? `admin-manifest-${slug}.json?v=31.0` : `manifest-${slug}.json?v=31.0`)
+          : (isAdmin ? `admin-manifest.json?v=31.0` : `manifest.json?v=31.0`);
 
         if (manifestLink.getAttribute('href') !== authenticHref) {
           manifestLink.setAttribute('href', authenticHref);

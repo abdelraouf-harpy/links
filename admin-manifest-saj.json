@@ -1,8 +1,8 @@
 {
   "id": "harpy-admin-saj-v2",
-  "name": "لوحة تحكم مـطـعـم صــاج",
-  "short_name": "إدارة مـطـعـم ",
-  "description": "لوحة تحكم وإدارة مـطـعـم صــاج",
+  "name": "لوحة تحكم صــاج",
+  "short_name": "إدارة صــاج",
+  "description": "لوحة تحكم وإدارة صــاج",
   "start_url": "./admin.html?m=saj",
   "scope": "./admin.html",
   "display": "standalone",

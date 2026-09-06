@@ -1,8 +1,8 @@
 {
   "id": "harpy-menu-saj-v2",
-  "name": "مـطـعـم صــاج",
-  "short_name": "مـطـعـم صــا",
-  "description": "مـطـعـم صــاج - منيو ذكي وطلب أونلاين مباشر",
+  "name": "صــاج",
+  "short_name": "صــاج",
+  "description": "صــاج - منيو ذكي وطلب أونلاين مباشر",
   "start_url": "./index.html?m=saj",
   "scope": "./index.html",
   "display": "standalone",
