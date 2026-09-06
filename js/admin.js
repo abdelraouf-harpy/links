@@ -266,6 +266,13 @@ function setupAuth() {
         renderCategoriesList();
         renderStoriesList();
         loadSettingsIntoForm();
+        const curSettings = Store.getSettings();
+        if (typeof window.updatePwaBranding === 'function') {
+          window.updatePwaBranding(curSettings);
+        }
+        if (typeof window.checkForPwaUpdates === 'function') {
+          window.checkForPwaUpdates(curSettings);
+        }
       }
     });
 
@@ -505,6 +512,14 @@ function loadAllDashboardData() {
   if (typeof initPOS === 'function') initPOS();
   loadSettingsIntoForm();
   checkOnboardingSetup();
+
+  const currentSettings = Store.getSettings();
+  if (typeof window.updatePwaBranding === 'function') {
+    window.updatePwaBranding(currentSettings);
+  }
+  if (typeof window.checkForPwaUpdates === 'function') {
+    window.checkForPwaUpdates(currentSettings);
+  }
 }
 
 function checkOnboardingSetup() {
@@ -2941,6 +2956,9 @@ async function saveSettingsFromForm() {
     renderRestaurantHub();
     if (typeof window.updateDynamicManifest === 'function') {
       window.updateDynamicManifest(updated);
+    }
+    if (typeof window.checkForPwaUpdates === 'function') {
+      window.checkForPwaUpdates(updated);
     }
   } catch (err) {
     console.error("[Admin] Settings save error:", err);

@@ -1,5 +1,5 @@
 // Order PWA Service Worker — Native App Shell & Offline Engine
-const CACHE_NAME = 'order-pwa-v30.0';
+const CACHE_NAME = 'order-pwa-v31.0';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -17,11 +17,11 @@ const ASSETS_TO_CACHE = [
   './icons/icon-maskable-512.png',
   './icons/apple-touch-icon.png',
   './favicon.png',
-  './css/style.css?v=30.0',
-  './js/store.js?v=30.0',
-  './js/app.js?v=30.0',
-  './js/admin.js?v=30.0',
-  './js/pwa.js?v=30.0'
+  './css/style.css?v=31.0',
+  './js/store.js?v=31.0',
+  './js/app.js?v=31.0',
+  './js/admin.js?v=31.0',
+  './js/pwa.js?v=31.0'
 ];
 
 self.addEventListener('install', (event) => {
@@ -45,6 +45,20 @@ self.addEventListener('activate', (event) => {
       );
     }).then(() => self.clients.claim())
   );
+});
+
+// Real-time message listener from client UI for instant update execution
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+  if (event.data && event.data.type === 'CLEAR_CACHES') {
+    event.waitUntil(
+      caches.keys().then((keys) => {
+        return Promise.all(keys.map(k => caches.delete(k)));
+      })
+    );
+  }
 });
 
 self.addEventListener('fetch', (event) => {

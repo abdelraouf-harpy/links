@@ -11,8 +11,8 @@
   <link rel="manifest" href="manifest.json">
   
   <!-- Favicons & High-Res App Icons -->
-  <link rel="icon" type="image/png" href="pwa_icon.png?v=30.0">
-  <link rel="apple-touch-icon" href="pwa_icon.png?v=30.0">
+  <link rel="icon" type="image/png" href="pwa_icon.png?v=31.0">
+  <link rel="apple-touch-icon" href="pwa_icon.png?v=31.0">
   
   <!-- Android & Modern PWA Meta -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -31,7 +31,7 @@
   <link rel="preconnect" href="https://i.ibb.co" crossorigin>
   <link rel="dns-prefetch" href="https://i.ibb.co">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/style.css?v=30.0">
+  <link rel="stylesheet" href="css/style.css?v=31.0">
   <script>
     (function() {
       try {
@@ -109,6 +109,15 @@
           cache: 'no-store'
         }).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; });
       } catch(e) {}
+
+      // Failsafe watchdog: Ensures splash shield never traps the page under any circumstance
+      setTimeout(function() {
+        var splash = document.getElementById('app-splash-shield');
+        if (splash && !splash.classList.contains('fade-out')) {
+          splash.classList.add('fade-out');
+          setTimeout(function() { try { splash.remove(); } catch(e) {} }, 250);
+        }
+      }, 1000);
     })();
   </script>
 </head>
@@ -815,8 +824,8 @@
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/store.js?v=30.0"></script>
-  <script src="js/app.js?v=30.0"></script>
-  <script src="js/pwa.js?v=30.0"></script>
+  <script src="js/store.js?v=31.0"></script>
+  <script src="js/app.js?v=31.0"></script>
+  <script src="js/pwa.js?v=31.0"></script>
 </body>
 </html>

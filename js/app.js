@@ -341,10 +341,10 @@ async function initApp() {
   const hasLocalCache = Store.hasCachedData(slug);
 
   // 1. Intelligent Dual-Speed Hydration Engine
-  // On new device (no local cache), wait up to 2800ms for cloud data so the user sees the real menu right away
-  // On device with cache, wait at most 160ms so cached UI opens instantly
+  // On new device (no local cache), wait up to 1200ms for cloud data so the user sees the real menu right away
+  // On device with cache, wait at most 120ms so cached UI opens instantly
   if (window.__harpyPreloadPromise) {
-    const maxWaitTime = hasLocalCache ? 160 : 2800;
+    const maxWaitTime = hasLocalCache ? 120 : 1200;
     try {
       const preloadData = await Promise.race([
         window.__harpyPreloadPromise,
@@ -366,6 +366,14 @@ async function initApp() {
           renderDiscoveryRibbon();
           renderCategories();
           renderProducts();
+        }
+        if (freshData.settings) {
+          if (typeof window.updatePwaBranding === 'function') {
+            window.updatePwaBranding(freshData.settings);
+          }
+          if (typeof window.checkForPwaUpdates === 'function') {
+            window.checkForPwaUpdates(freshData.settings);
+          }
         }
       }
     }).catch(() => {});
@@ -428,6 +436,13 @@ async function initApp() {
       renderCategories();
       renderProducts(true);
       updateLedgerUI();
+      const currentSettings = Store.getSettings();
+      if (typeof window.updatePwaBranding === 'function') {
+        window.updatePwaBranding(currentSettings);
+      }
+      if (typeof window.checkForPwaUpdates === 'function') {
+        window.checkForPwaUpdates(currentSettings);
+      }
     }
   });
 }
@@ -547,6 +562,11 @@ function renderStoreInfo() {
     } else {
       elements.storeLogo.style.display = 'none';
     }
+  }
+
+  // Update PWA install banner & branding with restaurant name & logo
+  if (typeof window.updatePwaBranding === 'function') {
+    window.updatePwaBranding(settings);
   }
 
   // Cover image as Hero Header Background (Vibrant & Sharp)
