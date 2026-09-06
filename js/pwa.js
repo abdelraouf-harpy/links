@@ -39,7 +39,7 @@
   let appDisplayName = isAdmin 
     ? (storeName ? `لوحة تحكم: ${storeName}` : 'تطبيق إدارة أوردر') 
     : (storeName ? `منيو: ${storeName}` : 'تطبيق أوردر للمطاعم');
-  const fallbackIcon = isAdmin ? 'admin_pwa_icon.png?v=31.0' : 'pwa_icon.png?v=31.0';
+  const fallbackIcon = isAdmin ? 'admin_pwa_icon.png?v=31.1' : 'pwa_icon.png?v=31.1';
   let appIcon = storeLogo || fallbackIcon;
   const storageKey = 'pwa_installed_' + (isAdmin ? ('admin_' + slug) : ('menu_' + slug));
 
@@ -140,32 +140,13 @@
         const knownTenants = ['saj', 'king'];
         const isStaticTenant = knownTenants.includes(slug);
 
-        if (isStaticTenant && !customSettings) {
-          const authenticHref = isAdmin ? `admin-manifest-${slug}.json?v=31.0` : `manifest-${slug}.json?v=31.0`;
-          if (manifestLink.getAttribute('href') !== authenticHref) {
-            manifestLink.setAttribute('href', authenticHref);
-          }
-        } else {
-          try {
-            const manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
-            const dynamicUrl = URL.createObjectURL(manifestBlob);
-            manifestLink.setAttribute('href', dynamicUrl);
-          } catch(e) {
-            manifestLink.setAttribute('href', isAdmin ? `admin-manifest.json?v=31.0` : `manifest.json?v=31.0`);
-          }
-        }
-      }
+        const authenticHref = isStaticTenant
+          ? (isAdmin ? `admin-manifest-${slug}.json?v=31.1` : `manifest-${slug}.json?v=31.1`)
+          : (isAdmin ? `admin-manifest.json?v=31.1` : `manifest.json?v=31.1`);
 
-      // Notify Service Worker of the dynamic manifest
-      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-        try {
-          navigator.serviceWorker.controller.postMessage({
-            type: 'SET_DYNAMIC_MANIFEST',
-            slug: slug,
-            isAdmin: isAdmin,
-            manifest: manifestObj
-          });
-        } catch(e) {}
+        if (manifestLink.getAttribute('href') !== authenticHref) {
+          manifestLink.setAttribute('href', authenticHref);
+        }
       }
 
       // Update Apple iOS Safari home screen icon, favicon & titles dynamically
@@ -197,99 +178,22 @@
   }
   updatePwaBranding();
 
-  // ── 2. Chic In-App Update Engine ("رسالة تحديث شيك") ─────────
-  // Automatically detects when store branding or system updates are published,
-  // presenting an elegant floating card for instant one-click sync.
+  // ── 2. Clean Update Engine ("متظهرش تاني طالما مفيش تحديث وطالما الشخص حدّث") ───
+  const CURRENT_PWA_BUILD = 'v31.1';
 
-  function getStoredIdentity(currentSlug) {
+  function isUpdateAlreadyHandled() {
     try {
-      const key = 'harpy_pwa_identity_' + (isAdmin ? 'admin_' : 'menu_') + currentSlug;
-      const raw = localStorage.getItem(key);
-      if (raw) return JSON.parse(raw);
-    } catch(e) {}
-    return null;
-  }
-
-  function saveStoredIdentity(currentSlug, data) {
-    try {
-      const key = 'harpy_pwa_identity_' + (isAdmin ? 'admin_' : 'menu_') + currentSlug;
-      localStorage.setItem(key, JSON.stringify({
-        storeName: (data.storeName || data.name || '').trim(),
-        logo: (data.logo || data.logoUrl || '').trim(),
-        updatedAt: Date.now()
-      }));
-    } catch(e) {}
-  }
-
-  function checkForPwaUpdates(freshSettings) {
-    if (!freshSettings || typeof freshSettings !== 'object') return;
-    const currentSlug = getActiveSlug();
-    const freshName = (freshSettings.storeName || freshSettings.name || '').trim();
-    const freshLogo = (freshSettings.logo || freshSettings.logoUrl || '').trim();
-
-    if (!freshName && !freshLogo) return;
-
-    // Check if dismissed recently (within 15 minutes)
-    const dismissKey = 'harpy_update_dismissed_' + (isAdmin ? 'admin_' : 'menu_') + currentSlug;
-    const dismissedAt = sessionStorage.getItem(dismissKey);
-    if (dismissedAt && (Date.now() - parseInt(dismissedAt, 10) < 15 * 60 * 1000)) {
-      return;
-    }
-
-    const recorded = getStoredIdentity(currentSlug);
-
-    // If no recorded identity yet:
-    if (!recorded) {
-      const hasExistingCache = localStorage.getItem('harpy_' + currentSlug + '_settings') !== null;
-      const isInstalled = isAppInstalled();
-
-      if (isInstalled || hasExistingCache) {
-        // Compare with old cached settings
-        let oldName = '';
-        let oldLogo = '';
-        try {
-          const cs = JSON.parse(localStorage.getItem('harpy_' + currentSlug + '_settings') || '{}');
-          oldName = (cs.storeName || cs.name || '').trim();
-          oldLogo = (cs.logo || cs.logoUrl || '').trim();
-        } catch(e) {}
-
-        const nameDiffers = oldName && freshName && (oldName !== freshName);
-        const logoDiffers = oldLogo && freshLogo && (oldLogo !== freshLogo);
-
-        if (nameDiffers || logoDiffers) {
-          showUpdateNotification({
-            slug: currentSlug,
-            oldName: oldName,
-            newName: freshName || oldName,
-            oldLogo: oldLogo || fallbackIcon,
-            newLogo: freshLogo || oldLogo || fallbackIcon,
-            settings: freshSettings
-          });
-          return;
-        }
-      }
-      // Record current identity as baseline
-      saveStoredIdentity(currentSlug, { storeName: freshName, logo: freshLogo });
-      return;
-    }
-
-    // Check if identity changed
-    const nameChanged = freshName && recorded.storeName && (freshName !== recorded.storeName);
-    const logoChanged = freshLogo && recorded.logo && (freshLogo !== recorded.logo);
-
-    if (nameChanged || logoChanged) {
-      showUpdateNotification({
-        slug: currentSlug,
-        oldName: recorded.storeName,
-        newName: freshName || recorded.storeName,
-        oldLogo: recorded.logo || fallbackIcon,
-        newLogo: freshLogo || recorded.logo || fallbackIcon,
-        settings: freshSettings
-      });
+      const applied = localStorage.getItem('harpy_pwa_build_applied');
+      const dismissed = localStorage.getItem('harpy_pwa_build_dismissed');
+      return (applied === CURRENT_PWA_BUILD || dismissed === CURRENT_PWA_BUILD);
+    } catch(e) {
+      return false;
     }
   }
 
-  function showUpdateNotification(updateData) {
+  function showUpdateNotification(updateData = {}) {
+    // If already applied or dismissed for this build, NEVER show
+    if (isUpdateAlreadyHandled()) return;
     if (document.getElementById('harpy-pwa-update-modal')) return;
     ensurePwaStyles();
 
@@ -330,7 +234,7 @@
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
         <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(234,88,12,0.18); border:1px solid rgba(234,88,12,0.4); padding:4px 11px; border-radius:20px; font-size:12px; font-weight:800; color:#fb923c;">
           <span style="width:7px; height:7px; border-radius:50%; background:#f97316; display:inline-block; animation: harpyPulseGlow 1.5s infinite;"></span>
-          ${updateData.isSystemUpdate ? 'تحديث جديد للمنصة 🚀' : 'تحديث جديد متوفر ✨'}
+          تحديث جديد متوفر 🚀
         </div>
         <button id="btn-update-card-close" style="background:transparent; border:none; color:#a8a29e; cursor:pointer; font-size:17px; width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:8px;" title="إغلاق">✕</button>
       </div>
@@ -343,9 +247,7 @@
             ${headline}
           </div>
           <div style="font-size:11.5px; color:#d6d3d1; font-weight:500; margin-top:3px; line-height:1.4;">
-            ${updateData.isSystemUpdate 
-              ? 'يتوفر إصدار أحدث لتحسين استقرار وسرعة التطبيق.' 
-              : 'تم تحديث هوية وبيانات المطعم. اضغط للتحديث الفوري.'}
+            يتوفر إصدار أحدث لتحسين استقرار وسرعة التطبيق.
           </div>
         </div>
       </div>
@@ -365,8 +267,8 @@
     requestAnimationFrame(() => { backdrop.style.opacity = '1'; });
 
     const dismissHandler = () => {
-      const dismissKey = 'harpy_update_dismissed_' + (isAdmin ? 'admin_' : 'menu_') + currentSlug;
-      sessionStorage.setItem(dismissKey, Date.now().toString());
+      // Save permanently for this build so it NEVER shows again
+      try { localStorage.setItem('harpy_pwa_build_dismissed', CURRENT_PWA_BUILD); } catch(e) {}
       card.style.animation = 'pwaUpdateFadeOut 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards';
       backdrop.style.opacity = '0';
       setTimeout(() => {
@@ -385,23 +287,12 @@
         applyBtn.innerHTML = `<span>جاري التحديث...</span> ⏳`;
       }
 
-      // 1. Record fresh branding as current applied baseline
-      saveStoredIdentity(currentSlug, {
-        storeName: updateData.newName,
-        logo: updateData.newLogo
-      });
+      // 1. Mark permanently as applied in localStorage so it NEVER shows again!
+      try {
+        localStorage.setItem('harpy_pwa_build_applied', CURRENT_PWA_BUILD);
+      } catch(e) {}
 
-      // 2. Persist fresh settings locally if provided
-      if (updateData.settings) {
-        try {
-          localStorage.setItem('harpy_' + currentSlug + '_settings', JSON.stringify(updateData.settings));
-        } catch(e) {}
-      }
-
-      // 3. Update PWA branding, banners, and iOS icons immediately
-      updatePwaBranding(updateData.settings || { storeName: updateData.newName, logo: updateData.newLogo });
-
-      // 4. Command Service Worker to activate immediately and clear old caches
+      // 2. Command Service Worker to activate immediately and clear old caches
       if ('serviceWorker' in navigator) {
         try {
           if (navigator.serviceWorker.controller) {
@@ -418,8 +309,8 @@
         } catch(e) {}
       }
 
-      // 5. Dismiss modal smoothly and reload window
-      showToast(`🎉 تم تحديث بيانات وهوية ${targetName} بنجاح!`);
+      // 3. Dismiss modal smoothly and reload window
+      showToast(`🎉 تم تحديث التطبيق بنجاح!`);
       card.style.animation = 'pwaUpdateFadeOut 0.25s forwards';
       backdrop.style.opacity = '0';
       setTimeout(() => {
@@ -429,11 +320,10 @@
     });
   }
 
-  // ── 3. Listen for Store Settings Live Updates ────────────────
+  // ── 3. Listen for Store Settings Live Updates (DOM updates only, NO popups) ──
   window.addEventListener('harpy_settings_updated', (e) => {
     if (e && e.detail) {
       updatePwaBranding(e.detail);
-      checkForPwaUpdates(e.detail);
     }
   });
   window.addEventListener('store_settings_updated', () => {
@@ -441,14 +331,13 @@
       const s = JSON.parse(localStorage.getItem('harpy_' + getActiveSlug() + '_settings') || '{}');
       if (s) {
         updatePwaBranding(s);
-        checkForPwaUpdates(s);
       }
     } catch(e) {}
   });
 
   window.updatePwaBranding = updatePwaBranding;
   window.updateDynamicManifest = updatePwaBranding;
-  window.checkForPwaUpdates = checkForPwaUpdates;
+  window.checkForPwaUpdates = function() {}; // Prevent any external false alarms
 
   // ── 4. App Installation State Verification ───────────────────
   function isAppInstalled() {
@@ -495,16 +384,19 @@
     }
   }
 
-  // ── 5. Register Service Worker with Instant Update Engine ─────
+  // ── 5. Register Service Worker with Clean Update Engine ───────
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      const swUrl = './sw.js?v=31.0';
+      const swUrl = './sw.js?v=31.1';
       navigator.serviceWorker.register(swUrl)
         .then(reg => {
           window.__swRegistration = reg;
           try { reg.update(); } catch(e) {}
 
-          if (reg.waiting) {
+          // If user already updated or dismissed this build, NEVER show
+          if (isUpdateAlreadyHandled()) return;
+
+          if (reg.waiting && navigator.serviceWorker.controller) {
             showUpdateNotification({
               slug: getActiveSlug(),
               newName: storeName || 'Order',
@@ -518,12 +410,14 @@
             if (newWorker) {
               newWorker.addEventListener('statechange', () => {
                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                  showUpdateNotification({
-                    slug: getActiveSlug(),
-                    newName: storeName || 'Order',
-                    newLogo: storeLogo || fallbackIcon,
-                    isSystemUpdate: true
-                  });
+                  if (!isUpdateAlreadyHandled()) {
+                    showUpdateNotification({
+                      slug: getActiveSlug(),
+                      newName: storeName || 'Order',
+                      newLogo: storeLogo || fallbackIcon,
+                      isSystemUpdate: true
+                    });
+                  }
                 }
               });
             }

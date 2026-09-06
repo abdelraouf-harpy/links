@@ -1,5 +1,5 @@
 // Order PWA Service Worker — Native App Shell & Offline Engine
-const CACHE_NAME = 'order-pwa-v31.0';
+const CACHE_NAME = 'order-pwa-v31.1';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -23,11 +23,11 @@ const ASSETS_TO_CACHE = [
   './icons/icon-maskable-512.png',
   './icons/apple-touch-icon.png',
   './favicon.png',
-  './css/style.css?v=31.0',
-  './js/store.js?v=31.0',
-  './js/app.js?v=31.0',
-  './js/admin.js?v=31.0',
-  './js/pwa.js?v=31.0'
+  './css/style.css?v=31.1',
+  './js/store.js?v=31.1',
+  './js/app.js?v=31.1',
+  './js/admin.js?v=31.1',
+  './js/pwa.js?v=31.1'
 ];
 
 self.addEventListener('install', (event) => {
