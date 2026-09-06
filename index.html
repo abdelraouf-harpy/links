@@ -67,10 +67,22 @@
         window.__harpySlug = slug;
         try { localStorage.setItem('harpy_active_slug', slug); } catch(e) {}
 
-        var knownTenants = ['saj', 'king', 'hermel'];
-        if (knownTenants.indexOf(slug) !== -1) {
-          var mLink = document.querySelector('link[rel="manifest"]');
-          if (mLink) mLink.href = 'manifest-' + slug + '.json?v=31.0';
+        var cached = localStorage.getItem('harpy_' + slug + '_settings');
+        var isCustomLogo = false;
+        if (cached) {
+          try {
+            var parsed = JSON.parse(cached);
+            if (parsed && parsed.logo && !parsed.logo.includes(slug + '-logo.png')) {
+              isCustomLogo = true;
+            }
+          } catch(e) {}
+        }
+        if (!isCustomLogo) {
+          var knownTenants = ['saj', 'king', 'hermel'];
+          if (knownTenants.indexOf(slug) !== -1) {
+            var mLink = document.querySelector('link[rel="manifest"]');
+            if (mLink) mLink.href = 'manifest-' + slug + '.json?v=31.0';
+          }
         }
 
         // Safety Recovery: If browser lands on index.html with an admin tab hash, route directly to /admin

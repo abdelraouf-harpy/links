@@ -74,9 +74,42 @@
   }
   ensurePwaStyles();
 
+  const BASELINE_DATA = {
+    saj: {
+      menuName: 'مـطـعـم صــاج',
+      adminName: 'لوحة تحكم صــاج',
+      iconUrl: 'icons/saj-logo.png'
+    },
+    king: {
+      menuName: 'مطعم كينج | King',
+      adminName: 'إدارة مطعم كينج',
+      iconUrl: 'icons/king-logo.png'
+    },
+    hermel: {
+      menuName: 'King Food & Burger',
+      adminName: 'إدارة King Food & Burger',
+      iconUrl: 'icons/hermel-logo.png'
+    }
+  };
+
+  function hasBrandingChangedFromBaseline(targetSlug, currentName, currentLogo, isAdminMode) {
+    const base = BASELINE_DATA[targetSlug];
+    if (!base) return true;
+
+    const baseTargetName = isAdminMode ? base.adminName : base.menuName;
+    if (currentName && currentName.trim() && currentName.trim() !== baseTargetName.trim() && currentName.trim() !== base.menuName.trim()) {
+      return true;
+    }
+
+    if (currentLogo && !currentLogo.includes(base.iconUrl) && !currentLogo.includes(targetSlug + '-logo.png')) {
+      return true;
+    }
+
+    return false;
+  }
+
   // ── 1. Real-Time PWA Branding Engine ────────────────────────
   // Updates in-app banner, iOS Touch Icon, and page branding dynamically
-  // Ensures <link rel="manifest"> points to authentic HTTPS file so WebAPK mints without Chrome badge
   function updatePwaBranding(customSettings = null) {
     try {
       slug = getActiveSlug();
@@ -101,19 +134,23 @@
         bannerImg.onerror = function() { this.src = fallbackIcon; };
       }
 
-      // Resolve authentic server manifest file per tenant so Google Play WebAPK builds natively with real restaurant name & logo
+      // Resolve manifest link:
+      // If branding matches static baseline: use HTTPS static manifest for native WebAPK
+      // If branding was updated/changed: dynamically generate manifest with the NEW logo & NEW name!
       const manifestLink = document.querySelector('link[rel="manifest"]');
       if (manifestLink) {
-        const knownTenants = ['saj', 'king', 'hermel'];
+        const isCustomized = hasBrandingChangedFromBaseline(slug, storeName, storeLogo, isAdmin);
         let authenticHref;
-        if (knownTenants.includes(slug)) {
+
+        if (!isCustomized && BASELINE_DATA[slug]) {
           authenticHref = isAdmin ? `admin-manifest-${slug}.json?v=31.0` : `manifest-${slug}.json?v=31.0`;
-        } else if (storeName) {
+        } else if (storeName || storeLogo) {
           try {
             const dynManifest = {
-              id: isAdmin ? `harpy-admin-${slug}-v2` : `harpy-menu-${slug}-v2`,
+              id: isAdmin ? `harpy-admin-${slug}-v3` : `harpy-menu-${slug}-v3`,
               name: appDisplayName,
               short_name: appName.length > 12 ? appName.substring(0, 12) : appName,
+              description: `${storeName} - ${isAdmin ? 'لوحة التحكم' : 'المنيو الذكي'}`,
               start_url: isAdmin ? `./admin.html?m=${slug}` : `./index.html?m=${slug}`,
               scope: isAdmin ? `./admin.html` : `./index.html`,
               display: 'standalone',
