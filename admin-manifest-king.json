@@ -1,0 +1,32 @@
+{
+  "id": "harpy-admin-king-v33",
+  "name": "إدارة Demo Order",
+  "short_name": "إدارة Demo Order",
+  "description": "إدارة Demo Order - لوحة التحكم والطلبات",
+  "start_url": "./admin.html?m=king",
+  "scope": "./admin.html",
+  "display": "standalone",
+  "background_color": "#120e0c",
+  "theme_color": "#ea580c",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://iili.io/n3HVHX4.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "https://iili.io/n3HVHX4.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "https://iili.io/n3HVHX4.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "maskable"
+    }
+  ]
+}

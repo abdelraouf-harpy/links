@@ -1,0 +1,32 @@
+{
+  "id": "harpy-menu-king-v33",
+  "name": "Demo Order",
+  "short_name": "Demo Order",
+  "description": "Demo Order - منيو ذكي وطلب أونلاين مباشر",
+  "start_url": "./index.html?m=king",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#120e0c",
+  "theme_color": "#ea580c",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://iili.io/n3HVHX4.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "https://iili.io/n3HVHX4.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "https://iili.io/n3HVHX4.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "maskable"
+    }
+  ]
+}
