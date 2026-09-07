@@ -3604,7 +3604,7 @@ const Store = {
         }
       }
 
-      // 3. Subdomain Resolution Fallback (e.g. king.harpymenu.com)
+      // 4. Subdomain Resolution Fallback (e.g. king.harpymenu.com)
       if (!urlSlug && typeof window !== 'undefined' && window.location && window.location.hostname) {
         const host = window.location.hostname.toLowerCase();
         if (host.includes('harpymenu.com') && !host.startsWith('www.') && host !== 'harpymenu.com') {
@@ -3615,9 +3615,19 @@ const Store = {
         }
       }
 
+      // 5. Stored Active Tenant Session Resolution
+      if (!urlSlug && typeof window !== 'undefined' && window.localStorage) {
+        urlSlug = localStorage.getItem('harpy_active_slug') ||
+                  localStorage.getItem('harpy_customer_installed_slug') ||
+                  localStorage.getItem('harpy_admin_active_slug') ||
+                  localStorage.getItem('harpy_admin_installed_slug') ||
+                  localStorage.getItem('harpy_last_visited_slug');
+      }
+
       if (urlSlug) {
         const clean = urlSlug.toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
         if (clean) {
+          if (typeof window !== 'undefined') window.__harpySlug = clean;
           this.safeSetItem('harpy_active_slug', clean);
           this.registerRestaurant(clean);
           return clean;
@@ -3626,6 +3636,7 @@ const Store = {
     } catch {}
 
     const fallbackSlug = 'king';
+    if (typeof window !== 'undefined') window.__harpySlug = fallbackSlug;
     return fallbackSlug;
   },
 

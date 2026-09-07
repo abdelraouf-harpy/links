@@ -1,0 +1,32 @@
+{
+  "id": "harpy-admin-sloo-v33",
+  "name": "إدارة Sloo",
+  "short_name": "إدارة Sloo",
+  "description": "إدارة Sloo - لوحة التحكم والطلبات",
+  "start_url": "./admin.html?m=sloo",
+  "scope": "./admin.html",
+  "display": "standalone",
+  "background_color": "#120e0c",
+  "theme_color": "#ea580c",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://iili.io/n3HVHX4.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "https://iili.io/n3HVHX4.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "https://iili.io/n3HVHX4.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "maskable"
+    }
+  ]
+}

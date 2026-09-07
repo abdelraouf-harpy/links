@@ -16,7 +16,14 @@
                   document.title.includes('إدارة');
 
   const getActiveSlug = () => {
-    return (window.__harpySlug || (new URLSearchParams(window.location.search)).get('m') || 'king').toLowerCase().trim();
+    return (
+      window.__harpySlug ||
+      (new URLSearchParams(window.location.search)).get('m') ||
+      localStorage.getItem('harpy_active_slug') ||
+      localStorage.getItem('harpy_admin_active_slug') ||
+      localStorage.getItem('harpy_customer_installed_slug') ||
+      'king'
+    ).toLowerCase().trim();
   };
   let slug = getActiveSlug();
 
@@ -154,19 +161,32 @@
       const manifestLink = document.querySelector('link[rel="manifest"]');
       if (manifestLink) {
         const authenticHref = isAdmin 
-          ? `admin-manifest-${slug}.json?v=32.0` 
-          : `manifest-${slug}.json?v=32.0`;
+          ? `admin-manifest-${slug}.json?v=35.0` 
+          : `manifest-${slug}.json?v=35.0`;
 
         if (manifestLink.getAttribute('href') !== authenticHref) {
           manifestLink.setAttribute('href', authenticHref);
         }
-        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-          navigator.serviceWorker.controller.postMessage({
-            type: 'SET_DYNAMIC_MANIFEST',
-            slug: slug,
-            isAdmin: isAdmin,
-            manifest: manifestObj
-          });
+        if (navigator.serviceWorker) {
+          const sendMsg = (worker) => {
+            try {
+              if (worker) {
+                worker.postMessage({
+                  type: 'SET_DYNAMIC_MANIFEST',
+                  slug: slug,
+                  isAdmin: isAdmin,
+                  manifest: manifestObj
+                });
+              }
+            } catch(e) {}
+          };
+          if (navigator.serviceWorker.controller) {
+            sendMsg(navigator.serviceWorker.controller);
+          } else if (navigator.serviceWorker.ready) {
+            navigator.serviceWorker.ready.then(reg => {
+              if (reg && reg.active) sendMsg(reg.active);
+            }).catch(() => {});
+          }
         }
       }
 

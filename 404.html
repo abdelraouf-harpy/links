@@ -41,8 +41,16 @@
         // Check if landing with an admin tab hash (#orders, #products, #categories, etc.)
         var adminHashes = ['orders', 'products', 'categories', 'stories', 'settings', 'backup'];
         var cleanHash = hash.replace('#', '').trim();
+        var storedSlug = '';
+        try {
+          storedSlug = localStorage.getItem('harpy_admin_active_slug') || 
+                       localStorage.getItem('harpy_active_slug') || 
+                       localStorage.getItem('harpy_customer_installed_slug') || 
+                       localStorage.getItem('harpy_last_visited_slug') || '';
+        } catch(e) {}
+
         if (adminHashes.indexOf(cleanHash) !== -1) {
-          var slug = 'king';
+          var slug = storedSlug || 'king';
           window.location.replace('/admin?m=' + encodeURIComponent(slug) + '#' + cleanHash);
           return;
         }
@@ -54,7 +62,7 @@
           var params = new URLSearchParams(search);
           if (slug && !params.get('m')) params.set('m', slug);
           if (!params.get('m')) {
-            params.set('m', 'king');
+            params.set('m', storedSlug || 'king');
           }
           var queryString = '?' + params.toString();
           window.location.replace('/admin.html' + queryString + hash);

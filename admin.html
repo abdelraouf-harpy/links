@@ -74,19 +74,17 @@
           }
         }
 
-        // Standalone PWA installed app recovery:
+        // Standalone PWA installed app recovery & stored tenant session:
         if (!slug) {
-          var isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
-                             window.navigator.standalone === true ||
-                             document.referrer.includes('android-app://');
-          if (isStandalone) {
-            var savedAdminSlug = localStorage.getItem('harpy_admin_installed_slug') ||
-                                 localStorage.getItem('harpy_admin_active_slug');
-            if (savedAdminSlug) slug = savedAdminSlug;
-          }
+          var savedAdminSlug = localStorage.getItem('harpy_admin_installed_slug') ||
+                               localStorage.getItem('harpy_admin_active_slug') ||
+                               localStorage.getItem('harpy_active_slug') ||
+                               localStorage.getItem('harpy_customer_installed_slug') ||
+                               localStorage.getItem('harpy_last_visited_slug');
+          if (savedAdminSlug) slug = savedAdminSlug;
         }
 
-        // Clean default: on harpymenu.com/admin without ?m=, always load demo restaurant 'king'
+        // Clean default: on harpymenu.com/admin without ?m=, always load demo restaurant 'king' if nothing stored
         if (!slug) {
           slug = 'king';
         }
@@ -95,11 +93,14 @@
         try {
           localStorage.setItem('harpy_admin_active_slug', slug);
           localStorage.setItem('harpy_admin_installed_slug', slug);
+          localStorage.setItem('harpy_active_slug', slug);
+          localStorage.setItem('harpy_customer_installed_slug', slug);
+          localStorage.setItem('harpy_last_visited_slug', slug);
         } catch(e) {}
 
         var mLink = document.querySelector('link[rel="manifest"]');
         if (mLink) {
-          mLink.href = 'admin-manifest-' + slug + '.json?v=32.0';
+          mLink.href = 'admin-manifest-' + slug + '.json?v=35.0';
         }
 
         // Auto-fix URL parameter so address bar and internal routing stay consistent
@@ -110,6 +111,14 @@
             window.history.replaceState({}, '', url.toString());
           } catch(e) {}
         }
+
+        // Sync preview button immediately with active slug
+        document.addEventListener('DOMContentLoaded', function() {
+          var previewBtn = document.getElementById('btn-live-preview');
+          if (previewBtn) {
+            previewBtn.href = './index.html?m=' + encodeURIComponent(slug);
+          }
+        });
         var subStatus = localStorage.getItem('harpy_' + slug + '_sub_status');
         var localAuth = localStorage.getItem('harpy_admin_auth_' + slug);
         var sessionAuth = sessionStorage.getItem('harpy_auth_' + slug);
@@ -202,7 +211,7 @@
           <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           <span id="btn-admin-install-text">تثبيت لوحة التحكم</span>
         </button>
-        <a href="./index.html" class="btn btn-primary btn-sm btn-live-preview" target="_blank" id="btn-live-preview">
+        <a href="./index.html?m=king" class="btn btn-primary btn-sm btn-live-preview" target="_blank" id="btn-live-preview">
           <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
           <span>معاينة المنيو</span>
         </a>
@@ -1305,8 +1314,8 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/store.js?v=34.0"></script>
-  <script src="js/admin.js?v=34.0"></script>
-  <script src="js/pwa.js?v=34.0"></script>
+  <script src="js/store.js?v=35.0"></script>
+  <script src="js/admin.js?v=35.0"></script>
+  <script src="js/pwa.js?v=35.0"></script>
 </body>
 </html>

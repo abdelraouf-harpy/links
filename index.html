@@ -62,18 +62,13 @@
               }
             }
           }
+        }
         if (!slug) {
-          const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
-                               window.navigator.standalone === true ||
-                               document.referrer.includes('android-app://');
-          if (isStandalone) {
-            const savedAppSlug = localStorage.getItem('harpy_customer_installed_slug') ||
-                                 localStorage.getItem('harpy_last_visited_slug') ||
-                                 localStorage.getItem('harpy_active_slug');
-            if (savedAppSlug) {
-              slug = savedAppSlug;
-            }
-          }
+          slug = localStorage.getItem('harpy_customer_installed_slug') ||
+                 localStorage.getItem('harpy_active_slug') ||
+                 localStorage.getItem('harpy_admin_active_slug') ||
+                 localStorage.getItem('harpy_admin_installed_slug') ||
+                 localStorage.getItem('harpy_last_visited_slug');
         }
         if (!slug) {
           slug = 'king';
@@ -88,7 +83,7 @@
 
         var mLink = document.querySelector('link[rel="manifest"]');
         if (mLink) {
-          mLink.href = 'manifest-' + slug + '.json?v=32.0';
+          mLink.href = 'manifest-' + slug + '.json?v=35.0';
         }
 
         // Safety Recovery: If browser lands on index.html with an admin tab hash, route directly to /admin
@@ -860,8 +855,8 @@
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/store.js?v=34.0"></script>
-  <script src="js/app.js?v=34.0"></script>
-  <script src="js/pwa.js?v=34.0"></script>
+  <script src="js/store.js?v=35.0"></script>
+  <script src="js/app.js?v=35.0"></script>
+  <script src="js/pwa.js?v=35.0"></script>
 </body>
 </html>

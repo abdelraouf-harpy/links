@@ -1,5 +1,5 @@
 // Order PWA Service Worker — Native App Shell & Offline Engine
-const CACHE_NAME = 'order-pwa-v34.0';
+const CACHE_NAME = 'order-pwa-v35.0';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -10,11 +10,13 @@ const ASSETS_TO_CACHE = [
   './admin-manifest-saj.json',
   './manifest-king.json',
   './admin-manifest-king.json',
-  './css/style.css?v=34.0',
-  './js/store.js?v=34.0',
-  './js/app.js?v=34.0',
-  './js/admin.js?v=34.0',
-  './js/pwa.js?v=34.0'
+  './manifest-sloo.json',
+  './admin-manifest-sloo.json',
+  './css/style.css?v=35.0',
+  './js/store.js?v=35.0',
+  './js/app.js?v=35.0',
+  './js/admin.js?v=35.0',
+  './js/pwa.js?v=35.0'
 ];
 
 self.addEventListener('install', (event) => {
@@ -78,27 +80,105 @@ self.addEventListener('message', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
-  // Serve dynamic manifest immediately if registered
-  try {
-    const reqUrl = new URL(event.request.url);
-    const fileName = reqUrl.pathname.split('/').pop();
-    if (fileName && (fileName.startsWith('manifest-') || fileName.startsWith('admin-manifest-')) && fileName.endsWith('.json')) {
-      if (dynamicManifests[fileName]) {
-        event.respondWith(
-          new Response(JSON.stringify(dynamicManifests[fileName]), {
+  const reqUrl = new URL(event.request.url);
+  const fileName = reqUrl.pathname.split('/').pop();
+  const isManifestReq = fileName && (fileName.startsWith('manifest-') || fileName.startsWith('admin-manifest-')) && fileName.endsWith('.json');
+
+  // Dedicated Tenant Manifest Interceptor: Guarantees 100% authentic JSON even for brand-new restaurants
+  if (isManifestReq) {
+    event.respondWith(
+      (async () => {
+        // 1. In-memory dynamic manifests
+        if (dynamicManifests[fileName]) {
+          return new Response(JSON.stringify(dynamicManifests[fileName]), {
             status: 200,
             headers: {
               'Content-Type': 'application/manifest+json; charset=utf-8',
               'Cache-Control': 'no-cache, no-store, must-revalidate'
             }
-          })
-        );
-        return;
-      }
-    }
-  } catch(e) {}
-  
-  // Network-First strategy: Always fetch latest version from server, fall back to cache if offline or 404 navigation
+          });
+        }
+
+        // 2. Try network fetch first
+        try {
+          const networkRes = await fetch(event.request);
+          const contentType = networkRes.headers.get('content-type') || '';
+          // Only accept if HTTP 200 AND NOT html fallback from hosting
+          if (networkRes.ok && !contentType.includes('text/html')) {
+            const clone = networkRes.clone();
+            caches.open(CACHE_NAME).then(c => c.put(event.request, clone));
+            return networkRes;
+          }
+        } catch (netErr) {}
+
+        // 3. Check Cache
+        const cachedRes = await caches.match(event.request);
+        if (cachedRes) {
+          const cachedType = cachedRes.headers.get('content-type') || '';
+          if (!cachedType.includes('text/html')) {
+            return cachedRes;
+          }
+        }
+
+        // 4. Synthesize valid tenant manifest dynamically
+        const isAdm = fileName.startsWith('admin-manifest-');
+        const mSlug = isAdm 
+          ? fileName.replace('admin-manifest-', '').replace('.json', '') 
+          : fileName.replace('manifest-', '').replace('.json', '');
+
+        let storeName = mSlug;
+        let iconUrl = (mSlug === 'saj' ? 'https://iili.io/n3HWDDG.jpg' : 'https://iili.io/n3HVHX4.jpg');
+
+        try {
+          const rtdbRes = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${mSlug}/settings.json`);
+          if (rtdbRes.ok) {
+            const settings = await rtdbRes.json();
+            if (settings) {
+              storeName = (settings.storeName || settings.name || mSlug).trim();
+              if (settings.logo && (settings.logo.startsWith('http://') || settings.logo.startsWith('https://'))) {
+                iconUrl = settings.logo;
+              }
+            }
+          }
+        } catch (e) {}
+
+        const finalName = isAdm ? `إدارة ${storeName}` : storeName;
+        const iconType = (iconUrl.includes('.jpg') || iconUrl.includes('.jpeg')) ? 'image/jpeg' : (iconUrl.includes('.webp') ? 'image/webp' : 'image/png');
+
+        const synthesized = {
+          id: `harpy-${isAdm ? 'admin' : 'menu'}-${mSlug}-v35`,
+          name: finalName,
+          short_name: finalName,
+          description: isAdm ? `إدارة ${storeName} - لوحة التحكم والطلبات` : `${storeName} - منيو ذكي وطلب مباشر`,
+          start_url: isAdm ? `./admin.html?m=${mSlug}` : `./index.html?m=${mSlug}`,
+          scope: isAdm ? `./admin.html` : `./`,
+          display: 'standalone',
+          background_color: '#120e0c',
+          theme_color: '#ea580c',
+          orientation: 'portrait',
+          icons: [
+            { src: iconUrl, sizes: '512x512', type: iconType, purpose: 'any' },
+            { src: iconUrl, sizes: '192x192', type: iconType, purpose: 'any' },
+            { src: iconUrl, sizes: '512x512', type: iconType, purpose: 'maskable' }
+          ]
+        };
+
+        const finalResponse = new Response(JSON.stringify(synthesized), {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/manifest+json; charset=utf-8',
+            'Cache-Control': 'no-cache, no-store, must-revalidate'
+          }
+        });
+
+        caches.open(CACHE_NAME).then(c => c.put(event.request, finalResponse.clone()));
+        return finalResponse;
+      })()
+    );
+    return;
+  }
+
+  // General Network-First strategy for all other assets
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {
@@ -106,40 +186,6 @@ self.addEventListener('fetch', (event) => {
           const responseClone = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
           return networkResponse;
-        }
-        // If server returns 404 or HTML for manifest, synthesize valid tenant manifest
-        const reqUrl = new URL(event.request.url);
-        const fileName = reqUrl.pathname.split('/').pop();
-        if (fileName && (fileName.startsWith('manifest-') || fileName.startsWith('admin-manifest-')) && fileName.endsWith('.json')) {
-          if (!networkResponse || networkResponse.status !== 200 || networkResponse.headers.get('content-type')?.includes('text/html')) {
-            const isAdm = fileName.startsWith('admin-manifest-');
-            const mSlug = isAdm ? fileName.replace('admin-manifest-', '').replace('.json', '') : fileName.replace('manifest-', '').replace('.json', '');
-            const iconUrl = dynamicManifests[fileName]?.icons?.[0]?.src || (mSlug === 'saj' ? 'https://iili.io/n3HWDDG.jpg' : 'https://iili.io/n3HVHX4.jpg');
-            const synthesized = dynamicManifests[fileName] || {
-              id: `harpy-${isAdm ? 'admin' : 'menu'}-${mSlug}-v32`,
-              name: isAdm ? `إدارة ${mSlug}` : mSlug,
-              short_name: isAdm ? `إدارة ${mSlug}` : mSlug,
-              description: isAdm ? `إدارة ${mSlug} - لوحة التحكم والطلبات` : `${mSlug} - منيو ذكي وطلب مباشر`,
-              start_url: isAdm ? `./admin.html?m=${mSlug}` : `./index.html?m=${mSlug}`,
-              scope: isAdm ? `./admin.html` : `./`,
-              display: 'standalone',
-              background_color: '#120e0c',
-              theme_color: '#ea580c',
-              orientation: 'portrait',
-              icons: [
-                { src: iconUrl, sizes: '512x512', type: 'image/jpeg', purpose: 'any' },
-                { src: iconUrl, sizes: '192x192', type: 'image/jpeg', purpose: 'any' },
-                { src: iconUrl, sizes: '512x512', type: 'image/jpeg', purpose: 'maskable' }
-              ]
-            };
-            return new Response(JSON.stringify(synthesized), {
-              status: 200,
-              headers: {
-                'Content-Type': 'application/manifest+json; charset=utf-8',
-                'Cache-Control': 'no-cache, no-store, must-revalidate'
-              }
-            });
-          }
         }
 
         // If server returns 404 for an HTML navigation request, fall back to cached shell
