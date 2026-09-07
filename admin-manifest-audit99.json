@@ -1,0 +1,32 @@
+{
+  "id": "harpy-admin-audit99-v33",
+  "name": "إدارة مطعم التدقيق والرقابة (Audit 99)",
+  "short_name": "إدارة مطعم التدقيق والرقابة (Audit 99)",
+  "description": "إدارة مطعم التدقيق والرقابة (Audit 99) - لوحة التحكم والطلبات",
+  "start_url": "./admin.html?m=audit99",
+  "scope": "./admin.html",
+  "display": "standalone",
+  "background_color": "#120e0c",
+  "theme_color": "#ea580c",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://iili.io/n3B3tDX.png",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "https://iili.io/n3B3tDX.png",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "https://iili.io/n3B3tDX.png",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "maskable"
+    }
+  ]
+}
