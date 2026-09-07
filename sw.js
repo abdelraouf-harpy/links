@@ -1,5 +1,5 @@
 // Order PWA Service Worker — Native App Shell & Offline Engine
-const CACHE_NAME = 'order-pwa-v31.1';
+const CACHE_NAME = 'order-pwa-v31.2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -120,6 +120,40 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
           return networkResponse;
         }
+        // If server returns 404 or HTML for manifest, synthesize valid tenant manifest
+        const reqUrl = new URL(event.request.url);
+        const fileName = reqUrl.pathname.split('/').pop();
+        if (fileName && (fileName.startsWith('manifest-') || fileName.startsWith('admin-manifest-')) && fileName.endsWith('.json')) {
+          if (!networkResponse || networkResponse.status !== 200 || networkResponse.headers.get('content-type')?.includes('text/html')) {
+            const isAdm = fileName.startsWith('admin-manifest-');
+            const mSlug = isAdm ? fileName.replace('admin-manifest-', '').replace('.json', '') : fileName.replace('manifest-', '').replace('.json', '');
+            const synthesized = dynamicManifests[fileName] || {
+              id: `harpy-${isAdm ? 'admin' : 'menu'}-${mSlug}-v2`,
+              name: isAdm ? `لوحة تحكم ${mSlug}` : mSlug,
+              short_name: mSlug.slice(0, 12),
+              description: `${mSlug} - منيو ذكي وطلب أونلاين مباشر`,
+              start_url: isAdm ? `./admin.html?m=${mSlug}` : `./index.html?m=${mSlug}`,
+              scope: isAdm ? `./admin.html` : `./index.html`,
+              display: 'standalone',
+              background_color: '#120e0c',
+              theme_color: '#ea580c',
+              orientation: 'portrait',
+              icons: [
+                { src: isAdm ? 'admin_pwa_icon.png' : 'pwa_icon.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+                { src: isAdm ? 'admin_pwa_icon.png' : 'pwa_icon.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+                { src: isAdm ? 'admin_pwa_icon.png' : 'pwa_icon.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
+              ]
+            };
+            return new Response(JSON.stringify(synthesized), {
+              status: 200,
+              headers: {
+                'Content-Type': 'application/manifest+json; charset=utf-8',
+                'Cache-Control': 'no-cache, no-store, must-revalidate'
+              }
+            });
+          }
+        }
+
         // If server returns 404 for an HTML navigation request, fall back to cached shell
         if (networkResponse && networkResponse.status === 404) {
           const accept = event.request.headers.get('accept') || '';

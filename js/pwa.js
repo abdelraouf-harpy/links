@@ -144,6 +144,14 @@
         if (manifestLink.getAttribute('href') !== authenticHref) {
           manifestLink.setAttribute('href', authenticHref);
         }
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+          navigator.serviceWorker.controller.postMessage({
+            type: 'SET_DYNAMIC_MANIFEST',
+            slug: slug,
+            isAdmin: isAdmin,
+            manifest: manifestObj
+          });
+        }
       }
 
       // Update Apple iOS Safari home screen icon, favicon & titles dynamically
