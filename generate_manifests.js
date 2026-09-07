@@ -4,42 +4,59 @@ const fs = require('fs');
 const path = require('path');
 
 const FIREBASE_BASE = 'https://harpy-order-default-rtdb.firebaseio.com/restaurants';
-const KNOWN_SLUGS = ['saj', 'king'];
+const FIREBASE_SECRET = 'd2x4acW2XKMUxLs0sWJuGCv3QzZY4TBOxA8d7vtH';
+
+async function getSlugs() {
+  try {
+    const res = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants.json?auth=${FIREBASE_SECRET}&shallow=true`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data && typeof data === 'object') {
+        const keys = Object.keys(data).filter(Boolean);
+        if (keys.length > 0) {
+          if (!keys.includes('king')) keys.push('king');
+          if (!keys.includes('saj')) keys.push('saj');
+          return keys;
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('Could not fetch slugs dynamically:', e.message);
+  }
+  return ['saj', 'king'];
+}
 
 async function generate() {
   console.log('Fetching active restaurant settings from Firebase...');
-  for (const slug of KNOWN_SLUGS) {
+  const slugs = await getSlugs();
+  if (!fs.existsSync('icons')) {
+    fs.mkdirSync('icons', { recursive: true });
+  }
+
+  for (const slug of slugs) {
     try {
-      const res = await fetch(`${FIREBASE_BASE}/${slug}/settings.json`);
-      if (!res.ok) continue;
-      const settings = await res.json();
-      if (!settings || (!settings.storeName && !settings.name)) continue;
+      const res = await fetch(`${FIREBASE_BASE}/${slug}/settings.json?auth=${FIREBASE_SECRET}`);
+      let settings = {};
+      if (res.ok) {
+        settings = (await res.json()) || {};
+      }
 
       const storeName = (settings.storeName || settings.name || slug).trim();
       let iconRelativePath = 'pwa_icon.png';
       let adminIconRelativePath = 'admin_pwa_icon.png';
 
-      // If logo is base64 or URL, save locally
-      if (settings.logo) {
-        try {
-          const logoPath = `icons/${slug}-logo.png`;
-          if (settings.logo.startsWith('data:image')) {
-            const base64Data = settings.logo.replace(/^data:image\/\w+;base64,/, '');
-            fs.writeFileSync(logoPath, Buffer.from(base64Data, 'base64'));
-            iconRelativePath = logoPath;
-            adminIconRelativePath = logoPath;
-          } else if (settings.logo.startsWith('http')) {
-            const imgRes = await fetch(settings.logo);
-            if (imgRes.ok) {
-              const buf = await imgRes.arrayBuffer();
-              fs.writeFileSync(logoPath, Buffer.from(buf));
-              iconRelativePath = logoPath;
-              adminIconRelativePath = logoPath;
-            }
-          }
-        } catch (e) {
-          console.warn(`[Logo] Could not save logo for ${slug}:`, e.message);
-        }
+      // If logo is a public HTTP/HTTPS URL, use it directly (requires no GitHub upload!)
+      if (settings.logo && settings.logo.startsWith('http')) {
+        iconRelativePath = settings.logo;
+        adminIconRelativePath = settings.logo;
+      } else if (slug === 'saj') {
+        // saj already has its committed icon on GitHub
+        iconRelativePath = 'icons/saj-logo.png';
+        adminIconRelativePath = 'icons/saj-logo.png';
+      } else {
+        // Standard high-res icons already available on GitHub
+        iconRelativePath = 'pwa_icon.png';
+        adminIconRelativePath = 'admin_pwa_icon.png';
       }
 
       // 1. Menu Manifest

@@ -59,7 +59,8 @@
                              window.navigator.standalone === true ||
                              document.referrer.includes('android-app://');
           if (isStandalone) {
-            var savedAdminSlug = localStorage.getItem('harpy_admin_installed_slug');
+            var savedAdminSlug = localStorage.getItem('harpy_admin_installed_slug') ||
+                                 localStorage.getItem('harpy_admin_active_slug');
             if (savedAdminSlug) slug = savedAdminSlug;
           }
         }
@@ -70,16 +71,14 @@
         }
         slug = slug.toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
         window.__harpySlug = slug;
-        try { localStorage.setItem('harpy_admin_active_slug', slug); } catch(e) {}
+        try {
+          localStorage.setItem('harpy_admin_active_slug', slug);
+          localStorage.setItem('harpy_admin_installed_slug', slug);
+        } catch(e) {}
 
-        var knownTenants = ['saj', 'king'];
         var mLink = document.querySelector('link[rel="manifest"]');
         if (mLink) {
-          if (knownTenants.indexOf(slug) !== -1) {
-            mLink.href = 'admin-manifest-' + slug + '.json?v=31.1';
-          } else {
-            mLink.href = 'admin-manifest.json?v=31.1';
-          }
+          mLink.href = 'admin-manifest-' + slug + '.json?v=31.1';
         }
 
         // Auto-fix URL parameter so address bar and internal routing stay consistent
@@ -106,6 +105,7 @@
         }
         var mode = localStorage.getItem('harpy_' + slug + '_theme_mode') || 'light';
         document.documentElement.setAttribute('data-theme', mode);
+        if (document.body) document.body.setAttribute('data-theme', mode);
 
         try {
           var csRaw = localStorage.getItem('harpy_' + slug + '_settings');
@@ -173,9 +173,9 @@
         </div>
       </div>
       <div class="header-actions admin-header-actions">
-        <button id="theme-toggle-btn" class="btn btn-ghost btn-sm" onclick="handleThemeToggle()" title="تبديل الإضاءة (نهاري / ليلي)" aria-label="تبديل الإضاءة">
-          <svg id="theme-icon-dark" class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
-          <svg id="theme-icon-light" class="icon icon-sm" style="display:none;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+        <button id="theme-toggle-btn" class="btn btn-ghost btn-sm btn-theme-toggle" onclick="handleThemeToggle()" title="تبديل الإضاءة (نهاري / ليلي)" aria-label="تبديل الإضاءة">
+          <svg id="theme-icon-dark" class="icon icon-sm icon-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+          <svg id="theme-icon-light" class="icon icon-sm icon-sun" style="display:none;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
         </button>
         <a href="./index.html" class="btn btn-primary btn-sm btn-live-preview" target="_blank" id="btn-live-preview">
           <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>

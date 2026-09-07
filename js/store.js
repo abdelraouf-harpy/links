@@ -3707,15 +3707,20 @@ const Store = {
     const s = this.getSettings();
     const mode = this.getThemeMode();
     const root = document.documentElement;
+    const body = document.body;
 
     root.setAttribute('data-theme', mode);
+    if (body) body.setAttribute('data-theme', mode);
 
     const themeProps = [
       '--bg', '--bg-subtle', '--surface', '--surface-raised', '--surface-hover',
       '--header-bg', '--text-main', '--text-body', '--text-muted', '--text-faint',
       '--border', '--border-strong', '--primary', '--primary-hover', '--primary-subtle', '--primary-glow', '--border-focus'
     ];
-    themeProps.forEach(p => root.style.removeProperty(p));
+    themeProps.forEach(p => {
+      root.style.removeProperty(p);
+      if (body) body.style.removeProperty(p);
+    });
 
     const primaryColor = s.siteColors?.primary || (mode === 'light' ? '#c2410c' : '#ea580c');
     root.style.setProperty('--primary', primaryColor);
@@ -3726,9 +3731,10 @@ const Store = {
 
     if (s.siteColors) {
       const c = s.siteColors;
-      const isDarkPreset = c.id === 'charcoal' || c.id === 'midnight' || c.id === 'sunset' || c.id === 'olive' || c.id === 'indigo';
-      const shouldApplyFull = (mode === 'dark' && isDarkPreset) || (mode === 'light' && !isDarkPreset) || !c.id;
-      if (shouldApplyFull) {
+      const isDarkPalette = (c.id === 'charcoal' || c.id === 'midnight' || c.id === 'sunset' || c.id === 'olive' || c.id === 'indigo') ||
+                            (c.bg && c.bg.startsWith('#') && parseInt(c.bg.slice(1, 3), 16) < 100);
+      const shouldApply = (mode === 'dark' && isDarkPalette) || (mode === 'light' && !isDarkPalette);
+      if (shouldApply) {
         if (c.bg) {
           root.style.setProperty('--bg', c.bg);
           root.style.setProperty('--header-bg', c.headerBg || c.bg);

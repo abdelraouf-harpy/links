@@ -545,23 +545,25 @@ body {
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
 }
 
-/* In Dark mode (default): show sun icon in gold */
-[data-theme="dark"] .btn-theme-toggle .icon-moon,
-body:not([data-theme="light"]) .btn-theme-toggle .icon-moon {
+/* In Dark mode: show sun icon in gold, hide moon icon */
+[data-theme="dark"] #theme-icon-dark,
+[data-theme="dark"] .btn-theme-toggle .icon-moon {
   display: none !important;
 }
-[data-theme="dark"] .btn-theme-toggle .icon-sun,
-body:not([data-theme="light"]) .btn-theme-toggle .icon-sun {
-  display: block !important;
+[data-theme="dark"] #theme-icon-light,
+[data-theme="dark"] .btn-theme-toggle .icon-sun {
+  display: inline-block !important;
   color: #f59e0b;
 }
 
-/* In Light mode: show moon icon in indigo */
+/* In Light mode: show moon icon in indigo, hide sun icon */
+[data-theme="light"] #theme-icon-light,
 [data-theme="light"] .btn-theme-toggle .icon-sun {
   display: none !important;
 }
+[data-theme="light"] #theme-icon-dark,
 [data-theme="light"] .btn-theme-toggle .icon-moon {
-  display: block !important;
+  display: inline-block !important;
   color: #6366f1;
 }
 
@@ -2347,7 +2349,8 @@ body:not([data-theme="light"]) .btn-theme-toggle .icon-sun {
 }
 
 /* ── Admin: Visual Catalog Layout & Color Studio ─────────── */
-.admin-form-card {
+.admin-form-card,
+.admin-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);

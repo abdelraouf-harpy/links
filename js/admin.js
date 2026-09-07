@@ -153,7 +153,7 @@ const adminElements = {
   newPromoVal: document.getElementById('new-promo-val'),
   btnAddPromoCode: document.getElementById('btn-add-promo-code'),
   promoCodesList: document.getElementById('promo-codes-list'),
-  adminThemeToggleBtn: document.getElementById('admin-theme-toggle-btn'),
+  adminThemeToggleBtn: document.getElementById('theme-toggle-btn') || document.getElementById('admin-theme-toggle-btn'),
   // Operational settings
   setDeliveryTime: document.getElementById('set-delivery-time'),
   setDefaultDeliveryFee: document.getElementById('set-default-delivery-fee'),

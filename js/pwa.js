@@ -137,12 +137,9 @@
 
       const manifestLink = document.querySelector('link[rel="manifest"]');
       if (manifestLink) {
-        const knownTenants = ['saj', 'king'];
-        const isStaticTenant = knownTenants.includes(slug);
-
-        const authenticHref = isStaticTenant
-          ? (isAdmin ? `admin-manifest-${slug}.json?v=31.1` : `manifest-${slug}.json?v=31.1`)
-          : (isAdmin ? `admin-manifest.json?v=31.1` : `manifest.json?v=31.1`);
+        const authenticHref = isAdmin 
+          ? `admin-manifest-${slug}.json?v=31.1` 
+          : `manifest-${slug}.json?v=31.1`;
 
         if (manifestLink.getAttribute('href') !== authenticHref) {
           manifestLink.setAttribute('href', authenticHref);
