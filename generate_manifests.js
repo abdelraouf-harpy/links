@@ -39,9 +39,30 @@ async function generate() {
       }
 
       const storeName = (settings.storeName || settings.name || slug).trim();
-      let iconUrl = (settings.logo && settings.logo.startsWith('http'))
-        ? settings.logo
-        : (slug === 'saj' ? 'https://iili.io/n3HWDDG.jpg' : 'https://iili.io/n3HVHX4.jpg');
+      let iconUrl = (settings.logo && settings.logo.startsWith('http')) ? settings.logo : null;
+      if (!iconUrl && settings.logo && settings.logo.startsWith('data:image')) {
+        try {
+          const base64Data = settings.logo.split(',')[1];
+          const form = new URLSearchParams();
+          form.append('key', '6d207e02198a847aa98d0a2a901485a5');
+          form.append('action', 'upload');
+          form.append('source', base64Data);
+          const upRes = await fetch('https://freeimage.host/api/1/upload', { method: 'POST', body: form });
+          const upJson = await upRes.json();
+          if (upJson && upJson.image && upJson.image.url) {
+            iconUrl = upJson.image.url;
+            await fetch(FIREBASE_BASE + "/" + slug + "/settings.json?auth=" + FIREBASE_SECRET, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ logo: iconUrl })
+            });
+            console.log("Uploaded base64 logo to CDN for " + slug + ": " + iconUrl);
+          }
+        } catch(e) {}
+      }
+      if (!iconUrl) {
+        iconUrl = (slug === 'saj' ? 'https://iili.io/n3HWDDG.jpg' : 'https://iili.io/n3HVHX4.jpg');
+      }
 
       // 1. Menu Manifest (Customer Facing)
       const menuManifest = {

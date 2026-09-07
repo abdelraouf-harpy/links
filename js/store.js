@@ -2753,7 +2753,33 @@ const Store = {
       }
     }
 
-    // 3. Instant, reliable zero-hang return of compressed data
+    // 3. Platform High-Speed Cloud Host for Authentic WebAPK Manifest URLs
+    if (compressedData && compressedData.startsWith('data:image')) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4000);
+        const base64Clean = compressedData.split(',')[1];
+        const form = new URLSearchParams();
+        form.append('key', '6d207e02198a847aa98d0a2a901485a5');
+        form.append('action', 'upload');
+        form.append('source', base64Clean);
+
+        const response = await fetch('https://freeimage.host/api/1/upload', {
+          method: 'POST',
+          body: form,
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        const json = await response.json();
+        if (json && json.image && json.image.url) {
+          return json.image.url;
+        }
+      } catch (err) {
+        console.warn('[Store] Platform CDN image upload fallback:', err.message);
+      }
+    }
+
+    // 4. Instant, reliable zero-hang return of compressed data
     return compressedData;
   },
 
@@ -3069,6 +3095,9 @@ const Store = {
         st: data.stories
       });
       if (currentDataHash === lastKnownDataHash) {
+        if (typeof onUpdate === 'function') {
+          onUpdate({ success: true, hasData: !!data, data });
+        }
         return; // Zero-lag: No changes detected, skip re-render
       }
       lastKnownDataHash = currentDataHash;
@@ -3758,27 +3787,22 @@ const Store = {
 
     if (s.siteColors) {
       const c = s.siteColors;
-      const isDarkPalette = (c.id === 'charcoal' || c.id === 'midnight' || c.id === 'sunset' || c.id === 'olive' || c.id === 'indigo') ||
-                            (c.bg && c.bg.startsWith('#') && parseInt(c.bg.slice(1, 3), 16) < 100);
-      const shouldApply = (mode === 'dark' && isDarkPalette) || (mode === 'light' && !isDarkPalette);
-      if (shouldApply) {
-        if (c.bg) {
-          root.style.setProperty('--bg', c.bg);
-          root.style.setProperty('--header-bg', c.headerBg || c.bg);
-        }
-        if (c.surface) {
-          root.style.setProperty('--surface', c.surface);
-          root.style.setProperty('--surface-raised', c.surfaceRaised || c.surface);
-        }
-        if (c.textMain) {
-          root.style.setProperty('--text-main', c.textMain);
-        }
-        if (c.textBody) {
-          root.style.setProperty('--text-body', c.textBody);
-        }
-        if (c.border) {
-          root.style.setProperty('--border', c.border);
-        }
+      if (c.bg) {
+        root.style.setProperty('--bg', c.bg);
+        root.style.setProperty('--header-bg', c.headerBg || c.bg);
+      }
+      if (c.surface) {
+        root.style.setProperty('--surface', c.surface);
+        root.style.setProperty('--surface-raised', c.surfaceRaised || c.surface);
+      }
+      if (c.textMain) {
+        root.style.setProperty('--text-main', c.textMain);
+      }
+      if (c.textBody) {
+        root.style.setProperty('--text-body', c.textBody);
+      }
+      if (c.border) {
+        root.style.setProperty('--border', c.border);
       }
     }
   },
@@ -3986,10 +4010,15 @@ const Store = {
     window.dispatchEvent(new Event('store_last_order_updated'));
   },
 
+  getThemeModeKey() {
+    const slug = this.getRestaurantSlug();
+    return `harpy_${slug}_theme_mode`;
+  },
   getThemeMode() {
-    return localStorage.getItem(this.getKey(STORAGE_KEYS.THEME_MODE)) || 'light';
+    return localStorage.getItem(this.getThemeModeKey()) || localStorage.getItem(this.getKey(STORAGE_KEYS.THEME_MODE)) || 'light';
   },
   setThemeMode(mode) {
+    this.safeSetItem(this.getThemeModeKey(), mode);
     this.safeSetItem(this.getKey(STORAGE_KEYS.THEME_MODE), mode);
     this.applyTheme();
     window.dispatchEvent(new CustomEvent('theme_mode_changed', { detail: mode }));

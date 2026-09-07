@@ -100,7 +100,7 @@
 
         var mLink = document.querySelector('link[rel="manifest"]');
         if (mLink) {
-          mLink.href = 'admin-manifest-' + slug + '.json?v=35.0';
+          mLink.href = 'admin-manifest-' + slug + '.json?v=36.0';
         }
 
         // Auto-fix URL parameter so address bar and internal routing stay consistent
@@ -171,7 +171,7 @@
           splash.classList.add('fade-out');
           setTimeout(function() { try { splash.remove(); } catch(e) {} }, 250);
         }
-      }, 700);
+      }, 3800);
     })();
   </script>
 </head>
@@ -1314,8 +1314,8 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/store.js?v=35.0"></script>
-  <script src="js/admin.js?v=35.0"></script>
-  <script src="js/pwa.js?v=35.0"></script>
+  <script src="js/store.js?v=36.0"></script>
+  <script src="js/admin.js?v=36.0"></script>
+  <script src="js/pwa.js?v=36.0"></script>
 </body>
 </html>

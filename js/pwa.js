@@ -161,8 +161,8 @@
       const manifestLink = document.querySelector('link[rel="manifest"]');
       if (manifestLink) {
         const authenticHref = isAdmin 
-          ? `admin-manifest-${slug}.json?v=35.0` 
-          : `manifest-${slug}.json?v=35.0`;
+          ? `admin-manifest-${slug}.json?v=36.0` 
+          : `manifest-${slug}.json?v=36.0`;
 
         if (manifestLink.getAttribute('href') !== authenticHref) {
           manifestLink.setAttribute('href', authenticHref);

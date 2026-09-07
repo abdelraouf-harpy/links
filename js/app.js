@@ -344,7 +344,7 @@ async function initApp() {
   // On new device (no local cache), wait up to 1200ms for cloud data so the user sees the real menu right away
   // On device with cache, wait at most 120ms so cached UI opens instantly
   if (window.__harpyPreloadPromise) {
-    const maxWaitTime = hasLocalCache ? 120 : 1200;
+    const maxWaitTime = hasLocalCache ? 120 : 1800;
     try {
       const preloadData = await Promise.race([
         window.__harpyPreloadPromise,
