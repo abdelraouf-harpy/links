@@ -701,7 +701,8 @@ function bindDeviceImageUploader({
   previewWrapId,
   previewImgId,
   removeBtnId,
-  hiddenUrlInputId
+  hiddenUrlInputId,
+  directUrlInputId
 }) {
   const dropzone = document.getElementById(dropzoneId);
   const fileInput = document.getElementById(fileInputId);
@@ -710,8 +711,11 @@ function bindDeviceImageUploader({
   const previewImg = document.getElementById(previewImgId);
   const removeBtn = document.getElementById(removeBtnId);
   const hiddenUrl = document.getElementById(hiddenUrlInputId);
+  const directUrlInput = directUrlInputId ? document.getElementById(directUrlInputId) : null;
 
   if (!fileInput || !dropzone) return null;
+
+  const origPromptHtml = prompt ? prompt.innerHTML : '';
 
   const showPreview = (src) => {
     if (previewImg && previewWrap && prompt) {
@@ -719,6 +723,9 @@ function bindDeviceImageUploader({
       previewWrap.style.display = 'block';
       prompt.style.display = 'none';
       if (hiddenUrl) hiddenUrl.value = src;
+      if (directUrlInput && (src.startsWith('http://') || src.startsWith('https://'))) {
+        directUrlInput.value = src;
+      }
     }
   };
 
@@ -727,8 +734,10 @@ function bindDeviceImageUploader({
       previewImg.src = '';
       previewWrap.style.display = 'none';
       prompt.style.display = 'flex';
+      prompt.innerHTML = origPromptHtml;
       fileInput.value = '';
       if (hiddenUrl) hiddenUrl.value = '';
+      if (directUrlInput) directUrlInput.value = '';
     }
   };
 
@@ -736,11 +745,30 @@ function bindDeviceImageUploader({
     const file = e.target.files[0];
     if (!file) return;
     if (prompt) prompt.innerHTML = '<span style="font-size:12px; color:var(--primary); font-weight:800;">جاري معالجة وضغط الصورة... ⏳</span>';
-    const compressed = await Store.uploadImage(file);
-    if (compressed) {
-      showPreview(compressed);
+    try {
+      const compressed = await Store.uploadImage(file);
+      if (compressed) {
+        showPreview(compressed);
+        if (directUrlInput && !compressed.startsWith('http')) directUrlInput.value = '';
+      } else {
+        clearPreview();
+      }
+    } catch (err) {
+      console.warn('[Uploader] Error:', err);
+      clearPreview();
     }
   });
+
+  if (directUrlInput) {
+    directUrlInput.addEventListener('input', (e) => {
+      const val = (e.target.value || '').trim();
+      if (val && (val.startsWith('http://') || val.startsWith('https://') || val.startsWith('data:image/'))) {
+        showPreview(val);
+      } else if (!val) {
+        clearPreview();
+      }
+    });
+  }
 
   if (removeBtn) {
     removeBtn.addEventListener('click', (e) => {
@@ -762,9 +790,17 @@ function bindDeviceImageUploader({
     const file = e.dataTransfer.files[0];
     if (file && file.type.startsWith('image/')) {
       if (prompt) prompt.innerHTML = '<span style="font-size:12px; color:var(--primary); font-weight:800;">جاري معالجة وضغط الصورة... ⏳</span>';
-      const compressed = await Store.uploadImage(file);
-      if (compressed) {
-        showPreview(compressed);
+      try {
+        const compressed = await Store.uploadImage(file);
+        if (compressed) {
+          showPreview(compressed);
+          if (directUrlInput && !compressed.startsWith('http')) directUrlInput.value = '';
+        } else {
+          clearPreview();
+        }
+      } catch (err) {
+        console.warn('[Uploader] Error:', err);
+        clearPreview();
       }
     }
   });
@@ -1332,12 +1368,14 @@ window.printOrderReceipt = function(orderOrId) {
     return;
   }
 
-  const settings = Store.getSettings();
-  const storeName = settings.storeName || "مطعم أوردر";
+  const settings = Store.getSettings() || {};
+  const storeName = (order && order.storeName) || settings.storeName || settings.name || "مطعم أوردر";
   const currency = settings.currency || "ج.م";
   const timeStr = order.createdAt 
     ? new Date(order.createdAt).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' }) 
     : new Date(order.timestamp || Date.now()).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' });
+
+  const totalDiscount = parseFloat(order.discount) || (order.discounts ? ((parseFloat(order.discounts.spendTier) || 0) + (parseFloat(order.discounts.promo) || 0) + (parseFloat(order.discounts.wallet) || 0)) : 0);
 
   const itemsRows = (order.items || []).map(it => `
     <tr>
@@ -1425,10 +1463,10 @@ window.printOrderReceipt = function(orderOrId) {
         <span>المجموع:</span>
         <span style="font-family:monospace; font-weight:bold;">${(parseFloat(order.subtotal) || parseFloat(order.finalTotal) || 0).toFixed(0)} ${currency}</span>
       </div>
-      ${order.discount ? `
+      ${totalDiscount > 0 ? `
       <div style="display:flex; justify-content:space-between; margin:3px 0; color:#000;">
         <span>الخصم:</span>
-        <span style="font-family:monospace; font-weight:bold;">- ${(parseFloat(order.discount) || 0).toFixed(0)} ${currency}</span>
+        <span style="font-family:monospace; font-weight:bold;">- ${totalDiscount.toFixed(0)} ${currency}</span>
       </div>` : ''}
       ${order.deliveryFee ? `
       <div style="display:flex; justify-content:space-between; margin:3px 0;">
@@ -2636,7 +2674,8 @@ function setupSettingsForm() {
     previewWrapId: 'logo-preview-wrap',
     previewImgId: 'logo-preview-img',
     removeBtnId: 'btn-remove-logo',
-    hiddenUrlInputId: 'set-logo-url'
+    hiddenUrlInputId: 'set-logo-url',
+    directUrlInputId: 'set-logo-url-direct'
   });
 
   coverImageUploader = bindDeviceImageUploader({
@@ -2646,7 +2685,8 @@ function setupSettingsForm() {
     previewWrapId: 'cover-preview-wrap',
     previewImgId: 'cover-preview-img',
     removeBtnId: 'btn-remove-cover',
-    hiddenUrlInputId: 'set-cover-url'
+    hiddenUrlInputId: 'set-cover-url',
+    directUrlInputId: 'set-cover-url-direct'
   });
 
   if (adminElements.themePresetsGrid) {
@@ -2782,6 +2822,8 @@ function loadSettingsIntoForm() {
   
   const logoInput = document.getElementById('set-logo-url');
   if (logoInput) logoInput.value = s.logo || '';
+  const logoDirectInput = document.getElementById('set-logo-url-direct');
+  if (logoDirectInput) logoDirectInput.value = (s.logo && s.logo.startsWith('http')) ? s.logo : '';
   if (logoImageUploader) {
     if (s.logo) logoImageUploader.showPreview(s.logo);
     else logoImageUploader.clearPreview();
@@ -2789,6 +2831,8 @@ function loadSettingsIntoForm() {
 
   const coverInput = document.getElementById('set-cover-url');
   if (coverInput) coverInput.value = s.cover || '';
+  const coverDirectInput = document.getElementById('set-cover-url-direct');
+  if (coverDirectInput) coverDirectInput.value = (s.cover && s.cover.startsWith('http')) ? s.cover : '';
   if (coverImageUploader) {
     if (s.cover) coverImageUploader.showPreview(s.cover);
     else coverImageUploader.clearPreview();

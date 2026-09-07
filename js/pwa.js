@@ -93,12 +93,12 @@
     try {
       slug = getActiveSlug();
       if (customSettings) {
-        if (customSettings.storeName || customSettings.name) {
+        if ('storeName' in customSettings || 'name' in customSettings) {
           storeName = (customSettings.storeName || customSettings.name || '').trim();
-          appName = isAdmin ? `إدارة ${storeName}` : storeName;
+          appName = isAdmin ? (storeName ? `إدارة ${storeName}` : 'إدارة المطعم') : (storeName || 'منيو المطعم');
           appDisplayName = appName;
         }
-        if (customSettings.logo) {
+        if ('logo' in customSettings) {
           storeLogo = (customSettings.logo || '').trim();
           appIcon = (storeLogo && (storeLogo.startsWith('http') || storeLogo.startsWith('data:'))) ? storeLogo : fallbackIcon;
         }
@@ -113,11 +113,13 @@
         bannerImg.onerror = function() { this.src = fallbackIcon; };
       }
 
-      const iconType = (appIcon.includes('.jpg') || appIcon.includes('.jpeg')) ? 'image/jpeg' : (appIcon.includes('.webp') ? 'image/webp' : 'image/png');
+      // Manifest icons: WebAPK server strictly requires an authentic HTTP/HTTPS URL
+      const manifestIconSrc = (appIcon && appIcon.startsWith('http')) ? appIcon : fallbackIcon;
+      const iconType = (manifestIconSrc.includes('.jpg') || manifestIconSrc.includes('.jpeg')) ? 'image/jpeg' : (manifestIconSrc.includes('.webp') ? 'image/webp' : 'image/png');
 
       // Dynamic manifest resolution with authentic identity per tenant
       const manifestObj = {
-        id: `harpy-${isAdmin ? 'admin' : 'menu'}-${slug}-v32`,
+        id: `harpy-${isAdmin ? 'admin' : 'menu'}-${slug}-v33`,
         name: appName,
         short_name: appName,
         description: isAdmin ? `إدارة ${storeName || slug} - لوحة التحكم والطلبات` : `${storeName || slug} - منيو ذكي وطلب مباشر`,
@@ -129,19 +131,19 @@
         orientation: "portrait",
         icons: [
           {
-            src: appIcon,
+            src: manifestIconSrc,
             sizes: "512x512",
             type: iconType,
             purpose: "any"
           },
           {
-            src: appIcon,
+            src: manifestIconSrc,
             sizes: "192x192",
             type: iconType,
             purpose: "any"
           },
           {
-            src: appIcon,
+            src: manifestIconSrc,
             sizes: "512x512",
             type: iconType,
             purpose: "maskable"
@@ -419,7 +421,7 @@
   // ── 5. Register Service Worker with Clean Update Engine ───────
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      const swUrl = './sw.js?v=33.0';
+      const swUrl = './sw.js?v=34.0';
       navigator.serviceWorker.register(swUrl)
         .then(reg => {
           window.__swRegistration = reg;

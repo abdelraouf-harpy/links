@@ -2265,22 +2265,46 @@ function setupEventListeners() {
       reader.readAsDataURL(file);
 
       if (elements.receiptStatus) {
-        elements.receiptStatus.textContent = "جاري رفع الإيصال...";
+        elements.receiptStatus.textContent = "جاري معالجة الإيصال... ⏳";
         elements.receiptStatus.className = "upload-status-chip loading";
         elements.receiptStatus.style.display = "inline-block";
       }
 
       try {
-        uploadedReceiptUrl = await Store.uploadImage(file);
-        if (elements.receiptStatus) {
-          elements.receiptStatus.textContent = "تم تجهيز الإيصال بنجاح ✓";
-          elements.receiptStatus.className = "upload-status-chip success";
+        const compressed = await Store.compressImage(file, 900, 900, 0.78);
+        if (compressed) {
+          uploadedReceiptUrl = compressed;
+          if (elements.receiptPreview) elements.receiptPreview.src = compressed;
+          if (elements.receiptPreviewWrap) elements.receiptPreviewWrap.style.display = 'block';
+          if (elements.dropzonePrompt) elements.dropzonePrompt.style.display = 'none';
+
+          if (elements.receiptStatus) {
+            elements.receiptStatus.textContent = "تم تجهيز الإيصال بنجاح ✓";
+            elements.receiptStatus.className = "upload-status-chip success";
+          }
+        } else {
+          throw new Error("فشل ضغط الصورة");
         }
       } catch (err) {
-        if (elements.receiptStatus) {
-          elements.receiptStatus.textContent = "تعذر الرفع، سيتم الإرسال لاحقاً";
-          elements.receiptStatus.className = "upload-status-chip error";
-        }
+        console.warn("[Receipt] Fast canvas compression fallback:", err);
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          uploadedReceiptUrl = ev.target.result;
+          if (elements.receiptPreview) elements.receiptPreview.src = uploadedReceiptUrl;
+          if (elements.receiptPreviewWrap) elements.receiptPreviewWrap.style.display = 'block';
+          if (elements.dropzonePrompt) elements.dropzonePrompt.style.display = 'none';
+          if (elements.receiptStatus) {
+            elements.receiptStatus.textContent = "تم تجهيز الإيصال بنجاح ✓";
+            elements.receiptStatus.className = "upload-status-chip success";
+          }
+        };
+        reader.onerror = () => {
+          if (elements.receiptStatus) {
+            elements.receiptStatus.textContent = "تعذر قراءة الصورة، يرجى المحاولة ثانية";
+            elements.receiptStatus.className = "upload-status-chip error";
+          }
+        };
+        reader.readAsDataURL(file);
       }
     });
   }
@@ -2535,7 +2559,7 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
       if (file) {
         showToastNotification("⏳ جاري تجهيز صورة الإيصال... يرجى الانتظار", "info");
         try {
-          uploadedReceiptUrl = await Store.uploadImage(file);
+          uploadedReceiptUrl = await Store.compressImage(file, 900, 900, 0.78);
         } catch (e) {
           console.warn("[Checkout] Receipt upload fallback:", e);
         }
@@ -2573,6 +2597,7 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
     items: cart,
     customer: { name, phone, address, notes },
     subtotal,
+    discount: totalDiscounts,
     discounts: {
       spendTier: spendTierDiscountAmount,
       promo: couponDiscountAmount,

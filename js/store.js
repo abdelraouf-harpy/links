@@ -2705,62 +2705,56 @@ const Store = {
 
   async uploadImage(file) {
     if (!file) return null;
-    const settings = this.getSettings();
+    const settings = this.getSettings() || {};
 
-    // 1. Fast background compression to ensure upload payload is small and crisp
+    // 1. Fast background compression (<50ms) to ensure small, crisp, high-performance payload
     let compressedData = null;
     try {
-      compressedData = await this.compressImage(file, 800, 800, 0.85);
-    } catch (e) {}
-
-    // 2. Primary Public Cloud Host: FreeImage.host (Provides instant, permanent HTTPS URLs for WebAPK and PWA)
-    try {
-      const freeImageKey = "6d207e02198a847aa98d0a2a901485a5";
-      const formData = new FormData();
-      formData.append('key', freeImageKey);
-      formData.append('action', 'upload');
-      formData.append('format', 'json');
-      if (compressedData && compressedData.startsWith('data:')) {
-        formData.append('source', compressedData.split(',')[1]);
-      } else {
-        formData.append('source', file);
-      }
-      const fiRes = await fetch('https://freeimage.host/api/1/upload', {
-        method: 'POST',
-        body: formData
-      });
-      const fiJson = await fiRes.json();
-      if (fiJson && fiJson.image && fiJson.image.url) {
-        return fiJson.image.url;
-      }
-    } catch (err) {
-      console.warn('[Store] FreeImage upload network error:', err);
+      compressedData = await this.compressImage(file, 800, 800, 0.82);
+    } catch (e) {
+      console.warn('[Store] Local compression error:', e);
     }
 
-    // 3. Secondary Public Cloud Host: ImgBB
-    const apiKey = (settings.imgbbApiKey || '').trim() || "d7ca1954546a16ca4d732890632b5bdf";
-    if (apiKey) {
+    if (!compressedData) {
       try {
+        compressedData = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve(e.target.result);
+          reader.onerror = () => resolve(null);
+          reader.readAsDataURL(file);
+        });
+      } catch (e) {}
+    }
+
+    // 2. Cloud Upload via ImgBB (Only if admin configured their own valid API key, with strict 3.5s timeout)
+    const apiKey = (settings.imgbbApiKey || '').trim();
+    if (apiKey && compressedData) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3500);
         const formData = new FormData();
-        if (compressedData && compressedData.startsWith('data:')) {
+        if (compressedData.startsWith('data:')) {
           formData.append('image', compressedData.split(',')[1]);
         } else {
           formData.append('image', file);
         }
         const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
           method: 'POST',
-          body: formData
+          body: formData,
+          signal: controller.signal
         });
+        clearTimeout(timeoutId);
         const json = await response.json();
         if (json && json.success && json.data && json.data.url) {
           return json.data.url;
         }
       } catch (err) {
-        console.warn('[Store] ImgBB upload network error:', err);
+        console.warn('[Store] Cloud upload error or timeout:', err.message);
       }
     }
 
-    return compressedData || await this.compressImage(file, 600, 600, 0.75);
+    // 3. Instant, reliable zero-hang return of compressed data
+    return compressedData;
   },
 
   // ── Multi-Tenant Admin Authentication Engine ─────────────
@@ -3863,6 +3857,16 @@ const Store = {
     const prods = this.getProducts();
     prods.unshift(prod);
     return await this.saveProducts(prods);
+  },
+
+  async saveProduct(prod) {
+    if (!prod || !prod.id) return { success: false };
+    const existing = this.getProducts().some(p => p.id === prod.id);
+    if (existing) {
+      return await this.updateProduct(prod.id, prod);
+    } else {
+      return await this.addProduct(prod);
+    }
   },
 
   async updateProduct(id, updatedProd) {
