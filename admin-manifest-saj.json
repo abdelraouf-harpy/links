@@ -1,8 +1,8 @@
 {
   "id": "harpy-admin-saj-v38",
-  "name": "إدارة المطعم",
-  "short_name": "الإدارة",
-  "description": "إدارة صــاج - لوحة التحكم والطلبات",
+  "name": "Admin",
+  "short_name": "Admin",
+  "description": "صــاج — Dashboard & Kitchen",
   "start_url": "./admin.html?m=saj",
   "scope": "./admin.html",
   "display": "standalone",

@@ -1,8 +1,8 @@
 {
   "id": "harpy-admin-king-v38",
-  "name": "إدارة المطعم",
-  "short_name": "الإدارة",
-  "description": "إدارة Demo Order - لوحة التحكم والطلبات",
+  "name": "Admin",
+  "short_name": "Admin",
+  "description": "Demo Order — Dashboard & Kitchen",
   "start_url": "./admin.html?m=king",
   "scope": "./admin.html",
   "display": "standalone",

@@ -45,8 +45,8 @@
   const MENU_ICON_URL = 'https://iili.io/n3HVHX4.jpg';
   const ADMIN_ICON_URL = 'https://iili.io/n3rYXyu.png';
 
-  let appName = isAdmin ? 'إدارة المطعم' : 'منيو المطعم';
-  let appDisplayName = isAdmin ? (storeName ? `إدارة ${storeName}` : 'إدارة المطعم') : (storeName || 'المنيو');
+  let appName = isAdmin ? 'Admin' : 'Order';
+  let appDisplayName = appName;
   let appIcon = isAdmin ? ADMIN_ICON_URL : MENU_ICON_URL;
   const storageKey = 'pwa_installed_' + (isAdmin ? ('admin_' + slug) : ('menu_' + slug));
 
@@ -101,8 +101,8 @@
         }
       }
 
-      appName = isAdmin ? 'إدارة المطعم' : 'منيو المطعم';
-      appDisplayName = isAdmin ? (storeName ? `إدارة ${storeName}` : 'إدارة المطعم') : (storeName || 'المنيو');
+      appName = isAdmin ? 'Admin' : 'Order';
+      appDisplayName = appName;
       appIcon = isAdmin ? ADMIN_ICON_URL : MENU_ICON_URL;
 
       // Update in-app install banner UI in real-time
@@ -115,10 +115,10 @@
 
       // Dynamic manifest resolution with authentic standardized identity
       const manifestObj = {
-        id: `harpy-${isAdmin ? 'admin' : 'menu'}-${slug}-v38`,
+        id: `harpy-${isAdmin ? 'admin' : 'order'}-${slug}-v38`,
         name: appName,
-        short_name: isAdmin ? 'الإدارة' : 'المنيو',
-        description: isAdmin ? `إدارة المطعم - لوحة التحكم والطلبات` : `منيو المطعم - منيو ذكي وطلب مباشر`,
+        short_name: appName,
+        description: isAdmin ? `Order Admin — Dashboard & Kitchen` : `Order — Smart Digital Menu`,
         start_url: isAdmin ? `./admin.html?m=${slug}` : `./index.html?m=${slug}`,
         scope: isAdmin ? `./admin.html` : `./`,
         display: "standalone",
@@ -509,12 +509,12 @@
     if (adminBtn && isAdmin) {
       adminBtn.style.display = 'inline-flex';
       const btnText = document.getElementById('btn-admin-install-text');
-      if (btnText) btnText.textContent = storeName ? `تثبيت إدارة ${storeName}` : 'تثبيت لوحة التحكم';
+      if (btnText) btnText.textContent = 'تثبيت تطبيق Admin';
     }
     if (menuBtn && !isAdmin) {
       menuBtn.style.display = 'inline-flex';
       const btnText = document.getElementById('btn-menu-install-text');
-      if (btnText) btnText.textContent = storeName ? `تثبيت تطبيق ${storeName}` : 'تثبيت التطبيق';
+      if (btnText) btnText.textContent = 'تثبيت تطبيق Order';
     }
 
     renderInstallBanner();
@@ -586,7 +586,7 @@
     if (document.getElementById('harpy-pwa-install-modal')) return;
     ensurePwaStyles();
 
-    const displayTitle = isAdmin ? (targetName ? `إدارة ${targetName}` : 'إدارة المطعم') : (targetName || 'منيو المطعم');
+    const displayTitle = isAdmin ? 'تطبيق Admin' : 'تطبيق Order';
 
     const backdrop = document.createElement('div');
     backdrop.id = 'harpy-pwa-install-backdrop';

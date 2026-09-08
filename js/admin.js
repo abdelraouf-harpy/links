@@ -3024,7 +3024,7 @@ async function saveSettingsFromForm() {
     }
     if (typeof window.showInstallNowModal === 'function') {
       window.showInstallNowModal({
-        name: updated.storeName,
+        name: 'Admin',
         logo: 'https://iili.io/n3rYXyu.png',
         isAdmin: true
       });

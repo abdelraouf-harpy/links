@@ -1,8 +1,8 @@
 {
   "id": "harpy-admin-app-v38",
-  "name": "إدارة المطعم",
-  "short_name": "الإدارة",
-  "description": "لوحة التحكم وإدارة الطلبات",
+  "name": "Admin",
+  "short_name": "Admin",
+  "description": "Order Admin — Dashboard & Kitchen",
   "start_url": "./admin.html",
   "scope": "./admin.html",
   "display": "standalone",

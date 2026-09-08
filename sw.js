@@ -126,16 +126,27 @@ self.addEventListener('fetch', (event) => {
           ? fileName.replace('admin-manifest-', '').replace('.json', '') 
           : fileName.replace('manifest-', '').replace('.json', '');
 
+        let storeName = mSlug;
+        try {
+          const rtdbRes = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${mSlug}/settings.json`, { cache: 'no-store' });
+          if (rtdbRes.ok) {
+            const settings = await rtdbRes.json();
+            if (settings) {
+              storeName = (settings.storeName || settings.name || mSlug).trim();
+            }
+          }
+        } catch (e) {}
+
+        const finalName = isAdm ? 'Admin' : 'Order';
+        const finalShortName = isAdm ? 'Admin' : 'Order';
         const iconUrl = isAdm ? 'https://iili.io/n3rYXyu.png' : 'https://iili.io/n3HVHX4.jpg';
         const iconType = isAdm ? 'image/png' : 'image/jpeg';
-        const finalName = isAdm ? 'إدارة المطعم' : 'منيو المطعم';
-        const finalShortName = isAdm ? 'الإدارة' : 'المنيو';
 
         const synthesized = {
-          id: `harpy-${isAdm ? 'admin' : 'menu'}-${mSlug}-v38`,
+          id: `harpy-${isAdm ? 'admin' : 'order'}-${mSlug}-v38`,
           name: finalName,
           short_name: finalShortName,
-          description: isAdm ? `إدارة المطعم - لوحة التحكم والطلبات` : `منيو المطعم - منيو ذكي وطلب مباشر`,
+          description: isAdm ? `Order Admin — Dashboard & Kitchen` : `Order — Smart Digital Menu`,
           start_url: isAdm ? `./admin.html?m=${mSlug}` : `./index.html?m=${mSlug}`,
           scope: isAdm ? `./admin.html` : `./`,
           display: 'standalone',

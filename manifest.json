@@ -1,8 +1,8 @@
 {
-  "id": "harpy-menu-app-v38",
-  "name": "منيو المطعم",
-  "short_name": "المنيو",
-  "description": "المنيو الذكي وطلب الأوردر المباشر",
+  "id": "harpy-order-app-v38",
+  "name": "Order",
+  "short_name": "Order",
+  "description": "Order — Smart Digital Menu",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

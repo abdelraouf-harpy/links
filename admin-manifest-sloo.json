@@ -1,8 +1,8 @@
 {
   "id": "harpy-admin-sloo-v38",
-  "name": "إدارة المطعم",
-  "short_name": "الإدارة",
-  "description": "إدارة Sloo - لوحة التحكم والطلبات",
+  "name": "Admin",
+  "short_name": "Admin",
+  "description": "Sloo — Dashboard & Kitchen",
   "start_url": "./admin.html?m=sloo",
   "scope": "./admin.html",
   "display": "standalone",

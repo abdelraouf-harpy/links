@@ -48,10 +48,10 @@ async function generate() {
 
       // 1. Menu Manifest (Customer Facing)
       const menuManifest = {
-        id: "harpy-menu-" + slug + "-v38",
-        name: "منيو المطعم",
-        short_name: "المنيو",
-        description: storeName + " - منيو ذكي وطلب أونلاين مباشر",
+        id: "harpy-order-" + slug + "-v38",
+        name: "Order",
+        short_name: "Order",
+        description: storeName + " — Smart Digital Menu",
         start_url: "./index.html?m=" + slug,
         scope: "./",
         display: "standalone",
@@ -69,9 +69,9 @@ async function generate() {
       // 2. Admin Manifest (Restaurant Manager / Kitchen Display)
       const adminManifest = {
         id: "harpy-admin-" + slug + "-v38",
-        name: "إدارة المطعم",
-        short_name: "الإدارة",
-        description: "إدارة " + storeName + " - لوحة التحكم والطلبات",
+        name: "Admin",
+        short_name: "Admin",
+        description: storeName + " — Dashboard & Kitchen",
         start_url: "./admin.html?m=" + slug,
         scope: "./admin.html",
         display: "standalone",
@@ -94,10 +94,10 @@ async function generate() {
 
   // 3. Fallback Root Manifests (Pure Cloud CDN Hosted)
   const defaultMenuManifest = {
-    id: 'harpy-menu-app-v38',
-    name: 'منيو المطعم',
-    short_name: 'المنيو',
-    description: 'المنيو الذكي وطلب الأوردر المباشر',
+    id: 'harpy-order-app-v38',
+    name: 'Order',
+    short_name: 'Order',
+    description: 'Order — Smart Digital Menu',
     start_url: './index.html',
     scope: './',
     display: 'standalone',
@@ -114,9 +114,9 @@ async function generate() {
 
   const defaultAdminManifest = {
     id: 'harpy-admin-app-v38',
-    name: 'إدارة المطعم',
-    short_name: 'الإدارة',
-    description: 'لوحة التحكم وإدارة الطلبات',
+    name: 'Admin',
+    short_name: 'Admin',
+    description: 'Order Admin — Dashboard & Kitchen',
     start_url: './admin.html',
     scope: './admin.html',
     display: 'standalone',
