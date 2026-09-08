@@ -1,7 +1,7 @@
 {
-  "id": "harpy-menu-sloo-v35",
-  "name": "Sloo",
-  "short_name": "Sloo",
+  "id": "harpy-menu-sloo-v38",
+  "name": "منيو المطعم",
+  "short_name": "المنيو",
   "description": "Sloo - منيو ذكي وطلب أونلاين مباشر",
   "start_url": "./index.html?m=sloo",
   "scope": "./",
@@ -11,19 +11,19 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://iili.io/n3qp57e.jpg",
+      "src": "https://iili.io/n3HVHX4.jpg",
       "sizes": "512x512",
       "type": "image/jpeg",
       "purpose": "any"
     },
     {
-      "src": "https://iili.io/n3qp57e.jpg",
+      "src": "https://iili.io/n3HVHX4.jpg",
       "sizes": "192x192",
       "type": "image/jpeg",
       "purpose": "any"
     },
     {
-      "src": "https://iili.io/n3qp57e.jpg",
+      "src": "https://iili.io/n3HVHX4.jpg",
       "sizes": "512x512",
       "type": "image/jpeg",
       "purpose": "maskable"

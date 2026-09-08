@@ -30,47 +30,27 @@ async function generate() {
   console.log('Fetching active restaurant settings from Firebase...');
   const slugs = await getSlugs();
 
+  const MENU_ICON_URL = 'https://iili.io/n3HVHX4.jpg';
+  const ADMIN_ICON_URL = 'https://iili.io/n3rYXyu.png';
+
   for (const slug of slugs) {
     try {
-      const res = await fetch(FIREBASE_BASE + "/" + slug + "/settings.json?auth=" + FIREBASE_SECRET);
-      let settings = {};
-      if (res.ok) {
-        settings = (await res.json()) || {};
-      }
-
-      const storeName = (settings.storeName || settings.name || slug).trim();
-      let iconUrl = (settings.logo && settings.logo.startsWith('http')) ? settings.logo : null;
-      if (!iconUrl && settings.logo && settings.logo.startsWith('data:image')) {
-        try {
-          const base64Data = settings.logo.split(',')[1];
-          const form = new URLSearchParams();
-          form.append('key', '6d207e02198a847aa98d0a2a901485a5');
-          form.append('action', 'upload');
-          form.append('source', base64Data);
-          const upRes = await fetch('https://freeimage.host/api/1/upload', { method: 'POST', body: form });
-          const upJson = await upRes.json();
-          if (upJson && upJson.image && upJson.image.url) {
-            iconUrl = upJson.image.url;
-            await fetch(FIREBASE_BASE + "/" + slug + "/settings.json?auth=" + FIREBASE_SECRET, {
-              method: 'PATCH',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ logo: iconUrl })
-            });
-            console.log("Uploaded base64 logo to CDN for " + slug + ": " + iconUrl);
+      let storeName = slug;
+      try {
+        const res = await fetch(FIREBASE_BASE + "/" + slug + "/settings.json?auth=" + FIREBASE_SECRET);
+        if (res.ok) {
+          const settings = await res.json();
+          if (settings) {
+            storeName = (settings.storeName || settings.name || slug).trim();
           }
-        } catch(e) {}
-      }
-      if (!iconUrl) {
-        iconUrl = (slug === 'saj' ? 'https://iili.io/n3HWDDG.jpg' : 'https://iili.io/n3HVHX4.jpg');
-      }
-
-      const iconType = (iconUrl.includes('.png') ? 'image/png' : (iconUrl.includes('.webp') ? 'image/webp' : 'image/jpeg'));
+        }
+      } catch(e) {}
 
       // 1. Menu Manifest (Customer Facing)
       const menuManifest = {
-        id: "harpy-menu-" + slug + "-v35",
-        name: storeName,
-        short_name: storeName,
+        id: "harpy-menu-" + slug + "-v38",
+        name: "منيو المطعم",
+        short_name: "المنيو",
         description: storeName + " - منيو ذكي وطلب أونلاين مباشر",
         start_url: "./index.html?m=" + slug,
         scope: "./",
@@ -79,18 +59,18 @@ async function generate() {
         theme_color: "#ea580c",
         orientation: "portrait",
         icons: [
-          { src: iconUrl, sizes: "512x512", type: iconType, purpose: "any" },
-          { src: iconUrl, sizes: "192x192", type: iconType, purpose: "any" },
-          { src: iconUrl, sizes: "512x512", type: iconType, purpose: "maskable" }
+          { src: MENU_ICON_URL, sizes: "512x512", type: "image/jpeg", purpose: "any" },
+          { src: MENU_ICON_URL, sizes: "192x192", type: "image/jpeg", purpose: "any" },
+          { src: MENU_ICON_URL, sizes: "512x512", type: "image/jpeg", purpose: "maskable" }
         ]
       };
       fs.writeFileSync("manifest-" + slug + ".json", JSON.stringify(menuManifest, null, 2));
 
       // 2. Admin Manifest (Restaurant Manager / Kitchen Display)
       const adminManifest = {
-        id: "harpy-admin-" + slug + "-v35",
-        name: "إدارة " + storeName,
-        short_name: "إدارة " + storeName,
+        id: "harpy-admin-" + slug + "-v38",
+        name: "إدارة المطعم",
+        short_name: "الإدارة",
         description: "إدارة " + storeName + " - لوحة التحكم والطلبات",
         start_url: "./admin.html?m=" + slug,
         scope: "./admin.html",
@@ -99,9 +79,9 @@ async function generate() {
         theme_color: "#ea580c",
         orientation: "portrait",
         icons: [
-          { src: iconUrl, sizes: "512x512", type: iconType, purpose: "any" },
-          { src: iconUrl, sizes: "192x192", type: iconType, purpose: "any" },
-          { src: iconUrl, sizes: "512x512", type: iconType, purpose: "maskable" }
+          { src: ADMIN_ICON_URL, sizes: "512x512", type: "image/png", purpose: "any" },
+          { src: ADMIN_ICON_URL, sizes: "192x192", type: "image/png", purpose: "any" },
+          { src: ADMIN_ICON_URL, sizes: "512x512", type: "image/png", purpose: "maskable" }
         ]
       };
       fs.writeFileSync("admin-manifest-" + slug + ".json", JSON.stringify(adminManifest, null, 2));
@@ -113,9 +93,8 @@ async function generate() {
   }
 
   // 3. Fallback Root Manifests (Pure Cloud CDN Hosted)
-  const defaultIconUrl = 'https://iili.io/n3HVHX4.jpg';
   const defaultMenuManifest = {
-    id: 'harpy-menu-app-v33',
+    id: 'harpy-menu-app-v38',
     name: 'منيو المطعم',
     short_name: 'المنيو',
     description: 'المنيو الذكي وطلب الأوردر المباشر',
@@ -126,15 +105,15 @@ async function generate() {
     theme_color: '#ea580c',
     orientation: 'portrait',
     icons: [
-      { src: defaultIconUrl, sizes: '512x512', type: 'image/jpeg', purpose: 'any' },
-      { src: defaultIconUrl, sizes: '192x192', type: 'image/jpeg', purpose: 'any' },
-      { src: defaultIconUrl, sizes: '512x512', type: 'image/jpeg', purpose: 'maskable' }
+      { src: MENU_ICON_URL, sizes: '512x512', type: 'image/jpeg', purpose: 'any' },
+      { src: MENU_ICON_URL, sizes: '192x192', type: 'image/jpeg', purpose: 'any' },
+      { src: MENU_ICON_URL, sizes: '512x512', type: 'image/jpeg', purpose: 'maskable' }
     ]
   };
   fs.writeFileSync('manifest.json', JSON.stringify(defaultMenuManifest, null, 2));
 
   const defaultAdminManifest = {
-    id: 'harpy-admin-app-v33',
+    id: 'harpy-admin-app-v38',
     name: 'إدارة المطعم',
     short_name: 'الإدارة',
     description: 'لوحة التحكم وإدارة الطلبات',
@@ -145,9 +124,9 @@ async function generate() {
     theme_color: '#ea580c',
     orientation: 'portrait',
     icons: [
-      { src: defaultIconUrl, sizes: '512x512', type: 'image/jpeg', purpose: 'any' },
-      { src: defaultIconUrl, sizes: '192x192', type: 'image/jpeg', purpose: 'any' },
-      { src: defaultIconUrl, sizes: '512x512', type: 'image/jpeg', purpose: 'maskable' }
+      { src: ADMIN_ICON_URL, sizes: '512x512', type: 'image/png', purpose: 'any' },
+      { src: ADMIN_ICON_URL, sizes: '192x192', type: 'image/png', purpose: 'any' },
+      { src: ADMIN_ICON_URL, sizes: '512x512', type: 'image/png', purpose: 'maskable' }
     ]
   };
   fs.writeFileSync('admin-manifest.json', JSON.stringify(defaultAdminManifest, null, 2));

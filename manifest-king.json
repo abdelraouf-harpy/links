@@ -1,7 +1,7 @@
 {
-  "id": "harpy-menu-king-v35",
-  "name": "Demo Order",
-  "short_name": "Demo Order",
+  "id": "harpy-menu-king-v38",
+  "name": "منيو المطعم",
+  "short_name": "المنيو",
   "description": "Demo Order - منيو ذكي وطلب أونلاين مباشر",
   "start_url": "./index.html?m=king",
   "scope": "./",

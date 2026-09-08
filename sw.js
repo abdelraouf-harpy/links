@@ -1,5 +1,5 @@
 // Order PWA Service Worker — Native App Shell & Offline Engine
-const CACHE_NAME = 'order-pwa-v37.0';
+const CACHE_NAME = 'order-pwa-v38.0';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -12,11 +12,11 @@ const ASSETS_TO_CACHE = [
   './admin-manifest-king.json',
   './manifest-sloo.json',
   './admin-manifest-sloo.json',
-  './css/style.css?v=37.0',
-  './js/store.js?v=37.0',
-  './js/app.js?v=37.0',
-  './js/admin.js?v=37.0',
-  './js/pwa.js?v=37.0'
+  './css/style.css?v=38.0',
+  './js/store.js?v=38.0',
+  './js/app.js?v=38.0',
+  './js/admin.js?v=38.0',
+  './js/pwa.js?v=38.0'
 ];
 
 self.addEventListener('install', (event) => {
@@ -126,34 +126,16 @@ self.addEventListener('fetch', (event) => {
           ? fileName.replace('admin-manifest-', '').replace('.json', '') 
           : fileName.replace('manifest-', '').replace('.json', '');
 
-        let storeName = mSlug;
-        let iconUrl = '';
-
-        try {
-          const rtdbRes = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${mSlug}/settings.json`, { cache: 'no-store' });
-          if (rtdbRes.ok) {
-            const settings = await rtdbRes.json();
-            if (settings) {
-              storeName = (settings.storeName || settings.name || mSlug).trim();
-              if (settings.logo && (settings.logo.startsWith('http://') || settings.logo.startsWith('https://'))) {
-                iconUrl = settings.logo.trim();
-              }
-            }
-          }
-        } catch (e) {}
-
-        if (!iconUrl) {
-          iconUrl = (mSlug === 'saj' ? 'https://iili.io/n3HWDDG.jpg' : 'https://iili.io/n3HVHX4.jpg');
-        }
-
-        const finalName = isAdm ? `إدارة ${storeName}` : storeName;
-        const iconType = (iconUrl.includes('.png') ? 'image/png' : (iconUrl.includes('.webp') ? 'image/webp' : 'image/jpeg'));
+        const iconUrl = isAdm ? 'https://iili.io/n3rYXyu.png' : 'https://iili.io/n3HVHX4.jpg';
+        const iconType = isAdm ? 'image/png' : 'image/jpeg';
+        const finalName = isAdm ? 'إدارة المطعم' : 'منيو المطعم';
+        const finalShortName = isAdm ? 'الإدارة' : 'المنيو';
 
         const synthesized = {
-          id: `harpy-${isAdm ? 'admin' : 'menu'}-${mSlug}-v35`,
+          id: `harpy-${isAdm ? 'admin' : 'menu'}-${mSlug}-v38`,
           name: finalName,
-          short_name: finalName,
-          description: isAdm ? `إدارة ${storeName} - لوحة التحكم والطلبات` : `${storeName} - منيو ذكي وطلب مباشر`,
+          short_name: finalShortName,
+          description: isAdm ? `إدارة المطعم - لوحة التحكم والطلبات` : `منيو المطعم - منيو ذكي وطلب مباشر`,
           start_url: isAdm ? `./admin.html?m=${mSlug}` : `./index.html?m=${mSlug}`,
           scope: isAdm ? `./admin.html` : `./`,
           display: 'standalone',

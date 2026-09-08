@@ -3022,14 +3022,12 @@ async function saveSettingsFromForm() {
     if (typeof window.updatePwaBranding === 'function') {
       window.updatePwaBranding(updated);
     }
-    if (typeof window.hasValidBranding === 'function' && window.hasValidBranding(updated.storeName, updated.logo)) {
-      if (typeof window.showInstallNowModal === 'function') {
-        window.showInstallNowModal({
-          name: updated.storeName,
-          logo: updated.logo,
-          isAdmin: true
-        });
-      }
+    if (typeof window.showInstallNowModal === 'function') {
+      window.showInstallNowModal({
+        name: updated.storeName,
+        logo: 'https://iili.io/n3rYXyu.png',
+        isAdmin: true
+      });
     }
   } catch (err) {
     console.error("[Admin] Settings save error:", err);

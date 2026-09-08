@@ -1,5 +1,5 @@
 {
-  "id": "harpy-admin-app-v33",
+  "id": "harpy-admin-app-v38",
   "name": "إدارة المطعم",
   "short_name": "الإدارة",
   "description": "لوحة التحكم وإدارة الطلبات",
@@ -11,21 +11,21 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://iili.io/n3HVHX4.jpg",
+      "src": "https://iili.io/n3rYXyu.png",
       "sizes": "512x512",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://iili.io/n3HVHX4.jpg",
+      "src": "https://iili.io/n3rYXyu.png",
       "sizes": "192x192",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://iili.io/n3HVHX4.jpg",
+      "src": "https://iili.io/n3rYXyu.png",
       "sizes": "512x512",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "maskable"
     }
   ]

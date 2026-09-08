@@ -42,23 +42,16 @@
     }
   } catch(e) {}
 
-  let appName = isAdmin ? (storeName ? `إدارة ${storeName}` : (slug ? `إدارة ${slug}` : 'إدارة المطعم')) : (storeName || (slug ? slug : 'منيو المطعم'));
-  let appDisplayName = appName;
-  const fallbackIcon = (slug === 'saj' ? 'https://iili.io/n3HWDDG.jpg' : 'https://iili.io/n3HVHX4.jpg');
-  let appIcon = (storeLogo && (storeLogo.startsWith('http') || storeLogo.startsWith('data:'))) ? storeLogo : fallbackIcon;
+  const MENU_ICON_URL = 'https://iili.io/n3HVHX4.jpg';
+  const ADMIN_ICON_URL = 'https://iili.io/n3rYXyu.png';
+
+  let appName = isAdmin ? 'إدارة المطعم' : 'منيو المطعم';
+  let appDisplayName = isAdmin ? (storeName ? `إدارة ${storeName}` : 'إدارة المطعم') : (storeName || 'المنيو');
+  let appIcon = isAdmin ? ADMIN_ICON_URL : MENU_ICON_URL;
   const storageKey = 'pwa_installed_' + (isAdmin ? ('admin_' + slug) : ('menu_' + slug));
 
-  // ── Branding Validation (Strict Gating for PWA Install Button & Banner) ──
-  function hasValidBranding(customName, customLogo) {
-    const sName = (customName !== undefined ? customName : storeName) || '';
-    const sLogo = (customLogo !== undefined ? customLogo : storeLogo) || '';
-    const trimmedName = String(sName).trim();
-    const trimmedLogo = String(sLogo).trim();
-    if (!trimmedName || trimmedName.length < 2) return false;
-    if (!trimmedLogo) return false;
-    const isHttp = trimmedLogo.startsWith('http://') || trimmedLogo.startsWith('https://');
-    const isData = trimmedLogo.startsWith('data:image/');
-    if (!isHttp && !isData) return false;
+  // ── Branding Validation (Standard Platform Branding Always Valid) ──
+  function hasValidBranding() {
     return true;
   }
 
@@ -102,14 +95,15 @@
       if (customSettings) {
         if ('storeName' in customSettings || 'name' in customSettings) {
           storeName = (customSettings.storeName || customSettings.name || '').trim();
-          appName = isAdmin ? (storeName ? `إدارة ${storeName}` : (slug ? `إدارة ${slug}` : 'إدارة المطعم')) : (storeName || (slug ? slug : 'منيو المطعم'));
-          appDisplayName = appName;
         }
         if ('logo' in customSettings) {
           storeLogo = (customSettings.logo || '').trim();
-          appIcon = (storeLogo && (storeLogo.startsWith('http') || storeLogo.startsWith('data:'))) ? storeLogo : fallbackIcon;
         }
       }
+
+      appName = isAdmin ? 'إدارة المطعم' : 'منيو المطعم';
+      appDisplayName = isAdmin ? (storeName ? `إدارة ${storeName}` : 'إدارة المطعم') : (storeName || 'المنيو');
+      appIcon = isAdmin ? ADMIN_ICON_URL : MENU_ICON_URL;
 
       // Update in-app install banner UI in real-time
       const bannerTitle = document.getElementById('pwa-banner-title');
@@ -117,19 +111,14 @@
       if (bannerTitle && appDisplayName) bannerTitle.textContent = appDisplayName;
       if (bannerImg && appIcon) {
         bannerImg.src = appIcon;
-        bannerImg.onerror = function() { this.src = fallbackIcon; };
       }
 
-      // Manifest icons: WebAPK server strictly requires an authentic HTTP/HTTPS URL
-      const manifestIconSrc = (appIcon && appIcon.startsWith('http')) ? appIcon : (slug === 'saj' ? 'https://iili.io/n3HWDDG.jpg' : fallbackIcon);
-      const iconType = (manifestIconSrc.includes('.png') ? 'image/png' : (manifestIconSrc.includes('.webp') ? 'image/webp' : 'image/jpeg'));
-
-      // Dynamic manifest resolution with authentic identity per tenant
+      // Dynamic manifest resolution with authentic standardized identity
       const manifestObj = {
-        id: `harpy-${isAdmin ? 'admin' : 'menu'}-${slug}-v35`,
+        id: `harpy-${isAdmin ? 'admin' : 'menu'}-${slug}-v38`,
         name: appName,
-        short_name: appName,
-        description: isAdmin ? `إدارة ${storeName || slug} - لوحة التحكم والطلبات` : `${storeName || slug} - منيو ذكي وطلب مباشر`,
+        short_name: isAdmin ? 'الإدارة' : 'المنيو',
+        description: isAdmin ? `إدارة المطعم - لوحة التحكم والطلبات` : `منيو المطعم - منيو ذكي وطلب مباشر`,
         start_url: isAdmin ? `./admin.html?m=${slug}` : `./index.html?m=${slug}`,
         scope: isAdmin ? `./admin.html` : `./`,
         display: "standalone",
@@ -138,29 +127,29 @@
         orientation: "portrait",
         icons: [
           {
-            src: manifestIconSrc,
+            src: appIcon,
             sizes: "512x512",
-            type: iconType,
+            type: isAdmin ? "image/png" : "image/jpeg",
             purpose: "any"
           },
           {
-            src: manifestIconSrc,
+            src: appIcon,
             sizes: "192x192",
-            type: iconType,
+            type: isAdmin ? "image/png" : "image/jpeg",
             purpose: "any"
           },
           {
-            src: manifestIconSrc,
+            src: appIcon,
             sizes: "512x512",
-            type: iconType,
+            type: isAdmin ? "image/png" : "image/jpeg",
             purpose: "maskable"
           }
         ]
       };
 
       const authenticHref = isAdmin 
-        ? `admin-manifest-${slug}.json?v=37.0` 
-        : `manifest-${slug}.json?v=37.0`;
+        ? `admin-manifest-${slug}.json?v=38.0` 
+        : `manifest-${slug}.json?v=38.0`;
 
       let manifestLink = document.querySelector('link[rel="manifest"]');
       if (!manifestLink) {
@@ -171,43 +160,42 @@
       } else if (manifestLink.getAttribute('href') !== authenticHref) {
         manifestLink.setAttribute('href', authenticHref);
       }
-        if (navigator.serviceWorker) {
-          const sendMsg = (worker) => {
-            try {
-              if (worker) {
-                worker.postMessage({
-                  type: 'SET_DYNAMIC_MANIFEST',
-                  slug: slug,
-                  isAdmin: isAdmin,
-                  manifest: manifestObj
-                });
-              }
-            } catch(e) {}
-          };
-          if (navigator.serviceWorker.controller) {
-            sendMsg(navigator.serviceWorker.controller);
-          } else if (navigator.serviceWorker.ready) {
-            navigator.serviceWorker.ready.then(reg => {
-              if (reg && reg.active) sendMsg(reg.active);
-            }).catch(() => {});
-          }
+
+      if (navigator.serviceWorker) {
+        const sendMsg = (worker) => {
+          try {
+            if (worker) {
+              worker.postMessage({
+                type: 'SET_DYNAMIC_MANIFEST',
+                slug: slug,
+                isAdmin: isAdmin,
+                manifest: manifestObj
+              });
+            }
+          } catch(e) {}
+        };
+        if (navigator.serviceWorker.controller) {
+          sendMsg(navigator.serviceWorker.controller);
+        } else if (navigator.serviceWorker.ready) {
+          navigator.serviceWorker.ready.then(reg => {
+            if (reg && reg.active) sendMsg(reg.active);
+          }).catch(() => {});
         }
       }
 
       // Update Apple iOS Safari home screen icon, favicon & titles dynamically
-      if (storeLogo) {
-        try {
-          let appleTouch = document.querySelector('link[rel="apple-touch-icon"]');
-          if (!appleTouch) {
-            appleTouch = document.createElement('link');
-            appleTouch.rel = 'apple-touch-icon';
-            document.head.appendChild(appleTouch);
-          }
-          appleTouch.href = storeLogo;
-          let favicon = document.querySelector('link[rel="icon"]');
-          if (favicon) favicon.href = storeLogo;
-        } catch(e) {}
-      }
+      try {
+        let appleTouch = document.querySelector('link[rel="apple-touch-icon"]');
+        if (!appleTouch) {
+          appleTouch = document.createElement('link');
+          appleTouch.rel = 'apple-touch-icon';
+          document.head.appendChild(appleTouch);
+        }
+        appleTouch.href = appIcon;
+        let favicon = document.querySelector('link[rel="icon"]');
+        if (favicon) favicon.href = appIcon;
+      } catch(e) {}
+
       if (storeName) {
         try {
           document.title = isAdmin ? `لوحة تحكم: ${storeName}` : `منيو: ${storeName}`;
@@ -229,7 +217,7 @@
   updatePwaBranding();
 
   // ── 2. Clean Update Engine ("متظهرش تاني طالما مفيش تحديث وطالما الشخص حدّث") ───
-  const CURRENT_PWA_BUILD = 'v33.0';
+  const CURRENT_PWA_BUILD = 'v38.0';
 
   function isUpdateAlreadyHandled() {
     try {
@@ -248,7 +236,7 @@
     ensurePwaStyles();
 
     const currentSlug = updateData.slug || getActiveSlug();
-    const displayLogo = updateData.newLogo || storeLogo || fallbackIcon;
+    const displayLogo = isAdmin ? ADMIN_ICON_URL : MENU_ICON_URL;
     const targetName = updateData.newName || storeName || (isAdmin ? 'لوحة التحكم' : 'المطعم');
     const headline = isAdmin 
       ? `تحديث لوحة تحكم: ${targetName}` 
@@ -445,7 +433,7 @@
   // ── 5. Register Service Worker with Clean Update Engine ───────
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      const swUrl = './sw.js?v=34.0';
+      const swUrl = './sw.js?v=38.0';
       navigator.serviceWorker.register(swUrl)
         .then(reg => {
           window.__swRegistration = reg;
@@ -458,7 +446,7 @@
             showUpdateNotification({
               slug: getActiveSlug(),
               newName: storeName || 'Order',
-              newLogo: storeLogo || fallbackIcon,
+              newLogo: isAdmin ? ADMIN_ICON_URL : MENU_ICON_URL,
               isSystemUpdate: true
             });
           }
@@ -472,7 +460,7 @@
                     showUpdateNotification({
                       slug: getActiveSlug(),
                       newName: storeName || 'Order',
-                      newLogo: storeLogo || fallbackIcon,
+                      newLogo: isAdmin ? ADMIN_ICON_URL : MENU_ICON_URL,
                       isSystemUpdate: true
                     });
                   }
@@ -592,13 +580,13 @@
   function showInstallNowModal(opts = {}) {
     if (isAppInstalled()) return;
     const targetName = (opts.name || storeName || '').trim();
-    const targetLogo = (opts.logo || storeLogo || fallbackIcon).trim();
-    if (!hasValidBranding(targetName, targetLogo)) return;
+    const targetLogo = isAdmin ? ADMIN_ICON_URL : MENU_ICON_URL;
+    if (!hasValidBranding()) return;
 
     if (document.getElementById('harpy-pwa-install-modal')) return;
     ensurePwaStyles();
 
-    const displayTitle = isAdmin ? `إدارة ${targetName}` : targetName;
+    const displayTitle = isAdmin ? (targetName ? `إدارة ${targetName}` : 'إدارة المطعم') : (targetName || 'منيو المطعم');
 
     const backdrop = document.createElement('div');
     backdrop.id = 'harpy-pwa-install-backdrop';
