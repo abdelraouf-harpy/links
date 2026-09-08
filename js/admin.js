@@ -2952,6 +2952,24 @@ async function saveSettingsFromForm() {
     if (adminElements.pickerSurface?.value) siteColors.surface = adminElements.pickerSurface.value;
     if (adminElements.pickerText?.value) siteColors.textMain = adminElements.pickerText.value;
 
+    let cleanLogo = (document.getElementById('set-logo-url')?.value || '').trim();
+    if (!cleanLogo && document.getElementById('set-logo-url-direct')) {
+      cleanLogo = (document.getElementById('set-logo-url-direct').value || '').trim();
+    }
+    if (cleanLogo && cleanLogo.startsWith('data:image/')) {
+      try {
+        if (submitBtn) submitBtn.innerHTML = 'جاري رفع الشعار إلى سحابة الصور... ⏳';
+        const cdnUrl = await Store.uploadImage(cleanLogo);
+        if (cdnUrl && cdnUrl.startsWith('http')) {
+          cleanLogo = cdnUrl;
+          if (document.getElementById('set-logo-url')) document.getElementById('set-logo-url').value = cdnUrl;
+          if (document.getElementById('set-logo-url-direct')) document.getElementById('set-logo-url-direct').value = cdnUrl;
+        }
+      } catch (err) {
+        console.warn('[Admin] CDN logo upload error on save:', err);
+      }
+    }
+
     const updated = {
       ...current,
       storeName: (adminElements.setStoreName?.value || '').trim(),
@@ -2960,7 +2978,7 @@ async function saveSettingsFromForm() {
       whatsappNumber: (adminElements.setWhatsapp?.value || '').trim(),
       walletNumber: (adminElements.setWalletNumber?.value || '').trim(),
       walletName: (adminElements.setWalletName?.value || '').trim(),
-      logo: (document.getElementById('set-logo-url')?.value || '').trim(),
+      logo: cleanLogo,
       cover: (document.getElementById('set-cover-url')?.value || '').trim(),
       imgbbApiKey: (adminElements.setImgbbKey?.value || '').trim(),
 

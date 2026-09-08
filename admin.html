@@ -8,9 +8,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
   
-  <!-- Web App Manifest (PWA / WebAPK) -->
-  <link rel="manifest" href="admin-manifest.json">
-  
   <!-- Favicons & High-Res App Icons -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>">
   <link rel="apple-touch-icon" href="https://iili.io/n3HVHX4.jpg">
@@ -98,10 +95,12 @@
           localStorage.setItem('harpy_last_visited_slug', slug);
         } catch(e) {}
 
-        var mLink = document.querySelector('link[rel="manifest"]');
-        if (mLink) {
-          mLink.href = 'admin-manifest-' + slug + '.json?v=36.0';
-        }
+        var oldManifest = document.querySelector('link[rel="manifest"]');
+        if (oldManifest) oldManifest.remove();
+        var mLink = document.createElement('link');
+        mLink.rel = 'manifest';
+        mLink.href = 'admin-manifest-' + slug + '.json?v=37.0';
+        document.head.appendChild(mLink);
 
         // Auto-fix URL parameter so address bar and internal routing stay consistent
         if (!window.location.search.includes('m=') && !window.location.search.includes('restaurant=')) {

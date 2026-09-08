@@ -64,9 +64,11 @@ async function generate() {
         iconUrl = (slug === 'saj' ? 'https://iili.io/n3HWDDG.jpg' : 'https://iili.io/n3HVHX4.jpg');
       }
 
+      const iconType = (iconUrl.includes('.png') ? 'image/png' : (iconUrl.includes('.webp') ? 'image/webp' : 'image/jpeg'));
+
       // 1. Menu Manifest (Customer Facing)
       const menuManifest = {
-        id: "harpy-menu-" + slug + "-v33",
+        id: "harpy-menu-" + slug + "-v35",
         name: storeName,
         short_name: storeName,
         description: storeName + " - منيو ذكي وطلب أونلاين مباشر",
@@ -77,16 +79,16 @@ async function generate() {
         theme_color: "#ea580c",
         orientation: "portrait",
         icons: [
-          { src: iconUrl, sizes: "512x512", type: "image/jpeg", purpose: "any" },
-          { src: iconUrl, sizes: "192x192", type: "image/jpeg", purpose: "any" },
-          { src: iconUrl, sizes: "512x512", type: "image/jpeg", purpose: "maskable" }
+          { src: iconUrl, sizes: "512x512", type: iconType, purpose: "any" },
+          { src: iconUrl, sizes: "192x192", type: iconType, purpose: "any" },
+          { src: iconUrl, sizes: "512x512", type: iconType, purpose: "maskable" }
         ]
       };
       fs.writeFileSync("manifest-" + slug + ".json", JSON.stringify(menuManifest, null, 2));
 
       // 2. Admin Manifest (Restaurant Manager / Kitchen Display)
       const adminManifest = {
-        id: "harpy-admin-" + slug + "-v33",
+        id: "harpy-admin-" + slug + "-v35",
         name: "إدارة " + storeName,
         short_name: "إدارة " + storeName,
         description: "إدارة " + storeName + " - لوحة التحكم والطلبات",
@@ -97,9 +99,9 @@ async function generate() {
         theme_color: "#ea580c",
         orientation: "portrait",
         icons: [
-          { src: iconUrl, sizes: "512x512", type: "image/jpeg", purpose: "any" },
-          { src: iconUrl, sizes: "192x192", type: "image/jpeg", purpose: "any" },
-          { src: iconUrl, sizes: "512x512", type: "image/jpeg", purpose: "maskable" }
+          { src: iconUrl, sizes: "512x512", type: iconType, purpose: "any" },
+          { src: iconUrl, sizes: "192x192", type: iconType, purpose: "any" },
+          { src: iconUrl, sizes: "512x512", type: iconType, purpose: "maskable" }
         ]
       };
       fs.writeFileSync("admin-manifest-" + slug + ".json", JSON.stringify(adminManifest, null, 2));

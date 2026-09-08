@@ -42,9 +42,9 @@
     }
   } catch(e) {}
 
-  let appName = isAdmin ? (storeName ? `إدارة ${storeName}` : 'إدارة المطعم') : (storeName || 'منيو المطعم');
+  let appName = isAdmin ? (storeName ? `إدارة ${storeName}` : (slug ? `إدارة ${slug}` : 'إدارة المطعم')) : (storeName || (slug ? slug : 'منيو المطعم'));
   let appDisplayName = appName;
-  const fallbackIcon = 'https://iili.io/n3HVHX4.jpg';
+  const fallbackIcon = (slug === 'saj' ? 'https://iili.io/n3HWDDG.jpg' : 'https://iili.io/n3HVHX4.jpg');
   let appIcon = (storeLogo && (storeLogo.startsWith('http') || storeLogo.startsWith('data:'))) ? storeLogo : fallbackIcon;
   const storageKey = 'pwa_installed_' + (isAdmin ? ('admin_' + slug) : ('menu_' + slug));
 
@@ -102,7 +102,7 @@
       if (customSettings) {
         if ('storeName' in customSettings || 'name' in customSettings) {
           storeName = (customSettings.storeName || customSettings.name || '').trim();
-          appName = isAdmin ? (storeName ? `إدارة ${storeName}` : 'إدارة المطعم') : (storeName || 'منيو المطعم');
+          appName = isAdmin ? (storeName ? `إدارة ${storeName}` : (slug ? `إدارة ${slug}` : 'إدارة المطعم')) : (storeName || (slug ? slug : 'منيو المطعم'));
           appDisplayName = appName;
         }
         if ('logo' in customSettings) {
@@ -121,12 +121,12 @@
       }
 
       // Manifest icons: WebAPK server strictly requires an authentic HTTP/HTTPS URL
-      const manifestIconSrc = (appIcon && appIcon.startsWith('http')) ? appIcon : fallbackIcon;
-      const iconType = (manifestIconSrc.includes('.jpg') || manifestIconSrc.includes('.jpeg')) ? 'image/jpeg' : (manifestIconSrc.includes('.webp') ? 'image/webp' : 'image/png');
+      const manifestIconSrc = (appIcon && appIcon.startsWith('http')) ? appIcon : (slug === 'saj' ? 'https://iili.io/n3HWDDG.jpg' : fallbackIcon);
+      const iconType = (manifestIconSrc.includes('.png') ? 'image/png' : (manifestIconSrc.includes('.webp') ? 'image/webp' : 'image/jpeg'));
 
       // Dynamic manifest resolution with authentic identity per tenant
       const manifestObj = {
-        id: `harpy-${isAdmin ? 'admin' : 'menu'}-${slug}-v33`,
+        id: `harpy-${isAdmin ? 'admin' : 'menu'}-${slug}-v35`,
         name: appName,
         short_name: appName,
         description: isAdmin ? `إدارة ${storeName || slug} - لوحة التحكم والطلبات` : `${storeName || slug} - منيو ذكي وطلب مباشر`,
@@ -158,15 +158,19 @@
         ]
       };
 
-      const manifestLink = document.querySelector('link[rel="manifest"]');
-      if (manifestLink) {
-        const authenticHref = isAdmin 
-          ? `admin-manifest-${slug}.json?v=36.0` 
-          : `manifest-${slug}.json?v=36.0`;
+      const authenticHref = isAdmin 
+        ? `admin-manifest-${slug}.json?v=37.0` 
+        : `manifest-${slug}.json?v=37.0`;
 
-        if (manifestLink.getAttribute('href') !== authenticHref) {
-          manifestLink.setAttribute('href', authenticHref);
-        }
+      let manifestLink = document.querySelector('link[rel="manifest"]');
+      if (!manifestLink) {
+        manifestLink = document.createElement('link');
+        manifestLink.rel = 'manifest';
+        manifestLink.href = authenticHref;
+        document.head.appendChild(manifestLink);
+      } else if (manifestLink.getAttribute('href') !== authenticHref) {
+        manifestLink.setAttribute('href', authenticHref);
+      }
         if (navigator.serviceWorker) {
           const sendMsg = (worker) => {
             try {

@@ -2757,7 +2757,7 @@ const Store = {
     if (compressedData && compressedData.startsWith('data:image')) {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 4000);
+        const timeoutId = setTimeout(() => controller.abort(), 6500);
         const base64Clean = compressedData.split(',')[1];
         const form = new URLSearchParams();
         form.append('key', '6d207e02198a847aa98d0a2a901485a5');
