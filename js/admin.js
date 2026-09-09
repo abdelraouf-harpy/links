@@ -2834,8 +2834,14 @@ window.applyPresetToPickers = async function(presetId) {
   current.themePreset = presetId;
   current.siteColors = { ...p };
 
+  // Set mode appropriately for the preset
+  const targetMode = (presetId === 'cream') ? 'light' : 'dark';
+  Store.safeSetItem(Store.getThemeModeKey(), targetMode);
+  Store.safeSetItem(Store.getKey(STORAGE_KEYS.THEME_MODE), targetMode);
+
   Store.applyTheme();
   updateThemePresetCardsUI(presetId);
+  if (typeof updateAdminThemeToggleIcons === 'function') updateAdminThemeToggleIcons();
 
   // 2. Persist to localStorage immediately
   Store.safeSetItem(Store.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(current));

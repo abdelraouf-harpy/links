@@ -3841,25 +3841,45 @@ const Store = {
 
     if (s.siteColors) {
       const c = s.siteColors;
-      if (c.bg) {
-        root.style.setProperty('--bg', c.bg);
-        root.style.setProperty('--header-bg', c.headerBg || c.bg);
-        root.style.setProperty('--bg-subtle', c.bgSubtle || c.surface || c.bg);
+
+      let isDarkPalette = true;
+      if (c.id === 'cream') {
+        isDarkPalette = false;
+      } else if (c.bg && c.bg.startsWith('#') && c.bg.length === 7) {
+        const r = parseInt(c.bg.slice(1, 3), 16);
+        const g = parseInt(c.bg.slice(3, 5), 16);
+        const b = parseInt(c.bg.slice(5, 7), 16);
+        const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        isDarkPalette = (lum < 0.5);
       }
-      if (c.surface) {
-        root.style.setProperty('--surface', c.surface);
-        root.style.setProperty('--surface-raised', c.surfaceRaised || c.surface);
-        root.style.setProperty('--surface-hover', c.surfaceHover || c.surfaceRaised || c.surface);
-      }
-      if (c.textMain) {
-        root.style.setProperty('--text-main', c.textMain);
-      }
-      if (c.textBody) {
-        root.style.setProperty('--text-body', c.textBody);
-      }
-      if (c.border) {
-        root.style.setProperty('--border', c.border);
-        root.style.setProperty('--border-strong', c.borderStrong || c.border);
+
+      // If in dark mode and palette is dark, OR in light mode and palette is light:
+      // apply custom surfaces and backgrounds.
+      // In light mode with a dark preset, DO NOT override with dark bg/surfaces!
+      // Let :root[data-theme="light"] provide the clean luxury daylight background!
+      const shouldApplyCustomSurfaces = (mode === 'dark' && isDarkPalette) || (mode === 'light' && !isDarkPalette);
+
+      if (shouldApplyCustomSurfaces) {
+        if (c.bg) {
+          root.style.setProperty('--bg', c.bg);
+          root.style.setProperty('--header-bg', c.headerBg || c.bg);
+          root.style.setProperty('--bg-subtle', c.bgSubtle || c.surface || c.bg);
+        }
+        if (c.surface) {
+          root.style.setProperty('--surface', c.surface);
+          root.style.setProperty('--surface-raised', c.surfaceRaised || c.surface);
+          root.style.setProperty('--surface-hover', c.surfaceHover || c.surfaceRaised || c.surface);
+        }
+        if (c.textMain) {
+          root.style.setProperty('--text-main', c.textMain);
+        }
+        if (c.textBody) {
+          root.style.setProperty('--text-body', c.textBody);
+        }
+        if (c.border) {
+          root.style.setProperty('--border', c.border);
+          root.style.setProperty('--border-strong', c.borderStrong || c.border);
+        }
       }
     }
   },

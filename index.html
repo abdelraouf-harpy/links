@@ -28,7 +28,7 @@
   <link rel="preconnect" href="https://i.ibb.co" crossorigin>
   <link rel="dns-prefetch" href="https://i.ibb.co">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/style.css?v=39.0">
+  <link rel="stylesheet" href="css/style.css?v=40.0">
   <script>
     // Instant zero-delay theme toggle available immediately on page paint
     window.handleThemeToggle = function() {
@@ -37,7 +37,7 @@
       var next = current === 'light' ? 'dark' : 'light';
       root.setAttribute('data-theme', next);
       if (document.body) document.body.setAttribute('data-theme', next);
-      var currentSlug = window.__harpySlug || 'king';
+      var currentSlug = (new URLSearchParams(window.location.search).get('m') || new URLSearchParams(window.location.search).get('slug') || window.__harpySlug || 'king');
       try { localStorage.setItem('harpy_' + currentSlug + '_theme_mode', next); } catch(e) {}
       if (window.Store && typeof window.Store.setThemeMode === 'function') {
         window.Store.setThemeMode(next);
@@ -854,8 +854,8 @@
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/store.js?v=39.0"></script>
-  <script src="js/app.js?v=39.0"></script>
-  <script src="js/pwa.js?v=39.0"></script>
+  <script src="js/store.js?v=40.0"></script>
+  <script src="js/app.js?v=40.0"></script>
+  <script src="js/pwa.js?v=40.0"></script>
 </body>
 </html>
