@@ -4,7 +4,7 @@
    ═══════════════════════════════════════════════════════════ */
 
 :root,
-[data-theme="dark"] {
+:root[data-theme="dark"] {
   /* Warm Charcoal Obsidian Default Palette (Night Mode) */
   --bg: #120e0c;
   --bg-subtle: #1a1411;
@@ -58,7 +58,7 @@ body, .food-item-card, .cat-pill, .discovery-chip, .search-input, .cart-drawer, 
 }
 
 /* Light Theme Mode (Day Mode - Luxury Warm Cream) */
-[data-theme="light"] {
+:root[data-theme="light"] {
   --bg: #f8f6f0;
   --bg-subtle: #efeae1;
   --surface: #ffffff;

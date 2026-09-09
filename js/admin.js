@@ -1261,7 +1261,16 @@ window.confirmDeleteCurrentOrder = function() {
 let currentReceiptImageUrl = null;
 let isReceiptZoomed = false;
 
-window.openReceiptModal = function(url) {
+window.openReceiptModal = function(urlOrOrderId) {
+  let url = urlOrOrderId;
+  if (url && !url.startsWith('http') && !url.startsWith('data:')) {
+    const orders = Store.getOrders();
+    const order = orders.find(o => (o.orderId === urlOrOrderId || o.id === urlOrOrderId || o._fbKey === urlOrOrderId));
+    if (order && order.receiptUrl) {
+      url = order.receiptUrl;
+    }
+  }
+  if (!url) return;
   currentReceiptImageUrl = url;
   isReceiptZoomed = false;
 
@@ -1284,6 +1293,10 @@ window.openReceiptModal = function(url) {
   if (modal) modal.classList.add('open');
   if (backdrop) backdrop.classList.add('open');
   pushAdminNavState('admin_receipt');
+};
+
+window.openReceiptModalByOrderId = function(orderId) {
+  window.openReceiptModal(orderId);
 };
 
 window.closeReceiptModal = function(triggerHistoryBack = true) {
@@ -1863,16 +1876,16 @@ window.renderOrdersList = function(orders = null) {
               </div>
 
               <!-- Payment Receipt interactive widget if uploaded -->
-              ${isWalletPayment && o.receiptUrl ? `
+              ${o.receiptUrl ? `
                 <div style="margin-top:8px; background:var(--surface-raised); border:1px solid var(--border); border-radius:6px; padding:6px 10px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
                   <div style="display:flex; align-items:center; gap:8px; min-width:0;">
-                    <img src="${o.receiptUrl}" alt="Receipt" style="width:36px; height:36px; border-radius:4px; object-fit:cover; border:1px solid var(--border); cursor:pointer; flex-shrink:0;" onclick="openReceiptModal('${o.receiptUrl}')">
+                    <img src="${o.receiptUrl}" alt="Receipt" style="width:36px; height:36px; border-radius:4px; object-fit:cover; border:1px solid var(--border); cursor:pointer; flex-shrink:0;" onclick="openReceiptModalByOrderId('${o.id || o.orderId}')">
                     <div style="min-width:0;">
                       <div style="font-size:11px; font-weight:800; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">📸 إيصال التحويل</div>
                       <div style="font-size:10px; color:var(--accent-wa); font-weight:700;">تم الرفع ✓</div>
                     </div>
                   </div>
-                  <button type="button" class="btn btn-primary btn-sm" onclick="openReceiptModal('${o.receiptUrl}')" style="padding:4px 8px; font-size:10.5px; font-weight:800; white-space:nowrap; flex-shrink:0;">
+                  <button type="button" class="btn btn-primary btn-sm" onclick="openReceiptModalByOrderId('${o.id || o.orderId}')" style="padding:4px 8px; font-size:10.5px; font-weight:800; white-space:nowrap; flex-shrink:0;">
                     🔍 معاينة
                   </button>
                 </div>
@@ -2072,6 +2085,22 @@ window.renderInvoicesArchive = function(orders = null) {
               <span>طريقة الدفع:</span>
               <span style="font-weight:800; color:var(--text-main);">${isWalletPayment ? '💳 إلكتروني (محفظة)' : '💵 نقداً (COD)'}</span>
             </div>
+
+            <!-- Payment Receipt interactive widget in Archive if uploaded -->
+            ${o.receiptUrl ? `
+              <div style="margin-top:8px; background:var(--surface-raised); border:1px solid var(--border); border-radius:6px; padding:6px 10px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+                  <img src="${o.receiptUrl}" alt="Receipt" style="width:36px; height:36px; border-radius:4px; object-fit:cover; border:1px solid var(--border); cursor:pointer; flex-shrink:0;" onclick="openReceiptModalByOrderId('${o.id || o.orderId}')">
+                  <div style="min-width:0;">
+                    <div style="font-size:11px; font-weight:800; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">📸 إيصال التحويل</div>
+                    <div style="font-size:10px; color:var(--accent-wa); font-weight:700;">مرفق مع الطلب ✓</div>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-primary btn-sm" onclick="openReceiptModalByOrderId('${o.id || o.orderId}')" style="padding:4px 8px; font-size:10.5px; font-weight:800; white-space:nowrap; flex-shrink:0;">
+                  🔍 معاينة
+                </button>
+              </div>
+            ` : ''}
           </div>
 
           <!-- Column 2: Items & Financial Total -->
@@ -2800,12 +2829,22 @@ window.applyPresetToPickers = async function(presetId) {
   if (adminElements.pickerPrimary) adminElements.pickerPrimary.value = p.primary;
   if (adminElements.pickerText) adminElements.pickerText.value = p.textMain;
 
+  // 1. Optimistic UI: Update settings in memory and apply theme to DOM immediately (0ms instant response)
   const current = Store.getSettings();
   current.themePreset = presetId;
   current.siteColors = { ...p };
-  await Store.saveSettings(current);
+
+  Store.applyTheme();
   updateThemePresetCardsUI(presetId);
-  showToastNotification(`تم تطبيق ثيم "${p.name}" والمزامنة بنجاح ✓`, "success");
+
+  // 2. Persist to localStorage immediately
+  Store.safeSetItem(Store.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(current));
+  window.dispatchEvent(new Event('store_settings_updated'));
+
+  // 3. Sync to Cloud in background using PATCH (never blocks UI, never overwrites store metadata)
+  Store.syncThemePresetToCloud(presetId, p).catch(err => {
+    console.warn('[Admin] Cloud theme sync background error:', err);
+  });
 };
 
 function loadSettingsIntoForm() {

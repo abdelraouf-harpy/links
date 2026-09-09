@@ -3204,6 +3204,47 @@ const Store = {
     return success;
   },
 
+  async patchToCloud(subPath, partialData) {
+    const slug = this.getRestaurantSlug();
+    if (!slug || !partialData) return false;
+    const path = subPath ? `restaurants/${slug}/${subPath}` : `restaurants/${slug}`;
+    let success = false;
+
+    if (db) {
+      try {
+        await db.ref(path).update(partialData);
+        success = true;
+      } catch (err) {
+        console.warn(`[Store] Cloud SDK patch error for ${subPath}:`, err);
+      }
+    }
+
+    try {
+      const res = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/${path}.json`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(partialData),
+        keepalive: true
+      });
+      if (res && res.ok) {
+        success = true;
+      }
+    } catch (e) {
+      console.warn(`[Store] REST cloud patch error for ${subPath}:`, e);
+    }
+
+    return success;
+  },
+
+  async syncThemePresetToCloud(presetId, presetData) {
+    const p = presetData || THEME_PRESETS[presetId];
+    if (!p) return false;
+    return await this.patchToCloud('settings', {
+      themePreset: presetId,
+      siteColors: { ...p }
+    });
+  },
+
   getOrders() {
     if (this._memoryCache.orders !== null) {
       return this._memoryCache.orders;
@@ -3782,18 +3823,33 @@ const Store = {
     root.style.setProperty('--primary', primaryColor);
     root.style.setProperty('--primary-hover', primaryColor);
     root.style.setProperty('--border-focus', primaryColor);
-    root.style.setProperty('--primary-glow', `${primaryColor}44`);
-    root.style.setProperty('--primary-subtle', `${primaryColor}22`);
+
+    // Dynamic clean RGBA derivations for subtle and glow
+    let primaryGlow = `${primaryColor}44`;
+    let primarySubtle = `${primaryColor}22`;
+    if (primaryColor.startsWith('#') && primaryColor.length === 7) {
+      const r = parseInt(primaryColor.slice(1, 3), 16);
+      const g = parseInt(primaryColor.slice(3, 5), 16);
+      const b = parseInt(primaryColor.slice(5, 7), 16);
+      if (!isNaN(r) && !isNaN(g) && !isNaN(b)) {
+        primaryGlow = `rgba(${r}, ${g}, ${b}, 0.28)`;
+        primarySubtle = `rgba(${r}, ${g}, ${b}, 0.12)`;
+      }
+    }
+    root.style.setProperty('--primary-glow', primaryGlow);
+    root.style.setProperty('--primary-subtle', primarySubtle);
 
     if (s.siteColors) {
       const c = s.siteColors;
       if (c.bg) {
         root.style.setProperty('--bg', c.bg);
         root.style.setProperty('--header-bg', c.headerBg || c.bg);
+        root.style.setProperty('--bg-subtle', c.bgSubtle || c.surface || c.bg);
       }
       if (c.surface) {
         root.style.setProperty('--surface', c.surface);
         root.style.setProperty('--surface-raised', c.surfaceRaised || c.surface);
+        root.style.setProperty('--surface-hover', c.surfaceHover || c.surfaceRaised || c.surface);
       }
       if (c.textMain) {
         root.style.setProperty('--text-main', c.textMain);
@@ -3803,6 +3859,7 @@ const Store = {
       }
       if (c.border) {
         root.style.setProperty('--border', c.border);
+        root.style.setProperty('--border-strong', c.borderStrong || c.border);
       }
     }
   },
