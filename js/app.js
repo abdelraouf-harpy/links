@@ -1654,7 +1654,7 @@ function closeCustomizer(triggerHistoryBack = true) {
 // ── Smart Upselling / Pairing Engine ───────────────────────
 function renderSmartPairing(cart, prods, currency) {
   if (!elements.cartSmartPairing || !elements.pairingItemsList) return;
-  if (cart.length === 0) {
+  if (cart.length === 0 || cart.length >= 4) {
     elements.cartSmartPairing.style.display = 'none';
     return;
   }
@@ -1823,6 +1823,9 @@ function updateLedgerUI() {
   // Promo Code Discount
   const appliedCoupon = Store.getAppliedCoupon();
   let couponDiscountAmount = 0;
+  const promoToggleRow = document.getElementById('promo-toggle-row');
+  const promoInputContainer = document.getElementById('promo-input-container');
+
   if (appliedCoupon && subtotal > 0) {
     if (appliedCoupon.type === 'percent') {
       couponDiscountAmount = subtotal * (appliedCoupon.value / 100);
@@ -1833,8 +1836,11 @@ function updateLedgerUI() {
       elements.promoAppliedBadge.style.display = 'flex';
       if (elements.promoAppliedText) elements.promoAppliedText.textContent = `كود ${appliedCoupon.code} (${appliedCoupon.desc || 'مفعل'})`;
     }
+    if (promoToggleRow) promoToggleRow.style.display = 'none';
+    if (promoInputContainer) promoInputContainer.style.display = 'none';
   } else {
     if (elements.promoAppliedBadge) elements.promoAppliedBadge.style.display = 'none';
+    if (promoToggleRow) promoToggleRow.style.display = 'flex';
   }
 
   const subtotalAfterBasePromos = Math.max(0, subtotal - spendTierDiscountAmount - couponDiscountAmount);
@@ -2127,37 +2133,43 @@ function setupEventListeners() {
     });
   }
 
+  function validateDeliveryStep() {
+    const name = (elements.custName?.value || '').trim();
+    const phone = (elements.custPhone?.value || '').trim();
+    const address = (elements.custAddress?.value || '').trim();
+
+    if (!name || name.length < 2) {
+      showToastNotification("يرجى كتابة الاسم بشكل صحيح (حرفين على الأقل)", "error");
+      if (elements.custName) elements.custName.focus();
+      return false;
+    }
+    if (!phone) {
+      showToastNotification("يرجى كتابة رقم الهاتف للتواصل", "error");
+      if (elements.custPhone) elements.custPhone.focus();
+      return false;
+    }
+    // Validate phone: Egyptian mobile (01x) or international (+20x / 20x) — digits only, 10-15 digits
+    const phoneDigits = phone.replace(/[\s\-\+]/g, '');
+    const egyptianMobile = /^(01[0-9]{9})$/.test(phoneDigits);
+    const internationalMobile = /^(20[0-9]{10}|[0-9]{10,15})$/.test(phoneDigits);
+    if (!egyptianMobile && !internationalMobile) {
+      showToastNotification("يرجى كتابة رقم هاتف صحيح (مثال: 01012345678)", "error");
+      if (elements.custPhone) elements.custPhone.focus();
+      return false;
+    }
+    if (!address || address.length < 5) {
+      showToastNotification("يرجى كتابة عنوان التوصيل بالتفصيل (المنطقة، الشارع)", "error");
+      if (elements.custAddress) elements.custAddress.focus();
+      return false;
+    }
+    return true;
+  }
+
   if (elements.btnProceedToStep3) {
     elements.btnProceedToStep3.addEventListener('click', () => {
-      const name = (elements.custName.value || '').trim();
-      const phone = (elements.custPhone.value || '').trim();
-      const address = (elements.custAddress.value || '').trim();
-
-      if (!name || name.length < 2) {
-        showToastNotification("يرجى كتابة الاسم بشكل صحيح (حرفين على الأقل)", "error");
-        elements.custName.focus();
-        return;
+      if (validateDeliveryStep()) {
+        goToCheckoutStep(3);
       }
-      if (!phone) {
-        showToastNotification("يرجى كتابة رقم الهاتف للتواصل", "error");
-        elements.custPhone.focus();
-        return;
-      }
-      // Validate phone: Egyptian mobile (01x) or international (+20x / 20x) — digits only, 10-15 digits
-      const phoneDigits = phone.replace(/[\s\-\+]/g, '');
-      const egyptianMobile = /^(01[0-9]{9})$/.test(phoneDigits);
-      const internationalMobile = /^(20[0-9]{10}|[0-9]{10,15})$/.test(phoneDigits);
-      if (!egyptianMobile && !internationalMobile) {
-        showToastNotification("يرجى كتابة رقم هاتف صحيح (مثال: 01012345678)", "error");
-        elements.custPhone.focus();
-        return;
-      }
-      if (!address || address.length < 5) {
-        showToastNotification("يرجى كتابة عنوان التوصيل بالتفصيل (المنطقة، الشارع)", "error");
-        elements.custAddress.focus();
-        return;
-      }
-      goToCheckoutStep(3);
     });
   }
   if (elements.btnBackToStep2) elements.btnBackToStep2.addEventListener('click', () => goToCheckoutStep(2));
@@ -2165,17 +2177,45 @@ function setupEventListeners() {
   elements.stepNavBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       const targetStep = parseInt(btn.dataset.step);
-      if (targetStep === 1) goToCheckoutStep(1);
-      else if (targetStep === 2) {
-        const cart = Store.getCart();
-        if (cart.length > 0) goToCheckoutStep(2);
-      } else if (targetStep === 3) {
-        if (elements.custName.value && elements.custPhone.value && elements.custAddress.value) {
-          goToCheckoutStep(3);
+      const cart = Store.getCart();
+
+      if (targetStep === 1) {
+        goToCheckoutStep(1);
+      } else if (targetStep === 2) {
+        if (cart.length === 0) {
+          showToastNotification("السلة فارغة، أضف بعض الوجبات أولاً 🛒", "warning");
+          return;
         }
+        goToCheckoutStep(2);
+      } else if (targetStep === 3) {
+        if (cart.length === 0) {
+          showToastNotification("السلة فارغة، أضف بعض الوجبات أولاً 🛒", "warning");
+          return;
+        }
+        // Strict Validation: Cannot jump to Step 3 without completing Step 2 delivery info!
+        if (!validateDeliveryStep()) {
+          if (currentCheckoutStep === 1) {
+            goToCheckoutStep(2);
+          }
+          return;
+        }
+        goToCheckoutStep(3);
       }
     });
   });
+
+  // Collapsible Promo Code Toggle
+  const btnTogglePromo = document.getElementById('btn-toggle-promo');
+  const promoInputContainer = document.getElementById('promo-input-container');
+  if (btnTogglePromo && promoInputContainer) {
+    btnTogglePromo.addEventListener('click', () => {
+      const isOpen = promoInputContainer.style.display !== 'none';
+      promoInputContainer.style.display = isOpen ? 'none' : 'flex';
+      if (!isOpen && elements.promoCodeInput) {
+        elements.promoCodeInput.focus();
+      }
+    });
+  }
 
   if (elements.btnApplyPromo) {
     elements.btnApplyPromo.addEventListener('click', () => {
@@ -2202,6 +2242,8 @@ function setupEventListeners() {
     elements.btnRemovePromo.addEventListener('click', () => {
       Store.setAppliedCoupon(null);
       SoundFX.playPop();
+      const promoInputContainer = document.getElementById('promo-input-container');
+      if (promoInputContainer) promoInputContainer.style.display = 'none';
       updateLedgerUI();
     });
   }

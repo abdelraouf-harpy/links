@@ -1657,35 +1657,53 @@ body {
   display: flex;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
-  padding: 4px 14px;
-  gap: 6px;
+  padding: 8px 16px 6px;
+  gap: 8px;
   flex-shrink: 0;
+  align-items: center;
 }
 .step-nav-btn {
   flex: 1;
   background: transparent;
   border: none;
-  border-bottom: 2px solid transparent;
-  padding: 8px 4px;
-  min-height: 36px;
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-faint);
+  padding: 0 2px;
+  min-height: unset;
   cursor: pointer;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
   gap: 4px;
+  text-align: center;
   transition: var(--tr-fast);
 }
-.step-nav-btn.active {
-  color: var(--primary);
-  border-bottom-color: var(--primary);
-  font-weight: 700;
+.step-segment-bar {
+  width: 100%;
+  height: 3.5px;
+  border-radius: 999px;
+  background: var(--border-strong, rgba(255, 255, 255, 0.14));
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.step-nav-btn.completed {
+.step-segment-text {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-faint);
+  transition: color 0.2s ease;
+  line-height: 1.2;
+}
+.step-nav-btn.active .step-segment-bar {
+  background: linear-gradient(90deg, var(--primary), #ea580c);
+  box-shadow: 0 0 8px rgba(234, 88, 12, 0.35);
+}
+.step-nav-btn.active .step-segment-text {
+  color: var(--primary);
+  font-weight: 800;
+}
+.step-nav-btn.completed .step-segment-bar {
+  background: var(--primary);
+  opacity: 0.85;
+}
+.step-nav-btn.completed .step-segment-text {
   color: var(--text-main);
+  font-weight: 700;
 }
 
 .drawer-body {
@@ -3205,29 +3223,30 @@ body.cart-drawer-open .dynamic-island-cart {
   transition: transform 0.65s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.65s ease;
 }
 
-/* ── Smart Pairing / Upsell in Cart ── */
+/* ── Smart Pairing / Upsell in Cart (Compact Horizontal Rail) ── */
 .smart-pairing-box {
   background: var(--surface-raised);
   border: 1px dashed var(--border-strong);
   border-radius: var(--radius-sm);
-  padding: 10px 12px;
-  margin: 12px 0;
+  padding: 8px 10px;
+  margin: 10px 0 4px;
 }
 .pairing-headline {
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 800;
-  color: var(--text-main);
+  color: var(--text-muted);
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 8px;
+  gap: 5px;
+  margin-bottom: 6px;
 }
 .pairing-scroll-track {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   overflow-x: auto;
-  padding-bottom: 4px;
+  padding-bottom: 2px;
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
 .pairing-scroll-track::-webkit-scrollbar {
   display: none;
@@ -3236,48 +3255,62 @@ body.cart-drawer-open .dynamic-island-cart {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-xs);
-  padding: 6px 8px;
+  padding: 4px 8px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-shrink: 0;
   cursor: pointer;
   transition: var(--tr-fast);
+  height: 38px;
 }
 .pairing-chip-card:hover {
   border-color: var(--primary);
   background: var(--surface-hover);
 }
 .pairing-thumb {
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
+  width: 26px;
+  height: 26px;
+  border-radius: 5px;
   object-fit: cover;
+  flex-shrink: 0;
 }
 .pairing-title {
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--text-main);
   white-space: nowrap;
+  max-width: 115px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .pairing-price {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
   color: var(--primary);
+  white-space: nowrap;
 }
 .pairing-btn-add {
   background: var(--primary-subtle);
   color: var(--primary);
   border: none;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 800;
-  font-size: 13px;
+  font-size: 12px;
   cursor: pointer;
+  flex-shrink: 0;
+}
+.btn-promo-toggle {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.btn-promo-toggle:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
 }
 
 /* ── Fullscreen Story Viewer Modal ── */

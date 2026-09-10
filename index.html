@@ -28,7 +28,7 @@
   <link rel="preconnect" href="https://i.ibb.co" crossorigin>
   <link rel="dns-prefetch" href="https://i.ibb.co">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/style.css?v=40.1">
+  <link rel="stylesheet" href="css/style.css?v=40.2">
   <script>
     // Instant zero-delay theme toggle available immediately on page paint
     window.handleThemeToggle = function() {
@@ -307,16 +307,19 @@
       <button class="btn-close" id="btn-close-cart-drawer" aria-label="إغلاق">✕</button>
     </div>
 
-    <!-- Step Navigation Tabs -->
-    <div class="drawer-steps-nav">
-      <button class="step-nav-btn active" data-step="1">
-        <span class="font-num">1.</span> الأصناف
+    <!-- Segmented Slim Step Progress Indicator -->
+    <div class="drawer-steps-nav" id="drawer-steps-nav" role="tablist" aria-label="خطوات الطلب">
+      <button type="button" class="step-nav-btn active" data-step="1" role="tab" aria-selected="true" title="الأصناف">
+        <span class="step-segment-bar"></span>
+        <span class="step-segment-text">الأصناف</span>
       </button>
-      <button class="step-nav-btn" data-step="2">
-        <span class="font-num">2.</span> التوصيل
+      <button type="button" class="step-nav-btn" data-step="2" role="tab" aria-selected="false" title="التوصيل">
+        <span class="step-segment-bar"></span>
+        <span class="step-segment-text">التوصيل</span>
       </button>
-      <button class="step-nav-btn" data-step="3">
-        <span class="font-num">3.</span> الدفع
+      <button type="button" class="step-nav-btn" data-step="3" role="tab" aria-selected="false" title="الدفع">
+        <span class="step-segment-bar"></span>
+        <span class="step-segment-text">الدفع</span>
       </button>
     </div>
 
@@ -333,38 +336,37 @@
             <div id="spend-tier-fill" class="spend-tier-bar-fill" style="width: 50%;"></div>
           </div>
         </div>
-        
-        <!-- Smart Pairing & Upselling ("يكمل وجبتك") -->
-        <div id="cart-smart-pairing" class="smart-pairing-box" style="display:none;">
-          <div class="pairing-headline">
-            <span class="pairing-icon">✨</span>
-            <span>يكمل وجبتك (إضافات مقترحة):</span>
-          </div>
-          <div id="pairing-items-list" class="pairing-scroll-track"></div>
-        </div>
 
-        <div class="section-headline">
+        <div class="section-headline" style="margin-top:2px;">
           <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
           مراجعة الأصناف والكميات
         </div>
         <div id="cart-drawer-items"></div>
 
-        <!-- Promo Voucher Code Box -->
-        <div style="margin-top:12px; padding-top:12px; border-top:1px dashed var(--border);">
-          <div class="promo-code-box">
+        <!-- Smart Pairing & Upselling ("يكمل وجبتك") — Placed organically after cart items -->
+        <div id="cart-smart-pairing" class="smart-pairing-box" style="display:none;">
+          <div class="pairing-headline">
+            <span class="pairing-icon">✨</span>
+            <span>يكمل وجبتك:</span>
+          </div>
+          <div id="pairing-items-list" class="pairing-scroll-track"></div>
+        </div>
+
+        <!-- Promo Voucher Code Box (Collapsible) -->
+        <div class="promo-accordion-wrap" style="margin-top:8px; padding-top:10px; border-top:1px dashed var(--border);">
+          <div id="promo-toggle-row">
+            <button type="button" id="btn-toggle-promo" class="btn-promo-toggle" style="background:none; border:none; color:var(--primary); font-size:12px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:5px; padding:4px 0;">
+              <span>🏷️ عندك كود خصم؟</span>
+            </button>
+          </div>
+          <div id="promo-input-container" class="promo-code-box" style="display:none; margin-top:6px;">
             <input type="text" id="promo-code-input" class="promo-code-input font-num" placeholder="كود الخصم (مثال: KING10)">
             <button type="button" id="btn-apply-promo" class="btn btn-ghost btn-sm" style="font-weight:700;">تطبيق</button>
           </div>
-          <div id="promo-applied-badge" style="display:none; background:var(--accent-wa-subtle); border:1px solid rgba(22,163,74,0.3); border-radius:var(--radius-xs); padding:6px 10px; font-size:11.5px; font-weight:700; color:var(--accent-wa); justify-content:space-between; align-items:center;">
+          <div id="promo-applied-badge" style="display:none; background:var(--accent-wa-subtle); border:1px solid rgba(22,163,74,0.3); border-radius:var(--radius-xs); padding:6px 10px; font-size:11.5px; font-weight:700; color:var(--accent-wa); justify-content:space-between; align-items:center; margin-top:6px;">
             <span id="promo-applied-text">تم تطبيق كود الخصم</span>
             <button type="button" id="btn-remove-promo" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:12px; font-weight:700;">إلغاء ✕</button>
           </div>
-        </div>
-
-        <div style="margin-top:20px;">
-          <button type="button" id="btn-proceed-to-step2" class="btn btn-primary" style="width:100%; padding:13px;">
-            متابعة لبيانات التوصيل ←
-          </button>
         </div>
       </div>
 
@@ -854,8 +856,8 @@
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/store.js?v=40.1"></script>
-  <script src="js/app.js?v=40.1"></script>
-  <script src="js/pwa.js?v=40.1"></script>
+  <script src="js/store.js?v=40.2"></script>
+  <script src="js/app.js?v=40.2"></script>
+  <script src="js/pwa.js?v=40.2"></script>
 </body>
 </html>
