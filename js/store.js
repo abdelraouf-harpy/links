@@ -182,7 +182,8 @@ const DEFAULT_SETTINGS = {
     customZones: []
   },
   isOrderingPaused: false,
-  orderingPausedMessage: "المطعم متوقف حالياً عن استقبال الطلبات. مواعيد العمل يومياً من 12 ظهراً حتى 2 صباحاً. نسعد بخدمتكم قريباً!"
+  orderingPausedMessage: "المطعم متوقف حالياً عن استقبال الطلبات. مواعيد العمل يومياً من 12 ظهراً حتى 2 صباحاً. نسعد بخدمتكم قريباً!",
+  printerPaperSize: "80mm"
 };
 
 const BLANK_SETTINGS = {
@@ -230,7 +231,8 @@ const BLANK_SETTINGS = {
     customZones: []
   },
   isOrderingPaused: false,
-  orderingPausedMessage: "المطعم متوقف حالياً عن استقبال الطلبات."
+  orderingPausedMessage: "المطعم متوقف حالياً عن استقبال الطلبات.",
+  printerPaperSize: "80mm"
 };
 
 const DEFAULT_CATEGORIES = [
@@ -3510,6 +3512,8 @@ const Store = {
       if (target && target._fbKey) targetFbKey = target._fbKey;
 
       const updated = cached.filter(o => 
+        (target ? o !== target : true) &&
+        o.id !== orderId &&
         o.orderId !== orderId && 
         o.orderId !== `#${cleanId}` && 
         o._fbKey !== orderId && 
@@ -3772,6 +3776,7 @@ const Store = {
           parsed.showAnnouncement = false;
         }
       }
+      if (!parsed.printerPaperSize) parsed.printerPaperSize = "80mm";
       this._memoryCache.settings = parsed;
       return parsed;
     } catch {

@@ -5369,11 +5369,37 @@ html.admin-unlocked #login-modal-backdrop {
 }
 
 /* Clean Receipt Print Styles */
+@page receipt-58mm {
+  size: 58mm auto;
+  margin: 0 !important;
+}
+@page receipt-80mm {
+  size: 80mm auto;
+  margin: 0 !important;
+}
+
 @media print {
   @page {
     size: 80mm auto;
     margin: 0 !important;
   }
+  
+  html[data-paper-size="58mm"],
+  body[data-paper-size="58mm"],
+  [data-paper-size="58mm"] {
+    page: receipt-58mm !important;
+    width: 50mm !important;
+    max-width: 50mm !important;
+  }
+
+  html[data-paper-size="80mm"],
+  body[data-paper-size="80mm"],
+  [data-paper-size="80mm"] {
+    page: receipt-80mm !important;
+    width: 78mm !important;
+    max-width: 78mm !important;
+  }
+
   body * {
     visibility: hidden;
   }

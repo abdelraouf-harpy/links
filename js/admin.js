@@ -125,9 +125,15 @@ const adminElements = {
   btnExportBackup: document.getElementById('btn-export-backup'),
   importFileInput: document.getElementById('import-file-input'),
   btnFactoryReset: document.getElementById('btn-factory-reset'),
+  factoryResetPwdModal: document.getElementById('factory-reset-pwd-modal'),
+  factoryResetPwdBackdrop: document.getElementById('factory-reset-pwd-backdrop'),
+  factoryResetPasswordInput: document.getElementById('factory-reset-password-input'),
+  factoryResetPwdErrorMsg: document.getElementById('factory-reset-pwd-error-msg'),
+  btnConfirmFactoryResetPwd: document.getElementById('btn-confirm-factory-reset-pwd'),
 
   // Settings Tab
   settingsForm: document.getElementById('settings-form'),
+  setPrinterPaperSize: document.getElementById('set-printer-paper-size'),
   setStoreName: document.getElementById('set-store-name'),
   setStoreTagline: document.getElementById('set-store-tagline'),
   setCurrency: document.getElementById('set-currency'),
@@ -1167,6 +1173,47 @@ window.confirmDeleteOrder = function(orderId) {
   if (backdrop) backdrop.classList.add('open');
 };
 
+window.verifyAdminCredentials = async function(enteredPassword, slug) {
+  if (!enteredPassword) return false;
+  slug = slug || (typeof Store !== 'undefined' ? Store.getRestaurantSlug() : 'saj');
+  
+  // 1. Verify against meta.adminPassword in Firebase RTDB
+  if (typeof db !== 'undefined' && db) {
+    try {
+      const snap = await db.ref(`restaurants/${slug}/meta/adminPassword`).once('value');
+      const realPwd = (snap.val() || '').trim();
+      if (realPwd && enteredPassword === realPwd) {
+        return true;
+      }
+    } catch (e) {}
+  }
+
+  // 2. If not verified yet, verify via Firebase Auth
+  if (typeof auth !== 'undefined' && auth) {
+    try {
+      const sessionStr = localStorage.getItem(`harpy_admin_auth_${slug}`) || sessionStorage.getItem(`harpy_auth_${slug}`);
+      let email = `${slug}@${slug}.com`;
+      if (sessionStr) {
+        try { email = JSON.parse(sessionStr).email || email; } catch(e) {}
+      }
+      await auth.signInWithEmailAndPassword(email, enteredPassword);
+      return true;
+    } catch (authErr) {}
+  }
+
+  // 3. Fallback: Verify against adminPin in settings if set
+  if (typeof Store !== 'undefined' && Store.getSettings) {
+    try {
+      const settings = Store.getSettings();
+      if (settings && settings.adminPin && settings.adminPin.trim() === enteredPassword.trim()) {
+        return true;
+      }
+    } catch (e) {}
+  }
+
+  return false;
+};
+
 window.executeArchivePasswordDelete = async function() {
   if (!pendingDeleteOrderId) return;
   const input = document.getElementById('archive-delete-password-input');
@@ -1189,36 +1236,7 @@ window.executeArchivePasswordDelete = async function() {
 
   try {
     const slug = Store.getRestaurantSlug();
-    let isVerified = false;
-
-    // 1. Verify against meta.adminPassword in Firebase RTDB
-    if (db) {
-      try {
-        const snap = await db.ref(`restaurants/${slug}/meta/adminPassword`).once('value');
-        const realPwd = (snap.val() || '').trim();
-        if (realPwd && enteredPassword === realPwd) {
-          isVerified = true;
-        }
-      } catch (e) {}
-    }
-
-    // 2. If not verified yet, verify via Firebase Auth
-    if (!isVerified && auth) {
-      try {
-        const sessionStr = localStorage.getItem(`harpy_admin_auth_${slug}`) || sessionStorage.getItem(`harpy_auth_${slug}`);
-        let email = 'saj@saj.com';
-        if (sessionStr) {
-          try { email = JSON.parse(sessionStr).email || email; } catch(e) {}
-        }
-        await auth.signInWithEmailAndPassword(email, enteredPassword);
-        isVerified = true;
-      } catch (authErr) {}
-    }
-
-    // 3. Fallback to hardcoded/preset credentials
-    if (!isVerified && (enteredPassword === 'Aymansaj' || enteredPassword === '123456')) {
-      isVerified = true;
-    }
+    const isVerified = await window.verifyAdminCredentials(enteredPassword, slug);
 
     if (isVerified) {
       const orderIdToDelete = pendingDeleteOrderId;
@@ -1246,6 +1264,86 @@ window.executeArchivePasswordDelete = async function() {
     if (btn) {
       btn.disabled = false;
       btn.textContent = "تأكيد الحذف 🗑️";
+    }
+  }
+};
+
+window.openFactoryResetPwdModal = function() {
+  const modal = document.getElementById('factory-reset-pwd-modal');
+  const backdrop = document.getElementById('factory-reset-pwd-backdrop');
+  const input = document.getElementById('factory-reset-password-input');
+  const err = document.getElementById('factory-reset-pwd-error-msg');
+  if (err) err.style.display = 'none';
+  if (input) {
+    input.value = '';
+    setTimeout(() => input.focus(), 150);
+  }
+  if (modal) modal.classList.add('open');
+  if (backdrop) backdrop.classList.add('open');
+};
+
+window.closeFactoryResetPwdModal = function() {
+  const modal = document.getElementById('factory-reset-pwd-modal');
+  const backdrop = document.getElementById('factory-reset-pwd-backdrop');
+  const input = document.getElementById('factory-reset-password-input');
+  const err = document.getElementById('factory-reset-pwd-error-msg');
+  if (modal) modal.classList.remove('open');
+  if (backdrop) backdrop.classList.remove('open');
+  if (input) input.value = '';
+  if (err) err.style.display = 'none';
+};
+
+window.executeFactoryResetWithPassword = async function() {
+  const input = document.getElementById('factory-reset-password-input');
+  const err = document.getElementById('factory-reset-pwd-error-msg');
+  const btn = document.getElementById('btn-confirm-factory-reset-pwd');
+  const enteredPassword = (input ? input.value : '').trim();
+
+  if (!enteredPassword) {
+    if (err) {
+      err.textContent = "يرجى إدخال كلمة المرور للمتابعة!";
+      err.style.display = 'block';
+    }
+    return;
+  }
+
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "جاري التحقق... ⏳";
+  }
+
+  try {
+    const slug = Store.getRestaurantSlug();
+    const isVerified = await window.verifyAdminCredentials(enteredPassword, slug);
+
+    if (isVerified) {
+      window.closeFactoryResetPwdModal();
+      await Store.resetAllDataToDefault(slug);
+      if (typeof showToastNotification === 'function') {
+        showToastNotification("تمت استعادة إعدادات المصنع بنجاح! 🔄", "success");
+      }
+      if (typeof loadAllDashboardData === 'function') {
+        loadAllDashboardData();
+      }
+    } else {
+      if (err) {
+        err.textContent = "❌ كلمة المرور غير صحيحة! تم منع استعادة المصنع.";
+        err.style.display = 'block';
+      }
+      if (input) {
+        input.value = '';
+        input.focus();
+      }
+    }
+  } catch (ex) {
+    if (err) {
+      err.textContent = "حدث خطأ أثناء التحقق: " + ex.message;
+      err.style.display = 'block';
+    }
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "تأكيد استعادة المصنع ⚠️";
     }
   }
 };
@@ -1382,6 +1480,8 @@ window.printOrderReceipt = function(orderOrId) {
   }
 
   const settings = Store.getSettings() || {};
+  const paperSize = settings.printerPaperSize === '58mm' ? '58mm' : '80mm';
+  const is58mm = paperSize === '58mm';
   const storeName = (order && order.storeName) || settings.storeName || settings.name || "مطعم أوردر";
   const currency = settings.currency || "ج.م";
   const timeStr = order.createdAt 
@@ -1392,59 +1492,66 @@ window.printOrderReceipt = function(orderOrId) {
 
   const itemsRows = (order.items || []).map(it => `
     <tr>
-      <td style="text-align:right; padding:5px 0; font-weight:bold; border-bottom:1px dotted #888;">
+      <td style="text-align:right; padding:${is58mm ? '4px 0' : '5px 0'}; font-weight:bold; border-bottom:1px dotted #888; word-break:break-word;">
         ${it.name}${it.selectedSize ? ` (${it.selectedSize.name})` : ''}
-        ${it.selectedAddons && it.selectedAddons.length ? `<br><small style="color:#444; font-size:10px;">+ ${it.selectedAddons.map(a => a.name).join('، ')}</small>` : ''}
-        ${it.notes ? `<br><small style="color:#c2410c; font-size:10px;">📝 ${it.notes}</small>` : ''}
+        ${it.selectedAddons && it.selectedAddons.length ? `<br><small style="color:#444; font-size:${is58mm ? '9px' : '10px'};">+ ${it.selectedAddons.map(a => a.name).join('، ')}</small>` : ''}
+        ${it.notes ? `<br><small style="color:#c2410c; font-size:${is58mm ? '9px' : '10px'};">📝 ${it.notes}</small>` : ''}
       </td>
-      <td style="text-align:center; padding:5px 0; border-bottom:1px dotted #888; font-weight:bold;">${it.qty}x</td>
-      <td style="text-align:left; padding:5px 0; border-bottom:1px dotted #888; font-family:monospace; font-weight:bold;">${((it.price || 0) * it.qty).toFixed(0)}</td>
+      <td style="text-align:center; padding:${is58mm ? '4px 0' : '5px 0'}; border-bottom:1px dotted #888; font-weight:bold; width:${is58mm ? '20px' : 'auto'};">${it.qty}x</td>
+      <td style="text-align:left; padding:${is58mm ? '4px 0' : '5px 0'}; border-bottom:1px dotted #888; font-family:monospace; font-weight:bold; width:${is58mm ? '42px' : 'auto'}; white-space:nowrap;">${((it.price || 0) * it.qty).toFixed(0)}</td>
     </tr>
   `).join('');
 
   const orderTypeBanner = order.orderType === 'dine_in'
-    ? `<div style="font-size:16px; font-weight:900; text-align:center; border:2px solid #000; padding:5px; margin:6px 0; border-radius:4px; background:#f2f2f2;">🍽️ طلب صالة — طاولة رقم (${order.tableNumber || order.customer?.tableNumber || '1'})</div>`
+    ? `<div style="font-size:${is58mm ? '13px' : '16px'}; font-weight:900; text-align:center; border:2px solid #000; padding:${is58mm ? '3px' : '5px'}; margin:${is58mm ? '4px 0' : '6px 0'}; border-radius:4px; background:#f2f2f2;">🍽️ ${is58mm ? 'صالة' : 'طلب صالة — طاولة رقم'} (${order.tableNumber || order.customer?.tableNumber || '1'})</div>`
     : (order.orderType === 'takeaway'
-        ? `<div style="font-size:16px; font-weight:900; text-align:center; border:2px solid #000; padding:5px; margin:6px 0; border-radius:4px; background:#f2f2f2;">🥡 طلب سفري / تيك أواي (${order.orderId})</div>`
-        : `<div style="font-size:14px; font-weight:800; text-align:center; border:1px dashed #000; padding:4px; margin:5px 0;">🛵 طلب توصيل ديليفري</div>`
+        ? `<div style="font-size:${is58mm ? '13px' : '16px'}; font-weight:900; text-align:center; border:2px solid #000; padding:${is58mm ? '3px' : '5px'}; margin:${is58mm ? '4px 0' : '6px 0'}; border-radius:4px; background:#f2f2f2;">🥡 ${is58mm ? 'سفري' : 'طلب سفري / تيك أواي'} (${order.orderId})</div>`
+        : `<div style="font-size:${is58mm ? '12px' : '14px'}; font-weight:800; text-align:center; border:1px dashed #000; padding:${is58mm ? '3px' : '4px'}; margin:${is58mm ? '4px 0' : '5px 0'};">🛵 طلب توصيل ديليفري</div>`
       );
 
   const printHtml = `
     <!DOCTYPE html>
-    <html lang="ar" dir="rtl">
+    <html lang="ar" dir="rtl" data-paper-size="${paperSize}">
     <head>
       <meta charset="UTF-8">
       <title>فاتورة طلب ${order.orderId || ''}</title>
       <style>
-        @page { size: 80mm auto; margin: 0; }
+        @page {
+          size: ${is58mm ? '58mm' : '80mm'} auto;
+          margin: 0;
+        }
         @media print {
-          html, body { width: 78mm !important; margin: 0 auto !important; padding: 4px !important; }
+          html, body {
+            width: ${is58mm ? '50mm' : '78mm'} !important;
+            margin: 0 auto !important;
+            padding: ${is58mm ? '2px' : '4px'} !important;
+          }
         }
         body {
           font-family: 'Courier New', Tahoma, -apple-system, sans-serif;
-          font-size: 13px;
-          line-height: 1.35;
+          font-size: ${is58mm ? '11px' : '13px'};
+          line-height: ${is58mm ? '1.25' : '1.35'};
           color: #000;
           background: #fff;
           margin: 0 auto;
-          padding: 6px;
-          width: 74mm;
+          padding: ${is58mm ? '4px 2px' : '6px'};
+          width: ${is58mm ? '50mm' : '74mm'};
           box-sizing: border-box;
           direction: rtl;
         }
         .center { text-align: center; }
-        .divider { border-top: 1px dashed #000; margin: 6px 0; }
+        .divider { border-top: 1px dashed #000; margin: ${is58mm ? '4px 0' : '6px 0'}; }
         .bold { font-weight: bold; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 6px 0; }
-        th { border-bottom: 1.5px solid #000; padding: 4px 0; font-size: 11px; }
-        .total-row { font-size: 16px; font-weight: 900; }
+        table { width: 100%; border-collapse: collapse; font-size: ${is58mm ? '10.5px' : '12px'}; margin: ${is58mm ? '4px 0' : '6px 0'}; }
+        th { border-bottom: 1.5px solid #000; padding: ${is58mm ? '3px 0' : '4px 0'}; font-size: ${is58mm ? '10px' : '11px'}; }
+        .total-row { font-size: ${is58mm ? '13.5px' : '16px'}; font-weight: 900; }
       </style>
     </head>
-    <body>
-      <div class="center bold" style="font-size:19px; margin-bottom:2px;">${storeName}</div>
+    <body data-paper-size="${paperSize}">
+      <div class="center bold" style="font-size:${is58mm ? '15px' : '19px'}; margin-bottom:2px;">${storeName}</div>
       ${orderTypeBanner}
-      <div class="center" style="font-size:11px; font-weight:bold;">بون طلب رقم: <span style="font-family:monospace;">${order.orderId || ''}</span></div>
-      <div class="center" style="font-size:10px; color:#444;">${timeStr}</div>
+      <div class="center" style="font-size:${is58mm ? '10px' : '11px'}; font-weight:bold;">بون طلب رقم: <span style="font-family:monospace;">${order.orderId || ''}</span></div>
+      <div class="center" style="font-size:${is58mm ? '9px' : '10px'}; color:#444;">${timeStr}</div>
       
       <div class="divider"></div>
       ${order.orderType === 'dine_in' ? `
@@ -1462,8 +1569,8 @@ window.printOrderReceipt = function(orderOrId) {
         <thead>
           <tr>
             <th style="text-align:right;">الصنف</th>
-            <th style="text-align:center;">العدد</th>
-            <th style="text-align:left;">السعر</th>
+            <th style="text-align:center; width:${is58mm ? '20px' : 'auto'};">العدد</th>
+            <th style="text-align:left; width:${is58mm ? '42px' : 'auto'};">السعر</th>
           </tr>
         </thead>
         <tbody>
@@ -1472,32 +1579,32 @@ window.printOrderReceipt = function(orderOrId) {
       </table>
 
       <div class="divider"></div>
-      <div style="display:flex; justify-content:space-between; margin:3px 0;">
+      <div style="display:flex; justify-content:space-between; margin:${is58mm ? '2px 0' : '3px 0'};">
         <span>المجموع:</span>
         <span style="font-family:monospace; font-weight:bold;">${(parseFloat(order.subtotal) || parseFloat(order.finalTotal) || 0).toFixed(0)} ${currency}</span>
       </div>
       ${totalDiscount > 0 ? `
-      <div style="display:flex; justify-content:space-between; margin:3px 0; color:#000;">
+      <div style="display:flex; justify-content:space-between; margin:${is58mm ? '2px 0' : '3px 0'}; color:#000;">
         <span>الخصم:</span>
         <span style="font-family:monospace; font-weight:bold;">- ${totalDiscount.toFixed(0)} ${currency}</span>
       </div>` : ''}
       ${order.deliveryFee ? `
-      <div style="display:flex; justify-content:space-between; margin:3px 0;">
+      <div style="display:flex; justify-content:space-between; margin:${is58mm ? '2px 0' : '3px 0'};">
         <span>خدمة التوصيل:</span>
         <span style="font-family:monospace; font-weight:bold;">${parseFloat(order.deliveryFee).toFixed(0)} ${currency}</span>
       </div>` : ''}
       <div class="divider"></div>
-      <div class="total-row" style="display:flex; justify-content:space-between; margin:4px 0;">
+      <div class="total-row" style="display:flex; justify-content:space-between; margin:${is58mm ? '3px 0' : '4px 0'};">
         <span>المطلوب تحصيله:</span>
         <span style="font-family:monospace;">${(parseFloat(order.finalTotal) || 0).toFixed(0)} ${currency}</span>
       </div>
-      <div style="font-size:11px; margin-top:3px;">
+      <div style="font-size:${is58mm ? '10px' : '11px'}; margin-top:${is58mm ? '2px' : '3px'};">
         <strong>طريقة الدفع:</strong> 
         ${order.paymentMethod === 'card' ? '💳 فيزا / بطاقة بنكية' : (order.paymentMethod === 'wallet' ? '📱 محفظة إلكترونية' : '💵 نقداً / كاش')}
       </div>
       <div class="divider"></div>
-      <div class="center" style="font-size:11px; margin-top:5px; font-weight:bold;">شكراً لزيارتكم! نتمنى لكم وجبة شهية ❤️</div>
-      <div class="center" style="font-size:9px; color:#555; margin-top:2px;">نظام كاشير أوردر الذكي</div>
+      <div class="center" style="font-size:${is58mm ? '10px' : '11px'}; margin-top:${is58mm ? '3px' : '5px'}; font-weight:bold;">شكراً لزيارتكم! نتمنى لكم وجبة شهية ❤️</div>
+      <div class="center" style="font-size:${is58mm ? '8.5px' : '9px'}; color:#555; margin-top:2px;">نظام كاشير أوردر الذكي</div>
       <script>
         window.onload = function() {
           window.focus();
@@ -2675,21 +2782,8 @@ function setupBackupAndRestore() {
   }
 
   if (adminElements.btnFactoryReset) {
-    adminElements.btnFactoryReset.addEventListener('click', async () => {
-      const slug = Store.getRestaurantSlug();
-      const promptVal = prompt(`تحذير أمني: سيتم مسح كافة التعديلات واستعادة المنيو الافتراضي للمطعم (${slug}).
-لتأكيد العملية، يرجى كتابة اسم معرف المطعم (${slug}):`);
-      if (promptVal === slug) {
-        try {
-          await Store.resetAllDataToDefault(slug);
-          showToastNotification("تمت استعادة إعدادات المصنع بنجاح!", "success");
-          loadAllDashboardData();
-        } catch (err) {
-          showToastNotification("فشل إعادة التعيين: " + err.message, "error");
-        }
-      } else if (promptVal !== null) {
-        showToastNotification("معرف المطعم غير مطابق. تم إلغاء العملية بأمان.", "warning");
-      }
+    adminElements.btnFactoryReset.addEventListener('click', () => {
+      window.openFactoryResetPwdModal();
     });
   }
 }
@@ -2859,6 +2953,9 @@ function loadSettingsIntoForm() {
 
   if (adminElements.setStoreName) adminElements.setStoreName.value = s.storeName || '';
   if (adminElements.setStoreTagline) adminElements.setStoreTagline.value = s.storeTagline || '';
+  if (adminElements.setPrinterPaperSize) adminElements.setPrinterPaperSize.value = s.printerPaperSize || '80mm';
+  document.documentElement.setAttribute('data-paper-size', s.printerPaperSize || '80mm');
+  document.body.setAttribute('data-paper-size', s.printerPaperSize || '80mm');
   if (adminElements.setCurrency) adminElements.setCurrency.value = s.currency || 'ج.م';
   if (adminElements.setWhatsapp) adminElements.setWhatsapp.value = s.whatsappNumber || '';
   if (adminElements.setWalletNumber) adminElements.setWalletNumber.value = s.walletNumber || '';
@@ -3035,6 +3132,7 @@ async function saveSettingsFromForm() {
 
       themePreset: activePresetId,
       siteColors: siteColors,
+      printerPaperSize: (adminElements.setPrinterPaperSize?.value || '80mm'),
 
       deliverySettings: {
         defaultFee: isNaN(parseFloat(adminElements.setDefaultDeliveryFee?.value)) ? 15 : parseFloat(adminElements.setDefaultDeliveryFee?.value),
