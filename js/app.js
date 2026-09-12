@@ -1823,7 +1823,6 @@ function updateLedgerUI() {
   // Promo Code Discount
   const appliedCoupon = Store.getAppliedCoupon();
   let couponDiscountAmount = 0;
-  const promoToggleRow = document.getElementById('promo-toggle-row');
   const promoInputContainer = document.getElementById('promo-input-container');
 
   if (appliedCoupon && subtotal > 0) {
@@ -1836,11 +1835,10 @@ function updateLedgerUI() {
       elements.promoAppliedBadge.style.display = 'flex';
       if (elements.promoAppliedText) elements.promoAppliedText.textContent = `كود ${appliedCoupon.code} (${appliedCoupon.desc || 'مفعل'})`;
     }
-    if (promoToggleRow) promoToggleRow.style.display = 'none';
     if (promoInputContainer) promoInputContainer.style.display = 'none';
   } else {
     if (elements.promoAppliedBadge) elements.promoAppliedBadge.style.display = 'none';
-    if (promoToggleRow) promoToggleRow.style.display = 'flex';
+    if (promoInputContainer) promoInputContainer.style.display = 'flex';
   }
 
   const subtotalAfterBasePromos = Math.max(0, subtotal - spendTierDiscountAmount - couponDiscountAmount);
@@ -2204,19 +2202,6 @@ function setupEventListeners() {
     });
   });
 
-  // Collapsible Promo Code Toggle
-  const btnTogglePromo = document.getElementById('btn-toggle-promo');
-  const promoInputContainer = document.getElementById('promo-input-container');
-  if (btnTogglePromo && promoInputContainer) {
-    btnTogglePromo.addEventListener('click', () => {
-      const isOpen = promoInputContainer.style.display !== 'none';
-      promoInputContainer.style.display = isOpen ? 'none' : 'flex';
-      if (!isOpen && elements.promoCodeInput) {
-        elements.promoCodeInput.focus();
-      }
-    });
-  }
-
   if (elements.btnApplyPromo) {
     elements.btnApplyPromo.addEventListener('click', () => {
       const code = (elements.promoCodeInput.value || '').trim().toUpperCase();
@@ -2242,8 +2227,6 @@ function setupEventListeners() {
     elements.btnRemovePromo.addEventListener('click', () => {
       Store.setAppliedCoupon(null);
       SoundFX.playPop();
-      const promoInputContainer = document.getElementById('promo-input-container');
-      if (promoInputContainer) promoInputContainer.style.display = 'none';
       updateLedgerUI();
     });
   }

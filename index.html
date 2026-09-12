@@ -28,7 +28,7 @@
   <link rel="preconnect" href="https://i.ibb.co" crossorigin>
   <link rel="dns-prefetch" href="https://i.ibb.co">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/style.css?v=40.2">
+  <link rel="stylesheet" href="css/style.css?v=40.3">
   <script>
     // Instant zero-delay theme toggle available immediately on page paint
     window.handleThemeToggle = function() {
@@ -352,18 +352,13 @@
           <div id="pairing-items-list" class="pairing-scroll-track"></div>
         </div>
 
-        <!-- Promo Voucher Code Box (Collapsible) -->
-        <div class="promo-accordion-wrap" style="margin-top:8px; padding-top:10px; border-top:1px dashed var(--border);">
-          <div id="promo-toggle-row">
-            <button type="button" id="btn-toggle-promo" class="btn-promo-toggle" style="background:none; border:none; color:var(--primary); font-size:12px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:5px; padding:4px 0;">
-              <span>🏷️ عندك كود خصم؟</span>
-            </button>
+        <!-- Promo Voucher Code Box (Compact & Always Visible) -->
+        <div class="promo-box-wrap" style="margin-top:10px; padding-top:10px; border-top:1px dashed var(--border);">
+          <div id="promo-input-container" class="promo-code-box-compact">
+            <input type="text" id="promo-code-input" class="promo-code-input-compact font-num" placeholder="🏷️ كود الخصم (مثال: KING10)">
+            <button type="button" id="btn-apply-promo" class="btn-apply-promo-compact">تطبيق</button>
           </div>
-          <div id="promo-input-container" class="promo-code-box" style="display:none; margin-top:6px;">
-            <input type="text" id="promo-code-input" class="promo-code-input font-num" placeholder="كود الخصم (مثال: KING10)">
-            <button type="button" id="btn-apply-promo" class="btn btn-ghost btn-sm" style="font-weight:700;">تطبيق</button>
-          </div>
-          <div id="promo-applied-badge" style="display:none; background:var(--accent-wa-subtle); border:1px solid rgba(22,163,74,0.3); border-radius:var(--radius-xs); padding:6px 10px; font-size:11.5px; font-weight:700; color:var(--accent-wa); justify-content:space-between; align-items:center; margin-top:6px;">
+          <div id="promo-applied-badge" style="display:none; background:var(--accent-wa-subtle); border:1px solid rgba(22,163,74,0.3); border-radius:var(--radius-xs); padding:6px 10px; font-size:11.5px; font-weight:700; color:var(--accent-wa); justify-content:space-between; align-items:center;">
             <span id="promo-applied-text">تم تطبيق كود الخصم</span>
             <button type="button" id="btn-remove-promo" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:12px; font-weight:700;">إلغاء ✕</button>
           </div>
@@ -437,13 +432,9 @@
           </div>
         </div>
 
-        <div class="step-actions-row">
-          <button type="button" id="btn-back-to-step1" class="btn btn-ghost btn-step-back">
-            <span>← السلة</span>
-          </button>
-          <button type="button" id="btn-proceed-to-step3" class="btn btn-primary btn-step-next">
-            <span>متابعة لاختيار طريقة الدفع</span>
-            <svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        <div style="margin-top:14px;">
+          <button type="button" id="btn-back-to-step1" class="btn btn-ghost" style="width:100%; padding:10px; font-size:0.86rem; font-weight:700;">
+            ← العودة لمراجعة الأصناف
           </button>
         </div>
       </div>

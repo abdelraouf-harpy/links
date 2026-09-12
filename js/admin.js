@@ -678,7 +678,7 @@ function setupTabNavigation() {
   const slug = Store.getRestaurantSlug();
   const savedTab = localStorage.getItem(`harpy_${slug}_admin_active_tab`);
 
-  let initialTab = 'tab-products';
+  let initialTab = 'tab-orders';
   if (hash && document.getElementById('tab-' + hash)) {
     initialTab = 'tab-' + hash;
   } else if (savedTab && document.getElementById(savedTab)) {
@@ -2550,7 +2550,7 @@ function renderCategoriesList() {
     return;
   }
 
-  adminElements.categoriesListContainer.innerHTML = cats.map(cat => {
+  adminElements.categoriesListContainer.innerHTML = cats.map((cat, idx) => {
     const count = prods.filter(p => p.category === cat).length;
     return `
       <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; background:var(--surface-raised); border:1px solid var(--border); padding:12px 16px; border-radius:var(--radius-sm); min-height:52px;">
@@ -2558,13 +2558,121 @@ function renderCategoriesList() {
           <span style="font-size:14px; font-weight:800; color:var(--text-main);">${cat}</span>
           <span style="font-size:11px; background:var(--primary-subtle); color:var(--primary); padding:2px 8px; border-radius:10px; font-weight:700;">${count} صنف</span>
         </div>
-        <button class="btn btn-ghost btn-sm" style="color:var(--danger); padding:4px 8px; border-radius:6px;" onclick="deleteCategoryFast('${cat}')" title="حذف القسم">
-          <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-        </button>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <button type="button" class="btn btn-ghost btn-sm btn-edit-category" style="color:var(--primary); padding:5px 10px; border-radius:6px; font-size:12px; font-weight:700; border:1px solid rgba(234,88,12,0.25); background:rgba(234,88,12,0.06); display:inline-flex; align-items:center; gap:4px;" onclick="openCategoryEditModal(${idx})" title="تعديل اسم ورمز القسم">
+            <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            <span>تعديل</span>
+          </button>
+          <button type="button" class="btn btn-ghost btn-sm" style="color:var(--danger); padding:5px 8px; border-radius:6px;" onclick="deleteCategoryFast('${cat}')" title="حذف القسم">
+            <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+          </button>
+        </div>
       </div>
     `;
   }).join('');
 }
+
+window.openCategoryEditModal = function(index) {
+  const cats = Store.getCategories();
+  if (index < 0 || index >= cats.length) return;
+  const currentCat = cats[index];
+
+  const modal = document.getElementById('category-edit-modal');
+  const backdrop = document.getElementById('category-edit-backdrop');
+  const indexInput = document.getElementById('edit-cat-index');
+  const nameInput = document.getElementById('edit-cat-name-input');
+
+  if (!modal || !indexInput || !nameInput) return;
+
+  indexInput.value = index;
+  nameInput.value = currentCat;
+
+  modal.classList.add('show');
+  if (backdrop) backdrop.classList.add('show');
+  setTimeout(() => {
+    nameInput.focus();
+    nameInput.select();
+  }, 100);
+};
+
+window.closeCategoryEditModal = function() {
+  const modal = document.getElementById('category-edit-modal');
+  const backdrop = document.getElementById('category-edit-backdrop');
+  if (modal) modal.classList.remove('show');
+  if (backdrop) backdrop.classList.remove('show');
+};
+
+window.saveCategoryEdit = async function() {
+  const indexInput = document.getElementById('edit-cat-index');
+  const nameInput = document.getElementById('edit-cat-name-input');
+  if (!indexInput || !nameInput) return;
+
+  const index = parseInt(indexInput.value, 10);
+  const newName = (nameInput.value || '').trim();
+
+  if (isNaN(index) || !newName) {
+    showToastNotification("يرجى كتابة اسم صحيح للقسم", "error");
+    return;
+  }
+
+  const cats = Store.getCategories();
+  if (index < 0 || index >= cats.length) return;
+  const oldName = cats[index];
+
+  // If no changes made, quietly close modal
+  if (newName === oldName) {
+    closeCategoryEditModal();
+    return;
+  }
+
+  // Check if newName already exists in another category
+  const existingIdx = cats.findIndex((c, i) => i !== index && c.trim().toLowerCase() === newName.toLowerCase());
+  if (existingIdx !== -1) {
+    showToastNotification("يوجد قسم آخر بهذا الاسم بالفعل!", "error");
+    return;
+  }
+
+  const saveBtn = document.getElementById('btn-save-cat-edit');
+  if (saveBtn) {
+    saveBtn.disabled = true;
+    saveBtn.textContent = "جاري الحفظ...";
+  }
+
+  try {
+    // 1. Update category name in-place
+    cats[index] = newName;
+
+    // 2. Non-destructive update: Update all products linked to old category name
+    const prods = Store.getProducts();
+    let updatedProductsCount = 0;
+    prods.forEach(p => {
+      if (p && p.category === oldName) {
+        p.category = newName;
+        updatedProductsCount++;
+      }
+    });
+
+    if (updatedProductsCount > 0) {
+      await Store.saveProducts(prods);
+    }
+    await Store.saveCategories(cats);
+
+    renderCategoriesList();
+    if (typeof renderCatalogGrid === 'function') {
+      renderCatalogGrid();
+    }
+    closeCategoryEditModal();
+    showToastNotification(`تم تعديل القسم وتحديث (${updatedProductsCount}) منتج مرتبط بنجاح! ✓`, "success");
+  } catch(err) {
+    console.error("Error saving category edit:", err);
+    showToastNotification("حدث خطأ أثناء حفظ تعديل القسم", "error");
+  } finally {
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.textContent = "حفظ التعديل ✓";
+    }
+  }
+};
 
 window.deleteCategoryFast = async function(cat) {
   const confirmed = await showCustomConfirm({
