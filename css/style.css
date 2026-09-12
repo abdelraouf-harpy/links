@@ -344,9 +344,6 @@ body {
     gap: 4px !important;
     flex-shrink: 0 !important;
   }
-  .btn-pwa-install {
-    display: none !important;
-  }
   .btn-live-preview span,
   #btn-admin-logout span {
     display: none !important;
@@ -565,33 +562,6 @@ body {
 [data-theme="light"] .btn-theme-toggle .icon-moon {
   display: inline-block !important;
   color: #6366f1;
-}
-
-/* ── Modern Sleek Logout Button ──────────────────────────── */
-.btn-logout-nav {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 12px;
-  border-radius: var(--radius-sm, 10px);
-  background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  color: #ef4444;
-  font-size: 0.84rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-.btn-logout-nav:hover {
-  background: #ef4444;
-  color: #ffffff;
-  border-color: #ef4444;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
-}
-.btn-logout-nav .icon {
-  width: 16px;
-  height: 16px;
 }
 
 /* ── Admin Product Card Action Buttons ───────────────────── */
@@ -1883,28 +1853,6 @@ body {
   box-shadow: 0 0 0 3px var(--primary-subtle);
 }
 
-.step-actions-row {
-  display: flex;
-  gap: 10px;
-  margin-top: 18px;
-}
-.btn-step-back {
-  flex: 1;
-  padding: 12px;
-  font-size: 0.88rem;
-  font-weight: 700;
-}
-.btn-step-next {
-  flex: 2;
-  padding: 12px 18px;
-  font-size: 0.92rem;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-
 
 /* ── Luxury Payment Methods Stack ───────────────────────── */
 .payment-methods-stack {
@@ -2376,24 +2324,6 @@ body {
   padding: 24px;
   margin-bottom: 20px;
 }
-.admin-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-.admin-card-title {
-  font-size: 1.05rem;
-  font-weight: 800;
-  color: var(--text-main);
-  margin-bottom: 4px;
-}
-.admin-card-desc {
-  font-size: 0.82rem;
-  color: var(--text-muted);
-}
 
 .form-group {
   margin-bottom: 16px;
@@ -2521,60 +2451,6 @@ body {
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 14px;
 }
-.admin-catalog-item {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-xs);
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  transition: var(--tr-fast);
-  position: relative;
-}
-.admin-catalog-item.hidden-item {
-  opacity: 0.55;
-  border-style: dashed;
-}
-.admin-drag-handle {
-  cursor: grab;
-  color: var(--text-faint);
-  user-select: none;
-  font-size: 16px;
-  padding: 2px 4px;
-  display: inline-flex;
-  align-items: center;
-}
-.reorder-mobile-btn {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  color: var(--text-muted);
-  width: 26px;
-  height: 26px;
-  min-width: 26px;
-  min-height: 26px;
-  border-radius: 4px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--tr-fast);
-}
-.inline-price-input {
-  width: 68px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 4px 6px;
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--primary);
-  text-align: center;
-  outline: none;
-}
 
 /* Color Studio */
 .theme-presets-grid {
@@ -2598,67 +2474,6 @@ body {
   border-color: var(--primary) !important;
   box-shadow: 0 0 0 2px var(--primary-glow);
   background: var(--surface-raised);
-}
-.preset-preview-box {
-  height: 56px;
-  border-radius: 4px;
-  padding: 6px 8px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  border: 1px solid rgba(255,255,255,0.1);
-}
-.preset-card-title {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text-main);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.preset-card-badge {
-  font-size: 10px;
-  color: var(--text-muted);
-}
-
-.color-studio-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 10px;
-}
-.color-picker-item {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-xs);
-  padding: 8px 12px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-.color-picker-label {
-  font-size: 11.5px;
-  font-weight: 700;
-  color: var(--text-main);
-}
-.color-picker-sub {
-  font-size: 9.5px;
-  color: var(--text-muted);
-}
-.color-input-circle {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 1.5px solid var(--border-strong);
-  cursor: pointer;
-  background: transparent;
-  flex-shrink: 0;
-}
-.live-mockup-banner {
-  border-radius: var(--radius-xs);
-  padding: 14px;
-  margin-bottom: 14px;
-  transition: var(--tr-smooth);
 }
 
 /* Modal Box */
@@ -2698,15 +2513,6 @@ body {
   font-weight: 500;
   margin-right: 4px;
   display: inline-block;
-}
-.promo-badge-tag {
-  background: var(--danger);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 800;
-  padding: 2px 6px;
-  border-radius: var(--radius-xs);
-  margin-right: 4px;
 }
 .spend-tier-progress-card {
   background: var(--surface);
@@ -3358,13 +3164,6 @@ body.cart-drawer-open .dynamic-island-cart {
   cursor: pointer;
   flex-shrink: 0;
 }
-.btn-promo-toggle {
-  transition: opacity 0.15s ease, transform 0.15s ease;
-}
-.btn-promo-toggle:hover {
-  opacity: 0.85;
-  transform: translateY(-1px);
-}
 
 /* ── Fullscreen Story Viewer Modal ── */
 .story-modal-backdrop {
@@ -3997,27 +3796,6 @@ body.cart-drawer-open .dynamic-island-cart {
   box-shadow: 0 4px 16px var(--primary-glow);
 }
 
-.pin-input-field {
-  width: 100%;
-  background: var(--surface-raised);
-  border: 1.5px solid var(--border-strong);
-  border-radius: var(--radius-sm);
-  padding: 14px 16px;
-  font-family: inherit;
-  font-size: 24px;
-  font-weight: 900;
-  letter-spacing: 0.3em;
-  color: var(--text-main);
-  text-align: center;
-  outline: none;
-  box-sizing: border-box;
-  transition: var(--tr-fast);
-}
-.pin-input-field:focus {
-  border-color: var(--primary);
-  background: var(--surface-hover);
-  box-shadow: 0 0 0 3px var(--primary-subtle);
-}
 
 /* ── Multi-Restaurant Switcher & Share Hub ───────────────── */
 .multi-tenant-hub-bar {
@@ -5290,10 +5068,7 @@ html.admin-unlocked #login-modal-backdrop {
   color: var(--text-main);
   word-break: break-word;
 }
-.pos-ticket-unit {
-  font-size: 10px;
-  color: var(--text-muted);
-}
+
 .pos-ticket-qty-wrap {
   display: flex;
   align-items: center;
@@ -5319,14 +5094,7 @@ html.admin-unlocked #login-modal-backdrop {
   border-color: var(--primary);
   color: var(--primary);
 }
-.pos-ticket-total {
-  font-size: 13px;
-  font-weight: 900;
-  color: var(--primary);
-  min-width: 55px;
-  text-align: left;
-  direction: ltr;
-}
+
 .pos-ticket-del {
   color: var(--text-muted);
   cursor: pointer;
@@ -5625,35 +5393,7 @@ html.admin-unlocked #login-modal-backdrop {
   display: flex;
 }
 
-/* ── Segmented Button Controls (Design Tokens) ───────────── */
-.segmented-control {
-  display: inline-flex;
-  background: var(--surface-raised);
-  border: 1.5px solid var(--border-strong);
-  border-radius: var(--radius-sm);
-  padding: 3px;
-  gap: 3px;
-  width: 100%;
-}
-.segmented-option {
-  flex: 1;
-  text-align: center;
-  padding: 8px 12px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  border-radius: calc(var(--radius-sm) - 2px);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  user-select: none;
-  border: none;
-  background: transparent;
-}
-.segmented-option.active {
-  background: var(--primary);
-  color: #fff !important;
-  box-shadow: var(--shadow-sm);
-}
+
 
 /* ── Custom POS Clear Confirm Modal ───────────────────────── */
 .pos-confirm-box {

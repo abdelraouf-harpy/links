@@ -39,8 +39,7 @@ const STORAGE_KEYS = {
   APPLIED_COUPON: 'harpy_applied_coupon',
   SOUND_ENABLED: 'harpy_sound_enabled',
   VIEW_MODE: 'harpy_view_mode',
-  STORIES: 'harpy_order_stories',
-  TABLE_NUM: 'harpy_order_table_num'
+  STORIES: 'harpy_order_stories'
 };
 
 const THEME_PRESETS = {
@@ -144,7 +143,6 @@ const DEFAULT_SETTINGS = {
   walletNumber: "01019971508",
   walletName: "فودافون كاش / إنستاباي",
   currency: "ج.م",
-  adminPin: "1234",
   logo: "https://images.unsplash.com/photo-1586190848861-99aa4a171e9c?w=200&auto=format&fit=crop&q=80",
   cover: "https://images.unsplash.com/photo-1568901346375-23c9450c58c9?w=1200&auto=format&fit=crop&q=80",
   imgbbApiKey: "",
@@ -193,7 +191,6 @@ const BLANK_SETTINGS = {
   walletNumber: "",
   walletName: "فودافون كاش / إنستاباي",
   currency: "ج.م",
-  adminPin: "1234",
   logo: "",
   cover: "",
   imgbbApiKey: "",
@@ -3613,24 +3610,6 @@ const Store = {
     };
   },
 
-  async initTenantMeta(slug, userUid) {
-    if (!db || !slug || !userUid) return false;
-    try {
-      const metaRef = db.ref(`restaurants/${slug}/meta`);
-      const snap = await metaRef.once('value');
-      if (!snap.exists()) {
-        await metaRef.set({
-          ownerUid: userUid,
-          createdAt: new Date().toISOString()
-        });
-      }
-      return true;
-    } catch (err) {
-      console.warn("[Store] Init tenant meta error:", err);
-      return false;
-    }
-  },
-
   async verifyTenantOwnership(slug, userUid) {
     if (!db || !slug || !userUid) return false;
     try {
@@ -3976,16 +3955,6 @@ const Store = {
     return await this.saveProducts(prods);
   },
 
-  async saveProduct(prod) {
-    if (!prod || !prod.id) return { success: false };
-    const existing = this.getProducts().some(p => p.id === prod.id);
-    if (existing) {
-      return await this.updateProduct(prod.id, prod);
-    } else {
-      return await this.addProduct(prod);
-    }
-  },
-
   async updateProduct(id, updatedProd) {
     const prods = this.getProducts().map(p => p.id === id ? { ...p, ...updatedProd } : p);
     return await this.saveProducts(prods);
@@ -4175,17 +4144,6 @@ const Store = {
   setViewMode(mode) {
     this.safeSetItem(this.getKey(STORAGE_KEYS.VIEW_MODE), mode);
     window.dispatchEvent(new CustomEvent('store_view_mode_changed', { detail: mode }));
-  },
-
-  getActiveTable() {
-    return sessionStorage.getItem(STORAGE_KEYS.TABLE_NUM) || null;
-  },
-  setActiveTable(tableNum) {
-    if (tableNum) {
-      sessionStorage.setItem(STORAGE_KEYS.TABLE_NUM, String(tableNum));
-    } else {
-      sessionStorage.removeItem(STORAGE_KEYS.TABLE_NUM);
-    }
   },
 
   // ── Backup & Restore JSON Engine ───────────────────────────

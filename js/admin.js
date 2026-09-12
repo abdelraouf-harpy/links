@@ -70,7 +70,6 @@ const adminElements = {
   prodDesc: document.getElementById('prod-desc'),
   prodImgUrl: document.getElementById('prod-img-url'),
   prodImgFile: document.getElementById('prod-img-file'),
-  prodImgStatus: document.getElementById('prod-img-status'),
   prodSizesList: document.getElementById('prod-sizes-list'),
   btnAddSizeRow: document.getElementById('btn-add-size-row'),
   prodAddonsList: document.getElementById('prod-addons-list'),
@@ -141,12 +140,7 @@ const adminElements = {
   setWalletNumber: document.getElementById('set-wallet-number'),
   setWalletName: document.getElementById('set-wallet-name'),
   setLogoUrl: document.getElementById('set-logo-url'),
-  setImgbbKey: document.getElementById('set-imgbb-key'),
   themePresetsGrid: document.getElementById('theme-presets-grid'),
-  pickerBg: document.getElementById('picker-bg'),
-  pickerSurface: document.getElementById('picker-surface'),
-  pickerPrimary: document.getElementById('picker-primary'),
-  pickerText: document.getElementById('picker-text'),
   setEnableWalletDiscount: document.getElementById('set-enable-wallet-discount'),
   setWalletDiscountType: document.getElementById('set-wallet-discount-type'),
   setWalletDiscountVal: document.getElementById('set-wallet-discount-val'),
@@ -275,9 +269,6 @@ function setupAuth() {
         const curSettings = Store.getSettings();
         if (typeof window.updatePwaBranding === 'function') {
           window.updatePwaBranding(curSettings);
-        }
-        if (typeof window.checkForPwaUpdates === 'function') {
-          window.checkForPwaUpdates(curSettings);
         }
       }
     });
@@ -522,9 +513,6 @@ function loadAllDashboardData() {
   const currentSettings = Store.getSettings();
   if (typeof window.updatePwaBranding === 'function') {
     window.updatePwaBranding(currentSettings);
-  }
-  if (typeof window.checkForPwaUpdates === 'function') {
-    window.checkForPwaUpdates(currentSettings);
   }
 }
 
@@ -997,12 +985,6 @@ window.selectOrderStatus = async function(newStatus) {
   renderInvoicesArchive();
 };
 
-window.updateOrderStatusFast = async function(orderId, newStatus) {
-  await Store.updateOrderStatus(orderId, newStatus);
-  renderOrdersList();
-  renderInvoicesArchive();
-};
-
 // ── Screen Wake Lock Engine (Keep Kitchen Display Awake) ─────────
 let wakeLockSentinel = null;
 let isWakeLockRequested = false;
@@ -1201,16 +1183,6 @@ window.verifyAdminCredentials = async function(enteredPassword, slug) {
     } catch (authErr) {}
   }
 
-  // 3. Fallback: Verify against adminPin in settings if set
-  if (typeof Store !== 'undefined' && Store.getSettings) {
-    try {
-      const settings = Store.getSettings();
-      if (settings && settings.adminPin && settings.adminPin.trim() === enteredPassword.trim()) {
-        return true;
-      }
-    } catch (e) {}
-  }
-
   return false;
 };
 
@@ -1345,14 +1317,6 @@ window.executeFactoryResetWithPassword = async function() {
       btn.disabled = false;
       btn.textContent = "تأكيد استعادة المصنع ⚠️";
     }
-  }
-};
-
-window.confirmDeleteCurrentOrder = function() {
-  if (currentEditingOrderId) {
-    const id = currentEditingOrderId;
-    closeStatusSheet();
-    confirmDeleteOrder(id);
   }
 };
 
@@ -3173,10 +3137,7 @@ function updateThemePresetCardsUI(selectedPresetId) {
 window.applyPresetToPickers = async function(presetId) {
   const p = THEME_PRESETS[presetId];
   if (!p) return;
-  if (adminElements.pickerBg) adminElements.pickerBg.value = p.bg;
-  if (adminElements.pickerSurface) adminElements.pickerSurface.value = p.surface;
-  if (adminElements.pickerPrimary) adminElements.pickerPrimary.value = p.primary;
-  if (adminElements.pickerText) adminElements.pickerText.value = p.textMain;
+
 
   // 1. Optimistic UI: Update settings in memory and apply theme to DOM immediately (0ms instant response)
   const current = Store.getSettings();
@@ -3215,7 +3176,6 @@ function loadSettingsIntoForm() {
   if (adminElements.setWhatsapp) adminElements.setWhatsapp.value = s.whatsappNumber || '';
   if (adminElements.setWalletNumber) adminElements.setWalletNumber.value = s.walletNumber || '';
   if (adminElements.setWalletName) adminElements.setWalletName.value = s.walletName || '';
-  if (adminElements.setImgbbKey) adminElements.setImgbbKey.value = s.imgbbApiKey || '';
   
   const logoInput = document.getElementById('set-logo-url');
   if (logoInput) logoInput.value = s.logo || '';
@@ -3233,13 +3193,6 @@ function loadSettingsIntoForm() {
   if (coverImageUploader) {
     if (s.cover) coverImageUploader.showPreview(s.cover);
     else coverImageUploader.clearPreview();
-  }
-
-  if (s.siteColors) {
-    if (adminElements.pickerBg && s.siteColors.bg) adminElements.pickerBg.value = s.siteColors.bg;
-    if (adminElements.pickerSurface && s.siteColors.surface) adminElements.pickerSurface.value = s.siteColors.surface;
-    if (adminElements.pickerPrimary && s.siteColors.primary) adminElements.pickerPrimary.value = s.siteColors.primary;
-    if (adminElements.pickerText && s.siteColors.textMain) adminElements.pickerText.value = s.siteColors.textMain;
   }
 
   if (adminElements.setEnableWalletDiscount) adminElements.setEnableWalletDiscount.checked = s.enableWalletDiscount !== false;
@@ -3344,11 +3297,6 @@ async function saveSettingsFromForm() {
     const fallbackColors = THEME_PRESETS[activePresetId] || THEME_PRESETS.charcoal;
     const siteColors = current.siteColors ? { ...current.siteColors } : { ...fallbackColors };
 
-    if (adminElements.pickerPrimary?.value) siteColors.primary = adminElements.pickerPrimary.value;
-    if (adminElements.pickerBg?.value) siteColors.bg = adminElements.pickerBg.value;
-    if (adminElements.pickerSurface?.value) siteColors.surface = adminElements.pickerSurface.value;
-    if (adminElements.pickerText?.value) siteColors.textMain = adminElements.pickerText.value;
-
     let cleanLogo = (document.getElementById('set-logo-url')?.value || '').trim();
     if (!cleanLogo && document.getElementById('set-logo-url-direct')) {
       cleanLogo = (document.getElementById('set-logo-url-direct').value || '').trim();
@@ -3377,7 +3325,7 @@ async function saveSettingsFromForm() {
       walletName: (adminElements.setWalletName?.value || '').trim(),
       logo: cleanLogo,
       cover: (document.getElementById('set-cover-url')?.value || '').trim(),
-      imgbbApiKey: (adminElements.setImgbbKey?.value || '').trim(),
+      imgbbApiKey: current.imgbbApiKey || '',
 
       deliveryTime: (adminElements.setDeliveryTime?.value || '').trim() || '30-45 دقيقة',
       showAnnouncement: adminElements.setShowAnnouncement?.checked === true,

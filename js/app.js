@@ -224,21 +224,13 @@ const elements = {
 
   cartOriginalStrikethrough: document.getElementById('cart-original-strikethrough'),
   cartTotalPrice: document.getElementById('cart-total-price'),
-  btnProceedToStep2: document.getElementById('btn-proceed-to-step2'),
 
   custName: document.getElementById('cust-name'),
   custPhone: document.getElementById('cust-phone'),
   custAddress: document.getElementById('cust-address'),
   custNotes: document.getElementById('cust-notes'),
-  deliveryZoneBadgeWrap: document.getElementById('delivery-zone-badge-wrap'),
-  deliveryZoneIcon: document.getElementById('delivery-zone-icon'),
-  deliveryZoneStatusText: document.getElementById('delivery-zone-status-text'),
-  deliveryZoneFeeBadge: document.getElementById('delivery-zone-fee-badge'),
   deliveryFeeRow: document.getElementById('delivery-fee-row'),
-  deliveryZoneNameBadge: document.getElementById('delivery-zone-name-badge'),
   deliveryFeeVal: document.getElementById('delivery-fee-val'),
-  btnBackToStep1: document.getElementById('btn-back-to-step1'),
-  btnProceedToStep3: document.getElementById('btn-proceed-to-step3'),
 
   payCodOption: document.getElementById('pay-cod-option'),
   payWalletOption: document.getElementById('pay-wallet-option'),
@@ -254,7 +246,6 @@ const elements = {
   receiptPreview: document.getElementById('receipt-preview'),
   btnRemoveReceipt: document.getElementById('btn-remove-receipt'),
   receiptStatus: document.getElementById('receipt-status'),
-  btnBackToStep2: document.getElementById('btn-back-to-step2'),
   btnConfirmOrderDirect: document.getElementById('btn-confirm-order-direct'),
   btnSendWhatsApp: document.getElementById('btn-send-whatsapp'),
 
@@ -371,9 +362,6 @@ async function initApp() {
           if (typeof window.updatePwaBranding === 'function') {
             window.updatePwaBranding(freshData.settings);
           }
-          if (typeof window.checkForPwaUpdates === 'function') {
-            window.checkForPwaUpdates(freshData.settings);
-          }
         }
       }
     }).catch(() => {});
@@ -439,9 +427,6 @@ async function initApp() {
       const currentSettings = Store.getSettings();
       if (typeof window.updatePwaBranding === 'function') {
         window.updatePwaBranding(currentSettings);
-      }
-      if (typeof window.checkForPwaUpdates === 'function') {
-        window.checkForPwaUpdates(currentSettings);
       }
     }
   });
@@ -1371,7 +1356,6 @@ window.handleQuickAddItem = function(productId, triggerElement) {
   updateLedgerUI();
   renderProducts();
 };
-window.handleQuickAddToCart = window.handleQuickAddItem;
 
 window.handleUpdateItemQty = function(cartItemId, change) {
   if (change > 0 && checkOrderingPaused()) return;
@@ -1939,17 +1923,6 @@ function updateLedgerUI() {
     elements.walletAmountReminder.textContent = `${finalTotal.toFixed(2)} ${currency}`;
   }
 
-  const minOrder = settings.minOrder || 0;
-  if (elements.btnProceedToStep2) {
-    if (subtotal < minOrder && totalItemsCount > 0) {
-      elements.btnProceedToStep2.disabled = true;
-      elements.btnProceedToStep2.innerHTML = `<span>الحد الأدنى للطلب ${minOrder} ${currency}</span>`;
-    } else {
-      elements.btnProceedToStep2.disabled = totalItemsCount === 0;
-      elements.btnProceedToStep2.innerHTML = `<span>متابعة لبيانات التوصيل ←</span>`;
-    }
-  }
-
   renderSmartPairing(cart, prods, currency);
   renderCartDrawerItems();
 }
@@ -2119,14 +2092,6 @@ function setupEventListeners() {
   if (elements.btnCloseCartDrawer) elements.btnCloseCartDrawer.addEventListener('click', closeCartDrawer);
   if (elements.cartDrawerBackdrop) elements.cartDrawerBackdrop.addEventListener('click', closeCartDrawer);
 
-  if (elements.btnProceedToStep2) {
-    elements.btnProceedToStep2.addEventListener('click', () => {
-      const cart = Store.getCart();
-      if (cart.length > 0) goToCheckoutStep(2);
-    });
-  }
-  if (elements.btnBackToStep1) elements.btnBackToStep1.addEventListener('click', () => goToCheckoutStep(1));
-
   if (elements.custAddress) {
     elements.custAddress.addEventListener('input', () => {
       updateDeliveryFeedbackUI();
@@ -2165,15 +2130,6 @@ function setupEventListeners() {
     }
     return true;
   }
-
-  if (elements.btnProceedToStep3) {
-    elements.btnProceedToStep3.addEventListener('click', () => {
-      if (validateDeliveryStep()) {
-        goToCheckoutStep(3);
-      }
-    });
-  }
-  if (elements.btnBackToStep2) elements.btnBackToStep2.addEventListener('click', () => goToCheckoutStep(2));
 
   elements.stepNavBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -2488,7 +2444,6 @@ function setupSubscriptionWatcher() {
 }
 
 // ── Direct In-App Ordering & Live Tracker Engine ────────────
-let activeTrackerUnsubscribe = null;
 
 async function handleDirectOrderSubmit(openWhatsApp = false) {
   if (checkOrderingPaused()) return;
