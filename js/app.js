@@ -428,13 +428,13 @@ async function initApp() {
 
   // 5. Connect real-time cloud data sync from Firebase Realtime Database
   Store.syncFromCloud(slug, (status) => {
-    if (status && status.hasData) {
+    if (status && status.hasData && status.hasChanges !== false) {
       Store.applyTheme();
       renderStoreInfo();
       renderAnnouncement();
       renderStories();
       renderCategories();
-      renderProducts(true);
+      scheduleRenderProducts(false);
       updateLedgerUI();
       const currentSettings = Store.getSettings();
       if (typeof window.updatePwaBranding === 'function') {
@@ -1224,11 +1224,14 @@ function renderProductCard(p, currency, index = 0) {
   const qty = cartItem ? cartItem.qty : 0;
   const hasOptions = (p.sizes && p.sizes.length > 0) || (p.addons && p.addons.length > 0);
   const isAboveFold = index < 6;
+  const existingCard = elements.productsContainer ? elements.productsContainer.querySelector(`.food-item-card[data-product-id="${p.id}"]`) : null;
+  const existingImg = existingCard ? existingCard.querySelector('.food-item-img') : null;
+  const isAlreadyLoaded = existingImg && (existingImg.classList.contains('loaded') || existingImg.complete) && existingImg.getAttribute('src') === p.image;
 
   return `
     <div class="food-item-card" data-product-id="${p.id}" data-rendered-qty="${qty}" data-rendered-fav="${isFav ? '1' : '0'}" onclick="handleCardClick(event, '${p.id}')">
       <div class="food-item-media">
-        <img src="${p.image}" class="food-item-img" alt="${p.name}" ${isAboveFold ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"'} decoding="async" onload="this.classList.add('loaded')" onerror="this.classList.add('loaded')">
+        <img src="${p.image}" class="food-item-img ${isAlreadyLoaded ? 'loaded' : ''}" alt="${p.name}" ${isAboveFold ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"'} decoding="async" onload="this.classList.add('loaded')" onerror="this.classList.add('loaded')">
         <div class="card-top-actions">
           ${p.badge ? `<span class="card-badge">${p.badge}</span>` : '<span></span>'}
           <button class="btn-fav-toggle ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); handleToggleFav('${p.id}')" title="إضافة للمفضلة">

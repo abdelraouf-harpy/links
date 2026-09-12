@@ -3098,7 +3098,7 @@ const Store = {
       });
       if (currentDataHash === lastKnownDataHash) {
         if (typeof onUpdate === 'function') {
-          onUpdate({ success: true, hasData: !!data, data });
+          onUpdate({ success: true, hasData: !!data, data, hasChanges: false });
         }
         return; // Zero-lag: No changes detected, skip re-render
       }
@@ -3111,7 +3111,7 @@ const Store = {
       window.dispatchEvent(new Event('store_stories_updated'));
 
       if (typeof onUpdate === 'function') {
-        onUpdate({ success: true, hasData: !!data, data });
+        onUpdate({ success: true, hasData: !!data, data, hasChanges: true });
       }
     };
 

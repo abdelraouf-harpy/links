@@ -22,7 +22,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Admin">
 
-  <link rel="stylesheet" href="css/style.css?v=40.3">
+  <link rel="stylesheet" href="css/style.css?v=40.4">
   <script>
     // Instant zero-delay theme toggle available immediately on page paint
     window.handleThemeToggle = function() {
@@ -1112,8 +1112,17 @@
       </div>
 
       <div class="form-group">
-        <label class="form-label">ربط بالصنف للطلب المباشر</label>
-        <select id="story-product-select" class="form-select"></select>
+        <label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">
+          <span>ربط بالصنف للطلب المباشر</span>
+          <span style="font-size:11px; color:var(--text-muted); font-weight:600;">اختياري</span>
+        </label>
+        <select id="story-product-select" style="display:none;"></select>
+        <div class="product-picker-trigger" id="story-product-picker-trigger" onclick="openStoryProductPicker()">
+          <div class="product-picker-selected-info" id="story-picker-selected-info">
+            <span style="font-size:13px; font-weight:700; color:var(--text-muted);">🔍 اضغط لاختيار صنف من المنيو (بدون ربط حالياً)</span>
+          </div>
+          <span style="font-size:12px; font-weight:800; color:var(--primary); white-space:nowrap;">تغيير ▾</span>
+        </div>
       </div>
 
       <div class="form-group">
@@ -1367,6 +1376,54 @@
     </form>
   </div>
 
+  <!-- Story Product Picker Modal -->
+  <div class="modal-backdrop" id="story-product-picker-backdrop" style="z-index:10004;" onclick="closeStoryProductPicker()"></div>
+  <div class="modal-box" id="story-product-picker-modal" style="max-width:560px; text-align:right; z-index:10005;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border);">
+      <div>
+        <h3 style="font-size:1.1rem; font-weight:900; color:var(--text-main);">ربط القصة بصنف من المنيو</h3>
+        <p style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">اختر الصنف للطلب المباشر عند مشاهدة القصة</p>
+      </div>
+      <button type="button" class="btn-close" onclick="closeStoryProductPicker()">✕</button>
+    </div>
+    
+    <div style="margin-bottom:10px;">
+      <input type="text" id="picker-search-input" class="form-input" placeholder="🔍 ابحث عن صنف بالاسم أو الوصف..." oninput="filterPickerProducts()" style="padding:9px 12px; font-size:13px;">
+    </div>
+    
+    <div id="picker-cat-pills" style="display:flex; gap:6px; overflow-x:auto; padding-bottom:8px; margin-bottom:8px; scrollbar-width:none;">
+      <!-- Dynamic Category Pills -->
+    </div>
+
+    <div style="margin-bottom:10px;">
+      <button type="button" class="btn btn-ghost btn-sm" onclick="selectPickerProduct('')" style="width:100%; border:1.5px dashed var(--border); padding:8px; font-weight:800; color:var(--text-muted); border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; gap:6px;">
+        <span>🚫 بدون ربط بصنف (قصة ترويجية عامة)</span>
+      </button>
+    </div>
+
+    <div class="product-picker-grid" id="picker-products-grid">
+      <!-- Dynamic Product Cards populated by JS -->
+    </div>
+  </div>
+
+  <!-- POS Clear Cart Confirmation Modal -->
+  <div class="modal-backdrop" id="pos-clear-confirm-backdrop" onclick="closePOSClearModal(false)"></div>
+  <div class="modal-box pos-confirm-box" id="pos-clear-confirm-modal" style="max-width:380px;">
+    <div class="pos-confirm-icon-wrap">🗑️</div>
+    <h3 style="font-size:1.15rem; font-weight:900; color:var(--text-main); margin-bottom:8px;">تفريغ الفاتورة الحالية؟</h3>
+    <p style="font-size:13px; color:var(--text-muted); margin-bottom:18px; line-height:1.5;">
+      هل أنت متأكد من مسح جميع الأصناف والبيانات في شاشة الكاشير والبدء بفاتورة جديدة؟
+    </p>
+    <div style="display:flex; gap:10px;">
+      <button type="button" id="btn-confirm-pos-clear" class="btn btn-primary" onclick="closePOSClearModal(true)" style="flex:1; background:var(--danger); border-color:var(--danger); padding:10px; font-weight:800;">
+        نعم، تفريغ الفاتورة
+      </button>
+      <button type="button" class="btn btn-ghost" onclick="closePOSClearModal(false)" style="flex:1; border:1px solid var(--border); padding:10px; font-weight:700;">
+        تراجع
+      </button>
+    </div>
+  </div>
+
   <!-- Subscription Suspended Overlay for Admin -->
   <div id="subscription-suspended-backdrop" class="harpy-lock-backdrop"></div>
   <div id="subscription-suspended-overlay" class="harpy-lock-modal">
@@ -1386,8 +1443,8 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/store.js?v=40.2"></script>
-  <script src="js/admin.js?v=40.2"></script>
-  <script src="js/pwa.js?v=40.2"></script>
+  <script src="js/store.js?v=40.4"></script>
+  <script src="js/admin.js?v=40.4"></script>
+  <script src="js/pwa.js?v=40.4"></script>
 </body>
 </html>

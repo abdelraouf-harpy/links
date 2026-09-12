@@ -1592,7 +1592,8 @@ body {
   pointer-events: none;
   transition: opacity 0.25s ease;
 }
-.modal-backdrop.open {
+.modal-backdrop.open,
+.modal-backdrop.show {
   opacity: 1;
   pointer-events: auto;
 }
@@ -2681,7 +2682,8 @@ body {
   box-shadow: var(--shadow-lg);
   -webkit-overflow-scrolling: touch;
 }
-.modal-box.open {
+.modal-box.open,
+.modal-box.show {
   opacity: 1;
   pointer-events: auto;
   transform: translate(-50%, -50%) scale(1);
@@ -5519,6 +5521,156 @@ html.admin-unlocked #login-modal-backdrop {
   .pos-mobile-cart-bar.show {
     display: flex;
   }
+}
+
+/* ── Custom Product Picker Component (Stories / Offers) ──── */
+.product-picker-trigger {
+  width: 100%;
+  background: var(--surface-raised);
+  border: 1.5px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: var(--tr-fast);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.product-picker-trigger:hover {
+  border-color: var(--primary);
+  background: var(--surface);
+}
+.product-picker-trigger.has-selected {
+  border-style: solid;
+  border-color: var(--primary);
+  background: rgba(234, 88, 12, 0.05);
+}
+.product-picker-selected-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+.product-picker-thumb {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.product-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  max-height: 52vh;
+  overflow-y: auto;
+  padding: 4px 2px;
+  -webkit-overflow-scrolling: touch;
+}
+@media (max-width: 600px) {
+  .product-picker-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.product-picker-card {
+  background: var(--surface-raised);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: right;
+  position: relative;
+}
+.product-picker-card:hover {
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+.product-picker-card.selected {
+  border-color: var(--primary);
+  background: rgba(234, 88, 12, 0.08);
+  box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.25);
+}
+.product-picker-card-thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: var(--surface);
+  flex-shrink: 0;
+}
+.product-picker-badge-check {
+  display: none;
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: var(--primary);
+  color: #fff;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 900;
+  align-items: center;
+  justify-content: center;
+}
+.product-picker-card.selected .product-picker-badge-check {
+  display: flex;
+}
+
+/* ── Segmented Button Controls (Design Tokens) ───────────── */
+.segmented-control {
+  display: inline-flex;
+  background: var(--surface-raised);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  gap: 3px;
+  width: 100%;
+}
+.segmented-option {
+  flex: 1;
+  text-align: center;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  border-radius: calc(var(--radius-sm) - 2px);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  border: none;
+  background: transparent;
+}
+.segmented-option.active {
+  background: var(--primary);
+  color: #fff !important;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── Custom POS Clear Confirm Modal ───────────────────────── */
+.pos-confirm-box {
+  text-align: center;
+  padding: 10px 4px;
+}
+.pos-confirm-icon-wrap {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--danger);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
+  font-size: 24px;
 }
 
 
