@@ -3,7 +3,7 @@
 // ═══════════════════════════════════════════════════════════
 
 const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyAhDjumVbNoRCp6bDSeqrnVgakAQ2pu0ww",
+  apiKey: "AIzaSyAhDjUmVBnoRCp6bDSeqrmVgakAQ2pu0ww",
   authDomain: "harpy-order.firebaseapp.com",
   databaseURL: "https://harpy-order-default-rtdb.firebaseio.com",
   projectId: "harpy-order",
@@ -2792,16 +2792,36 @@ const Store = {
       throw new Error("auth/missing-password");
     }
 
-    // 1. Try Firebase Auth (if identifier contains '@' and auth is initialized)
-    if (auth && cleanId.includes('@')) {
-      try {
-        const userCred = await auth.signInWithEmailAndPassword(cleanId, cleanPassword);
-        const session = { email: cleanId, uid: userCred.user.uid, authenticated: true, slug, timestamp: Date.now() };
-        this.safeSetItem(`harpy_admin_auth_${slug}`, JSON.stringify(session));
-        sessionStorage.setItem(`harpy_auth_${slug}`, JSON.stringify(session));
-        return userCred;
-      } catch (authErr) {
-        console.warn("[Store] Firebase Auth attempt:", authErr.code || authErr.message);
+    // 1. Try Firebase Auth (Primary Multi-Tenant Authentication)
+    if (auth) {
+      const candidateEmails = [];
+      if (cleanId.includes('@')) {
+        candidateEmails.push(cleanId);
+      } else {
+        if (cleanId === 'test_staging_tenant' || slug === 'test_staging_tenant') {
+          candidateEmails.push('test@harpymenu.com');
+        }
+        if (cleanId) candidateEmails.push(`${cleanId}@harpymenu.com`);
+        if (slug && slug !== cleanId) candidateEmails.push(`${slug}@harpymenu.com`);
+      }
+
+      for (const email of candidateEmails) {
+        try {
+          const userCred = await auth.signInWithEmailAndPassword(email, cleanPassword);
+          const session = { 
+            email: email, 
+            uid: userCred.user.uid, 
+            authenticated: true, 
+            slug: slug || cleanId, 
+            timestamp: Date.now() 
+          };
+          this.safeSetItem(`harpy_admin_auth_${slug}`, JSON.stringify(session));
+          sessionStorage.setItem(`harpy_auth_${slug}`, JSON.stringify(session));
+          this.safeSetItem('harpy_admin_active_slug', slug);
+          return userCred;
+        } catch (authErr) {
+          console.warn(`[Store] Firebase Auth attempt for ${email}:`, authErr.code || authErr.message);
+        }
       }
     }
 
@@ -3112,61 +3132,93 @@ const Store = {
       }
     };
 
-    // 1. WebSocket Channel (Primary)
-    let restaurantRef = null;
-    let wsCallback = null;
+    // 1. WebSocket Channel (Primary - Decoupled Public Endpoints)
+    let subRefs = null;
+    let subCallbacks = null;
     try {
       if (this.activeListeners.restaurant) {
-        try { this.activeListeners.restaurant.ref.off('value', this.activeListeners.restaurant.callback); } catch(e) {}
+        if (typeof this.activeListeners.restaurant.offAll === 'function') {
+          this.activeListeners.restaurant.offAll();
+        } else if (this.activeListeners.restaurant.ref) {
+          try { this.activeListeners.restaurant.ref.off('value', this.activeListeners.restaurant.callback); } catch(e) {}
+        }
         this.activeListeners.restaurant = null;
       }
       if (db) {
-        restaurantRef = db.ref(`restaurants/${slug}`);
-        wsCallback = snapshot => {
-          const val = snapshot ? snapshot.val() : null;
-          if (val === null && slug !== 'king') {
-            this.purgeRestaurantCache(slug);
-            try { localStorage.setItem(`harpy_${slug}_sub_status`, 'deleted'); } catch(e) {}
-            window.dispatchEvent(new CustomEvent('harpy_subscription_status', { 
-              detail: { active: false, reason: 'deleted', lic: null } 
-            }));
-          }
-          processSnapshotData(val);
+        subRefs = {
+          settings: db.ref(`restaurants/${slug}/settings`),
+          categories: db.ref(`restaurants/${slug}/categories`),
+          products: db.ref(`restaurants/${slug}/products`),
+          stories: db.ref(`restaurants/${slug}/stories`)
         };
-        restaurantRef.on('value', wsCallback, err => {
-          console.warn("[Store] Cloud sync read error:", err);
+
+        const currentAgg = {
+          settings: this.getSettings ? this.getSettings() : null,
+          categories: this.getCategories ? this.getCategories() : null,
+          products: this.getProducts ? this.getProducts() : null,
+          stories: this.getStories ? this.getStories() : null
+        };
+
+        subCallbacks = {};
+        Object.keys(subRefs).forEach(k => {
+          subCallbacks[k] = snap => {
+            currentAgg[k] = snap ? snap.val() : null;
+            processSnapshotData(currentAgg);
+          };
+          subRefs[k].on('value', subCallbacks[k], err => {
+            console.warn(`[Store] Cloud sync read error for ${k}:`, err);
+          });
         });
-        this.activeListeners.restaurant = { ref: restaurantRef, callback: wsCallback };
+
+        const offAllFn = () => {
+          Object.keys(subRefs).forEach(k => {
+            try { subRefs[k].off('value', subCallbacks[k]); } catch(e) {}
+          });
+        };
+
+        this.activeListeners.restaurant = { subRefs, subCallbacks, offAll: offAllFn };
       }
     } catch (err) {
       console.warn("[Store] Cloud sync init error:", err);
     }
 
-    // 2. High-Speed REST Initial Accelerator (sub-100ms first paint)
+    // 2. High-Speed REST Initial Accelerator (Decoupled Parallel Subpaths)
     (async () => {
       try {
-        const res = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}.json`, {
-          cache: 'no-store'
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (data && typeof data === 'object') {
-            processSnapshotData(data);
-          } else if (data === null && slug !== 'king') {
-            this.purgeRestaurantCache(slug);
-            try { localStorage.setItem(`harpy_${slug}_sub_status`, 'deleted'); } catch(e) {}
-            window.dispatchEvent(new CustomEvent('harpy_subscription_status', { 
-              detail: { active: false, reason: 'deleted', lic: null } 
-            }));
-          }
+        const baseUrl = `https://harpy-order-default-rtdb.firebaseio.com/restaurants/${encodeURIComponent(slug)}`;
+        const fOpt = { cache: 'no-store' };
+        const [sRes, cRes, pRes, stRes] = await Promise.all([
+          fetch(`${baseUrl}/settings.json`, fOpt).catch(() => null),
+          fetch(`${baseUrl}/categories.json`, fOpt).catch(() => null),
+          fetch(`${baseUrl}/products.json`, fOpt).catch(() => null),
+          fetch(`${baseUrl}/stories.json`, fOpt).catch(() => null)
+        ]);
+
+        const settings = sRes && sRes.ok ? await sRes.json().catch(() => null) : null;
+        const categories = cRes && cRes.ok ? await cRes.json().catch(() => null) : null;
+        const products = pRes && pRes.ok ? await pRes.json().catch(() => null) : null;
+        const stories = stRes && stRes.ok ? await stRes.json().catch(() => null) : null;
+
+        if (settings !== null || categories !== null || products !== null) {
+          processSnapshotData({
+            settings: settings || {},
+            categories: categories || [],
+            products: products || [],
+            stories: stories || {}
+          });
         }
       } catch (e) {}
     })();
 
     return () => {
       isDestroyed = true;
-      if (restaurantRef && wsCallback) {
-        try { restaurantRef.off('value', wsCallback); } catch(e) {}
+      if (this.activeListeners.restaurant) {
+        if (typeof this.activeListeners.restaurant.offAll === 'function') {
+          this.activeListeners.restaurant.offAll();
+        } else if (this.activeListeners.restaurant.ref) {
+          try { this.activeListeners.restaurant.ref.off('value', this.activeListeners.restaurant.callback); } catch(e) {}
+        }
+        this.activeListeners.restaurant = null;
       }
     };
   },
@@ -3398,7 +3450,14 @@ const Store = {
     const fetchOrdersFast = async () => {
       if (isDestroyed) return;
       try {
-        const res = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders.json?orderBy="$key"&limitToLast=100`, {
+        let authParam = '';
+        try {
+          if (window.firebase && firebase.auth && firebase.auth().currentUser) {
+            const idToken = await firebase.auth().currentUser.getIdToken();
+            if (idToken) authParam = `&auth=${idToken}`;
+          }
+        } catch(e) {}
+        const res = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders.json?orderBy="$key"&limitToLast=100${authParam}`, {
           cache: 'no-store'
         });
         if (res.ok) {
@@ -3469,7 +3528,15 @@ const Store = {
     }
 
     try {
-      fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders/${cleanId}.json`, {
+      let authQuery = '';
+      try {
+        if (window.firebase && firebase.auth && firebase.auth().currentUser) {
+          const idToken = await firebase.auth().currentUser.getIdToken();
+          if (idToken) authQuery = `?auth=${idToken}`;
+        }
+      } catch(e) {}
+
+      fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders/${cleanId}.json${authQuery}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(patchPayload),
@@ -3477,7 +3544,7 @@ const Store = {
       }).catch(() => {});
 
       if (targetFbKey && targetFbKey !== cleanId) {
-        fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders/${targetFbKey}.json`, {
+        fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders/${targetFbKey}.json${authQuery}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(patchPayload),
@@ -3526,6 +3593,14 @@ const Store = {
       keysToDelete.add('undefined');
     }
 
+    let authQuery = '';
+    try {
+      if (window.firebase && firebase.auth && firebase.auth().currentUser) {
+        const idToken = await firebase.auth().currentUser.getIdToken();
+        if (idToken) authQuery = `?auth=${idToken}`;
+      }
+    } catch(e) {}
+
     keysToDelete.forEach(k => {
       if (!k) return;
       if (db) {
@@ -3536,7 +3611,7 @@ const Store = {
         }
       }
       try {
-        fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders/${k}.json`, {
+        fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders/${k}.json${authQuery}`, {
           method: 'DELETE',
           keepalive: true
         }).catch(() => {});
@@ -3613,6 +3688,14 @@ const Store = {
   async verifyTenantOwnership(slug, userUid) {
     if (!db || !slug || !userUid) return false;
     try {
+      // 1. Try checking licenses node first
+      try {
+        const licSnap = await db.ref(`licenses/${slug}/ownerUid`).once('value');
+        const licUid = licSnap.val();
+        if (licUid && licUid === userUid) return true;
+      } catch(licErr) {}
+
+      // 2. Check meta node
       const metaRef = db.ref(`restaurants/${slug}/meta`);
       const snap = await metaRef.once('value');
       if (!snap.exists()) {

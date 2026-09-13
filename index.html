@@ -130,10 +130,27 @@
           }
         } catch(e) {}
 
-        // Preload restaurant cloud data in parallel with browser asset downloading
-        window.__harpyPreloadPromise = fetch('https://harpy-order-default-rtdb.firebaseio.com/restaurants/' + slug + '.json', {
-          cache: 'no-store'
-        }).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; });
+        // Preload restaurant cloud data in parallel with browser asset downloading (Decoupled Public Endpoints)
+        var fbBase = 'https://harpy-order-default-rtdb.firebaseio.com/restaurants/' + encodeURIComponent(slug);
+        var fOpt = { cache: 'no-store' };
+        window.__harpyPreloadPromise = Promise.all([
+          fetch(fbBase + '/settings.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
+          fetch(fbBase + '/categories.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
+          fetch(fbBase + '/products.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
+          fetch(fbBase + '/stories.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; })
+        ]).then(function(results) {
+          var settings = results[0];
+          var categories = results[1];
+          var products = results[2];
+          var stories = results[3];
+          if (!settings && !categories && !products) return null;
+          return {
+            settings: settings || {},
+            categories: categories || [],
+            products: products || [],
+            stories: stories || {}
+          };
+        }).catch(function() { return null; });
       } catch(e) {}
 
       // Failsafe watchdog: Ensures splash shield never traps the page under any circumstance
