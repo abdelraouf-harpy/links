@@ -363,6 +363,13 @@ function setupAuth() {
       if (isOwner) {
         if (!isAuthenticated) {
           unlockDashboard();
+        } else {
+          // Re-sync orders now that Firebase Auth identity is confirmed
+          if (typeof ordersUnsubscribe === 'function') ordersUnsubscribe();
+          ordersUnsubscribe = Store.syncOrdersFromCloud(slug, (orders) => {
+            renderOrdersList(orders);
+            renderInvoicesArchive(orders);
+          });
         }
       } else if (!Store.isAdminAuthenticated(slug)) {
         if (adminElements.loginErrorMsg) {
@@ -370,6 +377,22 @@ function setupAuth() {
           adminElements.loginErrorMsg.style.display = 'block';
         }
         await Store.logoutAdmin();
+      }
+    } else {
+      // User is not authenticated in Firebase Auth.
+      // Under secured RTDB rules, Firebase Auth is required to receive live orders.
+      // If the browser only had an old legacy localStorage session without Firebase Auth uid:
+      const localAuth = Store.safeGetItem(`harpy_admin_auth_${slug}`);
+      if (localAuth) {
+        let parsed = null;
+        try { parsed = JSON.parse(localAuth); } catch(e) {}
+        if (!parsed || !parsed.uid) {
+          console.warn("[Admin] Legacy session without Firebase Auth detected. Prompting password.");
+          lockDashboard();
+          showToastNotification("يرجى إدخال كلمة المرور لتفعيل مزامنة واستقبال الطلبات الحية", "info");
+        }
+      } else if (!isAuthenticated) {
+        lockDashboard();
       }
     }
   });

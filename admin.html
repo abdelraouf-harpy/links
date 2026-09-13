@@ -22,7 +22,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Admin">
 
-  <link rel="stylesheet" href="css/style.css?v=40.4">
+  <link rel="stylesheet" href="css/style.css?v=40.5">
   <script>
     // Instant zero-delay theme toggle available immediately on page paint
     window.handleThemeToggle = function() {
@@ -102,14 +102,22 @@
         mLink.href = 'admin-manifest-' + slug + '.json?v=38.0';
         document.head.appendChild(mLink);
 
-        // Auto-fix URL parameter so address bar and internal routing stay consistent
-        if (!window.location.search.includes('m=') && !window.location.search.includes('restaurant=')) {
-          try {
-            var url = new URL(window.location.href);
-            url.searchParams.set('m', slug);
-            window.history.replaceState({}, '', url.toString());
-          } catch(e) {}
-        }
+        // Auto-fix URL path and parameter so address bar and internal routing stay consistent
+        try {
+          var currentUrl = new URL(window.location.href);
+          var urlChanged = false;
+          if (!currentUrl.searchParams.get('m') && !currentUrl.searchParams.get('restaurant')) {
+            currentUrl.searchParams.set('m', slug);
+            urlChanged = true;
+          }
+          if (currentUrl.pathname.endsWith('/admin') || currentUrl.pathname.endsWith('/admin/')) {
+            currentUrl.pathname = currentUrl.pathname.replace(/\/admin\/?$/, '/admin.html');
+            urlChanged = true;
+          }
+          if (urlChanged) {
+            window.history.replaceState({}, '', currentUrl.toString());
+          }
+        } catch(e) {}
 
         // Sync preview button immediately with active slug
         document.addEventListener('DOMContentLoaded', function() {
@@ -1460,8 +1468,8 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/store.js?v=40.4"></script>
-  <script src="js/admin.js?v=40.4"></script>
-  <script src="js/pwa.js?v=40.4"></script>
+  <script src="js/store.js?v=40.5"></script>
+  <script src="js/admin.js?v=40.5"></script>
+  <script src="js/pwa.js?v=40.5"></script>
 </body>
 </html>

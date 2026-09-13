@@ -1,5 +1,5 @@
 // Order PWA Service Worker — Native App Shell & Offline Engine
-const CACHE_NAME = 'order-pwa-v40.4';
+const CACHE_NAME = 'order-pwa-v40.5';
 const IMAGE_CACHE_NAME = 'order-images-v1';
 const ASSETS_TO_CACHE = [
   './',
@@ -13,11 +13,11 @@ const ASSETS_TO_CACHE = [
   './admin-manifest-king.json',
   './manifest-sloo.json',
   './admin-manifest-sloo.json',
-  './css/style.css?v=40.4',
-  './js/store.js?v=40.4',
-  './js/app.js?v=40.4',
-  './js/admin.js?v=40.4',
-  './js/pwa.js?v=40.4'
+  './css/style.css?v=40.5',
+  './js/store.js?v=40.5',
+  './js/app.js?v=40.5',
+  './js/admin.js?v=40.5',
+  './js/pwa.js?v=40.5'
 ];
 
 self.addEventListener('install', (event) => {

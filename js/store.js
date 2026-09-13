@@ -3343,33 +3343,105 @@ const Store = {
     if (!slug || !orderData || !orderData.orderId) return false;
     const cleanId = orderData.orderId.replace(/[^a-zA-Z0-9_-]/g, '');
 
-    // 1. Cache locally for 0ms instant display
+    // 1. Cache locally for instant UI responsiveness
     try {
       const cached = this.getOrders();
       const updated = [orderData, ...cached.filter(o => o.orderId !== orderData.orderId)];
       this.saveOrders(updated);
     } catch(e) {}
 
-    // 2. Parallel Dual-Channel Dispatch: WebSocket + Ultra-Fast Keepalive REST
-    if (db) {
-      try {
-        db.ref(`restaurants/${slug}/orders/${cleanId}`).set(orderData);
-      } catch (err) {
-        console.warn("[Store] Error pushing order to cloud SDK:", err);
-      }
+    let isDelivered = false;
+
+    // 2. Verified REST Delivery with status code validation and 9-second timeout
+    let controller = null;
+    let timeoutId = null;
+    if (typeof AbortController !== 'undefined') {
+      controller = new AbortController();
+      timeoutId = setTimeout(() => controller.abort(), 9000);
     }
 
     try {
-      // Sub-50ms REST Delivery
-      fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders/${cleanId}.json`, {
+      const res = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders/${cleanId}.json`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData),
-        keepalive: true
-      }).catch(() => {});
-    } catch (e) {}
+        signal: controller ? controller.signal : undefined
+      });
+      if (timeoutId) clearTimeout(timeoutId);
+      if (res && res.ok) {
+        isDelivered = true;
+      }
+    } catch (err) {
+      if (timeoutId) clearTimeout(timeoutId);
+      console.warn("[Store] REST order push notice:", err.message);
+    }
 
-    return true;
+    // 3. Parallel WebSocket SDK broadcast when REST delivery confirmed
+    if (db && isDelivered) {
+      try {
+        db.ref(`restaurants/${slug}/orders/${cleanId}`).set(orderData);
+      } catch (err) {}
+    }
+
+    return isDelivered;
+  },
+
+  // ── Offline Outbox & Auto-Retry Queue System ────────────────
+  getOutbox() {
+    const slug = this.getRestaurantSlug();
+    if (!slug) return [];
+    try {
+      const raw = localStorage.getItem(`harpy_outbox_${slug}`);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      return [];
+    }
+  },
+
+  saveOutbox(outbox) {
+    const slug = this.getRestaurantSlug();
+    if (!slug) return;
+    try {
+      localStorage.setItem(`harpy_outbox_${slug}`, JSON.stringify(outbox || []));
+    } catch (e) {}
+  },
+
+  addToOutbox(orderData) {
+    if (!orderData || !orderData.orderId) return;
+    const current = this.getOutbox();
+    if (!current.some(o => o.orderId === orderData.orderId)) {
+      current.push({ ...orderData, queuedAt: Date.now() });
+      this.saveOutbox(current);
+      console.log(`[Store Outbox] Order ${orderData.orderId} queued for background delivery.`);
+    }
+  },
+
+  removeFromOutbox(orderId) {
+    if (!orderId) return;
+    const current = this.getOutbox();
+    const updated = current.filter(o => o.orderId !== orderId);
+    this.saveOutbox(updated);
+  },
+
+  async processOutbox() {
+    const outbox = this.getOutbox();
+    if (!outbox || outbox.length === 0) return 0;
+    let syncedCount = 0;
+
+    for (const order of [...outbox]) {
+      try {
+        const success = await this.pushOrderToCloud(order);
+        if (success) {
+          this.removeFromOutbox(order.orderId);
+          syncedCount++;
+          console.log(`[Store Outbox] Successfully delivered queued order ${order.orderId}`);
+          window.dispatchEvent(new CustomEvent('harpy_outbox_synced', { detail: order }));
+        }
+      } catch (e) {
+        console.warn(`[Store Outbox] Delivery attempt failed for ${order.orderId}:`, e);
+      }
+    }
+    return syncedCount;
   },
 
   syncOrdersFromCloud(slug, onOrdersUpdate) {
@@ -3429,22 +3501,41 @@ const Store = {
     // 1. WebSocket Realtime Channel (Sub-50ms when active)
     let ordersRef = null;
     let wsCallback = null;
-    try {
-      if (this.activeListeners.orders) {
-        try { this.activeListeners.orders.ref.off('value', this.activeListeners.orders.callback); } catch(e) {}
-        this.activeListeners.orders = null;
+
+    const setupWsListener = () => {
+      if (!db || isDestroyed) return;
+      if (ordersRef && wsCallback) {
+        try { ordersRef.off('value', wsCallback); } catch(e) {}
       }
-      if (db) {
+      try {
         ordersRef = db.ref(`restaurants/${slug}/orders`).limitToLast(100);
         wsCallback = snapshot => {
           handleOrdersPayload(snapshot.val() || {});
         };
         ordersRef.on('value', wsCallback, err => {
-          console.warn("[Store] Orders WS listener notice:", err);
+          console.warn("[Store] Orders WS listener notice:", err ? (err.message || err.code || err) : err);
         });
         this.activeListeners.orders = { ref: ordersRef, callback: wsCallback };
+      } catch (e) {
+        console.warn("[Store] Failed to attach orders WS listener:", e);
       }
-    } catch (e) {}
+    };
+
+    setupWsListener();
+
+    // Dynamically re-bind WebSocket listener as soon as Firebase Auth state changes
+    let authUnsubscribe = null;
+    if (window.firebase && firebase.auth) {
+      try {
+        authUnsubscribe = firebase.auth().onAuthStateChanged(user => {
+          if (isDestroyed) return;
+          if (user) {
+            setupWsListener();
+            fetchOrdersFast();
+          }
+        });
+      } catch(e) {}
+    }
 
     // 2. High-Frequency REST Heartbeat Pulse (Every 4.0 seconds fallback)
     const fetchOrdersFast = async () => {
@@ -3457,6 +3548,10 @@ const Store = {
             if (idToken) authParam = `&auth=${idToken}`;
           }
         } catch(e) {}
+        if (!authParam) {
+          // Without an active auth token, secured RTDB orders endpoint will reject; avoid unnecessary 401 spam
+          return;
+        }
         const res = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders.json?orderBy="$key"&limitToLast=100${authParam}`, {
           cache: 'no-store'
         });
@@ -3465,6 +3560,8 @@ const Store = {
           if (data && typeof data === 'object') {
             handleOrdersPayload(data);
           }
+        } else if (res.status === 401 && window.firebase && firebase.auth && firebase.auth().currentUser) {
+          try { await firebase.auth().currentUser.getIdToken(true); } catch(e) {}
         }
       } catch (e) {}
     };
@@ -3475,6 +3572,7 @@ const Store = {
     return () => {
       isDestroyed = true;
       if (pollTimer) clearInterval(pollTimer);
+      if (authUnsubscribe) { try { authUnsubscribe(); } catch(e) {} }
       if (ordersRef && wsCallback) {
         try { ordersRef.off('value', wsCallback); } catch(e) {}
       }

@@ -430,6 +430,53 @@ async function initApp() {
       }
     }
   });
+
+  // 6. Setup Offline Outbox background queue & auto-retry engine
+  setupOutboxSync();
+}
+
+function setupOutboxSync() {
+  if (typeof Store === 'undefined' || !Store.processOutbox) return;
+
+  // Process any pending outbox orders on startup if online
+  if (navigator.onLine) {
+    Store.processOutbox().then(count => {
+      if (count > 0) {
+        showToastNotification(`✅ تم بنجاح إرسال وتأكيد ${count} طلب كان في قائمة الانتظار!`, "success");
+        renderLastOrderRecall();
+      }
+    }).catch(() => {});
+  }
+
+  // Auto-retry when connection is restored
+  window.addEventListener('online', async () => {
+    showToastNotification("📡 عاد الاتصال بالإنترنت! جارٍ محاولة إرسال الطلبات المعلقة...", "info");
+    const count = await Store.processOutbox();
+    if (count > 0) {
+      if (typeof SoundFX !== 'undefined' && SoundFX.playCash) SoundFX.playCash();
+      showToastNotification(`✅ تم بنجاح إرسال وتأكيد ${count} طلب كان معلقاً!`, "success");
+      Store.clearCart();
+      updateLedgerUI();
+      renderLastOrderRecall();
+    }
+  });
+
+  // Background heartbeat retry every 15 seconds
+  setInterval(async () => {
+    if (navigator.onLine) {
+      const outbox = Store.getOutbox();
+      if (outbox && outbox.length > 0) {
+        const count = await Store.processOutbox();
+        if (count > 0) {
+          if (typeof SoundFX !== 'undefined' && SoundFX.playCash) SoundFX.playCash();
+          showToastNotification(`✅ تم بنجاح إرسال وتأكيد ${count} طلب كان في قائمة الانتظار!`, "success");
+          Store.clearCart();
+          updateLedgerUI();
+          renderLastOrderRecall();
+        }
+      }
+    }
+  }, 15000);
 }
 
 function showToastNotification(message, type = 'success') {
@@ -2597,21 +2644,47 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
     timestamp: Date.now()
   };
 
-  // 1. Instant Push to Cloud (Firebase Realtime DB + REST)
-  Store.pushOrderToCloud(orderData);
+  // 1. Show transient loading state on submit buttons
+  const submitBtns = document.querySelectorAll('#btn-confirm-order, #btn-confirm-order-whatsapp, .btn-confirm-checkout');
+  submitBtns.forEach(b => {
+    b.dataset.origText = b.innerHTML;
+    b.disabled = true;
+    b.innerHTML = '⏳ جارٍ تأكيد الطلب...';
+  });
 
-  // 2. Save locally for recall
-  Store.saveLastOrder(orderData);
+  // 2. Await verified cloud push
+  let isDelivered = false;
+  try {
+    isDelivered = await Store.pushOrderToCloud(orderData);
+  } catch (pushErr) {
+    console.warn("[Checkout] Cloud delivery error:", pushErr);
+  }
 
-  // 3. Audio & Success Toast
-  SoundFX.playCash();
-  showToastNotification("تم إرسال واستلام طلبك بنجاح! جاري التجهيز 👨‍🍳🔥", "success");
-  Store.clearCart();
-  closeCartDrawer();
-  goToCheckoutStep(1);
-  updateLedgerUI();
-  renderProducts();
-  renderLastOrderRecall();
+  // Restore button states
+  submitBtns.forEach(b => {
+    if (b.dataset.origText) b.innerHTML = b.dataset.origText;
+    b.disabled = false;
+  });
+
+  if (isDelivered) {
+    // 3. Confirmed Cloud Success: save, sound, clear cart, close drawer
+    Store.saveLastOrder(orderData);
+    SoundFX.playCash();
+    showToastNotification("تم إرسال واستلام طلبك بنجاح! جاري التجهيز 👨‍🍳🔥", "success");
+    Store.clearCart();
+    closeCartDrawer();
+    goToCheckoutStep(1);
+    updateLedgerUI();
+    renderProducts();
+    renderLastOrderRecall();
+  } else {
+    // 4. Offline / Network Outage: Queue in Outbox, PRESERVE cart, notify customer honestly
+    Store.addToOutbox(orderData);
+    Store.saveLastOrder(orderData);
+    showToastNotification("⚠️ تعذر الاتصال بالخادم حالياً. تم حفظ طلبك في قائمة الانتظار وسنرسله تلقائياً فور عودة الشبكة 📡", "warning");
+    closeCartDrawer();
+    renderLastOrderRecall();
+  }
 
   // 4. Open WhatsApp if requested
   if (openWhatsApp) {

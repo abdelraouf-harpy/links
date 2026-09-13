@@ -148,8 +148,8 @@
       };
 
       const authenticHref = isAdmin 
-        ? `admin-manifest-${slug}.json?v=40.4` 
-        : `manifest-${slug}.json?v=40.4`;
+        ? `admin-manifest-${slug}.json?v=40.5` 
+        : `manifest-${slug}.json?v=40.5`;
 
       let manifestLink = document.querySelector('link[rel="manifest"]');
       if (!manifestLink) {
@@ -217,7 +217,7 @@
   updatePwaBranding();
 
   // ── 2. Clean Update Engine ("متظهرش تاني طالما مفيش تحديث وطالما الشخص حدّث") ───
-  const CURRENT_PWA_BUILD = 'v40.4';
+  const CURRENT_PWA_BUILD = 'v40.5';
 
   function isUpdateAlreadyHandled() {
     try {
@@ -432,7 +432,7 @@
   // ── 5. Register Service Worker with Clean Update Engine ───────
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      const swUrl = './sw.js?v=40.4';
+      const swUrl = './sw.js?v=40.5';
       navigator.serviceWorker.register(swUrl)
         .then(reg => {
           window.__swRegistration = reg;

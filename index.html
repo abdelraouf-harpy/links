@@ -28,7 +28,7 @@
   <link rel="preconnect" href="https://i.ibb.co" crossorigin>
   <link rel="dns-prefetch" href="https://i.ibb.co">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/style.css?v=40.4">
+  <link rel="stylesheet" href="css/style.css?v=40.5">
   <script>
     // Instant zero-delay theme toggle available immediately on page paint
     window.handleThemeToggle = function() {
@@ -85,11 +85,11 @@
         mLink.href = 'manifest-' + slug + '.json?v=38.0';
         document.head.appendChild(mLink);
 
-        // Safety Recovery: If browser lands on index.html with an admin tab hash, route directly to /admin
+        // Safety Recovery: If browser lands on index.html with an admin tab hash, route directly to /admin.html
         var adminTabs = ['orders', 'products', 'categories', 'stories', 'settings', 'backup'];
         var currentAdminHash = (window.location.hash || '').replace('#', '').trim();
         if (adminTabs.indexOf(currentAdminHash) !== -1) {
-          var adminDest = '/admin?m=' + encodeURIComponent(slug) + '#' + currentAdminHash;
+          var adminDest = '/admin.html?m=' + encodeURIComponent(slug) + '#' + currentAdminHash;
           window.location.replace(adminDest);
           return;
         }
@@ -852,8 +852,8 @@
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/store.js?v=40.4"></script>
-  <script src="js/app.js?v=40.4"></script>
-  <script src="js/pwa.js?v=40.4"></script>
+  <script src="js/store.js?v=40.5"></script>
+  <script src="js/app.js?v=40.5"></script>
+  <script src="js/pwa.js?v=40.5"></script>
 </body>
 </html>

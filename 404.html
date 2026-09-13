@@ -51,7 +51,7 @@
 
         if (adminHashes.indexOf(cleanHash) !== -1) {
           var slug = storedSlug || 'king';
-          window.location.replace('/admin?m=' + encodeURIComponent(slug) + '#' + cleanHash);
+          window.location.replace('/admin.html?m=' + encodeURIComponent(slug) + '#' + cleanHash);
           return;
         }
         
