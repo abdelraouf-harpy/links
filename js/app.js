@@ -1364,6 +1364,30 @@ window.closeOrderingPausedModal = function() {
   if (backdrop) backdrop.classList.remove('open');
 };
 
+function findMatchingCartItem(cart, target) {
+  if (!cart || !Array.isArray(cart) || !target) return null;
+  const targetPid = target.productId || target.id;
+  const targetSizeName = target.selectedSize ? target.selectedSize.name : null;
+  const targetAddonNames = (target.selectedAddons || []).map(a => a.name).sort().join(',');
+  const targetNotes = (target.notes || '').trim();
+
+  return cart.find(i => {
+    const iPid = i.productId || i.id;
+    if (iPid !== targetPid) return false;
+
+    const iSizeName = i.selectedSize ? i.selectedSize.name : null;
+    if (iSizeName !== targetSizeName) return false;
+
+    const iAddonNames = (i.selectedAddons || []).map(a => a.name).sort().join(',');
+    if (iAddonNames !== targetAddonNames) return false;
+
+    const iNotes = (i.notes || '').trim();
+    if (iNotes !== targetNotes) return false;
+
+    return true;
+  });
+}
+
 window.handleQuickAddItem = function(productId, triggerElement) {
   if (checkOrderingPaused()) return;
 
@@ -1378,7 +1402,13 @@ window.handleQuickAddItem = function(productId, triggerElement) {
   }
 
   const cart = Store.getCart();
-  const existing = cart.find(i => i.productId === productId && !i.selectedSize && (!i.selectedAddons || i.selectedAddons.length === 0));
+  const dummyQuery = {
+    productId: p.id,
+    selectedSize: null,
+    selectedAddons: [],
+    notes: ''
+  };
+  const existing = findMatchingCartItem(cart, dummyQuery);
   if (existing) {
     existing.qty += 1;
   } else {
@@ -1390,6 +1420,9 @@ window.handleQuickAddItem = function(productId, triggerElement) {
       price: p.price,
       image: p.image,
       category: p.category,
+      selectedSize: null,
+      selectedAddons: [],
+      notes: '',
       qty: 1
     });
   }
@@ -1408,7 +1441,19 @@ window.handleUpdateItemQty = function(cartItemId, change) {
   if (change > 0 && checkOrderingPaused()) return;
 
   let cart = Store.getCart();
-  const existing = cart.find(i => i.id === cartItemId || i.productId === cartItemId);
+  // 1. Exact match by unique cart item id (e.g. from cart drawer)
+  let existing = cart.find(i => i.id === cartItemId);
+
+  // 2. If not found by unique id, match standard/base item by product id (e.g. from product card stepper)
+  if (!existing) {
+    existing = cart.find(i => (i.productId === cartItemId || i.id === cartItemId) && !i.selectedSize && (!i.selectedAddons || i.selectedAddons.length === 0));
+  }
+
+  // 3. Fallback to any item with that productId
+  if (!existing) {
+    existing = cart.find(i => i.productId === cartItemId || i.id === cartItemId);
+  }
+
   if (!existing) return;
 
   existing.qty += change;
@@ -1420,8 +1465,8 @@ window.handleUpdateItemQty = function(cartItemId, change) {
   updateLedgerUI();
   renderProducts();
 
-  if (currentPreviewProductId === cartItemId) {
-    updatePreviewModalActions(cartItemId);
+  if (currentPreviewProductId === cartItemId || (existing && currentPreviewProductId === existing.productId)) {
+    updatePreviewModalActions(existing ? existing.productId : cartItemId);
   }
 };
 
@@ -1515,7 +1560,7 @@ window.openCustomizer = function(productId) {
     if (elements.customizerSizesSection) elements.customizerSizesSection.style.display = 'block';
     if (elements.customizerSizesList) {
       elements.customizerSizesList.innerHTML = p.sizes.map((s, idx) => `
-        <div class="customizer-option-card ${idx === 0 ? 'selected' : ''}" onclick="selectCustomizerSize('${s.id}')" data-size-id="${s.id}">
+        <div class="customizer-option-card ${idx === 0 ? 'selected' : ''}" onclick="selectCustomizerSize('${s.id || s.name || idx}')" data-size-id="${s.id || ''}" data-size-name="${s.name || ''}" data-size-idx="${idx}">
           <div class="option-left-wrap">
             <div class="custom-radio-circle"></div>
             <span class="option-name">${s.name}</span>
@@ -1533,7 +1578,7 @@ window.openCustomizer = function(productId) {
     if (elements.customizerAddonsSection) elements.customizerAddonsSection.style.display = 'block';
     if (elements.customizerAddonsList) {
       elements.customizerAddonsList.innerHTML = p.addons.map(a => `
-        <div class="customizer-option-card" onclick="toggleCustomizerAddon('${a.id}')" data-addon-id="${a.id}">
+        <div class="customizer-option-card" onclick="toggleCustomizerAddon('${a.id || a.name}')" data-addon-id="${a.id || ''}" data-addon-name="${a.name || ''}">
           <div class="option-left-wrap">
             <div class="custom-check-box"></div>
             <span class="option-name">${a.name}</span>
@@ -1554,13 +1599,14 @@ window.openCustomizer = function(productId) {
   SoundFX.playPop();
 };
 
-window.selectCustomizerSize = function(sizeId) {
+window.selectCustomizerSize = function(sizeIdentifier) {
   if (!customizerProduct || !customizerProduct.sizes) return;
-  customizerSelectedSize = customizerProduct.sizes.find(s => s.id === sizeId);
+  customizerSelectedSize = customizerProduct.sizes.find((s, idx) => (s.id && s.id === sizeIdentifier) || s.name === sizeIdentifier || String(idx) === String(sizeIdentifier));
   
   const cards = document.querySelectorAll('#customizer-sizes-list .customizer-option-card');
-  cards.forEach(card => {
-    card.classList.toggle('selected', card.dataset.sizeId === sizeId);
+  cards.forEach((card, idx) => {
+    const isSel = card.dataset.sizeId === sizeIdentifier || card.dataset.sizeName === sizeIdentifier || String(idx) === String(sizeIdentifier);
+    card.classList.toggle('selected', isSel);
   });
 
   SoundFX.playPop();
@@ -1665,7 +1711,12 @@ function initCustomizerEvents() {
       };
 
       const cart = Store.getCart();
-      cart.push(cartItem);
+      const existing = findMatchingCartItem(cart, cartItem);
+      if (existing) {
+        existing.qty += cartItem.qty;
+      } else {
+        cart.push(cartItem);
+      }
       Store.saveCart(cart);
 
       SoundFX.playPop();

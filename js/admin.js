@@ -67,6 +67,7 @@ const adminElements = {
   prodPrepTime: document.getElementById('prod-preptime'),
   prodBadge: document.getElementById('prod-badge'),
   prodFeatured: document.getElementById('prod-featured'),
+  prodVisible: document.getElementById('prod-visible'),
   prodDesc: document.getElementById('prod-desc'),
   prodImgUrl: document.getElementById('prod-img-url'),
   prodImgFile: document.getElementById('prod-img-file'),
@@ -2337,26 +2338,36 @@ window.deleteProductFast = async function(id) {
 function openProductModal(productId) {
   currentEditingProductId = productId;
   const cats = Store.getCategories();
+  let editingProd = null;
+  if (productId) {
+    editingProd = Store.getProducts().find(i => i.id === productId);
+  }
 
   if (adminElements.prodCategory) {
-    adminElements.prodCategory.innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
+    let opts = [...cats];
+    if (editingProd && editingProd.category && !opts.includes(editingProd.category)) {
+      opts.unshift(editingProd.category);
+    }
+    if (opts.length === 0) opts.push('عام');
+    adminElements.prodCategory.innerHTML = opts.map(c => `<option value="${c}">${c}</option>`).join('');
   }
 
   if (adminElements.prodSizesList) adminElements.prodSizesList.innerHTML = '';
   if (adminElements.prodAddonsList) adminElements.prodAddonsList.innerHTML = '';
 
   if (productId) {
-    const p = Store.getProducts().find(i => i.id === productId);
+    const p = editingProd;
     if (!p) return;
     if (adminElements.productModalTitle) adminElements.productModalTitle.textContent = "تعديل الصنف";
     if (adminElements.prodId) adminElements.prodId.value = p.id;
     if (adminElements.prodName) adminElements.prodName.value = p.name || '';
-    if (adminElements.prodCategory) adminElements.prodCategory.value = p.category || cats[0];
+    if (adminElements.prodCategory) adminElements.prodCategory.value = p.category || (cats.length > 0 ? cats[0] : 'عام');
     if (adminElements.prodPrice) adminElements.prodPrice.value = p.price || 0;
     if (adminElements.prodOriginalPrice) adminElements.prodOriginalPrice.value = p.originalPrice || '';
     if (adminElements.prodPrepTime) adminElements.prodPrepTime.value = p.prepTime || '';
     if (adminElements.prodBadge) adminElements.prodBadge.value = p.badge || '';
     if (adminElements.prodFeatured) adminElements.prodFeatured.checked = !!p.isFeatured;
+    if (adminElements.prodVisible) adminElements.prodVisible.checked = (p.visible !== false);
     if (adminElements.prodDesc) adminElements.prodDesc.value = p.desc || '';
     if (adminElements.prodImgUrl) adminElements.prodImgUrl.value = p.image || '';
 
@@ -2376,6 +2387,7 @@ function openProductModal(productId) {
     if (adminElements.productForm) adminElements.productForm.reset();
     if (adminElements.prodId) adminElements.prodId.value = '';
     if (adminElements.prodFeatured) adminElements.prodFeatured.checked = false;
+    if (adminElements.prodVisible) adminElements.prodVisible.checked = true;
     if (prodImageUploader) prodImageUploader.clearPreview();
   }
 
@@ -2435,6 +2447,13 @@ async function saveProductForm() {
   const prepTime = (adminElements.prodPrepTime?.value || '').trim();
   const badge = (adminElements.prodBadge?.value || '').trim();
   const isFeatured = adminElements.prodFeatured?.checked === true;
+  let isVisible = true;
+  if (adminElements.prodVisible) {
+    isVisible = adminElements.prodVisible.checked === true;
+  } else if (currentEditingProductId) {
+    const existing = Store.getProducts().find(p => p.id === currentEditingProductId);
+    isVisible = existing ? (existing.visible !== false) : true;
+  }
   const desc = (adminElements.prodDesc?.value || '').trim();
   const image = (adminElements.prodImgUrl?.value || '').trim() || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop&q=80";
 
@@ -2477,7 +2496,7 @@ async function saveProductForm() {
     image,
     sizes,
     addons,
-    visible: true
+    visible: isVisible
   };
 
   if (submitBtn) {
@@ -2674,19 +2693,54 @@ window.saveCategoryEdit = async function() {
 };
 
 window.deleteCategoryFast = async function(cat) {
+  const prods = Store.getProducts();
+  const attachedProds = prods.filter(p => p && p.category === cat);
+  const remainingCats = Store.getCategories().filter(c => c !== cat);
+
+  let fallbackCat = remainingCats.length > 0 ? remainingCats[0] : "عام";
+
+  let confirmMsg = `هل أنت متأكد من رغبتك في حذف قسم "<strong>${cat}</strong>"؟`;
+  if (attachedProds.length > 0) {
+    confirmMsg += `<br><span style="display:inline-block; margin-top:8px; font-size:12.5px; color:var(--text-muted); line-height:1.4;">يحتوي هذا القسم على <strong>${attachedProds.length}</strong> صنف، سيتم نقلها تلقائياً إلى قسم "<strong>${fallbackCat}</strong>" لضمان بقائها وظهورها في المنيو.</span>`;
+  }
+
   const confirmed = await showCustomConfirm({
     title: "حذف قسم من المنيو",
-    message: `هل أنت متأكد من رغبتك في حذف قسم "<strong>${cat}</strong>"؟`,
+    message: confirmMsg,
     icon: "📂",
-    confirmText: "حذف القسم 🗑️",
+    confirmText: attachedProds.length > 0 ? "حذف ونقل الأصناف 🗑️" : "حذف القسم 🗑️",
     cancelText: "إلغاء",
     isDanger: true
   });
+
   if (confirmed) {
-    const cats = Store.getCategories().filter(c => c !== cat);
-    await Store.saveCategories(cats);
+    let updatedProductsCount = 0;
+    if (attachedProds.length > 0) {
+      prods.forEach(p => {
+        if (p && p.category === cat) {
+          p.category = fallbackCat;
+          updatedProductsCount++;
+        }
+      });
+      await Store.saveProducts(prods);
+    }
+
+    let finalCats = remainingCats;
+    if (finalCats.length === 0) {
+      finalCats = [fallbackCat];
+    }
+    await Store.saveCategories(finalCats);
+
     renderCategoriesList();
-    showToastNotification("تم حذف القسم بنجاح ✓", "success");
+    if (typeof renderCatalog === 'function') {
+      renderCatalog();
+    }
+    
+    if (updatedProductsCount > 0) {
+      showToastNotification(`تم حذف القسم بنجاح ونقل (${updatedProductsCount}) صنف إلى "${fallbackCat}" ✓`, "success");
+    } else {
+      showToastNotification("تم حذف القسم بنجاح ✓", "success");
+    }
   }
 };
 

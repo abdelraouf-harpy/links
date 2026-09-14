@@ -2799,6 +2799,7 @@ const Store = {
         candidateEmails.push(cleanId);
       } else {
         if (cleanId === 'test_staging_tenant' || slug === 'test_staging_tenant') {
+          candidateEmails.push('staging_test@harpymenu.com');
           candidateEmails.push('test@harpymenu.com');
         }
         if (cleanId) candidateEmails.push(`${cleanId}@harpymenu.com`);
@@ -3338,8 +3339,13 @@ const Store = {
     } catch(e) {}
   },
 
-  async pushOrderToCloud(orderData) {
-    const slug = this.getRestaurantSlug();
+  async pushOrderToCloud(arg1, arg2) {
+    let slug = this.getRestaurantSlug();
+    let orderData = arg1;
+    if (typeof arg1 === 'string' && arg2 && typeof arg2 === 'object') {
+      slug = arg1;
+      orderData = arg2;
+    }
     if (!slug || !orderData || !orderData.orderId) return false;
     const cleanId = orderData.orderId.replace(/[^a-zA-Z0-9_-]/g, '');
 

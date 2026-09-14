@@ -44,6 +44,7 @@
 
   const MENU_ICON_URL = 'https://iili.io/n3HVHX4.jpg';
   const ADMIN_ICON_URL = 'https://iili.io/n3rYXyu.png';
+  const fallbackIcon = isAdmin ? ADMIN_ICON_URL : MENU_ICON_URL;
 
   let appName = isAdmin ? 'Admin' : 'Order';
   let appDisplayName = appName;
