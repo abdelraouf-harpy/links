@@ -371,12 +371,15 @@ function setupAuth() {
             renderInvoicesArchive(orders);
           });
         }
-      } else if (!Store.isAdminAuthenticated(slug)) {
+      } else {
+        // Logged-in Firebase user does not belong to this restaurant (e.g. switched from another tenant)
+        console.warn(`[Admin] Active Firebase user (${user.email}) does not own ${slug}. Logging out mismatched session.`);
+        await Store.logoutAdmin();
+        lockDashboard();
         if (adminElements.loginErrorMsg) {
-          adminElements.loginErrorMsg.textContent = "عفواً، هذا الحساب ليس لديه صلاحية إدارة هذا المطعم.";
+          adminElements.loginErrorMsg.textContent = "يرجى تسجيل الدخول بكلمة مرور هذا المطعم لتفعيل المزامنة.";
           adminElements.loginErrorMsg.style.display = 'block';
         }
-        await Store.logoutAdmin();
       }
     } else {
       // User is not authenticated in Firebase Auth.
