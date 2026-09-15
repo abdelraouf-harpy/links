@@ -235,9 +235,11 @@ function setupAuth() {
     // Fast-resolve preloaded cloud data before rendering to eliminate flash on refresh
     if (window.__harpyPreloadPromise) {
       try {
+        const hasCachedSettings = !!(Store.getSettings() && Store.getSettings().storeName);
+        const maxWaitMs = hasCachedSettings ? 350 : 1200;
         const preloadData = await Promise.race([
           window.__harpyPreloadPromise,
-          new Promise(r => setTimeout(() => r(null), 350))
+          new Promise(r => setTimeout(() => r(null), maxWaitMs))
         ]);
         if (preloadData && typeof preloadData === 'object') {
           Store.applySnapshotData(preloadData);
@@ -267,6 +269,7 @@ function setupAuth() {
         renderCategoriesList();
         renderStoriesList();
         loadSettingsIntoForm();
+        checkOnboardingSetup();
         const curSettings = Store.getSettings();
         if (typeof window.updatePwaBranding === 'function') {
           window.updatePwaBranding(curSettings);
@@ -360,7 +363,10 @@ function setupAuth() {
   // Listen to Firebase Auth state
   Store.onAuthStateChanged(async (user) => {
     if (user) {
-      const isOwner = await Store.verifyTenantOwnership(slug, user.uid);
+      const authCheck = await Store.verifyTenantOwnership(slug, user.uid);
+      const isOwner = (authCheck && typeof authCheck === 'object') ? authCheck.isOwner : !!authCheck;
+      const mismatchConfirmed = (authCheck && typeof authCheck === 'object') ? authCheck.mismatchConfirmed : false;
+
       if (isOwner) {
         if (!isAuthenticated) {
           unlockDashboard();
@@ -372,7 +378,7 @@ function setupAuth() {
             renderInvoicesArchive(orders);
           });
         }
-      } else {
+      } else if (mismatchConfirmed) {
         // Logged-in Firebase user does not belong to this restaurant (e.g. switched from another tenant)
         console.warn(`[Admin] Active Firebase user (${user.email}) does not own ${slug}. Logging out mismatched session.`);
         await Store.logoutAdmin();
@@ -380,6 +386,12 @@ function setupAuth() {
         if (adminElements.loginErrorMsg) {
           adminElements.loginErrorMsg.textContent = "يرجى تسجيل الدخول بكلمة مرور هذا المطعم لتفعيل المزامنة.";
           adminElements.loginErrorMsg.style.display = 'block';
+        }
+      } else {
+        // Network timeout or transient verification failure on mobile - preserve authenticated state
+        console.warn(`[Admin] Could not verify ownership due to transient network state for ${user.email}. Preserving active session.`);
+        if (Store.isAdminAuthenticated(slug) && !isAuthenticated) {
+          unlockDashboard();
         }
       }
     } else {
@@ -544,6 +556,9 @@ function loadAllDashboardData() {
 }
 
 function checkOnboardingSetup() {
+  if (Store.isCloudDataLoaded && !Store.isCloudDataLoaded()) {
+    return;
+  }
   const settings = Store.getSettings();
   const existingBanner = document.getElementById('onboarding-setup-banner');
   const isIncomplete = !settings.storeName || !settings.whatsappNumber;
@@ -2231,6 +2246,16 @@ function renderCatalog() {
   const currency = Store.getSettings().currency || "ج.م";
 
   if (prods.length === 0) {
+    if (Store.isCloudDataLoaded && !Store.isCloudDataLoaded()) {
+      adminElements.catalogContainer.innerHTML = `
+        <div style="grid-column:1/-1; text-align:center; padding:45px 20px; background:var(--surface); border:1px dashed var(--border); border-radius:var(--radius-md);">
+          <div style="width:28px; height:28px; border:3px solid var(--border); border-top-color:var(--primary); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 12px;"></div>
+          <div style="font-size:14px; font-weight:700; color:var(--text-muted);">جاري تحميل أصناف المنيو...</div>
+        </div>
+      `;
+      return;
+    }
+
     adminElements.catalogContainer.innerHTML = `
       <div style="grid-column:1/-1; text-align:center; padding:45px 20px; background:var(--surface); border:1px dashed var(--border-strong); border-radius:var(--radius-md);">
         <div style="font-size:38px; margin-bottom:12px;">🍽️</div>

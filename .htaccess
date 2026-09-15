@@ -1,0 +1,16 @@
+﻿<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^admin/?$ admin.html [L,QSA]
+</IfModule>
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html)$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+  </FilesMatch>
+  <FilesMatch "(sw\.js|manifest\.json|admin-manifest\.json)$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+  </FilesMatch>
+  <FilesMatch "\.(css|js)$">
+    Header set Cache-Control "max-age=3600, must-revalidate"
+  </FilesMatch>
+</IfModule>

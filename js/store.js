@@ -22,6 +22,11 @@ try {
     db = firebase.database();
     if (firebase.auth) {
       auth = firebase.auth();
+      try {
+        if (firebase.auth.Auth && firebase.auth.Auth.Persistence) {
+          auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(() => {});
+        }
+      } catch(e) {}
     }
   }
 } catch (e) {
@@ -2569,6 +2574,17 @@ const Store = {
     };
   },
 
+  _isCloudDataLoaded: false,
+  isCloudDataLoaded() {
+    if (this._isCloudDataLoaded) return true;
+    const s = (this._memoryCache && this._memoryCache.settings) || (this.getSettings ? this.getSettings() : null);
+    if (s && s.storeName) return true;
+    return false;
+  },
+  setCloudDataLoaded(val = true) {
+    this._isCloudDataLoaded = !!val;
+  },
+
   // ── Save Locks & Listener Lifecycle State ────────────────
   saveLocks: {
     settings: false,
@@ -2808,6 +2824,9 @@ const Store = {
 
       for (const email of candidateEmails) {
         try {
+          if (firebase.auth && firebase.auth.Auth && firebase.auth.Auth.Persistence) {
+            try { await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); } catch(pErr) {}
+          }
           const userCred = await auth.signInWithEmailAndPassword(email, cleanPassword);
           const session = { 
             email: email, 
@@ -2993,6 +3012,7 @@ const Store = {
       return false;
     }
 
+    this._isCloudDataLoaded = true;
     const now = Date.now();
     let hasChanges = false;
     const defaults = isDemo ? DEFAULT_SETTINGS : BLANK_SETTINGS;
@@ -3107,6 +3127,7 @@ const Store = {
     } catch(e) {}
 
     const processSnapshotData = (data) => {
+      this._isCloudDataLoaded = true;
       if (isDestroyed || !data) return;
       const currentDataHash = JSON.stringify({
         s: data.settings,
@@ -3790,34 +3811,45 @@ const Store = {
   },
 
   async verifyTenantOwnership(slug, userUid) {
-    if (!db || !slug || !userUid) return false;
+    if (!db || !slug || !userUid) return { isOwner: false, mismatchConfirmed: false };
     try {
       // 1. Try checking licenses node first
       try {
         const licSnap = await db.ref(`licenses/${slug}/ownerUid`).once('value');
         const licUid = licSnap.val();
-        if (licUid && licUid === userUid) return true;
+        if (licUid && licUid === userUid) return { isOwner: true, mismatchConfirmed: false };
+        if (licUid && licUid !== userUid) {
+          return { isOwner: false, mismatchConfirmed: true, ownerUid: licUid };
+        }
       } catch(licErr) {}
 
       // 2. Check meta node
       const metaRef = db.ref(`restaurants/${slug}/meta`);
       const snap = await metaRef.once('value');
       if (!snap.exists()) {
-        await metaRef.set({
-          ownerUid: userUid,
-          createdAt: new Date().toISOString()
-        });
-        return true;
+        try {
+          await metaRef.set({
+            ownerUid: userUid,
+            createdAt: new Date().toISOString()
+          });
+        } catch(setErr) {}
+        return { isOwner: true, mismatchConfirmed: false };
       }
       const meta = snap.val() || {};
       if (!meta.ownerUid) {
-        await metaRef.child('ownerUid').set(userUid);
-        return true;
+        try {
+          await metaRef.child('ownerUid').set(userUid);
+        } catch(setErr) {}
+        return { isOwner: true, mismatchConfirmed: false };
       }
-      return meta.ownerUid === userUid;
+      if (meta.ownerUid === userUid) {
+        return { isOwner: true, mismatchConfirmed: false };
+      } else {
+        return { isOwner: false, mismatchConfirmed: true, ownerUid: meta.ownerUid };
+      }
     } catch (err) {
-      console.warn("[Store] Verify ownership error:", err);
-      return false;
+      console.warn("[Store] Verify ownership network/transient warning:", err);
+      return { isOwner: false, mismatchConfirmed: false, error: err.message };
     }
   },
 

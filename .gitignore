@@ -1,0 +1,40 @@
+# Environment & Secrets
+.env
+.env.*
+*.env
+*.key
+*.pem
+*.token
+*.secret
+secrets.json
+
+# Private Bot & Management Scripts
+bot.py
+run_bot.bat
+generate_manifests.js
+emergency_rollback.js
+backup_active_rules.json
+api/
+
+# Temporary & Test Scripts
+test_*.py
+test_*.js
+*.test.js
+*.spec.js
+scratch/
+temp_*
+*.tmp
+*.log
+
+# Caches & Builds
+.firebase
+.firebase/
+.tempmediaStorage
+.tempmediaStorage/
+__pycache__/
+*.pyc
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
