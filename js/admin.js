@@ -363,6 +363,14 @@ function setupAuth() {
   // Listen to Firebase Auth state
   Store.onAuthStateChanged(async (user) => {
     if (user) {
+      // Strict Guard: If local session for this tenant does not exist (e.g. user logged out),
+      // do NOT auto-unlock even if Firebase Auth still has a cached user!
+      if (!Store.isAdminAuthenticated(slug)) {
+        console.warn(`[Admin] Firebase Auth user (${user.email}) present but local session for ${slug} is absent. Keeping dashboard locked.`);
+        lockDashboard();
+        return;
+      }
+
       const authCheck = await Store.verifyTenantOwnership(slug, user.uid);
       const isOwner = (authCheck && typeof authCheck === 'object') ? authCheck.isOwner : !!authCheck;
       const mismatchConfirmed = (authCheck && typeof authCheck === 'object') ? authCheck.mismatchConfirmed : false;
@@ -395,20 +403,20 @@ function setupAuth() {
         }
       }
     } else {
-      // User is not authenticated in Firebase Auth.
-      // Under secured RTDB rules, Firebase Auth is required to receive live orders.
-      // If the browser only had an old legacy localStorage session without Firebase Auth uid:
-      const localAuth = Store.safeGetItem(`harpy_admin_auth_${slug}`);
-      if (localAuth) {
-        let parsed = null;
-        try { parsed = JSON.parse(localAuth); } catch(e) {}
-        if (!parsed || !parsed.uid) {
-          console.warn("[Admin] Legacy session without Firebase Auth detected. Prompting password.");
-          lockDashboard();
-          showToastNotification("يرجى إدخال كلمة المرور لتفعيل مزامنة واستقبال الطلبات الحية", "info");
-        }
-      } else if (!isAuthenticated) {
+      // User is not authenticated in Firebase Auth (user == null)
+      if (!Store.isAdminAuthenticated(slug)) {
         lockDashboard();
+      } else {
+        const localAuth = Store.safeGetItem(`harpy_admin_auth_${slug}`);
+        if (localAuth) {
+          let parsed = null;
+          try { parsed = JSON.parse(localAuth); } catch(e) {}
+          if (!parsed || !parsed.uid) {
+            console.warn("[Admin] Legacy session without Firebase Auth detected. Prompting password.");
+            lockDashboard();
+            showToastNotification("يرجى إدخال كلمة المرور لتفعيل مزامنة واستقبال الطلبات الحية", "info");
+          }
+        }
       }
     }
   });
@@ -475,7 +483,14 @@ function setupAuth() {
         isDanger: false
       });
       if (confirmed) {
+        // 1. Immediately lock dashboard in UI and cancel active real-time listeners
+        lockDashboard();
+        // 2. Clear input fields and error messages
+        if (adminElements.adminPasswordInput) adminElements.adminPasswordInput.value = '';
+        if (adminElements.loginErrorMsg) adminElements.loginErrorMsg.style.display = 'none';
+        // 3. Perform clean logout in Store (wiping storage & signing out of Firebase)
         await Store.logoutAdmin();
+        showToastNotification("تم تسجيل الخروج بنجاح", "info");
       }
     });
   }

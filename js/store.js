@@ -2953,6 +2953,7 @@ const Store = {
     localStorage.removeItem(`harpy_admin_auth_${slug}`);
     sessionStorage.removeItem(`harpy_auth_${slug}`);
     localStorage.removeItem('harpy_admin_active_slug');
+    localStorage.removeItem(`harpy_${slug}_admin_active_tab`);
     if (auth) {
       try { await auth.signOut(); } catch(e) {}
     }
@@ -2967,17 +2968,17 @@ const Store = {
     if (localSession) {
       try {
         const session = JSON.parse(localSession);
-        if (session && session.authenticated !== false) return true;
+        if (session && session.authenticated === true && (!session.slug || session.slug === activeSlug)) return true;
       } catch(e) {}
     }
     const sessionStr = sessionStorage.getItem(`harpy_auth_${activeSlug}`);
     if (sessionStr) {
       try {
         const session = JSON.parse(sessionStr);
-        if (session && session.authenticated !== false) return true;
+        if (session && session.authenticated === true && (!session.slug || session.slug === activeSlug)) return true;
       } catch(e) {}
     }
-    return auth && auth.currentUser ? true : false;
+    return false;
   },
 
   getCurrentUser() {
