@@ -50,7 +50,7 @@
         let slug = params.get('m') || params.get('r') || params.get('restaurant') || params.get('store') || params.get('slug');
         if (!slug) {
           const host = window.location.hostname;
-          if (host.includes('.')) {
+          if (host.includes('.') && !/^[\d.]+$/.test(host)) {
             const parts = host.split('.');
             if (parts.length > 2) {
               const sub = parts[0].toLowerCase();
@@ -60,13 +60,13 @@
             }
           }
         }
-        if (!slug) {
-          slug = localStorage.getItem('harpy_customer_installed_slug') ||
-                 localStorage.getItem('harpy_active_slug') ||
-                 localStorage.getItem('harpy_admin_active_slug') ||
-                 localStorage.getItem('harpy_admin_installed_slug') ||
-                 localStorage.getItem('harpy_last_visited_slug');
+        // Standalone PWA installed app recovery: only if running as an installed standalone app
+        const isStandalonePwa = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || 
+                                (window.navigator && window.navigator.standalone === true);
+        if (!slug && isStandalonePwa) {
+          slug = localStorage.getItem('harpy_customer_installed_slug');
         }
+        // In general web browser navigation without explicit tenant in URL, ALWAYS default to demo restaurant 'king'
         if (!slug) {
           slug = 'king';
         }
@@ -75,7 +75,9 @@
         try {
           localStorage.setItem('harpy_active_slug', slug);
           localStorage.setItem('harpy_last_visited_slug', slug);
-          localStorage.setItem('harpy_customer_installed_slug', slug);
+          if (isStandalonePwa) {
+            localStorage.setItem('harpy_customer_installed_slug', slug);
+          }
         } catch(e) {}
 
         var oldManifest = document.querySelector('link[rel="manifest"]');

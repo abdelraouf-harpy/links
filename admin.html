@@ -60,7 +60,7 @@
         // Subdomain resolution (e.g. saj.harpymenu.com)
         if (!slug) {
           var host = window.location.hostname;
-          if (host.includes('.')) {
+          if (host.includes('.') && !/^[\d.]+$/.test(host)) {
             var parts = host.split('.');
             if (parts.length > 2) {
               var sub = parts[0].toLowerCase();
@@ -91,7 +91,6 @@
           localStorage.setItem('harpy_admin_active_slug', slug);
           localStorage.setItem('harpy_admin_installed_slug', slug);
           localStorage.setItem('harpy_active_slug', slug);
-          localStorage.setItem('harpy_customer_installed_slug', slug);
           localStorage.setItem('harpy_last_visited_slug', slug);
         } catch(e) {}
 

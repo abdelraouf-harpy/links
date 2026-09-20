@@ -3888,13 +3888,14 @@ const Store = {
         }
       }
 
-      // 5. Stored Active Tenant Session Resolution
+      // 5. Standalone PWA Installed App Recovery (Only when running as an installed app)
       if (!urlSlug && typeof window !== 'undefined' && window.localStorage) {
-        urlSlug = localStorage.getItem('harpy_active_slug') ||
-                  localStorage.getItem('harpy_customer_installed_slug') ||
-                  localStorage.getItem('harpy_admin_active_slug') ||
-                  localStorage.getItem('harpy_admin_installed_slug') ||
-                  localStorage.getItem('harpy_last_visited_slug');
+        const isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || 
+                             (window.navigator && window.navigator.standalone === true);
+        if (isStandalone) {
+          urlSlug = localStorage.getItem('harpy_customer_installed_slug') ||
+                    localStorage.getItem('harpy_admin_installed_slug');
+        }
       }
 
       if (urlSlug) {
