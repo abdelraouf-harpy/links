@@ -1,9 +1,10 @@
 // Order PWA Service Worker — Native App Shell & Offline Engine
-const CACHE_NAME = 'order-pwa-v41.0';
+const CACHE_NAME = 'order-pwa-v42.0';
 const IMAGE_CACHE_NAME = 'order-images-v1';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
+  './order.html',
   './portfolio.html',
   './admin.html',
   './manifest.json',
@@ -15,7 +16,7 @@ const ASSETS_TO_CACHE = [
   './manifest-sloo.json',
   './admin-manifest-sloo.json',
   './css/style.css?v=40.5',
-  './css/portfolio.css?v=1.0',
+  './css/portfolio.css?v=2.0',
   './js/store.js?v=40.5',
   './js/app.js?v=40.5',
   './js/admin.js?v=40.5',
@@ -242,6 +243,9 @@ self.addEventListener('fetch', (event) => {
             if (event.request.url.includes('/admin')) {
               return caches.match('./admin.html', { ignoreSearch: true }).then(r => r || networkResponse);
             }
+            if (event.request.url.includes('m=') || event.request.url.includes('/order')) {
+              return caches.match('./order.html', { ignoreSearch: true }).then(r => r || networkResponse);
+            }
             return caches.match('./index.html', { ignoreSearch: true }).then(r => r || networkResponse);
           }
         }
@@ -253,6 +257,9 @@ self.addEventListener('fetch', (event) => {
           if (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html')) {
             if (event.request.url.includes('/admin')) {
               return caches.match('./admin.html', { ignoreSearch: true });
+            }
+            if (event.request.url.includes('m=') || event.request.url.includes('/order')) {
+              return caches.match('./order.html', { ignoreSearch: true });
             }
             return caches.match('./index.html', { ignoreSearch: true });
           }

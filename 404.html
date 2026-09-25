@@ -85,16 +85,17 @@
 
         // If asking for order or restaurant slug in path (/saj, /king, /hermel, etc.)
         var remaining = segments.filter(function(s) { 
-          return s !== 'order' && s !== 'index' && s !== 'products' && s !== 'portfolio' && !s.endsWith('.html'); 
+          return s !== 'index' && s !== 'products' && s !== 'portfolio' && !s.endsWith('.html'); 
         });
-        var slug = remaining.length > 0 ? remaining[0] : '';
+        var filtered = remaining.filter(function(s) { return s !== 'order'; });
+        var slug = filtered.length > 0 ? filtered[0] : '';
         var params = new URLSearchParams(search);
         if (slug && !params.get('m')) params.set('m', slug);
         var queryString = params.toString() ? ('?' + params.toString()) : '';
 
-        // If a restaurant slug is present, route to /index.html with tenant query
-        if (slug) {
-          window.location.replace('/index.html' + queryString + hash);
+        // If a restaurant slug or /order was requested, route directly to /order.html
+        if (slug || segments.indexOf('order') !== -1 || params.get('m')) {
+          window.location.replace('/order.html' + queryString + hash);
           return;
         }
 

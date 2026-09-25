@@ -13,7 +13,7 @@
   <link rel="apple-touch-icon" href="assets/portfolio/01_Logo_and_Branding/order_logo_emblem.jpg">
   <meta name="theme-color" content="#0a0d14">
   
-  <link rel="stylesheet" href="css/portfolio.css?v=1.0">
+  <link rel="stylesheet" href="css/portfolio.css?v=2.0">
 </head>
 <body>
 
@@ -26,7 +26,7 @@
     <!-- Last Visited Restaurant Recall Banner -->
     <div id="pf-recall-banner" class="pf-recall-banner" style="display: none;">
       <span>📍 مرحباً بك مجدداً! هل تبحث عن قائمة طعام <strong id="pf-recall-name">مطعم صاج</strong>؟</span>
-      <a id="pf-recall-btn" href="./?m=saj">
+      <a id="pf-recall-btn" href="./order.html?m=saj">
         <span>الدخول للمنيو مباشرة</span>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
       </a>
@@ -48,7 +48,7 @@
         </ul>
 
         <div class="pf-nav-actions">
-          <a href="./?m=saj" class="pf-btn pf-btn-outline pf-btn-sm" title="تجربة منيو المطاعم الحي">
+          <a href="./order.html?m=saj" class="pf-btn pf-btn-outline pf-btn-sm" title="تجربة منيو المطاعم الحي">
             <span>ديمو المطاعم 🍽️</span>
           </a>
           <a href="./products/" class="pf-btn pf-btn-pos pf-btn-sm" title="دخول نظام إدارة المنتجات والكاشير">
@@ -66,7 +66,7 @@
       <div class="pf-container pf-hero-grid">
         <div class="pf-hero-content">
           <div class="pf-badge">
-            <span>🚀 الجيل القادم من حلول الساس 2026</span>
+            <span>🚀 المنظومة السحابية المتكاملة 2026</span>
           </div>
           <h1 class="pf-hero-title">
             منظومة رقمية متكاملة <br>
@@ -171,7 +171,7 @@
             </div>
 
             <div class="pf-system-actions">
-              <a href="./?m=saj" class="pf-btn pf-btn-primary">
+              <a href="./order.html?m=saj" class="pf-btn pf-btn-primary">
                 <span>تصفح ديمو حي (مطعم صاج)</span>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
               </a>
@@ -293,7 +293,7 @@
             </p>
 
             <div style="display:flex; gap:14px; flex-wrap:wrap; margin-top:28px;">
-              <a href="./?m=saj" target="_blank" class="pf-btn pf-btn-primary">
+              <a href="./order.html?m=saj" target="_blank" class="pf-btn pf-btn-primary">
                 <span>فتح الديمو على المتصفح 🚀</span>
               </a>
               <a href="./products/" class="pf-btn pf-btn-outline">
@@ -417,7 +417,7 @@
   </div>
 
   <script>
-    // Check if the user previously visited a specific restaurant (e.g. Saj)
+    // Smart Recall: Check if visitor previously visited a specific restaurant (like Saj)
     try {
       const savedSlug = localStorage.getItem('harpy_last_visited_slug') || localStorage.getItem('harpy_active_slug');
       if (savedSlug && savedSlug !== 'king' && savedSlug !== 'demo') {
@@ -426,7 +426,7 @@
         const nameEl = document.getElementById('pf-recall-name');
         if (banner && btn) {
           if (nameEl) nameEl.textContent = (savedSlug === 'saj' ? 'مطعم صاج' : 'مطعم ' + savedSlug);
-          btn.href = './?m=' + encodeURIComponent(savedSlug);
+          btn.href = './order.html?m=' + encodeURIComponent(savedSlug);
           banner.style.display = 'flex';
         }
       }

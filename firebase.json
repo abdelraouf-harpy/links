@@ -11,11 +11,11 @@
     "rewrites": [
       {
         "source": "/order",
-        "destination": "/index.html"
+        "destination": "/order.html"
       },
       {
         "source": "/order/**",
-        "destination": "/index.html"
+        "destination": "/order.html"
       },
       {
         "source": "/admin",
