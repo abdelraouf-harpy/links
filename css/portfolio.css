@@ -28,6 +28,32 @@
   --pf-font-en: 'Plus Jakarta Sans', system-ui, sans-serif;
 }
 
+/* Immediate layout switching for portfolio mode */
+html.is-portfolio body {
+  background-color: var(--pf-bg-dark) !important;
+  color: var(--pf-text-white) !important;
+  margin: 0;
+  padding: 0;
+}
+html.is-portfolio #restaurant-app {
+  display: none !important;
+}
+html.is-portfolio #portfolio-app {
+  display: block !important;
+}
+:not(.is-portfolio) #portfolio-app {
+  display: none !important;
+}
+html.is-portfolio #app-splash-shield {
+  display: none !important;
+}
+html.is-portfolio .pwa-install-banner,
+html.is-portfolio #pwa-install-prompt-modal,
+html.is-portfolio .pwa-prompt-container,
+html.is-portfolio #harpy-pwa-bar {
+  display: none !important;
+}
+
 /* Base resets inside portfolio */
 #portfolio-app {
   font-family: var(--pf-font-main);

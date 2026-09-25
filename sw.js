@@ -1,9 +1,10 @@
 // Order PWA Service Worker — Native App Shell & Offline Engine
-const CACHE_NAME = 'order-pwa-v40.5';
+const CACHE_NAME = 'order-pwa-v41.0';
 const IMAGE_CACHE_NAME = 'order-images-v1';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
+  './portfolio.html',
   './admin.html',
   './manifest.json',
   './admin-manifest.json',
@@ -14,6 +15,7 @@ const ASSETS_TO_CACHE = [
   './manifest-sloo.json',
   './admin-manifest-sloo.json',
   './css/style.css?v=40.5',
+  './css/portfolio.css?v=1.0',
   './js/store.js?v=40.5',
   './js/app.js?v=40.5',
   './js/admin.js?v=40.5',

@@ -84,31 +84,41 @@
         // ==========================================
         if (!slug) {
           window.__isPortfolio = true;
+          if (document.documentElement) {
+            document.documentElement.classList.add('is-portfolio');
+          }
           document.title = "Harpy Platform & Order — المنظومة السحابية المتكاملة للمطاعم والمتاجر";
-          
-          document.addEventListener('DOMContentLoaded', function() {
+
+          function activatePortfolioUI() {
+            if (document.documentElement) {
+              document.documentElement.classList.add('is-portfolio');
+            }
             var splash = document.getElementById('app-splash-shield');
             if (splash) splash.remove();
             var restApp = document.getElementById('restaurant-app');
             var portApp = document.getElementById('portfolio-app');
             if (restApp) restApp.style.display = 'none';
-            if (portApp) {
-              portApp.style.display = 'block';
-              try {
-                var lastSlug = localStorage.getItem('harpy_last_visited_slug') || localStorage.getItem('harpy_active_slug');
-                if (lastSlug && lastSlug !== 'king' && lastSlug !== 'demo') {
-                  var banner = document.getElementById('pf-recall-banner');
-                  var btn = document.getElementById('pf-recall-btn');
-                  var nameEl = document.getElementById('pf-recall-name');
-                  if (banner && btn) {
-                    if (nameEl) nameEl.textContent = (lastSlug === 'saj' ? 'مطعم صاج' : 'مطعم ' + lastSlug);
-                    btn.href = './?m=' + encodeURIComponent(lastSlug);
-                    banner.style.display = 'flex';
-                  }
+            if (portApp) portApp.style.display = 'block';
+            try {
+              var lastSlug = localStorage.getItem('harpy_last_visited_slug') || localStorage.getItem('harpy_active_slug');
+              if (lastSlug && lastSlug !== 'king' && lastSlug !== 'demo') {
+                var banner = document.getElementById('pf-recall-banner');
+                var btn = document.getElementById('pf-recall-btn');
+                var nameEl = document.getElementById('pf-recall-name');
+                if (banner && btn) {
+                  if (nameEl) nameEl.textContent = (lastSlug === 'saj' ? 'مطعم صاج' : 'مطعم ' + lastSlug);
+                  btn.href = './?m=' + encodeURIComponent(lastSlug);
+                  banner.style.display = 'flex';
                 }
-              } catch(e) {}
-            }
-          });
+              }
+            } catch(e) {}
+          }
+
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', activatePortfolioUI);
+          } else {
+            activatePortfolioUI();
+          }
           return;
         }
 
@@ -904,7 +914,7 @@
        Harpy Platform & Order SaaS Portfolio Application
        Shown automatically on root domain (harbymenu.com) when no tenant is requested
        ========================================================================== -->
-  <div id="portfolio-app" style="display:none;">
+  <div id="portfolio-app">
     <!-- Ambient Background Glows -->
     <div class="pf-ambient-glow pf-ambient-1"></div>
     <div class="pf-ambient-glow pf-ambient-2"></div>

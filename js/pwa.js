@@ -6,6 +6,10 @@
 (function() {
   'use strict';
 
+  if (window.__isPortfolio) {
+    return;
+  }
+
   let deferredPrompt = null;
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
