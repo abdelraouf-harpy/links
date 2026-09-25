@@ -3870,7 +3870,7 @@ const Store = {
         const pathParts = window.location.pathname.split('/').filter(p => p && p !== 'index.html' && p !== 'admin.html' && p !== 'admin' && p !== 'order');
         if (pathParts.length > 0) {
           const firstPart = pathParts[0].toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
-          const reservedNames = ['css', 'js', 'assets', 'api', 'admin', 'manifest', 'sw', 'favicon', 'icons'];
+          const reservedNames = ['css', 'js', 'assets', 'api', 'admin', 'manifest', 'sw', 'favicon', 'icons', 'products', 'portfolio'];
           if (firstPart && !reservedNames.includes(firstPart)) {
             urlSlug = firstPart;
           }

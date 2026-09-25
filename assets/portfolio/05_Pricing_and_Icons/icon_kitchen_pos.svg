@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
+  <!-- Tablet screen -->
+  <rect x="10" y="8" width="44" height="34" rx="4" fill="none" stroke="#ea580c" stroke-width="3.5"/>
+  <line x1="16" y1="18" x2="34" y2="18" stroke="#f97316" stroke-width="3" stroke-linecap="round"/>
+  <line x1="16" y1="26" x2="48" y2="26" stroke="#ea580c" stroke-width="3" stroke-linecap="round"/>
+  <line x1="16" y1="34" x2="30" y2="34" stroke="#f97316" stroke-width="3" stroke-linecap="round"/>
+  <!-- Printer / stand at bottom -->
+  <rect x="16" y="44" width="32" height="12" rx="2" fill="none" stroke="#ea580c" stroke-width="3.5"/>
+  <line x1="24" y1="50" x2="40" y2="50" stroke="#f97316" stroke-width="3" stroke-linecap="round"/>
+</svg>

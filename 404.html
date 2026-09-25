@@ -69,17 +69,39 @@
           return;
         }
 
-        // If asking for order or restaurant slug in path (/king, /hermel, etc.)
-        var remaining = segments.filter(function(s) { return s !== 'order' && s !== 'index' && !s.endsWith('.html'); });
+        // If asking for products (/products, /products/, /products/cashier.html)
+        if (segments.indexOf('products') !== -1 || path.indexOf('/products') !== -1) {
+          var subParts = segments.filter(function(s) { return s !== 'products'; });
+          var subPath = subParts.length > 0 ? subParts.join('/') : '';
+          window.location.replace('/products/' + subPath + search + hash);
+          return;
+        }
+
+        // If asking for portfolio (/portfolio, /portfolio.html)
+        if (segments.indexOf('portfolio') !== -1 || path.indexOf('/portfolio') !== -1) {
+          window.location.replace('/portfolio.html' + search + hash);
+          return;
+        }
+
+        // If asking for order or restaurant slug in path (/saj, /king, /hermel, etc.)
+        var remaining = segments.filter(function(s) { 
+          return s !== 'order' && s !== 'index' && s !== 'products' && s !== 'portfolio' && !s.endsWith('.html'); 
+        });
         var slug = remaining.length > 0 ? remaining[0] : '';
         var params = new URLSearchParams(search);
         if (slug && !params.get('m')) params.set('m', slug);
         var queryString = params.toString() ? ('?' + params.toString()) : '';
 
-        // Always redirect to absolute /index.html (never relative ./)
-        window.location.replace('/index.html' + queryString + hash);
+        // If a restaurant slug is present, route to /index.html with tenant query
+        if (slug) {
+          window.location.replace('/index.html' + queryString + hash);
+          return;
+        }
+
+        // If NO slug was requested, route cleanly to home portfolio
+        window.location.replace('/' + (queryString ? queryString : '') + hash);
       } catch (e) {
-        window.location.replace('/index.html' + (window.location.search || ''));
+        window.location.replace('/' + (window.location.search || ''));
       }
     })();
   </script>

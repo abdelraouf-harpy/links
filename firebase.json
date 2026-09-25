@@ -26,6 +26,18 @@
         "destination": "/admin.html"
       },
       {
+        "source": "/products",
+        "destination": "/products/index.html"
+      },
+      {
+        "source": "/products/**",
+        "destination": "/products/index.html"
+      },
+      {
+        "source": "/portfolio",
+        "destination": "/portfolio.html"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }

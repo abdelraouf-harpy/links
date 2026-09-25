@@ -89,6 +89,12 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
   const reqUrl = new URL(event.request.url);
+
+  // Bypass Products POS & Inventory app — let products manage its own SW & caching
+  if (reqUrl.pathname.startsWith('/products/') || reqUrl.pathname === '/products') {
+    return;
+  }
+
   const fileName = reqUrl.pathname.split('/').pop();
   const isManifestReq = fileName && (fileName.startsWith('manifest-') || fileName.startsWith('admin-manifest-')) && fileName.endsWith('.json');
 

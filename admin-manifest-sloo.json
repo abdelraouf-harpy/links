@@ -2,7 +2,7 @@
   "id": "harpy-admin-sloo-v38",
   "name": "Admin",
   "short_name": "Admin",
-  "description": "Sloo — Dashboard & Kitchen",
+  "description": "sloo — Dashboard & Kitchen",
   "start_url": "./admin.html?m=sloo",
   "scope": "./admin.html",
   "display": "standalone",

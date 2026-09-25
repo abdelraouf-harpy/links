@@ -2,7 +2,7 @@
   "id": "harpy-order-sloo-v38",
   "name": "Order",
   "short_name": "Order",
-  "description": "Sloo — Smart Digital Menu",
+  "description": "sloo — Smart Digital Menu",
   "start_url": "./index.html?m=sloo",
   "scope": "./",
   "display": "standalone",

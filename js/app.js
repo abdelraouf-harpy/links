@@ -323,6 +323,7 @@ function handlePopStateNavigation(event) {
 window.addEventListener('popstate', handlePopStateNavigation);
 
 async function initApp() {
+  if (window.__isPortfolio) return;
   Store.initTheme();
   updateThemeToggleIcons();
   updateSoundToggleIcon();
@@ -2987,7 +2988,9 @@ function closeLiveOrderTracker(triggerHistoryBack = true) {
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initApp);
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!window.__isPortfolio) initApp();
+  });
 } else {
-  initApp();
+  if (!window.__isPortfolio) initApp();
 }

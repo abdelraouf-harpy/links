@@ -29,6 +29,7 @@
   <link rel="dns-prefetch" href="https://i.ibb.co">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
   <link rel="stylesheet" href="css/style.css?v=40.5">
+  <link rel="stylesheet" href="css/portfolio.css?v=1.0">
   <script>
     // Instant zero-delay theme toggle available immediately on page paint
     window.handleThemeToggle = function() {
@@ -60,16 +61,61 @@
             }
           }
         }
-        // Standalone PWA installed app recovery: only if running as an installed standalone app
+        // Clean path resolution (e.g. /saj, /king, /sloo)
+        if (!slug && typeof window !== 'undefined' && window.location && window.location.pathname) {
+          const pathParts = window.location.pathname.split('/').filter(p => p && p !== 'index.html' && p !== 'admin.html' && p !== 'admin' && p !== 'order' && p !== 'products' && p !== 'portfolio');
+          if (pathParts.length > 0) {
+            const firstPart = pathParts[0].toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
+            const reservedNames = ['css', 'js', 'assets', 'api', 'admin', 'manifest', 'sw', 'favicon', 'icons', 'products', 'portfolio'];
+            if (firstPart && !reservedNames.includes(firstPart)) {
+              slug = firstPart;
+            }
+          }
+        }
+        // Standalone PWA installed customer app recovery: only if running as an installed standalone app
         const isStandalonePwa = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || 
                                 (window.navigator && window.navigator.standalone === true);
         if (!slug && isStandalonePwa) {
           slug = localStorage.getItem('harpy_customer_installed_slug');
         }
-        // In general web browser navigation without explicit tenant in URL, ALWAYS default to demo restaurant 'king'
+
+        // ==========================================
+        // 🚀 PORTFOLIO MODE (No restaurant in URL)
+        // ==========================================
         if (!slug) {
-          slug = 'king';
+          window.__isPortfolio = true;
+          document.title = "Harpy Platform & Order — المنظومة السحابية المتكاملة للمطاعم والمتاجر";
+          
+          document.addEventListener('DOMContentLoaded', function() {
+            var splash = document.getElementById('app-splash-shield');
+            if (splash) splash.remove();
+            var restApp = document.getElementById('restaurant-app');
+            var portApp = document.getElementById('portfolio-app');
+            if (restApp) restApp.style.display = 'none';
+            if (portApp) {
+              portApp.style.display = 'block';
+              try {
+                var lastSlug = localStorage.getItem('harpy_last_visited_slug') || localStorage.getItem('harpy_active_slug');
+                if (lastSlug && lastSlug !== 'king' && lastSlug !== 'demo') {
+                  var banner = document.getElementById('pf-recall-banner');
+                  var btn = document.getElementById('pf-recall-btn');
+                  var nameEl = document.getElementById('pf-recall-name');
+                  if (banner && btn) {
+                    if (nameEl) nameEl.textContent = (lastSlug === 'saj' ? 'مطعم صاج' : 'مطعم ' + lastSlug);
+                    btn.href = './?m=' + encodeURIComponent(lastSlug);
+                    banner.style.display = 'flex';
+                  }
+                }
+              } catch(e) {}
+            }
+          });
+          return;
         }
+
+        // ==========================================
+        // 🍽️ TENANT MODE (e.g. Saj, King, Sloo)
+        // ==========================================
+        window.__isPortfolio = false;
         slug = slug.toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
         window.__harpySlug = slug;
         try {
@@ -179,19 +225,21 @@
     </div>
   </div>
 
-  <!-- Editorial Header -->
-  <header class="app-header">
-    <div class="container header-wrap">
-      <a href="./index.html" class="brand-info">
-        <div class="brand-logo-wrap">
-          <img id="store-logo" src="" alt="Logo" class="brand-logo">
-          <span class="brand-status-dot" title="نستقبل الطلبات الآن"></span>
-        </div>
-        <div class="brand-text">
-          <h1 id="store-name"></h1>
-          <p id="store-tagline">أشهى الأطباق والوجبات السريعة</p>
-        </div>
-      </a>
+  <!-- Restaurant Menu Application Shell -->
+  <div id="restaurant-app">
+    <!-- Editorial Header -->
+    <header class="app-header">
+      <div class="container header-wrap">
+        <a href="javascript:void(0)" onclick="window.scrollTo({top:0, behavior:'smooth'})" class="brand-info" title="الرجوع لأعلى الصفحة">
+          <div class="brand-logo-wrap">
+            <img id="store-logo" src="" alt="Logo" class="brand-logo">
+            <span class="brand-status-dot" title="نستقبل الطلبات الآن"></span>
+          </div>
+          <div class="brand-text">
+            <h1 id="store-name"></h1>
+            <p id="store-tagline">أشهى الأطباق والوجبات السريعة</p>
+          </div>
+        </a>
       <div class="header-actions">
         <button id="btn-menu-install-app" class="btn btn-primary btn-sm" style="display:none; align-items:center; gap:5px; font-weight:800; border-radius:20px; padding:5px 12px; font-size:11.5px; background:linear-gradient(135deg, #ea580c, #f97316); border:none; box-shadow:0 3px 10px rgba(234,88,12,0.3); cursor:pointer;" onclick="window.triggerPWAInstall()" title="تثبيت المنيو كبرنامج مستقل">
           <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -850,6 +898,411 @@
       تصفح المنيو والأسعار 🍽️
     </button>
   </div>
+  <!-- /#restaurant-app -->
+
+  <!-- ==========================================================================
+       Harpy Platform & Order SaaS Portfolio Application
+       Shown automatically on root domain (harbymenu.com) when no tenant is requested
+       ========================================================================== -->
+  <div id="portfolio-app" style="display:none;">
+    <!-- Ambient Background Glows -->
+    <div class="pf-ambient-glow pf-ambient-1"></div>
+    <div class="pf-ambient-glow pf-ambient-2"></div>
+    <div class="pf-ambient-glow pf-ambient-3"></div>
+
+    <!-- Last Visited Restaurant Recall Banner -->
+    <div id="pf-recall-banner" class="pf-recall-banner" style="display: none;">
+      <span>📍 مرحباً بك مجدداً! هل تبحث عن قائمة طعام <strong id="pf-recall-name">مطعم صاج</strong>؟</span>
+      <a id="pf-recall-btn" href="./?m=saj">
+        <span>الدخول للمنيو مباشرة</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </a>
+    </div>
+
+    <!-- Header / Navbar -->
+    <header class="pf-navbar">
+      <div class="pf-container pf-nav-inner">
+        <a href="./" class="pf-brand">
+          <img src="assets/portfolio/01_Logo_and_Branding/order_logo_vector.svg" alt="Order Logo" class="pf-brand-logo">
+        </a>
+
+        <ul class="pf-nav-links">
+          <li><a href="#systems">حلول المنظومة</a></li>
+          <li><a href="#features">المميزات</a></li>
+          <li><a href="#demo">التجربة الحية</a></li>
+          <li><a href="#pricing">الباقات</a></li>
+          <li><a href="#contact">تواصل معنا</a></li>
+        </ul>
+
+        <div class="pf-nav-actions">
+          <a href="./?m=saj" class="pf-btn pf-btn-outline pf-btn-sm" title="تجربة منيو المطاعم الحي">
+            <span>ديمو المطاعم 🍽️</span>
+          </a>
+          <a href="./products/" class="pf-btn pf-btn-pos pf-btn-sm" title="دخول نظام إدارة المنتجات والكاشير">
+            <span>نظام POS 💼</span>
+          </a>
+          <a href="https://wa.me/201019971508?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%D8%8C%20%D8%A3%D9%88%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20%D9%85%D9%86%D8%B8%D9%88%D9%85%D8%A9%20Order%20%D9%88%D9%86%D8%B8%D8%A7%D9%85%20%D8%A7%D9%84%D9%83%D8%A7%D8%B4%D9%8A%D8%B1" target="_blank" class="pf-btn pf-btn-wa pf-btn-sm">
+            <span>واتساب</span>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="pf-hero">
+      <div class="pf-container pf-hero-grid">
+        <div class="pf-hero-content">
+          <div class="pf-badge">
+            <span>🚀 الجيل القادم من حلول الساس 2026</span>
+          </div>
+          <h1 class="pf-hero-title">
+            منظومة رقمية متكاملة <br>
+            <span class="pf-gradient-text">للمطاعم والمتاجر الذكية</span>
+          </h1>
+          <p class="pf-hero-desc">
+            حوّل منشأتك إلى تجربة رقمية سريعة وسلسة: منيو إلكتروني تفاعلي للمطاعم والكافيهات بالباركود، ونظام كاشير ومخازن سحابي فائق السرعة يعمل أونلاين وأوفلاين دون تعقيد.
+          </p>
+
+          <div class="pf-hero-buttons">
+            <a href="#demo" class="pf-btn pf-btn-primary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+              <span>تجربة منيو المطاعم (Live Demo)</span>
+            </a>
+            <a href="./products/" class="pf-btn pf-btn-outline">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+              <span>تجربة نظام الكاشير والمخازن</span>
+            </a>
+          </div>
+
+          <div class="pf-hero-metrics">
+            <div>
+              <div class="pf-metric-val">0 ms</div>
+              <div class="pf-metric-label">استجابة فائقة السرعة</div>
+            </div>
+            <div>
+              <div class="pf-metric-val">100%</div>
+              <div class="pf-metric-label">دعم أوفلاين وسحابي</div>
+            </div>
+            <div>
+              <div class="pf-metric-val">0%</div>
+              <div class="pf-metric-label">عمولات على الطلبات</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pf-hero-visual">
+          <div class="pf-mockup-frame">
+            <img src="assets/portfolio/02_Hero_Section/hero_phone_mockup.jpg" alt="Order Mobile Mockup" class="pf-mockup-img">
+            
+            <div class="pf-floating-chip pf-chip-top">
+              <div class="pf-chip-icon pf-chip-orange">⚡</div>
+              <div>
+                <div class="pf-chip-title">طلب فوري للطاولات</div>
+                <div class="pf-chip-sub">عبر مسح الباركود مباشرة</div>
+              </div>
+            </div>
+
+            <div class="pf-floating-chip pf-chip-bottom">
+              <div class="pf-chip-icon pf-chip-blue">📊</div>
+              <div>
+                <div class="pf-chip-title">إدارة مبيعات وكاشير</div>
+                <div class="pf-chip-sub">فواتير ومخزون لحظي</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Systems Showcase Section -->
+    <section class="pf-section" id="systems">
+      <div class="pf-container">
+        <div class="pf-section-head">
+          <span class="pf-section-subtitle">أنظمتنا السحابية</span>
+          <h2 class="pf-section-title">حلول متخصصة صُممت لتنمية أعمالك</h2>
+          <p class="pf-section-desc">
+            كل نظام مبني بأحدث معايير الأداء والـ PWA، مع عزل بيانات مشفر وسرعة فائقة بدون الحاجة لتثبيت أي تطبيقات على هواتف عملائك.
+          </p>
+        </div>
+
+        <div class="pf-systems-grid">
+          <!-- System 1: Order -->
+          <div class="pf-system-card pf-card-order">
+            <div>
+              <div class="pf-system-badge pf-badge-order-style">
+                🍽️ للمطاعم والكافيهات ومحلات الحلويات
+              </div>
+              <h3 class="pf-system-title">نظام Order — المنيو والطلبات الذكية</h3>
+              <p class="pf-system-desc">
+                منيو إلكتروني تفاعلي متقدم يدعم مسح الباركود، طلبات الطاولات والتوصيل، ربط فوري مع واتساب والمطبخ، وقصص تفاعلية للعروض اليومية مع لوحة تحكم وإحصائيات متكاملة.
+              </p>
+
+              <ul class="pf-feature-checklist pf-check-orange">
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span>مسح QR فوري بدون تحميل أي برامج (Instant Web App)</span>
+                </li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span>استقبال الطلبات على واتساب وطباعة فواتير المطبخ</span>
+                </li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span>قصص تفاعلية (Stories) لعرض أطباق اليوم والعروض الحصرية</span>
+                </li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span>لوحة تحكم كاملة للإدارة، المنتجات، الأسعار، والإحصائيات</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="pf-system-actions">
+              <a href="./?m=saj" class="pf-btn pf-btn-primary">
+                <span>تصفح ديمو حي (مطعم صاج)</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+              </a>
+              <a href="./admin.html?m=saj" class="pf-btn pf-btn-outline">
+                <span>لوحة التحكم ⚙️</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- System 2: Products & POS -->
+          <div class="pf-system-card pf-card-pos">
+            <div>
+              <div class="pf-system-badge pf-badge-pos-style">
+                💼 لنقاط البيع، المتاجر والمخازن وتجار التجزئة
+              </div>
+              <h3 class="pf-system-title">نظام Harpy POS — الكاشير وإدارة المخزون</h3>
+              <p class="pf-system-desc">
+                نظام كاشير وإدارة منتجات سحابي خفيف وسريع للغاية، يتيح لك إدارة فواتير البيع، مراقبة المخزون ونواقص المنتجات، قراءة الباركود، والعمل في وضع عدم الاتصال (Offline-First).
+              </p>
+
+              <ul class="pf-feature-checklist pf-check-blue">
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span>شاشة كاشير سريعة مجهزة للأجهزة اللوحية والحواسيب</span>
+                </li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span>دعم قارئ الباركود والطباعة الحرارية للفواتير والإيصالات</span>
+                </li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span>مراقبة المخزون وتنبيهات النواقص وتكاليف الأصناف</span>
+                </li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span>يعمل حتى مع انقطاع الإنترنت مع مزامنة سحابية تلقائية</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="pf-system-actions">
+              <a href="./products/" class="pf-btn pf-btn-pos">
+                <span>دخول نظام الكاشير والمنتجات</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+              </a>
+              <a href="./products/cashier.html" class="pf-btn pf-btn-outline">
+                <span>شاشة البيع السريع ⚡</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Key Pillars / Features Grid -->
+    <section class="pf-section" id="features">
+      <div class="pf-container">
+        <div class="pf-section-head">
+          <span class="pf-section-subtitle">القوة والابتكار</span>
+          <h2 class="pf-section-title">بُنية تقنية حديثة تقدم أعلى عائد لمنشأتك</h2>
+          <p class="pf-section-desc">
+            تخلص من تكاليف الأجهزة الباهظة والبرمجيات المعقدة، وابدأ مع نظام سحابي مرن يتوافق مع كل الشاشات والهواتف.
+          </p>
+        </div>
+
+        <div class="pf-pillars-grid">
+          <div class="pf-pillar-card">
+            <div class="pf-pillar-icon-box">
+              <img src="assets/portfolio/05_Pricing_and_Icons/icon_qr_scan.svg" alt="QR Scan Icon">
+            </div>
+            <h3 class="pf-pillar-title">مسح باركود بدون تحميل</h3>
+            <p class="pf-pillar-desc">
+              الزبون يوجه كاميرا هاتفه للـ QR كود فيفتح المنيو فوراً في أقل من ثانية، بدون الحاجة لتحميل تطبيقات من المتجر.
+            </p>
+          </div>
+
+          <div class="pf-pillar-card">
+            <div class="pf-pillar-icon-box">
+              <img src="assets/portfolio/05_Pricing_and_Icons/icon_kitchen_pos.svg" alt="Kitchen POS Icon">
+            </div>
+            <h3 class="pf-pillar-title">ربط المطبخ والكاشير</h3>
+            <p class="pf-pillar-desc">
+              مزامنة لحظية بين طلبات الزبائن وشاشة المطبخ أو طابعة الفواتير، لتقليل أخطاء الأوردرات وتسريع التحضير.
+            </p>
+          </div>
+
+          <div class="pf-pillar-card">
+            <div class="pf-pillar-icon-box">
+              <img src="assets/portfolio/05_Pricing_and_Icons/icon_analytics.svg" alt="Analytics Icon">
+            </div>
+            <h3 class="pf-pillar-title">إحصائيات وتقارير ذكية</h3>
+            <p class="pf-pillar-desc">
+              تقارير يومية وشهرية توضح الأصناف الأكثر مبيعاً، ساعات الذروة، وأرقام الأرباح لمساعدتك في اتخاذ قرارات دقيقة.
+            </p>
+          </div>
+
+          <div class="pf-pillar-card">
+            <div class="pf-pillar-icon-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <h3 class="pf-pillar-title">استقرار وأمان سحابي</h3>
+            <p class="pf-pillar-desc">
+              قواعد بيانات سحابية مشفرة وتحديثات مستمرة تضمن عمل السيستم بنسبة 99.9% دون أي توقف أو بطء.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Live Demo Section -->
+    <section class="pf-section pf-demo-section" id="demo">
+      <div class="pf-container">
+        <div class="pf-demo-box">
+          <div class="pf-demo-left">
+            <div class="pf-badge">تجربة عملية حية</div>
+            <h2 class="pf-section-title">امسح الباركود وجرب المنيو كأنك عميل في مطعمك!</h2>
+            <p class="pf-section-desc">
+              وجه كاميرا هاتفك المحمول نحو كود الـ QR المعروض، وستفتح لك قائمة الطعام الذكية لمطعم صاج مباشرة بكل تفاصيلها وقصصها وسلة الطلبات.
+            </p>
+
+            <div style="display:flex; gap:14px; flex-wrap:wrap; margin-top:28px;">
+              <a href="./?m=saj" target="_blank" class="pf-btn pf-btn-primary">
+                <span>فتح الديمو على المتصفح 🚀</span>
+              </a>
+              <a href="./products/" class="pf-btn pf-btn-outline">
+                <span>تجربة كاشير المنتجات 💼</span>
+              </a>
+            </div>
+          </div>
+
+          <div class="pf-demo-right">
+            <div class="pf-qr-card">
+              <img src="assets/portfolio/04_Demo_Section/demo_qr_code_vector.svg" alt="Live Demo QR Code">
+              <p>امسح الكود بكاميرا هاتفك</p>
+            </div>
+            <img src="assets/portfolio/04_Demo_Section/demo_qr_table_stand.png" alt="Table Stand" class="pf-table-stand-preview">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="pf-section" id="pricing">
+      <div class="pf-container">
+        <div class="pf-section-head">
+          <span class="pf-section-subtitle">خطط الاشتراك</span>
+          <h2 class="pf-section-title">باقات واضحة ومرنة تناسب حجم نشاطك</h2>
+          <p class="pf-section-desc">
+            بدون أي نسب أو عمولات مقتطعة على مبيعاتك، باشتراك ثابت ودعم فني مستمر.
+          </p>
+        </div>
+
+        <div class="pf-pricing-grid">
+          <!-- Plan 1 -->
+          <div class="pf-price-card">
+            <div>
+              <h3 class="pf-plan-name">الباقة الأساسية</h3>
+              <p class="pf-plan-desc">الحل الأمثل للكافيهات والمطاعم الناشئة التي تريد منيو إلكتروني سريع.</p>
+              
+              <ul class="pf-plan-features">
+                <li>✓ منيو إلكتروني ذكي بالباركود</li>
+                <li>✓ عدد غير محدود من المنتجات والتصنيفات</li>
+                <li>✓ استقبال الطلبات عبر الواتساب</li>
+                <li>✓ لوحة تحكم لتعديل الأسعار والأطباق</li>
+                <li>✓ دعم لغوي وثيم ليلي/نهاري</li>
+              </ul>
+            </div>
+
+            <a href="https://wa.me/201019971508?text=%D8%A3%D9%88%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B4%D8%AA%D8%B1%D8%A7%D9%83%20%D9%81%D9%8A%20%D8%A7%D9%84%D8%A8%D8%A7%D9%82%D8%A9%20%D8%A7%D9%84%D8%A3%D8%B3%D8%A7%D8%B3%D9%8A%D8%A9" target="_blank" class="pf-btn pf-btn-outline" style="width:100%;">
+              <span>طلب الباقة</span>
+            </a>
+          </div>
+
+          <!-- Plan 2 (Featured) -->
+          <div class="pf-price-card pf-price-featured">
+            <div class="pf-ribbon">الأكثر طلباً ⭐</div>
+            <div>
+              <h3 class="pf-plan-name">الباقة الاحترافية (Pro)</h3>
+              <p class="pf-plan-desc">المنظومة المتكاملة للمطاعم المزدحمة ونقاط البيع النشطة.</p>
+              
+              <ul class="pf-plan-features">
+                <li>✓ كل مميزات الباقة الأساسية</li>
+                <li>✓ نظام نقاط البيع والكاشير السريع (POS)</li>
+                <li>✓ ربط شاشة المطبخ وإدارة الطاولات</li>
+                <li>✓ قصص تفاعلية (Stories) للعروض الترويجية</li>
+                <li>✓ طباعة فواتير حرارية وقارئ باركود</li>
+                <li>✓ إحصائيات مبيعات وأرباح تفصيلية</li>
+              </ul>
+            </div>
+
+            <a href="https://wa.me/201019971508?text=%D8%A3%D9%88%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B4%D8%AA%D8%B1%D8%A7%D9%83%20%D9%81%D9%8A%20%D8%A7%D9%84%D8%A8%D8%A7%D9%82%D8%A9%20%D8%A7%D9%84%D8%A7%D8%AD%D8%AA%D8%B1%D8%A7%D9%81%D9%8A%D8%A9" target="_blank" class="pf-btn pf-btn-primary" style="width:100%;">
+              <span>طلب الباقة الاحترافية</span>
+            </a>
+          </div>
+
+          <!-- Plan 3 -->
+          <div class="pf-price-card">
+            <div>
+              <h3 class="pf-plan-name">باقة الشركات والفروع</h3>
+              <p class="pf-plan-desc">للسلاسل التجارية والفروع المتعددة مع تخصيص برمجي كامل.</p>
+              
+              <ul class="pf-plan-features">
+                <li>✓ إدارة فروع متعددة من لوحة واحدة</li>
+                <li>✓ دومين خاص وهوية بصرية مخصصة 100%</li>
+                <li>✓ ربط مع برمجيات المحاسبة والـ ERP</li>
+                <li>✓ سيرفرات مخصصة ودعم فني على مدار الساعة</li>
+                <li>✓ تدريب مجاني لطاقم العمل والكاشير</li>
+              </ul>
+            </div>
+
+            <a href="https://wa.me/201019971508?text=%D8%A3%D9%88%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20%D8%A8%D8%A7%D9%82%D8%A9%20%D8%A7%D9%84%D8%A4%D8%B1%D9%83%D8%A7%D8%AA%20%D9%88%D8%A7%D9%84%D9%81%D8%B1%D9%88%D8%B9" target="_blank" class="pf-btn pf-btn-outline" style="width:100%;">
+              <span>تواصل لتخصيص الباقة</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="pf-footer" id="contact">
+      <div class="pf-container">
+        <div class="pf-footer-inner">
+          <div class="pf-footer-brand">
+            <img src="assets/portfolio/01_Logo_and_Branding/order_logo_vector.svg" alt="Order Logo" style="height:36px;">
+            <p>منظومة الحلول السحابية الذكية لإدارة المطاعم، نقاط البيع والمتاجر الإلكترونية باحترافية وسرعة فائقة.</p>
+          </div>
+
+          <div style="display:flex; gap:14px; flex-wrap:wrap;">
+            <a href="https://wa.me/201019971508" target="_blank" class="pf-btn pf-btn-wa pf-btn-sm">
+              <span>تواصل واتساب: 01019971508 💬</span>
+            </a>
+            <a href="tel:01019971508" class="pf-btn pf-btn-outline pf-btn-sm">
+              <span>اتصال هاتفي 📞</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="pf-footer-bottom">
+          <p>© 2026 Harpy Platform & Order SaaS. جميع الحقوق محفوظة.</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+  <!-- /#portfolio-app -->
 
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>

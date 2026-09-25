@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <defs>
+    <linearGradient id="basicGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+    <filter id="shadowB">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#0284c7" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <circle cx="50" cy="50" r="42" fill="url(#basicGrad)" filter="url(#shadowB)" opacity="0.15"/>
+  <circle cx="50" cy="50" r="34" fill="url(#basicGrad)"/>
+  
+  <!-- Coffee Cup / Starter Icon -->
+  <path d="M36 42 H60 V56 C60 62 55 66 48 66 C41 66 36 62 36 56 Z" fill="#ffffff"/>
+  <path d="M60 46 H65 C68 46 70 48 70 51 C70 54 68 56 65 56 H60 Z" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+  <!-- Steam lines -->
+  <path d="M42 34 Q44 30 42 26" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.8"/>
+  <path d="M48 33 Q50 29 48 25" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.9"/>
+  <path d="M54 34 Q56 30 54 26" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.8"/>
+  <!-- Base saucer -->
+  <path d="M33 70 H63" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/>
+</svg>
