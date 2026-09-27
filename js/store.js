@@ -1549,10 +1549,10 @@ const Store = {
 
       // 2. Clean Path-based Resolution (e.g. harpymenu.com/king or harpymenu.com/order/king)
       if (!urlSlug && typeof window !== 'undefined' && window.location && window.location.pathname) {
-        const pathParts = window.location.pathname.split('/').filter(p => p && p !== 'index.html' && p !== 'admin.html' && p !== 'admin' && p !== 'order');
+        const pathParts = window.location.pathname.split('/').filter(p => p && !p.endsWith('.html') && p !== 'admin' && p !== 'order');
         if (pathParts.length > 0) {
           const firstPart = pathParts[0].toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
-          const reservedNames = ['css', 'js', 'assets', 'api', 'admin', 'manifest', 'sw', 'favicon', 'icons', 'products', 'portfolio'];
+          const reservedNames = ['css', 'js', 'assets', 'api', 'admin', 'manifest', 'sw', 'favicon', 'icons', 'products', 'portfolio', 'order'];
           if (firstPart && !reservedNames.includes(firstPart)) {
             urlSlug = firstPart;
           }
@@ -1591,7 +1591,7 @@ const Store = {
       }
     } catch {}
 
-    const fallbackSlug = 'king';
+    const fallbackSlug = 'demo';
     if (typeof window !== 'undefined') window.__harpySlug = fallbackSlug;
     return fallbackSlug;
   },
