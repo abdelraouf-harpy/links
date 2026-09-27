@@ -41,9 +41,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Admin">
 
-  <link rel="stylesheet" href="css/order-tokens.css?v=55.0">
-  <link rel="stylesheet" href="css/order-client.css?v=55.0">
-  <link rel="stylesheet" href="css/order-admin.css?v=55.0">
+  <link rel="stylesheet" href="css/order-tokens.css?v=56.0">
+  <link rel="stylesheet" href="css/order-client.css?v=56.0">
+  <link rel="stylesheet" href="css/order-admin.css?v=56.0">
   <script>
     // Instant zero-delay theme toggle available immediately on page paint
     window.handleThemeToggle = function() {
@@ -189,18 +189,29 @@
             fetch(fbBase + '/settings.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
             fetch(fbBase + '/categories.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
             fetch(fbBase + '/products.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
-            fetch(fbBase + '/stories.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; })
+            fetch(fbBase + '/stories.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
+            fetch(fbBase + '/meta.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; })
           ]).then(function(results) {
             var settings = results[0];
             var categories = results[1];
             var products = results[2];
             var stories = results[3];
-            if (!settings && !categories && !products) return null;
+            var meta = results[4];
+            if (meta && typeof meta === 'object') {
+              try { localStorage.setItem('harpy_' + slug + '_meta', JSON.stringify(meta)); } catch(e) {}
+            }
+            if (meta && meta.restaurantName) {
+              settings = settings || {};
+              if (!settings.storeName) settings.storeName = meta.restaurantName;
+              if (!settings.whatsappNumber && meta.phone) settings.whatsappNumber = meta.phone;
+            }
+            if (!settings && !categories && !products && !meta) return null;
             return {
               settings: settings || {},
               categories: categories || [],
               products: products || [],
-              stories: stories || {}
+              stories: stories || {},
+              meta: meta || null
             };
           }).catch(function() { return null; });
         }
@@ -1516,19 +1527,19 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=55.0"></script>
-  <script src="js/core/sound-effects.js?v=55.0"></script>
-  <script src="js/store.js?v=55.0"></script>
-  <script src="js/admin/admin-core.js?v=55.0"></script>
-  <script src="js/admin/admin-auth.js?v=55.0"></script>
-  <script src="js/admin/kitchen-orders.js?v=55.0"></script>
-  <script src="js/admin/catalog-manager.js?v=55.0"></script>
-  <script src="js/admin/category-manager.js?v=55.0"></script>
-  <script src="js/admin/stories-manager.js?v=55.0"></script>
-  <script src="js/admin/backup-restore.js?v=55.0"></script>
-  <script src="js/admin/settings-manager.js?v=55.0"></script>
-  <script src="js/admin/pos-terminal.js?v=55.0"></script>
-  <script src="js/admin.js?v=55.0"></script>
-  <script src="js/pwa.js?v=55.0"></script>
+  <script src="js/core/demo-seed-data.js?v=56.0"></script>
+  <script src="js/core/sound-effects.js?v=56.0"></script>
+  <script src="js/store.js?v=56.0"></script>
+  <script src="js/admin/admin-core.js?v=56.0"></script>
+  <script src="js/admin/admin-auth.js?v=56.0"></script>
+  <script src="js/admin/kitchen-orders.js?v=56.0"></script>
+  <script src="js/admin/catalog-manager.js?v=56.0"></script>
+  <script src="js/admin/category-manager.js?v=56.0"></script>
+  <script src="js/admin/stories-manager.js?v=56.0"></script>
+  <script src="js/admin/backup-restore.js?v=56.0"></script>
+  <script src="js/admin/settings-manager.js?v=56.0"></script>
+  <script src="js/admin/pos-terminal.js?v=56.0"></script>
+  <script src="js/admin.js?v=56.0"></script>
+  <script src="js/pwa.js?v=56.0"></script>
 </body>
 </html>

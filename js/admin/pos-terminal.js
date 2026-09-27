@@ -712,3 +712,16 @@ window.submitPOSOrder = async function(printReceipt = true) {
     if (submitOnlyBtn) submitOnlyBtn.disabled = false;
   }
 };
+
+// ── Reactive POS Store Synchronization ──────────────────
+window.addEventListener('store_products_updated', () => {
+  if (typeof renderPOSProducts === 'function') renderPOSProducts();
+});
+window.addEventListener('store_categories_updated', () => {
+  if (typeof renderPOSCategories === 'function') renderPOSCategories();
+  if (typeof renderPOSProducts === 'function') renderPOSProducts();
+});
+window.addEventListener('store_settings_updated', () => {
+  if (typeof renderPOSProducts === 'function') renderPOSProducts();
+  if (typeof updatePOSCartUI === 'function') updatePOSCartUI();
+});

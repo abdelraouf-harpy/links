@@ -3,19 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <script>
-    // Instant Tenant Guard: If any restaurant query parameter is detected on root, route immediately
+    // Instant Multi-Tenant Guard: Route any restaurant query or path directly to order.html
     (function() {
       try {
         var p = new URLSearchParams(window.location.search);
         var s = p.get('m') || p.get('r') || p.get('restaurant') || p.get('store') || p.get('slug');
         if (s) {
           s = s.toLowerCase().trim();
-          var dedicated = ['saj', 'king', 'sloo'];
-          if (dedicated.indexOf(s) !== -1) {
-            window.location.replace('/' + encodeURIComponent(s) + '/' + window.location.hash);
-          } else {
-            window.location.replace('/order.html' + window.location.search + window.location.hash);
-          }
+          window.location.replace('/order.html?m=' + encodeURIComponent(s) + window.location.hash);
         }
       } catch(e) {}
     })();

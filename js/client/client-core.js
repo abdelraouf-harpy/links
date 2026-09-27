@@ -231,7 +231,7 @@ async function initApp() {
   initViewMode();
 
   const slug = Store.getRestaurantSlug();
-  const isDemo = (slug === 'king' || slug === 'saj');
+  const isDemo = (slug === 'demo');
   const hasLocalCache = Store.hasCachedData(slug) || isDemo;
 
   // 1. Intelligent Dual-Speed Hydration Engine

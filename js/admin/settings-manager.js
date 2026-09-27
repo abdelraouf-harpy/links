@@ -31,15 +31,27 @@ function setupSettingsForm() {
 
   if (adminElements.themePresetsGrid) {
     adminElements.themePresetsGrid.innerHTML = Object.values(THEME_PRESETS).map(preset => `
-      <div class="theme-preset-card" data-preset="${preset.id}" onclick="applyPresetToPickers('${preset.id}')" style="background:var(--surface); border:1px solid var(--border); padding:10px; border-radius:var(--radius-xs); cursor:pointer; transition:all 0.15s ease;">
-        <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
-          <span style="width:14px; height:14px; border-radius:50%; background:${preset.primary};"></span>
-          <span style="font-size:12px; font-weight:800; color:var(--text-main);">${preset.name}</span>
+      <div class="theme-preset-card" data-preset="${preset.id}" onclick="applyPresetToPickers('${preset.id}')" style="cursor:pointer; transition:all 0.18s ease; position:relative; overflow:hidden;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span style="width:14px; height:14px; border-radius:50%; background:${preset.primary}; display:inline-block; border:1px solid rgba(255,255,255,0.25);"></span>
+            <span style="font-size:12.5px; font-weight:800; color:var(--text-main);">${preset.name}</span>
+          </div>
+          <span class="preset-check-badge" style="font-size:11px; font-weight:900; color:var(--primary); background:var(--primary-glow, rgba(234,88,12,0.15)); padding:2px 6px; border-radius:10px; opacity:0; transition:all 0.2s;">✓ مختار</span>
         </div>
-        <div style="font-size:10.5px; color:var(--text-muted);">${preset.badge}</div>
+        <div style="font-size:11px; color:var(--text-muted);">${preset.badge}</div>
       </div>
     `).join('');
     updateThemePresetCardsUI();
+  }
+
+  if (adminElements.setStoreName) {
+    adminElements.setStoreName.addEventListener('input', (e) => {
+      const val = (e.target.value || '').trim();
+      if (val && typeof window.updateAllBrandHeadings === 'function') {
+        window.updateAllBrandHeadings(val);
+      }
+    });
   }
 
   if (adminElements.btnAddPromoCode) {
@@ -126,16 +138,22 @@ function updateThemePresetCardsUI(selectedPresetId) {
   const cards = document.querySelectorAll('.theme-preset-card');
   cards.forEach(card => {
     const isSelected = card.getAttribute('data-preset') === currentId;
-    card.style.border = isSelected ? '2px solid var(--primary)' : '1px solid var(--border)';
+    card.classList.toggle('active', isSelected);
+    card.style.borderColor = isSelected ? 'var(--primary)' : 'var(--border)';
+    card.style.borderWidth = isSelected ? '2px' : '1px';
     card.style.background = isSelected ? 'var(--surface-raised)' : 'var(--surface)';
-    card.style.boxShadow = isSelected ? '0 0 10px var(--primary-glow)' : 'none';
+    card.style.boxShadow = isSelected ? '0 0 14px var(--primary-glow, rgba(234, 88, 12, 0.22))' : 'none';
+    const badge = card.querySelector('.preset-check-badge');
+    if (badge) {
+      badge.style.opacity = isSelected ? '1' : '0';
+      badge.style.transform = isSelected ? 'scale(1)' : 'scale(0.85)';
+    }
   });
 }
 
 window.applyPresetToPickers = async function(presetId) {
   const p = THEME_PRESETS[presetId];
   if (!p) return;
-
 
   // 1. Optimistic UI: Update settings in memory and apply theme to DOM immediately (0ms instant response)
   const current = Store.getSettings();
@@ -155,17 +173,28 @@ window.applyPresetToPickers = async function(presetId) {
   Store.safeSetItem(Store.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(current));
   window.dispatchEvent(new Event('store_settings_updated'));
 
-  // 3. Sync to Cloud in background using PATCH (never blocks UI, never overwrites store metadata)
-  Store.syncThemePresetToCloud(presetId, p).catch(err => {
+  // 3. Temporarily lock settings to prevent background sync from immediately reverting
+  Store.saveLocks.settings = true;
+  Store.lastSaveTimestamps.settings = Date.now();
+
+  // 4. Sync to Cloud in background using PATCH
+  try {
+    await Store.syncThemePresetToCloud(presetId, p);
+  } catch (err) {
     console.warn('[Admin] Cloud theme sync background error:', err);
-  });
+  } finally {
+    setTimeout(() => { Store.saveLocks.settings = false; }, 2500);
+  }
 };
 
 function loadSettingsIntoForm() {
   const s = Store.getSettings();
-  if (adminElements.adminStoreName) adminElements.adminStoreName.textContent = `إدارة: ${s.storeName || "منيو المطعم"}`;
-
-  if (adminElements.setStoreName) adminElements.setStoreName.value = s.storeName || '';
+  if (typeof window.updateAllBrandHeadings === 'function') {
+    window.updateAllBrandHeadings(s.storeName);
+  } else {
+    if (adminElements.adminStoreName) adminElements.adminStoreName.textContent = `إدارة: ${s.storeName || "منيو المطعم"}`;
+    if (adminElements.setStoreName) adminElements.setStoreName.value = s.storeName || '';
+  }
   if (adminElements.setStoreTagline) adminElements.setStoreTagline.value = s.storeTagline || '';
   if (adminElements.setPrinterPaperSize) adminElements.setPrinterPaperSize.value = s.printerPaperSize || '80mm';
   document.documentElement.setAttribute('data-paper-size', s.printerPaperSize || '80mm');

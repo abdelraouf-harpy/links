@@ -683,7 +683,7 @@ const Store = {
   // ── Controlled Cloud Sync Engine with Stale Snapshot Protection ──
   applySnapshotData(data) {
     const slug = this.getRestaurantSlug();
-    const isDemo = (slug === 'king' || slug === 'saj');
+    const isDemo = (slug === 'demo');
 
     if (!data || typeof data !== 'object') {
       if (!isDemo && data === null) {
@@ -701,8 +701,23 @@ const Store = {
     let hasChanges = false;
     const defaults = isDemo ? DEFAULT_SETTINGS : BLANK_SETTINGS;
 
+    // Cache tenant meta if provided
+    if (data.meta && typeof data.meta === 'object') {
+      try {
+        localStorage.setItem(`harpy_${slug}_meta`, JSON.stringify(data.meta));
+      } catch(e) {}
+    }
+
+    let meta = data.meta || null;
+    if (!meta) {
+      try {
+        const rawMeta = localStorage.getItem(`harpy_${slug}_meta`);
+        if (rawMeta) meta = JSON.parse(rawMeta);
+      } catch(e) {}
+    }
+
     if (!this.saveLocks.settings && (now - this.lastSaveTimestamps.settings > 2500)) {
-      if (data.settings) {
+      if (data.settings && typeof data.settings === 'object') {
         const mergedSettings = { ...defaults, ...data.settings };
         if (!isDemo) {
           if (mergedSettings.storeName === DEFAULT_SETTINGS.storeName) mergedSettings.storeName = "";
@@ -715,74 +730,52 @@ const Store = {
             mergedSettings.showAnnouncement = false;
           }
         }
+        if (!mergedSettings.storeName && meta && meta.restaurantName) {
+          mergedSettings.storeName = meta.restaurantName;
+        }
+        if (!mergedSettings.whatsappNumber && meta && meta.phone) {
+          mergedSettings.whatsappNumber = meta.phone;
+        }
         this._memoryCache.settings = mergedSettings;
         this.safeSetItem(this.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(mergedSettings));
         this.applyTheme();
         hasChanges = true;
-      } else if (!isDemo) {
-        if (!this._memoryCache.settings) {
-          this._memoryCache.settings = { ...BLANK_SETTINGS };
-          this.safeSetItem(this.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(BLANK_SETTINGS));
-          this.applyTheme();
+      } else if (!isDemo && meta && meta.restaurantName) {
+        const cur = this._memoryCache.settings || { ...BLANK_SETTINGS };
+        if (!cur.storeName) {
+          cur.storeName = meta.restaurantName;
+          if (!cur.whatsappNumber && meta.phone) cur.whatsappNumber = meta.phone;
+          this._memoryCache.settings = cur;
+          this.safeSetItem(this.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(cur));
           hasChanges = true;
         }
       }
     }
 
     if (!this.saveLocks.categories && (now - this.lastSaveTimestamps.categories > 2500)) {
-      if (data.categories) {
+      if (data.categories !== undefined && data.categories !== null) {
         let catArray = Array.isArray(data.categories) ? data.categories : Object.values(data.categories);
-        if (!isDemo && Array.isArray(catArray) && catArray.length === DEFAULT_CATEGORIES.length && catArray[0] === DEFAULT_CATEGORIES[0]) {
-          catArray = [];
-        }
         this._memoryCache.categories = catArray;
         this.safeSetItem(this.getKey(STORAGE_KEYS.CATEGORIES), JSON.stringify(catArray));
         hasChanges = true;
-      } else if (!isDemo) {
-        if (this._memoryCache.categories === null || (this._memoryCache.categories && this._memoryCache.categories.length > 0)) {
-          this._memoryCache.categories = [];
-          this.safeSetItem(this.getKey(STORAGE_KEYS.CATEGORIES), JSON.stringify([]));
-          hasChanges = true;
-        }
       }
     }
 
     if (!this.saveLocks.products && (now - this.lastSaveTimestamps.products > 2500)) {
-      if (data.products) {
+      if (data.products !== undefined && data.products !== null) {
         let prodArray = Array.isArray(data.products) ? data.products : Object.values(data.products);
-        if (!isDemo && Array.isArray(prodArray) && prodArray.length > 0) {
-          const isDemoData = prodArray.some(p => p && (p.id === 'p1' || p.id === 'prod-mix-burger-double' || (p.name && p.name.includes('سوبر سنجل برجر'))));
-          if (isDemoData) {
-            prodArray = [];
-          }
-        }
         this._memoryCache.products = prodArray;
         this.safeSetItem(this.getKey(STORAGE_KEYS.PRODUCTS), JSON.stringify(prodArray));
         hasChanges = true;
-      } else if (!isDemo) {
-        if (this._memoryCache.products === null || (this._memoryCache.products && this._memoryCache.products.length > 0)) {
-          this._memoryCache.products = [];
-          this.safeSetItem(this.getKey(STORAGE_KEYS.PRODUCTS), JSON.stringify([]));
-          hasChanges = true;
-        }
       }
     }
 
     if (!this.saveLocks.stories && (now - this.lastSaveTimestamps.stories > 2500)) {
-      if (data.stories) {
+      if (data.stories !== undefined && data.stories !== null) {
         let storyArray = Array.isArray(data.stories) ? data.stories : Object.values(data.stories);
-        if (!isDemo && Array.isArray(storyArray) && storyArray.length === DEFAULT_STORIES.length && storyArray[0]?.id === DEFAULT_STORIES[0]?.id) {
-          storyArray = [];
-        }
         this._memoryCache.stories = storyArray;
         this.safeSetItem(this.getKey(STORAGE_KEYS.STORIES), JSON.stringify(storyArray));
         hasChanges = true;
-      } else if (!isDemo) {
-        if (this._memoryCache.stories === null || (this._memoryCache.stories && this._memoryCache.stories.length > 0)) {
-          this._memoryCache.stories = [];
-          this.safeSetItem(this.getKey(STORAGE_KEYS.STORIES), JSON.stringify([]));
-          hasChanges = true;
-        }
       }
     }
 
@@ -855,14 +848,16 @@ const Store = {
           settings: db.ref(`restaurants/${slug}/settings`),
           categories: db.ref(`restaurants/${slug}/categories`),
           products: db.ref(`restaurants/${slug}/products`),
-          stories: db.ref(`restaurants/${slug}/stories`)
+          stories: db.ref(`restaurants/${slug}/stories`),
+          meta: db.ref(`restaurants/${slug}/meta`)
         };
 
         const currentAgg = {
           settings: this.getSettings ? this.getSettings() : null,
           categories: this.getCategories ? this.getCategories() : null,
           products: this.getProducts ? this.getProducts() : null,
-          stories: this.getStories ? this.getStories() : null
+          stories: this.getStories ? this.getStories() : null,
+          meta: null
         };
 
         subCallbacks = {};
@@ -893,24 +888,27 @@ const Store = {
       try {
         const baseUrl = `https://harpy-order-default-rtdb.firebaseio.com/restaurants/${encodeURIComponent(slug)}`;
         const fOpt = { cache: 'no-store' };
-        const [sRes, cRes, pRes, stRes] = await Promise.all([
+        const [sRes, cRes, pRes, stRes, mRes] = await Promise.all([
           fetch(`${baseUrl}/settings.json`, fOpt).catch(() => null),
           fetch(`${baseUrl}/categories.json`, fOpt).catch(() => null),
           fetch(`${baseUrl}/products.json`, fOpt).catch(() => null),
-          fetch(`${baseUrl}/stories.json`, fOpt).catch(() => null)
+          fetch(`${baseUrl}/stories.json`, fOpt).catch(() => null),
+          fetch(`${baseUrl}/meta.json`, fOpt).catch(() => null)
         ]);
 
         const settings = sRes && sRes.ok ? await sRes.json().catch(() => null) : null;
         const categories = cRes && cRes.ok ? await cRes.json().catch(() => null) : null;
         const products = pRes && pRes.ok ? await pRes.json().catch(() => null) : null;
         const stories = stRes && stRes.ok ? await stRes.json().catch(() => null) : null;
+        const meta = mRes && mRes.ok ? await mRes.json().catch(() => null) : null;
 
-        if (settings !== null || categories !== null || products !== null) {
+        if (settings !== null || categories !== null || products !== null || meta !== null) {
           processSnapshotData({
-            settings: settings || {},
-            categories: categories || [],
-            products: products || [],
-            stories: stories || {}
+            settings: settings,
+            categories: categories,
+            products: products,
+            stories: stories,
+            meta: meta
           });
         }
       } catch (e) {}
@@ -1639,33 +1637,50 @@ const Store = {
     if (this._memoryCache.settings !== null) {
       return this._memoryCache.settings;
     }
-    const isDemo = (this.getRestaurantSlug() === 'king' || this.getRestaurantSlug() === 'saj');
+    const slug = this.getRestaurantSlug();
+    const isDemo = (slug === 'demo');
     const defaults = isDemo ? DEFAULT_SETTINGS : BLANK_SETTINGS;
     const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.SETTINGS));
-    if (!raw) {
-      this._memoryCache.settings = { ...defaults };
-      return { ...defaults };
+    let parsed = { ...defaults };
+    if (raw) {
+      try {
+        parsed = { ...defaults, ...JSON.parse(raw) };
+      } catch(e) {}
     }
-    try {
-      const parsed = { ...defaults, ...JSON.parse(raw) };
-      if (!isDemo) {
-        if (parsed.storeName === DEFAULT_SETTINGS.storeName) parsed.storeName = "";
-        if (parsed.whatsappNumber === DEFAULT_SETTINGS.whatsappNumber) parsed.whatsappNumber = "";
-        if (parsed.walletNumber === DEFAULT_SETTINGS.walletNumber) parsed.walletNumber = "";
-        if (parsed.logo === DEFAULT_SETTINGS.logo) parsed.logo = "";
-        if (parsed.cover === DEFAULT_SETTINGS.cover) parsed.cover = "";
-        if (parsed.announcementText === DEFAULT_SETTINGS.announcementText) {
-          parsed.announcementText = "";
-          parsed.showAnnouncement = false;
-        }
+
+    if (!isDemo) {
+      if (parsed.storeName === DEFAULT_SETTINGS.storeName) parsed.storeName = "";
+      if (parsed.whatsappNumber === DEFAULT_SETTINGS.whatsappNumber) parsed.whatsappNumber = "";
+      if (parsed.walletNumber === DEFAULT_SETTINGS.walletNumber) parsed.walletNumber = "";
+      if (parsed.logo === DEFAULT_SETTINGS.logo) parsed.logo = "";
+      if (parsed.cover === DEFAULT_SETTINGS.cover) parsed.cover = "";
+      if (parsed.announcementText === DEFAULT_SETTINGS.announcementText) {
+        parsed.announcementText = "";
+        parsed.showAnnouncement = false;
       }
-      if (!parsed.printerPaperSize) parsed.printerPaperSize = "80mm";
-      this._memoryCache.settings = parsed;
-      return parsed;
-    } catch {
-      this._memoryCache.settings = { ...defaults };
-      return { ...defaults };
     }
+
+    // Resolve tenant metadata if storeName is not yet set in settings
+    let meta = null;
+    try {
+      const rawMeta = localStorage.getItem(`harpy_${slug}_meta`);
+      if (rawMeta) meta = JSON.parse(rawMeta);
+    } catch(e) {}
+
+    if (!parsed.storeName) {
+      if (meta && meta.restaurantName) {
+        parsed.storeName = meta.restaurantName;
+      } else if (!isDemo && slug) {
+        parsed.storeName = `مطعم ${slug}`;
+      }
+    }
+    if (!parsed.whatsappNumber && meta && meta.phone) {
+      parsed.whatsappNumber = meta.phone;
+    }
+    if (!parsed.printerPaperSize) parsed.printerPaperSize = "80mm";
+
+    this._memoryCache.settings = parsed;
+    return parsed;
   },
 
   async saveSettings(settings) {
@@ -1776,7 +1791,7 @@ const Store = {
     if (this._memoryCache.categories !== null) {
       return this._memoryCache.categories;
     }
-    const isDemo = (this.getRestaurantSlug() === 'king' || this.getRestaurantSlug() === 'saj');
+    const isDemo = (this.getRestaurantSlug() === 'demo');
     const defaultCategories = isDemo ? DEFAULT_CATEGORIES : [];
     const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.CATEGORIES));
     if (!raw) {
@@ -1786,10 +1801,6 @@ const Store = {
     try {
       const parsed = JSON.parse(raw);
       let res = Array.isArray(parsed) ? parsed : (parsed && typeof parsed === 'object' ? Object.values(parsed) : defaultCategories);
-      if (!isDemo && Array.isArray(res) && res.length === DEFAULT_CATEGORIES.length && res[0] === DEFAULT_CATEGORIES[0]) {
-        res = [];
-        this.safeSetItem(this.getKey(STORAGE_KEYS.CATEGORIES), JSON.stringify([]));
-      }
       this._memoryCache.categories = res;
       return res;
     } catch {
@@ -1815,7 +1826,7 @@ const Store = {
     if (this._memoryCache.products !== null) {
       return this._memoryCache.products;
     }
-    const isDemo = (this.getRestaurantSlug() === 'king' || this.getRestaurantSlug() === 'saj');
+    const isDemo = (this.getRestaurantSlug() === 'demo');
     const defaultProducts = isDemo ? DEFAULT_PRODUCTS : [];
     const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.PRODUCTS));
     if (!raw) {
@@ -1825,13 +1836,6 @@ const Store = {
     try {
       const parsed = JSON.parse(raw);
       let res = Array.isArray(parsed) ? parsed : (parsed && typeof parsed === 'object' ? Object.values(parsed) : defaultProducts);
-      if (!isDemo && Array.isArray(res) && res.length > 0) {
-        const isDemoData = res.some(p => p && (p.id === 'p1' || p.id === 'prod-mix-burger-double' || (p.name && p.name.includes('سوبر سنجل برجر'))));
-        if (isDemoData) {
-          res = [];
-          this.safeSetItem(this.getKey(STORAGE_KEYS.PRODUCTS), JSON.stringify([]));
-        }
-      }
       this._memoryCache.products = res;
       return res;
     } catch {
@@ -1986,7 +1990,7 @@ const Store = {
     if (this._memoryCache.stories !== null) {
       return this._memoryCache.stories;
     }
-    const isDemo = (this.getRestaurantSlug() === 'king' || this.getRestaurantSlug() === 'saj');
+    const isDemo = (this.getRestaurantSlug() === 'demo');
     const defaultStories = isDemo ? DEFAULT_STORIES : [];
     const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.STORIES));
     if (!raw) {
@@ -1996,10 +2000,6 @@ const Store = {
     try {
       const parsed = JSON.parse(raw);
       let res = Array.isArray(parsed) ? parsed : (parsed && typeof parsed === 'object' ? Object.values(parsed) : defaultStories);
-      if (!isDemo && Array.isArray(res) && res.length === DEFAULT_STORIES.length && res[0]?.id === DEFAULT_STORIES[0]?.id) {
-        res = [];
-        this.safeSetItem(this.getKey(STORAGE_KEYS.STORIES), JSON.stringify([]));
-      }
       this._memoryCache.stories = res;
       return res;
     } catch {
@@ -2097,7 +2097,7 @@ const Store = {
     this.clearMemoryCache();
     this.initTheme();
 
-    const isDemo = (currentSlug === 'king' || currentSlug === 'saj');
+    const isDemo = (currentSlug === 'demo');
     await this.pushToCloud('settings', isDemo ? DEFAULT_SETTINGS : BLANK_SETTINGS);
     await this.pushToCloud('categories', isDemo ? DEFAULT_CATEGORIES : []);
     await this.pushToCloud('products', isDemo ? DEFAULT_PRODUCTS : []);
@@ -2189,7 +2189,7 @@ const Store = {
       let isExpired = false;
       let isDeleted = false;
       let reason = 'active';
-      const isDemo = (slug === 'king' || slug === 'saj');
+      const isDemo = (slug === 'demo');
 
       if (!isDemo && (lic === null || lic === undefined)) {
         isDeleted = true;

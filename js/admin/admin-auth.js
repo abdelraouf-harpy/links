@@ -52,9 +52,15 @@ function setupAuth() {
         renderCatalog();
         renderCategoriesList();
         renderStoriesList();
+        if (typeof renderPOSCategories === 'function') renderPOSCategories();
+        if (typeof renderPOSProducts === 'function') renderPOSProducts();
         loadSettingsIntoForm();
+        renderRestaurantHub();
         checkOnboardingSetup();
         const curSettings = Store.getSettings();
+        if (typeof window.updateAllBrandHeadings === 'function') {
+          window.updateAllBrandHeadings(curSettings.storeName);
+        }
         if (typeof window.updatePwaBranding === 'function') {
           window.updatePwaBranding(curSettings);
         }
@@ -303,16 +309,31 @@ function setupRestaurantHub() {
   });
 }
 
+function updateAllBrandHeadings(customName = null) {
+  const slug = Store.getRestaurantSlug();
+  const settings = Store.getSettings();
+  const brandName = (customName || settings.storeName || '').trim() || `مطعم ${slug}`;
+
+  const adminStoreName = document.getElementById('admin-store-name');
+  if (adminStoreName) adminStoreName.textContent = `إدارة: ${brandName}`;
+
+  const activeTitle = document.getElementById('active-restaurant-title');
+  if (activeTitle) activeTitle.textContent = brandName;
+
+  const setStoreName = document.getElementById('set-store-name');
+  if (setStoreName && !setStoreName.matches(':focus') && brandName !== `مطعم ${slug}`) {
+    setStoreName.value = brandName;
+  }
+}
+window.updateAllBrandHeadings = updateAllBrandHeadings;
+
 function renderRestaurantHub() {
   const slug = Store.getRestaurantSlug();
   const settings = Store.getSettings();
-  const activeTitle = document.getElementById('active-restaurant-title');
   const shareLink = document.getElementById('tenant-share-link');
   const previewBtn = document.getElementById('btn-live-preview');
 
-  if (activeTitle) {
-    activeTitle.textContent = settings.storeName || `مطعم ${slug}`;
-  }
+  updateAllBrandHeadings(settings.storeName);
 
   const isFile = window.location.protocol === 'file:';
   const cleanPath = window.location.pathname.replace('admin.html', '').replace(/\/admin\/?$/, '').replace(/\/$/, '');
@@ -393,9 +414,11 @@ window.verifyAdminCredentials = async function(enteredPassword, slug) {
   // 1. Verify against meta.adminPassword in Firebase RTDB
   if (typeof db !== 'undefined' && db) {
     try {
-      const snap = await db.ref(`restaurants/${slug}/meta/adminPassword`).once('value');
-      const realPwd = (snap.val() || '').trim();
+      const snap = await db.ref(`restaurants/${slug}/meta`).once('value');
+      const meta = snap.val() || {};
+      const realPwd = (meta.adminPassword || '').trim();
       if (realPwd && enteredPassword === realPwd) {
+        try { localStorage.setItem(`harpy_${slug}_meta`, JSON.stringify(meta)); } catch(e) {}
         return true;
       }
     } catch (e) {}
