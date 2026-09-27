@@ -526,6 +526,11 @@
 
   // ── 8. Render In-App Floating Install Banner ─────────────────
   function renderInstallBanner() {
+    if (isAdmin) {
+      const existing = document.getElementById('order-pwa-banner');
+      if (existing) existing.remove();
+      return;
+    }
     if (isAppInstalled() || !hasValidBranding()) {
       const existing = document.getElementById('order-pwa-banner');
       if (existing) existing.remove();

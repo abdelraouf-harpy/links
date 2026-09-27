@@ -1,5 +1,5 @@
 // Order PWA Service Worker — Native App Shell & Offline Engine
-const CACHE_NAME = 'order-pwa-v42.0';
+const CACHE_NAME = 'order-pwa-v55.0';
 const IMAGE_CACHE_NAME = 'order-images-v1';
 const ASSETS_TO_CACHE = [
   './',
@@ -13,14 +13,32 @@ const ASSETS_TO_CACHE = [
   './admin-manifest-saj.json',
   './manifest-king.json',
   './admin-manifest-king.json',
-  './manifest-sloo.json',
-  './admin-manifest-sloo.json',
-  './css/style.css?v=40.5',
+  './css/style.css?v=46.0',
+  './css/order-tokens.css?v=46.0',
+  './css/order-client.css?v=46.0',
+  './css/order-admin.css?v=46.0',
   './css/portfolio.css?v=2.0',
-  './js/store.js?v=40.5',
-  './js/app.js?v=40.5',
-  './js/admin.js?v=40.5',
-  './js/pwa.js?v=40.5'
+  './js/core/demo-seed-data.js?v=46.0',
+  './js/core/sound-effects.js?v=46.0',
+  './js/store.js?v=46.0',
+  './js/admin/admin-core.js?v=46.0',
+  './js/admin/admin-auth.js?v=46.0',
+  './js/admin/kitchen-orders.js?v=46.0',
+  './js/admin/catalog-manager.js?v=46.0',
+  './js/admin/category-manager.js?v=46.0',
+  './js/admin/stories-manager.js?v=46.0',
+  './js/admin/backup-restore.js?v=46.0',
+  './js/admin/settings-manager.js?v=46.0',
+  './js/admin/pos-terminal.js?v=46.0',
+  './js/client/client-core.js?v=46.0',
+  './js/client/menu-view.js?v=46.0',
+  './js/client/stories-viewer.js?v=46.0',
+  './js/client/customizer-modal.js?v=46.0',
+  './js/client/cart-ledger.js?v=46.0',
+  './js/client/order-tracking.js?v=46.0',
+  './js/app.js?v=46.0',
+  './js/admin.js?v=46.0',
+  './js/pwa.js?v=46.0'
 ];
 
 self.addEventListener('install', (event) => {
