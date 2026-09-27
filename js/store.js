@@ -140,6 +140,7 @@ const THEME_PRESETS = {
     border: "rgba(225, 29, 72, 0.16)"
   }
 };
+if (typeof window !== 'undefined') window.THEME_PRESETS = THEME_PRESETS;
 
 // ── Demo Settings Fallback (Decoupled to js/core/demo-seed-data.js) ──
 const DEFAULT_SETTINGS = (typeof window !== 'undefined' && window.HARPY_DEMO_SEED && window.HARPY_DEMO_SEED.DEFAULT_SETTINGS)

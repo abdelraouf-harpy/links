@@ -79,7 +79,7 @@
         if (segments.indexOf('products') !== -1 || path.indexOf('/products') !== -1) {
           var subParts = segments.filter(function(s) { return s !== 'products'; });
           var subPath = subParts.length > 0 ? subParts.join('/') : '';
-          window.location.replace('/products/' + subPath + search + hash);
+          window.location.replace('https://abdelraouf-harpy.github.io/products/' + (subPath ? subPath : '') + search + hash);
           return;
         }
 
