@@ -2436,3 +2436,203 @@ html.admin-unlocked #login-modal-backdrop {
   border-radius: 6px;
   border: 1px solid rgba(22, 163, 74, 0.25);
 }
+
+/* ═══════════════════════════════════════════════════════════
+   HARPY PRO: MOBILE RESPONSIVE ENGINE (Screen Width <= 600px)
+   Eliminates overlapping buttons, reclaims wasted screen space,
+   streamlines category management, and turns stacked filters
+   into smooth horizontal scrolling chip bars.
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 600px) {
+  /* 1. Main Viewport & Card Margins: Reclaim ~80px of wasted side padding */
+  #admin-main-container {
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+    margin-top: 8px !important;
+    max-width: 100% !important;
+  }
+  .admin-card,
+  .admin-form-card {
+    padding: 14px 10px !important;
+    border-radius: 12px !important;
+    margin-bottom: 12px !important;
+  }
+
+  /* 2. Store Identity & Share Link Card: Fix button overlapping */
+  .multi-tenant-hub-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    padding: 12px 10px !important;
+  }
+  .tenant-info-left {
+    width: 100% !important;
+    gap: 10px !important;
+  }
+  .tenant-text-col {
+    width: calc(100% - 46px) !important;
+    min-width: 0 !important;
+  }
+  .tenant-title-row {
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+  }
+  .tenant-title-name {
+    max-width: 100% !important;
+    font-size: 0.88rem !important;
+  }
+  .tenant-link-row {
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+  }
+  .tenant-share-link {
+    max-width: 100% !important;
+    font-size: 0.76rem !important;
+  }
+  .tenant-actions-right {
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+  .tenant-actions-right .btn-copy-chic,
+  .tenant-actions-right #btn-open-store-link {
+    flex: 1 !important;
+    justify-content: center !important;
+    padding: 9px 12px !important;
+    font-size: 13px !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+    border-radius: 8px !important;
+  }
+
+  /* 3. Kitchen Operations & Orders Filter Chips */
+  .kitchen-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    margin-bottom: 12px !important;
+  }
+  .kitchen-stat-card {
+    padding: 10px 8px !important;
+  }
+  .kitchen-stat-card .font-num {
+    font-size: 18px !important;
+  }
+  .kitchen-filters-row,
+  .archive-filters-row {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    gap: 6px !important;
+    padding-bottom: 6px !important;
+    margin-bottom: 12px !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+  }
+  .kitchen-filters-row::-webkit-scrollbar,
+  .archive-filters-row::-webkit-scrollbar {
+    display: none !important;
+  }
+  .kitchen-filters-row .btn-filter-kitchen,
+  .archive-filters-row .btn-filter-archive {
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    padding: 6px 14px !important;
+    font-size: 12px !important;
+    border-radius: 20px !important;
+  }
+  .archive-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    margin-bottom: 14px !important;
+  }
+  .archive-stats-grid > div:last-child {
+    grid-column: span 2;
+  }
+
+  /* 4. Category Management */
+  .cat-action-banner {
+    padding: 12px 10px !important;
+    margin-bottom: 14px !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+  .cat-add-input-wrap {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    display: flex !important;
+    gap: 8px !important;
+  }
+  .cat-add-input-wrap .form-input {
+    flex: 1 !important;
+    min-width: 0 !important;
+    padding: 9px 12px !important;
+    font-size: 13px !important;
+  }
+  .cat-add-input-wrap .btn {
+    padding: 9px 14px !important;
+    font-size: 13px !important;
+    flex-shrink: 0 !important;
+  }
+  #categories-list-container {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  .cat-admin-card {
+    padding: 12px !important;
+    border-radius: 10px !important;
+  }
+
+  /* 5. Theme Studio & Settings Inputs */
+  .theme-presets-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+  .theme-preset-card {
+    padding: 8px !important;
+    gap: 6px !important;
+  }
+  .settings-identity-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  .custom-zone-inputs-grid {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  /* 6. Product Catalog & Order Cards on Mobile */
+  .admin-catalog-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  .order-card-pro {
+    padding: 12px 10px !important;
+    border-radius: 10px !important;
+    gap: 10px !important;
+  }
+  .order-card-header-row {
+    padding-bottom: 8px !important;
+    gap: 6px !important;
+  }
+
+  /* 7. Header and Navigation Tabs */
+  .admin-tabs {
+    gap: 6px !important;
+    padding: 4px 2px 10px 2px !important;
+    margin-bottom: 12px !important;
+  }
+  .admin-tab-btn {
+    padding: 7px 12px !important;
+    font-size: 0.78rem !important;
+    gap: 5px !important;
+    border-radius: 10px !important;
+  }
+  .admin-tab-btn svg {
+    width: 14px !important;
+    height: 14px !important;
+  }
+}
