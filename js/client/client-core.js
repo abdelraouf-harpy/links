@@ -690,24 +690,34 @@ function renderAnnouncement() {
       const spendDiscount = settings.spendDiscount && settings.spendDiscount.enabled;
       const walletDiscount = settings.walletDiscount && settings.walletDiscount.enabled;
 
+      const promoBadge = document.querySelector('.promo-deal-badge');
       if (hasAnnouncement) {
         promoCard.style.display = 'flex';
+        if (promoBadge) promoBadge.textContent = '🛵';
         if (promoTitle) promoTitle.textContent = settings.announcementText;
         if (promoSubtitle) promoSubtitle.textContent = settings.deliveryTime ? `وقت التوصيل التقديري: ${settings.deliveryTime}` : 'العرض متاح للطلب الفوري أونلاين';
       } else if (spendDiscount) {
         promoCard.style.display = 'flex';
+        if (promoBadge) promoBadge.textContent = '%';
         const valStr = settings.spendDiscount.type === 'percent' ? `${settings.spendDiscount.value}%` : `${settings.spendDiscount.value} ج.م`;
         if (promoTitle) promoTitle.textContent = `خصم ${valStr} على الطلبات الأكثر من ${settings.spendDiscount.minSpend} ج.م 🔥`;
         if (promoSubtitle) promoSubtitle.textContent = 'يطبق الخصم تلقائياً في السلة وعند الدفع';
       } else if (walletDiscount) {
         promoCard.style.display = 'flex';
+        if (promoBadge) promoBadge.textContent = '%';
         const valStr = settings.walletDiscount.type === 'percent' ? `${settings.walletDiscount.value}%` : `${settings.walletDiscount.value} ج.م`;
         if (promoTitle) promoTitle.textContent = `خصم ${valStr} عند الدفع بالمحفظة الإلكترونية ⚡`;
         if (promoSubtitle) promoSubtitle.textContent = 'فودافون كاش، إنستاباي والمحافظ البنكية';
       } else {
-        promoCard.style.display = 'flex';
-        if (promoTitle) promoTitle.textContent = 'خصم 15% على جميع الطلبات 🔥';
-        if (promoSubtitle) promoSubtitle.textContent = 'العرض متاح اليوم فقط عند الطلب عبر المنيو';
+        const slug = Store.getRestaurantSlug();
+        if (slug === 'demo') {
+          promoCard.style.display = 'flex';
+          if (promoBadge) promoBadge.textContent = '%';
+          if (promoTitle) promoTitle.textContent = 'خصم 15% على جميع الطلبات 🔥';
+          if (promoSubtitle) promoSubtitle.textContent = 'العرض متاح اليوم فقط عند الطلب عبر المنيو';
+        } else {
+          promoCard.style.display = 'none';
+        }
       }
     }
   }

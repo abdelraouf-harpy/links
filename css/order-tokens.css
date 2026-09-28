@@ -97,6 +97,11 @@ body, .food-item-card, .cat-pill, .discovery-chip, .search-input, .cart-drawer, 
   -webkit-tap-highlight-color: transparent;
 }
 
+img {
+  max-width: 100%;
+  height: auto;
+}
+
 html {
   scroll-behavior: smooth;
   font-size: 15.5px;

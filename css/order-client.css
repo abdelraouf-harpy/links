@@ -3040,8 +3040,8 @@ body.cart-drawer-open .dynamic-island-cart {
 .restaurant-hero-section {
   position: relative;
   width: 100%;
-  min-height: 270px;
-  overflow: visible;
+  min-height: 280px;
+  overflow: hidden;
   background: var(--bg);
 }
 .hero-top-nav {
@@ -3049,14 +3049,14 @@ body.cart-drawer-open .dynamic-island-cart {
   top: 0;
   left: 0;
   width: 100%;
-  z-index: 25;
+  z-index: 30;
   background: linear-gradient(180deg, rgba(12, 10, 9, 0.75) 0%, rgba(12, 10, 9, 0) 100%);
   padding: 10px 0 16px;
 }
 .hero-nav-container {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: 10px;
 }
 .hero-nav-actions {
@@ -3191,7 +3191,7 @@ body.cart-drawer-open .dynamic-island-cart {
 .hero-cover-container {
   position: relative;
   width: 100%;
-  height: 270px;
+  height: 280px;
   overflow: hidden;
 }
 .hero-cover-img {
@@ -3206,8 +3206,8 @@ body.cart-drawer-open .dynamic-island-cart {
   position: absolute;
   inset: 0;
   background: linear-gradient(180deg, 
-    rgba(12, 10, 9, 0.15) 0%, 
-    rgba(12, 10, 9, 0.45) 50%, 
+    rgba(12, 10, 9, 0.20) 0%, 
+    rgba(12, 10, 9, 0.50) 50%, 
     rgba(12, 10, 9, 0.95) 100%
   );
 }
@@ -3218,8 +3218,8 @@ body.cart-drawer-open .dynamic-island-cart {
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 15;
-  padding-bottom: 38px;
+  z-index: 25;
+  padding-bottom: 34px;
 }
 .hero-brand-card {
   display: flex;
@@ -3227,21 +3227,27 @@ body.cart-drawer-open .dynamic-island-cart {
   gap: 12px;
 }
 .hero-logo-wrap {
-  width: 68px;
-  height: 68px;
-  border-radius: 50%;
+  width: 68px !important;
+  height: 68px !important;
+  min-width: 68px !important;
+  max-width: 68px !important;
+  max-height: 68px !important;
+  border-radius: 50% !important;
   border: 3px solid rgba(255, 255, 255, 0.9);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
   background: var(--surface);
-  overflow: hidden;
+  overflow: hidden !important;
   position: relative;
-  flex-shrink: 0;
+  flex-shrink: 0 !important;
   margin-bottom: 2px;
 }
-.hero-logo {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.hero-logo, #store-logo {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 68px !important;
+  max-height: 68px !important;
+  object-fit: cover !important;
+  display: block !important;
 }
 .hero-text-col {
   flex: 1;
@@ -3436,18 +3442,24 @@ body.cart-drawer-open .dynamic-island-cart {
   text-overflow: ellipsis;
 }
 .promo-deal-thumb-box {
-  width: 52px;
-  height: 52px;
-  border-radius: 10px;
-  overflow: hidden;
-  flex-shrink: 0;
+  width: 52px !important;
+  height: 52px !important;
+  min-width: 52px !important;
+  max-width: 52px !important;
+  max-height: 52px !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  flex-shrink: 0 !important;
   border: 1.5px solid rgba(234, 88, 12, 0.25);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
-.promo-deal-thumb {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.promo-deal-thumb, #promo-deal-img {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 52px !important;
+  max-height: 52px !important;
+  object-fit: cover !important;
+  display: block !important;
 }
 
 /* ═══════════════════════════════════════════════════════════

@@ -1,6 +1,6 @@
 // Order PWA Service Worker — Native App Shell & Offline Engine
-const CACHE_NAME = 'order-pwa-v56.0';
-const IMAGE_CACHE_NAME = 'order-images-v1';
+const CACHE_NAME = 'order-pwa-v60.0';
+const IMAGE_CACHE_NAME = 'order-images-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -9,32 +9,32 @@ const ASSETS_TO_CACHE = [
   './admin.html',
   './manifest.json',
   './admin-manifest.json',
-  './css/style.css?v=56.0',
-  './css/order-tokens.css?v=56.0',
-  './css/order-client.css?v=56.0',
-  './css/order-admin.css?v=56.0',
+  './css/style.css?v=60.0',
+  './css/order-tokens.css?v=60.0',
+  './css/order-client.css?v=60.0',
+  './css/order-admin.css?v=60.0',
   './css/portfolio.css?v=2.0',
-  './js/core/demo-seed-data.js?v=56.0',
-  './js/core/sound-effects.js?v=56.0',
-  './js/store.js?v=56.0',
-  './js/admin/admin-core.js?v=56.0',
-  './js/admin/admin-auth.js?v=56.0',
-  './js/admin/kitchen-orders.js?v=56.0',
-  './js/admin/catalog-manager.js?v=56.0',
-  './js/admin/category-manager.js?v=56.0',
-  './js/admin/stories-manager.js?v=56.0',
-  './js/admin/backup-restore.js?v=56.0',
-  './js/admin/settings-manager.js?v=56.0',
-  './js/admin/pos-terminal.js?v=56.0',
-  './js/client/client-core.js?v=56.0',
-  './js/client/menu-view.js?v=56.0',
-  './js/client/stories-viewer.js?v=56.0',
-  './js/client/customizer-modal.js?v=56.0',
-  './js/client/cart-ledger.js?v=56.0',
-  './js/client/order-tracking.js?v=56.0',
-  './js/app.js?v=56.0',
-  './js/admin.js?v=56.0',
-  './js/pwa.js?v=56.0'
+  './js/core/demo-seed-data.js?v=60.0',
+  './js/core/sound-effects.js?v=60.0',
+  './js/store.js?v=60.0',
+  './js/admin/admin-core.js?v=60.0',
+  './js/admin/admin-auth.js?v=60.0',
+  './js/admin/kitchen-orders.js?v=60.0',
+  './js/admin/catalog-manager.js?v=60.0',
+  './js/admin/category-manager.js?v=60.0',
+  './js/admin/stories-manager.js?v=60.0',
+  './js/admin/backup-restore.js?v=60.0',
+  './js/admin/settings-manager.js?v=60.0',
+  './js/admin/pos-terminal.js?v=60.0',
+  './js/client/client-core.js?v=60.0',
+  './js/client/menu-view.js?v=60.0',
+  './js/client/stories-viewer.js?v=60.0',
+  './js/client/customizer-modal.js?v=60.0',
+  './js/client/cart-ledger.js?v=60.0',
+  './js/client/order-tracking.js?v=60.0',
+  './js/app.js?v=60.0',
+  './js/admin.js?v=60.0',
+  './js/pwa.js?v=60.0'
 ];
 
 self.addEventListener('install', (event) => {
@@ -51,7 +51,6 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((keys) => {
       return Promise.all(
         keys.map((key) => {
-          // Preserve current app cache and dedicated image cache
           if (key !== CACHE_NAME && key !== IMAGE_CACHE_NAME) {
             return caches.delete(key);
           }

@@ -2103,7 +2103,7 @@ const Store = {
   },
 
   getViewMode() {
-    return localStorage.getItem(this.getKey(STORAGE_KEYS.VIEW_MODE)) || 'list';
+    return localStorage.getItem(this.getKey(STORAGE_KEYS.VIEW_MODE)) || 'grid';
   },
   setViewMode(mode) {
     this.safeSetItem(this.getKey(STORAGE_KEYS.VIEW_MODE), mode);
