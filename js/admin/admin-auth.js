@@ -29,6 +29,23 @@ function setupAuth() {
           Store.applySnapshotData(preloadData);
         }
       } catch(e) {}
+    } else {
+      // First-time interactive login: fetch tenant cloud data immediately
+      try {
+        const fbBase = 'https://harpy-order-default-rtdb.firebaseio.com/restaurants/' + encodeURIComponent(slug);
+        const fOpt = { cache: 'no-store' };
+        const results = await Promise.all([
+          fetch(fbBase + '/settings.json', fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
+          fetch(fbBase + '/categories.json', fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
+          fetch(fbBase + '/products.json', fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
+          fetch(fbBase + '/stories.json', fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
+          fetch(fbBase + '/meta.json', fOpt).then(r => r.ok ? r.json() : null).catch(() => null)
+        ]);
+        const s = results[0], c = results[1], p = results[2], st = results[3], m = results[4];
+        if (s || c || p || m) {
+          Store.applySnapshotData({ settings: s, categories: c, products: p, stories: st, meta: m });
+        }
+      } catch(e) {}
     }
 
     loadAllDashboardData();

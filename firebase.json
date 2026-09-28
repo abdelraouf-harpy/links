@@ -18,9 +18,65 @@
         "source": "/products/**",
         "destination": "https://abdelraouf-harpy.github.io/products/",
         "type": 301
+      },
+      {
+        "source": "/saj.html",
+        "destination": "/order.html?m=saj",
+        "type": 301
+      },
+      {
+        "source": "/saj-admin.html",
+        "destination": "/admin.html?m=saj",
+        "type": 301
+      },
+      {
+        "source": "/king.html",
+        "destination": "/order.html?m=king",
+        "type": 301
+      },
+      {
+        "source": "/king-admin.html",
+        "destination": "/admin.html?m=king",
+        "type": 301
+      },
+      {
+        "source": "/manifest-saj.json",
+        "destination": "/manifest.json?m=saj",
+        "type": 301
+      },
+      {
+        "source": "/admin-manifest-saj.json",
+        "destination": "/admin-manifest.json?m=saj",
+        "type": 301
+      },
+      {
+        "source": "/manifest-king.json",
+        "destination": "/manifest.json?m=king",
+        "type": 301
+      },
+      {
+        "source": "/admin-manifest-king.json",
+        "destination": "/admin-manifest.json?m=king",
+        "type": 301
       }
     ],
     "rewrites": [
+      {
+        "source": "/saj",
+        "destination": "/order.html?m=saj"
+      },
+      {
+        "source": "/saj/**",
+        "destination": "/order.html?m=saj"
+      },
+      {
+        "source": "/king",
+        "destination": "/order.html?m=king"
+      },
+      {
+        "source": "/king/**",
+        "destination": "/order.html?m=king"
+      },
       {
         "source": "/order",
         "destination": "/order.html"

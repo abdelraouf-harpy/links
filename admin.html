@@ -102,9 +102,9 @@
           if (savedAdminSlug) slug = savedAdminSlug;
         }
 
-        // Clean default: on harpymenu.com/admin without ?m=, always load demo restaurant 'king' if nothing stored
+        // Clean default: on harpymenu.com/admin without ?m=, always load demo restaurant if nothing stored
         if (!slug) {
-          slug = 'king';
+          slug = 'demo';
         }
         slug = slug.toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
         window.__harpySlug = slug;
