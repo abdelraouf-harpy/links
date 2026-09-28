@@ -7,6 +7,25 @@ var activeDiscoveryFilter = 'all';
 var searchDebounceTimer = null;
 var currentPreviewProductId = null;
 
+function getCategoryEmoji(catName) {
+  const c = (catName || '').toLowerCase();
+  if (c.includes('برجر') || c.includes('burger')) return '🍔';
+  if (c.includes('بيتزا') || c.includes('pizza')) return '🍕';
+  if (c.includes('شاورما') || c.includes('shawarma')) return '🌯';
+  if (c.includes('كريب') || c.includes('crepe') || c.includes('crape')) return '🥞';
+  if (c.includes('وافل') || c.includes('waffle')) return '🧇';
+  if (c.includes('مشوي') || c.includes('مشاوي') || c.includes('كباب') || c.includes('grill')) return '🍢';
+  if (c.includes('دجاج') || c.includes('فراخ') || c.includes('chicken') || c.includes('بروست')) return '🍗';
+  if (c.includes('بطاطس') || c.includes('فرايز') || c.includes('fries')) return '🍟';
+  if (c.includes('مشروب') || c.includes('عصير') || c.includes('drink') || c.includes('بيبسي') || c.includes('مياه')) return '🥤';
+  if (c.includes('حلو') || c.includes('ديزرت') || c.includes('dessert') || c.includes('حلويات')) return '🍰';
+  if (c.includes('وجب') || c.includes('كومبو') || c.includes('meal')) return '🍱';
+  if (c.includes('سلط') || c.includes('salad')) return '🥗';
+  if (c.includes('ساندوتش') || c.includes('sandwich')) return '🥪';
+  if (c.includes('طاجن') || c.includes('طواجن')) return '🥘';
+  return '🍽️';
+}
+
 function renderDiscoveryRibbon() {
   if (!elements.discoveryContainer) return;
   const favorites = Store.getFavorites();
@@ -47,6 +66,17 @@ window.handleDiscoveryFilter = function(filterId) {
   }
 };
 
+function extractCategoryEmojiAndLabel(catName) {
+  const raw = catName || '';
+  const emojiMatch = raw.match(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u);
+  const cleanLabel = raw.replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim();
+  let emoji = emojiMatch ? emojiMatch[0] : null;
+  if (!emoji) {
+    emoji = getCategoryEmoji(cleanLabel);
+  }
+  return { emoji: emoji || '🍽️', label: cleanLabel || raw };
+}
+
 let lastRenderedCategoriesSignature = '';
 
 function renderCategories() {
@@ -57,18 +87,33 @@ function renderCategories() {
   // Only re-build DOM if the list of categories actually changed!
   if (lastRenderedCategoriesSignature !== currentSig) {
     lastRenderedCategoriesSignature = currentSig;
+    const favCount = (Store.getFavorites && typeof Store.getFavorites === 'function') ? Store.getFavorites().length : 0;
+    const isAllActive = (activeCategoryFilter === 'all' && activeDiscoveryFilter === 'all');
+    const isFavActive = (activeDiscoveryFilter === 'fav');
+
     let html = `
-      <button class="cat-pill ${activeCategoryFilter === 'all' && activeDiscoveryFilter === 'all' ? 'active' : ''}" data-cat="all" onclick="handleCategoryFilter('all')">
-        كل القائمة
+      <button class="cat-pill ${isAllActive ? 'active' : ''}" data-cat="all" onclick="handleCategoryFilter('all')">
+        <span class="cat-pill-icon">📋</span>
+        <span>كل القائمة</span>
       </button>
     `;
 
+    if (favCount > 0) {
+      html += `
+        <button class="cat-pill ${isFavActive ? 'active' : ''}" data-cat="fav" onclick="handleCategoryFilter('fav')">
+          <span class="cat-pill-icon">❤️</span>
+          <span>المفضلة (${favCount})</span>
+        </button>
+      `;
+    }
+
     html += categories.map(cat => {
-      const isSelected = (activeCategoryFilter === cat);
-      const safeEscaped = cat.replace(/'/g, "\\'");
+      const isSelected = (!isFavActive && activeCategoryFilter === cat);
+      const parsed = extractCategoryEmojiAndLabel(cat);
       return `
-        <button class="cat-pill ${isSelected ? 'active' : ''}" data-cat="${encodeURIComponent(cat)}" onclick="handleCategoryFilter('${safeEscaped}')">
-          ${cat}
+        <button class="cat-pill ${isSelected ? 'active' : ''}" data-cat="${encodeURIComponent(cat)}" onclick="handleCategoryFilter(decodeURIComponent(this.dataset.cat))">
+          <span class="cat-pill-icon">${parsed.emoji}</span>
+          <span>${parsed.label}</span>
         </button>
       `;
     }).join('');
@@ -85,8 +130,14 @@ function updateCategoryPillsActiveState() {
   const pills = elements.categoriesContainer.querySelectorAll('.cat-pill');
   pills.forEach(pill => {
     const rawCat = pill.dataset.cat;
-    const isMatch = (activeCategoryFilter === 'all' && activeDiscoveryFilter === 'all' && rawCat === 'all') ||
-                    (rawCat !== 'all' && decodeURIComponent(rawCat) === activeCategoryFilter);
+    let isMatch = false;
+    if (activeDiscoveryFilter === 'fav') {
+      isMatch = (rawCat === 'fav');
+    } else if (activeCategoryFilter === 'all') {
+      isMatch = (rawCat === 'all');
+    } else {
+      isMatch = (decodeURIComponent(rawCat) === activeCategoryFilter);
+    }
     pill.classList.toggle('active', isMatch);
   });
 }
@@ -104,12 +155,13 @@ function scrollPillToCenter(container, pillEl) {
 }
 
 window.handleCategoryFilter = function(cat) {
-  if (activeCategoryFilter === cat && activeDiscoveryFilter === 'all') {
-    return; // Already active, avoid redundant operations
+  if (cat === 'fav') {
+    activeDiscoveryFilter = 'fav';
+    activeCategoryFilter = 'all';
+  } else {
+    activeDiscoveryFilter = 'all';
+    activeCategoryFilter = cat;
   }
-
-  activeCategoryFilter = cat;
-  activeDiscoveryFilter = 'all';
 
   // 1. Instant in-place UI active state update (0ms, 0 DOM recreation)
   updateCategoryPillsActiveState();
@@ -221,6 +273,7 @@ function renderProducts(forceRebuild = false) {
     const p = prodMap.get(pid);
     if (!p) {
       card.style.display = 'none';
+      card.classList.add('is-hidden');
       return;
     }
 
@@ -241,6 +294,7 @@ function renderProducts(forceRebuild = false) {
 
     if (catMatch && searchMatch) {
       card.style.display = '';
+      card.classList.remove('is-hidden');
       visibleCount++;
 
       // In-place button stepper update (skips DOM traversal if qty didn't change)
@@ -276,6 +330,7 @@ function renderProducts(forceRebuild = false) {
       }
     } else {
       card.style.display = 'none';
+      card.classList.add('is-hidden');
     }
   });
 
@@ -370,12 +425,14 @@ function renderProductCard(p, currency, index = 0) {
   const isAboveFold = index < 6;
   const existingCard = elements.productsContainer ? elements.productsContainer.querySelector(`.food-item-card[data-product-id="${p.id}"]`) : null;
   const existingImg = existingCard ? existingCard.querySelector('.food-item-img') : null;
-  const isAlreadyLoaded = existingImg && (existingImg.classList.contains('loaded') || existingImg.complete) && existingImg.getAttribute('src') === p.image;
+  const fallbackImg = 'assets/portfolio/order_restaurant_showcase.jpg';
+  const prodImg = (p.image && p.image.trim() && p.image !== 'null') ? p.image : fallbackImg;
+  const isAlreadyLoaded = existingImg && (existingImg.classList.contains('loaded') || existingImg.complete) && existingImg.getAttribute('src') === prodImg;
 
   return `
     <div class="food-item-card" data-product-id="${p.id}" data-rendered-qty="${qty}" data-rendered-fav="${isFav ? '1' : '0'}" onclick="handleCardClick(event, '${p.id}')">
       <div class="food-item-media">
-        <img src="${p.image}" class="food-item-img ${isAlreadyLoaded ? 'loaded' : ''}" alt="${p.name}" ${isAboveFold ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"'} decoding="async" onload="this.classList.add('loaded')" onerror="this.classList.add('loaded')">
+        <img src="${prodImg}" class="food-item-img ${isAlreadyLoaded ? 'loaded' : ''}" alt="" ${isAboveFold ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"'} decoding="async" onload="this.classList.add('loaded')" onerror="this.onerror=null; this.src='${fallbackImg}'; this.classList.add('loaded');">
         <div class="card-top-actions">
           ${p.badge ? `<span class="card-badge">${p.badge}</span>` : '<span></span>'}
           <button class="btn-fav-toggle ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); handleToggleFav('${p.id}')" title="إضافة للمفضلة">
@@ -443,7 +500,7 @@ function renderCardActionButton(product, qty) {
 window.handleToggleFav = function(productId) {
   Store.toggleFavorite(productId);
   SoundFX.playPop();
-  renderDiscoveryRibbon();
+  renderCategories();
   renderProducts(true);
 };
 

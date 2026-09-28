@@ -526,63 +526,9 @@
 
   // ── 8. Render In-App Floating Install Banner ─────────────────
   function renderInstallBanner() {
-    if (isAdmin) {
-      const existing = document.getElementById('order-pwa-banner');
-      if (existing) existing.remove();
-      return;
-    }
-    if (isAppInstalled() || !hasValidBranding()) {
-      const existing = document.getElementById('order-pwa-banner');
-      if (existing) existing.remove();
-      return;
-    }
-    if (document.getElementById('order-pwa-banner')) {
-      const bannerTitle = document.getElementById('pwa-banner-title');
-      const bannerImg = document.getElementById('pwa-banner-img');
-      if (bannerTitle && appDisplayName) bannerTitle.textContent = appDisplayName;
-      if (bannerImg && appIcon) bannerImg.src = appIcon;
-      return;
-    }
-    ensurePwaStyles();
-
-    const banner = document.createElement('div');
-    banner.id = 'order-pwa-banner';
-    banner.style.cssText = 'position: fixed; bottom: 16px; left: 50%; z-index: 99999; background: var(--surface-raised, #1e1814); color: var(--text-main, #ffffff); border: 1.5px solid var(--border-strong, rgba(234, 88, 12, 0.45)); box-shadow: 0 12px 32px rgba(0,0,0,0.6), 0 0 16px rgba(234,88,12,0.25); border-radius: 16px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; width: calc(100% - 24px); max-width: 480px; box-sizing: border-box; animation: pwaSlideUp 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards; direction: rtl; font-family: inherit;';
-
-    banner.innerHTML = `
-      <div style="display:flex; align-items:center; gap:10px; flex:1; min-width:0;">
-        <div style="position:relative; width:42px; height:42px; border-radius:12px; overflow:hidden; flex-shrink:0; background:#120e0c; border:1px solid rgba(255,255,255,0.14); box-shadow:0 4px 10px rgba(0,0,0,0.3);">
-          <img id="pwa-banner-img" src="${appIcon}" alt="${appDisplayName}" style="width:100%; height:100%; object-fit:cover; display:block;" onerror="this.src='${fallbackIcon}'">
-        </div>
-        <div style="flex:1; min-width:0;">
-          <div id="pwa-banner-title" style="font-size:13.5px; font-weight:800; color:var(--text-main, #fff); line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-            ${appDisplayName}
-          </div>
-          <div style="font-size:11px; color:var(--text-muted, #a8a29e); font-weight:500; margin-top:2px;">
-            تثبيت مباشر وسريع كـ Application مستقل
-          </div>
-        </div>
-      </div>
-      <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
-        <button id="btn-pwa-banner-install" style="background:linear-gradient(135deg, #ea580c, #f97316); color:#fff; border:none; border-radius:10px; padding:8px 14px; font-size:12.5px; font-weight:800; cursor:pointer; font-family:inherit; white-space:nowrap; box-shadow:0 4px 12px rgba(234,88,12,0.35);">
-          تثبيت الآن
-        </button>
-        <button id="btn-pwa-banner-close" style="background:transparent; color:var(--text-muted, #a8a29e); border:none; border-radius:8px; width:28px; height:28px; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; flex-shrink:0;" title="إغلاق">
-          ✕
-        </button>
-      </div>
-    `;
-
-    document.body.appendChild(banner);
-
-    document.getElementById('btn-pwa-banner-install').addEventListener('click', () => {
-      window.triggerPWAInstall();
-    });
-
-    document.getElementById('btn-pwa-banner-close').addEventListener('click', () => {
-      banner.style.animation = 'pwaSlideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards';
-      setTimeout(() => banner.remove(), 350);
-    });
+    // Intrusive bottom banner disabled to keep customer menu clean and unobstructed
+    const existing = document.getElementById('order-pwa-banner');
+    if (existing) existing.remove();
   }
 
   // ── 9. Celebratory Install Modal Immediately After Saving Settings ───

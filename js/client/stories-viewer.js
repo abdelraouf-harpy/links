@@ -21,7 +21,7 @@ function renderStories() {
   elements.storiesTrack.innerHTML = stories.map((s, idx) => `
     <div class="story-circle-item" onclick="openStoryViewer(${idx})">
       <div class="story-ring-wrap">
-        <img src="${s.image}" alt="${s.title}" class="story-avatar-img" loading="lazy">
+        <img src="${s.image}" alt="" class="story-avatar-img" loading="lazy" onerror="this.onerror=null; this.src='assets/portfolio/order_restaurant_showcase.jpg';">
       </div>
       <span class="story-circle-label">${s.title}</span>
     </div>

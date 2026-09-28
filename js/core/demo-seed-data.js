@@ -13,8 +13,8 @@ const DEFAULT_SETTINGS = {
   walletNumber: "01019971508",
   walletName: "فودافون كاش / إنستاباي",
   currency: "ج.م",
-  logo: "https://images.unsplash.com/photo-1586190848861-99aa4a171e9c?w=200&auto=format&fit=crop&q=80",
-  cover: "https://images.unsplash.com/photo-1568901346375-23c9450c58c9?w=1200&auto=format&fit=crop&q=80",
+  logo: "assets/portfolio/logo.png",
+  cover: "assets/portfolio/order_restaurant_showcase.jpg",
   imgbbApiKey: "",
   
   themePreset: "cream",
@@ -131,13 +131,13 @@ const DEFAULT_PRODUCTS = [
     "id": "prod-super-burger-triple",
     "image": "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=800&q=80",
     "isChefMood": true,
-    "isFeatured": false,
+    "isFeatured": true,
     "isPopular": true,
     "name": "سوبر برجر الثلاثي",
-    "originalPrice": 0,
+    "originalPrice": 250,
     "prepTime": "15-20 دقيقة",
     "price": 220,
-    "visible": false
+    "visible": true
   },
   {
     "addons": [
@@ -2332,34 +2332,34 @@ const DEFAULT_PRODUCTS = [
 const DEFAULT_STORIES = [
   {
     id: "st-1",
-    title: "سوبر برجر 👑",
+    title: "الأكثر طلباً 🔥",
     tagline: "عرض خاص ومميز",
     badge: "الأكثر طلباً",
-    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58c9?w=800&auto=format&fit=crop&q=80",
+    image: "assets/portfolio/order_restaurant_showcase.jpg",
     desc: "برجر بقري صافي مع الجبنة الذائبة والصوص السري"
   },
   {
     id: "st-2",
-    title: "كريب سوبر 🌯",
+    title: "جديدنا ✨",
     tagline: "طازج ومقرمش",
     badge: "جديدنا",
-    image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=800&auto=format&fit=crop&q=80",
+    image: "assets/portfolio/order_restaurant_showcase.jpg",
     desc: "أشهى أنواع الكريب المحشو بقطع الفراخ المقرمشة والجبن"
   },
   {
     id: "st-3",
-    title: "فرايز بوكس 🍟",
+    title: "كومبو الأسبوع 🍟",
     tagline: "مقرمش وساخن",
     badge: "سناكس",
-    image: "https://images.unsplash.com/photo-1576107232684-1279f3908594?w=800&auto=format&fit=crop&q=80",
+    image: "assets/portfolio/order_restaurant_showcase.jpg",
     desc: "بطاطس ذهبية متبلة بأشهى البهارات"
   },
   {
     id: "st-4",
-    title: "راب سوري 🥙",
+    title: "عروض حصرية 👑",
     tagline: "على أصوله",
     badge: "طعم أصيل",
-    image: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=800&auto=format&fit=crop&q=80",
+    image: "assets/portfolio/order_restaurant_showcase.jpg",
     desc: "شاورما دجاج متبلة بالثومية والخيار المخلل"
   }
 ];

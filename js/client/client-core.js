@@ -232,6 +232,14 @@ async function initApp() {
 
   const slug = Store.getRestaurantSlug();
   const isDemo = (slug === 'demo');
+  if (isDemo) {
+    const curProds = Store.getProducts();
+    if (!curProds || curProds.length === 0) {
+      if (typeof window !== 'undefined' && window.DEFAULT_PRODUCTS) {
+        Store._memoryCache.products = window.DEFAULT_PRODUCTS;
+      }
+    }
+  }
   const hasLocalCache = Store.hasCachedData(slug) || isDemo;
 
   // 1. Intelligent Dual-Speed Hydration Engine
@@ -457,12 +465,58 @@ function updateSoundToggleIcon() {
   }
 }
 
+let lastSoundToggleTimestamp = 0;
 function handleSoundToggle() {
+  const now = Date.now();
+  if (now - lastSoundToggleTimestamp < 350) return;
+  lastSoundToggleTimestamp = now;
   const enabled = Store.getSoundEnabled();
   Store.setSoundEnabled(!enabled);
   updateSoundToggleIcon();
   if (!enabled) SoundFX.playPop();
 }
+
+// ── 3-Dots More Options Menu (Hero Navigation) ────────────
+window.toggleHeroMoreMenu = function(e) {
+  if (e) {
+    if (typeof e.stopPropagation === 'function') e.stopPropagation();
+    if (typeof e.preventDefault === 'function') e.preventDefault();
+  }
+  const dropdown = document.getElementById('hero-more-dropdown');
+  const triggerBtn = document.getElementById('btn-hero-more-menu');
+  if (!dropdown) return;
+  const isOpen = dropdown.classList.contains('show') || dropdown.style.display === 'flex';
+  if (isOpen) {
+    closeHeroMoreMenu();
+  } else {
+    dropdown.style.display = 'flex';
+    requestAnimationFrame(() => {
+      dropdown.classList.add('show');
+    });
+    if (triggerBtn) triggerBtn.classList.add('active');
+  }
+};
+
+window.closeHeroMoreMenu = function() {
+  const dropdown = document.getElementById('hero-more-dropdown');
+  const triggerBtn = document.getElementById('btn-hero-more-menu');
+  if (!dropdown) return;
+  dropdown.classList.remove('show');
+  setTimeout(() => {
+    if (!dropdown.classList.contains('show')) {
+      dropdown.style.display = 'none';
+    }
+  }, 200);
+  if (triggerBtn) triggerBtn.classList.remove('active');
+};
+
+document.addEventListener('click', function(e) {
+  const wrapper = document.querySelector('.hero-more-menu-wrapper');
+  if (wrapper && !wrapper.contains(e.target)) {
+    closeHeroMoreMenu();
+  }
+});
+
 
 function initViewMode() {
   const mode = Store.getViewMode();
@@ -492,11 +546,12 @@ function renderStoreInfo() {
   if (elements.storeTagline) elements.storeTagline.textContent = settings.storeTagline || "أشهى المأكولات الطازجة";
   
   if (elements.storeLogo) {
-    if (settings.logo) {
+    if (settings.logo && settings.logo.trim() && settings.logo !== 'null') {
       elements.storeLogo.src = settings.logo;
-      elements.storeLogo.style.display = 'inline-block';
+      elements.storeLogo.style.display = 'block';
     } else {
-      elements.storeLogo.style.display = 'none';
+      elements.storeLogo.src = 'assets/portfolio/logo.png';
+      elements.storeLogo.style.display = 'block';
     }
   }
 
@@ -505,16 +560,43 @@ function renderStoreInfo() {
     window.updatePwaBranding(settings);
   }
 
-  // Cover image as Hero Header Background (Vibrant & Sharp)
-  const header = document.querySelector('.app-header');
-  if (header) {
-    if (settings.cover) {
-      header.classList.add('has-cover');
-      header.style.backgroundImage = `linear-gradient(180deg, rgba(12, 10, 9, 0.40) 0%, rgba(12, 10, 9, 0.82) 100%), url("${settings.cover}")`;
+  // Hero Cover Image
+  const heroCoverImg = document.getElementById('hero-cover-img');
+  if (heroCoverImg) {
+    if (settings.cover && settings.cover.trim() && settings.cover !== 'null') {
+      heroCoverImg.src = settings.cover;
     } else {
-      header.classList.remove('has-cover');
-      header.style.backgroundImage = '';
+      heroCoverImg.src = "assets/portfolio/order_restaurant_showcase.jpg";
     }
+  }
+
+  // Hero Delivery Time
+  const heroDelivery = document.getElementById('hero-delivery-time');
+  if (heroDelivery) {
+    heroDelivery.textContent = settings.deliveryTime || '30-45 دقيقة';
+  }
+
+  // Hero Open/Closed Status
+  const heroStatusChip = document.getElementById('hero-status-chip');
+  const heroStatusText = document.getElementById('hero-status-text');
+  if (heroStatusChip && heroStatusText) {
+    if (settings.isOrderingPaused) {
+      heroStatusChip.classList.remove('open');
+      heroStatusChip.classList.add('closed');
+      heroStatusText.textContent = 'مغلق حالياً';
+    } else {
+      heroStatusChip.classList.remove('closed');
+      heroStatusChip.classList.add('open');
+      heroStatusText.textContent = 'مفتوح الآن';
+    }
+  }
+
+  // Sync favorites badge count in hero nav
+  const heroFavBadge = document.getElementById('hero-fav-badge-count');
+  if (heroFavBadge) {
+    const favCount = (Store.getFavorites && typeof Store.getFavorites === 'function') ? Store.getFavorites().length : 0;
+    heroFavBadge.textContent = favCount;
+    heroFavBadge.style.display = favCount > 0 ? 'inline-block' : 'none';
   }
 
   if (elements.storeWhatsAppLink) {
@@ -581,42 +663,57 @@ function animateFlyToCart(sourceElement, imageUrl) {
 
 function renderAnnouncement() {
   const settings = Store.getSettings();
-  if (elements.announcementBar) {
-    if (settings.isOrderingPaused) {
-      elements.announcementBar.style.display = 'flex';
-      if (elements.announcementText) {
-        elements.announcementText.textContent = '🛑 المطعم متوقف حالياً عن استقبال الطلبات (وضع تصفح المنيو فقط)';
-        elements.announcementText.style.display = '';
-      }
-      if (elements.deliveryTimeBadge) {
-        elements.deliveryTimeBadge.style.display = 'none';
-      }
-      return;
-    }
+  const promoCard = document.getElementById('promo-deal-card');
+  const promoTitle = document.getElementById('promo-deal-title');
+  const promoSubtitle = document.getElementById('promo-deal-subtitle');
+  const promoImg = document.getElementById('promo-deal-img');
 
-    const hasAnnouncement = settings.showAnnouncement && settings.announcementText;
-    const hasDeliveryTime = settings.deliveryTime;
-
-    if (hasAnnouncement || hasDeliveryTime) {
-      elements.announcementBar.style.display = 'flex';
-      if (elements.announcementText) {
-        elements.announcementText.textContent = hasAnnouncement ? settings.announcementText : '';
-        elements.announcementText.style.display = hasAnnouncement ? '' : 'none';
-      }
-      if (elements.deliveryTimeBadge) {
-        if (hasDeliveryTime) {
-          elements.deliveryTimeBadge.style.display = '';
-          elements.deliveryTimeBadge.innerHTML = `
-            <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            ${settings.deliveryTime}
-          `;
-        } else {
-          elements.deliveryTimeBadge.style.display = 'none';
-        }
-      }
+  if (promoImg) {
+    const prods = (Store.getProducts && typeof Store.getProducts === 'function') ? Store.getProducts() : [];
+    const featured = prods.find(p => p.isFeatured && p.image) || prods.find(p => p.image);
+    if (featured && featured.image) {
+      promoImg.src = featured.image;
+    } else if (settings.cover && settings.cover.trim() && settings.cover !== 'null') {
+      promoImg.src = settings.cover;
     } else {
-      elements.announcementBar.style.display = 'none';
+      promoImg.src = "assets/portfolio/order_restaurant_showcase.jpg";
     }
+  }
+
+  if (promoCard) {
+    if (settings.isOrderingPaused) {
+      promoCard.style.display = 'flex';
+      if (promoTitle) promoTitle.textContent = '🛑 المطعم متوقف حالياً عن استقبال الطلبات';
+      if (promoSubtitle) promoSubtitle.textContent = 'وضع تصفح واستعراض قائمة الطعام فقط';
+    } else {
+      const hasAnnouncement = settings.showAnnouncement && settings.announcementText;
+      const spendDiscount = settings.spendDiscount && settings.spendDiscount.enabled;
+      const walletDiscount = settings.walletDiscount && settings.walletDiscount.enabled;
+
+      if (hasAnnouncement) {
+        promoCard.style.display = 'flex';
+        if (promoTitle) promoTitle.textContent = settings.announcementText;
+        if (promoSubtitle) promoSubtitle.textContent = settings.deliveryTime ? `وقت التوصيل التقديري: ${settings.deliveryTime}` : 'العرض متاح للطلب الفوري أونلاين';
+      } else if (spendDiscount) {
+        promoCard.style.display = 'flex';
+        const valStr = settings.spendDiscount.type === 'percent' ? `${settings.spendDiscount.value}%` : `${settings.spendDiscount.value} ج.م`;
+        if (promoTitle) promoTitle.textContent = `خصم ${valStr} على الطلبات الأكثر من ${settings.spendDiscount.minSpend} ج.م 🔥`;
+        if (promoSubtitle) promoSubtitle.textContent = 'يطبق الخصم تلقائياً في السلة وعند الدفع';
+      } else if (walletDiscount) {
+        promoCard.style.display = 'flex';
+        const valStr = settings.walletDiscount.type === 'percent' ? `${settings.walletDiscount.value}%` : `${settings.walletDiscount.value} ج.م`;
+        if (promoTitle) promoTitle.textContent = `خصم ${valStr} عند الدفع بالمحفظة الإلكترونية ⚡`;
+        if (promoSubtitle) promoSubtitle.textContent = 'فودافون كاش، إنستاباي والمحافظ البنكية';
+      } else {
+        promoCard.style.display = 'flex';
+        if (promoTitle) promoTitle.textContent = 'خصم 15% على جميع الطلبات 🔥';
+        if (promoSubtitle) promoSubtitle.textContent = 'العرض متاح اليوم فقط عند الطلب عبر المنيو';
+      }
+    }
+  }
+
+  if (elements.announcementBar) {
+    elements.announcementBar.style.display = 'none';
   }
 }
 

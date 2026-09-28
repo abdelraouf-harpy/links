@@ -175,14 +175,18 @@
             if (!settings.storeName) settings.storeName = meta.restaurantName;
             if (!settings.whatsappNumber && meta.phone) settings.whatsappNumber = meta.phone;
           }
+          if (slug === 'demo') {
+            if (!categories || (Array.isArray(categories) && categories.length === 0)) categories = null;
+            if (!products || (Array.isArray(products) && products.length === 0)) products = null;
+            if (!stories || (typeof stories === 'object' && Object.keys(stories).length === 0)) stories = null;
+          }
           if (!settings && !categories && !products && !meta) return null;
-          return {
-            settings: settings || {},
-            categories: categories || [],
-            products: products || [],
-            stories: stories || {},
-            meta: meta || null
-          };
+          var out = { meta: meta || null };
+          if (settings) out.settings = settings;
+          if (categories) out.categories = categories;
+          if (products) out.products = products;
+          if (stories) out.stories = stories;
+          return out;
         }).catch(function() { return null; });
       } catch(e) {}
 
@@ -210,61 +214,134 @@
     </div>
   </div>
 
-  <!-- Editorial Header -->
-  <header class="app-header">
-    <div class="container header-wrap">
-      <a href="javascript:void(0)" onclick="window.scrollTo({top:0, behavior:'smooth'})" class="brand-info" title="الرجوع لأعلى الصفحة">
-        <div class="brand-logo-wrap">
-          <img id="store-logo" src="" alt="Logo" class="brand-logo">
+  <!-- ═══════════════════════════════════════════════════════════
+       HARPY PRO: LUXURY RESTAURANT HERO SECTION (Design Item 1)
+       Cover Photo + Logo + Name + Tagline + Rating + Delivery + Status
+       ═══════════════════════════════════════════════════════════ -->
+  <header class="restaurant-hero-section" id="restaurant-hero-section">
+    <!-- Top Floating Glass Navigation Bar (Heart + 3-Dots Menu) -->
+    <div class="hero-top-nav">
+      <div class="container hero-nav-container">
+        <div class="hero-nav-actions">
+          <!-- 1. Favorites Heart Button -->
+          <button id="btn-header-fav-filter" class="hero-nav-btn btn-fav-filter" onclick="handleCategoryFilter('fav')" title="الأصناف المفضلة">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            <span id="hero-fav-badge-count" class="hero-fav-count font-num" style="display:none;">0</span>
+          </button>
+
+          <!-- 2. More Options 3-Dots Dropdown Trigger -->
+          <div class="hero-more-menu-wrapper">
+            <button id="btn-hero-more-menu" class="hero-nav-btn btn-more-menu" onclick="toggleHeroMoreMenu(event)" title="خيارات إضافية" aria-label="خيارات">
+              <svg class="icon icon-sm" viewBox="0 0 24 24" style="fill: currentColor;"><circle cx="12" cy="12" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+            </button>
+
+            <!-- Floating Glass Options Dropdown -->
+            <div id="hero-more-dropdown" class="hero-more-dropdown" style="display:none;">
+              <button id="theme-toggle-btn" class="dropdown-menu-item btn-theme-toggle" onclick="handleThemeToggle(); closeHeroMoreMenu();" title="تبديل الإضاءة (نهاري / ليلي)" aria-label="تبديل الإضاءة">
+                <span class="dropdown-item-icon">
+                  <svg id="theme-icon-dark" class="icon icon-sm icon-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                  <svg id="theme-icon-light" class="icon icon-sm icon-sun" style="display:none;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                </span>
+                <span class="dropdown-item-text">المظهر (ليلي / نهاري)</span>
+              </button>
+
+              <a id="store-whatsapp-link" href="#" target="_blank" class="dropdown-menu-item btn-wa" onclick="closeHeroMoreMenu();" title="محادثة المطعم عبر الواتساب">
+                <span class="dropdown-item-icon" style="color:var(--accent-wa, #22c55e);">
+                  <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                </span>
+                <span class="dropdown-item-text">محادثة واتساب</span>
+              </a>
+
+              <button id="sound-toggle-btn" class="dropdown-menu-item" onclick="handleSoundToggle(); closeHeroMoreMenu();" title="تشغيل / كتم المؤثرات الصوتية" aria-label="الصوت">
+                <span class="dropdown-item-icon">
+                  <svg id="sound-icon-on" class="icon icon-sm" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+                  <svg id="sound-icon-off" class="icon icon-sm" style="display:none;" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+                </span>
+                <span class="dropdown-item-text">المؤثرات الصوتية</span>
+              </button>
+
+              <button id="btn-menu-install-app" class="dropdown-menu-item btn-install-app" style="display:none;" onclick="window.triggerPWAInstall(); closeHeroMoreMenu();" title="تثبيت التطبيق كبرنامج مستقل">
+                <span class="dropdown-item-icon">
+                  <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </span>
+                <span class="dropdown-item-text">تثبيت التطبيق</span>
+              </button>
+
+              <button id="btn-header-tracker" class="dropdown-menu-item btn-tracker" style="display:none;" onclick="openLastOrderTracker(); closeHeroMoreMenu();" title="تتبع الطلب">
+                <span class="dropdown-item-icon">🛵</span>
+                <span class="dropdown-item-text">تتبع الطلب الأخير</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hero Cover Image Wrap -->
+    <div class="hero-cover-container">
+      <img id="hero-cover-img" src="assets/portfolio/order_restaurant_showcase.jpg" alt="" class="hero-cover-img" loading="eager" fetchpriority="high" onerror="this.onerror=null; this.src='assets/portfolio/order_restaurant_showcase.jpg';">
+      <div class="hero-cover-gradient"></div>
+    </div>
+
+    <!-- Hero Brand Details Overlay -->
+    <div class="container hero-brand-container">
+      <div class="hero-brand-card">
+        <div class="hero-logo-wrap">
+          <img id="store-logo" src="assets/portfolio/logo.png" alt="" class="hero-logo" onerror="this.onerror=null; this.src='assets/portfolio/logo.png';">
           <span class="brand-status-dot" title="نستقبل الطلبات الآن"></span>
         </div>
-        <div class="brand-text">
-          <h1 id="store-name"></h1>
-          <p id="store-tagline">أشهى الأطباق والوجبات السريعة</p>
+        <div class="hero-text-col">
+          <h1 id="store-name" class="hero-store-title">...</h1>
+          <p id="store-tagline" class="hero-store-tagline">...</p>
+          <div class="hero-meta-strip">
+            <span class="hero-meta-chip chip-rating">
+              <span class="rating-star">⭐</span>
+              <span class="font-num">4.8</span>
+              <span class="rating-count font-num">(1.2k)</span>
+            </span>
+            <span class="hero-meta-chip chip-delivery font-num">
+              <span>🕒</span>
+              <span id="hero-delivery-time">30-45 دقيقة</span>
+            </span>
+            <span id="hero-status-chip" class="hero-meta-chip chip-status open">
+              <span class="status-pulse-dot"></span>
+              <span id="hero-status-text">مفتوح الآن</span>
+            </span>
+          </div>
         </div>
-      </a>
-      <div class="header-actions">
-        <button id="btn-menu-install-app" class="btn btn-primary btn-sm" style="display:none; align-items:center; gap:5px; font-weight:800; border-radius:20px; padding:5px 12px; font-size:11.5px; background:linear-gradient(135deg, #ea580c, #f97316); border:none; box-shadow:0 3px 10px rgba(234,88,12,0.3); cursor:pointer;" onclick="window.triggerPWAInstall()" title="تثبيت المنيو كبرنامج مستقل">
-          <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          <span id="btn-menu-install-text">تثبيت التطبيق</span>
-        </button>
-        <button id="btn-header-tracker" class="btn btn-primary btn-sm" style="display:none; align-items:center; gap:5px; font-weight:800; font-size:11.5px; padding:5px 10px; border-radius:20px; text-decoration:none;" onclick="openLastOrderTracker()" title="متابعة وتتبع طلبك المباشر">
-          <span style="font-size:13px;">🛵</span>
-          <span id="header-tracker-text">تتبع الطلب</span>
-        </button>
-        <button id="sound-toggle-btn" class="btn btn-ghost btn-sm" title="تشغيل / كتم المؤثرات الصوتية" aria-label="الصوت">
-          <svg id="sound-icon-on" class="icon icon-sm" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
-          <svg id="sound-icon-off" class="icon icon-sm" style="display:none;" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
-        </button>
-        <a id="store-whatsapp-link" href="#" target="_blank" class="btn btn-ghost btn-sm" title="محادثة المطعم عبر الواتساب">
-          <svg class="icon icon-sm" style="color:var(--accent-wa, #22c55e); fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-          <span class="btn-wa-text">تواصل</span>
-        </a>
-        <button id="theme-toggle-btn" class="btn btn-ghost btn-sm btn-theme-toggle" onclick="handleThemeToggle()" title="تبديل الإضاءة (نهاري / ليلي)" aria-label="تبديل الإضاءة">
-          <svg id="theme-icon-dark" class="icon icon-sm icon-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
-          <svg id="theme-icon-light" class="icon icon-sm icon-sun" style="display:none;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
-        </button>
       </div>
     </div>
   </header>
 
-  <!-- Main Content Container -->
-  <main class="container">
+  <!-- Main Content Sheet (Overlaps Hero with Curved Top Corners) -->
+  <main class="main-content-sheet">
+    <div class="container">
 
-    <!-- Stories Bar (Instagram/Snapchat Style Highlights) -->
-    <section class="stories-strip-section" id="stories-section">
-      <div class="stories-track" id="stories-track"></div>
-    </section>
+    <!-- Compact Promo Deal Voucher (Design Item 2) -->
+    <div id="promo-deal-card" class="promo-deal-card">
+      <div class="promo-deal-left">
+        <div class="promo-deal-badge font-num">%</div>
+        <div class="promo-deal-text-col">
+          <div id="promo-deal-title" class="promo-deal-title">خصم 15% على جميع الطلبات</div>
+          <div id="promo-deal-subtitle" class="promo-deal-subtitle">العرض متاح اليوم فقط عند الطلب عبر المنيو</div>
+        </div>
+      </div>
+      <div class="promo-deal-thumb-box">
+        <img id="promo-deal-img" src="assets/portfolio/order_restaurant_showcase.jpg" alt="" class="promo-deal-thumb" onerror="this.onerror=null; this.src='assets/portfolio/order_restaurant_showcase.jpg';">
+      </div>
+    </div>
 
-    <!-- Announcement Bar -->
+    <!-- Fallback Announcement Bar -->
     <div id="announcement-bar" class="announcement-bar" style="display:none;">
       <span class="announcement-icon"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></span>
       <span id="announcement-text" class="announcement-text"></span>
-      <span id="delivery-time-badge" class="delivery-chip-badge font-num">
-        <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        30-45 دقيقة
-      </span>
+      <span id="delivery-time-badge" class="delivery-chip-badge font-num" style="display:none;"></span>
     </div>
+
+    <!-- Stories Bar (Instagram/Snapchat Style Highlights - Design Item 3) -->
+    <section class="stories-strip-section" id="stories-section" style="display:none;">
+      <div class="stories-track" id="stories-track"></div>
+    </section>
 
     <!-- Last Order Recall Banner -->
     <div id="last-order-banner" class="last-order-banner" style="display:none;">
@@ -291,35 +368,31 @@
       </div>
     </div>
 
-    <!-- Discovery Ribbon -->
-    <div class="discovery-strip">
-      <div id="discovery-container" class="discovery-scroll"></div>
-    </div>
+    <!-- Unified Categories Navigation Strip (Design Item 4: Starts with 'كل القائمة' with no duplicate buttons) -->
+    <nav id="categories-container" class="category-strip"></nav>
 
-    <!-- Search & Controls Bar -->
-    <div class="search-and-controls">
-      <div class="search-container">
-        <input type="text" id="search-input" class="search-input" placeholder="ابحث في دفتر المنيو (مثال: برجر، شاورما، صوص)...">
+    <!-- Combined Search & View Mode Bar (Design Item 5: Compact Single Row) -->
+    <div class="search-and-view-bar">
+      <div class="search-box-compact">
         <svg class="icon search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="search-input" class="search-input-field" placeholder="ابحث في المنيو (مثال: برجر، وجبات، صوص)...">
       </div>
-      <div class="view-controls">
-        <button id="view-toggle-grid" class="btn-view-mode" title="عرض البطاقات البصرية (مربعات)">
+      <div class="view-controls-compact">
+        <button type="button" id="view-toggle-grid" class="btn-view-toggle" title="عرض مربعات (شبكة)">
           <svg class="icon icon-sm" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
         </button>
-        <button id="view-toggle-list" class="btn-view-mode active" title="عرض القائمة السريعة (طولي)">
+        <button type="button" id="view-toggle-list" class="btn-view-toggle active" title="عرض طولي (قائمة)">
           <svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
         </button>
       </div>
     </div>
-
-    <!-- Categories Strip -->
-    <nav id="categories-container" class="category-strip"></nav>
 
     <!-- Hero / Chef's Pick Showcase -->
     <section id="hero-showcase-container" style="display:none;"></section>
 
     <!-- Products Catalog Grid -->
     <section id="products-container" class="products-flow view-mode-list"></section>
+    </div>
   </main>
 
   <!-- Dynamic Island Floating Cart (Next-Gen Luxury Experience) -->

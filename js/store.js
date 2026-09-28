@@ -152,8 +152,8 @@ const DEFAULT_SETTINGS = (typeof window !== 'undefined' && window.HARPY_DEMO_SEE
       walletNumber: "01019971508",
       walletName: "فودافون كاش / إنستاباي",
       currency: "ج.م",
-      logo: "https://images.unsplash.com/photo-1550547660-d9450f859349?w=300",
-      cover: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200",
+      logo: "assets/portfolio/logo.png",
+      cover: "assets/portfolio/order_restaurant_showcase.jpg",
       themePreset: "charcoal",
       deliveryTime: "30 - 45 دقيقة",
       minOrder: 50,
@@ -756,8 +756,15 @@ const Store = {
     if (!this.saveLocks.categories && (now - this.lastSaveTimestamps.categories > 2500)) {
       if (data.categories !== undefined && data.categories !== null) {
         let catArray = Array.isArray(data.categories) ? data.categories : Object.values(data.categories);
+        if (isDemo && (!catArray || catArray.length === 0)) {
+          catArray = DEFAULT_CATEGORIES;
+        }
         this._memoryCache.categories = catArray;
         this.safeSetItem(this.getKey(STORAGE_KEYS.CATEGORIES), JSON.stringify(catArray));
+        hasChanges = true;
+      } else if (isDemo && (!this._memoryCache.categories || this._memoryCache.categories.length === 0)) {
+        this._memoryCache.categories = DEFAULT_CATEGORIES;
+        this.safeSetItem(this.getKey(STORAGE_KEYS.CATEGORIES), JSON.stringify(DEFAULT_CATEGORIES));
         hasChanges = true;
       }
     }
@@ -765,8 +772,15 @@ const Store = {
     if (!this.saveLocks.products && (now - this.lastSaveTimestamps.products > 2500)) {
       if (data.products !== undefined && data.products !== null) {
         let prodArray = Array.isArray(data.products) ? data.products : Object.values(data.products);
+        if (isDemo && (!prodArray || prodArray.length === 0)) {
+          prodArray = DEFAULT_PRODUCTS;
+        }
         this._memoryCache.products = prodArray;
         this.safeSetItem(this.getKey(STORAGE_KEYS.PRODUCTS), JSON.stringify(prodArray));
+        hasChanges = true;
+      } else if (isDemo && (!this._memoryCache.products || this._memoryCache.products.length === 0)) {
+        this._memoryCache.products = DEFAULT_PRODUCTS;
+        this.safeSetItem(this.getKey(STORAGE_KEYS.PRODUCTS), JSON.stringify(DEFAULT_PRODUCTS));
         hasChanges = true;
       }
     }
@@ -774,8 +788,15 @@ const Store = {
     if (!this.saveLocks.stories && (now - this.lastSaveTimestamps.stories > 2500)) {
       if (data.stories !== undefined && data.stories !== null) {
         let storyArray = Array.isArray(data.stories) ? data.stories : Object.values(data.stories);
+        if (isDemo && (!storyArray || storyArray.length === 0)) {
+          storyArray = DEFAULT_STORIES;
+        }
         this._memoryCache.stories = storyArray;
         this.safeSetItem(this.getKey(STORAGE_KEYS.STORIES), JSON.stringify(storyArray));
+        hasChanges = true;
+      } else if (isDemo && (!this._memoryCache.stories || this._memoryCache.stories.length === 0)) {
+        this._memoryCache.stories = DEFAULT_STORIES;
+        this.safeSetItem(this.getKey(STORAGE_KEYS.STORIES), JSON.stringify(DEFAULT_STORIES));
         hasChanges = true;
       }
     }
@@ -807,6 +828,12 @@ const Store = {
     const processSnapshotData = (data) => {
       this._isCloudDataLoaded = true;
       if (isDestroyed || !data) return;
+      if (isDemo) {
+        if (!data.categories || (Array.isArray(data.categories) && data.categories.length === 0)) data.categories = DEFAULT_CATEGORIES;
+        if (!data.products || (Array.isArray(data.products) && data.products.length === 0)) data.products = DEFAULT_PRODUCTS;
+        if (!data.stories || (typeof data.stories === 'object' && Object.keys(data.stories).length === 0)) data.stories = DEFAULT_STORIES;
+        if (!data.settings || (typeof data.settings === 'object' && Object.keys(data.settings).length === 0)) data.settings = DEFAULT_SETTINGS;
+      }
       const currentDataHash = JSON.stringify({
         s: data.settings,
         c: data.categories,
@@ -854,17 +881,24 @@ const Store = {
         };
 
         const currentAgg = {
-          settings: this.getSettings ? this.getSettings() : null,
-          categories: this.getCategories ? this.getCategories() : null,
-          products: this.getProducts ? this.getProducts() : null,
-          stories: this.getStories ? this.getStories() : null,
+          settings: this.getSettings ? this.getSettings() : (isDemo ? DEFAULT_SETTINGS : null),
+          categories: this.getCategories ? this.getCategories() : (isDemo ? DEFAULT_CATEGORIES : null),
+          products: this.getProducts ? this.getProducts() : (isDemo ? DEFAULT_PRODUCTS : null),
+          stories: this.getStories ? this.getStories() : (isDemo ? DEFAULT_STORIES : null),
           meta: null
         };
 
         subCallbacks = {};
         Object.keys(subRefs).forEach(k => {
           subCallbacks[k] = snap => {
-            currentAgg[k] = snap ? snap.val() : null;
+            let val = snap ? snap.val() : null;
+            if (isDemo) {
+              if (k === 'products' && (!val || (Array.isArray(val) && val.length === 0))) val = DEFAULT_PRODUCTS;
+              if (k === 'categories' && (!val || (Array.isArray(val) && val.length === 0))) val = DEFAULT_CATEGORIES;
+              if (k === 'stories' && (!val || (typeof val === 'object' && Object.keys(val).length === 0))) val = DEFAULT_STORIES;
+              if (k === 'settings' && (!val || (typeof val === 'object' && Object.keys(val).length === 0))) val = DEFAULT_SETTINGS;
+            }
+            currentAgg[k] = val;
             processSnapshotData(currentAgg);
           };
           subRefs[k].on('value', subCallbacks[k], err => {
@@ -897,11 +931,18 @@ const Store = {
           fetch(`${baseUrl}/meta.json`, fOpt).catch(() => null)
         ]);
 
-        const settings = sRes && sRes.ok ? await sRes.json().catch(() => null) : null;
-        const categories = cRes && cRes.ok ? await cRes.json().catch(() => null) : null;
-        const products = pRes && pRes.ok ? await pRes.json().catch(() => null) : null;
-        const stories = stRes && stRes.ok ? await stRes.json().catch(() => null) : null;
+        let settings = sRes && sRes.ok ? await sRes.json().catch(() => null) : null;
+        let categories = cRes && cRes.ok ? await cRes.json().catch(() => null) : null;
+        let products = pRes && pRes.ok ? await pRes.json().catch(() => null) : null;
+        let stories = stRes && stRes.ok ? await stRes.json().catch(() => null) : null;
         const meta = mRes && mRes.ok ? await mRes.json().catch(() => null) : null;
+
+        if (isDemo) {
+          if (!settings || (typeof settings === 'object' && Object.keys(settings).length === 0)) settings = DEFAULT_SETTINGS;
+          if (!categories || (Array.isArray(categories) && categories.length === 0)) categories = DEFAULT_CATEGORIES;
+          if (!products || (Array.isArray(products) && products.length === 0)) products = DEFAULT_PRODUCTS;
+          if (!stories || (typeof stories === 'object' && Object.keys(stories).length === 0)) stories = DEFAULT_STORIES;
+        }
 
         if (settings !== null || categories !== null || products !== null || meta !== null) {
           processSnapshotData({
@@ -1789,11 +1830,14 @@ const Store = {
   },
 
   getCategories() {
-    if (this._memoryCache.categories !== null) {
-      return this._memoryCache.categories;
-    }
     const isDemo = (this.getRestaurantSlug() === 'demo');
     const defaultCategories = isDemo ? DEFAULT_CATEGORIES : [];
+    if (this._memoryCache.categories !== null) {
+      if (isDemo && (!this._memoryCache.categories || this._memoryCache.categories.length === 0)) {
+        this._memoryCache.categories = defaultCategories;
+      }
+      return this._memoryCache.categories;
+    }
     const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.CATEGORIES));
     if (!raw) {
       this._memoryCache.categories = defaultCategories;
@@ -1802,6 +1846,9 @@ const Store = {
     try {
       const parsed = JSON.parse(raw);
       let res = Array.isArray(parsed) ? parsed : (parsed && typeof parsed === 'object' ? Object.values(parsed) : defaultCategories);
+      if (isDemo && (!res || res.length === 0)) {
+        res = defaultCategories;
+      }
       this._memoryCache.categories = res;
       return res;
     } catch {
@@ -1824,11 +1871,14 @@ const Store = {
   },
 
   getProducts() {
-    if (this._memoryCache.products !== null) {
-      return this._memoryCache.products;
-    }
     const isDemo = (this.getRestaurantSlug() === 'demo');
     const defaultProducts = isDemo ? DEFAULT_PRODUCTS : [];
+    if (this._memoryCache.products !== null) {
+      if (isDemo && (!this._memoryCache.products || this._memoryCache.products.length === 0)) {
+        this._memoryCache.products = defaultProducts;
+      }
+      return this._memoryCache.products;
+    }
     const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.PRODUCTS));
     if (!raw) {
       this._memoryCache.products = defaultProducts;
@@ -1837,6 +1887,9 @@ const Store = {
     try {
       const parsed = JSON.parse(raw);
       let res = Array.isArray(parsed) ? parsed : (parsed && typeof parsed === 'object' ? Object.values(parsed) : defaultProducts);
+      if (isDemo && (!res || res.length === 0)) {
+        res = defaultProducts;
+      }
       this._memoryCache.products = res;
       return res;
     } catch {
@@ -1988,11 +2041,14 @@ const Store = {
   },
 
   getStories() {
-    if (this._memoryCache.stories !== null) {
-      return this._memoryCache.stories;
-    }
     const isDemo = (this.getRestaurantSlug() === 'demo');
     const defaultStories = isDemo ? DEFAULT_STORIES : [];
+    if (this._memoryCache.stories !== null) {
+      if (isDemo && (!this._memoryCache.stories || this._memoryCache.stories.length === 0)) {
+        this._memoryCache.stories = defaultStories;
+      }
+      return this._memoryCache.stories;
+    }
     const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.STORIES));
     if (!raw) {
       this._memoryCache.stories = defaultStories;
@@ -2001,6 +2057,9 @@ const Store = {
     try {
       const parsed = JSON.parse(raw);
       let res = Array.isArray(parsed) ? parsed : (parsed && typeof parsed === 'object' ? Object.values(parsed) : defaultStories);
+      if (isDemo && (!res || res.length === 0)) {
+        res = defaultStories;
+      }
       this._memoryCache.stories = res;
       return res;
     } catch {
