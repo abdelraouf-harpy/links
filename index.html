@@ -10,7 +10,7 @@
         var s = p.get('m') || p.get('r') || p.get('restaurant') || p.get('store') || p.get('slug');
         if (s) {
           s = s.toLowerCase().trim();
-          window.location.replace('/order.html?m=' + encodeURIComponent(s) + window.location.hash);
+          window.location.replace('./order.html?m=' + encodeURIComponent(s) + window.location.hash);
         }
       } catch(e) {}
     })();

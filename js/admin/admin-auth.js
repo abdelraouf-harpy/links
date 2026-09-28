@@ -355,10 +355,8 @@ function renderRestaurantHub() {
   const isFile = window.location.protocol === 'file:';
   const cleanPath = window.location.pathname.replace('admin.html', '').replace(/\/admin\/?$/, '').replace(/\/$/, '');
   const targetUrl = isFile
-    ? window.location.href.replace('admin.html', 'order.html').split('?')[0] + `?m=${slug}`
-    : (window.location.hostname.includes('harpymenu.com') 
-        ? `https://harpymenu.com/${slug}` 
-        : window.location.origin + cleanPath + `/order.html?m=${slug}`);
+    ? window.location.href.replace('admin.html', 'order.html').split('?')[0] + `?m=${encodeURIComponent(slug)}`
+    : (window.location.origin + cleanPath + `/order.html?m=${encodeURIComponent(slug)}`);
 
   if (shareLink) {
     shareLink.textContent = targetUrl.replace(/^https?:\/\//, '');

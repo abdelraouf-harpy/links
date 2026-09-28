@@ -178,7 +178,7 @@ self.addEventListener('fetch', (event) => {
           name: finalName,
           short_name: finalShortName,
           description: isAdm ? `Order Admin — Dashboard & Kitchen` : `Order — Smart Digital Menu`,
-          start_url: isAdm ? `./admin.html?m=${mSlug}` : `./index.html?m=${mSlug}`,
+          start_url: isAdm ? `./admin.html?m=${mSlug}` : `./order.html?m=${mSlug}`,
           scope: isAdm ? `./admin.html` : `./`,
           display: 'standalone',
           background_color: '#120e0c',

@@ -44,30 +44,41 @@
         var hash = window.location.hash || '';
         var segments = path.split('/').filter(Boolean);
 
+        // Detect GitHub Pages repo subfolder (e.g. /links/)
+        var repoPrefix = '';
+        if (window.location.hostname.includes('github.io') && segments.length > 0) {
+          var first = segments[0].toLowerCase();
+          var standardPages = ['order.html', 'admin.html', 'index.html', 'portfolio.html', '404.html', 'products.html', 'sw.js', 'manifest.json'];
+          if (!standardPages.includes(first) && !first.endsWith('.html') && !first.endsWith('.json')) {
+            repoPrefix = '/' + segments[0];
+            segments.shift(); // Remove repo name from routing segments!
+          }
+        }
+
         // Check legacy restaurant-specific files (e.g. saj.html, king.html, saj-admin.html, manifests)
         for (var i = 0; i < segments.length; i++) {
           var seg = segments[i].toLowerCase();
           if (seg.indexOf('admin-manifest-') !== -1) {
             var mSlug = seg.replace(/admin-manifest-([^.]+)\.json/, '$1');
-            window.location.replace('/admin-manifest.json?m=' + encodeURIComponent(mSlug));
+            window.location.replace(repoPrefix + '/admin-manifest.json?m=' + encodeURIComponent(mSlug));
             return;
           }
           if (seg.indexOf('manifest-') !== -1) {
             var mSlug = seg.replace(/manifest-([^.]+)\.json/, '$1');
-            window.location.replace('/manifest.json?m=' + encodeURIComponent(mSlug));
+            window.location.replace(repoPrefix + '/manifest.json?m=' + encodeURIComponent(mSlug));
             return;
           }
           if (seg.endsWith('-admin.html') || seg.startsWith('admin-')) {
             var rSlug = seg.replace('-admin.html', '').replace('admin-', '').replace('.html', '');
             if (rSlug) {
-              window.location.replace('/admin.html?m=' + encodeURIComponent(rSlug) + (search ? ('&' + search.slice(1)) : '') + hash);
+              window.location.replace(repoPrefix + '/admin.html?m=' + encodeURIComponent(rSlug) + (search ? ('&' + search.slice(1)) : '') + hash);
               return;
             }
           }
           if (seg.endsWith('.html') && seg !== 'index.html' && seg !== 'order.html' && seg !== 'admin.html' && seg !== 'portfolio.html' && seg !== '404.html') {
             var rSlug = seg.replace('.html', '');
             if (rSlug) {
-              window.location.replace('/order.html?m=' + encodeURIComponent(rSlug) + (search ? ('&' + search.slice(1)) : '') + hash);
+              window.location.replace(repoPrefix + '/order.html?m=' + encodeURIComponent(rSlug) + (search ? ('&' + search.slice(1)) : '') + hash);
               return;
             }
           }
@@ -86,7 +97,7 @@
 
         if (adminHashes.indexOf(cleanHash) !== -1) {
           var slug = storedSlug || 'demo';
-          window.location.replace('/admin.html?m=' + encodeURIComponent(slug) + '#' + cleanHash);
+          window.location.replace(repoPrefix + '/admin.html?m=' + encodeURIComponent(slug) + '#' + cleanHash);
           return;
         }
         
@@ -100,7 +111,7 @@
             params.set('m', storedSlug || 'demo');
           }
           var queryString = '?' + params.toString();
-          window.location.replace('/admin.html' + queryString + hash);
+          window.location.replace(repoPrefix + '/admin.html' + queryString + hash);
           return;
         }
 
@@ -114,7 +125,7 @@
 
         // If asking for portfolio (/portfolio, /portfolio.html)
         if (segments.indexOf('portfolio') !== -1 || path.indexOf('/portfolio') !== -1) {
-          window.location.replace('/portfolio.html' + search + hash);
+          window.location.replace(repoPrefix + '/portfolio.html' + search + hash);
           return;
         }
 
@@ -130,14 +141,14 @@
 
         // If a restaurant slug or /order was requested, route directly to /order.html
         if (slug || segments.indexOf('order') !== -1 || params.get('m')) {
-          window.location.replace('/order.html' + queryString + hash);
+          window.location.replace(repoPrefix + '/order.html' + queryString + hash);
           return;
         }
 
         // If NO slug was requested, route cleanly to home portfolio
-        window.location.replace('/' + (queryString ? queryString : '') + hash);
+        window.location.replace((repoPrefix || '/') + (queryString ? queryString : '') + hash);
       } catch (e) {
-        window.location.replace('/' + (window.location.search || ''));
+        window.location.replace((repoPrefix || '/') + (window.location.search || ''));
       }
     })();
   </script>

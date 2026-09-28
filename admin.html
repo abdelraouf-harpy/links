@@ -142,8 +142,26 @@
         // Sync preview button immediately with active slug
         document.addEventListener('DOMContentLoaded', function() {
           var previewBtn = document.getElementById('btn-live-preview');
+          var openStoreBtn = document.getElementById('btn-open-store-link');
+          var shareLink = document.getElementById('tenant-share-link');
+          var orderUrl = './order.html?m=' + encodeURIComponent(slug);
+
           if (previewBtn) {
-            previewBtn.href = './index.html?m=' + encodeURIComponent(slug);
+            previewBtn.href = orderUrl;
+            previewBtn.addEventListener('click', function() {
+              var cur = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : slug;
+              this.href = './order.html?m=' + encodeURIComponent(cur);
+            });
+          }
+          if (openStoreBtn) {
+            openStoreBtn.href = orderUrl;
+            openStoreBtn.addEventListener('click', function() {
+              var cur = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : slug;
+              this.href = './order.html?m=' + encodeURIComponent(cur);
+            });
+          }
+          if (shareLink) {
+            shareLink.href = orderUrl;
           }
         });
         var subStatus = localStorage.getItem('harpy_' + slug + '_sub_status');
@@ -266,7 +284,7 @@
           <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           <span id="btn-admin-install-text">تثبيت لوحة التحكم</span>
         </button>
-        <a href="./order.html?m=king" class="btn btn-primary btn-sm btn-live-preview" target="_blank" id="btn-live-preview">
+        <a href="./order.html" class="btn btn-primary btn-sm btn-live-preview" target="_blank" id="btn-live-preview">
           <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
           <span>معاينة المنيو</span>
         </a>

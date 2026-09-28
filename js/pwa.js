@@ -124,7 +124,7 @@
         name: appName,
         short_name: appName,
         description: isAdmin ? `Order Admin — Dashboard & Kitchen` : `Order — Smart Digital Menu`,
-        start_url: isAdmin ? `./admin.html?m=${slug}` : `./index.html?m=${slug}`,
+        start_url: isAdmin ? `./admin.html?m=${slug}` : `./order.html?m=${slug}`,
         scope: isAdmin ? `./admin.html` : `./`,
         display: "standalone",
         background_color: "#120e0c",
