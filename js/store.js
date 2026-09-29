@@ -806,6 +806,7 @@ const Store = {
 
   syncFromCloud(slug, onUpdate) {
     if (!slug) return () => {};
+    const isDemo = (slug === 'demo');
     let isDestroyed = false;
     let lastKnownDataHash = '';
 

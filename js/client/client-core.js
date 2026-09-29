@@ -873,7 +873,7 @@ function setupSubscriptionWatcher() {
       .catch(() => {});
   }
 
-  Store.startSubscriptionWatcher((status) =\u003e {
+  Store.startSubscriptionWatcher((status) => {
     if (!status.active) {
       applyStatusUI(status.reason);
     } else {
