@@ -292,6 +292,9 @@ async function initApp() {
   setupSubscriptionWatcher();
   initBackgroundOrderTracking();
 
+  // 2b. Ordering paused check — runs AFTER data is ready (blocks whole page if frozen)
+  checkOrderingPaused();
+
   // 3. Pre-decode above-the-fold images so there is zero pop-in when splash disappears
   const topImgs = Array.from(document.querySelectorAll('.food-item-img')).slice(0, 6);
   if (topImgs.length > 0) {
@@ -338,6 +341,12 @@ async function initApp() {
       const currentSettings = Store.getSettings();
       if (typeof window.updatePwaBranding === 'function') {
         window.updatePwaBranding(currentSettings);
+      }
+      // Re-check ordering paused on live data update (handles real-time freeze/unfreeze)
+      if (currentSettings.isOrderingPaused) {
+        applyOrderingPausedUI(currentSettings);
+      } else {
+        removeOrderingPausedUI();
       }
     }
   });
@@ -728,33 +737,67 @@ function renderAnnouncement() {
 }
 
 
-// ── Store Ordering Paused (Closed Mode) Handler ─────────────
+// ── Store Ordering Paused (Full-Screen Lock) ─────────────────
+function applyOrderingPausedUI(settings) {
+  const backdrop = document.getElementById('ordering-paused-backdrop');
+  const modal = document.getElementById('ordering-paused-modal');
+  const msgEl = document.getElementById('ordering-paused-modal-msg');
+  const titleEl = document.getElementById('ordering-paused-title');
+  const iconEl = document.getElementById('ordering-paused-icon');
+  const waBtn = document.getElementById('ordering-paused-wa-btn');
+
+  if (msgEl) {
+    msgEl.textContent = (settings && settings.orderingPausedMessage)
+      ? settings.orderingPausedMessage
+      : 'عذراً، المطعم متوقف مؤقتاً عن استقبال الطلبات الأونلاين. سيعود قريباً لخدمتكم!';
+  }
+  if (titleEl) titleEl.textContent = 'المطعم متوقف حالياً عن استقبال الطلبات';
+  if (iconEl) iconEl.textContent = '🛑';
+
+  // Set WhatsApp contact button if available
+  if (waBtn && settings && settings.whatsappNumber) {
+    const cleanWa = String(settings.whatsappNumber).replace(/\D/g, '');
+    const storeName = settings.storeName || '';
+    waBtn.href = `https://wa.me/${cleanWa}?text=${encodeURIComponent(`مرحباً، متى يبدأ الاستقبال؟ 🙏`)}`;
+    waBtn.style.display = 'block';
+  } else if (waBtn) {
+    waBtn.style.display = 'none';
+  }
+
+  if (backdrop) backdrop.classList.add('active');
+  if (modal) modal.classList.add('active');
+  document.body.classList.add('harpy-account-locked');
+}
+
+function removeOrderingPausedUI() {
+  const backdrop = document.getElementById('ordering-paused-backdrop');
+  const modal = document.getElementById('ordering-paused-modal');
+  if (backdrop) backdrop.classList.remove('active');
+  if (modal) modal.classList.remove('active');
+  document.body.classList.remove('harpy-account-locked');
+}
+
 function checkOrderingPaused() {
   const s = Store.getSettings();
   if (s.isOrderingPaused === true) {
-    openOrderingPausedModal(s.orderingPausedMessage);
+    applyOrderingPausedUI(s);
     return true;
   }
   return false;
 }
 
+// Keep legacy compat: these are now no-ops since overlay cannot be dismissed by user
 window.openOrderingPausedModal = function(customMsg) {
-  const modal = document.getElementById('ordering-paused-modal');
-  const backdrop = document.getElementById('ordering-paused-backdrop');
-  const msgEl = document.getElementById('ordering-paused-modal-msg');
-  if (msgEl) {
-    msgEl.textContent = customMsg || "المطعم متوقف حالياً عن استقبال الطلبات. مواعيد العمل يومياً من 12 ظهراً حتى 2 صباحاً. نسعد بخدمتكم قريباً!";
+  const s = Store.getSettings();
+  if (customMsg) {
+    const overrideSettings = Object.assign({}, s, { orderingPausedMessage: customMsg });
+    applyOrderingPausedUI(overrideSettings);
+  } else {
+    applyOrderingPausedUI(s);
   }
-  if (modal) modal.classList.add('open');
-  if (backdrop) backdrop.classList.add('open');
-  SoundFX.playPop();
 };
-
 window.closeOrderingPausedModal = function() {
-  const modal = document.getElementById('ordering-paused-modal');
-  const backdrop = document.getElementById('ordering-paused-backdrop');
-  if (modal) modal.classList.remove('open');
-  if (backdrop) backdrop.classList.remove('open');
+  // Intentionally does nothing — ordering paused = locked page
 };
 
 function setupSubscriptionWatcher() {
