@@ -850,11 +850,30 @@ function setupSubscriptionWatcher() {
     }
   };
 
+  // Only apply lock from cache if still truly suspended (validate with Firebase quickly)
   if (cachedStatus === 'suspended' || cachedStatus === 'blocked' || cachedStatus === 'expired' || cachedStatus === 'deleted') {
+    // Optimistic: show lock instantly from cache (will be removed if Firebase says active)
     applyStatusUI(cachedStatus);
+
+    // Fast Firebase validation — if license is now active, clear the cached lock immediately
+    const _slug = slug;
+    fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${_slug}.json`, { cache: 'no-store' })
+      .then(r => r.ok ? r.json() : null)
+      .then(lic => {
+        if (!lic) return; // No license data yet, let watcher handle it
+        const nowOk = lic.status === 'active' && (!lic.expiresAt || new Date() < new Date(lic.expiresAt));
+        if (nowOk) {
+          // License is active — clear stale cache and hide the lock screen immediately
+          try { localStorage.setItem(`harpy_${_slug}_sub_status`, 'active'); } catch(e) {}
+          document.body.classList.remove('harpy-account-locked');
+          if (suspendedBackdrop) suspendedBackdrop.classList.remove('active');
+          if (suspendedOverlay) suspendedOverlay.classList.remove('active');
+        }
+      })
+      .catch(() => {});
   }
 
-  Store.startSubscriptionWatcher((status) => {
+  Store.startSubscriptionWatcher((status) =\u003e {
     if (!status.active) {
       applyStatusUI(status.reason);
     } else {
