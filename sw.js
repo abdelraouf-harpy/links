@@ -1,4 +1,4 @@
-﻿// Order PWA Service Worker â€” Native App Shell & Offline Engine
+// Order PWA Service Worker — Native App Shell & Offline Engine
 const CACHE_NAME = 'order-pwa-v61.0';
 const IMAGE_CACHE_NAME = 'order-images-v2';
 const ASSETS_TO_CACHE = [
@@ -106,7 +106,7 @@ self.addEventListener('fetch', (event) => {
 
   const reqUrl = new URL(event.request.url);
 
-  // Bypass Products POS & Inventory app â€” let products manage its own SW & caching
+  // Bypass Products POS & Inventory app — let products manage its own SW & caching
   if (reqUrl.pathname.startsWith('/products/') || reqUrl.pathname === '/products') {
     return;
   }
@@ -176,7 +176,7 @@ self.addEventListener('fetch', (event) => {
           id: `harpy-${isAdm ? 'admin' : 'order'}-${mSlug}-v38`,
           name: finalName,
           short_name: finalShortName,
-          description: isAdm ? `Order Admin â€” Dashboard & Kitchen` : `Order â€” Smart Digital Menu`,
+          description: isAdm ? `Order Admin — Dashboard & Kitchen` : `Order — Smart Digital Menu`,
           start_url: isAdm ? `./admin.html?m=${mSlug}` : `./order.html?m=${mSlug}`,
           scope: isAdm ? `./admin.html` : `./`,
           display: 'standalone',
