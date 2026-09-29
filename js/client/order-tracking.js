@@ -382,7 +382,8 @@ function notifyCustomerOrderStatus(status) {
     const info = statusMessages[status];
     if (info) {
       try {
-        new Notification(info.title, { body: info.body, icon: './manifest.json' });
+        const _iconUrl = (typeof Store !== 'undefined' && Store.getSettings) ? (Store.getSettings().logo || './assets/portfolio/logo.png') : './assets/portfolio/logo.png';
+        new Notification(info.title, { body: info.body, icon: _iconUrl });
       } catch (e) {}
     }
   }

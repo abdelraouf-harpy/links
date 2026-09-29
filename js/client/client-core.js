@@ -696,8 +696,9 @@ function renderAnnouncement() {
       if (promoSubtitle) promoSubtitle.textContent = 'وضع تصفح واستعراض قائمة الطعام فقط';
     } else {
       const hasAnnouncement = settings.showAnnouncement && settings.announcementText;
-      const spendDiscount = settings.spendDiscount && settings.spendDiscount.enabled;
-      const walletDiscount = settings.walletDiscount && settings.walletDiscount.enabled;
+      // Fix: read correct field names used by settings-manager.js
+      const spendDiscount = settings.enableSpendTierDiscount && settings.spendTierMinAmount > 0;
+      const walletDiscount = settings.enableWalletDiscount && settings.walletDiscountValue > 0;
 
       const promoBadge = document.querySelector('.promo-deal-badge');
       if (hasAnnouncement) {
@@ -708,13 +709,15 @@ function renderAnnouncement() {
       } else if (spendDiscount) {
         promoCard.style.display = 'flex';
         if (promoBadge) promoBadge.textContent = '%';
-        const valStr = settings.spendDiscount.type === 'percent' ? `${settings.spendDiscount.value}%` : `${settings.spendDiscount.value} ج.م`;
-        if (promoTitle) promoTitle.textContent = `خصم ${valStr} على الطلبات الأكثر من ${settings.spendDiscount.minSpend} ج.م 🔥`;
+        const tierValue = settings.spendTierDiscountValue || 15;
+        const valStr = settings.spendTierDiscountType !== 'fixed' ? `${tierValue}%` : `${tierValue} ج.م`;
+        if (promoTitle) promoTitle.textContent = `خصم ${valStr} على الطلبات الأكثر من ${settings.spendTierMinAmount} ج.م 🔥`;
         if (promoSubtitle) promoSubtitle.textContent = 'يطبق الخصم تلقائياً في السلة وعند الدفع';
       } else if (walletDiscount) {
         promoCard.style.display = 'flex';
         if (promoBadge) promoBadge.textContent = '%';
-        const valStr = settings.walletDiscount.type === 'percent' ? `${settings.walletDiscount.value}%` : `${settings.walletDiscount.value} ج.م`;
+        const walletValue = settings.walletDiscountValue || 10;
+        const valStr = settings.walletDiscountType !== 'fixed' ? `${walletValue}%` : `${walletValue} ج.م`;
         if (promoTitle) promoTitle.textContent = `خصم ${valStr} عند الدفع بالمحفظة الإلكترونية ⚡`;
         if (promoSubtitle) promoSubtitle.textContent = 'فودافون كاش، إنستاباي والمحافظ البنكية';
       } else {
