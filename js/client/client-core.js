@@ -240,13 +240,15 @@ async function initApp() {
       }
     }
   }
-  const hasLocalCache = Store.hasCachedData(slug) || isDemo;
+  const curProds = Store.getProducts();
+  const hasRealCachedProducts = Array.isArray(curProds) && curProds.length > 0;
+  const hasLocalCache = (Store.hasCachedData(slug) && hasRealCachedProducts) || isDemo;
 
   // 1. Intelligent Dual-Speed Hydration Engine
-  // On device with cache or demo tenant, wait at most 120ms so cached UI opens instantly
-  // On uncached tenant, wait up to 550ms for cloud data before revealing UI smoothly
+  // On device with real cached products or demo, wait at most 80ms for instant paint
+  // If cache is empty or fresh phone, give cloud data up to 700ms so complete menu loads smoothly with zero flash
   if (window.__harpyPreloadPromise) {
-    const maxWaitTime = hasLocalCache ? 120 : 550;
+    const maxWaitTime = hasLocalCache ? 80 : 700;
     try {
       const preloadData = await Promise.race([
         window.__harpyPreloadPromise,
@@ -850,27 +852,29 @@ function setupSubscriptionWatcher() {
     }
   };
 
-  // Only apply lock from cache if still truly suspended (validate with Firebase quickly)
+  // Verify suspended cache against current settings and Firebase before showing lock overlay (eliminates split-second false flash on refresh)
   if (cachedStatus === 'suspended' || cachedStatus === 'blocked' || cachedStatus === 'expired' || cachedStatus === 'deleted') {
-    // Optimistic: show lock instantly from cache (will be removed if Firebase says active)
-    applyStatusUI(cachedStatus);
-
-    // Fast Firebase validation — if license is now active, clear the cached lock immediately
-    const _slug = slug;
-    fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${_slug}.json`, { cache: 'no-store' })
-      .then(r => r.ok ? r.json() : null)
-      .then(lic => {
-        if (!lic) return; // No license data yet, let watcher handle it
-        const nowOk = lic.status === 'active' && (!lic.expiresAt || new Date() < new Date(lic.expiresAt));
-        if (nowOk) {
-          // License is active — clear stale cache and hide the lock screen immediately
-          try { localStorage.setItem(`harpy_${_slug}_sub_status`, 'active'); } catch(e) {}
-          document.body.classList.remove('harpy-account-locked');
-          if (suspendedBackdrop) suspendedBackdrop.classList.remove('active');
-          if (suspendedOverlay) suspendedOverlay.classList.remove('active');
-        }
-      })
-      .catch(() => {});
+    const curSettings = (typeof Store !== 'undefined' && Store.getSettings) ? Store.getSettings() : null;
+    if (curSettings && curSettings.subscription && curSettings.subscription.status === 'active') {
+      try { localStorage.setItem(`harpy_${slug}_sub_status`, 'active'); } catch(e) {}
+    } else {
+      const _slug = slug;
+      fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${_slug}.json`, { cache: 'no-store' })
+        .then(r => r.ok ? r.json() : null)
+        .then(lic => {
+          if (!lic) return;
+          const nowOk = lic.status === 'active' && (!lic.expiresAt || new Date() < new Date(lic.expiresAt));
+          if (!nowOk) {
+            applyStatusUI(lic.status || 'blocked');
+          } else {
+            try { localStorage.setItem(`harpy_${_slug}_sub_status`, 'active'); } catch(e) {}
+            document.body.classList.remove('harpy-account-locked');
+            if (suspendedBackdrop) suspendedBackdrop.classList.remove('active');
+            if (suspendedOverlay) suspendedOverlay.classList.remove('active');
+          }
+        })
+        .catch(() => {});
+    }
   }
 
   Store.startSubscriptionWatcher((status) => {

@@ -318,13 +318,25 @@
             if (cs) {
               if (cs.storeName) {
                 document.title = cs.storeName;
-                document.addEventListener('DOMContentLoaded', function() {
-                  const elName = document.getElementById('store-name');
-                  if (elName && !elName.textContent) elName.textContent = cs.storeName;
-                  const elLogo = document.getElementById('store-logo');
-                  if (elLogo && (cs.logo || cs.logoUrl) && !elLogo.src) elLogo.src = cs.logo || cs.logoUrl;
-                }, { once: true });
               }
+              document.addEventListener('DOMContentLoaded', function() {
+                if (cs.storeName) {
+                  const elName = document.getElementById('store-name');
+                  if (elName && (!elName.textContent || elName.textContent.trim() === '...')) elName.textContent = cs.storeName;
+                }
+                if (cs.storeTagline) {
+                  const elTagline = document.getElementById('store-tagline');
+                  if (elTagline && (!elTagline.textContent || elTagline.textContent.trim() === '...')) elTagline.textContent = cs.storeTagline;
+                }
+                if (cs.logo || cs.logoUrl) {
+                  const elLogo = document.getElementById('store-logo');
+                  if (elLogo) elLogo.src = cs.logo || cs.logoUrl;
+                }
+                if (cs.cover) {
+                  const elCover = document.getElementById('hero-cover-img');
+                  if (elCover) elCover.src = cs.cover;
+                }
+              }, { once: true });
               if (cs.logo || cs.logoUrl) {
                 var apTouch = document.querySelector('link[rel="apple-touch-icon"]');
                 if (apTouch) apTouch.href = cs.logo || cs.logoUrl;
@@ -402,22 +414,16 @@
   <header class="restaurant-hero-section" id="restaurant-hero-section" style="position:relative; width:100%; min-height:280px; overflow:hidden; background:#120e0c;">
     <!-- Top Floating Glass Navigation Bar (Heart + 3-Dots Menu) -->
     <div class="hero-top-nav" style="position:absolute; top:0; left:0; width:100%; z-index:30; padding:10px 0 16px; background:linear-gradient(180deg, rgba(12,10,9,0.75) 0%, rgba(12,10,9,0) 100%);">
-      <div class="container hero-nav-container" style="display:flex; align-items:center; justify-content:flex-start; gap:10px;">
-        <div class="hero-nav-actions" style="display:flex; align-items:center; gap:8px;">
-          <!-- 1. Favorites Heart Button -->
-          <button id="btn-header-fav-filter" class="hero-nav-btn btn-fav-filter" onclick="handleCategoryFilter('fav')" title="الأصناف المفضلة">
-            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
-            <span id="hero-fav-badge-count" class="hero-fav-count font-num" style="display:none;">0</span>
-          </button>
-
-          <!-- 2. More Options 3-Dots Dropdown Trigger -->
+      <div class="container hero-nav-container" style="display:flex; align-items:center; justify-content:flex-start; direction:ltr; gap:10px;">
+        <div class="hero-nav-actions" style="display:flex; align-items:center; gap:8px; direction:ltr;">
+          <!-- 1. More Options 3-Dots Dropdown Trigger (Leftmost) -->
           <div class="hero-more-menu-wrapper" style="position:relative;">
             <button id="btn-hero-more-menu" class="hero-nav-btn btn-more-menu" onclick="toggleHeroMoreMenu(event)" title="خيارات إضافية" aria-label="خيارات">
-              <svg class="icon icon-sm" viewBox="0 0 24 24" style="fill: currentColor;"><circle cx="12" cy="12" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+              <svg class="icon icon-sm" viewBox="0 0 24 24" style="fill: #ffffff;"><circle cx="12" cy="12" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="12" cy="19" r="2"/></svg>
             </button>
 
             <!-- Floating Glass Options Dropdown -->
-            <div id="hero-more-dropdown" class="hero-more-dropdown" style="display:none;">
+            <div id="hero-more-dropdown" class="hero-more-dropdown" style="display:none; direction:rtl; text-align:right;">
               <button id="theme-toggle-btn" class="dropdown-menu-item btn-theme-toggle" onclick="handleThemeToggle(); closeHeroMoreMenu();" title="تبديل الإضاءة (نهاري / ليلي)" aria-label="تبديل الإضاءة">
                 <span class="dropdown-item-icon">
                   <svg id="theme-icon-dark" class="icon icon-sm icon-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
@@ -454,6 +460,12 @@
               </button>
             </div>
           </div>
+
+          <!-- 2. Favorites Heart Button (White Stroke) -->
+          <button id="btn-header-fav-filter" class="hero-nav-btn btn-fav-filter" onclick="handleCategoryFilter('fav')" title="الأصناف المفضلة">
+            <svg class="icon icon-sm" viewBox="0 0 24 24" style="stroke:#ffffff; fill:none; stroke-width:2;"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            <span id="hero-fav-badge-count" class="hero-fav-count font-num" style="display:none;">0</span>
+          </button>
         </div>
       </div>
     </div>
@@ -1139,16 +1151,16 @@
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=62.0"></script>
-  <script src="js/core/sound-effects.js?v=62.0"></script>
-  <script src="js/store.js?v=62.0"></script>
-  <script src="js/client/client-core.js?v=62.0"></script>
-  <script src="js/client/menu-view.js?v=62.0"></script>
-  <script src="js/client/stories-viewer.js?v=62.0"></script>
-  <script src="js/client/customizer-modal.js?v=62.0"></script>
-  <script src="js/client/cart-ledger.js?v=62.0"></script>
-  <script src="js/client/order-tracking.js?v=62.0"></script>
-  <script src="js/app.js?v=62.0"></script>
-  <script src="js/pwa.js?v=62.0"></script>
+  <script src="js/core/demo-seed-data.js?v=63.0"></script>
+  <script src="js/core/sound-effects.js?v=63.0"></script>
+  <script src="js/store.js?v=63.0"></script>
+  <script src="js/client/client-core.js?v=63.0"></script>
+  <script src="js/client/menu-view.js?v=63.0"></script>
+  <script src="js/client/stories-viewer.js?v=63.0"></script>
+  <script src="js/client/customizer-modal.js?v=63.0"></script>
+  <script src="js/client/cart-ledger.js?v=63.0"></script>
+  <script src="js/client/order-tracking.js?v=63.0"></script>
+  <script src="js/app.js?v=63.0"></script>
+  <script src="js/pwa.js?v=63.0"></script>
 </body>
 </html>

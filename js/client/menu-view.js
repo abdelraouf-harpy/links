@@ -165,6 +165,10 @@ window.handleCategoryFilter = function(cat) {
 
   // 1. Instant in-place UI active state update (0ms, 0 DOM recreation)
   updateCategoryPillsActiveState();
+  const headerFavBtn = document.getElementById('btn-header-fav-filter');
+  if (headerFavBtn) {
+    headerFavBtn.classList.toggle('active', activeDiscoveryFilter === 'fav');
+  }
 
   // 2. Smoothly center selected pill in horizontal strip
   if (elements.categoriesContainer) {

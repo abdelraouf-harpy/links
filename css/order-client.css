@@ -3095,7 +3095,16 @@ body.cart-drawer-open .dynamic-island-cart {
   color: #4ade80;
 }
 .hero-nav-btn.btn-fav-filter {
-  color: #fb7185;
+  color: #ffffff;
+}
+.hero-nav-btn.btn-fav-filter svg {
+  stroke: #ffffff !important;
+  fill: none;
+  transition: stroke 0.2s ease, fill 0.2s ease;
+}
+.hero-nav-btn.btn-fav-filter.active svg {
+  stroke: #fb7185 !important;
+  fill: #fb7185 !important;
 }
 .hero-nav-btn.btn-more-menu.active {
   background: rgba(255, 255, 255, 0.28);
@@ -3123,8 +3132,11 @@ body.cart-drawer-open .dynamic-island-cart {
   position: absolute;
   top: calc(100% + 8px);
   left: 0;
-  min-width: 205px;
-  background: rgba(24, 20, 18, 0.88);
+  right: auto;
+  min-width: 215px;
+  direction: rtl;
+  text-align: right;
+  background: rgba(24, 20, 18, 0.92);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid rgba(255, 255, 255, 0.16);
