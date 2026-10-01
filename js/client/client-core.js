@@ -246,9 +246,9 @@ async function initApp() {
 
   // 1. Intelligent Dual-Speed Hydration Engine
   // On device with real cached products or demo, wait at most 80ms for instant paint
-  // If cache is empty or fresh phone, give cloud data up to 1800ms so complete menu loads smoothly with zero flash
+  // If cache is empty or fresh phone, give cloud data up to 3500ms so complete menu loads smoothly with zero flash
   if (window.__harpyPreloadPromise) {
-    const maxWaitTime = hasLocalCache ? 80 : 1800;
+    const maxWaitTime = hasLocalCache ? 80 : 3500;
     try {
       const preloadData = await Promise.race([
         window.__harpyPreloadPromise,
@@ -322,12 +322,26 @@ async function initApp() {
   }
 
   // 4. Dismiss native splash shield smoothly with instant complete reveal
-  const splash = document.getElementById('app-splash-shield');
-  if (splash) {
-    requestAnimationFrame(() => {
-      splash.classList.add('fade-out');
-      setTimeout(() => { try { splash.remove(); } catch(e) {} }, 240);
+  const dismissSplash = () => {
+    const splash = document.getElementById('app-splash-shield');
+    if (splash && !splash.classList.contains('fade-out')) {
+      requestAnimationFrame(() => {
+        splash.classList.add('fade-out');
+        setTimeout(() => { try { splash.remove(); } catch(e) {} }, 240);
+      });
+    }
+  };
+
+  const hasNowProducts = (Store.getProducts() || []).length > 0;
+  if (hasLocalCache || hasNowProducts) {
+    dismissSplash();
+  } else if (window.__harpyPreloadPromise) {
+    window.__harpyPreloadPromise.finally(() => {
+      dismissSplash();
     });
+    setTimeout(dismissSplash, 4000);
+  } else {
+    dismissSplash();
   }
 
   // 5. Connect real-time cloud data sync from Firebase Realtime Database
@@ -558,16 +572,37 @@ function handleViewModeChange(mode) {
 
 function renderStoreInfo() {
   const settings = Store.getSettings();
-  if (elements.storeName) elements.storeName.textContent = settings.storeName || "منيو المطعم";
-  if (elements.storeTagline) elements.storeTagline.textContent = settings.storeTagline || "أشهى المأكولات الطازجة";
+  const slug = Store.getRestaurantSlug();
+  const isDemo = (slug === 'demo');
+
+  if (elements.storeName) {
+    if (settings.storeName) {
+      elements.storeName.textContent = settings.storeName;
+    } else if (isDemo) {
+      elements.storeName.textContent = "سوبر برجر | Super Burger 🍔🔥";
+    } else {
+      elements.storeName.textContent = "...";
+    }
+  }
+  if (elements.storeTagline) {
+    if (settings.storeTagline) {
+      elements.storeTagline.textContent = settings.storeTagline;
+    } else if (isDemo) {
+      elements.storeTagline.textContent = "أشهى المأكولات الطازجة";
+    } else {
+      elements.storeTagline.textContent = "...";
+    }
+  }
   
   if (elements.storeLogo) {
     if (settings.logo && settings.logo.trim() && settings.logo !== 'null') {
       elements.storeLogo.src = settings.logo;
       elements.storeLogo.style.display = 'block';
-    } else {
+    } else if (isDemo) {
       elements.storeLogo.src = 'assets/portfolio/logo.png';
       elements.storeLogo.style.display = 'block';
+    } else {
+      elements.storeLogo.style.display = 'none';
     }
   }
 
@@ -581,8 +616,10 @@ function renderStoreInfo() {
   if (heroCoverImg) {
     if (settings.cover && settings.cover.trim() && settings.cover !== 'null') {
       heroCoverImg.src = settings.cover;
-    } else {
+      heroCoverImg.style.display = 'block';
+    } else if (isDemo) {
       heroCoverImg.src = "assets/portfolio/order_restaurant_showcase.jpg";
+      heroCoverImg.style.display = 'block';
     }
   }
 

@@ -1615,8 +1615,10 @@ const Store = {
     if (!parsed.storeName) {
       if (parsed.restaurantName || parsed.name) {
         parsed.storeName = parsed.restaurantName || parsed.name;
-      } else if (!isDemo && slug) {
-        parsed.storeName = `مطعم ${slug}`;
+      } else if (isDemo) {
+        parsed.storeName = DEFAULT_SETTINGS.storeName;
+      } else {
+        parsed.storeName = "";
       }
     }
     if (!parsed.whatsappNumber && parsed.phone) {
