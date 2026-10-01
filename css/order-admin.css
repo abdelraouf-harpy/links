@@ -2112,22 +2112,71 @@ html.admin-unlocked #login-modal-backdrop {
   border-radius: 8px !important;
 }
 
-/* Desktop Cockpit (1025px+) */
+/* ═══════════════════════════════════════════════════════════
+   HARPY PRO: ENTERPRISE ADMIN DESKTOP & WIDESCREEN ENHANCED CANVAS
+   (Strictly scoped to min-width: 1025px / min-width: 1400px - Mobile & Tablet 100% Untouched)
+   ═══════════════════════════════════════════════════════════ */
+
+/* Laptops & Standard Desktop Monitors (1025px - 1399px) */
 @media (min-width: 1025px) {
+  .app-header .header-wrap,
   #admin-main-container {
+    max-width: min(94vw, 1280px) !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
     margin-top: 8px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
   }
   .admin-tabs {
     margin-bottom: 8px !important;
   }
+
+  /* Catalog Grid: Smooth auto-fill with 4 columns on laptop */
+  .admin-catalog-grid {
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)) !important;
+    gap: 16px !important;
+  }
+
+  /* Kitchen Orders & Invoices Archive: 2-column card grid on desktop */
+  #admin-orders-container,
+  #admin-archive-container {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(460px, 1fr)) !important;
+    gap: 16px !important;
+    align-items: start !important;
+  }
+  #admin-orders-container > div:only-child,
+  #admin-archive-container > div:only-child {
+    grid-column: 1 / -1 !important;
+  }
+
+  /* Categories & Stories Cards Grid */
+  #categories-list-container {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+    gap: 16px !important;
+  }
+  #admin-stories-container {
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)) !important;
+    gap: 16px !important;
+  }
+
+  /* Backup Section Equal Column Balance */
+  #tab-backup .admin-card > div:first-of-type {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 20px !important;
+  }
+
+  /* POS Layout */
   #tab-pos .admin-card {
     padding: 6px 10px !important;
     margin-bottom: 0 !important;
   }
   .pos-layout {
     display: grid !important;
-    grid-template-columns: 1fr 410px !important;
-    gap: 12px !important;
+    grid-template-columns: 1fr 420px !important;
+    gap: 14px !important;
     margin-top: 0 !important;
     align-items: stretch !important;
     height: calc(100vh - 165px) !important;
@@ -2146,8 +2195,8 @@ html.admin-unlocked #login-modal-backdrop {
   }
   .pos-products-grid {
     display: grid !important;
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)) !important;
-    gap: 8px !important;
+    grid-template-columns: repeat(auto-fill, minmax(136px, 1fr)) !important;
+    gap: 10px !important;
     flex: 1 1 auto !important;
     max-height: none !important;
     height: 100% !important;
@@ -2191,6 +2240,60 @@ html.admin-unlocked #login-modal-backdrop {
   .pos-disc-btn {
     padding: 3px 2px !important;
     font-size: 10.5px !important;
+  }
+}
+
+/* Widescreen Desktops & Large Monitors (1400px+) */
+@media (min-width: 1400px) {
+  .app-header .header-wrap,
+  #admin-main-container {
+    max-width: min(95vw, 1560px) !important;
+    padding-left: 28px !important;
+    padding-right: 28px !important;
+  }
+
+  /* Spacious Navigation Tabs on Big Screen */
+  .admin-tabs {
+    gap: 8px !important;
+    margin-bottom: 14px !important;
+    justify-content: flex-start !important;
+  }
+  .admin-tab-btn {
+    padding: 9px 16px !important;
+    font-size: 0.85rem !important;
+    border-radius: 10px !important;
+    gap: 7px !important;
+  }
+
+  /* Catalog Grid on Widescreen: 5 columns */
+  .admin-catalog-grid {
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)) !important;
+    gap: 18px !important;
+  }
+
+  /* POS Layout on Widescreen: 440px Ticket Column & 1100px+ Menu with 7-8 cards/row */
+  .pos-layout {
+    grid-template-columns: 1fr 440px !important;
+    gap: 18px !important;
+  }
+  .pos-products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important;
+    gap: 12px !important;
+  }
+
+  /* Categories Add Input Banner on Widescreen */
+  .cat-add-input-wrap {
+    max-width: 540px !important;
+  }
+  #categories-list-container {
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)) !important;
+    gap: 18px !important;
+  }
+
+  /* Settings Identity Grid on Widescreen */
+  .settings-identity-grid {
+    grid-template-columns: 2.2fr 2.2fr 1fr !important;
+    gap: 16px !important;
   }
 }
 
