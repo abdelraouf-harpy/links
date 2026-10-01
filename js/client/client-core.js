@@ -246,9 +246,9 @@ async function initApp() {
 
   // 1. Intelligent Dual-Speed Hydration Engine
   // On device with real cached products or demo, wait at most 80ms for instant paint
-  // If cache is empty or fresh phone, give cloud data up to 700ms so complete menu loads smoothly with zero flash
+  // If cache is empty or fresh phone, give cloud data up to 1800ms so complete menu loads smoothly with zero flash
   if (window.__harpyPreloadPromise) {
-    const maxWaitTime = hasLocalCache ? 80 : 700;
+    const maxWaitTime = hasLocalCache ? 80 : 1800;
     try {
       const preloadData = await Promise.race([
         window.__harpyPreloadPromise,
@@ -373,6 +373,11 @@ function setupOutboxSync() {
 
   // Auto-retry when connection is restored
   window.addEventListener('online', async () => {
+    const settings = Store.getSettings();
+    if (settings && settings.isOrderingPaused) {
+      showToastNotification("📡 عاد الاتصال بالإنترنت، ولكن استقبال الطلبات متوقف حالياً لدى المطعم.", "warning");
+      return;
+    }
     showToastNotification("📡 عاد الاتصال بالإنترنت! جارٍ محاولة إرسال الطلبات المعلقة...", "info");
     const count = await Store.processOutbox();
     if (count > 0) {

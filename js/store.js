@@ -1074,6 +1074,19 @@ const Store = {
   async processOutbox() {
     const outbox = this.getOutbox();
     if (!outbox || outbox.length === 0) return 0;
+
+    // Safety guard: do not release queued orders if store has paused orders or subscription suspended
+    const settings = this.getSettings();
+    if (settings && settings.isOrderingPaused) {
+      console.warn("[Store Outbox] Ordering is currently paused; holding queued orders in outbox.");
+      return 0;
+    }
+    const slug = this.getRestaurantSlug();
+    if (this.isSubscriptionSuspended(slug)) {
+      console.warn("[Store Outbox] Subscription is suspended; holding queued orders in outbox.");
+      return 0;
+    }
+
     let syncedCount = 0;
 
     for (const order of [...outbox]) {
