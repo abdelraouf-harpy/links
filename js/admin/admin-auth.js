@@ -38,12 +38,11 @@ function setupAuth() {
           fetch(fbBase + '/settings.json', fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
           fetch(fbBase + '/categories.json', fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
           fetch(fbBase + '/products.json', fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
-          fetch(fbBase + '/stories.json', fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
-          fetch(fbBase + '/meta.json', fOpt).then(r => r.ok ? r.json() : null).catch(() => null)
+          fetch(fbBase + '/stories.json', fOpt).then(r => r.ok ? r.json() : null).catch(() => null)
         ]);
-        const s = results[0], c = results[1], p = results[2], st = results[3], m = results[4];
-        if (s || c || p || m) {
-          Store.applySnapshotData({ settings: s, categories: c, products: p, stories: st, meta: m });
+        const s = results[0], c = results[1], p = results[2], st = results[3];
+        if (s || c || p) {
+          Store.applySnapshotData({ settings: s, categories: c, products: p, stories: st });
         }
       } catch(e) {}
     }

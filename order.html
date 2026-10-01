@@ -47,8 +47,8 @@
   <link rel="preconnect" href="https://i.ibb.co" crossorigin>
   <link rel="dns-prefetch" href="https://i.ibb.co">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/order-tokens.css?v=60.0">
-  <link rel="stylesheet" href="css/order-client.css?v=60.0">
+  <link rel="stylesheet" href="css/order-tokens.css?v=64.0">
+  <link rel="stylesheet" href="css/order-client.css?v=64.0">
   <style id="harpy-critical-layout">
     /* ═══════════════════════════════════════════════════════════
        CRITICAL DEFENSIVE INLINE SHIELD (Prevents SW Cache Mismatches)
@@ -352,29 +352,23 @@
           fetch(fbBase + '/settings.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
           fetch(fbBase + '/categories.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
           fetch(fbBase + '/products.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
-          fetch(fbBase + '/stories.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
-          fetch(fbBase + '/meta.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; })
+          fetch(fbBase + '/stories.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; })
         ]).then(function(results) {
           var settings = results[0];
           var categories = results[1];
           var products = results[2];
           var stories = results[3];
-          var meta = results[4];
-          if (meta && typeof meta === 'object') {
-            try { localStorage.setItem('harpy_' + slug + '_meta', JSON.stringify(meta)); } catch(e) {}
-          }
-          if (meta && meta.restaurantName) {
-            settings = settings || {};
-            if (!settings.storeName) settings.storeName = meta.restaurantName;
-            if (!settings.whatsappNumber && meta.phone) settings.whatsappNumber = meta.phone;
+          if (settings && typeof settings === 'object') {
+            if (!settings.storeName && settings.restaurantName) settings.storeName = settings.restaurantName;
+            if (!settings.whatsappNumber && settings.phone) settings.whatsappNumber = settings.phone;
           }
           if (slug === 'demo') {
             if (!categories || (Array.isArray(categories) && categories.length === 0)) categories = null;
             if (!products || (Array.isArray(products) && products.length === 0)) products = null;
             if (!stories || (typeof stories === 'object' && Object.keys(stories).length === 0)) stories = null;
           }
-          if (!settings && !categories && !products && !meta) return null;
-          var out = { meta: meta || null };
+          if (!settings && !categories && !products) return null;
+          var out = {};
           if (settings) out.settings = settings;
           if (categories) out.categories = categories;
           if (products) out.products = products;
@@ -1151,16 +1145,16 @@
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=63.0"></script>
-  <script src="js/core/sound-effects.js?v=63.0"></script>
-  <script src="js/store.js?v=63.0"></script>
-  <script src="js/client/client-core.js?v=63.0"></script>
-  <script src="js/client/menu-view.js?v=63.0"></script>
-  <script src="js/client/stories-viewer.js?v=63.0"></script>
-  <script src="js/client/customizer-modal.js?v=63.0"></script>
-  <script src="js/client/cart-ledger.js?v=63.0"></script>
-  <script src="js/client/order-tracking.js?v=63.0"></script>
-  <script src="js/app.js?v=63.0"></script>
-  <script src="js/pwa.js?v=63.0"></script>
+  <script src="js/core/demo-seed-data.js?v=64.0"></script>
+  <script src="js/core/sound-effects.js?v=64.0"></script>
+  <script src="js/store.js?v=64.0"></script>
+  <script src="js/client/client-core.js?v=64.0"></script>
+  <script src="js/client/menu-view.js?v=64.0"></script>
+  <script src="js/client/stories-viewer.js?v=64.0"></script>
+  <script src="js/client/customizer-modal.js?v=64.0"></script>
+  <script src="js/client/cart-ledger.js?v=64.0"></script>
+  <script src="js/client/order-tracking.js?v=64.0"></script>
+  <script src="js/app.js?v=64.0"></script>
+  <script src="js/pwa.js?v=64.0"></script>
 </body>
 </html>

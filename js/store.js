@@ -513,87 +513,6 @@ const Store = {
       }
     }
 
-    // 2. Direct Cloud Tenant Authentication (Verified against Realtime Database)
-    if (db) {
-      try {
-        let activeSlug = slug;
-        let metaSnap = activeSlug ? await db.ref(`restaurants/${activeSlug}/meta`).once('value') : null;
-        let meta = metaSnap ? metaSnap.val() : null;
-
-        // Check if password matches the current active restaurant
-        if (meta && meta.adminPassword) {
-          const expectedPassword = (meta.adminPassword || '').trim();
-          const expectedEmail = (meta.ownerEmail || '').toLowerCase().trim();
-
-          if (cleanPassword === expectedPassword) {
-            let userUid = (meta && meta.ownerUid) || `admin_${activeSlug}`;
-            if (auth && !auth.currentUser) {
-              try {
-                const anonCred = await auth.signInAnonymously();
-                if (anonCred && anonCred.user) userUid = anonCred.user.uid;
-              } catch(e) {}
-            }
-            const session = { 
-              email: expectedEmail || cleanId || `${activeSlug}@harpy.com`, 
-              authenticated: true, 
-              slug: activeSlug, 
-              uid: userUid,
-              sessionVersion: meta.sessionVersion || 1,
-              timestamp: Date.now() 
-            };
-            this.safeSetItem(`harpy_admin_auth_${activeSlug}`, JSON.stringify(session));
-            sessionStorage.setItem(`harpy_auth_${activeSlug}`, JSON.stringify(session));
-            this.safeSetItem('harpy_admin_active_slug', activeSlug);
-            return session;
-          }
-        }
-
-        // 3. Fallback: Search across all restaurants to auto-detect tenant
-        try {
-          const allSnap = await db.ref('restaurants').once('value');
-          const allRestaurants = allSnap.val() || {};
-          for (const [rSlug, rData] of Object.entries(allRestaurants)) {
-            if (!rData || !rData.meta) continue;
-            const rMeta = rData.meta;
-            const rEmail = (rMeta.ownerEmail || '').toLowerCase().trim();
-            const rPass = (rMeta.adminPassword || '').trim();
-            const rPhone = (rMeta.phone || '').trim();
-
-            const passMatches = (cleanPassword === rPass);
-            const idMatches = (!cleanId || cleanId === rSlug || cleanId === rEmail || (rPhone && cleanId === rPhone));
-
-            if (passMatches && (idMatches || cleanPassword.length >= 5)) {
-              activeSlug = rSlug;
-              if (activeSlug !== slug) {
-                this.setRestaurantSlug(activeSlug);
-              }
-              let userUid = (rMeta && rMeta.ownerUid) || `admin_${activeSlug}`;
-              if (auth && !auth.currentUser) {
-                try {
-                  const anonCred = await auth.signInAnonymously();
-                  if (anonCred && anonCred.user) userUid = anonCred.user.uid;
-                } catch(e) {}
-              }
-              const session = { 
-                email: rEmail || `${activeSlug}@harpy.com`, 
-                authenticated: true, 
-                slug: activeSlug, 
-                uid: userUid,
-                sessionVersion: rMeta.sessionVersion || 1,
-                timestamp: Date.now() 
-              };
-              this.safeSetItem(`harpy_admin_auth_${activeSlug}`, JSON.stringify(session));
-              sessionStorage.setItem(`harpy_auth_${activeSlug}`, JSON.stringify(session));
-              this.safeSetItem('harpy_admin_active_slug', activeSlug);
-              return session;
-            }
-          }
-        } catch(e) {}
-      } catch (dbErr) {
-        console.warn("[Store] DB meta auth check error:", dbErr);
-      }
-    }
-
     throw new Error("auth/invalid-credentials");
   },
 
@@ -608,8 +527,13 @@ const Store = {
       throw new Error("قاعدة البيانات السحابية غير متصلة حالياً");
     }
 
+    // 1. Update Firebase Auth User Password directly
+    if (auth && auth.currentUser) {
+      await auth.currentUser.updatePassword(cleanPassword);
+    }
+
+    // 2. Update session version & audit timestamp in meta (never store plaintext password)
     const updates = {
-      adminPassword: cleanPassword,
       lastPasswordChange: new Date().toISOString()
     };
 
@@ -703,20 +627,6 @@ const Store = {
     const defaults = isDemo ? DEFAULT_SETTINGS : BLANK_SETTINGS;
 
     // Cache tenant meta if provided
-    if (data.meta && typeof data.meta === 'object') {
-      try {
-        localStorage.setItem(`harpy_${slug}_meta`, JSON.stringify(data.meta));
-      } catch(e) {}
-    }
-
-    let meta = data.meta || null;
-    if (!meta) {
-      try {
-        const rawMeta = localStorage.getItem(`harpy_${slug}_meta`);
-        if (rawMeta) meta = JSON.parse(rawMeta);
-      } catch(e) {}
-    }
-
     if (!this.saveLocks.settings && (now - this.lastSaveTimestamps.settings > 2500)) {
       if (data.settings && typeof data.settings === 'object') {
         const mergedSettings = { ...defaults, ...data.settings };
@@ -731,25 +641,16 @@ const Store = {
             mergedSettings.showAnnouncement = false;
           }
         }
-        if (!mergedSettings.storeName && meta && meta.restaurantName) {
-          mergedSettings.storeName = meta.restaurantName;
+        if (!mergedSettings.storeName && (data.settings.restaurantName || data.settings.name)) {
+          mergedSettings.storeName = data.settings.restaurantName || data.settings.name;
         }
-        if (!mergedSettings.whatsappNumber && meta && meta.phone) {
-          mergedSettings.whatsappNumber = meta.phone;
+        if (!mergedSettings.whatsappNumber && data.settings.phone) {
+          mergedSettings.whatsappNumber = data.settings.phone;
         }
         this._memoryCache.settings = mergedSettings;
         this.safeSetItem(this.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(mergedSettings));
         this.applyTheme();
         hasChanges = true;
-      } else if (!isDemo && meta && meta.restaurantName) {
-        const cur = this._memoryCache.settings || { ...BLANK_SETTINGS };
-        if (!cur.storeName) {
-          cur.storeName = meta.restaurantName;
-          if (!cur.whatsappNumber && meta.phone) cur.whatsappNumber = meta.phone;
-          this._memoryCache.settings = cur;
-          this.safeSetItem(this.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(cur));
-          hasChanges = true;
-        }
       }
     }
 
@@ -877,16 +778,14 @@ const Store = {
           settings: db.ref(`restaurants/${slug}/settings`),
           categories: db.ref(`restaurants/${slug}/categories`),
           products: db.ref(`restaurants/${slug}/products`),
-          stories: db.ref(`restaurants/${slug}/stories`),
-          meta: db.ref(`restaurants/${slug}/meta`)
+          stories: db.ref(`restaurants/${slug}/stories`)
         };
 
         const currentAgg = {
           settings: this.getSettings ? this.getSettings() : (isDemo ? DEFAULT_SETTINGS : null),
           categories: this.getCategories ? this.getCategories() : (isDemo ? DEFAULT_CATEGORIES : null),
           products: this.getProducts ? this.getProducts() : (isDemo ? DEFAULT_PRODUCTS : null),
-          stories: this.getStories ? this.getStories() : (isDemo ? DEFAULT_STORIES : null),
-          meta: null
+          stories: this.getStories ? this.getStories() : (isDemo ? DEFAULT_STORIES : null)
         };
 
         subCallbacks = {};
@@ -924,19 +823,17 @@ const Store = {
       try {
         const baseUrl = `https://harpy-order-default-rtdb.firebaseio.com/restaurants/${encodeURIComponent(slug)}`;
         const fOpt = { cache: 'no-store' };
-        const [sRes, cRes, pRes, stRes, mRes] = await Promise.all([
+        const [sRes, cRes, pRes, stRes] = await Promise.all([
           fetch(`${baseUrl}/settings.json`, fOpt).catch(() => null),
           fetch(`${baseUrl}/categories.json`, fOpt).catch(() => null),
           fetch(`${baseUrl}/products.json`, fOpt).catch(() => null),
-          fetch(`${baseUrl}/stories.json`, fOpt).catch(() => null),
-          fetch(`${baseUrl}/meta.json`, fOpt).catch(() => null)
+          fetch(`${baseUrl}/stories.json`, fOpt).catch(() => null)
         ]);
 
         let settings = sRes && sRes.ok ? await sRes.json().catch(() => null) : null;
         let categories = cRes && cRes.ok ? await cRes.json().catch(() => null) : null;
         let products = pRes && pRes.ok ? await pRes.json().catch(() => null) : null;
         let stories = stRes && stRes.ok ? await stRes.json().catch(() => null) : null;
-        const meta = mRes && mRes.ok ? await mRes.json().catch(() => null) : null;
 
         if (isDemo) {
           if (!settings || (typeof settings === 'object' && Object.keys(settings).length === 0)) settings = DEFAULT_SETTINGS;
@@ -945,13 +842,12 @@ const Store = {
           if (!stories || (typeof stories === 'object' && Object.keys(stories).length === 0)) stories = DEFAULT_STORIES;
         }
 
-        if (settings !== null || categories !== null || products !== null || meta !== null) {
+        if (settings !== null || categories !== null || products !== null) {
           processSnapshotData({
             settings: settings,
             categories: categories,
             products: products,
-            stories: stories,
-            meta: meta
+            stories: stories
           });
         }
       } catch (e) {}
@@ -1703,22 +1599,15 @@ const Store = {
       }
     }
 
-    // Resolve tenant metadata if storeName is not yet set in settings
-    let meta = null;
-    try {
-      const rawMeta = localStorage.getItem(`harpy_${slug}_meta`);
-      if (rawMeta) meta = JSON.parse(rawMeta);
-    } catch(e) {}
-
     if (!parsed.storeName) {
-      if (meta && meta.restaurantName) {
-        parsed.storeName = meta.restaurantName;
+      if (parsed.restaurantName || parsed.name) {
+        parsed.storeName = parsed.restaurantName || parsed.name;
       } else if (!isDemo && slug) {
         parsed.storeName = `مطعم ${slug}`;
       }
     }
-    if (!parsed.whatsappNumber && meta && meta.phone) {
-      parsed.whatsappNumber = meta.phone;
+    if (!parsed.whatsappNumber && parsed.phone) {
+      parsed.whatsappNumber = parsed.phone;
     }
     if (!parsed.printerPaperSize) parsed.printerPaperSize = "80mm";
 
@@ -2338,21 +2227,14 @@ const Store = {
     const fetchLicenseFast = async () => {
       if (isDestroyed) return;
       try {
-        const [licRes, metaRes] = await Promise.allSettled([
-          fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${slug}.json`, { cache: 'no-store' }),
-          fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/meta.json`, { cache: 'no-store' })
-        ]);
+        const licRes = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${slug}.json`, { cache: 'no-store' }).catch(() => null);
 
         let licData = null;
-        let metaData = null;
-        if (licRes.status === 'fulfilled' && licRes.value.ok) {
-          licData = await licRes.value.json();
-        }
-        if (metaRes.status === 'fulfilled' && metaRes.value.ok) {
-          metaData = await metaRes.value.json();
+        if (licRes && licRes.ok) {
+          licData = await licRes.json();
         }
 
-        evaluateLicense(licData, null, metaData);
+        evaluateLicense(licData, null, null);
       } catch (e) {}
     };
 
