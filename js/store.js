@@ -43,7 +43,7 @@ const STORAGE_KEYS = {
   THEME_MODE: 'harpy_theme_mode',
   APPLIED_COUPON: 'harpy_applied_coupon',
   SOUND_ENABLED: 'harpy_sound_enabled',
-  VIEW_MODE: 'harpy_view_mode',
+  VIEW_MODE: 'harpy_view_mode_v2',
   STORIES: 'harpy_order_stories'
 };
 
@@ -2055,11 +2055,18 @@ const Store = {
   },
 
   getViewMode() {
-    return localStorage.getItem(this.getKey(STORAGE_KEYS.VIEW_MODE)) || 'grid';
+    const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.VIEW_MODE));
+    if (raw === 'dual' || raw === 'large' || raw === 'list') {
+      return raw;
+    }
+    // Default mode for all users is dual (صنفين بجانب بعض)
+    return 'dual';
   },
   setViewMode(mode) {
-    this.safeSetItem(this.getKey(STORAGE_KEYS.VIEW_MODE), mode);
-    window.dispatchEvent(new CustomEvent('store_view_mode_changed', { detail: mode }));
+    const validModes = ['dual', 'large', 'list'];
+    const chosen = validModes.includes(mode) ? mode : 'dual';
+    this.safeSetItem(this.getKey(STORAGE_KEYS.VIEW_MODE), chosen);
+    window.dispatchEvent(new CustomEvent('store_view_mode_changed', { detail: chosen }));
   },
 
   // ── Backup & Restore JSON Engine ───────────────────────────

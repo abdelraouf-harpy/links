@@ -499,7 +499,14 @@ function setupEventListeners() {
   }
 
   // View Mode Switcher
-  if (elements.viewToggleGrid) elements.viewToggleGrid.addEventListener('click', () => handleViewModeChange('grid'));
+  const cycleBtn = elements.viewModeCycleBtn || document.getElementById('view-mode-cycle-btn');
+  if (cycleBtn) {
+    cycleBtn.addEventListener('click', () => {
+      if (typeof cycleViewMode === 'function') cycleViewMode();
+      else if (typeof window.cycleViewMode === 'function') window.cycleViewMode();
+    });
+  }
+  if (elements.viewToggleGrid) elements.viewToggleGrid.addEventListener('click', () => handleViewModeChange('dual'));
   if (elements.viewToggleList) elements.viewToggleList.addEventListener('click', () => handleViewModeChange('list'));
 
   // Stories Touch / Navigation

@@ -37,6 +37,7 @@ var elements = {
 
   discoveryContainer: document.getElementById('discovery-container'),
   searchInput: document.getElementById('search-input'),
+  viewModeCycleBtn: document.getElementById('view-mode-cycle-btn'),
   viewToggleGrid: document.getElementById('view-toggle-grid'),
   viewToggleList: document.getElementById('view-toggle-list'),
 
@@ -559,26 +560,75 @@ document.addEventListener('click', function(e) {
 });
 
 
+const VIEW_MODE_ICONS = {
+  dual: `<svg class="icon icon-sm" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>`,
+  large: `<svg class="icon icon-sm" viewBox="0 0 24 24"><rect width="18" height="8" x="3" y="3" rx="1.5"/><rect width="18" height="8" x="3" y="13" rx="1.5"/></svg>`,
+  list: `<svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>`
+};
+
+const VIEW_MODE_TITLES = {
+  dual: 'طريقة العرض: صنفين بجانب بعض (انقر للتغيير)',
+  large: 'طريقة العرض: بطاقة كبيرة (انقر للتغيير)',
+  list: 'طريقة العرض: قائمة سريعة (انقر للتغيير)'
+};
+
 function initViewMode() {
   const mode = Store.getViewMode();
   applyViewMode(mode);
 }
 
 function applyViewMode(mode) {
+  const validModes = ['dual', 'large', 'list'];
+  const activeMode = validModes.includes(mode) ? mode : 'dual';
+
   if (elements.productsContainer) {
-    elements.productsContainer.classList.remove('view-mode-grid', 'view-mode-list');
-    elements.productsContainer.classList.add(mode === 'list' ? 'view-mode-list' : 'view-mode-grid');
+    elements.productsContainer.classList.remove('view-mode-grid', 'view-mode-list', 'view-mode-dual', 'view-mode-large');
+    elements.productsContainer.classList.add(`view-mode-${activeMode}`);
+    if (activeMode === 'dual' || activeMode === 'large') {
+      elements.productsContainer.classList.add('view-mode-grid');
+    }
   }
-  if (elements.viewToggleGrid && elements.viewToggleList) {
-    elements.viewToggleGrid.classList.toggle('active', mode === 'grid');
-    elements.viewToggleList.classList.toggle('active', mode === 'list');
+
+  const cycleBtn = elements.viewModeCycleBtn || document.getElementById('view-mode-cycle-btn');
+  if (cycleBtn) {
+    cycleBtn.innerHTML = VIEW_MODE_ICONS[activeMode] || VIEW_MODE_ICONS.dual;
+    cycleBtn.title = VIEW_MODE_TITLES[activeMode] || '';
+    cycleBtn.setAttribute('data-mode', activeMode);
+    cycleBtn.classList.add('active');
   }
+
+  if (elements.viewToggleGrid) elements.viewToggleGrid.classList.toggle('active', activeMode === 'dual' || activeMode === 'large');
+  if (elements.viewToggleList) elements.viewToggleList.classList.toggle('active', activeMode === 'list');
+}
+
+function cycleViewMode() {
+  const currentMode = Store.getViewMode();
+  let nextMode = 'dual';
+  if (currentMode === 'dual') {
+    nextMode = 'large';
+  } else if (currentMode === 'large') {
+    nextMode = 'list';
+  } else {
+    nextMode = 'dual';
+  }
+  handleViewModeChange(nextMode);
 }
 
 function handleViewModeChange(mode) {
   Store.setViewMode(mode);
   applyViewMode(mode);
-  SoundFX.playPop();
+
+  const cycleBtn = elements.viewModeCycleBtn || document.getElementById('view-mode-cycle-btn');
+  if (cycleBtn) {
+    cycleBtn.classList.add('anim-rotate-pop');
+    setTimeout(() => {
+      if (cycleBtn) cycleBtn.classList.remove('anim-rotate-pop');
+    }, 260);
+  }
+
+  if (typeof SoundFX !== 'undefined' && SoundFX.playPop) {
+    SoundFX.playPop();
+  }
 }
 
 function renderStoreInfo() {
@@ -964,3 +1014,4 @@ window.handleSoundToggle = handleSoundToggle;
 window.initViewMode = initViewMode;
 window.applyViewMode = applyViewMode;
 window.handleViewModeChange = handleViewModeChange;
+window.cycleViewMode = cycleViewMode;
