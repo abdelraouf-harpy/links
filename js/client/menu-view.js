@@ -93,7 +93,6 @@ function renderCategories() {
 
     let html = `
       <button class="cat-pill ${isAllActive ? 'active' : ''}" data-cat="all" onclick="handleCategoryFilter('all')">
-        <span class="cat-pill-icon">📋</span>
         <span>كل القائمة</span>
       </button>
     `;
@@ -101,7 +100,6 @@ function renderCategories() {
     if (favCount > 0) {
       html += `
         <button class="cat-pill ${isFavActive ? 'active' : ''}" data-cat="fav" onclick="handleCategoryFilter('fav')">
-          <span class="cat-pill-icon">❤️</span>
           <span>المفضلة (${favCount})</span>
         </button>
       `;
@@ -109,11 +107,10 @@ function renderCategories() {
 
     html += categories.map(cat => {
       const isSelected = (!isFavActive && activeCategoryFilter === cat);
-      const parsed = extractCategoryEmojiAndLabel(cat);
+      const cleanLabel = (cat || '').replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1FA00}-\u{1FAFF}\u{FE00}-\u{FE0F}]/gu, '').trim() || cat;
       return `
         <button class="cat-pill ${isSelected ? 'active' : ''}" data-cat="${encodeURIComponent(cat)}" onclick="handleCategoryFilter(decodeURIComponent(this.dataset.cat))">
-          <span class="cat-pill-icon">${parsed.emoji}</span>
-          <span>${parsed.label}</span>
+          <span>${cleanLabel}</span>
         </button>
       `;
     }).join('');

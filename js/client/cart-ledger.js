@@ -500,7 +500,7 @@ function setupEventListeners() {
 
   // View Mode Switcher
   const cycleBtn = elements.viewModeCycleBtn || document.getElementById('view-mode-cycle-btn');
-  if (cycleBtn) {
+  if (cycleBtn && !cycleBtn.hasAttribute('onclick')) {
     cycleBtn.addEventListener('click', () => {
       if (typeof cycleViewMode === 'function') cycleViewMode();
       else if (typeof window.cycleViewMode === 'function') window.cycleViewMode();

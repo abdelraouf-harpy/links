@@ -3772,8 +3772,7 @@ body.cart-drawer-open .dynamic-island-cart {
   box-shadow: 0 3px 12px var(--primary-glow);
 }
 .cat-pill-icon {
-  font-size: 15px;
-  line-height: 1;
+  display: none !important;
 }
 
 /* ═══════════════════════════════════════════════════════════

@@ -47,8 +47,8 @@
   <link rel="preconnect" href="https://i.ibb.co" crossorigin>
   <link rel="dns-prefetch" href="https://i.ibb.co">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/order-tokens.css?v=67.0">
-  <link rel="stylesheet" href="css/order-client.css?v=67.0">
+  <link rel="stylesheet" href="css/order-tokens.css?v=68.0">
+  <link rel="stylesheet" href="css/order-client.css?v=68.0">
   <style id="harpy-critical-layout">
     /* ═══════════════════════════════════════════════════════════
        CRITICAL DEFENSIVE INLINE SHIELD (Prevents SW Cache Mismatches)
@@ -233,8 +233,97 @@
     .products-flow.view-mode-large .food-item-card[style*="display: none"] {
       display: none !important;
     }
+
+    /* 6. Critical Dual 2-Column Grid Defense */
+    .products-flow.view-mode-dual {
+      display: grid !important;
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 10px !important;
+    }
+    @media (min-width: 480px) {
+      .products-flow.view-mode-dual { gap: 14px !important; }
+    }
+    @media (min-width: 768px) {
+      .products-flow.view-mode-dual { grid-template-columns: repeat(3, 1fr) !important; gap: 16px !important; }
+    }
+    @media (min-width: 1024px) {
+      .products-flow.view-mode-dual { grid-template-columns: repeat(4, 1fr) !important; gap: 18px !important; }
+    }
+    @media (min-width: 1400px) {
+      .products-flow.view-mode-dual { grid-template-columns: repeat(5, 1fr) !important; gap: 20px !important; }
+    }
+    .products-flow.view-mode-dual .food-item-card {
+      display: flex !important;
+      flex-direction: column !important;
+    }
+    .products-flow.view-mode-dual .food-item-media {
+      width: 100% !important;
+      height: 130px !important;
+      order: 0 !important;
+    }
+    .products-flow.view-mode-dual .food-item-body {
+      order: 1 !important;
+      padding: 10px 10px !important;
+    }
   </style>
   <script>
+    // Ensure dual mode is default for all visitors (clearing old legacy list/grid keys)
+    (function() {
+      try {
+        var params = new URLSearchParams(window.location.search);
+        var curSlug = params.get('m') || params.get('slug') || window.__harpySlug || 'king';
+        var v2Key = 'harpy_' + curSlug + '_harpy_view_mode_v2';
+        var v2Val = localStorage.getItem(v2Key);
+        if (!v2Val || (v2Val !== 'dual' && v2Val !== 'large' && v2Val !== 'list')) {
+          localStorage.setItem(v2Key, 'dual');
+        }
+        localStorage.removeItem('harpy_' + curSlug + '_harpy_view_mode');
+        localStorage.removeItem('harpy_menu_view_mode');
+      } catch(e) {}
+    })();
+
+    // Inline Zero-Delay View Mode Switcher
+    window.cycleViewMode = function() {
+      var container = document.getElementById('products-container');
+      var cycleBtn = document.getElementById('view-mode-cycle-btn');
+      var curSlug = (new URLSearchParams(window.location.search).get('m') || new URLSearchParams(window.location.search).get('slug') || window.__harpySlug || 'king');
+      var v2Key = 'harpy_' + curSlug + '_harpy_view_mode_v2';
+      var current = 'dual';
+      try {
+        current = localStorage.getItem(v2Key) || 'dual';
+      } catch(e) {}
+      if (container) {
+        if (container.classList.contains('view-mode-dual')) current = 'dual';
+        else if (container.classList.contains('view-mode-large')) current = 'large';
+        else if (container.classList.contains('view-mode-list')) current = 'list';
+      }
+      var next = (current === 'dual') ? 'large' : ((current === 'large') ? 'list' : 'dual');
+      try {
+        localStorage.setItem(v2Key, next);
+      } catch(e) {}
+      if (window.Store && typeof window.Store.setViewMode === 'function') {
+        window.Store.setViewMode(next);
+      }
+      if (window.applyViewMode && typeof window.applyViewMode === 'function') {
+        window.applyViewMode(next);
+      } else if (container) {
+        container.classList.remove('view-mode-dual', 'view-mode-large', 'view-mode-list', 'view-mode-grid');
+        container.classList.add('view-mode-' + next);
+        if (cycleBtn) {
+          cycleBtn.setAttribute('data-mode', next);
+          var icons = {
+            dual: '<svg class="icon icon-sm" viewBox="0 0 24 24" style="pointer-events:none;"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>',
+            large: '<svg class="icon icon-sm" viewBox="0 0 24 24" style="pointer-events:none;"><rect width="18" height="8" x="3" y="3" rx="1.5"/><rect width="18" height="8" x="3" y="13" rx="1.5"/></svg>',
+            list: '<svg class="icon icon-sm" viewBox="0 0 24 24" style="pointer-events:none;"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>'
+          };
+          cycleBtn.innerHTML = icons[next] || icons.dual;
+        }
+      }
+      if (window.SoundFX && typeof window.SoundFX.playPop === 'function') {
+        window.SoundFX.playPop();
+      }
+    };
+
     // Instant zero-delay theme toggle available immediately on page paint
     window.handleThemeToggle = function() {
       var root = document.documentElement;
@@ -583,8 +672,8 @@
         <input type="text" id="search-input" class="search-input-field" placeholder="ابحث في المنيو (مثال: برجر، وجبات، صوص)...">
       </div>
       <div class="view-controls-compact">
-        <button type="button" id="view-mode-cycle-btn" class="btn-view-toggle active" title="طريقة العرض: صنفين بجانب بعض (انقر للتغيير)" aria-label="تغيير طريقة عرض المنتجات">
-          <svg class="icon icon-sm" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+        <button type="button" id="view-mode-cycle-btn" class="btn-view-toggle active" onclick="window.cycleViewMode && window.cycleViewMode()" title="طريقة العرض: صنفين بجانب بعض (انقر للتغيير)" aria-label="تغيير طريقة عرض المنتجات">
+          <svg class="icon icon-sm" viewBox="0 0 24 24" style="pointer-events:none;"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
         </button>
       </div>
     </div>
@@ -593,7 +682,7 @@
     <section id="hero-showcase-container" style="display:none;"></section>
 
     <!-- Products Catalog Grid (Defaults to Dual Grid) -->
-    <section id="products-container" class="products-flow view-mode-dual view-mode-grid"></section>
+    <section id="products-container" class="products-flow view-mode-dual"></section>
     </div>
   </main>
 
@@ -1160,16 +1249,16 @@
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=67.0"></script>
-  <script src="js/core/sound-effects.js?v=67.0"></script>
-  <script src="js/store.js?v=67.0"></script>
-  <script src="js/client/client-core.js?v=67.0"></script>
-  <script src="js/client/menu-view.js?v=67.0"></script>
-  <script src="js/client/stories-viewer.js?v=67.0"></script>
-  <script src="js/client/customizer-modal.js?v=67.0"></script>
-  <script src="js/client/cart-ledger.js?v=67.0"></script>
-  <script src="js/client/order-tracking.js?v=67.0"></script>
-  <script src="js/app.js?v=67.0"></script>
-  <script src="js/pwa.js?v=67.0"></script>
+  <script src="js/core/demo-seed-data.js?v=68.0"></script>
+  <script src="js/core/sound-effects.js?v=68.0"></script>
+  <script src="js/store.js?v=68.0"></script>
+  <script src="js/client/client-core.js?v=68.0"></script>
+  <script src="js/client/menu-view.js?v=68.0"></script>
+  <script src="js/client/stories-viewer.js?v=68.0"></script>
+  <script src="js/client/customizer-modal.js?v=68.0"></script>
+  <script src="js/client/cart-ledger.js?v=68.0"></script>
+  <script src="js/client/order-tracking.js?v=68.0"></script>
+  <script src="js/app.js?v=68.0"></script>
+  <script src="js/pwa.js?v=68.0"></script>
 </body>
 </html>

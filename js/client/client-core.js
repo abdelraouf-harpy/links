@@ -581,12 +581,10 @@ function applyViewMode(mode) {
   const validModes = ['dual', 'large', 'list'];
   const activeMode = validModes.includes(mode) ? mode : 'dual';
 
-  if (elements.productsContainer) {
-    elements.productsContainer.classList.remove('view-mode-grid', 'view-mode-list', 'view-mode-dual', 'view-mode-large');
-    elements.productsContainer.classList.add(`view-mode-${activeMode}`);
-    if (activeMode === 'dual' || activeMode === 'large') {
-      elements.productsContainer.classList.add('view-mode-grid');
-    }
+  const container = elements.productsContainer || document.getElementById('products-container');
+  if (container) {
+    container.classList.remove('view-mode-grid', 'view-mode-list', 'view-mode-dual', 'view-mode-large');
+    container.classList.add(`view-mode-${activeMode}`);
   }
 
   const cycleBtn = elements.viewModeCycleBtn || document.getElementById('view-mode-cycle-btn');
