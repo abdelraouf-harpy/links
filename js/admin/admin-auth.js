@@ -177,37 +177,32 @@ function setupAuth() {
         return;
       }
 
-      const authCheck = await Store.verifyTenantOwnership(slug, user.uid);
-      const isOwner = (authCheck && typeof authCheck === 'object') ? authCheck.isOwner : !!authCheck;
-      const mismatchConfirmed = (authCheck && typeof authCheck === 'object') ? authCheck.mismatchConfirmed : false;
-
-      if (isOwner) {
-        if (!isAuthenticated) {
-          unlockDashboard();
-        } else {
-          // Re-sync orders now that Firebase Auth identity is confirmed
-          if (typeof ordersUnsubscribe === 'function') ordersUnsubscribe();
-          ordersUnsubscribe = Store.syncOrdersFromCloud(slug, (orders) => {
-            renderOrdersList(orders);
-            renderInvoicesArchive(orders);
-          });
-        }
-      } else if (mismatchConfirmed) {
-        // Logged-in Firebase user does not belong to this restaurant (e.g. switched from another tenant)
-        console.warn(`[Admin] Active Firebase user (${user.email}) does not own ${slug}. Logging out mismatched session.`);
-        await Store.logoutAdmin();
-        lockDashboard();
-        if (adminElements.loginErrorMsg) {
-          adminElements.loginErrorMsg.textContent = "يرجى تسجيل الدخول بكلمة مرور هذا المطعم لتفعيل المزامنة.";
-          adminElements.loginErrorMsg.style.display = 'block';
-        }
-      } else {
-        // Network timeout or transient verification failure on mobile - preserve authenticated state
-        console.warn(`[Admin] Could not verify ownership due to transient network state for ${user.email}. Preserving active session.`);
-        if (Store.isAdminAuthenticated(slug) && !isAuthenticated) {
-          unlockDashboard();
-        }
+      // If not yet unlocked, unlock immediately so dashboard data and listeners mount
+      if (!isAuthenticated) {
+        unlockDashboard();
+      } else if (typeof ordersUnsubscribe !== 'function') {
+        // Ensure orders sync is active if not previously initialized
+        ordersUnsubscribe = Store.syncOrdersFromCloud(slug, (orders) => {
+          renderOrdersList(orders);
+          renderInvoicesArchive(orders);
+        });
       }
+
+      // Verify tenant ownership concurrently in background without blocking orders stream
+      Store.verifyTenantOwnership(slug, user.uid).then(async (authCheck) => {
+        const mismatchConfirmed = (authCheck && typeof authCheck === 'object') ? authCheck.mismatchConfirmed : false;
+        if (mismatchConfirmed) {
+          console.warn(`[Admin] Active Firebase user (${user.email}) does not own ${slug}. Logging out mismatched session.`);
+          await Store.logoutAdmin();
+          lockDashboard();
+          if (adminElements.loginErrorMsg) {
+            adminElements.loginErrorMsg.textContent = "يرجى تسجيل الدخول بكلمة مرور هذا المطعم لتفعيل المزامنة.";
+            adminElements.loginErrorMsg.style.display = 'block';
+          }
+        }
+      }).catch(err => {
+        console.warn(`[Admin] Could not verify ownership due to transient network state for ${user.email}. Preserving active session:`, err);
+      });
     } else {
       // User is not authenticated in Firebase Auth (user == null)
       if (!Store.isAdminAuthenticated(slug)) {

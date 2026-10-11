@@ -246,9 +246,9 @@ async function initApp() {
 
   // 1. Intelligent Dual-Speed Hydration Engine
   // On device with real cached products or demo, wait at most 80ms for instant paint
-  // If cache is empty or fresh phone, give cloud data up to 3500ms so complete menu loads smoothly with zero flash
+  // On cold start / fresh device, wait at most 550ms for critical menu trio, then reveal UI with skeletons if still pending
   if (window.__harpyPreloadPromise) {
-    const maxWaitTime = hasLocalCache ? 80 : 3500;
+    const maxWaitTime = hasLocalCache ? 80 : 550;
     try {
       const preloadData = await Promise.race([
         window.__harpyPreloadPromise,
@@ -264,17 +264,29 @@ async function initApp() {
       if (freshData && typeof freshData === 'object' && (!Store.saveLocks || !Store.saveLocks.products)) {
         const changed = Store.applySnapshotData(freshData);
         if (changed) {
+          Store.applyTheme();
           renderStoreInfo();
-          renderStories();
           renderAnnouncement();
           renderDiscoveryRibbon();
           renderCategories();
-          renderProducts();
+          renderProducts(true);
         }
         if (freshData.settings) {
           if (typeof window.updatePwaBranding === 'function') {
             window.updatePwaBranding(freshData.settings);
           }
+        }
+      }
+    }).catch(() => {});
+  }
+
+  // Decoupled Background Stories Stream: Never delays the critical menu or splash dismissal
+  if (window.__harpyStoriesPromise) {
+    window.__harpyStoriesPromise.then(storiesData => {
+      if (storiesData && (!Store.saveLocks || !Store.saveLocks.stories)) {
+        const changed = Store.applySnapshotData({ stories: storiesData });
+        if (changed || !Store.getStories() || Store.getStories().length === 0) {
+          renderStories();
         }
       }
     }).catch(() => {});
@@ -313,8 +325,7 @@ async function initApp() {
         img.onerror = () => { img.classList.add('loaded'); r(); };
       });
     });
-    // On new phone give images up to 450ms to decode; on cached phone 30ms
-    const maxImageWait = hasLocalCache ? 30 : 180;
+    const maxImageWait = hasLocalCache ? 25 : 100;
     await Promise.race([
       Promise.allSettled(decodePromises),
       new Promise(r => setTimeout(r, maxImageWait))
@@ -327,7 +338,7 @@ async function initApp() {
     if (splash && !splash.classList.contains('fade-out')) {
       requestAnimationFrame(() => {
         splash.classList.add('fade-out');
-        setTimeout(() => { try { splash.remove(); } catch(e) {} }, 240);
+        setTimeout(() => { try { splash.remove(); } catch(e) {} }, 220);
       });
     }
   };
@@ -339,7 +350,7 @@ async function initApp() {
     window.__harpyPreloadPromise.finally(() => {
       dismissSplash();
     });
-    setTimeout(dismissSplash, 4000);
+    setTimeout(dismissSplash, 3800);
   } else {
     dismissSplash();
   }

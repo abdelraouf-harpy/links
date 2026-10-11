@@ -1457,3 +1457,10 @@ window.renderInvoicesArchive = function(orders = null) {
 
 window.playKitchenOrderChime = playKitchenOrderChime;
 window.showAdminOrderNotification = showAdminOrderNotification;
+
+// Instant Reactive Repaint on Store Orders Update Event
+window.addEventListener('store_orders_updated', (e) => {
+  const orders = (e && e.detail) ? e.detail : (typeof Store !== 'undefined' ? Store.getOrders() : null);
+  if (typeof window.renderOrdersList === 'function') window.renderOrdersList(orders);
+  if (typeof window.renderInvoicesArchive === 'function') window.renderInvoicesArchive(orders);
+});

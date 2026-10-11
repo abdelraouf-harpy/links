@@ -3770,3 +3770,45 @@ body.harpy-account-locked {
   from { opacity: 0; transform: translate(-50%, -46%) scale(0.92); }
   to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   HARPY: SKELETON PLACEHOLDER ENGINE (Zero Black Screen Reveal)
+   ═══════════════════════════════════════════════════════════ */
+.food-item-card.skeleton-card {
+  pointer-events: none !important;
+  cursor: default !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+.skeleton-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.09), transparent);
+  animation: skeletonShimmerAnim 1.4s infinite;
+}
+[data-theme="light"] .skeleton-shimmer {
+  background: rgba(0, 0, 0, 0.05) !important;
+}
+[data-theme="light"] .skeleton-shimmer::after {
+  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.06), transparent);
+}
+@keyframes skeletonShimmerAnim {
+  100% { transform: translateX(100%); }
+}
+.skeleton-line {
+  height: 14px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+.skeleton-btn {
+  height: 32px;
+  width: 70px;
+  border-radius: 18px;
+}
+

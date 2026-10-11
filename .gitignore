@@ -22,6 +22,7 @@ test_*.js
 *.test.js
 *.spec.js
 scratch/
+backups/
 temp_*
 *.tmp
 *.log

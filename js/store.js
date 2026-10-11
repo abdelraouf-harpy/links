@@ -436,29 +436,27 @@ const Store = {
       }
     }
 
-    // 3. Platform High-Speed Cloud Host for Authentic WebAPK Manifest URLs
-    if (compressedData && compressedData.startsWith('data:image')) {
+    // 3. Platform High-Speed Cloud Host via Cloudinary Unsigned Preset
+    if (compressedData) {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 6500);
-        const base64Clean = compressedData.split(',')[1];
-        const form = new URLSearchParams();
-        form.append('key', '6d207e02198a847aa98d0a2a901485a5');
-        form.append('action', 'upload');
-        form.append('source', base64Clean);
+        const timeoutId = setTimeout(() => controller.abort(), 7000);
+        const formData = new FormData();
+        formData.append('file', compressedData);
+        formData.append('upload_preset', 'harpy_order');
 
-        const response = await fetch('https://freeimage.host/api/1/upload', {
+        const response = await fetch('https://api.cloudinary.com/v1_1/pq2pimug/image/upload', {
           method: 'POST',
-          body: form,
+          body: formData,
           signal: controller.signal
         });
         clearTimeout(timeoutId);
         const json = await response.json();
-        if (json && json.image && json.image.url) {
-          return json.image.url;
+        if (json && (json.secure_url || json.url)) {
+          return json.secure_url || json.url;
         }
       } catch (err) {
-        console.warn('[Store] Platform CDN image upload fallback:', err.message);
+        console.warn('[Store] Platform Cloudinary upload fallback:', err.message);
       }
     }
 
@@ -818,9 +816,31 @@ const Store = {
       console.warn("[Store] Cloud sync init error:", err);
     }
 
-    // 2. High-Speed REST Initial Accelerator (Decoupled Parallel Subpaths)
+    // 2. High-Speed REST Initial Accelerator (Reuses preload promise to eliminate redundant network fetches)
     (async () => {
       try {
+        let preloadData = null;
+        if (typeof window !== 'undefined' && window.__harpyPreloadPromise) {
+          try {
+            preloadData = await window.__harpyPreloadPromise;
+          } catch(e) {}
+        }
+
+        // If preload promise already supplied menu data, process it and skip duplicate network requests
+        if (preloadData && typeof preloadData === 'object' && (preloadData.settings || preloadData.products || preloadData.categories)) {
+          if (typeof window !== 'undefined' && window.__harpyStoriesPromise && !preloadData.stories) {
+            window.__harpyStoriesPromise.then(stories => {
+              if (stories && !isDestroyed) {
+                if (typeof currentAgg !== 'undefined') currentAgg.stories = stories;
+                processSnapshotData({ ...preloadData, stories });
+              }
+            }).catch(() => {});
+          }
+          processSnapshotData(preloadData);
+          return;
+        }
+
+        // Fallback: If preload was unavailable or failed, fetch REST directly
         const baseUrl = `https://harpy-order-default-rtdb.firebaseio.com/restaurants/${encodeURIComponent(slug)}`;
         const fOpt = { cache: 'no-store' };
         const [sRes, cRes, pRes, stRes] = await Promise.all([
@@ -1165,6 +1185,11 @@ const Store = {
 
     const setupWsListener = () => {
       if (!db || isDestroyed) return;
+      const currentUser = (window.firebase && firebase.auth && firebase.auth().currentUser) || null;
+      if (!currentUser) {
+        // Do not attach secured orders listener before Firebase Auth is ready to avoid PERMISSION_DENIED drop
+        return;
+      }
       if (ordersRef && wsCallback) {
         try { ordersRef.off('value', wsCallback); } catch(e) {}
       }
@@ -1175,6 +1200,16 @@ const Store = {
         };
         ordersRef.on('value', wsCallback, err => {
           console.warn("[Store] Orders WS listener notice:", err ? (err.message || err.code || err) : err);
+          if (err && (err.code === 'PERMISSION_DENIED' || String(err).includes('permission_denied'))) {
+            if (window.firebase && firebase.auth && firebase.auth().currentUser) {
+              firebase.auth().currentUser.getIdToken(true).then(() => {
+                if (!isDestroyed) {
+                  setupWsListener();
+                  fetchOrdersFast();
+                }
+              }).catch(() => {});
+            }
+          }
         });
         this.activeListeners.orders = { ref: ordersRef, callback: wsCallback };
       } catch (e) {
@@ -1182,7 +1217,49 @@ const Store = {
       }
     };
 
-    setupWsListener();
+    // 2. High-Frequency REST Heartbeat Pulse (Every 4.0 seconds fallback with token-aware burst)
+    const fetchOrdersFast = async () => {
+      if (isDestroyed) return;
+      try {
+        let authParam = '';
+        try {
+          if (window.firebase && firebase.auth && firebase.auth().currentUser) {
+            const idToken = await firebase.auth().currentUser.getIdToken();
+            if (idToken) authParam = `&auth=${encodeURIComponent(idToken)}`;
+          }
+        } catch(e) {}
+        if (!authParam) {
+          // Without an active auth token, secured RTDB orders endpoint will reject; avoid unnecessary 401 spam
+          return;
+        }
+        const res = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${encodeURIComponent(slug)}/orders.json?orderBy=%22%24key%22&limitToLast=100${authParam}`, {
+          cache: 'no-store'
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data && typeof data === 'object') {
+            console.log(`[Store Orders REST] Success: received ${Object.keys(data).length} orders for ${slug}`);
+            handleOrdersPayload(data);
+          }
+        } else {
+          console.warn(`[Store Orders REST] Failed: HTTP ${res.status} for ${slug}`);
+          if (res.status === 401 && window.firebase && firebase.auth && firebase.auth().currentUser) {
+            try {
+              await firebase.auth().currentUser.getIdToken(true);
+              setTimeout(() => { if (!isDestroyed) fetchOrdersFast(); }, 400);
+            } catch(e) {}
+          }
+        }
+      } catch (e) {
+        console.warn("[Store Orders REST] Exception:", e.message);
+      }
+    };
+
+    // If currentUser is already present, attach and fetch immediately
+    if (window.firebase && firebase.auth && firebase.auth().currentUser) {
+      setupWsListener();
+      fetchOrdersFast();
+    }
 
     // Dynamically re-bind WebSocket listener as soon as Firebase Auth state changes
     let authUnsubscribe = null;
@@ -1198,36 +1275,6 @@ const Store = {
       } catch(e) {}
     }
 
-    // 2. High-Frequency REST Heartbeat Pulse (Every 4.0 seconds fallback)
-    const fetchOrdersFast = async () => {
-      if (isDestroyed) return;
-      try {
-        let authParam = '';
-        try {
-          if (window.firebase && firebase.auth && firebase.auth().currentUser) {
-            const idToken = await firebase.auth().currentUser.getIdToken();
-            if (idToken) authParam = `&auth=${idToken}`;
-          }
-        } catch(e) {}
-        if (!authParam) {
-          // Without an active auth token, secured RTDB orders endpoint will reject; avoid unnecessary 401 spam
-          return;
-        }
-        const res = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders.json?orderBy="$key"&limitToLast=100${authParam}`, {
-          cache: 'no-store'
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (data && typeof data === 'object') {
-            handleOrdersPayload(data);
-          }
-        } else if (res.status === 401 && window.firebase && firebase.auth && firebase.auth().currentUser) {
-          try { await firebase.auth().currentUser.getIdToken(true); } catch(e) {}
-        }
-      } catch (e) {}
-    };
-
-    fetchOrdersFast();
     pollTimer = setInterval(fetchOrdersFast, 4000);
 
     return () => {

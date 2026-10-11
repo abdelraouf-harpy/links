@@ -245,13 +245,17 @@ function renderProducts(forceRebuild = false) {
     }
 
     if (sortedProds.length === 0) {
-      elements.productsContainer.innerHTML = `
-        <div class="empty-state" style="grid-column: 1 / -1; padding: 60px 20px;">
-          <svg class="empty-icon" viewBox="0 0 24 24" style="width:64px;height:64px;opacity:0.3;"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-          <div class="empty-title" style="font-size:1.1rem;">المنيو قيد الإعداد</div>
-          <p style="font-size:13px; color:var(--text-muted); max-width:260px; margin: 8px auto 0;">يقوم المطعم حالياً بإضافة قائمة الأصناف. ارجع قريباً!</p>
-        </div>
-      `;
+      if (typeof Store !== 'undefined' && Store.isCloudDataLoaded && !Store.isCloudDataLoaded()) {
+        elements.productsContainer.innerHTML = renderSkeletonCards(6);
+      } else {
+        elements.productsContainer.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1; padding: 60px 20px;">
+            <svg class="empty-icon" viewBox="0 0 24 24" style="width:64px;height:64px;opacity:0.3;"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            <div class="empty-title" style="font-size:1.1rem;">المنيو قيد الإعداد</div>
+            <p style="font-size:13px; color:var(--text-muted); max-width:260px; margin: 8px auto 0;">يقوم المطعم حالياً بإضافة قائمة الأصناف. ارجع قريباً!</p>
+          </div>
+        `;
+      }
     } else {
       elements.productsContainer.innerHTML = sortedProds.map((p, idx) => renderProductCard(p, currency, idx)).join('');
     }
@@ -680,7 +684,27 @@ function closeQuickPreview(triggerHistoryBack = true) {
   }
 }
 
+function renderSkeletonCards(count = 6) {
+  let html = '';
+  for (let i = 0; i < count; i++) {
+    html += `
+      <div class="food-item-card skeleton-card">
+        <div class="food-item-media skeleton-shimmer" style="height:150px; border-radius:14px 14px 0 0;"></div>
+        <div class="food-item-body" style="padding:14px;">
+          <div class="skeleton-line skeleton-shimmer" style="width:75%; height:15px;"></div>
+          <div class="skeleton-line skeleton-shimmer" style="width:45%; height:11px; margin-bottom:12px;"></div>
+          <div class="food-item-footer" style="margin-top:auto; display:flex; justify-content:space-between; align-items:center;">
+            <div class="skeleton-line skeleton-shimmer" style="width:55px; height:20px; margin-bottom:0;"></div>
+            <div class="skeleton-btn skeleton-shimmer"></div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  return html;
+}
 
+window.renderSkeletonCards = renderSkeletonCards;
 window.renderCategories = renderCategories;
 window.renderDiscoveryRibbon = renderDiscoveryRibbon;
 window.renderProducts = renderProducts;
