@@ -713,25 +713,18 @@ function renderStoreInfo() {
   const pCoverImg = document.getElementById('portfolio-cover-img');
   if (pCoverImg) pCoverImg.src = displayCover;
 
-  const pImmersiveBg = document.getElementById('portfolio-immersive-bg');
-  if (pImmersiveBg) {
-    pImmersiveBg.src = settings.portfolioHeroBg || displayCover || './assets/portfolio/order_restaurant_showcase.jpg';
-  }
-
-
   const pAboutText = document.getElementById('portfolio-about-text');
   if (pAboutText) {
-    pAboutText.textContent = settings.aboutText || settings.storeTagline || 'نقدم لكم أشهى وألذ المأكولات المحضرة يومياً بأعلى معايير الجودة والنظافة، بأيدي أمهر الطهاة لتستمتعوا بتجربة طعام استثنائية لا تُنسى.';
-  }
-
-  const pWorkingHours = document.getElementById('portfolio-working-hours');
-  if (pWorkingHours) {
-    pWorkingHours.textContent = settings.workingHours || 'يومياً من 11:00 صباحاً حتى 2:00 صباحاً';
+    pAboutText.textContent = settings.aboutText || settings.storeTagline || 'في مطعمنا بنقدملك طعم أصيل ووصفات مميزة بأجود المكونات وبدون أي تنازلات على الجودة. كل وجبة بتحكي قصة نكهة من قلب المطبخ.';
   }
 
   const pDeliveryTime = document.getElementById('portfolio-delivery-time');
   if (pDeliveryTime) {
     pDeliveryTime.textContent = displayDelivery;
+  }
+  const pDeliveryTimeBadge = document.getElementById('portfolio-delivery-time-badge');
+  if (pDeliveryTimeBadge) {
+    pDeliveryTimeBadge.textContent = displayDelivery;
   }
 
   const pAddressText = document.getElementById('portfolio-address-text');
@@ -752,29 +745,28 @@ function renderStoreInfo() {
 
   const rawPhone = settings.phone || settings.whatsappNumber || '';
   const pPhoneBtn = document.getElementById('portfolio-phone-btn');
-  const pPhoneText = document.getElementById('portfolio-phone-text');
   if (pPhoneBtn) {
     pPhoneBtn.href = rawPhone ? `tel:${rawPhone.replace(/\s+/g, '')}` : '#';
   }
-  if (pPhoneText && rawPhone) {
-    pPhoneText.textContent = `اتصال: ${rawPhone}`;
-  }
 
   // Bind Restaurant Social Media Channels (Facebook, Instagram, TikTok)
-  const pSocialWrap = document.getElementById('portfolio-social-wrap');
+  const pSocialBrandName = document.getElementById('portfolio-social-brand-name');
+  if (pSocialBrandName) pSocialBrandName.textContent = displayName;
+
+  const pSocialCard = document.getElementById('portfolio-social-card');
   const pFbBtn = document.getElementById('portfolio-social-fb');
   const pIgBtn = document.getElementById('portfolio-social-ig');
   const pTtBtn = document.getElementById('portfolio-social-tt');
 
-  let hasAnySocial = false;
   const cleanFb = (settings.facebookUrl || '').trim();
   if (pFbBtn) {
     if (cleanFb) {
       pFbBtn.href = cleanFb;
-      pFbBtn.style.display = 'inline-flex';
-      hasAnySocial = true;
+      pFbBtn.style.opacity = '1';
+      pFbBtn.style.pointerEvents = 'auto';
     } else {
-      pFbBtn.style.display = 'none';
+      pFbBtn.href = `https://www.facebook.com/search/top?q=${encodeURIComponent(displayName)}`;
+      pFbBtn.style.opacity = '0.75';
     }
   }
 
@@ -782,10 +774,11 @@ function renderStoreInfo() {
   if (pIgBtn) {
     if (cleanIg) {
       pIgBtn.href = cleanIg;
-      pIgBtn.style.display = 'inline-flex';
-      hasAnySocial = true;
+      pIgBtn.style.opacity = '1';
+      pIgBtn.style.pointerEvents = 'auto';
     } else {
-      pIgBtn.style.display = 'none';
+      pIgBtn.href = `https://www.instagram.com/explore/tags/${encodeURIComponent(displayName.replace(/\s+/g, ''))}`;
+      pIgBtn.style.opacity = '0.75';
     }
   }
 
@@ -793,15 +786,16 @@ function renderStoreInfo() {
   if (pTtBtn) {
     if (cleanTt) {
       pTtBtn.href = cleanTt;
-      pTtBtn.style.display = 'inline-flex';
-      hasAnySocial = true;
+      pTtBtn.style.opacity = '1';
+      pTtBtn.style.pointerEvents = 'auto';
     } else {
-      pTtBtn.style.display = 'none';
+      pTtBtn.href = `https://www.tiktok.com/search?q=${encodeURIComponent(displayName)}`;
+      pTtBtn.style.opacity = '0.75';
     }
   }
 
-  if (pSocialWrap) {
-    pSocialWrap.style.display = hasAnySocial ? 'block' : 'none';
+  if (pSocialCard) {
+    pSocialCard.style.display = 'block';
   }
 
   // Update PWA install banner & branding with restaurant name & logo

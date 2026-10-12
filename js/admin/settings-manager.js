@@ -30,16 +30,6 @@ function setupSettingsForm() {
     directUrlInputId: 'set-cover-url-direct'
   });
 
-  portfolioBgImageUploader = bindDeviceImageUploader({
-    dropzoneId: 'portfolio-bg-dropzone',
-    fileInputId: 'set-portfolio-bg-file',
-    promptId: 'portfolio-bg-prompt',
-    previewWrapId: 'portfolio-bg-preview-wrap',
-    previewImgId: 'portfolio-bg-preview-img',
-    removeBtnId: 'btn-remove-portfolio-bg',
-    hiddenUrlInputId: 'set-portfolio-bg-url',
-    directUrlInputId: 'set-portfolio-bg-url-direct'
-  });
 
   if (adminElements.themePresetsGrid) {
     adminElements.themePresetsGrid.innerHTML = Object.values(THEME_PRESETS).map(preset => `
@@ -234,15 +224,6 @@ function loadSettingsIntoForm() {
     else coverImageUploader.clearPreview();
   }
 
-  const pBgInput = document.getElementById('set-portfolio-bg-url');
-  if (pBgInput) pBgInput.value = s.portfolioHeroBg || '';
-  const pBgDirectInput = document.getElementById('set-portfolio-bg-url-direct');
-  if (pBgDirectInput) pBgDirectInput.value = (s.portfolioHeroBg && s.portfolioHeroBg.startsWith('http')) ? s.portfolioHeroBg : '';
-  if (portfolioBgImageUploader) {
-    if (s.portfolioHeroBg) portfolioBgImageUploader.showPreview(s.portfolioHeroBg);
-    else portfolioBgImageUploader.clearPreview();
-  }
-
   if (adminElements.setEnableWalletDiscount) adminElements.setEnableWalletDiscount.checked = s.enableWalletDiscount !== false;
   if (adminElements.setWalletDiscountType) adminElements.setWalletDiscountType.value = s.walletDiscountType || 'percent';
   if (adminElements.setWalletDiscountVal) adminElements.setWalletDiscountVal.value = s.walletDiscountValue !== undefined ? s.walletDiscountValue : 10;
@@ -260,8 +241,6 @@ function loadSettingsIntoForm() {
 
   const aboutInput = document.getElementById('set-about-text');
   if (aboutInput) aboutInput.value = s.aboutText || '';
-  const hoursInput = document.getElementById('set-working-hours');
-  if (hoursInput) hoursInput.value = s.workingHours || '';
   const phoneInput = document.getElementById('set-phone');
   if (phoneInput) phoneInput.value = s.phone || '';
   const addrInput = document.getElementById('set-address');
@@ -381,11 +360,6 @@ async function saveSettingsFromForm() {
       }
     }
 
-    let cleanPortfolioBg = (document.getElementById('set-portfolio-bg-url')?.value || '').trim();
-    if (!cleanPortfolioBg && document.getElementById('set-portfolio-bg-url-direct')) {
-      cleanPortfolioBg = (document.getElementById('set-portfolio-bg-url-direct').value || '').trim();
-    }
-
     const updated = {
       ...current,
       storeName: (adminElements.setStoreName?.value || '').trim(),
@@ -396,17 +370,15 @@ async function saveSettingsFromForm() {
       walletName: (adminElements.setWalletName?.value || '').trim(),
       logo: cleanLogo,
       cover: (document.getElementById('set-cover-url')?.value || '').trim(),
-      portfolioHeroBg: cleanPortfolioBg,
       imgbbApiKey: current.imgbbApiKey || '',
 
-      deliveryTime: (adminElements.setDeliveryTime?.value || '').trim() || '30-45 دقيقة',
+      deliveryTime: (adminElements.setDeliveryTime?.value || '').trim() || '25 - 35 دقيقة',
       showAnnouncement: adminElements.setShowAnnouncement?.checked === true,
       announcementText: (adminElements.setAnnouncementText?.value || '').trim(),
       isOrderingPaused: adminElements.setOrderingPaused?.checked === true,
       orderingPausedMessage: (adminElements.setOrderingPausedMsg?.value || '').trim(),
 
       aboutText: (document.getElementById('set-about-text')?.value || '').trim(),
-      workingHours: (document.getElementById('set-working-hours')?.value || '').trim(),
       phone: (document.getElementById('set-phone')?.value || '').trim(),
       address: (document.getElementById('set-address')?.value || '').trim(),
       locationUrl: (document.getElementById('set-location-url')?.value || '').trim(),

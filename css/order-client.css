@@ -4828,387 +4828,627 @@ body.harpy-account-locked {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   1. CINEMATIC FULL-BLEED RESTAURANT PORTFOLIO (الرئيسية)
-   Seamless Immersive Visual Canvas (No Chunky Box Clutter)
+   1. RESTAURANT PORTFOLIO SCREEN (الرئيسية) - CLEAN CARD DESIGN
+   Strictly matched with mobile mockup (Cover Hero + Metric Cards)
    ═══════════════════════════════════════════════════════════ */
-.portfolio-immersive-hero {
-  position: relative;
-  width: 100%;
-  min-height: calc(100vh - 72px);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  overflow: hidden;
+.portfolio-screen-container {
+  background: #F8F6F2;
+  min-height: calc(100vh - 65px);
+  padding-bottom: 96px;
   direction: rtl;
   box-sizing: border-box;
+  overflow-x: hidden;
 }
 
-.portfolio-immersive-bg {
-  position: absolute;
-  inset: 0;
+/* ── Hero Cover Banner ─────────────────────────────────── */
+.portfolio-hero-banner {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+}
+
+.portfolio-cover-photo {
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center;
-  z-index: 0;
-  filter: brightness(0.85);
-  transform: scale(1.02);
-  transition: transform 6s ease-out;
+  display: block;
 }
 
-.portfolio-immersive-scrim {
+.portfolio-cover-scrim {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(7, 11, 19, 0.42) 0%, rgba(7, 11, 19, 0.72) 48%, rgba(7, 11, 19, 0.96) 100%);
-  z-index: 1;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.1) 40%, rgba(0, 0, 0, 0.85) 100%);
+  pointer-events: none;
 }
 
-.portfolio-immersive-content {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: calc(100vh - 72px);
-  padding: 22px 18px 24px 18px;
-  box-sizing: border-box;
-  max-width: 620px;
-  margin: 0 auto;
-  width: 100%;
+.portfolio-top-bar {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 10;
 }
 
-.portfolio-floating-brand {
+.portfolio-back-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(18, 18, 18, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #FFFFFF;
   display: flex;
   align-items: center;
-  gap: 14px;
-  background: linear-gradient(135deg, rgba(26, 34, 52, 0.88) 0%, rgba(13, 19, 32, 0.94) 100%);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 22px;
-  padding: 12px 16px;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.18);
-  position: relative;
-  overflow: hidden;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
-.portfolio-floating-brand::before {
-  content: '';
+.portfolio-back-btn:hover {
+  background: rgba(18, 18, 18, 0.85);
+  transform: scale(1.06);
+}
+
+/* ── Hero Identity Wrap (Logo + Store Name + Live Status Pill) ── */
+.portfolio-hero-brand-wrap {
   position: absolute;
-  top: -40%;
-  right: -10%;
-  width: 140px;
-  height: 140px;
-  background: radial-gradient(circle, rgba(255, 106, 0, 0.32) 0%, transparent 70%);
-  pointer-events: none;
-  filter: blur(12px);
+  bottom: 14px;
+  right: 16px;
+  left: 16px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.portfolio-avatar-glass {
-  position: relative;
-  width: 58px;
-  height: 58px;
-  min-width: 58px;
-  border-radius: 18px;
+.portfolio-hero-logo-box {
+  width: 64px;
+  height: 64px;
+  min-width: 64px;
+  border-radius: 50%;
+  border: 2.5px solid #EA580C;
+  background: #111827;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
   overflow: hidden;
-  border: 2px solid #FF7A00;
-  background: #0E1726;
-  flex-shrink: 0;
-  box-shadow: 0 4px 16px rgba(255, 122, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.portfolio-avatar-img {
+.portfolio-hero-logo-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
 
-.portfolio-brand-text {
-  flex: 1;
-  min-width: 0;
-  position: relative;
-  z-index: 1;
+.portfolio-hero-name-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.portfolio-hero-title {
-  font-size: 1.35rem;
+.portfolio-hero-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.portfolio-hero-store-name {
+  font-size: 1.45rem;
   font-weight: 900;
   color: #FFFFFF;
-  margin: 0 0 3px 0;
+  margin: 0;
   line-height: 1.2;
-  letter-spacing: -0.3px;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.75);
+}
+
+.portfolio-hero-flame-icon {
+  font-size: 1.2rem;
+  line-height: 1;
 }
 
 .portfolio-live-chip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 2px 10px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 800;
-  background: rgba(34, 197, 94, 0.22);
-  color: #4ade80;
-  border: 1px solid rgba(34, 197, 94, 0.38);
-}
-
-.portfolio-live-chip.closed {
-  background: rgba(239, 68, 68, 0.22);
-  color: #f87171;
-  border-color: rgba(239, 68, 68, 0.38);
-}
-
-/* ── Portfolio Story Luxury Glass Card ─────────────────── */
-.portfolio-story-card {
-  background: rgba(14, 21, 35, 0.78);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 20px;
-  padding: 14px 18px;
-  margin: 12px 0;
-  text-align: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-}
-
-.story-card-header {
-  margin-bottom: 6px;
-}
-
-.story-tag-pill {
-  display: inline-block;
-  background: rgba(255, 106, 0, 0.16);
-  border: 1px solid rgba(255, 106, 0, 0.35);
-  color: #FF8A00;
-  padding: 2px 10px;
+  padding: 3px 12px;
   border-radius: 999px;
   font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0.3px;
+  background: #059669;
+  color: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.4);
+  width: fit-content;
 }
 
-.portfolio-hero-subtitle {
+.portfolio-live-chip.closed {
+  background: #DC2626;
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.4);
+}
+
+.portfolio-live-chip .status-pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  display: inline-block;
+}
+
+/* ── Scrollable Sheet Content & Common Cards ───────────── */
+.portfolio-sheet-content {
+  max-width: 540px;
+  margin: 0 auto;
+  padding: 12px 14px 24px 14px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.portfolio-card {
+  background: #FFFFFF;
+  border-radius: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  padding: 14px 16px;
+  box-sizing: border-box;
+}
+
+/* ── Card 1: Tagline & Quick Stats ─────────────────────── */
+.portfolio-tagline-card {
+  padding: 16px 18px;
+}
+
+.portfolio-tagline-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.portfolio-card-tagline {
   font-size: 1.05rem;
   font-weight: 800;
-  color: #FFFFFF;
-  margin: 0 0 6px 0;
-  line-height: 1.35;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.7);
+  color: #1F2937;
+  margin: 0;
+  line-height: 1.4;
 }
 
-.portfolio-hero-story {
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.86);
-  line-height: 1.6;
-  margin: 0 auto;
-  max-width: 480px;
-  max-height: 92px;
-  overflow-y: auto;
-  text-shadow: 0 1px 5px rgba(0,0,0,0.6);
+.portfolio-tagline-icon-badge {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 50%;
+  background: #FFF1E8;
+  color: #EA580C;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* ── 3 Micro-Badges (Vibrant High-End Gradients) ───────── */
-.portfolio-glass-badges {
+.portfolio-tagline-stats-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid #F3F1EC;
+  padding-top: 12px;
+}
+
+.portfolio-quick-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 3px;
+}
+
+.portfolio-tagline-stats-row .portfolio-quick-stat-item:first-child {
+  border-left: 1px solid #F3F1EC;
+}
+
+.stat-top-val {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 900;
+  font-size: 1.05rem;
+  color: #111827;
+}
+
+.stat-sub-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6B7280;
+}
+
+/* ── Card 2: "عن المطعم" Story ─────────────────────────── */
+.portfolio-about-card {
+  padding: 16px 18px;
+}
+
+.portfolio-card-heading-group {
+  margin-bottom: 8px;
+}
+
+.portfolio-card-title {
+  font-size: 1.12rem;
+  font-weight: 800;
+  color: #111827;
+  margin: 0 0 5px 0;
+}
+
+.portfolio-title-bar {
+  display: block;
+  width: 34px;
+  height: 3.5px;
+  background: #EA580C;
+  border-radius: 2px;
+}
+
+.portfolio-about-desc {
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: #4B5563;
+  margin: 0;
+  text-align: justify;
+}
+
+/* ── Card 3: 3 Highlight Chips ─────────────────────────── */
+.portfolio-triple-highlights-card {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-bottom: 14px;
+  gap: 6px;
+  padding: 14px 8px;
+  text-align: center;
 }
 
-.glass-badge-item {
-  border-radius: 16px;
-  padding: 10px 6px;
-  text-align: center;
+.portfolio-highlight-col {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 3px;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
-  transition: transform 0.2s ease;
 }
 
-.glass-badge-item:hover {
-  transform: translateY(-2px);
+.portfolio-highlight-col:not(:last-child) {
+  border-left: 1px solid #F3F1EC;
 }
 
-.glass-badge-item.badge-rating {
-  background: linear-gradient(145deg, rgba(245, 158, 11, 0.18) 0%, rgba(15, 23, 42, 0.86) 100%);
-  border: 1px solid rgba(245, 158, 11, 0.38);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 12px rgba(245, 158, 11, 0.12);
-}
-.glass-badge-item.badge-rating .badge-icon {
-  color: #F59E0B;
-}
-
-.glass-badge-item.badge-speed {
-  background: linear-gradient(145deg, rgba(16, 185, 129, 0.18) 0%, rgba(15, 23, 42, 0.86) 100%);
-  border: 1px solid rgba(16, 185, 129, 0.38);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 12px rgba(16, 185, 129, 0.12);
-}
-.glass-badge-item.badge-speed .badge-icon {
-  color: #10B981;
-}
-
-.glass-badge-item.badge-quality {
-  background: linear-gradient(145deg, rgba(255, 106, 0, 0.18) 0%, rgba(15, 23, 42, 0.86) 100%);
-  border: 1px solid rgba(255, 106, 0, 0.38);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 12px rgba(255, 106, 0, 0.12);
-}
-.glass-badge-item.badge-quality .badge-icon {
-  color: #FF6A00;
-}
-
-.glass-badge-item .badge-icon {
-  font-size: 18px;
+.highlight-circle-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #FFF1E8;
+  color: #EA580C;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 3px;
 }
 
-.glass-badge-item .badge-val {
-  font-size: 13px;
-  font-weight: 900;
-  color: #FFFFFF;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
-}
-
-.glass-badge-item .badge-label {
-  font-size: 10px;
-  color: rgba(255, 255, 255, 0.78);
-  font-weight: 700;
-}
-
-/* ── Contact & Action Floating Pills ──────────────────── */
-.portfolio-quick-pills {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 12px;
-}
-
-.portfolio-pill-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #FFFFFF;
-  padding: 8px 14px;
-  border-radius: 20px;
+.highlight-title {
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 800;
+  color: #1F2937;
+}
+
+.highlight-sub {
+  font-size: 10px;
+  font-weight: 600;
+  color: #6B7280;
+  line-height: 1.25;
+}
+
+/* ── Card 4: Action Buttons (اتصال & واتساب) ────────────── */
+.portfolio-actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.portfolio-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-radius: 16px;
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.portfolio-pill-link.wa-pill {
-  background: rgba(34, 197, 94, 0.22);
-  border-color: rgba(34, 197, 94, 0.45);
-  color: #4ade80;
-}
-
-.portfolio-pill-link:hover {
+.portfolio-action-btn:hover {
   transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.2);
 }
 
-/* ── Social Media Channels Bar ────────────────────────── */
-.portfolio-social-wrap {
-  background: rgba(14, 21, 35, 0.65);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 18px;
-  padding: 8px 12px;
-  margin-bottom: 14px;
+.btn-call {
+  flex-direction: row-reverse;
+  background: #D9531E;
+  color: #FFFFFF;
+  box-shadow: 0 4px 14px rgba(217, 83, 30, 0.35);
 }
 
-.portfolio-social-pills {
+.btn-call .action-btn-main {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
+.btn-call .action-btn-sub {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.btn-call .action-btn-icon-wrap {
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+}
+
+.btn-whatsapp {
+  flex-direction: row;
+  background: #FFFFFF;
+  border: 1.5px solid #10B981;
+  color: #1F2937;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.12);
+}
+
+.btn-whatsapp .action-btn-main {
+  font-size: 0.96rem;
+  font-weight: 800;
+  color: #065F46;
+}
+
+.btn-whatsapp .action-btn-sub {
+  font-size: 10px;
+  font-weight: 600;
+  color: #6B7280;
+}
+
+.btn-whatsapp .wa-icon-wrap {
+  color: #10B981;
+  display: flex;
+  align-items: center;
+}
+
+.action-btn-text-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ── Card 5: Location Card ─────────────────────────────── */
+.portfolio-location-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.portfolio-location-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+.location-right-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.location-pin-icon {
+  color: #1F2937;
+  display: flex;
+  align-items: center;
+}
+
+.location-address-name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #1F2937;
+}
+
+.location-left-arrow {
+  color: #9CA3AF;
+  display: flex;
+  align-items: center;
+}
+
+/* ── Card 6: Follow us on Social Media ─────────────────── */
+.portfolio-social-box {
+  padding: 16px 14px 18px 14px;
+  text-align: center;
+}
+
+.social-box-header {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
-.portfolio-social-btn {
-  display: inline-flex;
+.social-decor-line {
+  height: 1.5px;
+  width: 40px;
+  background: #D1D5DB;
+}
+
+.social-header-title {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #1F2937;
+}
+
+.social-round-buttons-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+}
+
+.social-round-btn-item {
+  display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 6px;
-  padding: 6px 14px;
-  border-radius: 999px;
-  font-size: 11.5px;
-  font-weight: 800;
   text-decoration: none;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  color: inherit;
+  transition: transform 0.2s;
 }
 
-.portfolio-social-btn svg {
-  width: 15px;
-  height: 15px;
+.social-round-btn-item:hover {
+  transform: translateY(-3px);
 }
 
-.portfolio-social-btn:hover {
-  transform: translateY(-2px);
+.social-round-circle {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #F3ECE6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1F2937;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
 }
 
-.portfolio-social-btn.fb-btn {
-  background: rgba(24, 119, 242, 0.22);
-  border: 1px solid rgba(24, 119, 242, 0.48);
-  color: #60A5FA;
-  box-shadow: 0 4px 12px rgba(24, 119, 242, 0.2);
-}
-
-.portfolio-social-btn.ig-btn {
-  background: linear-gradient(135deg, rgba(240, 148, 51, 0.22) 0%, rgba(225, 48, 108, 0.22) 100%);
-  border: 1px solid rgba(225, 48, 108, 0.48);
-  color: #F472B6;
-  box-shadow: 0 4px 12px rgba(225, 48, 108, 0.2);
-}
-
-.portfolio-social-btn.tt-btn {
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.35);
+.fb-circle-btn:hover .social-round-circle {
+  background: #1877F2;
   color: #FFFFFF;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(24, 119, 242, 0.35);
 }
 
-/* ── CTA Button & Operating Hours ─────────────────────── */
-.btn-portfolio-enter {
+.ig-circle-btn:hover .social-round-circle {
+  background: linear-gradient(135deg, #F58529, #DD2A7B, #8134AF);
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(225, 48, 108, 0.35);
+}
+
+.tt-circle-btn:hover .social-round-circle {
+  background: #000000;
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.social-circle-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #4B5563;
+}
+
+/* ── Card 7: Bottom CTA Button ─────────────────────────── */
+.portfolio-big-cta-btn {
   width: 100%;
-  padding: 16px 22px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, #FF6A00 0%, #FF4500 100%);
+  padding: 14px 22px;
+  border-radius: 999px;
+  background: #D9531E;
   color: #FFFFFF;
   border: none;
-  font-size: 1.08rem;
-  font-weight: 900;
   cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
-  box-shadow: 0 10px 30px rgba(255, 106, 0, 0.48);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  justify-content: space-between;
+  box-shadow: 0 6px 20px rgba(217, 83, 30, 0.38);
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
 }
 
-.btn-portfolio-enter:hover {
+.portfolio-big-cta-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 36px rgba(255, 106, 0, 0.6);
+  box-shadow: 0 8px 24px rgba(217, 83, 30, 0.48);
+  background: #C84614;
 }
 
-.portfolio-hours-note {
+.portfolio-big-cta-btn:active {
+  transform: scale(0.98);
+}
+
+.cta-btn-icon {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.cta-btn-text {
+  flex: 1;
   text-align: center;
-  font-size: 11.5px;
-  color: rgba(255, 255, 255, 0.72);
-  margin-top: 10px;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.cta-btn-arrow {
+  font-size: 1.25rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+/* ── Dark Mode Adaptations for Portfolio ───────────────── */
+[data-theme="dark"] .portfolio-screen-container {
+  background: #0B0F17;
+}
+
+[data-theme="dark"] .portfolio-card {
+  background: #151D2A;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .portfolio-card-tagline,
+[data-theme="dark"] .portfolio-card-title,
+[data-theme="dark"] .stat-top-val,
+[data-theme="dark"] .highlight-title,
+[data-theme="dark"] .location-address-name,
+[data-theme="dark"] .social-header-title,
+[data-theme="dark"] .social-circle-label {
+  color: #F3F4F6;
+}
+
+[data-theme="dark"] .portfolio-about-desc,
+[data-theme="dark"] .stat-sub-label,
+[data-theme="dark"] .highlight-sub {
+  color: #9CA3AF;
+}
+
+[data-theme="dark"] .portfolio-tagline-icon-badge,
+[data-theme="dark"] .highlight-circle-icon {
+  background: rgba(232, 99, 38, 0.18);
+  color: #FB923C;
+}
+
+[data-theme="dark"] .portfolio-tagline-stats-row .portfolio-quick-stat-item:first-child,
+[data-theme="dark"] .portfolio-tagline-stats-row,
+[data-theme="dark"] .portfolio-highlight-col:not(:last-child) {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .btn-whatsapp {
+  background: #132220;
+  border-color: #059669;
+  color: #FFFFFF;
+}
+
+[data-theme="dark"] .btn-whatsapp .action-btn-main {
+  color: #34D399;
+}
+
+[data-theme="dark"] .btn-whatsapp .action-btn-sub {
+  color: #A7F3D0;
+}
+
+[data-theme="dark"] .social-round-circle {
+  background: #1E293B;
+  color: #F1F5F9;
+}
+
+[data-theme="dark"] .location-pin-icon {
+  color: #F3F4F6;
 }
 
 /* ═══════════════════════════════════════════════════════════

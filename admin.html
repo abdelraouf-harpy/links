@@ -41,9 +41,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Admin">
 
-  <link rel="stylesheet" href="css/order-tokens.css?v=78.0">
-  <link rel="stylesheet" href="css/order-client.css?v=78.0">
-  <link rel="stylesheet" href="css/order-admin.css?v=78.0">
+  <link rel="stylesheet" href="css/order-tokens.css?v=80.0">
+  <link rel="stylesheet" href="css/order-client.css?v=80.0">
+  <link rel="stylesheet" href="css/order-admin.css?v=80.0">
   <script>
     // Instant zero-delay theme toggle available immediately on page paint
     window.handleThemeToggle = function() {
@@ -918,15 +918,9 @@
               </div>
             </div>
 
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-bottom:16px;">
-              <div class="form-group" style="margin-bottom:0;">
-                <label class="form-label">مواعيد العمل والاستقبال</label>
-                <input type="text" id="set-working-hours" class="form-input" placeholder="يومياً من 11:00 صباحاً حتى 2:00 صباحاً">
-              </div>
-              <div class="form-group" style="margin-bottom:0;">
-                <label class="form-label">وقت التوصيل التقديري</label>
-                <input type="text" id="set-delivery-time" class="form-input" placeholder="مثال: 30-45 دقيقة">
-              </div>
+            <div class="form-group" style="margin-bottom:16px; max-width:340px;">
+              <label class="form-label">وقت التوصيل التقديري</label>
+              <input type="text" id="set-delivery-time" class="form-input" placeholder="مثال: 25 - 35 دقيقة">
             </div>
 
             <!-- Thermal Printer Paper Size -->
@@ -1125,40 +1119,19 @@
             </div>
           </div>
 
-          <!-- ── CARD 7: RESTAURANT STORY & PORTFOLIO HERO ───────── -->
+          <!-- ── CARD 7: RESTAURANT STORY ───────────────────────── -->
           <div class="admin-settings-card" style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:20px; margin-bottom:20px;">
             <div style="font-size:15px; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:8px; margin-bottom:6px;">
               <svg class="icon icon-sm" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              <span>7. قصة المطعم وصورة البورتفوليو</span>
+              <span>7. عن المطعم وقصتنا (تظهر في الرئيسية)</span>
             </div>
             <p style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">
-              تظهر هذه البيانات للعملاء في تبويب "الرئيسية" (البورتفوليو) لتعريف الزبائن بقصة المكان وتاريخه.
+              تظهر هذه النبذة التعريفية للعملاء في تبويب "الرئيسية" (البورتفوليو) لتعريف الزبائن بالمطعم وجودة المأكولات.
             </p>
 
-            <div class="form-group" style="margin-bottom:16px;">
+            <div class="form-group" style="margin-bottom:0;">
               <label class="form-label">عن المطعم وقصتنا (نبذة تعريفية)</label>
               <textarea id="set-about-text" class="form-input" rows="3" placeholder="نقدم لكم أشهى وألذ المأكولات المحضرة يومياً بأعلى معايير الجودة والنظافة..."></textarea>
-            </div>
-
-            <!-- Portfolio Hero Background Image Uploader -->
-            <div class="form-group" style="margin-bottom:0;">
-              <label class="form-label">صورة خلفية الصفحة الرئيسية (صورة بورتفوليو المطعم الكبيرة)</label>
-              <div class="device-image-uploader" id="portfolio-bg-dropzone">
-                <input type="file" id="set-portfolio-bg-file" accept="image/*" class="device-image-input">
-                <div class="device-image-prompt" id="portfolio-bg-prompt">
-                  <div class="device-image-icon">
-                    <svg class="icon" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.08-3.08a2 2 0 0 0-2.82 0L6 21"/></svg>
-                  </div>
-                  <div class="device-image-title">اختر صورة الخلفية من جهازك</div>
-                  <div class="device-image-sub">صورة أفقية واضحة للمطعم أو الأجواء (1920x1080 مستحسنة)</div>
-                </div>
-                <div class="device-image-preview" id="portfolio-bg-preview-wrap" style="display:none;">
-                  <img id="portfolio-bg-preview-img" src="" alt="معاينة الخلفية">
-                  <button type="button" class="btn-remove-image" id="btn-remove-portfolio-bg" title="حذف الصورة"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
-                </div>
-              </div>
-              <input type="hidden" id="set-portfolio-bg-url">
-              <input type="url" id="set-portfolio-bg-url-direct" class="form-input" placeholder="أو الصق رابط صورة الخلفية مباشرة (https://...)" style="margin-top:8px; font-size:12px; font-family:inherit;">
             </div>
           </div>
 
@@ -1690,19 +1663,19 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=79.0"></script>
-  <script src="js/core/sound-effects.js?v=79.0"></script>
-  <script src="js/store.js?v=79.0"></script>
-  <script src="js/admin/admin-core.js?v=79.0"></script>
-  <script src="js/admin/admin-auth.js?v=79.0"></script>
-  <script src="js/admin/kitchen-orders.js?v=79.0"></script>
-  <script src="js/admin/catalog-manager.js?v=79.0"></script>
-  <script src="js/admin/category-manager.js?v=79.0"></script>
-  <script src="js/admin/stories-manager.js?v=79.0"></script>
-  <script src="js/admin/backup-restore.js?v=79.0"></script>
-  <script src="js/admin/settings-manager.js?v=79.0"></script>
-  <script src="js/admin/pos-terminal.js?v=79.0"></script>
-  <script src="js/admin.js?v=79.0"></script>
-  <script src="js/pwa.js?v=79.0"></script>
+  <script src="js/core/demo-seed-data.js?v=80.0"></script>
+  <script src="js/core/sound-effects.js?v=80.0"></script>
+  <script src="js/store.js?v=80.0"></script>
+  <script src="js/admin/admin-core.js?v=80.0"></script>
+  <script src="js/admin/admin-auth.js?v=80.0"></script>
+  <script src="js/admin/kitchen-orders.js?v=80.0"></script>
+  <script src="js/admin/catalog-manager.js?v=80.0"></script>
+  <script src="js/admin/category-manager.js?v=80.0"></script>
+  <script src="js/admin/stories-manager.js?v=80.0"></script>
+  <script src="js/admin/backup-restore.js?v=80.0"></script>
+  <script src="js/admin/settings-manager.js?v=80.0"></script>
+  <script src="js/admin/pos-terminal.js?v=80.0"></script>
+  <script src="js/admin.js?v=80.0"></script>
+  <script src="js/pwa.js?v=80.0"></script>
 </body>
 </html>
