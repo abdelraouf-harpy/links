@@ -760,6 +760,50 @@ function renderStoreInfo() {
     pPhoneText.textContent = `اتصال: ${rawPhone}`;
   }
 
+  // Bind Restaurant Social Media Channels (Facebook, Instagram, TikTok)
+  const pSocialWrap = document.getElementById('portfolio-social-wrap');
+  const pFbBtn = document.getElementById('portfolio-social-fb');
+  const pIgBtn = document.getElementById('portfolio-social-ig');
+  const pTtBtn = document.getElementById('portfolio-social-tt');
+
+  let hasAnySocial = false;
+  const cleanFb = (settings.facebookUrl || '').trim();
+  if (pFbBtn) {
+    if (cleanFb) {
+      pFbBtn.href = cleanFb;
+      pFbBtn.style.display = 'inline-flex';
+      hasAnySocial = true;
+    } else {
+      pFbBtn.style.display = 'none';
+    }
+  }
+
+  const cleanIg = (settings.instagramUrl || '').trim();
+  if (pIgBtn) {
+    if (cleanIg) {
+      pIgBtn.href = cleanIg;
+      pIgBtn.style.display = 'inline-flex';
+      hasAnySocial = true;
+    } else {
+      pIgBtn.style.display = 'none';
+    }
+  }
+
+  const cleanTt = (settings.tiktokUrl || '').trim();
+  if (pTtBtn) {
+    if (cleanTt) {
+      pTtBtn.href = cleanTt;
+      pTtBtn.style.display = 'inline-flex';
+      hasAnySocial = true;
+    } else {
+      pTtBtn.style.display = 'none';
+    }
+  }
+
+  if (pSocialWrap) {
+    pSocialWrap.style.display = hasAnySocial ? 'block' : 'none';
+  }
+
   // Update PWA install banner & branding with restaurant name & logo
   if (typeof window.updatePwaBranding === 'function') {
     window.updatePwaBranding(settings);
@@ -1827,12 +1871,22 @@ function handleNavTabClick(tabId) {
     if (typeof SoundFX !== 'undefined' && SoundFX.playPop) SoundFX.playPop();
   }
 
+  // If navigating away from cart, ensure cart drawer closes immediately!
+  if (tabId !== 'cart') {
+    if (typeof window.closeCartDrawer === 'function') {
+      window.closeCartDrawer(false);
+    }
+  }
+
   if (tabId === 'home') {
     tabs.forEach(t => t.classList.remove('active'));
     const clickedTab = document.getElementById('nav-tab-home');
     if (clickedTab) clickedTab.classList.add('active');
     switchAppView(viewHome);
   } else if (tabId === 'cart') {
+    tabs.forEach(t => t.classList.remove('active'));
+    const clickedTab = document.getElementById('nav-tab-cart');
+    if (clickedTab) clickedTab.classList.add('active');
     if (typeof openCartDrawer === 'function') {
       openCartDrawer();
     }

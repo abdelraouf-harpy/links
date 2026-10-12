@@ -165,7 +165,10 @@ const DEFAULT_SETTINGS = (typeof window !== 'undefined' && window.HARPY_DEMO_SEE
       workingHours: "يومياً من 11:00 صباحاً حتى 2:00 صباحاً",
       address: "خدمة التوصيل والاستلام متوفرة",
       phone: "01019971508",
-      locationUrl: "https://maps.google.com"
+      locationUrl: "https://maps.google.com",
+      facebookUrl: "",
+      instagramUrl: "",
+      tiktokUrl: ""
     };
 const BLANK_SETTINGS = {
   storeName: "",
@@ -177,6 +180,9 @@ const BLANK_SETTINGS = {
   logo: "",
   cover: "",
   imgbbApiKey: "",
+  facebookUrl: "",
+  instagramUrl: "",
+  tiktokUrl: "",
   
   themePreset: "cream",
   siteColors: {

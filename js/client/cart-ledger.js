@@ -475,6 +475,12 @@ window.openCartDrawer = function() {
   if (elements.cartDrawer) elements.cartDrawer.classList.add('open');
   if (elements.cartDrawerBackdrop) elements.cartDrawerBackdrop.classList.add('open');
 
+  // Highlight cart tab in bottom bar
+  const navTabs = document.querySelectorAll('.bottom-nav-bar .nav-tab-btn');
+  navTabs.forEach(t => t.classList.remove('active'));
+  const navCartTab = document.getElementById('nav-tab-cart');
+  if (navCartTab) navCartTab.classList.add('active');
+
   // Pre-fill profile if available
   const profile = (typeof window.getCustomerProfile === 'function') ? window.getCustomerProfile() : null;
   if (profile) {
@@ -494,6 +500,23 @@ window.closeCartDrawer = function(triggerHistoryBack = true) {
   if (elements.cartDrawerBackdrop) elements.cartDrawerBackdrop.classList.remove('open');
   if (triggerHistoryBack && window.history.state && window.history.state.harpyNav && window.history.state.harpyNav.startsWith('cart_step')) {
     try { history.back(); } catch(e) {}
+  }
+
+  // Restore active highlight to currently visible app view tab
+  const viewHome = document.getElementById('view-portfolio');
+  const viewMenu = document.getElementById('view-menu');
+  const viewOrders = document.getElementById('view-orders');
+  const viewAccount = document.getElementById('view-account');
+  const navTabs = document.querySelectorAll('.bottom-nav-bar .nav-tab-btn');
+  navTabs.forEach(t => t.classList.remove('active'));
+  if (viewHome && viewHome.style.display !== 'none') {
+    document.getElementById('nav-tab-home')?.classList.add('active');
+  } else if (viewOrders && viewOrders.style.display !== 'none') {
+    document.getElementById('nav-tab-orders')?.classList.add('active');
+  } else if (viewAccount && viewAccount.style.display !== 'none') {
+    document.getElementById('nav-tab-account')?.classList.add('active');
+  } else {
+    document.getElementById('nav-tab-menu')?.classList.add('active');
   }
 };
 

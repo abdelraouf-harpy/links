@@ -269,6 +269,13 @@ function loadSettingsIntoForm() {
   const locInput = document.getElementById('set-location-url');
   if (locInput) locInput.value = s.locationUrl || '';
 
+  const fbInput = document.getElementById('set-facebook-url');
+  if (fbInput) fbInput.value = s.facebookUrl || '';
+  const igInput = document.getElementById('set-instagram-url');
+  if (igInput) igInput.value = s.instagramUrl || '';
+  const ttInput = document.getElementById('set-tiktok-url');
+  if (ttInput) ttInput.value = s.tiktokUrl || '';
+
   const ds = s.deliverySettings || { defaultFee: (s.deliveryFee !== undefined ? s.deliveryFee : 15), customZones: [] };
   if (adminElements.setDefaultDeliveryFee) {
     adminElements.setDefaultDeliveryFee.value = ds.defaultFee !== undefined ? ds.defaultFee : 15;
@@ -403,6 +410,9 @@ async function saveSettingsFromForm() {
       phone: (document.getElementById('set-phone')?.value || '').trim(),
       address: (document.getElementById('set-address')?.value || '').trim(),
       locationUrl: (document.getElementById('set-location-url')?.value || '').trim(),
+      facebookUrl: (document.getElementById('set-facebook-url')?.value || '').trim(),
+      instagramUrl: (document.getElementById('set-instagram-url')?.value || '').trim(),
+      tiktokUrl: (document.getElementById('set-tiktok-url')?.value || '').trim(),
 
       themePreset: activePresetId,
       siteColors: siteColors,

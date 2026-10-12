@@ -56,7 +56,10 @@ const DEFAULT_SETTINGS = {
   workingHours: "يومياً من 11:00 صباحاً حتى 2:00 صباحاً",
   address: "فرع الرئيسي — خدمة التوصيل والاستلام متوفرة",
   phone: "01019971508",
-  locationUrl: "https://maps.google.com"
+  locationUrl: "https://maps.google.com",
+  facebookUrl: "",
+  instagramUrl: "",
+  tiktokUrl: ""
 };
 
 
