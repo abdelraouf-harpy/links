@@ -256,8 +256,16 @@ const Store = {
   _isCloudDataLoaded: false,
   isCloudDataLoaded() {
     if (this._isCloudDataLoaded) return true;
-    const s = (this._memoryCache && this._memoryCache.settings) || (this.getSettings ? this.getSettings() : null);
-    if (s && s.storeName) return true;
+    const prods = (this._memoryCache && this._memoryCache.products) || null;
+    if (Array.isArray(prods) && prods.length > 0) return true;
+    const slug = this.getRestaurantSlug();
+    const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.PRODUCTS)) || (slug ? (localStorage.getItem(`harpy_${slug}_products`) || localStorage.getItem('harpy_products')) : null);
+    if (raw) {
+      try {
+        const p = JSON.parse(raw);
+        if (Array.isArray(p) && p.length > 0) return true;
+      } catch(e) {}
+    }
     return false;
   },
   setCloudDataLoaded(val = true) {
@@ -842,7 +850,10 @@ const Store = {
         let preloadData = null;
         if (typeof window !== 'undefined' && window.__harpyPreloadPromise) {
           try {
-            preloadData = await window.__harpyPreloadPromise;
+            preloadData = await Promise.race([
+              window.__harpyPreloadPromise,
+              new Promise(r => setTimeout(() => r(null), 2500))
+            ]);
           } catch(e) {}
         }
 
@@ -860,14 +871,20 @@ const Store = {
           return;
         }
 
-        // Fallback: If preload was unavailable or failed, fetch REST directly
+        // Fallback: If preload was unavailable or failed, fetch REST directly with strict 3.2s timeout
         const baseUrl = `https://harpy-order-default-rtdb.firebaseio.com/restaurants/${encodeURIComponent(slug)}`;
-        const fOpt = { cache: 'no-store' };
+        const fetchRestWithTimeout = (endpointUrl) => {
+          const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+          const tid = ctrl ? setTimeout(() => { try { ctrl.abort(); } catch(e){} }, 3200) : null;
+          return fetch(endpointUrl, { cache: 'no-store', signal: ctrl ? ctrl.signal : undefined })
+            .finally(() => { if (tid) clearTimeout(tid); })
+            .catch(() => null);
+        };
         const [sRes, cRes, pRes, stRes] = await Promise.all([
-          fetch(`${baseUrl}/settings.json`, fOpt).catch(() => null),
-          fetch(`${baseUrl}/categories.json`, fOpt).catch(() => null),
-          fetch(`${baseUrl}/products.json`, fOpt).catch(() => null),
-          fetch(`${baseUrl}/stories.json`, fOpt).catch(() => null)
+          fetchRestWithTimeout(`${baseUrl}/settings.json`),
+          fetchRestWithTimeout(`${baseUrl}/categories.json`),
+          fetchRestWithTimeout(`${baseUrl}/products.json`),
+          fetchRestWithTimeout(`${baseUrl}/stories.json`)
         ]);
 
         let settings = sRes && sRes.ok ? await sRes.json().catch(() => null) : null;
@@ -1016,6 +1033,10 @@ const Store = {
         keepalive: true
       }).catch(() => {});
     } catch(e) {}
+  },
+
+  recordDeletedOrderId(slug = null, orderId) {
+    return this.addDeletedOrderId(slug, orderId);
   },
 
   getOrders(forceRefresh = false) {
@@ -2094,7 +2115,8 @@ const Store = {
   },
 
   getCategories() {
-    const isDemo = (this.getRestaurantSlug() === 'demo');
+    const slug = this.getRestaurantSlug();
+    const isDemo = (slug === 'demo');
     const defaultCategories = isDemo ? DEFAULT_CATEGORIES : [];
     if (this._memoryCache.categories !== null) {
       if (isDemo && (!this._memoryCache.categories || this._memoryCache.categories.length === 0)) {
@@ -2102,9 +2124,14 @@ const Store = {
       }
       return this._memoryCache.categories;
     }
-    const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.CATEGORIES));
+    let raw = localStorage.getItem(this.getKey(STORAGE_KEYS.CATEGORIES));
+    if (!raw && slug) {
+      raw = localStorage.getItem(`harpy_${slug}_categories`) || localStorage.getItem('harpy_categories');
+    }
     if (!raw) {
-      this._memoryCache.categories = defaultCategories;
+      if (isDemo) {
+        this._memoryCache.categories = defaultCategories;
+      }
       return defaultCategories;
     }
     try {
@@ -2118,7 +2145,7 @@ const Store = {
       return res;
     } catch {
       const cleanDefaults = defaultCategories.map(c => this.stripEmojiNoise(typeof c === 'string' ? c : (c?.name || ''))).filter(Boolean);
-      this._memoryCache.categories = cleanDefaults;
+      if (isDemo) this._memoryCache.categories = cleanDefaults;
       return cleanDefaults;
     }
   },
@@ -2137,7 +2164,8 @@ const Store = {
   },
 
   getProducts() {
-    const isDemo = (this.getRestaurantSlug() === 'demo');
+    const slug = this.getRestaurantSlug();
+    const isDemo = (slug === 'demo');
     const defaultProducts = isDemo ? DEFAULT_PRODUCTS : [];
     if (this._memoryCache.products !== null) {
       if (isDemo && (!this._memoryCache.products || this._memoryCache.products.length === 0)) {
@@ -2145,9 +2173,14 @@ const Store = {
       }
       return this._memoryCache.products;
     }
-    const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.PRODUCTS));
+    let raw = localStorage.getItem(this.getKey(STORAGE_KEYS.PRODUCTS));
+    if (!raw && slug) {
+      raw = localStorage.getItem(`harpy_${slug}_products`) || localStorage.getItem('harpy_products');
+    }
     if (!raw) {
-      this._memoryCache.products = defaultProducts;
+      if (isDemo) {
+        this._memoryCache.products = defaultProducts;
+      }
       return defaultProducts;
     }
     try {
@@ -2166,7 +2199,7 @@ const Store = {
       this._memoryCache.products = res;
       return res;
     } catch {
-      this._memoryCache.products = defaultProducts;
+      if (isDemo) this._memoryCache.products = defaultProducts;
       return defaultProducts;
     }
   },
@@ -2373,6 +2406,26 @@ const Store = {
     }
     const trimmed = history.slice(0, 20);
     this.safeSetItem(this.getKey('harpy_order_history'), JSON.stringify(trimmed));
+  },
+
+  removeOrderFromHistory(orderId) {
+    if (!orderId) return;
+    try {
+      const slug = this.getRestaurantSlug();
+      const cleanId = String(orderId).replace(/[^a-zA-Z0-9_-]/g, '');
+      const raw = localStorage.getItem(this.getKey('harpy_order_history')) || localStorage.getItem('harpy_order_history');
+      const history = raw ? JSON.parse(raw) : [];
+      if (Array.isArray(history)) {
+        const updated = history.filter(o => {
+          if (!o) return false;
+          const cid = String(o.orderId || o.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
+          return cid !== cleanId && o.orderId !== orderId && o.id !== orderId;
+        });
+        this.safeSetItem(this.getKey('harpy_order_history'), JSON.stringify(updated));
+        this.safeSetItem('harpy_order_history', JSON.stringify(updated));
+        this.safeSetItem('harpy_demo_harpy_order_history', JSON.stringify(updated));
+      }
+    } catch(e) {}
   },
 
   getThemeModeKey() {

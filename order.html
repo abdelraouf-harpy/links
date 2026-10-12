@@ -569,13 +569,26 @@
           }
         } catch(e) {}
 
-        // Preload critical menu data (Settings, Categories, Products) for instant paint
+        // Preload critical menu data (Settings, Categories, Products) with strict 3.2s timeout for weak network resilience
         var fbBase = 'https://harpy-order-default-rtdb.firebaseio.com/restaurants/' + encodeURIComponent(slug);
-        var fOpt = { cache: 'no-store' };
+        function fetchWithPreloadTimeout(url, timeoutMs) {
+          var ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+          var tId = ctrl ? setTimeout(function() { try { ctrl.abort(); } catch(e){} }, timeoutMs || 3200) : null;
+          var opt = { cache: 'no-store' };
+          if (ctrl) opt.signal = ctrl.signal;
+          return fetch(url, opt).then(function(r) {
+            if (tId) clearTimeout(tId);
+            return r.ok ? r.json() : null;
+          }).catch(function() {
+            if (tId) clearTimeout(tId);
+            return null;
+          });
+        }
+
         window.__harpyPreloadPromise = Promise.all([
-          fetch(fbBase + '/settings.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
-          fetch(fbBase + '/categories.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
-          fetch(fbBase + '/products.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; })
+          fetchWithPreloadTimeout(fbBase + '/settings.json', 3200),
+          fetchWithPreloadTimeout(fbBase + '/categories.json', 3200),
+          fetchWithPreloadTimeout(fbBase + '/products.json', 3200)
         ]).then(function(results) {
           var settings = results[0];
           var categories = results[1];
@@ -597,9 +610,7 @@
         }).catch(function() { return null; });
 
         // Non-blocking background stream for stories (Decoupled to never hold up the critical splash/menu reveal)
-        window.__harpyStoriesPromise = fetch(fbBase + '/stories.json', fOpt)
-          .then(function(r) { return r.ok ? r.json() : null; })
-          .catch(function() { return null; });
+        window.__harpyStoriesPromise = fetchWithPreloadTimeout(fbBase + '/stories.json', 3500);
       } catch(e) {}
 
       // Failsafe watchdog: Ensures splash shield never traps the page under any circumstance (3800ms benchmark)
@@ -1013,7 +1024,15 @@
             <span class="tracker-badge-live"><span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:#22c55e; margin-left:6px; box-shadow:0 0 8px #22c55e;"></span>طلبك قيد التنفيذ</span>
             <span class="tracker-id-num font-num" id="orders-active-id">#ORD-0000</span>
           </div>
-          <span class="tracker-type-pill" id="orders-active-type-pill">توصيل دليفري</span>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="tracker-type-pill" id="orders-active-type-pill">توصيل دليفري</span>
+            <button type="button" class="btn-cancel-active-order" id="btn-cancel-active-order" onclick="window.cancelActiveCustomerOrder && window.cancelActiveCustomerOrder()" title="إلغاء ومسح الطلب" aria-label="إلغاء ومسح الطلب">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
         </div>
 
         <!-- 4-Stage Stepper -->
@@ -2060,16 +2079,16 @@
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=88.0"></script>
-  <script src="js/core/sound-effects.js?v=88.0"></script>
-  <script src="js/store.js?v=88.0"></script>
-  <script src="js/client/client-core.js?v=88.0"></script>
-  <script src="js/client/menu-view.js?v=88.0"></script>
-  <script src="js/client/stories-viewer.js?v=88.0"></script>
-  <script src="js/client/customizer-modal.js?v=88.0"></script>
-  <script src="js/client/cart-ledger.js?v=88.0"></script>
-  <script src="js/client/order-tracking.js?v=88.0"></script>
-  <script src="js/app.js?v=88.0"></script>
-  <script src="js/pwa.js?v=88.0"></script>
+  <script src="js/core/demo-seed-data.js?v=89.0"></script>
+  <script src="js/core/sound-effects.js?v=89.0"></script>
+  <script src="js/store.js?v=89.0"></script>
+  <script src="js/client/client-core.js?v=89.0"></script>
+  <script src="js/client/menu-view.js?v=89.0"></script>
+  <script src="js/client/stories-viewer.js?v=89.0"></script>
+  <script src="js/client/customizer-modal.js?v=89.0"></script>
+  <script src="js/client/cart-ledger.js?v=89.0"></script>
+  <script src="js/client/order-tracking.js?v=89.0"></script>
+  <script src="js/app.js?v=89.0"></script>
+  <script src="js/pwa.js?v=89.0"></script>
 </body>
 </html>

@@ -401,6 +401,26 @@ async function initApp() {
 
   // 6. Setup Offline Outbox background queue & auto-retry engine
   setupOutboxSync();
+
+  // 7. Weak-network watchdog: If after 4200ms products container is still empty or displaying skeletons, provide friendly retry UI
+  setTimeout(() => {
+    const curP = Store.getProducts();
+    if (!curP || curP.length === 0) {
+      const isCloudReady = typeof Store !== 'undefined' && Store.isCloudDataLoaded && Store.isCloudDataLoaded();
+      if (!isCloudReady && elements.productsContainer) {
+        elements.productsContainer.innerHTML = `
+          <div class="weak-network-fallback-card" style="grid-column: 1 / -1; text-align: center; padding: 45px 20px; background: var(--surface-raised, rgba(255,255,255,0.03)); border: 1px dashed var(--border); border-radius: 16px; margin: 15px 0;">
+            <div style="font-size: 34px; margin-bottom: 12px; line-height: 1;">📶</div>
+            <h3 style="font-size: 1.05rem; margin-bottom: 6px; color: var(--text-main); font-weight:800;">الاتصال بالإنترنت ضعيف أو بطيء</h3>
+            <p style="font-size: 13px; color: var(--text-muted); max-width: 280px; margin: 0 auto 16px; line-height: 1.5;">جارٍ محاولة الاتصال وتحديث قائمة الطعام تلقائياً. يمكنك الضغط أدناه لإعادة المحاولة.</p>
+            <button type="button" class="btn btn-primary btn-sm" onclick="location.reload()" style="padding: 8px 22px; font-weight: 700; border-radius: 10px;">
+              تحديث القائمة
+            </button>
+          </div>
+        `;
+      }
+    }
+  }, 4200);
 }
 
 
@@ -1565,6 +1585,9 @@ function renderOrdersView() {
               <div style="display:flex; gap:6px; align-items:center;">
                 <span style="font-size:10.5px; padding:2px 7px; border-radius:6px; background:rgba(0,0,0,0.05); color:var(--text-muted); font-weight:700;">${fulfillmentBadge}</span>
                 <span style="font-size:10.5px; padding:2px 7px; border-radius:6px; background:rgba(34,197,94,0.12); color:${stColor}; font-weight:800;">${stBadge}</span>
+                <button type="button" class="btn-delete-history-order" onclick="window.deleteCustomerHistoryOrder && window.deleteCustomerHistoryOrder('${order.orderId}')" title="مسح الطلب من السجل" aria-label="مسح الطلب">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
               </div>
             </div>
             <p style="font-size:12px; color:var(--text-body); margin:6px 0 10px 0; line-height:1.4; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${itemsSummary}</p>
@@ -1582,6 +1605,65 @@ function renderOrdersView() {
     if (secPrevious) secPrevious.style.display = 'none';
   }
 }
+
+window.cancelActiveCustomerOrder = async function() {
+  const lastOrder = (typeof Store !== 'undefined' && Store.getLastOrder) ? Store.getLastOrder() : null;
+  const orderId = (lastOrder && (lastOrder.orderId || lastOrder.id)) || (document.getElementById('orders-active-id')?.textContent || '').trim();
+  
+  const confirmed = confirm("هل تريد إلغاء ومسح هذا الطلب من قائمة المتابعة؟");
+  if (!confirmed) return;
+
+  const card = document.getElementById('active-order-tracking-card');
+  if (card) {
+    card.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+    card.style.opacity = '0';
+    card.style.transform = 'scale(0.96)';
+    setTimeout(() => { card.style.display = 'none'; }, 200);
+  }
+
+  try {
+    const slug = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : 'saj';
+    if (orderId && typeof Store !== 'undefined') {
+      Store.recordDeletedOrderId(slug, orderId);
+      Store.saveLastOrder(null);
+      if (Store.removeOrderFromHistory) Store.removeOrderFromHistory(orderId);
+      if (Store.updateOrderStatus) Store.updateOrderStatus(orderId, 'cancelled').catch(() => {});
+      if (Store.deleteOrder) Store.deleteOrder(orderId).catch(() => {});
+    } else if (typeof Store !== 'undefined') {
+      Store.saveLastOrder(null);
+    }
+  } catch(e) {}
+
+  if (typeof renderOrdersView === 'function') {
+    setTimeout(renderOrdersView, 220);
+  }
+  if (typeof renderLastOrderRecall === 'function') {
+    renderLastOrderRecall();
+  }
+  if (typeof showToastNotification === 'function') {
+    showToastNotification("تم مسح وإلغاء الطلب بنجاح", "success");
+  }
+};
+
+window.deleteCustomerHistoryOrder = function(orderId) {
+  if (!orderId) return;
+  const confirmed = confirm("هل تريد مسح هذا الطلب من سجل طلباتك؟");
+  if (!confirmed) return;
+  try {
+    const slug = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : 'saj';
+    if (typeof Store !== 'undefined') {
+      Store.recordDeletedOrderId(slug, orderId);
+      if (Store.removeOrderFromHistory) Store.removeOrderFromHistory(orderId);
+      if (Store.deleteOrder) Store.deleteOrder(orderId).catch(() => {});
+    }
+  } catch(e) {}
+  if (typeof renderOrdersView === 'function') {
+    renderOrdersView();
+  }
+  if (typeof showToastNotification === 'function') {
+    showToastNotification("تم مسح الطلب من السجل", "success");
+  }
+};
 
 function updateOrdersStepperUI(status = 'pending', order = null) {
   const step1 = document.getElementById('orders-step-1');

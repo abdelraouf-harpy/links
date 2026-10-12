@@ -118,6 +118,17 @@ let lastRenderedCategoriesSignature = '';
 function renderCategories() {
   if (!elements.categoriesContainer) return;
   const categories = Store.getCategories();
+
+  if (categories.length === 0 && typeof Store !== 'undefined' && Store.isCloudDataLoaded && !Store.isCloudDataLoaded()) {
+    elements.categoriesContainer.innerHTML = `
+      <div class="cat-card-pill skeleton-shimmer" style="width:72px; height:36px; border-radius:18px; opacity:0.65; display:inline-block;"></div>
+      <div class="cat-card-pill skeleton-shimmer" style="width:88px; height:36px; border-radius:18px; opacity:0.65; display:inline-block;"></div>
+      <div class="cat-card-pill skeleton-shimmer" style="width:78px; height:36px; border-radius:18px; opacity:0.65; display:inline-block;"></div>
+      <div class="cat-card-pill skeleton-shimmer" style="width:96px; height:36px; border-radius:18px; opacity:0.65; display:inline-block;"></div>
+    `;
+    return;
+  }
+
   const currentSig = JSON.stringify(categories);
 
   // Only re-build DOM if the list of categories actually changed!
@@ -297,8 +308,18 @@ function renderProducts(forceRebuild = false) {
     }
 
     if (sortedProds.length === 0) {
-      if (typeof Store !== 'undefined' && Store.isCloudDataLoaded && !Store.isCloudDataLoaded()) {
+      const isCloudReady = typeof Store !== 'undefined' && Store.isCloudDataLoaded && Store.isCloudDataLoaded();
+      if (!isCloudReady) {
         elements.productsContainer.innerHTML = renderSkeletonCards(6);
+      } else if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        elements.productsContainer.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1; padding: 60px 20px;">
+            <svg class="empty-icon" viewBox="0 0 24 24" style="width:64px;height:64px;opacity:0.35;"><path d="M1 1l22 22"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+            <div class="empty-title" style="font-size:1.1rem; color:var(--text-main);">أنت غير متصل بالإنترنت</div>
+            <p style="font-size:13px; color:var(--text-muted); max-width:260px; margin: 8px auto 16px;">يرجى التحقق من اتصال الشبكة لإظهار أحدث أصناف المنيو.</p>
+            <button type="button" class="btn btn-primary btn-sm" onclick="location.reload()" style="padding: 7px 18px; font-weight:700;">إعادة المحاولة</button>
+          </div>
+        `;
       } else {
         elements.productsContainer.innerHTML = `
           <div class="empty-state" style="grid-column: 1 / -1; padding: 60px 20px;">
