@@ -4828,13 +4828,13 @@ body.harpy-account-locked {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   1. RESTAURANT PORTFOLIO SCREEN (الرئيسية) - CLEAN CARD DESIGN
+   1. RESTAURANT PORTFOLIO SCREEN (الرئيسية) - COMPACT CARD DESIGN
    Strictly matched with mobile mockup (Cover Hero + Metric Cards)
    ═══════════════════════════════════════════════════════════ */
 .portfolio-screen-container {
   background: #F8F6F2;
   min-height: calc(100vh - 65px);
-  padding-bottom: 96px;
+  padding-bottom: 84px;
   direction: rtl;
   box-sizing: border-box;
   overflow-x: hidden;
@@ -4844,7 +4844,7 @@ body.harpy-account-locked {
 .portfolio-hero-banner {
   position: relative;
   width: 100%;
-  height: 220px;
+  height: 180px;
   overflow: hidden;
 }
 
@@ -4859,20 +4859,20 @@ body.harpy-account-locked {
 .portfolio-cover-scrim {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.1) 40%, rgba(0, 0, 0, 0.85) 100%);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.1) 40%, rgba(0, 0, 0, 0.8) 100%);
   pointer-events: none;
 }
 
 .portfolio-top-bar {
   position: absolute;
-  top: 14px;
-  left: 14px;
+  top: 10px;
+  left: 10px;
   z-index: 10;
 }
 
 .portfolio-back-btn {
-  width: 38px;
-  height: 38px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   background: rgba(18, 18, 18, 0.55);
   backdrop-filter: blur(8px);
@@ -4884,34 +4884,34 @@ body.harpy-account-locked {
   justify-content: center;
   cursor: pointer;
   transition: transform 0.2s, background 0.2s;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
 }
 
 .portfolio-back-btn:hover {
   background: rgba(18, 18, 18, 0.85);
-  transform: scale(1.06);
+  transform: scale(1.05);
 }
 
 /* ── Hero Identity Wrap (Logo + Store Name + Live Status Pill) ── */
 .portfolio-hero-brand-wrap {
   position: absolute;
-  bottom: 14px;
-  right: 16px;
-  left: 16px;
+  bottom: 10px;
+  right: 12px;
+  left: 12px;
   z-index: 5;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .portfolio-hero-logo-box {
-  width: 64px;
-  height: 64px;
-  min-width: 64px;
+  width: 54px;
+  height: 54px;
+  min-width: 54px;
   border-radius: 50%;
   border: 2.5px solid #EA580C;
   background: #111827;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -4928,51 +4928,51 @@ body.harpy-account-locked {
 .portfolio-hero-name-col {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .portfolio-hero-name-row {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 }
 
 .portfolio-hero-store-name {
-  font-size: 1.45rem;
+  font-size: 1.25rem;
   font-weight: 900;
   color: #FFFFFF;
   margin: 0;
   line-height: 1.2;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.75);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.75);
 }
 
 .portfolio-hero-flame-icon {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   line-height: 1;
 }
 
 .portfolio-live-chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 3px 12px;
+  gap: 5px;
+  padding: 2px 9px;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 800;
   background: #059669;
   color: #FFFFFF;
-  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.4);
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.35);
   width: fit-content;
 }
 
 .portfolio-live-chip.closed {
   background: #DC2626;
-  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.4);
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.35);
 }
 
 .portfolio-live-chip .status-pulse-dot {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: #FFFFFF;
   display: inline-block;
@@ -4980,49 +4980,49 @@ body.harpy-account-locked {
 
 /* ── Scrollable Sheet Content & Common Cards ───────────── */
 .portfolio-sheet-content {
-  max-width: 540px;
+  max-width: 520px;
   margin: 0 auto;
-  padding: 12px 14px 24px 14px;
+  padding: 10px 12px 20px 12px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 9px;
 }
 
 .portfolio-card {
   background: #FFFFFF;
-  border-radius: 18px;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-  padding: 14px 16px;
+  border-radius: 15px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.025);
+  padding: 11px 14px;
   box-sizing: border-box;
 }
 
 /* ── Card 1: Tagline & Quick Stats ─────────────────────── */
 .portfolio-tagline-card {
-  padding: 16px 18px;
+  padding: 12px 14px;
 }
 
 .portfolio-tagline-top-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: 10px;
+  margin-bottom: 9px;
 }
 
 .portfolio-card-tagline {
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   font-weight: 800;
   color: #1F2937;
   margin: 0;
-  line-height: 1.4;
+  line-height: 1.35;
 }
 
 .portfolio-tagline-icon-badge {
-  width: 44px;
-  height: 44px;
-  min-width: 44px;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
   border-radius: 50%;
   background: #FFF1E8;
   color: #EA580C;
@@ -5035,7 +5035,7 @@ body.harpy-account-locked {
   display: grid;
   grid-template-columns: 1fr 1fr;
   border-top: 1px solid #F3F1EC;
-  padding-top: 12px;
+  padding-top: 9px;
 }
 
 .portfolio-quick-stat-item {
@@ -5043,7 +5043,7 @@ body.harpy-account-locked {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 3px;
+  gap: 2px;
 }
 
 .portfolio-tagline-stats-row .portfolio-quick-stat-item:first-child {
@@ -5053,45 +5053,45 @@ body.harpy-account-locked {
 .stat-top-val {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   font-weight: 900;
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   color: #111827;
 }
 
 .stat-sub-label {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 600;
   color: #6B7280;
 }
 
 /* ── Card 2: "عن المطعم" Story ─────────────────────────── */
 .portfolio-about-card {
-  padding: 16px 18px;
+  padding: 11px 14px;
 }
 
 .portfolio-card-heading-group {
-  margin-bottom: 8px;
+  margin-bottom: 5px;
 }
 
 .portfolio-card-title {
-  font-size: 1.12rem;
+  font-size: 0.98rem;
   font-weight: 800;
   color: #111827;
-  margin: 0 0 5px 0;
+  margin: 0 0 3px 0;
 }
 
 .portfolio-title-bar {
   display: block;
-  width: 34px;
-  height: 3.5px;
+  width: 30px;
+  height: 3px;
   background: #EA580C;
   border-radius: 2px;
 }
 
 .portfolio-about-desc {
-  font-size: 0.9rem;
-  line-height: 1.65;
+  font-size: 0.84rem;
+  line-height: 1.55;
   color: #4B5563;
   margin: 0;
   text-align: justify;
@@ -5101,8 +5101,8 @@ body.harpy-account-locked {
 .portfolio-triple-highlights-card {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
-  padding: 14px 8px;
+  gap: 4px;
+  padding: 10px 6px;
   text-align: center;
 }
 
@@ -5110,7 +5110,7 @@ body.harpy-account-locked {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 2px;
 }
 
 .portfolio-highlight-col:not(:last-child) {
@@ -5118,8 +5118,8 @@ body.harpy-account-locked {
 }
 
 .highlight-circle-icon {
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: #FFF1E8;
   color: #EA580C;
@@ -5130,32 +5130,33 @@ body.harpy-account-locked {
 }
 
 .highlight-title {
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 800;
   color: #1F2937;
 }
 
 .highlight-sub {
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 600;
   color: #6B7280;
-  line-height: 1.25;
+  line-height: 1.2;
 }
 
 /* ── Card 4: Action Buttons (اتصال & واتساب) ────────────── */
 .portfolio-actions-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 8px;
 }
 
 .portfolio-action-btn {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 14px;
-  border-radius: 16px;
+  padding: 9px 12px;
+  border-radius: 14px;
   text-decoration: none;
+  min-height: 48px;
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
@@ -5167,17 +5168,17 @@ body.harpy-account-locked {
   flex-direction: row-reverse;
   background: #D9531E;
   color: #FFFFFF;
-  box-shadow: 0 4px 14px rgba(217, 83, 30, 0.35);
+  box-shadow: 0 3px 12px rgba(217, 83, 30, 0.32);
 }
 
 .btn-call .action-btn-main {
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   font-weight: 800;
   color: #FFFFFF;
 }
 
 .btn-call .action-btn-sub {
-  font-size: 10.5px;
+  font-size: 9.5px;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.88);
 }
@@ -5193,17 +5194,17 @@ body.harpy-account-locked {
   background: #FFFFFF;
   border: 1.5px solid #10B981;
   color: #1F2937;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.12);
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.1);
 }
 
 .btn-whatsapp .action-btn-main {
-  font-size: 0.96rem;
+  font-size: 0.9rem;
   font-weight: 800;
   color: #065F46;
 }
 
 .btn-whatsapp .action-btn-sub {
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 600;
   color: #6B7280;
 }
@@ -5225,7 +5226,8 @@ body.harpy-account-locked {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 16px;
+  padding: 11px 14px;
+  border-radius: 14px;
   text-decoration: none;
   color: inherit;
   cursor: pointer;
@@ -5234,13 +5236,13 @@ body.harpy-account-locked {
 
 .portfolio-location-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
 }
 
 .location-right-group {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .location-pin-icon {
@@ -5250,7 +5252,7 @@ body.harpy-account-locked {
 }
 
 .location-address-name {
-  font-size: 0.92rem;
+  font-size: 0.86rem;
   font-weight: 700;
   color: #1F2937;
 }
@@ -5263,7 +5265,8 @@ body.harpy-account-locked {
 
 /* ── Card 6: Follow us on Social Media ─────────────────── */
 .portfolio-social-box {
-  padding: 16px 14px 18px 14px;
+  padding: 11px 12px 13px 12px;
+  border-radius: 14px;
   text-align: center;
 }
 
@@ -5271,18 +5274,18 @@ body.harpy-account-locked {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 10px;
+  margin-bottom: 11px;
 }
 
 .social-decor-line {
   height: 1.5px;
-  width: 40px;
+  width: 34px;
   background: #D1D5DB;
 }
 
 .social-header-title {
-  font-size: 0.92rem;
+  font-size: 0.84rem;
   font-weight: 800;
   color: #1F2937;
 }
@@ -5291,33 +5294,33 @@ body.harpy-account-locked {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 28px;
+  gap: 22px;
 }
 
 .social-round-btn-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   text-decoration: none;
   color: inherit;
   transition: transform 0.2s;
 }
 
 .social-round-btn-item:hover {
-  transform: translateY(-3px);
+  transform: translateY(-2px);
 }
 
 .social-round-circle {
-  width: 52px;
-  height: 52px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: #F3ECE6;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #1F2937;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
   transition: background 0.2s, color 0.2s, box-shadow 0.2s;
 }
 
@@ -5340,7 +5343,7 @@ body.harpy-account-locked {
 }
 
 .social-circle-label {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
   color: #4B5563;
 }
@@ -5348,7 +5351,7 @@ body.harpy-account-locked {
 /* ── Card 7: Bottom CTA Button ─────────────────────────── */
 .portfolio-big-cta-btn {
   width: 100%;
-  padding: 14px 22px;
+  padding: 12px 20px;
   border-radius: 999px;
   background: #D9531E;
   color: #FFFFFF;
@@ -5357,13 +5360,13 @@ body.harpy-account-locked {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 6px 20px rgba(217, 83, 30, 0.38);
+  box-shadow: 0 5px 18px rgba(217, 83, 30, 0.35);
   transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
 }
 
 .portfolio-big-cta-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(217, 83, 30, 0.48);
+  box-shadow: 0 7px 22px rgba(217, 83, 30, 0.45);
   background: #C84614;
 }
 
@@ -5372,19 +5375,20 @@ body.harpy-account-locked {
 }
 
 .cta-btn-icon {
-  font-size: 1.15rem;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .cta-btn-text {
   flex: 1;
   text-align: center;
-  font-size: 1.05rem;
+  font-size: 0.98rem;
   font-weight: 800;
 }
 
 .cta-btn-arrow {
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: 900;
   line-height: 1;
 }

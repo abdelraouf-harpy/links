@@ -935,14 +935,9 @@ function renderAnnouncement() {
 
   if (!promoCard) return;
 
-  if (settings.isOrderingPaused) {
-    promoCard.style.display = 'flex';
-    if (promoTitle) promoTitle.textContent = settings.orderingPausedMessage || 'المطعم متوقف حالياً عن استقبال الطلبات مؤقتاً';
-    return;
-  }
-
-  // Only display if announcement is explicitly enabled and has text! Zero food photos, zero % badge!
-  const hasAnnouncement = settings.showAnnouncement && settings.announcementText && settings.announcementText.trim();
+  // Never force announcement bar on closed status. The live badge 'مغلق الآن' is sufficient,
+  // and customer gets the friendly modal notice only when attempting to place an order.
+  const hasAnnouncement = (settings.showAnnouncement === true) && settings.announcementText && settings.announcementText.trim();
   if (hasAnnouncement) {
     promoCard.style.display = 'flex';
     if (promoTitle) promoTitle.textContent = settings.announcementText.trim();
