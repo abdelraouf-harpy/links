@@ -1214,7 +1214,7 @@ const Store = {
         try { ordersRef.off('value', wsCallback); } catch(e) {}
       }
       try {
-        ordersRef = db.ref(`restaurants/${slug}/orders`).limitToLast(100);
+        ordersRef = db.ref(`restaurants/${slug}/orders`);
         wsCallback = snapshot => {
           handleOrdersPayload(snapshot.val() || {});
         };
@@ -1245,14 +1245,14 @@ const Store = {
         try {
           if (window.firebase && firebase.auth && firebase.auth().currentUser) {
             const idToken = await firebase.auth().currentUser.getIdToken();
-            if (idToken) authParam = `&auth=${encodeURIComponent(idToken)}`;
+            if (idToken) authParam = `auth=${encodeURIComponent(idToken)}`;
           }
         } catch(e) {}
         if (!authParam) {
           // Without an active auth token, secured RTDB orders endpoint will reject; avoid unnecessary 401 spam
           return;
         }
-        const res = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${encodeURIComponent(slug)}/orders.json?orderBy=%22%24key%22&limitToLast=100${authParam}`, {
+        const res = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${encodeURIComponent(slug)}/orders.json?${authParam}`, {
           cache: 'no-store'
         });
         if (res.ok) {

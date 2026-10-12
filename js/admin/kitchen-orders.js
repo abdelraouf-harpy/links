@@ -2,7 +2,7 @@
 // HarpyOrder — Kitchen KDS, Orders & Invoice Archive Manager
 // ═══════════════════════════════════════════════════════════
 
-let lastKnownOrderCount = null;
+let lastKnownOrderIds = null;
 
 function playKitchenOrderChime() {
   if (typeof window !== 'undefined' && window.SoundFX && typeof window.SoundFX.playKitchenChime === 'function') {
@@ -1067,14 +1067,14 @@ window.renderOrdersList = function(orders = null) {
   const deliveryCount = orders.filter(o => o.status === 'out_for_delivery').length;
 
   // Trigger Audio Chime & Browser Notification on New Incoming Order
-  if (lastKnownOrderCount !== null && orders.length > lastKnownOrderCount) {
-    const latestOrder = orders[0];
-    playKitchenOrderChime();
-    if (latestOrder) {
-      showAdminOrderNotification(latestOrder);
+  if (lastKnownOrderIds !== null) {
+    const newIncoming = orders.find(o => (!o.status || o.status === 'pending') && !lastKnownOrderIds.has(o.orderId));
+    if (newIncoming) {
+      playKitchenOrderChime();
+      showAdminOrderNotification(newIncoming);
     }
   }
-  lastKnownOrderCount = orders.length;
+  lastKnownOrderIds = new Set(orders.map(o => o.orderId));
 
   // Update Kitchen Header Statistics
   if (adminElements.statActiveOrders) adminElements.statActiveOrders.textContent = activeCount;
