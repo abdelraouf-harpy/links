@@ -328,6 +328,16 @@ function initBackgroundOrderTracking() {
 
   backgroundOrderWatcherUnsub = Store.subscribeToOrder(slug, lastOrder.orderId, (updatedOrder) => {
     if (!updatedOrder) return;
+    if (updatedOrder.deleted || updatedOrder.status === 'deleted') {
+      Store.saveLastOrder(null);
+      if (typeof window.renderOrdersView === 'function') {
+        window.renderOrdersView();
+      }
+      if (elements.trackerModal && elements.trackerModal.classList.contains('open')) {
+        if (typeof closeOrderTracker === 'function') closeOrderTracker();
+      }
+      return;
+    }
     const statusRank = { pending: 1, preparing: 2, out_for_delivery: 3, delivered: 4, cancelled: 5 };
     const currentStored = Store.getLastOrder();
 

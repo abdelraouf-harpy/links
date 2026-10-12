@@ -471,37 +471,38 @@
             }
           }
         }
-        // Standalone PWA installed app recovery: only if running as an installed standalone app
-        const isStandalonePwa = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || 
-                                (window.navigator && window.navigator.standalone === true);
-        if (!slug && isStandalonePwa) {
-          slug = localStorage.getItem('harpy_customer_installed_slug');
-        }
         // Path-based tenant resolution: e.g. harpymenu.com/saj or harpymenu.com/order/saj
-        if (!slug && window.location && window.location.pathname) {
+        if (!slug && window.location && window.location.pathname && window.location.protocol.startsWith('http')) {
           try {
-            const pathParts = window.location.pathname.split('/').filter(function(p) { return p && !p.endsWith('.html') && p !== 'admin' && p !== 'order'; });
+            const pathParts = window.location.pathname.split('/').filter(function(p) { return p && !p.endsWith('.html') && p !== 'admin' && p !== 'order' && p.length > 1 && !/^[a-zA-Z]:$/.test(p); });
             if (pathParts.length > 0) {
               const firstPart = pathParts[0].toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
-              const reserved = ['css', 'js', 'assets', 'api', 'admin', 'manifest', 'sw', 'favicon', 'icons', 'products', 'portfolio', 'order'];
-              if (firstPart && reserved.indexOf(firstPart) === -1) {
+              const reserved = ['css', 'js', 'assets', 'api', 'admin', 'manifest', 'sw', 'favicon', 'icons', 'products', 'portfolio', 'order', 'links', 'github', 'io', 'c', 'd', 'e', 'users', 'desktop'];
+              if (firstPart && firstPart.length > 1 && reserved.indexOf(firstPart) === -1) {
                 slug = firstPart;
               }
             }
           } catch(e) {}
         }
-        // In general web browser navigation without explicit tenant in URL, ALWAYS default to demo restaurant 'king'
+        // Active and previously visited tenant recovery from localStorage
         if (!slug) {
-          slug = 'king';
+          try {
+            slug = localStorage.getItem('harpy_active_slug') ||
+                   localStorage.getItem('harpy_last_visited_slug') ||
+                   localStorage.getItem('harpy_customer_installed_slug') ||
+                   localStorage.getItem('harpy_admin_active_slug');
+          } catch(e) {}
+        }
+        // In general web browser navigation without explicit tenant in URL, ALWAYS default to primary live restaurant 'saj'
+        if (!slug) {
+          slug = 'saj';
         }
         slug = slug.toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
         window.__harpySlug = slug;
         try {
           localStorage.setItem('harpy_active_slug', slug);
           localStorage.setItem('harpy_last_visited_slug', slug);
-          if (isStandalonePwa) {
-            localStorage.setItem('harpy_customer_installed_slug', slug);
-          }
+          localStorage.setItem('harpy_customer_installed_slug', slug);
         } catch(e) {}
 
         var oldManifest = document.querySelector('link[rel="manifest"]');
@@ -520,8 +521,8 @@
           return;
         }
 
-        // Auto-preserve query parameter in URL bar
-        if (!window.location.search.includes('m=') && !window.location.search.includes('restaurant=')) {
+        // Auto-preserve query parameter in URL bar so sharing never loses the restaurant
+        if (!window.location.search.includes('m=' + slug) && !window.location.search.includes('restaurant=' + slug)) {
           try {
             const url = new URL(window.location.href);
             url.searchParams.set('m', slug);
@@ -2059,16 +2060,16 @@
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=87.0"></script>
-  <script src="js/core/sound-effects.js?v=87.0"></script>
-  <script src="js/store.js?v=87.0"></script>
-  <script src="js/client/client-core.js?v=87.0"></script>
-  <script src="js/client/menu-view.js?v=87.0"></script>
-  <script src="js/client/stories-viewer.js?v=87.0"></script>
-  <script src="js/client/customizer-modal.js?v=87.0"></script>
-  <script src="js/client/cart-ledger.js?v=87.0"></script>
-  <script src="js/client/order-tracking.js?v=87.0"></script>
-  <script src="js/app.js?v=87.0"></script>
-  <script src="js/pwa.js?v=87.0"></script>
+  <script src="js/core/demo-seed-data.js?v=88.0"></script>
+  <script src="js/core/sound-effects.js?v=88.0"></script>
+  <script src="js/store.js?v=88.0"></script>
+  <script src="js/client/client-core.js?v=88.0"></script>
+  <script src="js/client/menu-view.js?v=88.0"></script>
+  <script src="js/client/stories-viewer.js?v=88.0"></script>
+  <script src="js/client/customizer-modal.js?v=88.0"></script>
+  <script src="js/client/cart-ledger.js?v=88.0"></script>
+  <script src="js/client/order-tracking.js?v=88.0"></script>
+  <script src="js/app.js?v=88.0"></script>
+  <script src="js/pwa.js?v=88.0"></script>
 </body>
 </html>

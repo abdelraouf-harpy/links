@@ -373,10 +373,31 @@ window.executeArchivePasswordDelete = async function() {
 
     if (isVerified) {
       const orderIdToDelete = pendingDeleteOrderId;
+      const cleanId = String(orderIdToDelete).replace(/[^a-zA-Z0-9_-]/g, '');
+
+      // 1. Instant 0ms Visual Removal from DOM
+      const cards = document.querySelectorAll(
+        `[data-order-id="${orderIdToDelete}"], [data-order-id="${cleanId}"], [data-order-id="#${cleanId}"]`
+      );
+      cards.forEach(card => {
+        card.style.transition = 'all 0.18s cubic-bezier(0.4, 0, 0.2, 1)';
+        card.style.opacity = '0';
+        card.style.transform = 'scale(0.92)';
+        setTimeout(() => { if (card.parentNode) card.remove(); }, 180);
+      });
+
+      // 2. Close modal immediately (0ms)
       closeArchivePwdModal();
-      await Store.deleteOrder(orderIdToDelete);
+
+      // 3. Instant local store purge & background cloud delete
+      Store.deleteOrder(orderIdToDelete);
+
+      // 4. Instant UI re-render
+      renderOrdersList();
+      renderInvoicesArchive();
+
       if (typeof showToastNotification === 'function') {
-        showToastNotification("تم حذف الفاتورة من الأرشيف بنجاح", "success");
+        showToastNotification("تم حذف الطلب نهائياً وبشكل فوري", "success");
       }
     } else {
       if (err) {

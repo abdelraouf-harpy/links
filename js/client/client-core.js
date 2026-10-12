@@ -1448,8 +1448,26 @@ function renderOrdersView() {
   const emptyState = document.getElementById('orders-empty-state');
   const prevList = document.getElementById('previous-orders-list');
 
-  const hasActiveOrder = !!(lastOrder && !lastOrder.archived && lastOrder.items && lastOrder.items.length > 0);
-  const hasHistory = (history && history.length > 0);
+  const slug = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : 'saj';
+  const deletedIds = (typeof Store !== 'undefined' && Store.getDeletedOrderIds) ? Store.getDeletedOrderIds(slug) : new Set();
+  
+  let isLastOrderDeleted = false;
+  if (lastOrder) {
+    const lCid = String(lastOrder.orderId || lastOrder.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
+    if (deletedIds.has(lCid) || deletedIds.has(lastOrder.orderId) || deletedIds.has(lastOrder.id)) {
+      isLastOrderDeleted = true;
+      if (typeof Store !== 'undefined' && Store.saveLastOrder) Store.saveLastOrder(null);
+    }
+  }
+
+  const cleanHistory = (history || []).filter(h => {
+    if (!h) return false;
+    const hCid = String(h.orderId || h.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
+    return !deletedIds.has(hCid) && !deletedIds.has(h.orderId) && !deletedIds.has(h.id);
+  });
+
+  const hasActiveOrder = !!(!isLastOrderDeleted && lastOrder && !lastOrder.archived && lastOrder.items && lastOrder.items.length > 0);
+  const hasHistory = (cleanHistory && cleanHistory.length > 0);
 
   if (!hasActiveOrder && !hasHistory) {
     if (cardActive) cardActive.style.display = 'none';
@@ -1524,7 +1542,7 @@ function renderOrdersView() {
   if (hasHistory) {
     if (secPrevious) secPrevious.style.display = 'block';
     if (prevList) {
-      prevList.innerHTML = history.map(order => {
+      prevList.innerHTML = cleanHistory.map(order => {
         const dateStr = order.createdAt ? new Date(order.createdAt).toLocaleDateString('ar-EG', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'طلب سابق';
         const itemsSummary = (order.items || []).map(i => `${i.qty}x ${i.name}`).join('، ');
         let fulfillmentBadge = 'دليفري';

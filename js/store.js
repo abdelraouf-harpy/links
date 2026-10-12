@@ -979,8 +979,57 @@ const Store = {
     });
   },
 
+  getDeletedOrderIds(slug = null) {
+    const s = slug || this.getRestaurantSlug();
+    if (!s) return new Set();
+    try {
+      const raw = localStorage.getItem(`harpy_${s}_deleted_order_ids`);
+      if (raw) {
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr)) return new Set(arr);
+      }
+    } catch(e) {}
+    return new Set();
+  },
+
+  addDeletedOrderId(slug = null, orderId) {
+    const s = slug || this.getRestaurantSlug();
+    if (!s || !orderId) return;
+    const cleanId = String(orderId).replace(/[^a-zA-Z0-9_-]/g, '');
+    const set = this.getDeletedOrderIds(s);
+    set.add(cleanId);
+    set.add(orderId);
+    if (!orderId.startsWith('#')) set.add(`#${cleanId}`);
+    try {
+      localStorage.setItem(`harpy_${s}_deleted_order_ids`, JSON.stringify(Array.from(set)));
+    } catch(e) {}
+
+    // Synchronize tombstone to cloud so all devices inherit the permanent deletion
+    try {
+      if (db) {
+        db.ref(`restaurants/${s}/deletedOrderIds/${cleanId}`).set(Date.now());
+      }
+      fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${s}/deletedOrderIds/${cleanId}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(Date.now()),
+        keepalive: true
+      }).catch(() => {});
+    } catch(e) {}
+  },
+
   getOrders(forceRefresh = false) {
+    const slug = this.getRestaurantSlug();
+    const deletedIds = this.getDeletedOrderIds(slug);
+
     if (!forceRefresh && this._memoryCache.orders !== null) {
+      if (deletedIds.size > 0) {
+        return this._memoryCache.orders.filter(o => {
+          if (!o) return false;
+          const cid = String(o.orderId || o.id || o._fbKey || '').replace(/[^a-zA-Z0-9_-]/g, '');
+          return !deletedIds.has(cid) && !deletedIds.has(o.orderId) && !deletedIds.has(o.id) && !deletedIds.has(o._fbKey);
+        });
+      }
       return this._memoryCache.orders;
     }
     try {
@@ -991,6 +1040,10 @@ const Store = {
           if (!o || typeof o !== 'object') return null;
           if (!o.orderId || o.orderId === 'undefined') {
             o.orderId = o.id || o._fbKey || (`#ORD-${(o.timestamp || Date.now()).toString().slice(-4)}`);
+          }
+          const cid = String(o.orderId || o.id || o._fbKey || '').replace(/[^a-zA-Z0-9_-]/g, '');
+          if (deletedIds.has(cid) || deletedIds.has(o.orderId) || deletedIds.has(o.id) || deletedIds.has(o._fbKey)) {
+            return null; // Instantly purge deleted orders from ever rendering
           }
           return o;
         }).filter(Boolean);
@@ -1162,6 +1215,7 @@ const Store = {
     const handleOrdersPayload = (data) => {
       if (isDestroyed || !data) return;
       const now = Date.now();
+      const deletedIds = this.getDeletedOrderIds(slug);
       const entries = Object.entries(data);
       const ordersList = entries.map(([fbKey, o]) => {
         if (!o || typeof o !== 'object') return null;
@@ -1176,6 +1230,14 @@ const Store = {
 
         const resolvedId = o.orderId || o.id || (fbKey !== 'undefined' ? fbKey : `#ORD-${Math.floor(1000 + Math.random() * 9000)}`);
         const cid = resolvedId.replace(/[^a-zA-Z0-9_-]/g, '');
+
+        // If order was marked as deleted, ensure cloud is cleaned and NEVER let it enter the UI
+        if (deletedIds.has(cid) || deletedIds.has(resolvedId) || deletedIds.has(fbKey) || (o.id && deletedIds.has(o.id))) {
+          if (db) { try { db.ref(`restaurants/${slug}/orders/${fbKey}`).remove(); } catch(e) {} }
+          try { fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders/${fbKey}.json`, { method: 'DELETE', keepalive: true }).catch(() => {}); } catch(e) {}
+          return null;
+        }
+
         const lock = this.orderStatusLocks && (this.orderStatusLocks[cid] || this.orderStatusLocks[fbKey]);
         let finalStatus = o.status || 'pending';
         if (lock && (now - lock.timestamp < 3500)) {
@@ -1449,34 +1511,70 @@ const Store = {
     if (!orderId || !slug) return false;
     const cleanId = String(orderId).replace(/[^a-zA-Z0-9_-]/g, '');
 
-    // 1. Remove from local cache immediately
+    // 1. Mark permanently in local and cloud tombstones (Blacklist)
+    this.addDeletedOrderId(slug, cleanId);
+    this.addDeletedOrderId(slug, orderId);
+
+    // 2. Synchronously purge from memory and local cache immediately (0ms)
     let targetFbKey = cleanId;
     try {
       const cached = this.getOrders();
-      const target = cached.find(o => 
-        o.orderId === orderId || 
-        o.orderId === `#${cleanId}` || 
-        o.id === orderId || 
-        o._fbKey === orderId || 
-        (o.orderId && String(o.orderId).replace(/[^a-zA-Z0-9_-]/g, '') === cleanId) ||
-        (orderId === 'undefined' && (!o.orderId || o.orderId === 'undefined'))
-      );
+      const target = cached.find(o => {
+        if (!o) return false;
+        const oClean = String(o.orderId || o.id || o._fbKey || '').replace(/[^a-zA-Z0-9_-]/g, '');
+        return oClean === cleanId || o.orderId === orderId || o.id === orderId || o._fbKey === orderId;
+      });
       if (target && target._fbKey) targetFbKey = target._fbKey;
 
-      const updated = cached.filter(o => 
-        (target ? o !== target : true) &&
-        o.id !== orderId &&
-        o.orderId !== orderId && 
-        o.orderId !== `#${cleanId}` && 
-        o._fbKey !== orderId && 
-        o._fbKey !== targetFbKey && 
-        !(orderId === 'undefined' && (!o.orderId || o.orderId === 'undefined'))
-      );
+      const updated = cached.filter(o => {
+        if (!o) return false;
+        const oClean = String(o.orderId || o.id || o._fbKey || '').replace(/[^a-zA-Z0-9_-]/g, '');
+        return (target ? o !== target : true) &&
+               oClean !== cleanId &&
+               o.id !== orderId &&
+               o.orderId !== orderId && 
+               o.orderId !== `#${cleanId}` && 
+               o._fbKey !== orderId && 
+               o._fbKey !== targetFbKey && 
+               !(orderId === 'undefined' && (!o.orderId || o.orderId === 'undefined'));
+      });
       this.saveOrders(updated);
     } catch(e) {}
 
-    // 2. Parallel cloud delete
-    const keysToDelete = new Set([cleanId, targetFbKey]);
+    // 3. Purge from background offline Outbox
+    try {
+      this.removeFromOutbox(orderId);
+      this.removeFromOutbox(cleanId);
+      this.removeFromOutbox(`#${cleanId}`);
+    } catch(e) {}
+
+    // 4. Purge from customer Last Order & Re-order History
+    try {
+      const lastOrder = this.getLastOrder();
+      if (lastOrder) {
+        const lClean = String(lastOrder.orderId || lastOrder.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
+        if (lClean === cleanId || lastOrder.orderId === orderId || lastOrder.id === orderId) {
+          this.saveLastOrder(null);
+        }
+      }
+      const history = this.getOrderHistory();
+      if (Array.isArray(history) && history.length > 0) {
+        const updatedHist = history.filter(h => {
+          const hClean = String(h.orderId || h.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
+          return hClean !== cleanId && h.orderId !== orderId && h.id !== orderId;
+        });
+        this.safeSetItem(this.getKey('harpy_order_history'), JSON.stringify(updatedHist));
+      }
+      localStorage.removeItem('harpy_status_lock_' + cleanId);
+      localStorage.removeItem('harpy_status_lock_' + orderId);
+    } catch(e) {}
+
+    // 5. Broadcast instant deletion events
+    window.dispatchEvent(new CustomEvent('harpy_order_deleted', { detail: { orderId, cleanId } }));
+    window.dispatchEvent(new Event('store_last_order_updated'));
+
+    // 6. Parallel cloud deletion across all key variants
+    const keysToDelete = new Set([cleanId, targetFbKey, orderId, `#${cleanId}`]);
     if (orderId === 'undefined' || cleanId === 'undefined') {
       keysToDelete.add('undefined');
     }
@@ -1505,11 +1603,6 @@ const Store = {
         }).catch(() => {});
       } catch (e) {}
     });
-
-    const lastOrder = this.getLastOrder();
-    if (lastOrder && (lastOrder.orderId === orderId || lastOrder.orderId === `#${cleanId}`)) {
-      this.saveLastOrder(null);
-    }
 
     return true;
   },
@@ -1618,7 +1711,20 @@ const Store = {
       if (db) {
         orderRef = db.ref(`restaurants/${slug}/orders/${cleanId}`);
         wsCallback = snap => {
-          handleOrderPayload(snap.val());
+          const val = snap.val();
+          if (!val) {
+            // Order was deleted in cloud!
+            const delIds = this.getDeletedOrderIds(slug);
+            delIds.add(cleanId);
+            delIds.add(orderId);
+            this.safeSetItem(`harpy_${slug}_deleted_order_ids`, JSON.stringify(Array.from(delIds)));
+            this.saveLastOrder(null);
+            if (typeof onUpdate === 'function') {
+              onUpdate({ status: 'deleted', deleted: true, orderId: orderId });
+            }
+            return;
+          }
+          handleOrderPayload(val);
         };
         orderRef.on('value', wsCallback);
       }
@@ -1633,9 +1739,18 @@ const Store = {
         });
         if (res.ok) {
           const data = await res.json();
-          if (data) {
-            handleOrderPayload(data);
+          if (!data) {
+            const delIds = this.getDeletedOrderIds(slug);
+            delIds.add(cleanId);
+            delIds.add(orderId);
+            this.safeSetItem(`harpy_${slug}_deleted_order_ids`, JSON.stringify(Array.from(delIds)));
+            this.saveLastOrder(null);
+            if (typeof onUpdate === 'function') {
+              onUpdate({ status: 'deleted', deleted: true, orderId: orderId });
+            }
+            return;
           }
+          handleOrderPayload(data);
         }
       } catch (e) {}
     };
@@ -1709,19 +1824,19 @@ const Store = {
       const params = new URLSearchParams(window.location.search);
       let urlSlug = params.get('m') || params.get('restaurant') || params.get('store') || params.get('slug');
 
-      // 2. Clean Path-based Resolution (e.g. harpymenu.com/king or harpymenu.com/order/king)
-      if (!urlSlug && typeof window !== 'undefined' && window.location && window.location.pathname) {
-        const pathParts = window.location.pathname.split('/').filter(p => p && !p.endsWith('.html') && p !== 'admin' && p !== 'order');
+      // 2. Clean Path-based Resolution (e.g. harpymenu.com/saj or harpymenu.com/order/saj)
+      if (!urlSlug && typeof window !== 'undefined' && window.location && window.location.pathname && window.location.protocol.startsWith('http')) {
+        const pathParts = window.location.pathname.split('/').filter(p => p && !p.endsWith('.html') && p !== 'admin' && p !== 'order' && p.length > 1 && !/^[a-zA-Z]:$/.test(p));
         if (pathParts.length > 0) {
           const firstPart = pathParts[0].toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
-          const reservedNames = ['css', 'js', 'assets', 'api', 'admin', 'manifest', 'sw', 'favicon', 'icons', 'products', 'portfolio', 'order'];
-          if (firstPart && !reservedNames.includes(firstPart)) {
+          const reservedNames = ['css', 'js', 'assets', 'api', 'admin', 'manifest', 'sw', 'favicon', 'icons', 'products', 'portfolio', 'order', 'links', 'github', 'io', 'c', 'd', 'e', 'users', 'desktop'];
+          if (firstPart && firstPart.length > 1 && !reservedNames.includes(firstPart)) {
             urlSlug = firstPart;
           }
         }
       }
 
-      // 4. Subdomain Resolution Fallback (e.g. king.harpymenu.com)
+      // 4. Subdomain Resolution Fallback (e.g. saj.harpymenu.com)
       if (!urlSlug && typeof window !== 'undefined' && window.location && window.location.hostname) {
         const host = window.location.hostname.toLowerCase();
         if (host.includes('harpymenu.com') && !host.startsWith('www.') && host !== 'harpymenu.com') {
@@ -1752,7 +1867,7 @@ const Store = {
       }
     } catch {}
 
-    const fallbackSlug = 'king';
+    const fallbackSlug = 'saj';
     if (typeof window !== 'undefined') window.__harpySlug = fallbackSlug;
     return fallbackSlug;
   },
@@ -2158,7 +2273,17 @@ const Store = {
   },
 
   getLastOrder(forceRefresh = false) {
+    const slug = this.getRestaurantSlug();
+    const delIds = this.getDeletedOrderIds(slug);
+
     if (!forceRefresh && this._memoryCache.lastOrder !== null) {
+      const cur = this._memoryCache.lastOrder;
+      const curCid = String(cur?.orderId || cur?.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
+      if (cur && (delIds.has(curCid) || delIds.has(cur.orderId) || delIds.has(cur.id))) {
+        this._memoryCache.lastOrder = null;
+        this.saveLastOrder(null);
+        return null;
+      }
       return this._memoryCache.lastOrder;
     }
     let raw = localStorage.getItem(this.getKey(STORAGE_KEYS.LAST_ORDER));
@@ -2172,6 +2297,11 @@ const Store = {
       const res = raw ? JSON.parse(raw) : null;
       if (res && res.orderId) {
         const cleanId = String(res.orderId).replace(/[^a-zA-Z0-9_-]/g, '');
+        if (delIds.has(cleanId) || delIds.has(res.orderId) || delIds.has(res.id)) {
+          this._memoryCache.lastOrder = null;
+          this.saveLastOrder(null);
+          return null;
+        }
         const lockRaw = localStorage.getItem('harpy_status_lock_' + cleanId);
         if (lockRaw) {
           try {
@@ -2213,7 +2343,20 @@ const Store = {
   getOrderHistory() {
     const raw = localStorage.getItem(this.getKey('harpy_order_history'));
     try {
-      return raw ? JSON.parse(raw) : [];
+      const list = raw ? JSON.parse(raw) : [];
+      if (Array.isArray(list)) {
+        const slug = this.getRestaurantSlug();
+        const delIds = this.getDeletedOrderIds(slug);
+        if (delIds.size > 0) {
+          return list.filter(o => {
+            if (!o) return false;
+            const cid = String(o.orderId || o.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
+            return !delIds.has(cid) && !delIds.has(o.orderId) && !delIds.has(o.id);
+          });
+        }
+        return list;
+      }
+      return [];
     } catch {
       return [];
     }
