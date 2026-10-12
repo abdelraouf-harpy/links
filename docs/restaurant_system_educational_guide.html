@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>دليل شرح مشروع نظام المطعم - للشباب المبتدئين في البرمجة</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 16mm 14mm 18mm 14mm;
+    }
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+      font-size: 13.5px;
+      line-height: 1.75;
+      color: #1e293b;
+      background: #ffffff;
+      direction: rtl;
+      text-align: right;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Page Breaks */
+    .page-break {
+      page-break-before: always;
+      break-before: page;
+    }
+    .avoid-break {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    /* Cover Page */
+    .cover-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 40px 25px;
+      background: linear-gradient(145deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+      color: #ffffff;
+      border-radius: 18px;
+      position: relative;
+      overflow: hidden;
+      page-break-after: always;
+    }
+    .cover-page::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      right: -100px;
+      width: 350px;
+      height: 350px;
+      background: radial-gradient(circle, rgba(37,99,235,0.3) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .cover-page::after {
+      content: '';
+      position: absolute;
+      bottom: -80px;
+      left: -80px;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(245,158,11,0.25) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .cover-top {
+      position: relative;
+      z-index: 2;
+    }
+    .cover-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      background: rgba(245, 158, 11, 0.2);
+      border: 1px solid rgba(245, 158, 11, 0.5);
+      color: #fbbf24;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 50px;
+      margin-bottom: 25px;
+      letter-spacing: 0.5px;
+    }
+    .cover-title {
+      font-size: 34px;
+      font-weight: 900;
+      line-height: 1.35;
+      color: #ffffff;
+      margin-bottom: 15px;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+    .cover-subtitle {
+      font-size: 17px;
+      font-weight: 600;
+      color: #94a3b8;
+      line-height: 1.6;
+      max-width: 90%;
+      margin-bottom: 30px;
+    }
+    .cover-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-top: 20px;
+      position: relative;
+      z-index: 2;
+    }
+    .cover-meta-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 14px 16px;
+      border-radius: 12px;
+      backdrop-filter: blur(5px);
+    }
+    .cover-meta-card .label {
+      font-size: 11px;
+      color: #94a3b8;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .cover-meta-card .val {
+      font-size: 14px;
+      color: #38bdf8;
+      font-weight: 800;
+    }
+    .cover-footer {
+      position: relative;
+      z-index: 2;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      padding-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    /* Headings & Typography */
+    h1, h2, h3, h4 {
+      font-family: 'Cairo', sans-serif;
+      color: #0f172a;
+      font-weight: 800;
+      line-height: 1.4;
+    }
+    .chapter-header {
+      border-bottom: 3px solid #2563eb;
+      padding-bottom: 12px;
+      margin-bottom: 22px;
+      position: relative;
+    }
+    .chapter-number {
+      display: inline-block;
+      font-size: 11.5px;
+      font-weight: 800;
+      color: #2563eb;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      padding: 3px 12px;
+      border-radius: 20px;
+      margin-bottom: 8px;
+    }
+    .chapter-title {
+      font-size: 22px;
+      font-weight: 900;
+      color: #0f172a;
+    }
+    .section-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #1e3a8a;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title::before {
+      content: '';
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      background: #2563eb;
+      border-radius: 50%;
+    }
+
+    p {
+      margin-bottom: 12px;
+      color: #334155;
+      font-size: 13px;
+      text-align: justify;
+    }
+
+    /* Educational Callout Boxes */
+    .callout {
+      padding: 14px 18px;
+      border-radius: 12px;
+      margin: 16px 0;
+      page-break-inside: avoid;
+      position: relative;
+    }
+    .callout-analogy {
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      border-right: 5px solid #22c55e;
+    }
+    .callout-analogy .callout-title {
+      color: #15803d;
+      font-weight: 800;
+      font-size: 13.5px;
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .callout-concept {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-right: 5px solid #2563eb;
+    }
+    .callout-concept .callout-title {
+      color: #1d4ed8;
+      font-weight: 800;
+      font-size: 13.5px;
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .callout-warning {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-right: 5px solid #f59e0b;
+    }
+    .callout-warning .callout-title {
+      color: #b45309;
+      font-weight: 800;
+      font-size: 13.5px;
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Diagrams & Flowcharts */
+    .flow-diagram {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 18px 14px;
+      margin: 18px 0;
+      page-break-inside: avoid;
+    }
+    .flow-steps {
+      display: flex;
+      justify-content: space-between;
+      align-items: stretch;
+      gap: 8px;
+    }
+    .flow-step-box {
+      flex: 1;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 12px 10px;
+      text-align: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .flow-step-box.primary {
+      border-color: #3b82f6;
+      background: #eff6ff;
+    }
+    .flow-step-box.success {
+      border-color: #22c55e;
+      background: #f0fdf4;
+    }
+    .flow-step-box.amber {
+      border-color: #f59e0b;
+      background: #fffbeb;
+    }
+    .flow-step-num {
+      font-size: 10px;
+      font-weight: 900;
+      color: #64748b;
+      margin-bottom: 4px;
+    }
+    .flow-step-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+    .flow-step-desc {
+      font-size: 10px;
+      color: #64748b;
+      line-height: 1.4;
+    }
+    .flow-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #94a3b8;
+      font-weight: 900;
+      font-size: 16px;
+    }
+
+    /* Cards Grid */
+    .cards-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 14px 0;
+      page-break-inside: avoid;
+    }
+    .cards-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 14px 0;
+      page-break-inside: avoid;
+    }
+    .info-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+    .info-card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px dashed #e2e8f0;
+    }
+    .info-card-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 12px;
+      background: #eff6ff;
+      color: #2563eb;
+    }
+    .info-card-title {
+      font-size: 12.5px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .info-card-body {
+      font-size: 11.5px;
+      color: #475569;
+      line-height: 1.6;
+    }
+
+    /* Comparison Table */
+    .edu-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 12px;
+      page-break-inside: avoid;
+    }
+    .edu-table th {
+      background: #0f172a;
+      color: #ffffff;
+      padding: 10px 12px;
+      text-align: right;
+      font-weight: 700;
+      border: 1px solid #0f172a;
+    }
+    .edu-table td {
+      padding: 9px 12px;
+      border: 1px solid #cbd5e1;
+      color: #334155;
+    }
+    .edu-table tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+
+    /* Highlight badge */
+    .tag {
+      display: inline-block;
+      padding: 1px 7px;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #0f172a;
+      direction: ltr;
+    }
+
+    /* Key takeaways / Summary Box */
+    .summary-box {
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-top: 20px;
+      page-break-inside: avoid;
+    }
+    .summary-box-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .summary-list {
+      list-style-type: none;
+      padding: 0;
+    }
+    .summary-list li {
+      position: relative;
+      padding-right: 18px;
+      margin-bottom: 5px;
+      font-size: 12px;
+      color: #334155;
+    }
+    .summary-list li::before {
+      content: '✔';
+      position: absolute;
+      right: 0;
+      color: #16a34a;
+      font-weight: 900;
+      font-size: 11px;
+    }
+
+    /* Page Footer */
+    .page-footer-bar {
+      border-top: 1px solid #e2e8f0;
+      padding-top: 8px;
+      margin-top: 30px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== COVER PAGE ==================== -->
+  <div class="cover-page">
+    <div class="cover-top">
+      <div class="cover-badge">🚀 دليل تدريبي وعملي للشباب والمبتدئين</div>
+      <h1 class="cover-title">
+        رحلة بناء نظام مطعم إلكتروني متكامل<br>
+        من الفكرة على الورق.. إلى الواقع الفعلي!
+      </h1>
+      <p class="cover-subtitle">
+        دليل تعليمي خطوة بخطوة يشرح كيف يُصنع تطبيق حقيقي لإدارة المطاعم، والطلبات، والمطبخ، والفواتير 
+        باستخدام أحدث تقنيات الويب السحابية (PWA & Real-Time Cloud) بدون أي تعقيد.
+      </p>
+
+      <div class="cover-meta-grid">
+        <div class="cover-meta-card">
+          <div class="label">الفئة المستهدفة</div>
+          <div class="val">شباب ومبتدئو البرمجة</div>
+        </div>
+        <div class="cover-meta-card">
+          <div class="label">أسلوب الشرح</div>
+          <div class="val">مبسط بأمثلة من الواقع اليومي</div>
+        </div>
+        <div class="cover-meta-card">
+          <div class="label">نوع المشروع المدروس</div>
+          <div class="val">نظام طلبات وPOS سحابي حقيقي</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cover-footer">
+      <div>إعداد ومشاركة: رحلة تعليمية تطبيقية لإلهام الجيل الصاعد من المبرمجين</div>
+      <div>سنة الإصدار: 2026 م</div>
+    </div>
+  </div>
+
+  <!-- ==================== INTRODUCTION ==================== -->
+  <div class="avoid-break" style="margin-top: 10px;">
+    <div class="chapter-header">
+      <span class="chapter-number">المقدمة الملهمة</span>
+      <h2 class="chapter-title">ما هي البرمجة حقاً؟ ولماذا نبني هذا المشروع؟</h2>
+    </div>
+
+    <p>
+      أهلاً بكم يا شباب المستقبل! إذا سألت أي شخص في الشارع: <em>"يعني إيه برمجة؟"</em>، غالباً سيتخيل شخصاً يجلس في غرفة مظلمة ويكتب كلمات إنجليزية خضراء غامضة بسرعة خارقة مثل أفلام هوليوود. 
+      <strong>لكن الحقيقة أبسط وأجمل بكثير!</strong>
+    </p>
+
+    <div class="callout callout-concept">
+      <div class="callout-title">💡 التعريف الحقيقي للبرمجة:</div>
+      البرمجة ليست مجرد حفظ أوامر، بل هي <strong>"فن حل مشكلات الناس في الحياة اليومية وتحويل المهام المتعبة إلى خطوات تلقائية وسريعة بضغطة زر واحدة."</strong>
+    </div>
+
+    <h3 class="section-title">قصة المشروع: ما هي المشكلة التي أردنا حلها لمطعم "صاج"؟</h3>
+    <p>
+      تخيلوا معنا مطعماً مشهوراً يقدم أشهى الوجبات. قبل وجود هذا النظام، كانت الأمور تسير بالشكل التقليدي:
+    </p>
+    
+    <div class="cards-grid-3">
+      <div class="info-card">
+        <div class="info-card-header">
+          <div class="info-card-icon" style="background:#fee2e2; color:#ef4444;">1</div>
+          <div class="info-card-title">تطاير وضياع الأوراق</div>
+        </div>
+        <div class="info-card-body">
+          الويتر يكتب الطلب على ورقة بخط غير واضح، والورقة قد تضيع أو تبتل داخل المطبخ، فيتأخر أوردر العميل!
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-header">
+          <div class="info-card-icon" style="background:#fef3c7; color:#d97706;">2</div>
+          <div class="info-card-title">أخطاء الحسابات اليدوية</div>
+        </div>
+        <div class="info-card-body">
+          الكاشير يحسب بالآلة الحاسبة في أوقات الزحام، وقد يخطئ في خصم، أو ينسى إضافة ثمن إكسترا جبنة!
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-header">
+          <div class="info-card-icon" style="background:#f1f5f9; color:#475569;">3</div>
+          <div class="info-card-title">صعوبة المتابعة والأرباح</div>
+        </div>
+        <div class="info-card-body">
+          صاحب المطعم لا يعرف بدقة في نهاية اليوم: كم بعنا اليوم؟ ما هي الوجبة الأكثر طلباً؟ وكم إجمالي الإيرادات؟
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-analogy">
+      <div class="callout-title">🎯 دورنا كمبرمجين ومهندسين:</div>
+      جلسنا وفكرنا: كيف نصنع نظاماً متكاملاً، يفتح به الزبون المنيو من هاتفه مباشرة، ويطلب الوجبة، فيدق جرس المطبخ في نفس اللحظة، وتُحسب الحسابات أوتوماتيكياً بدقة 100%، ويستطيع صاحب المطعم مراجعة أرباح اليوم بنقرة واحدة؟ هذا الدليل هو قصة بناء هذا السيستم بالكامل.
+    </div>
+  </div>
+
+  <!-- ==================== CHAPTER 1 ==================== -->
+  <div class="page-break"></div>
+
+  <div class="chapter-header">
+    <span class="chapter-number">الفصل الأول</span>
+    <h2 class="chapter-title">النظرة من الطائرة: كيف يعمل أي موقع أو نظام برمجي في العالم؟</h2>
+  </div>
+
+  <p>
+    لكي نفهم السيستم، دعونا نبسط أشهر مصطلحين في عالم الويب: <strong>الواجهة الأمامية (Frontend)</strong> و <strong>الواجهة الخلفية (Backend)</strong>، وسنستخدم تشبيهاً شهيراً جداً: <strong>"تشبيه المطعم الواقعي"</strong>!
+  </p>
+
+  <div class="callout callout-analogy">
+    <div class="callout-title">🍽️ تشبيه المطعم الشهير لشرح مصطلحات البرمجة:</div>
+    <ul style="padding-right: 20px; line-height: 1.8; font-size: 12.5px;">
+      <li><strong>صالة المطعم والديكور وقائمة الطعام (Frontend):</strong> كل ما يراه الزبون ويلمسه ويتفاعل معه بعينيه (الألوان، الصور، الأزرار، السلة).</li>
+      <li><strong>المطبخ والمخزن والثلاجات (Backend & Database):</strong> المكان الداخلي الذي لا يراه الزبون، ولكنه المسؤول عن تخزين المكونات، وطهي الطعام، وحفظ سجلات الفواتير بأمان.</li>
+      <li><strong>الويتر / النادل (API & Network):</strong> هو المرسال؛ يأخذ اختيار الزبون من الصالة ويوصله للمطبخ، ثم يعود للزبون بالطعام اللذيذ.</li>
+    </ul>
+  </div>
+
+  <h3 class="section-title">ما نوع التطبيق الذي بنيناه؟ سر اختيار تقنية PWA!</h3>
+  <p>
+    عندما فكرنا في التطبيق، سألنا أنفسنا: هل نبرمج تطبيقاً يحتاج العميل لتحميله من متجر جوجل أو آبل (مثل تطبيقات APK التي تأخذ مساحة ووقتاً)؟ أم نصنع شيئاً أذكى وأسرع بكثير؟
+  </p>
+
+  <table class="edu-table">
+    <thead>
+      <tr>
+        <th style="width: 25%;">وجه المقارنة</th>
+        <th style="width: 37%;">تطبيقات المتاجر التقليدية (Native App)</th>
+        <th style="width: 38%;">تطبيق الويب التقدمي (PWA) الذي بنيناه</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>طريقة الاستخدام</strong></td>
+        <td>يجب على العميل فتح المتجر، والبحث، والانتظار حتى ينتهي التحميل.</td>
+        <td><strong>فوري بضغطة واحدة!</strong> يمسح باركود الطاولة أو يفتح الرابط فيبدأ فوراً.</td>
+      </tr>
+      <tr>
+        <td><strong>مساحة الهاتف</strong></td>
+        <td>تستهلك 50 إلى 100 ميجابايت من ذاكرة الهاتف.</td>
+        <td><strong>خفيف جداً</strong>، لا يشغل أي مساحة تُذكر على هاتف الزبون.</td>
+      </tr>
+      <tr>
+        <td><strong>العمل على جميع الأجهزة</strong></td>
+        <td>تحتاج لكتابة كود للأندرويد وكود مختلف تماماً للآيفون!</td>
+        <td><strong>كود واحد موحد</strong> يعمل بسلاسة على أندرويد، آيفون، كمبيوتر، وتابلت المطبخ.</td>
+      </tr>
+      <tr>
+        <td><strong>العمل بدون إنترنت (Offline)</strong></td>
+        <td>ممكن، لكنه معقد في التحديثات.</td>
+        <td><strong>مدعوم بقوة!</strong> بفضل تقنية <span class="tag">Service Worker</span>، يعمل النظام كأنه مثبت محلياً.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="summary-box">
+    <div class="summary-box-title">📌 ماذا نستفيد من هذا الفصل؟</div>
+    <ul class="summary-list">
+      <li>أي برنامج يتكون من واجهة مستخدم (Frontend) ومخزن بيانات سحابي (Backend).</li>
+      <li>تقنية الويب التقدمي (PWA) هي خيار عبقري للمطاعم لأن الزبون لا يملك وقتاً لتحميل تطبيق من المتجر وهو جائع ويريد الطلب حالاً!</li>
+    </ul>
+  </div>
+
+  <!-- ==================== CHAPTER 2 ==================== -->
+  <div class="page-break"></div>
+
+  <div class="chapter-header">
+    <span class="chapter-number">الفصل الثاني</span>
+    <h2 class="chapter-title">الواجهة الأمامية (Frontend): ثلاثي أضواء المسرح (HTML, CSS, JS)</h2>
+  </div>
+
+  <p>
+    كل صفحة ويب تراها على الإنترنت، بما فيها صفحات مطعمنا، مبنية بواسطة ثلاثة أصدقاء لا يفترقون أبداً:
+  </p>
+
+  <div class="cards-grid-3">
+    <div class="info-card" style="border-top: 4px solid #ef4444;">
+      <div class="info-card-header">
+        <div class="info-card-icon" style="background:#fee2e2; color:#ef4444;">H</div>
+        <div class="info-card-title">HTML (الهيكل العظمي)</div>
+      </div>
+      <div class="info-card-body">
+        هي جدران وعظام الموقع. تقول للمتصفح: "ضع هنا صورة الوجبة، ضع هنا اسم البيتزا، وضع هنا زر إضافة للسلة". بدونها لا توجد عناصر في الصفحة!
+      </div>
+    </div>
+
+    <div class="info-card" style="border-top: 4px solid #3b82f6;">
+      <div class="info-card-header">
+        <div class="info-card-icon" style="background:#eff6ff; color:#3b82f6;">C</div>
+        <div class="info-card-title">CSS (الملابس والجماليات)</div>
+      </div>
+      <div class="info-card-body">
+        هي مهندس الديكور ومصمم الأزياء! تختار ألوان الأزرار (برتقالي مشهي، أخضر للنجاح)، نوع الخط العربي الجميل، وتجعل التصميم مرناً ومتجاوباً.
+      </div>
+    </div>
+
+    <div class="info-card" style="border-top: 4px solid #eab308;">
+      <div class="info-card-header">
+        <div class="info-card-icon" style="background:#fef9c3; color:#ca8a04;">J</div>
+        <div class="info-card-title">JavaScript (المخ والعضلات)</div>
+      </div>
+      <div class="info-card-body">
+        هي العقل المفكر والحركة! عندما يضغط الزبون (+) تزيد الكمية، تحسب السعر، تخصم الكوبون، وترسل الأوردر لقاعدة البيانات فورياً.
+      </div>
+    </div>
+  </div>
+
+  <h3 class="section-title">صفحات النظام الأساسية التي صممناها:</h3>
+  <div class="cards-grid-2">
+    <div class="info-card">
+      <div class="info-card-header">
+        <div class="info-card-icon">1</div>
+        <div class="info-card-title">صفحة الزبون (order.html)</div>
+      </div>
+      <div class="info-card-body">
+        واجهة فائقة الأناقة تعرض قصة المطعم، الأقسام (شاورما، برجر، بيتزا، مشروبات)، محرك بحث فوري، سلة مشتريات ذكية، واختيار نوع الطلب (صالة طاولة رقم كذا، أو سفري تيك أواي، أو دليفري للمنزل).
+      </div>
+    </div>
+
+    <div class="info-card">
+      <div class="info-card-header">
+        <div class="info-card-icon">2</div>
+        <div class="info-card-title">لوحة تحكم الإدارة (admin.html)</div>
+      </div>
+      <div class="info-card-body">
+        لوحة قيادة صاحب المطعم والشيف: شاشة المطبخ الحي، كاشير الصالة السريع، تعديل أسعار الوجبات، إضافة عروض، وأرشيف الفواتير الحسابي الذكي.
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout-concept">
+    <div class="callout-title">📱 سحر التصميم المتجاوب (Responsive Web Design):</div>
+    هل لاحظتم كيف يفتح الموقع على شاشة الموبايل الصغير فيبدو كتطبيق موبايل مريح، وحين تفتحه على لابتوب أو شاشة تابلت في المطبخ يتسع ليعرض تفاصيل الطلبات في أعمدة متعددة؟ 
+    هذا بفضل قواعد الـ CSS الذكية (مثل <span class="tag">Media Queries</span> و <span class="tag">Flexbox & Grid</span>) التي تجعل الصفحة مثل الماء.. تتشكل حسب شكل الإناء الذي توضع فيه!
+  </div>
+
+  <!-- ==================== CHAPTER 3 ==================== -->
+  <div class="page-break"></div>
+
+  <div class="chapter-header">
+    <span class="chapter-number">الفصل الثالث</span>
+    <h2 class="chapter-title">السحر السحابي (Cloud & Real-Time): كيف يتحدث هاتف الزبون مع المطبخ؟</h2>
+  </div>
+
+  <p>
+    تخيل هذا الموقف الرائع: زبون جالس في سيارته أو في بيته يضغط على زر <strong>"إرسال الطلب الآن"</strong>.. وفي نفس الثانية، وبدون أن يلمس أحد شاشة المطبخ أو يضغط Refresh، تدق شاشة المطبخ نغمة موسيقية وتظهر الفاتورة فوراً للشيف! كيف حدث هذا السحر؟!
+  </p>
+
+  <div class="flow-diagram">
+    <div style="font-size:12px; font-weight:800; color:#0f172a; margin-bottom:12px; text-align:center;">
+      مسار حركة البيانات في اللحظة الحية (Data Pipeline Architecture)
+    </div>
+    <div class="flow-steps">
+      <div class="flow-step-box primary">
+        <div class="flow-step-num">خطوة 1</div>
+        <div class="flow-step-title">هاتف الزبون</div>
+        <div class="flow-step-desc">الزبون يضغط تأكيد الطلب ويتم تجميع بيانات الوجبات</div>
+      </div>
+      <div class="flow-arrow">←</div>
+      <div class="flow-step-box amber">
+        <div class="flow-step-num">خطوة 2</div>
+        <div class="flow-step-title">السحابة (Firebase)</div>
+        <div class="flow-step-desc">قاعدة البيانات السحابية تستقبل الفاتورة وتخزنها فوراً</div>
+      </div>
+      <div class="flow-arrow">←</div>
+      <div class="flow-step-box success">
+        <div class="flow-step-num">خطوة 3</div>
+        <div class="flow-step-title">شاشة المطبخ</div>
+        <div class="flow-step-desc">السحابة تدفع البيانات تلقائياً، فيرن الجرس وتبدأ الوجبة!</div>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="section-title">تقنية البث الحي (WebSockets): وداعاً لزر التحديث (Refresh)!</h3>
+  <p>
+    في المواقع القديمة، كان لابد أن تضغط على زر إعادة التحميل (F5) لترى إذا كانت هناك رسالة جديدة. 
+    لكن في نظامنا، استخدمنا تقنية تسمى <strong>WebSockets عبر Firebase Realtime Database</strong>.
+  </p>
+
+  <div class="callout callout-analogy">
+    <div class="callout-title">📞 تشبيه مبسط لمفهوم الـ WebSockets:</div>
+    المواقع القديمة تشبه إرسال رسالة في البريد وانتظار الرد، لابد أن تذهب لصندوق البريد كل 5 دقائق لترى هل وصلت رسالة جديدة؟ 
+    أما تقنية <strong>WebSockets</strong> فهي مثل <strong>مكالمة هاتفية مفتوحة 24 ساعة</strong> بين شاشة المطبخ وقاعدة البيانات؛ بمجرد أن يتكلم الزبون، يسمعه المطبخ في نفس اللحظة بدون أدنى تأخير!
+  </div>
+
+  <h3 class="section-title">نظام الرنين الصوتي الذكي (Audio Engine):</h3>
+  <p>
+    طهاة المطبخ منشغلون بالطهي ولا ينظرون للشاشة طوال الوقت. لذلك برمجنا دالة في الجافاسكريبت تقوم بالآتي:
+    كلما وصل طلب جديد يحمل رقماً تعريفياً لم يكن موجوداً من قبل، يقوم النظام بتشغيل نغمة تنبيه لطيفة وقوية عبر مكبر الصوت (Web Audio API)، لتنبيه الشيف بالبدء فوراً.
+  </p>
+
+  <div class="summary-box">
+    <div class="summary-box-title">📌 ماذا نستفيد من هذا الفصل؟</div>
+    <ul class="summary-list">
+      <li>البيانات لا تسحر بالهواء، بل تسافر عبر الإنترنت إلى قاعدة بيانات سحابية منظمة (JSON Tree).</li>
+      <li>الاتصال اللحظي (Real-Time) هو ما يعطي أي تطبيق طابع القوة والاحترافية والسرعة.</li>
+    </ul>
+  </div>
+
+  <!-- ==================== CHAPTER 4 ==================== -->
+  <div class="page-break"></div>
+
+  <div class="chapter-header">
+    <span class="chapter-number">الفصل الرابع</span>
+    <h2 class="chapter-title">تحدي انقطاع الإنترنت (Offline-First): كيف لا يتوقف المطعم أبداً؟</h2>
+  </div>
+
+  <p>
+    أحد أكبر الأسئلة التي قد يسألها أي صاحب مشروع ذكي: 
+    <em>"ماذا لو انقطع الإنترنت فجأة داخل المطعم بسبب عطل في الشبكة؟ هل تتوقف حركة البيع ويتعطل العمل؟"</em>
+    <strong>الجواب: مستحيل! بفضل هندسة (Offline-First).</strong>
+  </p>
+
+  <div class="cards-grid-2">
+    <div class="info-card">
+      <div class="info-card-header">
+        <div class="info-card-icon" style="background:#e0e7ff; color:#4338ca;">1</div>
+        <div class="info-card-title">الحارس السري: Service Worker</div>
+      </div>
+      <div class="info-card-body">
+        هو ملف جافاسكريبت خاص يعمل في خلفية المتصفح. وظيفته مثل أمين المخزن: في أول مرة تفتح فيها الموقع، يقوم بتحميل ملفات التصميم والأكواد والصور ويخزنها داخل ذاكرة المتصفح (Cache). 
+        لو انقطع الإنترنت تماماً، يقدم للمتصفح الملفات من الذاكرة المخزنة كأنك لم تفقد النت مطلقاً!
+      </div>
+    </div>
+
+    <div class="info-card">
+      <div class="info-card-header">
+        <div class="info-card-icon" style="background:#fef3c7; color:#b45309;">2</div>
+        <div class="info-card-title">الدفتر المحلي: LocalStorage</div>
+      </div>
+      <div class="info-card-body">
+        هي مساحة تخزين آمنة داخل هاتف أو كمبيوتر المستخدم. نستخدمها لحفظ محتويات سلة التسوق، وقائمة الأصناف، وكلمات المرور المشفرة. 
+        حتى لو قام المستخدم بعمل ريفريش للصفحة بالخطأ، لا تضيع أصنافه ولا تخرج من حسابه!
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout-concept">
+    <div class="callout-title">🔄 ذكاء المزامنة السحابية (Smart Synchronization):</div>
+    عندما يطلب الكاشير أوردر أثناء انقطاع النت، يتم تسجيل الفاتورة فوراً في الذاكرة المحلية (LocalStorage). 
+    وبمجرد أن تعود شبكة الإنترنت لثانية واحدة، يلاحظ النظام عودة الاتصال ويقوم برفع الفواتير أوتوماتيكياً إلى السحابة دون أي تدخل يدوي!
+  </div>
+
+  <h3 class="section-title">رحلة دورة حياة الطلب (Order Lifecycle):</h3>
+  <p>
+    لكي يفهم الجميع كيف يسير الطلب من الألف للياء، إليكم المراحل الأربع التي يمر بها أي أوردر داخل شاشة المطبخ والكاشير:
+  </p>
+
+  <div class="flow-diagram">
+    <div class="flow-steps">
+      <div class="flow-step-box amber">
+        <div class="flow-step-num">المرحلة 1</div>
+        <div class="flow-step-title">1. استلام الطلب</div>
+        <div class="flow-step-desc">الطلب جديد باللون البرتقالي بانتظار إشعار الشيف</div>
+      </div>
+      <div class="flow-arrow">←</div>
+      <div class="flow-step-box primary">
+        <div class="flow-step-num">المرحلة 2</div>
+        <div class="flow-step-title">2. قيد التجهيز</div>
+        <div class="flow-step-desc">الطهاة يقومون بطهي وتغليف الوجبات طازجة</div>
+      </div>
+      <div class="flow-arrow">←</div>
+      <div class="flow-step-box" style="background:#f5f3ff; border-color:#a855f7;">
+        <div class="flow-step-num">المرحلة 3</div>
+        <div class="flow-step-title">3. في الطريق / بالفرع</div>
+        <div class="flow-step-desc">الطلب مع الطيار أو جاهز على كاونتر الاستلام</div>
+      </div>
+      <div class="flow-arrow">←</div>
+      <div class="flow-step-box success">
+        <div class="flow-step-num">المرحلة 4</div>
+        <div class="flow-step-title">4. تم التسليم</div>
+        <div class="flow-step-desc">إنهاء الطلب وترحيله للأرشيف المالي وحساب الأرباح</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== CHAPTER 5 ==================== -->
+  <div class="page-break"></div>
+
+  <div class="chapter-header">
+    <span class="chapter-number">الفصل الخامس</span>
+    <h2 class="chapter-title">تحديات هندسية حقيقية: كيف يفكر المبرمج المحترف لحل الألغاز؟</h2>
+  </div>
+
+  <p>
+    هذا هو أهم فصل في هذا الدليل يا شباب! لأن الفرق بين المبرمج العادي والمبرمج المحترف ليس في كتابة الكود السريع، 
+    بل في <strong>طريقة التفكير عندما تظهر مشكلة غير متوقعة (Debugging Mindset)</strong>. 
+    إليكم مواقف حقيقية مررنا بها في هذا المشروع وكيف حللناها:
+  </p>
+
+  <div class="callout callout-warning">
+    <div class="callout-title">🧩 اللغز الأول: سر اختفاء الأوردر عند الوصول للرقم 100!</div>
+    <p style="margin-bottom:6px;"><strong>ماذا حدث؟</strong> لاحظ صاحب المطعم أنه عندما وصل عدد الأوردرات إلى 100، إذا دخل طلب جديد رقم 101، ينقص العدد فجأة ويصبح 99، ويختفي طلب قديم!</p>
+    <p style="margin-bottom:6px;"><strong>كيف فكرنا؟</strong> لم نخمن بعشوائية، بل بحثنا في كود جلب البيانات ووجدنا سطراً قديماً مكتوب فيه: <span class="tag">limitToLast(100)</span>. هذا السطر كان يخبر السيرفر: "أحضر آخر 100 طلب فقط وتجاهل الباقي!". فعندما يأتي الطلب 101 يسقط الطلب الأول!</p>
+    <p><strong>الحل الهندسي:</strong> أزلنا هذا القيد تماماً، وأصبح النظام يحفظ كل الطلبات بلا أي حدود، وجعلنا فحص الطلبات الجديدة يعتمد على المعرف الفريد للطلب بدلاً من حسابه بالعدد الإجمالي.</p>
+  </div>
+
+  <div class="callout callout-concept">
+    <div class="callout-title">⚡ اللغز الثاني: تكدس مئات الفواتير وبطء شاشة المطبخ!</div>
+    <p style="margin-bottom:6px;"><strong>ماذا حدث؟</strong> مع مرور الأسابيع وزيادة المبيعات، أصبح هناك آلاف الفواتير القديمة المسلّمة. لو تم عرضها كلها في شاشة واحدة، ستثقل الصفحة وتشتت طهاة المطبخ!</p>
+    <p style="margin-bottom:6px;"><strong>كيف فكرنا؟</strong> سألنا أنفسنا: ماذا يحتاج الشيف الآن؟ يحتاج فقط <em>"الطلبات التي تُطهى حالياً"</em>. وماذا يحتاج المحاسب وصاحب المطعم؟ يحتاج فواتير معينة في فترة محددة.</p>
+    <p><strong>الحل الهندسي:</strong> قمنا بعمل هندسة ذكية:
+      1) شاشة المطبخ تنظف نفسها أوتوماتيكياً ولا يظهر فيها إلا الطلبات الحية الحالية.
+      2) الطلبات المنتهية تُرحل إلى <strong>أرشيف الفواتير</strong>.
+      3) الأرشيف يُفرز افتراضياً على <strong>(اليوم الحالي فقط)</strong> ليبقى فائق الخفة، مع أزرار ذكية لاختيار: (أمس، آخر 7 أيام، هذا الشهر، أو فترة مخصصة بالتقويم).
+    </p>
+  </div>
+
+  <div class="callout callout-analogy">
+    <div class="callout-title">🔄 اللغز الثالث: متصفح الموبايل يحتفظ بالتصميم القديم (الكاش)!</div>
+    <p style="margin-bottom:6px;"><strong>ماذا حدث؟</strong> أحياناً نقوم برفع تعديل جديد جميل، فيفتحه العميل فيجد الشكل القديم لأن متصفح هاتفه خزن الملفات القديمة لتسريع الفتح!</p>
+    <p><strong>الحل الهندسي (Cache-Busting):</strong> قمنا بتغيير رقم إصدار الكود في كل تحديث (مثلاً من <span class="tag">v86.0</span> إلى <span class="tag">v87.0</span>). هذا الرقم الصغير بمثابة صافرة للمتصفح تقول له: "هناك إصدار جديد في السيرفر، امسح القديم وحمل الأحدث فوراً!".</p>
+  </div>
+
+  <!-- ==================== CHAPTER 6 ==================== -->
+  <div class="page-break"></div>
+
+  <div class="chapter-header">
+    <span class="chapter-number">الفصل السادس والأخير</span>
+    <h2 class="chapter-title">خارطة طريق ونصائح ذهبية لأي شاب يبدأ رحلة البرمجة</h2>
+  </div>
+
+  <p>
+    لكل شاب وشابة يقرأون هذه الكلمات ويحلمون بأن يصبحوا مبرمجين ومطوري برمجيات عالميين، إليكم أهم النصائح التي تختصر عليكم سنوات من التشتت:
+  </p>
+
+  <div class="cards-grid-2">
+    <div class="info-card">
+      <div class="info-card-header">
+        <div class="info-card-icon" style="background:#ecfdf5; color:#059669;">1</div>
+        <div class="info-card-title">اهرب من فخ الدورات اللانهائية!</div>
+      </div>
+      <div class="info-card-body">
+        مشاهدة 100 فيديو تعليمي على يوتيوب لن تجعلك مبرمجاً، تماماً مثلما أن مشاهدة 100 مباراة كرة قدم لن تجعلك لاعباً محترفاً! <strong>البرمجة تُتعلم بالأصابع وعلى لوحة المفاتيح.</strong> اكتب كوداً بيديك كل يوم ولو سطراً واحداً.
+      </div>
+    </div>
+
+    <div class="info-card">
+      <div class="info-card-header">
+        <div class="info-card-icon" style="background:#eff6ff; color:#2563eb;">2</div>
+        <div class="info-card-title">ابنِ مشاريع واقعية من البداية</div>
+      </div>
+      <div class="info-card-body">
+        بدلاً من بناء أمثلة مملة مثل (حساب مساحة الدائرة)، ابنِ شيئاً يحل مشكلة لصديقك أو لمحل بقالة أو لمطعم قريب منك، مثل هذا المشروع! المشاريع الحقيقية هي التي تبني سيرتك الذاتية وتجعلك مطلوباً في سوق العمل.
+      </div>
+    </div>
+
+    <div class="info-card">
+      <div class="info-card-header">
+        <div class="info-card-icon" style="background:#fef2f2; color:#dc2626;">3</div>
+        <div class="info-card-title">لا تخف من الأخطاء (Bugs) أبداً!</div>
+      </div>
+      <div class="info-card-body">
+        عندما يظهر لك خطأ أحمر في الشاشة، لا تحزن أو تظن أنك فاشل! أكبر مهندسي جوجل وشركات العالم يقضون نصف وقتهم في حل الأخطاء. <strong>الخطأ هو دليلك ومعلمك الأول لمعرفة كيف تعمل الأشياء في العمق.</strong>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <div class="info-card-header">
+        <div class="info-card-icon" style="background:#fffbeb; color:#d97706;">4</div>
+        <div class="info-card-title">تعلم كيف تسأل وتبحث (Google It)</div>
+      </div>
+      <div class="info-card-body">
+        المبرمج العظيم ليس من يحفظ كل الكلمات عن ظهر قلب، بل من يملك مهارة البحث الذكي، وقراءة التوثيق (Documentation)، وتجربة الحلول بذكاء وصبر.
+      </div>
+    </div>
+  </div>
+
+  <div class="summary-box" style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-color: #93c5fd; margin-top:25px;">
+    <div class="summary-box-title" style="color: #1e3a8a; font-size:14px;">
+      🌟 كلمة ختامية ملهمة من القلب:
+    </div>
+    <p style="color: #1e3a8a; font-size: 13px; margin-bottom: 0; line-height: 1.8;">
+      أنتم تعيشون في أعظم عصر في تاريخ البشرية؛ الأدوات كلها متاحة بين أيديكم مجاناً، والإنترنت مليء بالمعرفة، والذكاء الاصطناعي أصبح شريكك الذي يساعدك ويعلمك 24 ساعة. 
+      كل ما تحتاجه هو الشغف، والاستمرار، وعقل لا يستسلم للمشكلات. ابدأوا اليوم، وابنوا فكرتكم الأولى.. ومن يدري، قد يكون مشروعكم القادم هو التطبيق الذي يغير حياة ملايين الناس! 🚀❤️
+    </p>
+  </div>
+
+  <div class="page-footer-bar">
+    <div>دليل شرح نظام المطعم الإلكتروني - مسار تعليم البرمجة للشباب</div>
+    <div>تم الإعداد والتنسيق بأعلى معايير هندسة البرمجيات الحديثة</div>
+  </div>
+
+</body>
+</html>
