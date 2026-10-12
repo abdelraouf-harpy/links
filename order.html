@@ -166,38 +166,36 @@
       padding-bottom: 96px;
     }
 
-    /* 4. Promo Deal Card & Thumb Box */
-    .promo-deal-card {
-      background: linear-gradient(135deg, rgba(234, 88, 12, 0.08) 0%, rgba(249, 115, 22, 0.04) 100%);
-      border: 1.5px solid rgba(234, 88, 12, 0.25);
-      border-radius: 16px;
-      padding: 10px 14px;
-      margin: 2px 0 14px 0;
+    /* 4. Clean Promo Announcement Bar */
+    .promo-announcement-bar {
+      background: linear-gradient(135deg, rgba(255, 106, 0, 0.10) 0%, rgba(255, 69, 0, 0.05) 100%);
+      border: 1px solid rgba(255, 106, 0, 0.28);
+      border-radius: 14px;
+      padding: 10px 16px;
+      margin: 4px 0 14px 0;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 12px;
+      gap: 10px;
       box-sizing: border-box;
-      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(255, 106, 0, 0.06);
     }
-    .promo-deal-thumb-box {
-      width: 52px !important;
-      height: 52px !important;
-      min-width: 52px !important;
-      max-width: 52px !important;
-      max-height: 52px !important;
-      border-radius: 10px !important;
-      overflow: hidden !important;
-      flex-shrink: 0 !important;
-      border: 1.5px solid rgba(234, 88, 12, 0.25);
+    .promo-announcement-icon {
+      color: #FF6A00;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
     }
-    .promo-deal-thumb, #promo-deal-img {
-      width: 100% !important;
-      height: 100% !important;
-      max-width: 52px !important;
-      max-height: 52px !important;
-      object-fit: cover !important;
-      display: block !important;
+    .promo-announcement-text-col {
+      flex: 1;
+      min-width: 0;
+    }
+    .promo-announcement-text {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.4;
+      display: block;
     }
 
     /* 5. Food Card Display in Grid, Dual, Large and List */
@@ -525,26 +523,18 @@
   <main class="main-content-sheet">
     <div class="container">
 
-    <!-- Compact Promo Deal Voucher (Design Item 2) -->
-    <div id="promo-deal-card" class="promo-deal-card" style="display:none; align-items:center; justify-content:space-between; gap:12px; padding:10px 14px; border-radius:16px; margin:2px 0 14px 0;">
-      <div class="promo-deal-left" style="display:flex; align-items:center; gap:10px; min-width:0; flex:1;">
-        <div class="promo-deal-badge font-num" style="width:36px; height:36px; min-width:36px; border-radius:50%; background:var(--primary, #ea580c); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:16px; flex-shrink:0;">%</div>
-        <div class="promo-deal-text-col" style="min-width:0; flex:1;">
-          <div id="promo-deal-title" class="promo-deal-title" style="font-size:0.88rem; font-weight:800; line-height:1.3;">...</div>
-          <div id="promo-deal-subtitle" class="promo-deal-subtitle" style="font-size:0.74rem; font-weight:600; line-height:1.3;">...</div>
-        </div>
+    <!-- Clean Promotional Announcement Bar (No food image, no % badge) -->
+    <div id="promo-deal-card" class="promo-announcement-bar" style="display:none;">
+      <div class="promo-announcement-icon">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>
+        </svg>
       </div>
-      <div class="promo-deal-thumb-box" style="width:52px; height:52px; min-width:52px; max-width:52px; max-height:52px; border-radius:10px; overflow:hidden; flex-shrink:0; border:1.5px solid rgba(234,88,12,0.25); background:#1c1815;">
-        <img id="promo-deal-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect width='100%25' height='100%25' fill='%231c1815'/%3E%3C/svg%3E" alt="" class="promo-deal-thumb" style="width:100%; height:100%; object-fit:cover; display:block;" onerror="this.onerror=null;">
+      <div class="promo-announcement-text-col">
+        <span id="promo-deal-title" class="promo-announcement-text">...</span>
       </div>
     </div>
 
-    <!-- Fallback Announcement Bar -->
-    <div id="announcement-bar" class="announcement-bar" style="display:none;">
-      <span class="announcement-icon"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></span>
-      <span id="announcement-text" class="announcement-text"></span>
-      <span id="delivery-time-badge" class="delivery-chip-badge font-num" style="display:none;"></span>
-    </div>
 
     <!-- Stories Bar (Instagram/Snapchat Style Highlights - Design Item 3) -->
     <section class="stories-strip-section" id="stories-section" style="display:none;">
@@ -1819,16 +1809,16 @@
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=78.0"></script>
-  <script src="js/core/sound-effects.js?v=78.0"></script>
-  <script src="js/store.js?v=78.0"></script>
-  <script src="js/client/client-core.js?v=78.0"></script>
-  <script src="js/client/menu-view.js?v=78.0"></script>
-  <script src="js/client/stories-viewer.js?v=78.0"></script>
-  <script src="js/client/customizer-modal.js?v=78.0"></script>
-  <script src="js/client/cart-ledger.js?v=78.0"></script>
-  <script src="js/client/order-tracking.js?v=78.0"></script>
-  <script src="js/app.js?v=78.0"></script>
-  <script src="js/pwa.js?v=78.0"></script>
+  <script src="js/core/demo-seed-data.js?v=79.0"></script>
+  <script src="js/core/sound-effects.js?v=79.0"></script>
+  <script src="js/store.js?v=79.0"></script>
+  <script src="js/client/client-core.js?v=79.0"></script>
+  <script src="js/client/menu-view.js?v=79.0"></script>
+  <script src="js/client/stories-viewer.js?v=79.0"></script>
+  <script src="js/client/customizer-modal.js?v=79.0"></script>
+  <script src="js/client/cart-ledger.js?v=79.0"></script>
+  <script src="js/client/order-tracking.js?v=79.0"></script>
+  <script src="js/app.js?v=79.0"></script>
+  <script src="js/pwa.js?v=79.0"></script>
 </body>
 </html>

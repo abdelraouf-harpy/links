@@ -938,64 +938,22 @@ function renderAnnouncement() {
   const settings = Store.getSettings();
   const promoCard = document.getElementById('promo-deal-card');
   const promoTitle = document.getElementById('promo-deal-title');
-  const promoSubtitle = document.getElementById('promo-deal-subtitle');
-  const promoImg = document.getElementById('promo-deal-img');
 
-  if (promoImg) {
-    const prods = (Store.getProducts && typeof Store.getProducts === 'function') ? Store.getProducts() : [];
-    const featured = prods.find(p => p.isFeatured && p.image) || prods.find(p => p.image);
-    if (featured && featured.image) {
-      promoImg.src = featured.image;
-    } else if (settings.cover && settings.cover.trim() && settings.cover !== 'null') {
-      promoImg.src = settings.cover;
-    } else {
-      promoImg.src = "assets/portfolio/order_restaurant_showcase.jpg";
-    }
+  if (!promoCard) return;
+
+  if (settings.isOrderingPaused) {
+    promoCard.style.display = 'flex';
+    if (promoTitle) promoTitle.textContent = settings.orderingPausedMessage || 'المطعم متوقف حالياً عن استقبال الطلبات مؤقتاً';
+    return;
   }
 
-  if (promoCard) {
-    if (settings.isOrderingPaused) {
-      promoCard.style.display = 'flex';
-      if (promoTitle) promoTitle.textContent = 'المطعم متوقف حالياً عن استقبال الطلبات';
-      if (promoSubtitle) promoSubtitle.textContent = 'وضع تصفح واستعراض قائمة الطعام فقط';
-    } else {
-      const hasAnnouncement = settings.showAnnouncement && settings.announcementText;
-      // Fix: read correct field names used by settings-manager.js
-      const spendDiscount = settings.enableSpendTierDiscount && settings.spendTierMinAmount > 0;
-      const walletDiscount = settings.enableWalletDiscount && settings.walletDiscountValue > 0;
-
-      const promoBadge = document.querySelector('.promo-deal-badge');
-      if (hasAnnouncement) {
-        promoCard.style.display = 'flex';
-        if (promoBadge) promoBadge.textContent = '';
-        if (promoTitle) promoTitle.textContent = settings.announcementText;
-        if (promoSubtitle) promoSubtitle.textContent = settings.deliveryTime ? `وقت التوصيل التقديري: ${settings.deliveryTime}` : 'العرض متاح للطلب الفوري أونلاين';
-      } else if (spendDiscount) {
-        promoCard.style.display = 'flex';
-        if (promoBadge) promoBadge.textContent = '%';
-        const tierValue = settings.spendTierDiscountValue || 15;
-        const valStr = settings.spendTierDiscountType !== 'fixed' ? `${tierValue}%` : `${tierValue} ج.م`;
-        if (promoTitle) promoTitle.textContent = `خصم ${valStr} على الطلبات الأكثر من ${settings.spendTierMinAmount} ج.م `;
-        if (promoSubtitle) promoSubtitle.textContent = 'يطبق الخصم تلقائياً في السلة وعند الدفع';
-      } else if (walletDiscount) {
-        promoCard.style.display = 'flex';
-        if (promoBadge) promoBadge.textContent = '%';
-        const walletValue = settings.walletDiscountValue || 10;
-        const valStr = settings.walletDiscountType !== 'fixed' ? `${walletValue}%` : `${walletValue} ج.م`;
-        if (promoTitle) promoTitle.textContent = `خصم ${valStr} عند الدفع بالمحفظة الإلكترونية`;
-        if (promoSubtitle) promoSubtitle.textContent = 'فودافون كاش، إنستاباي والمحافظ البنكية';
-      } else {
-        const slug = Store.getRestaurantSlug();
-        if (slug === 'demo') {
-          promoCard.style.display = 'flex';
-          if (promoBadge) promoBadge.textContent = '%';
-          if (promoTitle) promoTitle.textContent = 'خصم 15% على جميع الطلبات';
-          if (promoSubtitle) promoSubtitle.textContent = 'العرض متاح اليوم فقط عند الطلب عبر المنيو';
-        } else {
-          promoCard.style.display = 'none';
-        }
-      }
-    }
+  // Only display if announcement is explicitly enabled and has text! Zero food photos, zero % badge!
+  const hasAnnouncement = settings.showAnnouncement && settings.announcementText && settings.announcementText.trim();
+  if (hasAnnouncement) {
+    promoCard.style.display = 'flex';
+    if (promoTitle) promoTitle.textContent = settings.announcementText.trim();
+  } else {
+    promoCard.style.display = 'none';
   }
 
   if (elements.announcementBar) {

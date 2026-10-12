@@ -2540,6 +2540,17 @@ html.admin-unlocked #login-modal-backdrop {
   border: 1px solid rgba(22, 163, 74, 0.25);
 }
 
+.admin-settings-card {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+.admin-settings-card:hover {
+  border-color: rgba(234, 88, 12, 0.35);
+}
+[data-theme="dark"] .admin-settings-card {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
 /* ═══════════════════════════════════════════════════════════
    HARPY PRO: MOBILE RESPONSIVE ENGINE (Screen Width <= 600px)
    Eliminates overlapping buttons, reclaims wasted screen space,
@@ -2555,7 +2566,8 @@ html.admin-unlocked #login-modal-backdrop {
     max-width: 100% !important;
   }
   .admin-card,
-  .admin-form-card {
+  .admin-form-card,
+  .admin-settings-card {
     padding: 14px 10px !important;
     border-radius: 12px !important;
     margin-bottom: 12px !important;

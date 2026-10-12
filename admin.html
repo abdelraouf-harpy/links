@@ -751,50 +751,228 @@
 
 
         <form id="settings-form">
-          <div class="settings-identity-grid">
-            <div class="form-group" style="margin-bottom:0;">
-              <label class="form-label" style="margin-bottom:6px;">اسم المطعم / المكان *</label>
-              <input type="text" id="set-store-name" class="form-input" placeholder="اسم المطعم" required>
+          <!-- ── CARD 1: BRAND IDENTITY & MEDIA ─────────────────── -->
+          <div class="admin-settings-card" style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:20px; margin-bottom:20px;">
+            <div style="font-size:15px; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+              <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M3 21h18M3 7v14M21 7v14M6 11v6M10 11v6M14 11v6M18 11v6M9 3h6l1 4H8z"/></svg>
+              <span>1. هوية المطعم والشعار وصور الواجهة</span>
             </div>
-            <div class="form-group" style="margin-bottom:0;">
-              <label class="form-label" style="margin-bottom:6px;">الوصف الترويجي (Tagline)</label>
-              <input type="text" id="set-store-tagline" class="form-input" placeholder="أشهى المشويات، البرجر الفاخر...">
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">
+              البيانات الرئيسية التي تمثل اسم المطعم، عملة الحسابات، وصور الشعار والغلاف التي تظهر في رأس المنيو.
+            </p>
+
+            <div class="settings-identity-grid" style="margin-bottom:16px;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" style="margin-bottom:6px;">اسم المطعم / المكان *</label>
+                <input type="text" id="set-store-name" class="form-input" placeholder="اسم المطعم" required>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" style="margin-bottom:6px;">الوصف الترويجي (Tagline)</label>
+                <input type="text" id="set-store-tagline" class="form-input" placeholder="أشهى المشويات، البرجر الفاخر...">
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" style="margin-bottom:6px;">رمز العملة *</label>
+                <input type="text" id="set-currency" class="form-input font-num" placeholder="ج.م" required>
+              </div>
             </div>
-            <div class="form-group" style="margin-bottom:0;">
-              <label class="form-label" style="margin-bottom:6px;">رمز العملة *</label>
-              <input type="text" id="set-currency" class="form-input font-num" placeholder="ج.م" required>
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
+              <!-- Logo Uploader -->
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">شعار المطعم (Logo)</label>
+                <div class="device-image-uploader" id="logo-dropzone">
+                  <input type="file" id="set-logo-file" accept="image/*" class="device-image-input">
+                  <div class="device-image-prompt" id="logo-prompt">
+                    <div class="device-image-icon">
+                      <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+                    </div>
+                    <div class="device-image-title">اختر صورة الشعار من جهازك</div>
+                    <div class="device-image-desc">PNG أو JPG بأبعاد مربعة</div>
+                  </div>
+                  <div class="device-preview-wrapper" id="logo-preview-wrap">
+                    <img id="logo-preview-img" class="device-preview-thumb" alt="Logo Preview">
+                    <button type="button" id="btn-remove-logo" class="device-preview-remove-btn"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                  </div>
+                </div>
+                <input type="hidden" id="set-logo-url">
+                <input type="url" id="set-logo-url-direct" class="form-input" placeholder="أو الصق رابط صورة الشعار مباشرة (https://...)" style="margin-top:8px; font-size:12px; font-family:inherit;">
+              </div>
+
+              <!-- Cover Banner Uploader -->
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">غلاف أعلى الصفحة (Cover Banner)</label>
+                <div class="device-image-uploader" id="cover-dropzone">
+                  <input type="file" id="set-cover-file" accept="image/*" class="device-image-input">
+                  <div class="device-image-prompt" id="cover-prompt">
+                    <div class="device-image-icon">
+                      <svg class="icon" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.08-3.08a2 2 0 0 0-2.82 0L6 21"/></svg>
+                    </div>
+                    <div class="device-image-title">اختر صورة الغلاف من جهازك</div>
+                    <div class="device-image-desc">صورة عريضة عالية الدقة</div>
+                  </div>
+                  <div class="device-preview-wrapper" id="cover-preview-wrap">
+                    <img id="cover-preview-img" class="device-preview-thumb" alt="Cover Preview">
+                    <button type="button" id="btn-remove-cover" class="device-preview-remove-btn"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                  </div>
+                </div>
+                <input type="hidden" id="set-cover-url">
+                <input type="url" id="set-cover-url-direct" class="form-input" placeholder="أو الصق رابط صورة الغلاف مباشرة (https://...)" style="margin-top:8px; font-size:12px; font-family:inherit;">
+              </div>
             </div>
           </div>
 
-          <!-- Day / Night Theme Toggle Row in Settings -->
-          <div style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:16px 18px; margin-bottom:18px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
-            <div>
-              <div style="font-size:14px; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:6px;">
-                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
-                <span>مظهر لوحة التحكم (الوضع الليلي والنهاري)</span>
+          <!-- ── CARD 2: CONTACT, LOCATION & SOCIAL CHANNELS ──────── -->
+          <div class="admin-settings-card" style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:20px; margin-bottom:20px;">
+            <div style="font-size:15px; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+              <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              <span>2. بيانات التواصل، العنوان وحسابات السوشيال ميديا</span>
+            </div>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">
+              جميع قنوات التواصل المباشر مع العملاء لاستقبال الطلبات، الاتصال الهاتفي، عنوان الفرع، وروابط منصات التواصل.
+            </p>
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-bottom:16px;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">رقم الواتساب لاستقبال الطلبات *</label>
+                <input type="tel" id="set-whatsapp" class="form-input font-num" placeholder="2010xxxxxxxx" required>
               </div>
-              <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">
-                التبديل بين الوضع الداكن والوضع الفاتح بلمسة واحدة
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">رقم الهاتف للاتصال المباشر</label>
+                <input type="tel" id="set-phone" class="form-input font-num" placeholder="010xxxxxxxx">
               </div>
             </div>
-            <button type="button" class="btn btn-ghost btn-sm" onclick="handleThemeToggle()" style="border:1px solid var(--border); font-weight:800; padding:6px 14px; border-radius:var(--radius-xs); display:inline-flex; align-items:center; gap:6px; cursor:pointer; background:var(--surface);">
-              <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
-              <span>تبديل المظهر (ليلي / نهاري)</span>
-            </button>
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-bottom:16px;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">عنوان الفرع أو المكان</label>
+                <input type="text" id="set-address" class="form-input" placeholder="مثال: شارع التحرير، الدقي، الجيزة">
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">رابط موقع الفرع على خرائط Google</label>
+                <input type="url" id="set-location-url" class="form-input font-num" placeholder="https://maps.app.goo.gl/...">
+              </div>
+            </div>
+
+            <!-- Social Media Profiles -->
+            <div style="padding-top:14px; border-top:1px dashed var(--border-strong);">
+              <label class="form-label" style="font-size:12px; font-weight:800; color:var(--text-main); margin-bottom:10px; display:block;">
+                حسابات السوشيال ميديا (تظهر بأيقونات تفاعلية في صفحة البورتفوليو):
+              </label>
+              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px;">
+                <!-- Facebook -->
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label" style="display:flex; align-items:center; gap:6px; font-size:11.5px;">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                    <span>فيسبوك (Facebook)</span>
+                  </label>
+                  <input type="url" id="set-facebook-url" class="form-input font-num" placeholder="https://facebook.com/your-restaurant">
+                </div>
+
+                <!-- Instagram -->
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label" style="display:flex; align-items:center; gap:6px; font-size:11.5px;">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="#E1306C"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                    <span>إنستجرام (Instagram)</span>
+                  </label>
+                  <input type="url" id="set-instagram-url" class="form-input font-num" placeholder="https://instagram.com/your-restaurant">
+                </div>
+
+                <!-- TikTok -->
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label" style="display:flex; align-items:center; gap:6px; font-size:11.5px;">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.82 4.49 6.27 6.27 0 0 0 1.87-4.49V8.62a8.28 8.28 0 0 0 4.9 1.58V6.75a4.85 4.85 0 0 1-1-.06z"/></svg>
+                    <span>تيك توك (TikTok)</span>
+                  </label>
+                  <input type="url" id="set-tiktok-url" class="form-input font-num" placeholder="https://tiktok.com/@your-restaurant">
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- Automatic Multi-Discount Matrix -->
-          <div style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:18px; margin-bottom:18px;">
-            <div style="font-size:14.5px; font-weight:800; color:var(--text-main); margin-bottom:14px;">
-              <span>مصفوفة الخصومات التلقائية والتحفيزية</span>
+          <!-- ── CARD 3: STORE OPERATIONS, HOURS & THERMAL PRINTING ── -->
+          <div class="admin-settings-card" style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:20px; margin-bottom:20px;">
+            <div style="font-size:15px; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+              <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span>3. تشغيل المطعم، مواعيد العمل والطباعة الحرارية</span>
+            </div>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">
+              التحكم في فتح وإغلاق استقبال الطلبات، أوقات العمل التقديرية، وإعدادات طابعات فواتير الكاشير والمطبخ.
+            </p>
+
+            <!-- Store Ordering Status (Open vs Temporarily Paused) -->
+            <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:16px; margin-bottom:16px;">
+              <div class="form-group" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <div>
+                  <label for="set-ordering-paused" style="font-size:0.92rem; font-weight:800; color:var(--text-main); cursor:pointer; display:flex; align-items:center; gap:6px;">
+                    إيقاف استقبال الطلبات مؤقتاً (المطعم مغلق حالياً)
+                  </label>
+                  <div style="font-size:11.5px; color:var(--text-muted); margin-top:3px;">
+                    يتيح للعملاء تصفح المنيو، وعند محاولة الطلب تظهر رسالة التوقف ومواعيد العمل.
+                  </div>
+                </div>
+                <input type="checkbox" id="set-ordering-paused" style="width:22px; height:22px; accent-color:var(--danger, #ef4444); cursor:pointer;">
+              </div>
+              <div id="set-paused-msg-group" class="form-group" style="margin-bottom:0;">
+                <label class="form-label" style="font-size:11px;">رسالة الإغلاق التوضيحية للزبائن</label>
+                <textarea id="set-ordering-paused-msg" class="form-input" rows="2" placeholder="المطعم متوقف حالياً عن استقبال الطلبات. مواعيد العمل يومياً من 12 ظهراً حتى 2 صباحاً. نسعد بخدمتكم قريباً!"></textarea>
+              </div>
             </div>
 
-            <div class="discounts-matrix-grid">
-<!-- 1. Digital Wallet Discount -->
-            <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:16px; margin-bottom:14px;">
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-bottom:16px;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">مواعيد العمل والاستقبال</label>
+                <input type="text" id="set-working-hours" class="form-input" placeholder="يومياً من 11:00 صباحاً حتى 2:00 صباحاً">
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">وقت التوصيل التقديري</label>
+                <input type="text" id="set-delivery-time" class="form-input" placeholder="مثال: 30-45 دقيقة">
+              </div>
+            </div>
+
+            <!-- Thermal Printer Paper Size -->
+            <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:16px;">
+              <div style="font-size:0.92rem; font-weight:800; color:var(--text-main); margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+                <span>مقاس طابعة الفواتير الحرارية (رول الورق)</span>
+              </div>
+              <div style="font-size:11.5px; color:var(--text-muted); margin-bottom:10px;">
+                ضبط هوامش وأبعاد الفاتورة تلقائياً لتناسب طابعتك بدون أي قص للمعلومات.
+              </div>
+              <div class="form-group" style="margin-bottom:0; max-width:340px;">
+                <select id="set-printer-paper-size" class="form-input" style="font-weight:800;">
+                  <option value="80mm">80mm — رول عريض (طابعات الكاشير القياسية والمطبخ - افتراضي)</option>
+                  <option value="58mm">58mm — رول ضيق (طابعات البلوتوث المحمولة وأجهزة POS)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── CARD 4: DIGITAL WALLETS & CASH PAYMENTS ─────────── -->
+          <div class="admin-settings-card" style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:20px; margin-bottom:20px;">
+            <div style="font-size:15px; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+              <svg class="icon icon-sm" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+              <span>4. المحافظ الإلكترونية والدفع الذكي</span>
+            </div>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">
+              إعداد رقم التحويل لمحفظة فودافون كاش، إنستاباي، أو الحسابات البنكية، مع إمكانية تحفيز العملاء بخصم مخصص عند الدفع الإلكتروني.
+            </p>
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-bottom:16px;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">رقم محفظة الكاش لاستقبال التحويلات *</label>
+                <input type="text" id="set-wallet-number" class="form-input font-num" placeholder="010xxxxxxxx" required>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">اسم المحفظة التوضيحي للزبائن</label>
+                <input type="text" id="set-wallet-name" class="form-input" placeholder="فودافون كاش / إنستاباي">
+              </div>
+            </div>
+
+            <!-- Digital Wallet Discount Box -->
+            <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:16px;">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                 <div style="font-weight:800; font-size:13.5px; color:var(--text-main);">
-                  1. خصم الدفع الإلكتروني (فودافون كاش / إنستاباي)
+                  خصم تشجيعي عند الدفع بالمحفظة الإلكترونية
                 </div>
                 <input type="checkbox" id="set-enable-wallet-discount" style="width:20px; height:20px; accent-color:var(--primary); cursor:pointer;">
               </div>
@@ -812,12 +990,37 @@
                 </div>
               </div>
             </div>
+          </div>
+
+          <!-- ── CARD 5: PROMOTIONS, ANNOUNCEMENTS & DISCOUNTS ───── -->
+          <div class="admin-settings-card" style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:20px; margin-bottom:20px;">
+            <div style="font-size:15px; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+              <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+              <span>5. العروض الترويجية، شريط الإعلانات وكوبونات الخصم</span>
+            </div>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">
+              شريط الإعلانات الترويجي أعلى صفحة المنيو، خصومات الحد الأدنى للطلب، وكوبونات التخفيض للعملاء.
+            </p>
+
+            <!-- 1. Menu Top Announcement Bar -->
+            <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:16px; margin-bottom:16px;">
+              <div class="form-group" style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <input type="checkbox" id="set-show-announcement" style="width:18px; height:18px; accent-color:var(--primary); cursor:pointer;">
+                <label for="set-show-announcement" style="font-size:0.88rem; font-weight:800; color:var(--text-main); cursor:pointer;">
+                  تفعيل شريط الإعلانات الترويجي أعلى صفحة المنيو
+                </label>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" style="font-size:11px;">نص الإعلان الترويجي (يظهر كشريط أنيق أعلى المنيو بنصك فقط)</label>
+                <input type="text" id="set-announcement-text" class="form-input" placeholder="مثال: خصم خاص اليوم بمناسبة الافتتاح | التوصيل متاح حتى 2 صباحاً">
+              </div>
+            </div>
 
             <!-- 2. Spend Tier Discount -->
-            <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:16px; margin-bottom:14px;">
+            <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:16px; margin-bottom:16px;">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                 <div style="font-weight:800; font-size:13.5px; color:var(--text-main);">
-                  2. خصم قيمة الطلب الإجمالية (Spend Tier)
+                  خصم إجمالي قيمة الطلب (Spend Tier Discount)
                 </div>
                 <input type="checkbox" id="set-enable-spend-tier" style="width:20px; height:20px; accent-color:var(--primary); cursor:pointer;">
               </div>
@@ -840,10 +1043,10 @@
               </div>
             </div>
 
-            <!-- 3. Promo Codes -->
+            <!-- 3. Promo Codes & Coupons -->
             <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:16px;">
               <div style="font-weight:800; font-size:13.5px; color:var(--text-main); margin-bottom:12px;">
-                3. كوبونات الخصم والبروموكود (Promo Codes)
+                كوبونات الخصم والبروموكود (Promo Codes)
               </div>
               <div class="form-group" style="margin-bottom:10px;">
                 <label class="form-label" style="font-size:11px;">كود الخصم (مثال: KING10)</label>
@@ -867,111 +1070,78 @@
               </button>
               <div id="promo-codes-list" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
             </div>
-</div>
-</div>
-
-          <!-- Brand Images (Device Uploader) -->
-          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-bottom:18px;">
-            <!-- Logo Uploader -->
-            <div class="form-group" style="margin-bottom:0;">
-              <label class="form-label">شعار المطعم (Logo)</label>
-              <div class="device-image-uploader" id="logo-dropzone">
-                <input type="file" id="set-logo-file" accept="image/*" class="device-image-input">
-                <div class="device-image-prompt" id="logo-prompt">
-                  <div class="device-image-icon">
-                    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
-                  </div>
-                  <div class="device-image-title">اختر صورة الشعار من جهازك</div>
-                  <div class="device-image-desc">PNG أو JPG بأبعاد مربعة</div>
-                </div>
-                <div class="device-preview-wrapper" id="logo-preview-wrap">
-                  <img id="logo-preview-img" class="device-preview-thumb" alt="Logo Preview">
-                  <button type="button" id="btn-remove-logo" class="device-preview-remove-btn"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
-                </div>
-              </div>
-              <input type="hidden" id="set-logo-url">
-              <input type="url" id="set-logo-url-direct" class="form-input" placeholder="أو الصق رابط صورة الشعار مباشرة (https://...)" style="margin-top:8px; font-size:12px; font-family:inherit;">
-            </div>
-
-            <!-- Cover Uploader -->
-            <div class="form-group" style="margin-bottom:0;">
-              <label class="form-label">غلاف أعلى الصفحة (Cover Banner)</label>
-              <div class="device-image-uploader" id="cover-dropzone">
-                <input type="file" id="set-cover-file" accept="image/*" class="device-image-input">
-                <div class="device-image-prompt" id="cover-prompt">
-                  <div class="device-image-icon">
-                    <svg class="icon" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.08-3.08a2 2 0 0 0-2.82 0L6 21"/></svg>
-                  </div>
-                  <div class="device-image-title">اختر صورة الغلاف من جهازك</div>
-                  <div class="device-image-desc">صورة عريضة عالية الدقة</div>
-                </div>
-                <div class="device-preview-wrapper" id="cover-preview-wrap">
-                  <img id="cover-preview-img" class="device-preview-thumb" alt="Cover Preview">
-                  <button type="button" id="btn-remove-cover" class="device-preview-remove-btn"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
-                </div>
-              </div>
-              <input type="hidden" id="set-cover-url">
-              <input type="url" id="set-cover-url-direct" class="form-input" placeholder="أو الصق رابط صورة الغلاف مباشرة (https://...)" style="margin-top:8px; font-size:12px; font-family:inherit;">
-            </div>
           </div>
 
-          <!-- Contact & Payment Information -->
-          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
-            <div class="form-group">
-              <label class="form-label">رقم الواتساب لاستقبال الطلبات *</label>
-              <input type="tel" id="set-whatsapp" class="form-input font-num" placeholder="2010xxxxxxxx" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label">رقم محفظة الكاش (فودافون كاش / إنستاباي) *</label>
-              <input type="text" id="set-wallet-number" class="form-input font-num" placeholder="010xxxxxxxx" required>
-            </div>
-          </div>
-
-          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
-            <div class="form-group">
-              <label class="form-label">اسم المحفظة التوضيحي للزبائن</label>
-              <input type="text" id="set-wallet-name" class="form-input" placeholder="فودافون كاش / إنستاباي">
-            </div>
-            <div class="form-group">
-              <label class="form-label">وقت التوصيل المتوقع</label>
-              <input type="text" id="set-delivery-time" class="form-input" placeholder="مثال: 30-45 دقيقة">
-            </div>
-          </div>
-
-          <!-- Theme Mode Setting: Clean Day / Night Toggle -->
-          <div class="admin-theme-toggle-row" style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:16px 18px; margin-top:16px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
-            <div>
-              <div style="font-size:14px; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:8px;">
-                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
-                <span>مظهر لوحة التحكم (الوضع الليلي والنهاري)</span>
+          <!-- ── CARD 6: DELIVERY PRICING & CUSTOM ZONES ─────────── -->
+          <div class="admin-settings-card" style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:20px; margin-bottom:20px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+              <div style="font-size:15px; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:8px;">
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/></svg>
+                <span>6. تسعير خدمة التوصيل والمناطق المخصصة</span>
               </div>
-              <div style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">
-                التبديل الفوري بين الوضع النهاري الفاتح والوضع الليلي الداكن الفاخر
-              </div>
+              <span style="font-size:11px; background:var(--primary-subtle); color:var(--primary); padding:2px 8px; border-radius:4px; font-weight:800;">كشف ذكي للعنوان</span>
             </div>
-            <button type="button" class="btn btn-ghost" onclick="window.handleThemeToggle && window.handleThemeToggle()" style="border:1.5px solid var(--border-strong); padding:8px 18px; font-weight:800; font-size:12.5px; border-radius:999px; display:inline-flex; align-items:center; gap:8px; cursor:pointer; background:var(--surface);">
-              <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
-              <span>تبديل المظهر (ليلي / نهاري)</span>
-            </button>
-          </div>
-
-          <!-- Restaurant Portfolio & Landing Page Studio -->
-          <div style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:18px; margin-top:16px;">
-            <div style="font-size:14.5px; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:6px; margin-bottom:8px;">
-              <svg class="icon icon-sm" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              <span>بيانات ومعلومات الصفحة الرئيسية (بورتفوليو المطعم)</span>
-            </div>
-            <p style="font-size:12px; color:var(--text-muted); line-height:1.5; margin-bottom:14px;">
-              تظهر هذه البيانات للعملاء عند الضغط على تبويب "الرئيسية" في شريط التنقل السفلي لعرض قصة مطعمك، مواعيد العمل، والعنوان.
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">
+              حدد سعر التوصيل الموحد، وأضف نطاقات مخصصة بأسعار مختلفة تعتمد على الكلمات المفتاحية في عنوان العميل.
             </p>
 
-            <div class="form-group">
+            <!-- Default Delivery Fee -->
+            <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:14px; margin-bottom:14px;">
+              <label class="form-label" style="font-size:12px; font-weight:800;">
+                سعر التوصيل الموحد لكافة الأماكن (ج.م) *
+              </label>
+              <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <input type="number" id="set-default-delivery-fee" class="form-input font-num" placeholder="15" min="0" step="0.5" style="max-width:180px;">
+                <span style="font-size:12px; color:var(--text-muted);">يطبق تلقائياً إذا لم يطابق العنوان أي منطقة مخصصة أدناه</span>
+              </div>
+            </div>
+
+            <!-- Custom Zones -->
+            <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:14px;">
+              <div style="font-weight:800; font-size:12.5px; color:var(--text-main); margin-bottom:10px;">
+                إضافة نطاق / منطقة مخصصة بكلمات مفتاحية وسعر خاص
+              </div>
+
+              <div class="custom-zone-inputs-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px; margin-bottom:10px;">
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label" style="font-size:11px;">اسم المنطقة / النطاق</label>
+                  <input type="text" id="new-zone-name" class="form-input" placeholder="اسم المنطقة (مثال: حي الجامعة)">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label" style="font-size:11px;">الكلمات المفتاحية (مفصولة بفواصل)</label>
+                  <input type="text" id="new-zone-keywords" class="form-input" placeholder="مثال: جامعة، كلية، شارع السلام">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label" style="font-size:11px;">سعر التوصيل (ج.م)</label>
+                  <input type="number" id="new-zone-fee" class="form-input font-num" placeholder="20" min="0" step="0.5">
+                </div>
+              </div>
+
+              <button type="button" id="btn-add-delivery-zone" class="btn btn-primary" style="width:100%; padding:10px; font-weight:800; margin-bottom:12px;">
+                + إضافة هذا النطاق السعري
+              </button>
+
+              <div id="delivery-zones-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+            </div>
+          </div>
+
+          <!-- ── CARD 7: RESTAURANT STORY & PORTFOLIO HERO ───────── -->
+          <div class="admin-settings-card" style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:20px; margin-bottom:20px;">
+            <div style="font-size:15px; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+              <svg class="icon icon-sm" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <span>7. قصة المطعم وصورة البورتفوليو</span>
+            </div>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">
+              تظهر هذه البيانات للعملاء في تبويب "الرئيسية" (البورتفوليو) لتعريف الزبائن بقصة المكان وتاريخه.
+            </p>
+
+            <div class="form-group" style="margin-bottom:16px;">
               <label class="form-label">عن المطعم وقصتنا (نبذة تعريفية)</label>
               <textarea id="set-about-text" class="form-input" rows="3" placeholder="نقدم لكم أشهى وألذ المأكولات المحضرة يومياً بأعلى معايير الجودة والنظافة..."></textarea>
             </div>
 
             <!-- Portfolio Hero Background Image Uploader -->
-            <div class="form-group">
+            <div class="form-group" style="margin-bottom:0;">
               <label class="form-label">صورة خلفية الصفحة الرئيسية (صورة بورتفوليو المطعم الكبيرة)</label>
               <div class="device-image-uploader" id="portfolio-bg-dropzone">
                 <input type="file" id="set-portfolio-bg-file" accept="image/*" class="device-image-input">
@@ -990,175 +1160,32 @@
               <input type="hidden" id="set-portfolio-bg-url">
               <input type="url" id="set-portfolio-bg-url-direct" class="form-input" placeholder="أو الصق رابط صورة الخلفية مباشرة (https://...)" style="margin-top:8px; font-size:12px; font-family:inherit;">
             </div>
-
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
-              <div class="form-group">
-                <label class="form-label">مواعيد العمل والاستقبال</label>
-                <input type="text" id="set-working-hours" class="form-input" placeholder="يومياً من 11:00 صباحاً حتى 2:00 صباحاً">
-              </div>
-              <div class="form-group">
-                <label class="form-label">رقم الهاتف للاتصال المباشر</label>
-                <input type="tel" id="set-phone" class="form-input font-num" placeholder="010xxxxxxxx">
-              </div>
-            </div>
-
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-bottom:0;">
-              <div class="form-group" style="margin-bottom:0;">
-                <label class="form-label">عنوان الفرع أو المكان</label>
-                <input type="text" id="set-address" class="form-input" placeholder="مثال: شارع التحرير، الدقي، الجيزة">
-              </div>
-              <div class="form-group" style="margin-bottom:0;">
-                <label class="form-label">رابط موقع الفرع في خرائط Google</label>
-                <input type="url" id="set-location-url" class="form-input font-num" placeholder="https://maps.app.goo.gl/...">
-              </div>
-            </div>
-
-            <!-- Social Media Profiles Section -->
-            <div style="margin-top:16px; padding-top:14px; border-top:1px dashed var(--border-strong);">
-              <div style="font-size:13.5px; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:6px; margin-bottom:6px;">
-                <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-                <span>حسابات وروابط السوشيال ميديا للمطعم</span>
-              </div>
-              <p style="font-size:11.5px; color:var(--text-muted); line-height:1.5; margin-bottom:12px;">
-                أضف روابط صفحات المطعم الرسمية، وسيتم عرضها تلقائياً بأيقونات تفاعلية أنيقة في الصفحة الرئيسية (البورتفوليو).
-              </p>
-
-              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px;">
-                <!-- Facebook -->
-                <div class="form-group" style="margin-bottom:0;">
-                  <label class="form-label" style="display:flex; align-items:center; gap:6px;">
-                    <svg viewBox="0 0 24 24" width="15" height="15" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                    <span>رابط صفحة فيسبوك (Facebook)</span>
-                  </label>
-                  <input type="url" id="set-facebook-url" class="form-input font-num" placeholder="https://facebook.com/your-restaurant">
-                </div>
-
-                <!-- Instagram -->
-                <div class="form-group" style="margin-bottom:0;">
-                  <label class="form-label" style="display:flex; align-items:center; gap:6px;">
-                    <svg viewBox="0 0 24 24" width="15" height="15" fill="#E1306C"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-                    <span>رابط حساب إنستجرام (Instagram)</span>
-                  </label>
-                  <input type="url" id="set-instagram-url" class="form-input font-num" placeholder="https://instagram.com/your-restaurant">
-                </div>
-
-                <!-- TikTok -->
-                <div class="form-group" style="margin-bottom:0;">
-                  <label class="form-label" style="display:flex; align-items:center; gap:6px;">
-                    <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.82 4.49 6.27 6.27 0 0 0 1.87-4.49V8.62a8.28 8.28 0 0 0 4.9 1.58V6.75a4.85 4.85 0 0 1-1-.06z"/></svg>
-                    <span>رابط حساب تيك توك (TikTok)</span>
-                  </label>
-                  <input type="url" id="set-tiktok-url" class="form-input font-num" placeholder="https://tiktok.com/@your-restaurant">
-                </div>
-              </div>
-            </div>
           </div>
 
-          <!-- Smart Delivery Pricing & Custom Zones Studio -->
-          <div style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:18px; margin-top:16px;">
-            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-              <div style="font-size:14.5px; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:6px;">
-                <span>تسعير خدمة التوصيل والمناطق</span>
+          <!-- ── CARD 8: THEME & COLOR PALETTES ──────────────────── -->
+          <div class="admin-settings-card" style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:20px; margin-bottom:20px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; flex-wrap:wrap; gap:10px;">
+              <div style="font-size:15px; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:8px;">
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+                <span>8. مظهر وألوان لوحة التحكم والمنيو</span>
               </div>
-              <span style="font-size:11px; background:var(--primary-subtle); color:var(--primary); padding:2px 8px; border-radius:4px; font-weight:800;">كشف تلقائي بالكلمات</span>
-            </div>
-            
-            <p style="font-size:12px; color:var(--text-muted); line-height:1.5; margin-bottom:14px;">
-              حدد سعر التوصيل الموحد لكافة الأماكن، ويمكنك إضافة مناطق معينة بأسعار مخصصة إذا احتوى عنوان العميل على اسم المنطقة أو إحدى كلماتها.
-            </p>
-
-            <!-- 1. Default Delivery Fee for all places -->
-            <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:14px; margin-bottom:14px;">
-              <label class="form-label" style="font-size:12px; font-weight:800;">
-                1. سعر التوصيل الموحد لكافة الأماكن (ج.م) *
-              </label>
-              <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                <input type="number" id="set-default-delivery-fee" class="form-input font-num" placeholder="0" min="0" step="0.5" style="max-width:180px;">
-                <span style="font-size:12px; color:var(--text-muted);">يطبق تلقائياً إذا لم يطابق العنوان أي منطقة مخصصة أدناه</span>
-              </div>
-            </div>
-
-            <!-- 2. Custom Zones with Keywords -->
-            <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:14px;">
-              <div style="font-weight:800; font-size:12.5px; color:var(--text-main); margin-bottom:10px;">
-                2. إضافة نطاق / قرية مخصصة بكلمات مفتاحية وسعر خاص
-              </div>
-
-              <div class="custom-zone-inputs-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px; margin-bottom:10px;">
-                <div class="form-group" style="margin-bottom:0;">
-                  <label class="form-label" style="font-size:11px;">اسم المنطقة / النطاق</label>
-                  <input type="text" id="new-zone-name" class="form-input" placeholder="اسم المنطقة (مثال: حي الجامعة)">
-                </div>
-                <div class="form-group" style="margin-bottom:0;">
-                  <label class="form-label" style="font-size:11px;">الكلمات المفتاحية في العنوان (مفصولة بفواصل)</label>
-                  <input type="text" id="new-zone-keywords" class="form-input" placeholder="مثال: جامعة، كلية، شارع السلام">
-                </div>
-                <div class="form-group" style="margin-bottom:0;">
-                  <label class="form-label" style="font-size:11px;">سعر التوصيل (ج.م)</label>
-                  <input type="number" id="new-zone-fee" class="form-input font-num" placeholder="20" min="0" step="0.5">
-                </div>
-              </div>
-
-              <button type="button" id="btn-add-delivery-zone" class="btn btn-primary" style="width:100%; padding:10px; font-weight:800; margin-bottom:12px;">
-                + إضافة هذا النطاق السعري
+              <!-- Day/Night Toggle Button -->
+              <button type="button" class="btn btn-ghost btn-sm" onclick="handleThemeToggle()" style="border:1.5px solid var(--border-strong); font-weight:800; padding:6px 14px; border-radius:999px; display:inline-flex; align-items:center; gap:6px; cursor:pointer; background:var(--surface);">
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
+                <span>تبديل المظهر (ليلي / نهاري)</span>
               </button>
-
-              <div id="delivery-zones-list" style="display:flex; flex-direction:column; gap:8px;"></div>
             </div>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:14px;">
+              اختر النمط اللوني المناسب لعلامتك التجارية (يتم تطبيقه فورياً على المنيو ولوحة التحكم):
+            </p>
+            <div id="theme-presets-grid" class="theme-presets-grid"></div>
           </div>
 
-          <!-- Announcement Settings -->
-          <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:16px; margin-top:8px;">
-            <div class="form-group" style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
-              <input type="checkbox" id="set-show-announcement" style="width:18px; height:18px; accent-color:var(--primary); cursor:pointer;">
-              <label for="set-show-announcement" style="font-size:0.88rem; font-weight:800; color:var(--text-main); cursor:pointer;">
-                تفعيل شريط الإعلانات الترويجي أعلى صفحة المنيو
-              </label>
-            </div>
-            <div class="form-group" style="margin-bottom:0;">
-              <label class="form-label" style="font-size:11px;">نص الإعلان الترويجي</label>
-              <input type="text" id="set-announcement-text" class="form-input" placeholder="مثال: خصم 10% عند الدفع بفودافون كاش | التوصيل متاح لجميع المناطق">
-            </div>
-          </div>
-
-          <!-- Store Ordering Status (Open vs Temporarily Paused) -->
-          <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:16px; margin-top:16px;">
-            <div class="form-group" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-              <div>
-                <label for="set-ordering-paused" style="font-size:0.92rem; font-weight:800; color:var(--text-main); cursor:pointer; display:flex; align-items:center; gap:6px;">
-                  إيقاف استقبال الطلبات مؤقتاً (المطعم مغلق حالياً)
-                </label>
-                <div style="font-size:11.5px; color:var(--text-muted); margin-top:3px;">
-                  يتيح للعملاء تصفح المنيو والأسعار بحرية، ولكن عند محاولة طلب أي وجبة تظهر لهم رسالة توضيحية بمواعيد العمل.
-                </div>
-              </div>
-              <input type="checkbox" id="set-ordering-paused" style="width:22px; height:22px; accent-color:var(--danger, #ef4444); cursor:pointer;">
-            </div>
-            <div id="set-paused-msg-group" class="form-group" style="margin-bottom:0;">
-              <label class="form-label" style="font-size:11px;">الرسالة التوضيحية للزبائن عند محاولة الطلب</label>
-              <textarea id="set-ordering-paused-msg" class="form-input" rows="2" placeholder="المطعم متوقف حالياً عن استقبال الطلبات. مواعيد العمل يومياً من 12 ظهراً حتى 2 صباحاً. نسعد بخدمتكم قريباً!"></textarea>
-            </div>
-          </div>
-
-          <!-- Thermal Printer Paper Size Setting -->
-          <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:16px; margin-top:16px;">
-            <div style="font-size:0.92rem; font-weight:800; color:var(--text-main); margin-bottom:4px; display:flex; align-items:center; gap:6px;">
-              مقاس طابعة الفواتير الحرارية (رول الورق)
-            </div>
-            <div style="font-size:11.5px; color:var(--text-muted); margin-bottom:12px;">
-              اختر مقاس الطابعة الحرارية المستخدمة في الكاشير والمطبخ لضبط أبعاد وهوامش البون تلقائياً دون أي اقتطاع.
-            </div>
-            <div class="form-group" style="margin-bottom:0; max-width:320px;">
-              <select id="set-printer-paper-size" class="form-input" style="font-weight:800;">
-                <option value="80mm">80mm — رول عريض (طابعات الكاشير القياسية والمطبخ - افتراضي)</option>
-                <option value="58mm">58mm — رول ضيق (طابعات البلوتوث المحمولة وأجهزة POS)</option>
-              </select>
-            </div>
-          </div>
-
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; flex-wrap:wrap; gap:12px;">
-            <button type="submit" class="btn btn-primary" style="padding:12px 28px; font-size:0.95rem; font-weight:800;">
-              حفظ جميع التعديلات
+          <!-- ── CARD 9: SAVE ALL BUTTON ─────────────────────────── -->
+          <div style="display:flex; justify-content:flex-start; align-items:center; margin-top:10px;">
+            <button type="submit" class="btn btn-primary" style="padding:13px 36px; font-size:1rem; font-weight:900; border-radius:var(--radius-sm); box-shadow:0 4px 16px rgba(234,88,12,0.35); display:inline-flex; align-items:center; gap:8px;">
+              <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              <span>حفظ جميع التعديلات</span>
             </button>
           </div>
         </form>
@@ -1663,19 +1690,19 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=78.0"></script>
-  <script src="js/core/sound-effects.js?v=78.0"></script>
-  <script src="js/store.js?v=78.0"></script>
-  <script src="js/admin/admin-core.js?v=78.0"></script>
-  <script src="js/admin/admin-auth.js?v=78.0"></script>
-  <script src="js/admin/kitchen-orders.js?v=78.0"></script>
-  <script src="js/admin/catalog-manager.js?v=78.0"></script>
-  <script src="js/admin/category-manager.js?v=78.0"></script>
-  <script src="js/admin/stories-manager.js?v=78.0"></script>
-  <script src="js/admin/backup-restore.js?v=78.0"></script>
-  <script src="js/admin/settings-manager.js?v=78.0"></script>
-  <script src="js/admin/pos-terminal.js?v=78.0"></script>
-  <script src="js/admin.js?v=78.0"></script>
-  <script src="js/pwa.js?v=78.0"></script>
+  <script src="js/core/demo-seed-data.js?v=79.0"></script>
+  <script src="js/core/sound-effects.js?v=79.0"></script>
+  <script src="js/store.js?v=79.0"></script>
+  <script src="js/admin/admin-core.js?v=79.0"></script>
+  <script src="js/admin/admin-auth.js?v=79.0"></script>
+  <script src="js/admin/kitchen-orders.js?v=79.0"></script>
+  <script src="js/admin/catalog-manager.js?v=79.0"></script>
+  <script src="js/admin/category-manager.js?v=79.0"></script>
+  <script src="js/admin/stories-manager.js?v=79.0"></script>
+  <script src="js/admin/backup-restore.js?v=79.0"></script>
+  <script src="js/admin/settings-manager.js?v=79.0"></script>
+  <script src="js/admin/pos-terminal.js?v=79.0"></script>
+  <script src="js/admin.js?v=79.0"></script>
+  <script src="js/pwa.js?v=79.0"></script>
 </body>
 </html>
