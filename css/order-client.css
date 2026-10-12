@@ -3841,33 +3841,32 @@ body.cart-drawer-open .dynamic-island-cart {
     font-size: 1.7rem;
   }
   .main-content-sheet {
-    margin-top: -28px;
-    border-top-left-radius: 34px;
-    border-top-right-radius: 34px;
-    padding-top: 16px;
+    margin-top: 0;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    padding-top: 4px;
   }
 }
 
 /* ═══════════════════════════════════════════════════════════
-   HARPY PRO: OVERLAPPING MAIN CONTENT SHEET (Design Item 1)
-   Curved top corners overlap the hero cover photo seamlessly
+   MAIN CONTENT SHEET (Starts directly below compact header)
    ═══════════════════════════════════════════════════════════ */
 .main-content-sheet {
   position: relative;
   z-index: 20;
   width: 100%;
-  margin-top: -24px;
+  margin-top: 0;
   background: var(--bg);
-  border-top-left-radius: 28px;
-  border-top-right-radius: 28px;
-  padding-top: 12px;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  padding-top: 4px;
+  box-shadow: none;
 }
 
 [data-theme="dark"] .main-content-sheet {
   background: var(--bg);
-  box-shadow: 0 -6px 28px rgba(0, 0, 0, 0.55);
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: none;
+  border-top: none;
 }
 
 /* ═══════════════════════════════════════════════════════════

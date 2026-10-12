@@ -47,8 +47,8 @@
   <link rel="preconnect" href="https://i.ibb.co" crossorigin>
   <link rel="dns-prefetch" href="https://i.ibb.co">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/order-tokens.css?v=81.0">
-  <link rel="stylesheet" href="css/order-client.css?v=81.0">
+  <link rel="stylesheet" href="css/order-tokens.css?v=82.0">
+  <link rel="stylesheet" href="css/order-client.css?v=82.0">
   <style id="harpy-critical-layout">
     /* ═══════════════════════════════════════════════════════════
        CRITICAL DEFENSIVE INLINE SHIELD (Prevents SW Cache Mismatches)
@@ -57,114 +57,135 @@
     html, body { margin: 0; padding: 0; overflow-x: hidden; max-width: 100vw; }
     img { max-width: 100%; height: auto; }
 
-    /* 1. Cohesive Full-Width Menu Hero Showcase Banner */
-    .restaurant-hero-section {
-      position: relative;
-      width: 100% !important;
-      max-width: 100% !important;
-      margin: 0 !important;
-      height: 175px !important;
-      min-height: 175px !important;
-      border-radius: 0 !important;
-      overflow: hidden !important;
-      background: #111827 !important;
-      box-shadow: none !important;
-      border: none !important;
-      display: block !important;
+    /* 1. Mockup Menu Compact Brand Header (Zero-Cover Hero) */
+    .menu-compact-header {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 12px 14px 6px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      direction: rtl;
+      box-sizing: border-box;
+      background: var(--bg, #F8F6F2);
     }
-    @media (min-width: 768px) {
-      .restaurant-hero-section {
-        height: 205px !important;
-        min-height: 205px !important;
-      }
+    .menu-header-brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
     }
-    .hero-cover-container {
-      position: absolute !important;
-      inset: 0 !important;
-      width: 100% !important;
-      height: 100% !important;
-      overflow: hidden !important;
+    .menu-header-logo-box {
+      width: 48px;
+      height: 48px;
+      min-width: 48px;
+      border-radius: 50%;
+      border: 2px solid #EA580C;
+      background: #111827;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
     }
-    .hero-cover-img {
-      width: 100% !important;
-      height: 100% !important;
-      object-fit: cover !important;
-      object-position: center !important;
-      display: block !important;
+    .menu-header-logo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
-    .hero-cover-gradient {
-      position: absolute !important;
-      inset: 0 !important;
-      background: linear-gradient(180deg, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.1) 40%, rgba(0, 0, 0, 0.8) 100%) !important;
+    .menu-header-text-col {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
     }
-    .hero-badges-floating {
-      position: absolute !important;
-      bottom: 14px !important;
-      right: 14px !important;
-      z-index: 25 !important;
-      display: flex !important;
-      align-items: center !important;
-      gap: 7px !important;
-      flex-wrap: wrap !important;
-      direction: rtl !important;
+    .menu-header-store-name {
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: #111827;
+      margin: 0;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    .hero-meta-chip {
+    .menu-header-store-tagline {
       font-size: 11px;
-      font-weight: 800;
-      padding: 3px 9px;
-      border-radius: 20px;
-      display: inline-flex;
+      font-weight: 600;
+      color: #6B7280;
+      margin: 0;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .menu-header-meta-chips {
+      display: flex;
       align-items: center;
       gap: 5px;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      flex-wrap: nowrap;
+      flex-shrink: 0;
+    }
+    .menu-meta-pill {
+      font-size: 10.5px;
+      font-weight: 800;
+      padding: 4px 8px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
       line-height: 1.2;
+      white-space: nowrap;
     }
-    .hero-meta-chip.chip-rating {
-      background: rgba(18, 14, 12, 0.75);
-      color: #fbbf24;
-      border: 1px solid rgba(251, 191, 36, 0.35);
+    .menu-meta-pill.pill-dark {
+      background: #1F2937;
+      color: #FFFFFF;
     }
-    .hero-meta-chip.chip-delivery {
-      background: rgba(18, 14, 12, 0.75);
-      color: #ffffff;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+    .menu-meta-pill.pill-status.open {
+      background: #059669;
+      color: #FFFFFF;
     }
-    .hero-meta-chip.chip-status.open {
-      background: rgba(22, 101, 52, 0.8);
-      color: #4ade80;
-      border: 1px solid rgba(74, 222, 128, 0.45);
+    .menu-meta-pill.pill-status.closed {
+      background: #DC2626;
+      color: #FFFFFF;
     }
-    .hero-meta-chip.chip-status.closed {
-      background: rgba(185, 28, 28, 0.85);
-      color: #ffffff;
-      border: 1px solid rgba(248, 113, 113, 0.45);
-    }
-    .status-pulse-dot {
-      width: 7px;
-      height: 7px;
+    .menu-meta-pill .status-pulse-dot {
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
-      background: #4ade80;
-      box-shadow: 0 0 8px #4ade80;
+      background: #FFFFFF;
       display: inline-block;
     }
-    .hero-meta-chip.chip-status.closed .status-pulse-dot {
-      background: #ffffff;
-      box-shadow: 0 0 8px #ffffff;
+
+    [data-theme="dark"] .menu-compact-header {
+      background: var(--bg, #0B0F17);
+    }
+    [data-theme="dark"] .menu-header-store-name {
+      color: #F9FAFB;
+    }
+    [data-theme="dark"] .menu-header-store-tagline {
+      color: #9CA3AF;
+    }
+    [data-theme="dark"] .menu-meta-pill.pill-dark {
+      background: #1E293B;
     }
 
-    /* 3. Main Content Sheet (Curved Overlap matching Portfolio & Mockup) */
+    /* 2. Main Content Sheet (Starts immediately below compact header) */
     .main-content-sheet {
       position: relative;
       z-index: 20;
       width: 100%;
-      margin-top: -16px !important;
+      margin-top: 0 !important;
       background: var(--bg, #F8F6F2) !important;
-      border-top-left-radius: 22px !important;
-      border-top-right-radius: 22px !important;
-      padding-top: 10px !important;
+      border-top-left-radius: 0 !important;
+      border-top-right-radius: 0 !important;
+      padding-top: 4px !important;
       padding-bottom: 96px;
-      box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.05);
+      box-shadow: none !important;
     }
 
     /* 4. Clean Promo Announcement Bar */
@@ -495,25 +516,39 @@
        APP VIEW 1: THE FOOD MENU CATALOG (Default Active)
        ═══════════════════════════════════════════════════════════ -->
   <div id="view-menu" class="app-view-container active">
-    <!-- Simplified Luxury Hero Banner (Cover Photo + 3 Meta Badges ONLY) -->
-    <header class="restaurant-hero-section" id="restaurant-hero-section">
-      <!-- Hero Cover Image Wrap -->
-      <div class="hero-cover-container">
-        <img id="hero-cover-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'%3E%3Crect width='100%25' height='100%25' fill='%23080E18'/%3E%3C/svg%3E" alt="غلاف المطعم" class="hero-cover-img" loading="eager" fetchpriority="high" onerror="this.onerror=null;">
-        <div class="hero-cover-gradient"></div>
+    <!-- Compact Brand Header (Zero-Cover Hero - Matching Exact Mockup) -->
+    <header class="menu-compact-header" id="menu-compact-header">
+      <!-- Right Side (RTL): Brand Group (Logo + Name + Tagline) -->
+      <div class="menu-header-brand-group">
+        <div class="menu-header-logo-box">
+          <img id="hero-store-logo" src="assets/portfolio/logo.png" alt="شعار المطعم" class="menu-header-logo-img" onerror="this.onerror=null;">
+        </div>
+        <div class="menu-header-text-col">
+          <h1 id="hero-store-name" class="menu-header-store-name">...</h1>
+          <p id="hero-store-tagline" class="menu-header-store-tagline">...</p>
+        </div>
       </div>
 
-      <!-- 3 Glassmorphism Floating Meta Badges ONLY (Rating, Delivery, Status) -->
-      <div class="hero-badges-floating">
-        <span class="hero-meta-chip chip-rating" id="hero-chip-rating" title="تقييم المطعم">
-          <span class="rating-star"><svg class="icon icon-sm" viewBox="0 0 24 24" fill="#f59e0b" style="width:13px; height:13px; vertical-align:middle;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
+      <!-- Left Side (RTL): 3 Meta Badges (Rating, Delivery, Status) -->
+      <div class="menu-header-meta-chips">
+        <!-- Rating Badge -->
+        <span class="menu-meta-pill pill-dark pill-rating" id="hero-chip-rating" title="تقييم المطعم">
+          <svg class="pill-icon-star" viewBox="0 0 24 24" width="12" height="12" fill="#F59E0B" stroke="#F59E0B">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
           <span class="font-num">4.8</span>
         </span>
-        <span class="hero-meta-chip chip-delivery font-num" title="وقت التوصيل المتوقع">
-          <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px; height:13px; vertical-align:middle;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+
+        <!-- Delivery Time Badge -->
+        <span class="menu-meta-pill pill-dark pill-delivery font-num" title="وقت التوصيل المتوقع">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
           <span id="hero-delivery-time">25 - 35 دقيقة</span>
         </span>
-        <span id="hero-status-chip" class="hero-meta-chip chip-status open" title="حالة استقبال الطلبات">
+
+        <!-- Store Live Status (Open / Closed) -->
+        <span id="hero-status-chip" class="menu-meta-pill pill-status open" title="حالة استقبال الطلبات">
           <span class="status-pulse-dot"></span>
           <span id="hero-status-text">مفتوح الآن</span>
         </span>
@@ -1907,16 +1942,16 @@
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=81.0"></script>
-  <script src="js/core/sound-effects.js?v=81.0"></script>
-  <script src="js/store.js?v=81.0"></script>
-  <script src="js/client/client-core.js?v=81.0"></script>
-  <script src="js/client/menu-view.js?v=81.0"></script>
-  <script src="js/client/stories-viewer.js?v=81.0"></script>
-  <script src="js/client/customizer-modal.js?v=81.0"></script>
-  <script src="js/client/cart-ledger.js?v=81.0"></script>
-  <script src="js/client/order-tracking.js?v=81.0"></script>
-  <script src="js/app.js?v=81.0"></script>
-  <script src="js/pwa.js?v=81.0"></script>
+  <script src="js/core/demo-seed-data.js?v=82.0"></script>
+  <script src="js/core/sound-effects.js?v=82.0"></script>
+  <script src="js/store.js?v=82.0"></script>
+  <script src="js/client/client-core.js?v=82.0"></script>
+  <script src="js/client/menu-view.js?v=82.0"></script>
+  <script src="js/client/stories-viewer.js?v=82.0"></script>
+  <script src="js/client/customizer-modal.js?v=82.0"></script>
+  <script src="js/client/cart-ledger.js?v=82.0"></script>
+  <script src="js/client/order-tracking.js?v=82.0"></script>
+  <script src="js/app.js?v=82.0"></script>
+  <script src="js/pwa.js?v=82.0"></script>
 </body>
 </html>

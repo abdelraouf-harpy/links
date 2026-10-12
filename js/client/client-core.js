@@ -803,7 +803,17 @@ function renderStoreInfo() {
     window.updatePwaBranding(settings);
   }
 
-  // Hero Cover Image in Menu view
+  // Menu Compact Header Brand bindings (Matching Mockup)
+  const heroStoreName = document.getElementById('hero-store-name');
+  if (heroStoreName) heroStoreName.textContent = displayName;
+
+  const heroStoreTagline = document.getElementById('hero-store-tagline');
+  if (heroStoreTagline) heroStoreTagline.textContent = displayTagline;
+
+  const heroStoreLogo = document.getElementById('hero-store-logo');
+  if (heroStoreLogo) heroStoreLogo.src = displayLogo;
+
+  // Hero Cover Image in Menu view (if present)
   const heroCoverImg = document.getElementById('hero-cover-img');
   if (heroCoverImg) {
     heroCoverImg.src = displayCover;
