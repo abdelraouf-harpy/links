@@ -944,7 +944,7 @@ html.admin-unlocked #login-modal-backdrop {
 }
 
 /* ── Kitchen & Archive Operational Filter Buttons ────────── */
-.btn-filter-kitchen, .btn-filter-archive {
+.btn-filter-kitchen, .btn-filter-archive, .btn-date-preset {
   background: var(--surface);
   border: 1px solid var(--border);
   color: var(--text-muted);
@@ -955,11 +955,11 @@ html.admin-unlocked #login-modal-backdrop {
   transition: all 0.15s ease;
   font-size: 11.5px;
 }
-.btn-filter-kitchen:hover, .btn-filter-archive:hover {
+.btn-filter-kitchen:hover, .btn-filter-archive:hover, .btn-date-preset:hover {
   border-color: var(--border-strong);
   color: var(--text-main);
 }
-.btn-filter-kitchen.active, .btn-filter-archive.active {
+.btn-filter-kitchen.active, .btn-filter-archive.active, .btn-date-preset.active {
   background: var(--primary);
   border-color: var(--primary);
   color: #fff;
@@ -2634,7 +2634,8 @@ html.admin-unlocked #login-modal-backdrop {
     font-size: 18px !important;
   }
   .kitchen-filters-row,
-  .archive-filters-row {
+  .archive-filters-row,
+  .archive-date-presets {
     display: flex !important;
     flex-wrap: nowrap !important;
     overflow-x: auto !important;
@@ -2646,11 +2647,13 @@ html.admin-unlocked #login-modal-backdrop {
     scrollbar-width: none !important;
   }
   .kitchen-filters-row::-webkit-scrollbar,
-  .archive-filters-row::-webkit-scrollbar {
+  .archive-filters-row::-webkit-scrollbar,
+  .archive-date-presets::-webkit-scrollbar {
     display: none !important;
   }
   .kitchen-filters-row .btn-filter-kitchen,
-  .archive-filters-row .btn-filter-archive {
+  .archive-filters-row .btn-filter-archive,
+  .archive-date-presets .btn-date-preset {
     flex-shrink: 0 !important;
     white-space: nowrap !important;
     padding: 6px 14px !important;

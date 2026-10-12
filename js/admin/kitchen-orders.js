@@ -1008,6 +1008,150 @@ let lastRenderedArchiveSignature = null;
 let currentKitchenFilter = 'all'; // 'all', 'pending', 'preparing', 'out_for_delivery'
 let currentArchiveFilter = 'delivered'; // 'delivered', 'cancelled', 'all'
 let archiveSearchQuery = '';
+let currentArchiveDatePreset = 'today'; // 'today', 'yesterday', 'week', 'month', 'custom', 'all'
+let archiveCustomStartDate = null;
+let archiveCustomEndDate = null;
+
+function getOrderTimestamp(o) {
+  if (!o) return 0;
+  if (typeof o.timestamp === 'number' && !isNaN(o.timestamp)) return o.timestamp;
+  if (o.createdAt) {
+    const t = new Date(o.createdAt).getTime();
+    if (!isNaN(t)) return t;
+  }
+  return 0;
+}
+
+function isOrderInArchiveDateRange(o) {
+  if (currentArchiveDatePreset === 'all') return true;
+
+  const t = getOrderTimestamp(o);
+  if (!t) return false;
+
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0).getTime();
+  const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999).getTime();
+
+  if (currentArchiveDatePreset === 'today') {
+    return t >= todayStart && t <= todayEnd;
+  }
+
+  if (currentArchiveDatePreset === 'yesterday') {
+    const yStart = todayStart - 86400000;
+    const yEnd = todayStart - 1;
+    return t >= yStart && t <= yEnd;
+  }
+
+  if (currentArchiveDatePreset === 'week') {
+    const weekStart = todayStart - (6 * 86400000);
+    return t >= weekStart && t <= todayEnd;
+  }
+
+  if (currentArchiveDatePreset === 'month') {
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0).getTime();
+    return t >= monthStart && t <= todayEnd;
+  }
+
+  if (currentArchiveDatePreset === 'custom') {
+    let fromMs = 0;
+    let toMs = Infinity;
+    if (archiveCustomStartDate) {
+      const p = archiveCustomStartDate.split('-');
+      if (p.length === 3) {
+        fromMs = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]), 0, 0, 0, 0).getTime();
+      }
+    }
+    if (archiveCustomEndDate) {
+      const p = archiveCustomEndDate.split('-');
+      if (p.length === 3) {
+        toMs = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]), 23, 59, 59, 999).getTime();
+      }
+    }
+    return t >= fromMs && t <= toMs;
+  }
+
+  return true;
+}
+
+window.setArchiveDatePreset = function(preset) {
+  currentArchiveDatePreset = preset;
+
+  const customBox = document.getElementById('archive-custom-date-box');
+  if (customBox) {
+    customBox.style.display = preset === 'custom' ? 'block' : 'none';
+  }
+
+  document.querySelectorAll('.btn-date-preset').forEach(b => {
+    b.classList.toggle('active', b.dataset.preset === preset);
+  });
+
+  updateArchiveDateRangeLabel();
+  renderInvoicesArchive();
+};
+
+window.toggleArchiveCustomDates = function() {
+  const customBox = document.getElementById('archive-custom-date-box');
+  if (!customBox) return;
+  const isHidden = customBox.style.display === 'none' || !customBox.style.display;
+  if (isHidden) {
+    window.setArchiveDatePreset('custom');
+  } else {
+    window.setArchiveDatePreset('today');
+  }
+};
+
+window.applyCustomArchiveDateRange = function() {
+  const startInput = document.getElementById('archive-custom-start');
+  const endInput = document.getElementById('archive-custom-end');
+  archiveCustomStartDate = startInput ? startInput.value : null;
+  archiveCustomEndDate = endInput ? endInput.value : null;
+
+  if (!archiveCustomStartDate && !archiveCustomEndDate) {
+    showToastNotification("يرجى اختيار تاريخ للبحث", "warning");
+    return;
+  }
+
+  currentArchiveDatePreset = 'custom';
+  document.querySelectorAll('.btn-date-preset').forEach(b => {
+    b.classList.toggle('active', b.dataset.preset === 'custom');
+  });
+
+  updateArchiveDateRangeLabel();
+  renderInvoicesArchive();
+  showToastNotification("تم تطبيق فلترة الفترة المحددة", "success");
+};
+
+function updateArchiveDateRangeLabel() {
+  const label = document.getElementById('archive-date-range-label');
+  if (!label) return;
+
+  const now = new Date();
+  const dateOptions = { day: 'numeric', month: 'short' };
+
+  if (currentArchiveDatePreset === 'today') {
+    label.textContent = `اليوم (${now.toLocaleDateString('ar-EG', dateOptions)})`;
+  } else if (currentArchiveDatePreset === 'yesterday') {
+    const yDate = new Date(Date.now() - 86400000);
+    label.textContent = `أمس (${yDate.toLocaleDateString('ar-EG', dateOptions)})`;
+  } else if (currentArchiveDatePreset === 'week') {
+    const wDate = new Date(Date.now() - (6 * 86400000));
+    label.textContent = `آخر 7 أيام (من ${wDate.toLocaleDateString('ar-EG', dateOptions)})`;
+  } else if (currentArchiveDatePreset === 'month') {
+    label.textContent = `هذا الشهر (${now.toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' })})`;
+  } else if (currentArchiveDatePreset === 'custom') {
+    if (archiveCustomStartDate && archiveCustomEndDate) {
+      label.textContent = `من ${archiveCustomStartDate} إلى ${archiveCustomEndDate}`;
+    } else if (archiveCustomStartDate) {
+      label.textContent = `منذ ${archiveCustomStartDate}`;
+    } else if (archiveCustomEndDate) {
+      label.textContent = `حتى ${archiveCustomEndDate}`;
+    } else {
+      label.textContent = 'فترة مخصصة';
+    }
+  } else if (currentArchiveDatePreset === 'all') {
+    label.textContent = 'جميع الأوقات (كامل الأرشيف)';
+  }
+}
 
 window.filterKitchenOrders = function(filter) {
   currentKitchenFilter = filter;
@@ -1377,36 +1521,44 @@ window.renderInvoicesArchive = function(orders = null) {
   const isOrderArchived = (o) => o.status === 'delivered' || o.status === 'cancelled';
   const allArchived = orders.filter(isOrderArchived);
 
-  const deliveredOrders = orders.filter(o => o.status === 'delivered');
-  const cancelledOrders = orders.filter(o => o.status === 'cancelled');
+  // 1. Filter by Date Range (Default: 'today')
+  const dateFiltered = allArchived.filter(o => isOrderInArchiveDateRange(o));
+
+  const deliveredOrders = dateFiltered.filter(o => o.status === 'delivered');
+  const cancelledOrders = dateFiltered.filter(o => o.status === 'cancelled');
   const deliveredRevenue = deliveredOrders.reduce((sum, o) => sum + (parseFloat(o.finalTotal) || 0), 0);
 
-  // Update Archive Header Statistics
+  // Update Archive Header Statistics for Selected Date Range
   if (adminElements.statArchivedOrders) adminElements.statArchivedOrders.textContent = deliveredOrders.length;
   if (adminElements.statArchivedRevenue) adminElements.statArchivedRevenue.textContent = `${deliveredRevenue.toFixed(0)} ${currency}`;
   if (adminElements.statCancelledOrders) adminElements.statCancelledOrders.textContent = cancelledOrders.length;
 
   if (adminElements.archiveBadgeCount) {
-    if (allArchived.length > 0) {
-      adminElements.archiveBadgeCount.textContent = allArchived.length;
+    if (dateFiltered.length > 0) {
+      adminElements.archiveBadgeCount.textContent = dateFiltered.length;
       adminElements.archiveBadgeCount.style.display = 'inline-block';
     } else {
       adminElements.archiveBadgeCount.style.display = 'none';
     }
   }
 
+  // Update date range header label
+  if (typeof updateArchiveDateRangeLabel === 'function') {
+    updateArchiveDateRangeLabel();
+  }
+
   // Filter according to status chip
-  let displayArchived = allArchived;
+  let displayArchived = dateFiltered;
   if (currentArchiveFilter === 'delivered') {
     displayArchived = deliveredOrders;
   } else if (currentArchiveFilter === 'cancelled') {
     displayArchived = cancelledOrders;
   } else if (currentArchiveFilter === 'dine_in') {
-    displayArchived = allArchived.filter(o => parseOrderFulfillment(o).isDineIn);
+    displayArchived = dateFiltered.filter(o => parseOrderFulfillment(o).isDineIn);
   } else if (currentArchiveFilter === 'takeaway') {
-    displayArchived = allArchived.filter(o => parseOrderFulfillment(o).isTakeaway);
+    displayArchived = dateFiltered.filter(o => parseOrderFulfillment(o).isTakeaway);
   } else if (currentArchiveFilter === 'delivery') {
-    displayArchived = allArchived.filter(o => parseOrderFulfillment(o).isDelivery);
+    displayArchived = dateFiltered.filter(o => parseOrderFulfillment(o).isDelivery);
   }
 
   // Filter according to search query
@@ -1420,8 +1572,11 @@ window.renderInvoicesArchive = function(orders = null) {
     });
   }
 
-  // Signature check
+  // Signature check (includes date preset & custom bounds)
   const currentArchiveSig = JSON.stringify({
+    datePreset: currentArchiveDatePreset,
+    customStart: archiveCustomStartDate,
+    customEnd: archiveCustomEndDate,
     filter: currentArchiveFilter,
     query: archiveSearchQuery,
     orders: displayArchived.map(o => ({ id: o.orderId, st: o.status, tot: o.finalTotal, rec: o.receiptUrl }))
@@ -1435,8 +1590,8 @@ window.renderInvoicesArchive = function(orders = null) {
     adminElements.adminArchiveContainer.innerHTML = `
       <div style="text-align:center; padding:45px 20px; color:var(--text-muted); background:var(--surface); border:1px dashed var(--border); border-radius:var(--radius-md);">
         <div style="margin-bottom:12px;"><svg class="icon" viewBox="0 0 24 24" style="width:38px; height:38px; color:var(--text-muted);"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
-        <div style="font-size:16px; font-weight:800; color:var(--text-main); margin-bottom:4px;">لا توجد فواتير مطابقة في الأرشيف</div>
-        <div style="font-size:12.5px; color:var(--text-muted);">كافة الطلبات التي تكتمل وتصل لحالة (تم التسليم) أو تُلغى ستُحفظ هنا تلقائياً.</div>
+        <div style="font-size:16px; font-weight:800; color:var(--text-main); margin-bottom:4px;">لا توجد فواتير في هذه الفترة</div>
+        <div style="font-size:12.5px; color:var(--text-muted);">يمكنك اختيار فترة زمنية أخرى أو الضغط على (كل الأوقات) لمراجعة كامل فواتير المطعم.</div>
       </div>
     `;
     return;
@@ -1595,3 +1750,24 @@ window.addEventListener('store_orders_updated', (e) => {
   if (typeof window.renderOrdersList === 'function') window.renderOrdersList(orders);
   if (typeof window.renderInvoicesArchive === 'function') window.renderInvoicesArchive(orders);
 });
+
+function initArchiveDateInputs() {
+  try {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const todayStr = `${y}-${m}-${day}`;
+    const s = document.getElementById('archive-custom-start');
+    const e = document.getElementById('archive-custom-end');
+    if (s && !s.value) s.value = todayStr;
+    if (e && !e.value) e.value = todayStr;
+    if (typeof updateArchiveDateRangeLabel === 'function') updateArchiveDateRangeLabel();
+  } catch(err) {}
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initArchiveDateInputs);
+} else {
+  initArchiveDateInputs();
+}
