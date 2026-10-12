@@ -92,25 +92,31 @@ function setupAuth() {
   };
 
   const listenToSessionRevocation = () => {
-    if (typeof db === 'undefined' || !db) return;
-    const slug = Store.getRestaurantSlug();
-    const localAuth = Store.safeGetItem(`harpy_admin_auth_${slug}`);
-    if (!localAuth) return;
-    let session = null;
-    try { session = JSON.parse(localAuth); } catch(e) { return; }
-    if (!session || !session.sessionVersion) return;
+    try {
+      if (typeof db === 'undefined' || !db) return;
+      const slug = Store.getRestaurantSlug();
+      const localAuth = (typeof Store.safeGetItem === 'function') 
+        ? Store.safeGetItem(`harpy_admin_auth_${slug}`) 
+        : localStorage.getItem(`harpy_admin_auth_${slug}`);
+      if (!localAuth) return;
+      let session = null;
+      try { session = JSON.parse(localAuth); } catch(e) { return; }
+      if (!session || !session.sessionVersion) return;
 
-    db.ref(`restaurants/${slug}/meta/sessionVersion`).on('value', (snap) => {
-      const liveVersion = snap.val();
-      if (liveVersion && session.sessionVersion && liveVersion > session.sessionVersion) {
-        db.ref(`restaurants/${slug}/meta/sessionVersion`).off();
-        showToastNotification("تم تغيير كلمة مرور هذا المطعم وتم إنهاء جلستك من كافة الأجهزة.", "error");
-        setTimeout(async () => {
-          await Store.logoutAdmin();
-          window.location.reload();
-        }, 1200);
-      }
-    });
+      db.ref(`restaurants/${slug}/meta/sessionVersion`).on('value', (snap) => {
+        const liveVersion = snap.val();
+        if (liveVersion && session.sessionVersion && liveVersion > session.sessionVersion) {
+          db.ref(`restaurants/${slug}/meta/sessionVersion`).off();
+          showToastNotification("تم تغيير كلمة مرور هذا المطعم وتم إنهاء جلستك من كافة الأجهزة.", "error");
+          setTimeout(async () => {
+            await Store.logoutAdmin();
+            window.location.reload();
+          }, 1200);
+        }
+      });
+    } catch(err) {
+      console.warn("[SessionRevocation] Safe guard caught:", err);
+    }
   };
 
   const lockDashboard = () => {

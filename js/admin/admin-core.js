@@ -174,18 +174,18 @@ const adminElements = {
 window.adminElements = adminElements;
 
 function initAdmin() {
-  Store.initTheme();
-  setupAdminThemeToggle();
-  setupAuth();
-  setupSubscriptionWatcher();
-  setupRestaurantHub();
-  setupTabNavigation();
-  initKitchenWakeLock();
-  setupProductManagement();
-  setupCategoryManagement();
-  setupStoriesManagement();
-  setupBackupAndRestore();
-  setupSettingsForm();
+  try { Store.initTheme(); } catch(e) { console.error("[initAdmin] initTheme error:", e); }
+  try { setupAdminThemeToggle(); } catch(e) { console.error("[initAdmin] setupAdminThemeToggle error:", e); }
+  try { setupTabNavigation(); } catch(e) { console.error("[initAdmin] setupTabNavigation error:", e); }
+  try { setupAuth(); } catch(e) { console.error("[initAdmin] setupAuth error:", e); }
+  try { setupSubscriptionWatcher(); } catch(e) { console.error("[initAdmin] setupSubscriptionWatcher error:", e); }
+  try { setupRestaurantHub(); } catch(e) { console.error("[initAdmin] setupRestaurantHub error:", e); }
+  try { initKitchenWakeLock(); } catch(e) { console.error("[initAdmin] initKitchenWakeLock error:", e); }
+  try { setupProductManagement(); } catch(e) { console.error("[initAdmin] setupProductManagement error:", e); }
+  try { setupCategoryManagement(); } catch(e) { console.error("[initAdmin] setupCategoryManagement error:", e); }
+  try { setupStoriesManagement(); } catch(e) { console.error("[initAdmin] setupStoriesManagement error:", e); }
+  try { setupBackupAndRestore(); } catch(e) { console.error("[initAdmin] setupBackupAndRestore error:", e); }
+  try { setupSettingsForm(); } catch(e) { console.error("[initAdmin] setupSettingsForm error:", e); }
 }
 
 function updateAdminThemeToggleIcons() {
@@ -272,20 +272,24 @@ window.switchTab = function(targetTabId, updateHash = true) {
   document.body.classList.toggle('tab-pos-active', targetTabId === 'tab-pos');
 
   // 5. Instantly render the active tab's cached data
-  if (targetTabId === 'tab-products') {
-    renderCatalog();
-  } else if (targetTabId === 'tab-pos') {
-    initPOS();
-  } else if (targetTabId === 'tab-orders') {
-    renderOrdersList(Store.getOrders());
-  } else if (targetTabId === 'tab-archive') {
-    renderInvoicesArchive(Store.getOrders());
-  } else if (targetTabId === 'tab-categories') {
-    renderCategoriesList();
-  } else if (targetTabId === 'tab-stories') {
-    renderStoriesList();
-  } else if (targetTabId === 'tab-settings') {
-    loadSettingsIntoForm();
+  try {
+    if (targetTabId === 'tab-products') {
+      if (typeof renderCatalog === 'function') renderCatalog();
+    } else if (targetTabId === 'tab-pos') {
+      if (typeof initPOS === 'function') initPOS();
+    } else if (targetTabId === 'tab-orders') {
+      if (typeof renderOrdersList === 'function') renderOrdersList(Store.getOrders());
+    } else if (targetTabId === 'tab-archive') {
+      if (typeof renderInvoicesArchive === 'function') renderInvoicesArchive(Store.getOrders());
+    } else if (targetTabId === 'tab-categories') {
+      if (typeof renderCategoriesList === 'function') renderCategoriesList();
+    } else if (targetTabId === 'tab-stories') {
+      if (typeof renderStoriesList === 'function') renderStoriesList();
+    } else if (targetTabId === 'tab-settings') {
+      if (typeof loadSettingsIntoForm === 'function') loadSettingsIntoForm();
+    }
+  } catch(err) {
+    console.error("[switchTab] Error rendering " + targetTabId + ":", err);
   }
 };
 
@@ -489,20 +493,22 @@ function showToastNotification(message, type = 'success') {
 
 // Global Dashboard Data Orchestrator
 function loadAllDashboardData() {
-  renderRestaurantHub();
-  renderOrdersList(Store.getOrders());
-  renderInvoicesArchive(Store.getOrders());
-  renderCatalog();
-  renderCategoriesList();
-  renderStoriesList();
-  if (typeof initPOS === 'function') initPOS();
-  loadSettingsIntoForm();
-  checkOnboardingSetup();
+  try { if (typeof renderRestaurantHub === 'function') renderRestaurantHub(); } catch(e) { console.error("[loadAllDashboardData] renderRestaurantHub:", e); }
+  try { if (typeof renderOrdersList === 'function') renderOrdersList(Store.getOrders()); } catch(e) { console.error("[loadAllDashboardData] renderOrdersList:", e); }
+  try { if (typeof renderInvoicesArchive === 'function') renderInvoicesArchive(Store.getOrders()); } catch(e) { console.error("[loadAllDashboardData] renderInvoicesArchive:", e); }
+  try { if (typeof renderCatalog === 'function') renderCatalog(); } catch(e) { console.error("[loadAllDashboardData] renderCatalog:", e); }
+  try { if (typeof renderCategoriesList === 'function') renderCategoriesList(); } catch(e) { console.error("[loadAllDashboardData] renderCategoriesList:", e); }
+  try { if (typeof renderStoriesList === 'function') renderStoriesList(); } catch(e) { console.error("[loadAllDashboardData] renderStoriesList:", e); }
+  try { if (typeof initPOS === 'function') initPOS(); } catch(e) { console.error("[loadAllDashboardData] initPOS:", e); }
+  try { if (typeof loadSettingsIntoForm === 'function') loadSettingsIntoForm(); } catch(e) { console.error("[loadAllDashboardData] loadSettingsIntoForm:", e); }
+  try { if (typeof checkOnboardingSetup === 'function') checkOnboardingSetup(); } catch(e) { console.error("[loadAllDashboardData] checkOnboardingSetup:", e); }
 
-  const currentSettings = Store.getSettings();
-  if (typeof window.updatePwaBranding === 'function') {
-    window.updatePwaBranding(currentSettings);
-  }
+  try {
+    const currentSettings = Store.getSettings();
+    if (typeof window.updatePwaBranding === 'function') {
+      window.updatePwaBranding(currentSettings);
+    }
+  } catch(e) {}
 }
 window.loadAllDashboardData = loadAllDashboardData;
 window.initAdmin = initAdmin;

@@ -294,6 +294,15 @@ const Store = {
     }
   },
 
+  safeGetItem(key) {
+    try {
+      return localStorage.getItem(key);
+    } catch (err) {
+      console.warn(`[Store] LocalStorage read failed for key "${key}":`, err.name || err.message);
+      return null;
+    }
+  },
+
   // ── High-Efficiency HTML5 Canvas Image Compressor ────────
   async compressImage(fileOrDataUrl, maxWidth = 900, maxHeight = 900, quality = 0.76) {
     if (!fileOrDataUrl) return null;
