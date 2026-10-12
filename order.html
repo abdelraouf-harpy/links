@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
   <!-- Favicons & High-Res App Icons -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%23ea580c'/%3E%3Cpath d='M30 75V25M70 75V25M30 50h40' stroke='%23ffffff' stroke-width='12' stroke-linecap='round'/%3E%3C/svg%3E">
   <link rel="apple-touch-icon" href="https://iili.io/n3HVHX4.jpg">
   
   <!-- Android & Modern PWA Meta -->
@@ -47,8 +47,8 @@
   <link rel="preconnect" href="https://i.ibb.co" crossorigin>
   <link rel="dns-prefetch" href="https://i.ibb.co">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/order-tokens.css?v=68.0">
-  <link rel="stylesheet" href="css/order-client.css?v=68.0">
+  <link rel="stylesheet" href="css/order-tokens.css?v=77.0">
+  <link rel="stylesheet" href="css/order-client.css?v=77.0">
   <style id="harpy-critical-layout">
     /* ═══════════════════════════════════════════════════════════
        CRITICAL DEFENSIVE INLINE SHIELD (Prevents SW Cache Mismatches)
@@ -57,133 +57,113 @@
     html, body { margin: 0; padding: 0; overflow-x: hidden; max-width: 100vw; }
     img { max-width: 100%; height: auto; }
 
-    /* 1. Hero Cover & Header Dimensions */
+    /* 1. Mockup Hero Showcase Banner Card (Cover Photo + 3 Badges ONLY) */
     .restaurant-hero-section {
       position: relative;
-      width: 100%;
-      min-height: 280px;
-      overflow: hidden;
-      background: #120e0c;
-    }
-    .hero-top-nav {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      z-index: 30;
-      background: linear-gradient(180deg, rgba(12, 10, 9, 0.75) 0%, rgba(12, 10, 9, 0) 100%);
-      padding: 10px 0 16px;
-    }
-    .hero-nav-container {
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 10px;
-    }
-    .hero-cover-container {
-      position: relative;
-      width: 100%;
-      height: 280px;
-      overflow: hidden;
-    }
-    .hero-cover-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
-      display: block;
-    }
-    .hero-cover-gradient {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(180deg, rgba(12, 10, 9, 0.20) 0%, rgba(12, 10, 9, 0.50) 50%, rgba(12, 10, 9, 0.95) 100%);
-    }
-
-    /* 2. Hero Brand Details Overlay */
-    .hero-brand-container {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      z-index: 25;
-      padding-bottom: 34px;
-    }
-    .hero-brand-card {
-      display: flex;
-      align-items: flex-end;
-      gap: 12px;
-    }
-    .hero-logo-wrap {
-      width: 68px !important;
-      height: 68px !important;
-      min-width: 68px !important;
-      max-width: 68px !important;
-      max-height: 68px !important;
-      border-radius: 50% !important;
-      border: 3px solid rgba(255, 255, 255, 0.9);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
-      background: #1c1815;
+      width: calc(100% - 24px) !important;
+      max-width: 1200px !important;
+      margin: 12px auto 8px auto !important;
+      height: 160px !important;
+      min-height: 160px !important;
+      border-radius: 22px !important;
       overflow: hidden !important;
-      position: relative;
-      flex-shrink: 0 !important;
-      margin-bottom: 2px;
-    }
-    .hero-logo, #store-logo {
-      width: 100% !important;
-      height: 100% !important;
-      max-width: 68px !important;
-      max-height: 68px !important;
-      object-fit: cover !important;
+      background: linear-gradient(135deg, #070D18 0%, #0F1B2E 100%) !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45) !important;
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
       display: block !important;
     }
-    .hero-text-col {
-      flex: 1;
-      min-width: 0;
-      color: #ffffff;
+    @media (min-width: 768px) {
+      .restaurant-hero-section {
+        height: 195px !important;
+        min-height: 195px !important;
+      }
     }
-    .hero-store-title {
-      font-size: 1.35rem;
-      font-weight: 900;
-      color: #ffffff;
-      margin: 0 0 2px 0;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
-      line-height: 1.2;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    .hero-cover-container {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      overflow: hidden !important;
     }
-    .hero-store-tagline {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: rgba(255, 255, 255, 0.92);
-      margin: 0 0 6px 0;
-      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.75);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    .hero-cover-img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      object-position: center !important;
+      display: block !important;
     }
-    .hero-meta-strip {
-      display: flex;
+    .hero-cover-gradient {
+      position: absolute !important;
+      inset: 0 !important;
+      background: linear-gradient(0deg, rgba(7, 13, 24, 0.88) 0%, rgba(7, 13, 24, 0.25) 50%, rgba(7, 13, 24, 0.05) 100%) !important;
+    }
+    .hero-badges-floating {
+      position: absolute !important;
+      bottom: 12px !important;
+      right: 14px !important;
+      z-index: 25 !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      flex-wrap: wrap !important;
+      direction: rtl !important;
+    }
+    .hero-meta-chip {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 20px;
+      display: inline-flex;
       align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
+      gap: 5px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      line-height: 1.2;
+    }
+    .hero-meta-chip.chip-rating {
+      background: rgba(7, 11, 19, 0.75);
+      color: #fbbf24;
+      border: 1px solid rgba(251, 191, 36, 0.35);
+    }
+    .hero-meta-chip.chip-delivery {
+      background: rgba(7, 11, 19, 0.75);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .hero-meta-chip.chip-status.open {
+      background: rgba(22, 101, 52, 0.75);
+      color: #4ade80;
+      border: 1px solid rgba(74, 222, 128, 0.45);
+    }
+    .hero-meta-chip.chip-status.closed {
+      background: rgba(153, 27, 27, 0.75);
+      color: #f87171;
+      border: 1px solid rgba(248, 113, 113, 0.45);
+    }
+    .status-pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #4ade80;
+      box-shadow: 0 0 8px #4ade80;
+      display: inline-block;
+    }
+    .hero-meta-chip.chip-status.closed .status-pulse-dot {
+      background: #f87171;
+      box-shadow: 0 0 8px #f87171;
     }
 
-    /* 3. Curved Sheet Overlap (Design Item 1) */
+    /* 3. Main Content Sheet (Matching Mockup Spacing) */
     .main-content-sheet {
       position: relative;
       z-index: 20;
       width: 100%;
-      margin-top: -24px;
-      background: var(--bg, #fbf7f4);
-      border-top-left-radius: 28px;
-      border-top-right-radius: 28px;
-      padding-top: 14px;
-      box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.12);
-    }
-    [data-theme="dark"] .main-content-sheet {
-      background: var(--bg, #120e0c);
-      box-shadow: 0 -6px 28px rgba(0, 0, 0, 0.55);
+      margin-top: 4px !important;
+      background: transparent !important;
+      border-top-left-radius: 0 !important;
+      border-top-right-radius: 0 !important;
+      padding-top: 4px !important;
+      padding-bottom: 96px;
     }
 
     /* 4. Promo Deal Card & Thumb Box */
@@ -512,103 +492,37 @@
        HARPY PRO: LUXURY RESTAURANT HERO SECTION (Design Item 1)
        Cover Photo + Logo + Name + Tagline + Rating + Delivery + Status
        ═══════════════════════════════════════════════════════════ -->
-  <header class="restaurant-hero-section" id="restaurant-hero-section" style="position:relative; width:100%; min-height:280px; overflow:hidden; background:#120e0c;">
-    <!-- Top Floating Glass Navigation Bar (Heart + 3-Dots Menu) -->
-    <div class="hero-top-nav" style="position:absolute; top:0; left:0; width:100%; z-index:30; padding:10px 0 16px; background:linear-gradient(180deg, rgba(12,10,9,0.75) 0%, rgba(12,10,9,0) 100%);">
-      <div class="container hero-nav-container" style="display:flex; align-items:center; justify-content:flex-start; direction:ltr; gap:10px;">
-        <div class="hero-nav-actions" style="display:flex; align-items:center; gap:8px; direction:ltr;">
-          <!-- 1. More Options 3-Dots Dropdown Trigger (Leftmost) -->
-          <div class="hero-more-menu-wrapper" style="position:relative;">
-            <button id="btn-hero-more-menu" class="hero-nav-btn btn-more-menu" onclick="toggleHeroMoreMenu(event)" title="خيارات إضافية" aria-label="خيارات">
-              <svg class="icon icon-sm" viewBox="0 0 24 24" style="fill: #ffffff;"><circle cx="12" cy="12" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="12" cy="19" r="2"/></svg>
-            </button>
-
-            <!-- Floating Glass Options Dropdown -->
-            <div id="hero-more-dropdown" class="hero-more-dropdown" style="display:none; direction:rtl; text-align:right;">
-              <button id="theme-toggle-btn" class="dropdown-menu-item btn-theme-toggle" onclick="handleThemeToggle(); closeHeroMoreMenu();" title="تبديل الإضاءة (نهاري / ليلي)" aria-label="تبديل الإضاءة">
-                <span class="dropdown-item-icon">
-                  <svg id="theme-icon-dark" class="icon icon-sm icon-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
-                  <svg id="theme-icon-light" class="icon icon-sm icon-sun" style="display:none;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
-                </span>
-                <span class="dropdown-item-text">المظهر (ليلي / نهاري)</span>
-              </button>
-
-              <a id="store-whatsapp-link" href="#" target="_blank" class="dropdown-menu-item btn-wa" onclick="closeHeroMoreMenu();" title="محادثة المطعم عبر الواتساب">
-                <span class="dropdown-item-icon" style="color:var(--accent-wa, #22c55e);">
-                  <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-                </span>
-                <span class="dropdown-item-text">محادثة واتساب</span>
-              </a>
-
-              <button id="sound-toggle-btn" class="dropdown-menu-item" onclick="handleSoundToggle(); closeHeroMoreMenu();" title="تشغيل / كتم المؤثرات الصوتية" aria-label="الصوت">
-                <span class="dropdown-item-icon">
-                  <svg id="sound-icon-on" class="icon icon-sm" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
-                  <svg id="sound-icon-off" class="icon icon-sm" style="display:none;" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
-                </span>
-                <span class="dropdown-item-text">المؤثرات الصوتية</span>
-              </button>
-
-              <button id="btn-menu-install-app" class="dropdown-menu-item btn-install-app" style="display:none;" onclick="window.triggerPWAInstall(); closeHeroMoreMenu();" title="تثبيت التطبيق كبرنامج مستقل">
-                <span class="dropdown-item-icon">
-                  <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                </span>
-                <span class="dropdown-item-text">تثبيت التطبيق</span>
-              </button>
-
-              <button id="btn-header-tracker" class="dropdown-menu-item btn-tracker" style="display:none;" onclick="openLastOrderTracker(); closeHeroMoreMenu();" title="تتبع الطلب">
-                <span class="dropdown-item-icon">🛵</span>
-                <span class="dropdown-item-text">تتبع الطلب الأخير</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- 2. Favorites Heart Button (White Stroke) -->
-          <button id="btn-header-fav-filter" class="hero-nav-btn btn-fav-filter" onclick="handleCategoryFilter('fav')" title="الأصناف المفضلة">
-            <svg class="icon icon-sm" viewBox="0 0 24 24" style="stroke:#ffffff; fill:none; stroke-width:2;"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
-            <span id="hero-fav-badge-count" class="hero-fav-count font-num" style="display:none;">0</span>
-          </button>
-        </div>
+  <!-- ═══════════════════════════════════════════════════════════
+       APP VIEW 1: THE FOOD MENU CATALOG (Default Active)
+       ═══════════════════════════════════════════════════════════ -->
+  <div id="view-menu" class="app-view-container active">
+    <!-- Simplified Luxury Hero Banner (Cover Photo + 3 Meta Badges ONLY) -->
+    <header class="restaurant-hero-section" id="restaurant-hero-section">
+      <!-- Hero Cover Image Wrap -->
+      <div class="hero-cover-container">
+        <img id="hero-cover-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'%3E%3Crect width='100%25' height='100%25' fill='%23080E18'/%3E%3C/svg%3E" alt="غلاف المطعم" class="hero-cover-img" loading="eager" fetchpriority="high" onerror="this.onerror=null;">
+        <div class="hero-cover-gradient"></div>
       </div>
-    </div>
 
-    <!-- Hero Cover Image Wrap -->
-    <div class="hero-cover-container" style="position:relative; width:100%; height:280px; overflow:hidden; background:#18130f;">
-      <img id="hero-cover-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'%3E%3Crect width='100%25' height='100%25' fill='%2318130f'/%3E%3C/svg%3E" alt="" class="hero-cover-img" loading="eager" fetchpriority="high" style="width:100%; height:100%; object-fit:cover; display:block;" onerror="this.onerror=null;">
-      <div class="hero-cover-gradient" style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(12,10,9,0.20) 0%, rgba(12,10,9,0.50) 50%, rgba(12,10,9,0.95) 100%); pointer-events:none;"></div>
-    </div>
-
-    <!-- Hero Brand Details Overlay -->
-    <div class="container hero-brand-container" style="position:absolute; bottom:0; left:0; right:0; z-index:25; padding-bottom:34px;">
-      <div class="hero-brand-card" style="display:flex; align-items:flex-end; gap:12px;">
-        <div class="hero-logo-wrap" style="width:68px; height:68px; min-width:68px; max-width:68px; max-height:68px; border-radius:50%; border:3px solid rgba(255,255,255,0.9); box-shadow:0 4px 16px rgba(0,0,0,0.6); overflow:hidden; flex-shrink:0; position:relative; background:#1c1815; margin-bottom:2px;">
-          <img id="store-logo" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Crect width='100%25' height='100%25' fill='%231c1815'/%3E%3C/svg%3E" alt="" class="hero-logo brand-logo" style="width:100%; height:100%; max-width:68px; max-height:68px; object-fit:cover; display:block;" onerror="this.onerror=null;">
-          <span class="brand-status-dot" title="نستقبل الطلبات الآن"></span>
-        </div>
-        <div class="hero-text-col" style="flex:1; min-width:0; color:#fff;">
-          <h1 id="store-name" class="hero-store-title" style="font-size:1.35rem; font-weight:900; color:#fff; margin:0 0 2px 0; text-shadow:0 2px 8px rgba(0,0,0,0.85); line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">...</h1>
-          <p id="store-tagline" class="hero-store-tagline" style="font-size:0.8rem; font-weight:700; color:rgba(255,255,255,0.92); margin:0 0 6px 0; text-shadow:0 1px 4px rgba(0,0,0,0.75); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">...</p>
-          <div class="hero-meta-strip" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-            <span class="hero-meta-chip chip-rating" style="font-size:11px; font-weight:800; padding:3px 9px; border-radius:20px; display:inline-flex; align-items:center; gap:4px; background:rgba(18,14,12,0.65); color:#fbbf24; border:1px solid rgba(251,191,36,0.35);">
-              <span class="rating-star">⭐</span>
-              <span class="font-num">4.8</span>
-              <span class="rating-count font-num">(1.2k)</span>
-            </span>
-            <span class="hero-meta-chip chip-delivery font-num" style="font-size:11px; font-weight:800; padding:3px 9px; border-radius:20px; display:inline-flex; align-items:center; gap:4px; background:rgba(18,14,12,0.65); color:#fff; border:1px solid rgba(255,255,255,0.2);">
-              <span>🕒</span>
-              <span id="hero-delivery-time">30-45 دقيقة</span>
-            </span>
-            <span id="hero-status-chip" class="hero-meta-chip chip-status open" style="font-size:11px; font-weight:800; padding:3px 9px; border-radius:20px; display:inline-flex; align-items:center; gap:4px; background:rgba(22,101,52,0.65); color:#4ade80; border:1px solid rgba(74,222,128,0.4);">
-              <span class="status-pulse-dot" style="width:7px; height:7px; border-radius:50%; background:#4ade80; box-shadow:0 0 8px #4ade80; display:inline-block;"></span>
-              <span id="hero-status-text">مفتوح الآن</span>
-            </span>
-          </div>
-        </div>
+      <!-- 3 Glassmorphism Floating Meta Badges ONLY (Rating, Delivery, Status) -->
+      <div class="hero-badges-floating">
+        <span class="hero-meta-chip chip-rating" id="hero-chip-rating" title="تقييم المطعم">
+          <span class="rating-star"><svg class="icon icon-sm" viewBox="0 0 24 24" fill="#f59e0b" style="width:13px; height:13px; vertical-align:middle;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
+          <span class="font-num">4.8</span>
+        </span>
+        <span class="hero-meta-chip chip-delivery font-num" title="وقت التوصيل المتوقع">
+          <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px; height:13px; vertical-align:middle;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span id="hero-delivery-time">25 - 35 دقيقة</span>
+        </span>
+        <span id="hero-status-chip" class="hero-meta-chip chip-status open" title="حالة استقبال الطلبات">
+          <span class="status-pulse-dot"></span>
+          <span id="hero-status-text">مفتوح الآن</span>
+        </span>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <!-- Main Content Sheet (Overlaps Hero with Curved Top Corners) -->
-  <main class="main-content-sheet" style="position:relative; z-index:20; width:100%; margin-top:-24px; border-top-left-radius:28px; border-top-right-radius:28px; padding-top:14px;">
+  <!-- Main Content Sheet (Matching Mockups) -->
+  <main class="main-content-sheet">
     <div class="container">
 
     <!-- Compact Promo Deal Voucher (Design Item 2) -->
@@ -653,7 +567,7 @@
       </div>
       <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
         <button id="btn-open-tracker" class="btn btn-primary btn-sm" style="font-weight:800; font-size:12px; padding:7px 14px; display:inline-flex; align-items:center; gap:6px;" onclick="openLastOrderTracker()">
-          <span>🛵</span> تتبع الطلب
+          <span>تتبع الطلب</span>
         </button>
         <button id="btn-reorder" class="btn btn-ghost btn-sm" style="font-weight:700; font-size:12px; padding:7px 12px; border:1px solid var(--border);">
           <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> 
@@ -681,13 +595,18 @@
     <!-- Hero / Chef's Pick Showcase -->
     <section id="hero-showcase-container" style="display:none;"></section>
 
+    <!-- Mockup Section Heading -->
+    <div id="menu-section-header" class="menu-section-header">
+      <h2 id="menu-section-title" class="menu-section-title">الأكثر مبيعاً</h2>
+    </div>
+
     <!-- Products Catalog Grid (Defaults to Dual Grid) -->
     <section id="products-container" class="products-flow view-mode-dual"></section>
     </div>
   </main>
 
-  <!-- Dynamic Island Floating Cart (Next-Gen Luxury Experience) -->
-  <div class="dynamic-island-cart" id="dynamic-island-cart">
+  <!-- Dynamic Island Floating Cart (Hidden per user request - use bottom nav cart tab) -->
+  <div class="dynamic-island-cart" id="dynamic-island-cart" style="display:none !important;">
     <div class="island-glow-aura"></div>
     <div class="island-content-wrap">
       <div class="island-left-cluster">
@@ -709,6 +628,316 @@
       <div class="island-progress-fill" id="island-progress-fill" style="width: 0%;"></div>
     </div>
   </div>
+  </div> <!-- ═══ End #view-menu ═══ -->
+
+  <!-- ═══════════════════════════════════════════════════════════
+       APP VIEW 2: RESTAURANT PORTFOLIO & BRAND SHOWCASE (الرئيسية)
+       ═══════════════════════════════════════════════════════════ -->
+  <!-- ═══════════════════════════════════════════════════════════
+       APP VIEW 2: RESTAURANT PORTFOLIO & BRAND SHOWCASE (الرئيسية)
+       Cinematic Full-Bleed Atmospheric Experience (No Boxy Clutter)
+       ═══════════════════════════════════════════════════════════ -->
+  <section id="view-portfolio" class="app-view-container" style="display:none;" aria-label="الصفحة الرئيسية للمطعم">
+    <div class="portfolio-immersive-hero">
+      <!-- Full-bleed Atmospheric Restaurant Canvas -->
+      <img id="portfolio-immersive-bg" src="" alt="مطعمنا" class="portfolio-immersive-bg" onerror="this.onerror=null;">
+      <div class="portfolio-immersive-scrim"></div>
+
+      <!-- Floating Content Layer -->
+      <div class="portfolio-immersive-content">
+        <!-- Floating Brand Pill at Top -->
+        <div class="portfolio-floating-brand">
+          <div class="portfolio-avatar-glass">
+            <img id="portfolio-store-logo" src="" alt="شعار المطعم" class="portfolio-avatar-img" onerror="this.onerror=null;">
+            <span class="portfolio-verified-badge" title="مطعم موثوق ومسجل" style="display:inline-flex; align-items:center; justify-content:center;"><svg class="icon" viewBox="0 0 24 24" style="width:11px; height:11px; stroke-width:3.5;"><polyline points="20 6 9 17 4 12"/></svg></span>
+          </div>
+          <div class="portfolio-brand-text">
+            <h1 id="portfolio-store-name" class="portfolio-hero-title">...</h1>
+            <span id="portfolio-status-chip" class="portfolio-live-chip open">
+              <span class="status-pulse-dot"></span>
+              <span id="portfolio-status-text">مفتوح الآن</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Tagline & Story Section -->
+        <div class="portfolio-statement-wrap">
+          <p id="portfolio-store-tagline" class="portfolio-hero-subtitle">...</p>
+          <p id="portfolio-about-text" class="portfolio-hero-story">
+            نقدم لكم أشهى وألذ المأكولات المحضرة يومياً بأعلى معايير الجودة والنظافة، لتستمتع بأصالة المذاق في كل لقمة.
+          </p>
+        </div>
+
+        <!-- Glass Micro-Badges -->
+        <div class="portfolio-glass-badges">
+          <div class="glass-badge-item">
+            <span class="badge-icon"><svg class="icon icon-sm" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
+            <span class="badge-val">4.8 / 5.0</span>
+            <span class="badge-label">تقييم الزبائن</span>
+          </div>
+          <div class="glass-badge-item">
+            <span class="badge-icon"><svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+            <span class="badge-val" id="portfolio-delivery-time">25 - 35 دقيقة</span>
+            <span class="badge-label">متوسط التوصيل</span>
+          </div>
+          <div class="glass-badge-item">
+            <span class="badge-icon"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span>
+            <span class="badge-val">طازج 100%</span>
+            <span class="badge-label">أعلى معايير الجودة</span>
+          </div>
+        </div>
+
+        <!-- Quick Action Floating Pills -->
+        <div class="portfolio-quick-pills">
+          <a id="portfolio-phone-btn" href="tel:" class="portfolio-pill-link">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            <span id="portfolio-phone-text">اتصال مباشر</span>
+          </a>
+          <a id="portfolio-wa-btn" href="#" target="_blank" class="portfolio-pill-link wa-pill" rel="noopener">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+            <span>واتساب المطعم</span>
+          </a>
+          <a id="portfolio-map-link" href="#" target="_blank" class="portfolio-pill-link" rel="noopener">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span id="portfolio-address-text">موقعنا على الخريطة</span>
+          </a>
+        </div>
+
+        <!-- Grand CTA Button: Browse Menu -->
+        <div class="portfolio-bottom-action">
+          <button type="button" class="btn-portfolio-enter" onclick="window.handleNavTabClick && window.handleNavTabClick('menu')">
+            <span>تصفح قائمة الطعام واطلب الآن</span>
+            <span class="btn-arrow">←</span>
+          </button>
+          <div class="portfolio-hours-note">
+            <span>ساعات العمل: </span>
+            <strong id="portfolio-working-hours">يومياً من 11:00 صباحاً حتى 2:00 صباحاً</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section> <!-- ═══ End #view-portfolio ═══ -->
+
+  <!-- ═══════════════════════════════════════════════════════════
+       APP VIEW 3: DEDICATED ORDERS & LIVE TRACKING (طلباتي)
+       Dedicated In-App Tracking & Instant One-Click Reorder
+       ═══════════════════════════════════════════════════════════ -->
+  <section id="view-orders" class="app-view-container" style="display:none;" aria-label="طلباتي وسجل الطلبات">
+    <div class="orders-screen-container">
+      <div class="orders-screen-header">
+        <div class="orders-header-title-row">
+          <div class="orders-icon-wrap">
+            <svg viewBox="0 0 24 24" class="icon" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2 3.5 6.5 12 11l8.5-4.5L12 2z"/>
+              <path d="M3.5 6.5V16L12 20.5V11"/>
+              <path d="M20.5 6.5V16L12 20.5"/>
+              <polyline points="14.5 13.5 16.5 15.5 20.5 11"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="orders-main-title">طلباتي والتتبع</h2>
+            <p class="orders-main-sub">متابعة حالة طلبك الحالية وسجل طلباتك السابقة</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1. Active Order Live Tracker Card (Shown when order in progress) -->
+      <div id="active-order-tracking-card" class="active-tracker-card" style="display:none;">
+        <div class="tracker-card-top">
+          <div class="tracker-order-id-wrap">
+            <span class="tracker-badge-live"><span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:#22c55e; margin-left:6px; box-shadow:0 0 8px #22c55e;"></span>طلبك قيد التنفيذ</span>
+            <span class="tracker-id-num font-num" id="orders-active-id">#ORD-0000</span>
+          </div>
+          <span class="tracker-type-pill" id="orders-active-type-pill">توصيل دليفري</span>
+        </div>
+
+        <!-- 4-Stage Stepper -->
+        <div class="orders-stepper-wrap">
+          <div class="orders-stepper-progress">
+            <div class="stepper-progress-fill" id="orders-stepper-fill" style="width:25%;"></div>
+          </div>
+          <div class="orders-steps-grid">
+            <div class="step-point active" id="orders-step-1">
+              <div class="step-circle" id="orders-step-1-icon">1</div>
+              <span class="step-name" id="orders-step-1-name">استلام الطلب</span>
+            </div>
+            <div class="step-point" id="orders-step-2">
+              <div class="step-circle" id="orders-step-2-icon">2</div>
+              <span class="step-name" id="orders-step-2-name">في المطبخ</span>
+            </div>
+            <div class="step-point" id="orders-step-3">
+              <div class="step-circle" id="orders-step-3-icon">3</div>
+              <span class="step-name" id="orders-step-3-name">في الطريق</span>
+            </div>
+            <div class="step-point" id="orders-step-4">
+              <div class="step-circle" id="orders-step-4-icon">4</div>
+              <span class="step-name" id="orders-step-4-name">تم التسليم</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Estimated Time & Status Banner -->
+        <div class="tracker-eta-banner">
+          <div class="eta-left">
+            <span class="eta-icon" id="orders-active-eta-icon"><svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+            <div>
+              <div class="eta-title" id="orders-active-eta-title">الوقت التقديري للوصول</div>
+              <div class="eta-value font-num" id="orders-active-eta">25 - 35 دقيقة</div>
+            </div>
+          </div>
+          <div class="eta-status-desc" id="orders-active-desc">طلبك وصل إلى طهاة المطعم وبدأوا بتجهيزه الآن</div>
+        </div>
+
+        <!-- Location / Destination Info Banner -->
+        <div class="tracker-location-banner" id="orders-active-location-banner" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:10px; padding:9px 12px; margin:10px 0 14px; font-size:12px; display:flex; align-items:center; gap:8px;">
+          <span id="orders-active-location-icon" style="display:flex; align-items:center; color:var(--text-muted);"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span>
+          <span id="orders-active-location-text" style="color:var(--text-main); font-weight:700;">العنوان: جارٍ التحميل...</span>
+        </div>
+
+        <!-- Order Items Breakdown -->
+        <div class="tracker-items-section">
+          <div class="tracker-section-heading">تفاصيل الأصناف:</div>
+          <div class="tracker-items-list" id="orders-active-items-list"></div>
+          <div class="tracker-total-row">
+            <span>المبلغ الإجمالي المطلوب:</span>
+            <strong class="font-num" id="orders-active-total">0 ج.م</strong>
+          </div>
+        </div>
+
+        <!-- Quick Help Buttons for Active Order -->
+        <div class="tracker-actions-row">
+          <a id="orders-active-wa-btn" href="#" target="_blank" class="btn btn-primary btn-sm" style="flex:1; justify-content:center; text-decoration:none; display:inline-flex; align-items:center; gap:8px;" rel="noopener">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+            <span>تواصل مع المطعم عبر واتساب</span>
+          </a>
+          <a id="orders-active-phone-btn" href="tel:" class="btn btn-ghost btn-sm" style="border:1px solid var(--border); display:inline-flex; align-items:center; gap:6px;" title="اتصال">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            <span>اتصال</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- 2. Previous Orders / Last Order Section -->
+      <div id="previous-orders-section" class="previous-orders-wrap" style="display:none;">
+        <h3 class="orders-section-subtitle">
+          <span>سجل طلباتك السابقة</span>
+          <span class="subtitle-hint">يمكنك إعادة طلب نفس الوجبة بنقرة واحدة!</span>
+        </h3>
+        <div id="previous-orders-list" class="previous-orders-list"></div>
+      </div>
+
+      <!-- 3. Empty State (When no orders yet) -->
+      <div id="orders-empty-state" class="orders-empty-card" style="display:none;">
+        <div class="empty-box-icon" style="display:flex; justify-content:center; align-items:center;">
+          <svg class="icon" viewBox="0 0 24 24" style="width:48px; height:48px; color:var(--text-muted); stroke-width:1.5;"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+        </div>
+        <h3 class="empty-title">لا توجد لديك طلبات سابقة حتى الآن</h3>
+        <p class="empty-desc">عندما تؤكد طلبك، ستتمكن من متابعة مراحله لحظة بلحظة هنا، وإعادة طلبه في أي وقت بنقرة واحدة.</p>
+        <button type="button" class="btn btn-primary" onclick="window.handleNavTabClick && window.handleNavTabClick('menu')">
+          <span>تصفح المنيو واطلب الآن</span>
+        </button>
+      </div>
+    </div>
+  </section> <!-- ═══ End #view-orders ═══ -->
+
+  <!-- ═══════════════════════════════════════════════════════════
+       APP VIEW 4: MY ACCOUNT ("حسابي")
+       Minimalist, Ultra-Clean Profile (No Chunky Box Clutter)
+       ═══════════════════════════════════════════════════════════ -->
+  <section id="view-account" class="app-view-container" style="display:none;" aria-label="حسابي ومعلوماتي">
+    <div class="account-clean-container">
+      <!-- Minimalist Profile Header -->
+      <div class="account-clean-profile">
+        <div class="clean-avatar-circle" id="clean-avatar-char" style="display:flex; align-items:center; justify-content:center;">
+          <svg class="icon" viewBox="0 0 24 24" style="width:26px; height:26px; stroke-width:2;"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div class="clean-profile-info">
+          <h2 class="clean-profile-name" id="clean-profile-name">عميلنا العزيز</h2>
+          <p class="clean-profile-phone font-num" id="clean-profile-phone">لم تسجل رقم هاتفك بعد</p>
+        </div>
+        <button type="button" class="btn-clean-edit" id="btn-clean-edit-profile" onclick="window.toggleCleanProfileEdit && window.toggleCleanProfileEdit()" title="تعديل بياناتي">
+          <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          <span>تعديل</span>
+        </button>
+      </div>
+
+      <!-- Smooth Inline Edit Panel (Hidden by default) -->
+      <form id="clean-profile-edit-form" class="clean-edit-form" style="display:none;" onsubmit="window.handleAccountEditSubmit && window.handleAccountEditSubmit(event)">
+        <div class="clean-field-group">
+          <label class="clean-field-label" for="edit-profile-name-clean">الاسم بالكامل:</label>
+          <input type="text" id="edit-profile-name-clean" class="clean-field-input" required placeholder="اسمك">
+        </div>
+        <div class="clean-field-group">
+          <label class="clean-field-label" for="edit-profile-phone-clean">رقم الموبايل:</label>
+          <input type="tel" id="edit-profile-phone-clean" class="clean-field-input font-num" required placeholder="01012345678">
+        </div>
+        <div class="clean-form-actions">
+          <button type="submit" class="btn btn-primary btn-sm">حفظ التعديلات</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="window.toggleCleanProfileEdit && window.toggleCleanProfileEdit(false)">إلغاء</button>
+        </div>
+      </form>
+
+      <!-- Minimalist Settings List (Clean Divider Rows) -->
+      <div class="clean-settings-list">
+        <!-- 1. Theme Toggle -->
+        <div class="clean-setting-row" onclick="window.toggleTheme && window.toggleTheme()">
+          <div class="row-leading">
+            <span class="row-icon"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg></span>
+            <div class="row-text">
+              <div class="row-title">مظهر التطبيق</div>
+              <div class="row-sub" id="clean-theme-status-text">الوضع النهاري (Light Mode)</div>
+            </div>
+          </div>
+          <button type="button" class="clean-toggle-pill" id="clean-theme-toggle-btn" onclick="event.stopPropagation(); window.toggleTheme && window.toggleTheme()" aria-label="تبديل المظهر">
+            <span id="clean-theme-toggle-label">تفعيل الداكن</span>
+          </button>
+        </div>
+
+        <!-- 2. Sound Effects Toggle -->
+        <div class="clean-setting-row" onclick="window.toggleSound && window.toggleSound()">
+          <div class="row-leading">
+            <span class="row-icon"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></span>
+            <div class="row-text">
+              <div class="row-title">المؤثرات الصوتية</div>
+              <div class="row-sub">أصوات التفاعل والإشعارات الحية</div>
+            </div>
+          </div>
+          <button type="button" class="clean-toggle-pill active" id="clean-sound-toggle-btn" onclick="event.stopPropagation(); window.toggleSound && window.toggleSound()" aria-label="تبديل الصوت">
+            <span id="clean-sound-toggle-label">صوت مفعل</span>
+          </button>
+        </div>
+
+        <!-- 3. WhatsApp Support -->
+        <a id="clean-account-wa-link" href="#" target="_blank" class="clean-setting-row link-row" rel="noopener">
+          <div class="row-leading">
+            <span class="row-icon"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>
+            <div class="row-text">
+              <div class="row-title">خدمة العملاء والدعم</div>
+              <div class="row-sub">تواصل مع إدارة المطعم مباشرة عبر واتساب</div>
+            </div>
+          </div>
+          <span class="row-arrow">←</span>
+        </a>
+
+        <!-- 4. Share Menu -->
+        <div class="clean-setting-row link-row" onclick="window.shareMenuLink && window.shareMenuLink()">
+          <div class="row-leading">
+            <span class="row-icon"><svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></span>
+            <div class="row-text">
+              <div class="row-title">مشاركة المنيو مع الأصدقاء</div>
+              <div class="row-sub">إرسال رابط منيو المطعم عبر تطبيقات التواصل</div>
+            </div>
+          </div>
+          <span class="row-arrow">←</span>
+        </div>
+      </div>
+
+      <!-- App Branding Footer -->
+      <div class="clean-account-footer">
+        <p class="app-version-tag">Harpy Order • إصدار الرفاهية الرقمية 2026</p>
+      </div>
+    </div>
+  </section> <!-- ═══ End #view-account ═══ --> <!-- ═══ End #view-portfolio ═══ -->
 
   <!-- Cart Drawer & Guided Checkout -->
   <div class="modal-backdrop" id="cart-drawer-backdrop"></div>
@@ -718,7 +947,7 @@
         <svg class="icon" style="color:var(--primary);" viewBox="0 0 24 24"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
         سلة الطلبات وإتمام الحساب
       </div>
-      <button class="btn-close" id="btn-close-cart-drawer" aria-label="إغلاق">✕</button>
+      <button class="btn-close" id="btn-close-cart-drawer" aria-label="إغلاق"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     </div>
 
     <!-- Segmented Slim Step Progress Indicator -->
@@ -760,21 +989,21 @@
         <!-- Smart Pairing & Upselling ("يكمل وجبتك") — Placed organically after cart items -->
         <div id="cart-smart-pairing" class="smart-pairing-box" style="display:none;">
           <div class="pairing-headline">
-            <span class="pairing-icon">✨</span>
+            <span class="pairing-icon"><svg class="icon icon-sm" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
             <span>يكمل وجبتك:</span>
           </div>
           <div id="pairing-items-list" class="pairing-scroll-track"></div>
         </div>
 
-        <!-- Promo Voucher Code Box (Compact & Always Visible) -->
-        <div class="promo-box-wrap" style="margin-top:10px; padding-top:10px; border-top:1px dashed var(--border);">
+        <!-- Promo Voucher Code Box (Hidden by default when cart is empty) -->
+        <div id="promo-box-wrap" class="promo-box-wrap" style="margin-top:10px; padding-top:10px; border-top:1px dashed var(--border); display:none;">
           <div id="promo-input-container" class="promo-code-box-compact">
-            <input type="text" id="promo-code-input" class="promo-code-input-compact font-num" placeholder="🏷️ كود الخصم (مثال: KING10)">
+            <input type="text" id="promo-code-input" class="promo-code-input-compact font-num" placeholder="كود الخصم (مثال: KING10)">
             <button type="button" id="btn-apply-promo" class="btn-apply-promo-compact">تطبيق</button>
           </div>
           <div id="promo-applied-badge" style="display:none; background:var(--accent-wa-subtle); border:1px solid rgba(22,163,74,0.3); border-radius:var(--radius-xs); padding:6px 10px; font-size:11.5px; font-weight:700; color:var(--accent-wa); justify-content:space-between; align-items:center;">
             <span id="promo-applied-text">تم تطبيق كود الخصم</span>
-            <button type="button" id="btn-remove-promo" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:12px; font-weight:700;">إلغاء ✕</button>
+            <button type="button" id="btn-remove-promo" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:12px; font-weight:700;">إلغاء الكود</button>
           </div>
         </div>
       </div>
@@ -784,12 +1013,48 @@
         <div class="step-card-header">
           <div class="step-card-title">
             <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-            بيانات التوصيل والعنوان
+            طريقة الاستلام وبيانات الطلب
           </div>
-          <span class="step-badge-indicator">دليفري مباشر</span>
+          <span class="step-badge-indicator" id="fulfillment-badge-indicator">توصيل دليفري</span>
         </div>
 
         <div class="form-luxury-card">
+          <!-- 3-Way Fulfillment Selector (Delivery, Takeaway, Dine-in) -->
+          <div class="fulfillment-selector-wrap">
+            <label class="input-luxury-label">حدد طريقة استلام طلبك:</label>
+            <div class="fulfillment-segmented-control" id="fulfillment-segmented-control">
+              <button type="button" class="fulfillment-tab active" data-type="delivery" onclick="window.setFulfillmentType && window.setFulfillmentType('delivery')">
+                <span class="fulfillment-icon"><svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/></svg></span>
+                <span class="fulfillment-label">توصيل (دليفري)</span>
+              </button>
+              <button type="button" class="fulfillment-tab" data-type="takeaway" onclick="window.setFulfillmentType && window.setFulfillmentType('takeaway')">
+                <span class="fulfillment-icon"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></span>
+                <span class="fulfillment-label">استلام من الفرع</span>
+              </button>
+              <button type="button" class="fulfillment-tab" data-type="dinein" onclick="window.setFulfillmentType && window.setFulfillmentType('dinein')">
+                <span class="fulfillment-icon"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M18 2v6a3 3 0 0 1-3 3 3 3 0 0 1-3-3V2"/><path d="M15 11v11"/><path d="M5 2v13a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V2"/><path d="M7 2v6"/><path d="M8 17v5"/></svg></span>
+                <span class="fulfillment-label">داخل المطعم (صالة)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Dynamic Informational Banners -->
+          <div id="fulfillment-takeaway-banner" class="fulfillment-info-banner" style="display:none;">
+            <span class="info-icon"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></span>
+            <div class="info-text">
+              <strong>استلام من فرع المطعم مباشرة (بدون رسوم توصيل)</strong>
+              <p id="takeaway-branch-address">سيتم تجهيز طلبك طازجاً خلال 15 - 20 دقيقة لتستلمه بنفسك فور وصولك.</p>
+            </div>
+          </div>
+
+          <div id="fulfillment-dinein-banner" class="fulfillment-info-banner" style="display:none;">
+            <span class="info-icon"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M18 2v6a3 3 0 0 1-3 3 3 3 0 0 1-3-3V2"/><path d="M15 11v11"/><path d="M5 2v13a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V2"/><path d="M7 2v6"/><path d="M8 17v5"/></svg></span>
+            <div class="info-text">
+              <strong>تناول داخل صالة المطعم (بدون رسوم توصيل)</strong>
+              <p>استمتع بتناول وجبتك في صالة المطعم. حدد رقم طاولتك لنقدمها لك فور تحضيرها.</p>
+            </div>
+          </div>
+
           <!-- Name Input -->
           <div class="input-luxury-group">
             <label class="input-luxury-label" for="cust-name">
@@ -818,8 +1083,20 @@
             </div>
           </div>
 
-          <!-- Detailed Address Input -->
-          <div class="input-luxury-group">
+          <!-- Table Number Input (Shown only when Dine-In) -->
+          <div class="input-luxury-group" id="group-table-number" style="display:none;">
+            <label class="input-luxury-label" for="cust-table-number">
+              <span>رقم الطاولة في الصالة</span>
+              <span class="required-star">*</span>
+            </label>
+            <div class="input-icon-wrapper">
+              <span class="input-leading-icon"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M18 2v6a3 3 0 0 1-3 3 3 3 0 0 1-3-3V2"/><path d="M15 11v11"/><path d="M5 2v13a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V2"/><path d="M7 2v6"/><path d="M8 17v5"/></svg></span>
+              <input type="text" id="cust-table-number" class="input-luxury-field font-num" placeholder="مثال: طاولة 5 أو VIP 2">
+            </div>
+          </div>
+
+          <!-- Detailed Address Input (Shown only when Delivery) -->
+          <div class="input-luxury-group" id="group-cust-address">
             <label class="input-luxury-label" for="cust-address">
               <span>عنوان التوصيل بالتفصيل</span>
               <span class="required-star">*</span>
@@ -933,7 +1210,7 @@
             </div>
             <div id="receipt-preview-wrap" style="display:none; position:relative; margin-top:8px;">
               <img id="receipt-preview" class="receipt-preview-image" alt="إيصال التحويل">
-              <button type="button" id="btn-remove-receipt" class="btn-remove-receipt" title="حذف الصورة">✕</button>
+              <button type="button" id="btn-remove-receipt" class="btn-remove-receipt" title="حذف الصورة"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
             </div>
             <div id="receipt-status" class="upload-status-chip"></div>
           </div>
@@ -974,7 +1251,7 @@
       <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
         <button type="button" class="btn-confirm-order-direct" id="btn-confirm-order-direct" style="background:linear-gradient(135deg, var(--primary), #c2410c); color:#fff; width:100%; padding:14px; border-radius:var(--radius-sm, 10px); border:none; font-size:0.95rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 16px rgba(234,88,12,0.35); transition:transform 0.15s ease;">
           <svg class="icon" style="width:1.2em; height:1.2em;" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-          <span>تأكيد وإرسال الطلب مباشرة ⚡</span>
+          <span>تأكيد وإرسال الطلب مباشرة</span>
         </button>
         <button type="button" class="btn-send-whatsapp" id="btn-send-whatsapp" style="background:transparent; border:1px solid rgba(37,211,102,0.4); color:var(--accent-wa); padding:8px; font-size:0.82rem; font-weight:700; width:100%; border-radius:var(--radius-sm, 10px); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
           <svg class="icon" style="width:1.1em; height:1.1em;" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
@@ -989,7 +1266,7 @@
   <div class="preview-modal" id="preview-modal">
     <div class="preview-img-wrap">
       <img id="preview-img" src="" alt="Preview" class="preview-img">
-      <button class="btn-close" id="btn-close-preview" style="position:absolute; top:12px; left:12px; background:rgba(17,14,12,0.85); color:#fff;">✕</button>
+      <button class="btn-close" id="btn-close-preview" style="position:absolute; top:12px; left:12px; background:rgba(17,14,12,0.85); color:#fff;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     </div>
     <div class="preview-body">
       <div class="preview-header">
@@ -1028,7 +1305,7 @@
             <div class="story-header-time" id="story-viewer-time">مميز وحصري</div>
           </div>
         </div>
-        <button class="btn-close-story" id="btn-close-story">✕</button>
+        <button class="btn-close-story" id="btn-close-story"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
 
       <!-- Story Media & Overlay -->
@@ -1067,7 +1344,7 @@
         </div>
         <p id="customizer-desc">اختر الحجم والإضافات المفضلة</p>
       </div>
-      <button class="btn-close-customizer" id="btn-close-customizer">✕</button>
+      <button class="btn-close-customizer" id="btn-close-customizer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     </div>
 
     <div class="customizer-body">
@@ -1130,7 +1407,7 @@
             <span class="pulse-live-dot"></span>
             <span style="font-size:12px; font-weight:800; color:var(--primary); text-transform:uppercase;">متابعة حالة الطلب مباشرة</span>
           </div>
-          <button class="btn-close" id="btn-close-tracker" style="background:var(--surface-raised); border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; color:var(--text-main); font-size:14px; display:flex; align-items:center; justify-content:center;">✕</button>
+          <button class="btn-close" id="btn-close-tracker" style="background:var(--surface-raised); border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; color:var(--text-main); font-size:14px; display:flex; align-items:center; justify-content:center;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
         </div>
         <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:12px;">
           <div>
@@ -1160,7 +1437,7 @@
 
         <div class="step-node" id="step-node-preparing">
           <div class="step-icon-wrap">
-            <span class="step-icon">👨‍🍳</span>
+            <span class="step-icon">2</span>
           </div>
           <div class="step-text-wrap">
             <div class="step-title">المطبخ يجهز طلبك الآن</div>
@@ -1172,7 +1449,7 @@
 
         <div class="step-node" id="step-node-out_for_delivery">
           <div class="step-icon-wrap">
-            <span class="step-icon">🛵</span>
+            <span class="step-icon">3</span>
           </div>
           <div class="step-text-wrap">
             <div class="step-title">الطلب في الطريق إليك</div>
@@ -1184,7 +1461,7 @@
 
         <div class="step-node" id="step-node-delivered">
           <div class="step-icon-wrap">
-            <span class="step-icon">✅</span>
+            <span class="step-icon">4</span>
           </div>
           <div class="step-text-wrap">
             <div class="step-title">تم التسليم بالهناء والشفاء!</div>
@@ -1210,7 +1487,7 @@
           محادثة المطعم
         </a>
         <button id="btn-tracker-new-order" class="btn btn-primary" style="flex:1; padding:10px; font-weight:800; font-size:0.86rem;">
-          الرجوع للمنيو 🍽️
+          الرجوع للمنيو
         </button>
       </div>
     </div>
@@ -1220,45 +1497,314 @@
   <div id="subscription-suspended-backdrop" class="harpy-lock-backdrop"></div>
   <div id="subscription-suspended-overlay" class="harpy-lock-modal">
     <div id="sub-suspended-icon" style="width:68px; height:68px; border-radius:50%; background:rgba(239, 68, 68, 0.12); color:var(--danger); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:32px;">
-      ❄️
+      <svg class="icon" viewBox="0 0 24 24" style="width:32px; height:32px; stroke-width:2;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     </div>
     <h3 id="sub-suspended-title" style="font-size:1.22rem; font-weight:900; color:var(--text-main); margin-bottom:8px;">عفواً، الخدمة متوقفة مؤقتاً</h3>
     <p id="sub-suspended-desc" style="font-size:0.88rem; color:var(--text-muted); line-height:1.65; margin-bottom:22px;">
       قائمة هذا المطعم غير متاحة حالياً لتلقي طلبات الأونلاين أو جاري تجديد الاشتراك.
     </p>
     <a id="sub-suspended-contact-btn" href="#" class="btn btn-primary" style="width:100%; padding:13px; font-weight:800; text-decoration:none; display:inline-block; font-size:0.92rem; border-radius:var(--radius-sm);">
-      💬 تواصل مع المطعم عبر الواتساب
+      تواصل مع المطعم عبر الواتساب
     </a>
   </div>
 
-  <!-- Ordering Paused / Store Closed — Full-Screen Lock Overlay (cannot be dismissed) -->
-  <div id="ordering-paused-backdrop" class="harpy-lock-backdrop"></div>
-  <div id="ordering-paused-modal" class="harpy-lock-modal" style="text-align:center;">
-    <div id="ordering-paused-icon" style="width:72px; height:72px; border-radius:50%; background:rgba(239,68,68,0.12); color:var(--danger,#ef4444); display:flex; align-items:center; justify-content:center; margin:0 auto 18px; font-size:34px;">
-      🛑
+  <!-- Ordering Paused / Store Closed Notice (Friendly, Non-blocking popup when user attempts to order) -->
+  <div id="ordering-paused-backdrop" class="modal-backdrop" onclick="window.closeOrderingPausedNotice && window.closeOrderingPausedNotice()"></div>
+  <div id="ordering-paused-modal" class="harpy-lock-modal" style="text-align:center; position:relative;" role="dialog" aria-modal="true">
+    <button type="button" class="btn-close" onclick="window.closeOrderingPausedNotice && window.closeOrderingPausedNotice()" style="position:absolute; top:12px; left:12px;" aria-label="إغلاق"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+    <div id="ordering-paused-icon" style="width:68px; height:68px; border-radius:50%; background:rgba(239,68,68,0.12); color:var(--danger,#ef4444); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:32px;">
+      <svg class="icon" viewBox="0 0 24 24" style="width:32px; height:32px; stroke-width:2;"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
     </div>
-    <h3 id="ordering-paused-title" style="font-size:1.22rem; font-weight:900; color:var(--text-main); margin-bottom:10px;">المطعم متوقف حالياً عن استقبال الطلبات</h3>
-    <p id="ordering-paused-modal-msg" style="font-size:0.88rem; color:var(--text-muted); line-height:1.7; margin-bottom:24px; background:var(--surface-raised,rgba(0,0,0,0.04)); padding:14px 16px; border-radius:10px; border:1px dashed var(--border);">
-      عذراً، المطعم متوقف مؤقتاً عن استقبال الطلبات. سيعود قريباً لخدمتكم!
+    <h3 id="ordering-paused-title" style="font-size:1.2rem; font-weight:900; color:var(--text-main); margin-bottom:8px;">المطعم متوقف حالياً عن استقبال الطلبات</h3>
+    <p id="ordering-paused-modal-msg" style="font-size:0.88rem; color:var(--text-muted); line-height:1.7; margin-bottom:20px; background:var(--surface-raised,rgba(0,0,0,0.04)); padding:12px 14px; border-radius:12px; border:1px dashed var(--border);">
+      عذراً، المطعم لا يستقبل طلبات جديدة في الوقت الحالي. يمكنك تصفح قائمة الطعام والأسعار بحرية، وسنعاود استقبال الطلبات قريباً!
     </p>
-    <a id="ordering-paused-wa-btn" href="#" target="_blank" class="btn btn-primary" style="width:100%; padding:13px; font-weight:800; text-decoration:none; display:inline-block; font-size:0.92rem; border-radius:var(--radius-sm); margin-bottom:10px;">
-      💬 تواصل مع المطعم عبر الواتساب
-    </a>
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <a id="ordering-paused-wa-btn" href="#" target="_blank" class="btn btn-primary" style="width:100%; padding:12px; font-weight:800; text-decoration:none; display:inline-block; font-size:0.92rem; border-radius:var(--radius-sm);" rel="noopener">
+        تواصل مع المطعم عبر الواتساب
+      </a>
+      <button type="button" class="btn btn-ghost" onclick="window.closeOrderingPausedNotice && window.closeOrderingPausedNotice()" style="width:100%; padding:11px; border:1px solid var(--border); border-radius:var(--radius-sm); font-weight:800; color:var(--text-main); font-size:0.9rem;">
+        تصفح قائمة الطعام والأسعار
+      </button>
+    </div>
   </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       CUSTOMER ONBOARDING MODAL (One-Time Frictionless Profile)
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="modal-backdrop" id="customer-onboard-backdrop"></div>
+  <div class="customer-onboard-modal" id="customer-onboard-modal" role="dialog" aria-modal="true" aria-labelledby="onboard-title">
+    <div class="onboard-header">
+      <div class="onboard-avatar-circle">
+        <svg class="icon" viewBox="0 0 24 24" style="width:28px; height:28px; stroke-width:2;"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <h3 class="onboard-title" id="onboard-title">أهلاً بك في مطعمنا!</h3>
+      <p class="onboard-subtitle">سجّل اسمك ورقم هاتفك مرة واحدة لتسريع تأكيد طلباتك القادمة:</p>
+    </div>
+    <form id="customer-onboard-form" onsubmit="window.handleCustomerOnboardSubmit && window.handleCustomerOnboardSubmit(event)">
+      <div class="input-luxury-group">
+        <label class="input-luxury-label" for="onboard-name">الاسم بالكامل <span class="required-star">*</span></label>
+        <div class="input-icon-wrapper">
+          <span class="input-leading-icon">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </span>
+          <input type="text" id="onboard-name" class="input-luxury-field" placeholder="اكتب اسمك الكريم" required autocomplete="name">
+        </div>
+      </div>
+      <div class="input-luxury-group">
+        <label class="input-luxury-label" for="onboard-phone">رقم الموبايل للتواصل <span class="required-star">*</span></label>
+        <div class="input-icon-wrapper">
+          <span class="input-leading-icon">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </span>
+          <input type="tel" id="onboard-phone" class="input-luxury-field font-num" placeholder="01012345678" required autocomplete="tel">
+        </div>
+      </div>
+      <div class="onboard-actions">
+        <button type="submit" class="btn btn-primary onboard-btn-save">
+          <span>حفظ ومتابعة المنيو</span>
+        </button>
+        <button type="button" class="btn-ghost onboard-btn-skip" onclick="window.closeCustomerOnboardModal && window.closeCustomerOnboardModal(true)">
+          <span>تخطي الآن وتصفح القائمة</span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       MY ACCOUNT DRAWER ("حسابي")
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="modal-backdrop" id="my-account-backdrop"></div>
+  <aside class="my-account-drawer" id="my-account-drawer" role="dialog" aria-modal="true">
+    <div class="account-drawer-header">
+      <div class="drawer-title" style="display:flex; align-items:center; gap:8px;">
+        <svg class="icon" style="color:var(--primary);" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>حسابي ومعلوماتي</span>
+      </div>
+      <button type="button" class="btn-close" id="btn-close-account" onclick="window.closeMyAccountDrawer && window.closeMyAccountDrawer()" aria-label="إغلاق"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+    </div>
+
+    <div class="account-drawer-body">
+      <!-- Profile Summary Card -->
+      <div class="account-profile-card">
+        <div class="profile-card-top">
+          <div class="profile-avatar-circle" id="account-avatar-char" style="display:flex; align-items:center; justify-content:center;"><svg class="icon" viewBox="0 0 24 24" style="width:24px; height:24px;"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+          <div class="profile-text-wrap">
+            <div class="profile-name" id="account-display-name">عميلنا العزيز</div>
+            <div class="profile-phone font-num" id="account-display-phone">لم يتم تسجيل الهاتف</div>
+          </div>
+          <button type="button" class="btn-edit-profile" id="btn-edit-profile" onclick="window.toggleEditProfileForm && window.toggleEditProfileForm()" title="تعديل بيانات الحساب">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            <span>تعديل</span>
+          </button>
+        </div>
+
+        <!-- Inline Profile Edit Form (Toggleable) -->
+        <form id="account-edit-form" class="account-edit-form" style="display:none;" onsubmit="window.handleAccountEditSubmit && window.handleAccountEditSubmit(event)">
+          <div class="input-luxury-group">
+            <label class="input-luxury-label" for="edit-profile-name">الاسم بالكامل:</label>
+            <input type="text" id="edit-profile-name" class="input-luxury-field" required>
+          </div>
+          <div class="input-luxury-group">
+            <label class="input-luxury-label" for="edit-profile-phone">رقم الموبايل:</label>
+            <input type="tel" id="edit-profile-phone" class="input-luxury-field font-num" required>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button type="submit" class="btn btn-primary btn-sm" style="flex:1;">حفظ البيانات</button>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="window.toggleEditProfileForm && window.toggleEditProfileForm(false)" style="border:1px solid var(--border);">إلغاء</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Quick Action Menu List -->
+      <div class="account-menu-list">
+        <!-- 1. Track / Recall Last Order -->
+        <div class="account-menu-item" onclick="if(window.openLastOrderTracker) window.openLastOrderTracker(); window.closeMyAccountDrawer && window.closeMyAccountDrawer();">
+          <div class="account-menu-icon" style="background:rgba(234,88,12,0.12); color:var(--primary);">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/></svg>
+          </div>
+          <div class="account-menu-text">
+            <div class="menu-item-title">متابعة طلبك الأخير</div>
+            <div class="menu-item-sub font-num" id="account-last-order-sub">عرض حالة التوصيل والتفاصيل</div>
+          </div>
+          <svg class="icon icon-sm menu-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+
+        <!-- 2. Favorites Filter -->
+        <div class="account-menu-item" onclick="if(window.handleCategoryFilter) window.handleCategoryFilter('fav'); window.closeMyAccountDrawer && window.closeMyAccountDrawer();">
+          <div class="account-menu-icon" style="background:rgba(239,68,68,0.12); color:var(--danger,#ef4444);">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+          </div>
+          <div class="account-menu-text">
+            <div class="menu-item-title">الأصناف المفضلة لديك</div>
+            <div class="menu-item-sub"><span id="account-fav-count" class="font-num">0</span> أصناف محفوظة</div>
+          </div>
+          <svg class="icon icon-sm menu-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+
+        <!-- 3. Store WhatsApp Link -->
+        <a id="account-whatsapp-link" href="#" target="_blank" class="account-menu-item" style="text-decoration:none;">
+          <div class="account-menu-icon" style="background:rgba(34,197,94,0.12); color:#22c55e;">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          </div>
+          <div class="account-menu-text">
+            <div class="menu-item-title">محادثة المطعم عبر الواتساب</div>
+            <div class="menu-item-sub">خدمة العملاء والاستفسارات المباشرة</div>
+          </div>
+          <svg class="icon icon-sm menu-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+
+        <!-- 4. Theme Switcher -->
+        <div class="account-menu-item" onclick="if(window.handleThemeToggle) window.handleThemeToggle();">
+          <div class="account-menu-icon" style="background:rgba(168,85,247,0.12); color:#a855f7;">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
+          </div>
+          <div class="account-menu-text">
+            <div class="menu-item-title">المظهر (ليلي / نهاري)</div>
+            <div class="menu-item-sub">تبديل وضع الإضاءة المفضل</div>
+          </div>
+          <svg class="icon icon-sm menu-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+
+        <!-- 5. Sound Toggle -->
+        <div class="account-menu-item" onclick="if(window.handleSoundToggle) window.handleSoundToggle();">
+          <div class="account-menu-icon" style="background:rgba(59,130,246,0.12); color:#3b82f6;">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+          </div>
+          <div class="account-menu-text">
+            <div class="menu-item-title">المؤثرات الصوتية</div>
+            <div class="menu-item-sub" id="account-sound-state">مفعلة</div>
+          </div>
+          <svg class="icon icon-sm menu-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+
+        <!-- 6. PWA Install App Item -->
+        <div id="account-install-item" class="account-menu-item" style="display:none;" onclick="if(window.triggerPWAInstall) window.triggerPWAInstall(); window.closeMyAccountDrawer && window.closeMyAccountDrawer();">
+          <div class="account-menu-icon" style="background:rgba(234,88,12,0.15); color:var(--primary);">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          </div>
+          <div class="account-menu-text">
+            <div class="menu-item-title">تثبيت التطبيق على جهازك</div>
+            <div class="menu-item-sub">وصول أسرع وتصفح يشبه التطبيقات الأصلية</div>
+          </div>
+          <svg class="icon icon-sm menu-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       DIGITAL MENU QR CODE MODAL (Share & Table Dine-in)
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="modal-backdrop" id="qr-modal-backdrop"></div>
+  <div class="qr-code-modal" id="qr-code-modal" role="dialog" aria-modal="true" aria-labelledby="qr-modal-title">
+    <div class="qr-modal-header">
+      <div class="drawer-title" style="display:flex; align-items:center; gap:8px;">
+        <svg class="icon" style="color:var(--primary);" viewBox="0 0 24 24"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg>
+        <span id="qr-modal-title">رمز المنيو الرقمي (QR)</span>
+      </div>
+      <button type="button" class="btn-close" id="btn-close-qr" onclick="window.closeQrModal && window.closeQrModal()" aria-label="إغلاق"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+    </div>
+
+    <div class="qr-modal-body">
+      <div class="qr-code-card">
+        <img id="qr-code-image" src="" alt="QR Code" class="qr-code-img">
+      </div>
+      <h4 id="qr-store-name" class="qr-store-name">...</h4>
+      <p class="qr-modal-desc">
+        امسح رمز الـ QR بكاميرا الهاتف لفتح المنيو ومشاركته مع الأصدقاء فوراً
+      </p>
+
+      <div class="qr-actions-wrap">
+        <button type="button" class="btn btn-primary qr-share-btn" onclick="window.shareMenuLink && window.shareMenuLink()">
+          <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          <span>مشاركة رابط المنيو</span>
+        </button>
+        <button type="button" class="btn btn-ghost qr-copy-btn" onclick="window.copyMenuLink && window.copyMenuLink()">
+          <span id="copy-menu-link-text">نسخ الرابط إلى الحافظة</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       FIXED BOTTOM NAVIGATION BAR (Luxury 5-Tab Bar)
+       ═══════════════════════════════════════════════════════════ -->
+  <nav class="bottom-nav-bar" id="bottom-nav-bar" aria-label="التنقل الرئيسي">
+    <!-- Tab 1: الرئيسية (Home - Rightmost in RTL) -->
+    <button type="button" class="nav-tab-btn" id="nav-tab-home" onclick="window.handleNavTabClick && window.handleNavTabClick('home')" title="الرئيسية" aria-label="الرئيسية">
+      <div class="nav-tab-icon">
+        <svg viewBox="0 0 24 24" class="icon" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 10.5 12 3l9 7.5v9.5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <path d="M9 22v-6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v6"/>
+        </svg>
+      </div>
+      <span class="nav-tab-label">الرئيسية</span>
+    </button>
+
+    <!-- Tab 2: السلة (Cart - Positioned where Menu used to be) -->
+    <button type="button" class="nav-tab-btn nav-tab-cart" id="nav-tab-cart" onclick="window.handleNavTabClick && window.handleNavTabClick('cart')" title="سلة الطلبات" aria-label="السلة">
+      <div class="nav-tab-icon" style="position:relative;">
+        <svg viewBox="0 0 24 24" class="icon" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 4h3l2.2 9.5a1.5 1.5 0 0 0 1.5 1.2h7.8a1.5 1.5 0 0 0 1.5-1.1L21 7H7"/>
+          <circle cx="10" cy="19.5" r="1.5" fill="currentColor"/>
+          <circle cx="18" cy="19.5" r="1.5" fill="currentColor"/>
+        </svg>
+        <span class="nav-tab-badge font-num" id="bottom-cart-badge" style="display:none;">0</span>
+      </div>
+      <span class="nav-tab-label">السلة</span>
+    </button>
+
+    <!-- Tab 3: المنيو (Menu - Center Vibrant Orange Squircle Button) -->
+    <button type="button" class="nav-tab-btn active nav-tab-center-orange" id="nav-tab-menu" onclick="window.handleNavTabClick && window.handleNavTabClick('menu')" title="قائمة الطعام" aria-label="المنيو">
+      <div class="nav-tab-icon">
+        <svg viewBox="0 0 24 24" class="icon" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 3v6a2 2 0 0 0 2 2v10M10 3v6a2 2 0 0 1-2 2M8 3v8"/>
+          <path d="M18 3v18M18 3a3 3 0 0 0-3 3v5h3"/>
+        </svg>
+      </div>
+      <span class="nav-tab-label">المنيو</span>
+    </button>
+
+    <!-- Tab 4: طلباتي (My Orders - Replaces QR, with pulsing glow alert) -->
+    <button type="button" class="nav-tab-btn" id="nav-tab-orders" onclick="window.handleNavTabClick && window.handleNavTabClick('orders')" title="طلباتي والتتبع" aria-label="طلباتي">
+      <div class="nav-tab-icon" style="position:relative;">
+        <svg viewBox="0 0 24 24" class="icon" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2 3.5 6.5 12 11l8.5-4.5L12 2z"/>
+          <path d="M3.5 6.5V16L12 20.5V11"/>
+          <path d="M20.5 6.5V16L12 20.5"/>
+          <polyline points="14.5 13.5 16.5 15.5 20.5 11"/>
+        </svg>
+        <span class="order-pulse-dot" id="order-pulse-dot" style="display:none;"></span>
+      </div>
+      <span class="nav-tab-label">طلباتي</span>
+    </button>
+
+    <!-- Tab 5: حسابي (My Account - Leftmost in RTL) -->
+    <button type="button" class="nav-tab-btn" id="nav-tab-account" onclick="window.handleNavTabClick && window.handleNavTabClick('account')" title="حسابي ومعلوماتي" aria-label="حسابي">
+      <div class="nav-tab-icon">
+        <svg viewBox="0 0 24 24" class="icon" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="7" r="4"/>
+          <path d="M5.5 21a6.5 6.5 0 0 1 13 0"/>
+        </svg>
+      </div>
+      <span class="nav-tab-label">حسابي</span>
+    </button>
+  </nav>
 
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=68.0"></script>
-  <script src="js/core/sound-effects.js?v=68.0"></script>
-  <script src="js/store.js?v=68.0"></script>
-  <script src="js/client/client-core.js?v=68.0"></script>
-  <script src="js/client/menu-view.js?v=68.0"></script>
-  <script src="js/client/stories-viewer.js?v=68.0"></script>
-  <script src="js/client/customizer-modal.js?v=68.0"></script>
-  <script src="js/client/cart-ledger.js?v=68.0"></script>
-  <script src="js/client/order-tracking.js?v=68.0"></script>
-  <script src="js/app.js?v=68.0"></script>
-  <script src="js/pwa.js?v=68.0"></script>
+  <script src="js/core/demo-seed-data.js?v=77.0"></script>
+  <script src="js/core/sound-effects.js?v=77.0"></script>
+  <script src="js/store.js?v=77.0"></script>
+  <script src="js/client/client-core.js?v=77.0"></script>
+  <script src="js/client/menu-view.js?v=77.0"></script>
+  <script src="js/client/stories-viewer.js?v=77.0"></script>
+  <script src="js/client/customizer-modal.js?v=77.0"></script>
+  <script src="js/client/cart-ledger.js?v=77.0"></script>
+  <script src="js/client/order-tracking.js?v=77.0"></script>
+  <script src="js/app.js?v=77.0"></script>
+  <script src="js/pwa.js?v=77.0"></script>
 </body>
 </html>

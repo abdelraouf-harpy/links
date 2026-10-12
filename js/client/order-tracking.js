@@ -19,7 +19,7 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
 
   const cart = Store.getCart();
   if (cart.length === 0) {
-    showToastNotification("السلة فارغة، أضف بعض الوجبات أولاً 🛒", "error");
+    showToastNotification("السلة فارغة، أضف بعض الوجبات أولاً", "error");
     return;
   }
 
@@ -30,6 +30,8 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
     return;
   }
 
+  const fType = window.currentFulfillmentType || 'delivery';
+  const tableNum = (document.getElementById('cust-table-number')?.value || '').trim();
   const name = (elements.custName?.value || '').trim();
   const phone = (elements.custPhone?.value || '').trim();
   const address = (elements.custAddress?.value || '').trim();
@@ -37,36 +39,48 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
 
   // If user is on Step 2, validate and advance to Step 3
   if (currentCheckoutStep === 2) {
-    if (!name || name.length < 2) {
-      showToastNotification("يرجى كتابة الاسم بشكل صحيح (حرفين على الأقل)", "error");
-      if (elements.custName) elements.custName.focus();
-      return;
-    }
-    if (!phone) {
-      showToastNotification("يرجى كتابة رقم الهاتف للتواصل", "error");
-      if (elements.custPhone) elements.custPhone.focus();
-      return;
-    }
-    const phoneDigits = phone.replace(/[\s\-\+]/g, '');
-    const egyptianMobile = /^(01[0-9]{9})$/.test(phoneDigits);
-    const internationalMobile = /^(20[0-9]{10}|[0-9]{10,15})$/.test(phoneDigits);
-    if (!egyptianMobile && !internationalMobile) {
-      showToastNotification("يرجى كتابة رقم هاتف صحيح (مثال: 01012345678)", "error");
-      if (elements.custPhone) elements.custPhone.focus();
-      return;
-    }
-    if (!address || address.length < 5) {
-      showToastNotification("يرجى كتابة عنوان التوصيل بالتفصيل", "error");
-      if (elements.custAddress) elements.custAddress.focus();
-      return;
+    if (typeof validateDeliveryStep === 'function') {
+      if (!validateDeliveryStep()) return;
+    } else {
+      if (!name || name.length < 2) {
+        showToastNotification("يرجى كتابة الاسم بشكل صحيح (حرفين على الأقل)", "error");
+        if (elements.custName) elements.custName.focus();
+        return;
+      }
+      if (!phone) {
+        showToastNotification("يرجى كتابة رقم الهاتف للتواصل", "error");
+        if (elements.custPhone) elements.custPhone.focus();
+        return;
+      }
+      if (fType === 'delivery' && (!address || address.length < 5)) {
+        showToastNotification("يرجى كتابة عنوان التوصيل بالتفصيل", "error");
+        if (elements.custAddress) elements.custAddress.focus();
+        return;
+      }
+      if (fType === 'dinein' && !tableNum) {
+        showToastNotification("يرجى إدخال رقم الطاولة داخل المطعم", "error");
+        const tInput = document.getElementById('cust-table-number');
+        if (tInput) tInput.focus();
+        return;
+      }
     }
     goToCheckoutStep(3);
     return;
   }
 
   // If user is on Step 3, ensure fields are complete before sending
-  if (!name || !phone || !address) {
-    showToastNotification("يرجى استكمال بيانات التوصيل أولاً", "error");
+  if (!name || !phone) {
+    showToastNotification("يرجى استكمال بياناتك أولاً", "error");
+    goToCheckoutStep(2);
+    return;
+  }
+  if (fType === 'delivery' && (!address || address.length < 5)) {
+    showToastNotification("يرجى كتابة عنوان التوصيل بالتفصيل", "error");
+    goToCheckoutStep(2);
+    return;
+  }
+  if (fType === 'dinein' && !tableNum) {
+    showToastNotification("يرجى كتابة رقم الطاولة داخل المطعم", "error");
     goToCheckoutStep(2);
     return;
   }
@@ -97,11 +111,10 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
 
   // ── Mandatory Receipt Validation for Digital Wallet Payments ──
   if (isWallet) {
-    // If a file was selected but not yet finished processing/uploading, upload it now
     if (!uploadedReceiptUrl && elements.receiptInput?.files?.length > 0) {
       const file = elements.receiptInput.files[0];
       if (file) {
-        showToastNotification("⏳ جاري تجهيز صورة الإيصال... يرجى الانتظار", "info");
+        showToastNotification("جاري تجهيز صورة الإيصال... يرجى الانتظار", "info");
         try {
           uploadedReceiptUrl = await Store.compressImage(file, 900, 900, 0.78);
         } catch (e) {
@@ -110,9 +123,8 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
       }
     }
 
-    // If still no receipt image provided, block submission and prompt user with luxury alert
     if (!uploadedReceiptUrl) {
-      showToastNotification("📸 يرجى إرفاق صورة إيصال التحويل لتأكيد الطلب عبر فودافون كاش / إنستاباي", "warning");
+      showToastNotification("يرجى إرفاق صورة إيصال التحويل لتأكيد الطلب عبر فودافون كاش / إنستاباي", "warning");
       const dropzone = document.querySelector('.receipt-luxury-dropzone') || elements.dropzonePrompt;
       if (dropzone) {
         dropzone.classList.add('dropzone-highlight-required');
@@ -131,15 +143,36 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
   }
 
   const totalDiscounts = spendTierDiscountAmount + couponDiscountAmount + walletDiscountAmount;
-  const deliveryInfo = detectDeliveryZone(address, settings);
-  const deliveryFee = deliveryInfo.fee;
+
+  // Fulfillment-aware delivery fee & zone calculation
+  let deliveryFee = 0;
+  let deliveryZone = 'توصيل دليفري';
+  let formattedAddress = address;
+
+  if (fType === 'delivery') {
+    const deliveryInfo = detectDeliveryZone(address, settings);
+    deliveryFee = deliveryInfo.fee;
+    deliveryZone = deliveryInfo.zoneName;
+  } else if (fType === 'dinein') {
+    deliveryFee = 0;
+    deliveryZone = `داخل المطعم (طاولة ${tableNum})`;
+    formattedAddress = `صالة - طاولة رقم ${tableNum}`;
+  } else {
+    deliveryFee = 0;
+    deliveryZone = 'استلام من الفرع (تيك أواي)';
+    formattedAddress = 'استلام من الفرع';
+  }
+
   const finalTotal = Math.max(0, subtotal - totalDiscounts) + deliveryFee;
   const orderId = `#ORD-${Math.floor(1000 + Math.random() * 9000)}`;
 
   const orderData = {
     orderId,
+    fulfillmentType: fType,
+    orderType: (fType === 'dinein' ? 'dine_in' : fType),
+    tableNumber: fType === 'dinein' ? tableNum : null,
     items: cart,
-    customer: { name, phone, address, notes },
+    customer: { name, phone, address: formattedAddress, notes },
     subtotal,
     discount: totalDiscounts,
     discounts: {
@@ -149,7 +182,7 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
       wallet: walletDiscountAmount
     },
     deliveryFee: deliveryFee,
-    deliveryZone: deliveryInfo.zoneName,
+    deliveryZone: deliveryZone,
     finalTotal,
     paymentMethod: selectedPaymentMethod,
     receiptUrl: uploadedReceiptUrl || null,
@@ -163,7 +196,7 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
   submitBtns.forEach(b => {
     b.dataset.origText = b.innerHTML;
     b.disabled = true;
-    b.innerHTML = '⏳ جارٍ تأكيد الطلب...';
+    b.innerHTML = 'جارٍ تأكيد الطلب...';
   });
 
   // 2. Await verified cloud push
@@ -180,24 +213,25 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
     b.disabled = false;
   });
 
+  // 3. Save order to Store (active order + persistent history)
+  Store.saveLastOrder(orderData);
+  if (typeof Store.addOrderToHistory === 'function') {
+    Store.addOrderToHistory(orderData);
+  }
+
   if (isDelivered) {
-    // 3. Confirmed Cloud Success: save, sound, clear cart, close drawer
-    Store.saveLastOrder(orderData);
     SoundFX.playCash();
-    showToastNotification("تم إرسال واستلام طلبك بنجاح! جاري التجهيز 👨‍🍳🔥", "success");
+    showToastNotification("تم إرسال واستلام طلبك بنجاح! جاري التجهيز", "success");
     Store.clearCart();
     closeCartDrawer();
     goToCheckoutStep(1);
     updateLedgerUI();
     renderProducts();
-    renderLastOrderRecall();
   } else {
-    // 4. Offline / Network Outage: Queue in Outbox, PRESERVE cart, notify customer honestly
+    // Offline Queue
     Store.addToOutbox(orderData);
-    Store.saveLastOrder(orderData);
-    showToastNotification("⚠️ تعذر الاتصال بالخادم حالياً. تم حفظ طلبك في قائمة الانتظار وسنرسله تلقائياً فور عودة الشبكة 📡", "warning");
+    showToastNotification("تعذر الاتصال بالخادم حالياً. تم حفظ طلبك في قائمة الانتظار وسنرسله تلقائياً فور عودة الشبكة.", "warning");
     closeCartDrawer();
-    renderLastOrderRecall();
   }
 
   // 4. Open WhatsApp if requested
@@ -217,26 +251,35 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
       ? `تحويل محفظة إلكترونية (${settings.walletName || 'كاش'})`
       : `دفع نقدي عند الاستلام (COD)`;
 
-    let message = `*طلب دليفري جديد من موقع ${settings.storeName}*\n`;
+    let fulfillmentLabel = 'توصيل دليفري';
+    if (fType === 'takeaway') fulfillmentLabel = 'استلام من الفرع (تيك أواي)';
+    else if (fType === 'dinein') fulfillmentLabel = `طلب صالة (داخل المطعم)`;
+
+    let message = `*طلب جديد من موقع ${settings.storeName}*\n`;
     message += `━━━━━━━━━━━━━━━━━━━\n`;
-    message += `🔖 *رقم الطلب:* ${orderId}\n`;
-    message += `👤 *العميل:* ${name}\n`;
-    message += `📞 *الهاتف:* ${phone}\n`;
-    message += `📍 *عنوان التوصيل:* ${address}\n`;
-    if (notes) message += `📝 *ملاحظات:* ${notes}\n`;
+    message += `*رقم الطلب:* ${orderId}\n`;
+    message += `*نوع الطلب:* ${fulfillmentLabel}\n`;
+    message += `*العميل:* ${name}\n`;
+    message += `*الهاتف:* ${phone}\n`;
+    if (fType === 'delivery') {
+      message += `*عنوان التوصيل:* ${address}\n`;
+    } else if (fType === 'dinein') {
+      message += `*رقم الطاولة:* ${tableNum}\n`;
+    }
+    if (notes) message += `*ملاحظات:* ${notes}\n`;
     message += `━━━━━━━━━━━━━━━━━━━\n`;
-    message += `🛒 *تفاصيل الأصناف:*\n${itemsText}\n`;
+    message += `*تفاصيل الأصناف:*\n${itemsText}\n`;
     message += `━━━━━━━━━━━━━━━━━━━\n`;
     if (deliveryFee > 0) {
       message += `*خدمة التوصيل:* ${deliveryFee.toFixed(2)} ${currency}\n`;
     }
-    message += `💰 *المبلغ الإجمالي المطلوب:* ${finalTotal.toFixed(2)} ${currency}\n`;
-    message += `💳 *طريقة الدفع:* ${paymentText}\n`;
+    message += `*المبلغ الإجمالي المطلوب:* ${finalTotal.toFixed(2)} ${currency}\n`;
+    message += `*طريقة الدفع:* ${paymentText}\n`;
     if (isWallet && uploadedReceiptUrl) {
       if (uploadedReceiptUrl.startsWith('http')) {
-        message += `📸 *رابط إيصال التحويل:* ${uploadedReceiptUrl}\n`;
+        message += `*رابط إيصال التحويل:* ${uploadedReceiptUrl}\n`;
       } else {
-        message += `📸 *إيصال التحويل:* تم إرفاق صورة الإيصال ومحفوظة في لوحة إدارة المطعم (طلب رقم ${orderId})\n`;
+        message += `*إيصال التحويل:* تم إرفاق صورة الإيصال ومحفوظة في لوحة إدارة المطعم (طلب رقم ${orderId})\n`;
       }
     }
 
@@ -247,8 +290,16 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
     }
   }
 
-  // 5. Immediately open the Live Order Tracker Screen
-  openLiveOrderTracker(orderId, orderData);
+  // 5. Trigger professional pulsing glow on bottom bar "طلباتي" tab
+  if (typeof window.triggerOrdersTabPulse === 'function') {
+    window.triggerOrdersTabPulse();
+  }
+
+  // 6. Update #view-orders and start background tracking
+  if (typeof window.renderOrdersView === 'function') {
+    window.renderOrdersView();
+  }
+  initBackgroundOrderTracking();
 }
 
 // ── Persistent Background Order Tracking & Audio Alerts Engine ──
@@ -277,15 +328,29 @@ function initBackgroundOrderTracking() {
 
   backgroundOrderWatcherUnsub = Store.subscribeToOrder(slug, lastOrder.orderId, (updatedOrder) => {
     if (!updatedOrder) return;
+    const statusRank = { pending: 1, preparing: 2, out_for_delivery: 3, delivered: 4, cancelled: 5 };
+    const currentStored = Store.getLastOrder();
+
+    if (currentStored && (statusRank[currentStored.status] || 1) > (statusRank[updatedOrder.status] || 1)) {
+      updatedOrder.status = currentStored.status;
+    }
+
     const newStatus = updatedOrder.status || 'pending';
     const prevStatus = lastKnownBackgroundStatus;
     lastKnownBackgroundStatus = newStatus;
 
-    const currentStored = Store.getLastOrder();
-    if (currentStored && !currentStored.archived) {
+    if (currentStored) {
       const merged = { ...currentStored, ...updatedOrder };
       Store.saveLastOrder(merged);
       renderLastOrderRecall();
+
+      // Instantly update live tracking board in #view-orders
+      if (typeof window.renderOrdersView === 'function') {
+        window.renderOrdersView();
+      }
+      if (typeof window.updateOrdersStepperUI === 'function') {
+        window.updateOrdersStepperUI(newStatus, merged);
+      }
 
       // If tracker modal is open, update UI in real-time
       if (elements.trackerModal && elements.trackerModal.classList.contains('open')) {
@@ -295,21 +360,29 @@ function initBackgroundOrderTracking() {
         updateTrackerStepper(newStatus);
       }
 
-      // Audio chime and toast notification on status transition even when modal is closed!
+      // Audio chime and clean toast notification on status transition
       if (prevStatus && prevStatus !== newStatus) {
-        const statusAlerts = {
-          pending: { text: "📥 تم استلام وتأكيد طلبك في المطعم!", sound: 'pop' },
-          preparing: { text: "👨‍🍳 بدأ المطبخ في تجهيز وطهي طلبك الآن!", sound: 'pop' },
-          out_for_delivery: { text: "🛵 طلبك استلمه الكابتن وهو في الطريق إليك الآن!", sound: 'chime' },
-          delivered: { text: "🎉 تم تسليم طلبك بنجاح! بالهناء والشفاء", sound: 'cash' },
-          cancelled: { text: "✕ تم إلغاء الطلب من قِبل المطعم", sound: 'pop' }
-        };
-        const alertInfo = statusAlerts[newStatus] || statusAlerts.pending;
-        if (alertInfo.sound === 'chime') SoundFX.playChime();
-        else if (alertInfo.sound === 'cash') SoundFX.playCash();
-        else SoundFX.playPop();
+        const isDineIn = merged.fulfillmentType === 'dinein' || merged.orderType === 'dine_in' || String(merged.customer?.address || '').includes('صالة');
+        const isTakeaway = merged.fulfillmentType === 'takeaway' || String(merged.customer?.address || '').includes('استلام');
+        
+        let alertText = "تم تحديث حالة طلبك";
+        if (newStatus === 'pending') alertText = "تم استلام طلبك ومراجعته في المطعم";
+        else if (newStatus === 'preparing') alertText = isDineIn ? "بدأ طهاة المطعم في تحضير وجباتك الآن" : (isTakeaway ? "جاري تحضير وتغليف طلبك للاستلام من الفرع" : "بدأ طهاة المطعم في تحضير وجباتك الآن");
+        else if (newStatus === 'out_for_delivery') alertText = isDineIn ? "وجبتك جاهزة ويتم تقديمها لطاولتك الآن" : (isTakeaway ? "طلبك جاهز للاستلام على كاونتر الفرع" : "طلبك مع الكابتن وفي الطريق إليك الآن");
+        else if (newStatus === 'delivered') alertText = isDineIn ? "بالهناء والشفاء! نتمنى لك تجربة طعام مميزة" : (isTakeaway ? "تم استلام الطلب بالفرع بنجاح، بالهناء والشفاء" : "تم تسليم الطلب بنجاح، بالهناء والشفاء");
+        else if (newStatus === 'cancelled') alertText = "تم إلغاء الطلب من قِبل إدارة المطعم";
 
-        showToastNotification(alertInfo.text, newStatus === 'delivered' ? 'success' : 'info');
+        if (newStatus === 'delivered') SoundFX.playCash();
+        else SoundFX.playChime();
+
+        if (typeof window.triggerOrdersTabPulse === 'function') {
+          const viewOrders = document.getElementById('view-orders');
+          if (!viewOrders || viewOrders.style.display === 'none') {
+            window.triggerOrdersTabPulse();
+          }
+        }
+
+        showToastNotification(alertText, newStatus === 'delivered' ? 'success' : 'info');
         notifyCustomerOrderStatus(newStatus);
       }
     }
@@ -374,10 +447,10 @@ function notifyCustomerOrderStatus(status) {
   }
   if (Notification.permission === 'granted') {
     const statusMessages = {
-      pending: { title: '📥 تم استلام طلبك بنجاح!', body: 'طلبك وصل المطعم وهو قيد المراجعة والتأكيد الآن.' },
-      preparing: { title: '👨‍🍳 المطبخ يجهز طلبك الآن!', body: 'بدأ طهاة المطعم في تجهيز وطهي وجباتك الطازجة.' },
-      out_for_delivery: { title: '🛵 الطلب في الطريق إليك!', body: 'الكابتن استلم الأوردر وهو في طريقه إليك الآن.' },
-      delivered: { title: '✅ تم تسليم الطلب بالهناء والشفاء!', body: 'شكراً لطلبك من مطعمنا ونرجو لك وجبة شهية.' }
+      pending: { title: 'تم استلام طلبك بنجاح', body: 'طلبك وصل المطعم وهو قيد المراجعة والتأكيد الآن.' },
+      preparing: { title: 'المطبخ يجهز طلبك الآن', body: 'بدأ طهاة المطعم في تجهيز وطهي وجباتك الطازجة.' },
+      out_for_delivery: { title: 'الطلب في الطريق إليك', body: 'الكابتن استلم الطلب وهو في طريقه إليك الآن.' },
+      delivered: { title: 'تم تسليم الطلب بالهناء والشفاء', body: 'شكراً لطلبك من مطعمنا ونرجو لك وجبة شهية.' }
     };
     const info = statusMessages[status];
     if (info) {

@@ -19,7 +19,7 @@ function setupCategoryManagement() {
         renderCategoriesList();
         if (typeof renderCatalog === 'function') renderCatalog();
         if (typeof renderPOSCategories === 'function') renderPOSCategories();
-        showToastNotification("تمت إضافة القسم الجديد بنجاح! ✓", "success");
+        showToastNotification("تمت إضافة القسم الجديد بنجاح!", "success");
       } else {
         showToastNotification("هذا القسم موجود بالفعل!", "error");
       }
@@ -44,7 +44,7 @@ function renderCategoriesList() {
   if (cats.length === 0) {
     adminElements.categoriesListContainer.innerHTML = `
       <div style="grid-column:1/-1; text-align:center; padding:40px 20px; background:var(--surface-raised); border:1.5px dashed var(--border); border-radius:var(--radius-md); color:var(--text-muted);">
-        <div style="font-size:32px; margin-bottom:8px;">📂</div>
+        <div style="margin-bottom:8px;"><svg class="icon" viewBox="0 0 24 24" style="width:32px; height:32px; color:var(--text-muted);"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
         <div style="font-size:15px; font-weight:800; color:var(--text-main); margin-bottom:4px;">لا توجد أقسام مسجلة بعد</div>
         <div style="font-size:12.5px;">أضف أول قسم في الأعلى لتبدأ تنظيم وجبات المنيو!</div>
       </div>
@@ -59,7 +59,7 @@ function renderCategoriesList() {
       <div class="cat-admin-card">
         <div class="cat-admin-header">
           <div class="cat-admin-title-wrap">
-            <span class="cat-admin-icon">📂</span>
+            <span class="cat-admin-icon"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
             <div class="cat-admin-title-col">
               <h3 class="cat-admin-name" title="${cat}">${cat}</h3>
             </div>
@@ -191,14 +191,14 @@ window.saveCategoryEdit = async function() {
       renderPOSProducts();
     }
     closeCategoryEditModal();
-    showToastNotification(`تم تعديل القسم وتحديث (${updatedProductsCount}) منتج مرتبط بنجاح! ✓`, "success");
+    showToastNotification(`تم تعديل القسم وتحديث (${updatedProductsCount}) منتج مرتبط بنجاح!`, "success");
   } catch(err) {
     console.error("Error saving category edit:", err);
     showToastNotification("حدث خطأ أثناء حفظ تعديل القسم", "error");
   } finally {
     if (saveBtn) {
       saveBtn.disabled = false;
-      saveBtn.textContent = "حفظ التعديل ✓";
+      saveBtn.textContent = "حفظ التعديل";
     }
   }
 };
@@ -218,8 +218,8 @@ window.deleteCategoryFast = async function(cat) {
   const confirmed = await showCustomConfirm({
     title: "حذف قسم من المنيو",
     message: confirmMsg,
-    icon: "📂",
-    confirmText: attachedProds.length > 0 ? "حذف ونقل الأصناف 🗑️" : "حذف القسم 🗑️",
+    icon: "",
+    confirmText: attachedProds.length > 0 ? "حذف ونقل الأصناف" : "حذف القسم",
     cancelText: "إلغاء",
     isDanger: true
   });
@@ -254,9 +254,9 @@ window.deleteCategoryFast = async function(cat) {
     }
     
     if (updatedProductsCount > 0) {
-      showToastNotification(`تم حذف القسم بنجاح ونقل (${updatedProductsCount}) صنف إلى "${fallbackCat}" ✓`, "success");
+      showToastNotification(`تم حذف القسم بنجاح ونقل (${updatedProductsCount}) صنف إلى "${fallbackCat}"`, "success");
     } else {
-      showToastNotification("تم حذف القسم بنجاح ✓", "success");
+      showToastNotification("تم حذف القسم بنجاح", "success");
     }
   }
 };

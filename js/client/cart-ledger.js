@@ -4,11 +4,57 @@
 
 var currentCheckoutStep = 1;
 var selectedPaymentMethod = 'cod';
+var currentFulfillmentType = 'delivery';
+window.currentFulfillmentType = 'delivery';
+
+window.setFulfillmentType = function(type) {
+  currentFulfillmentType = type;
+  window.currentFulfillmentType = type;
+
+  const tabs = document.querySelectorAll('.fulfillment-tab');
+  tabs.forEach(t => {
+    t.classList.toggle('active', t.dataset.type === type);
+  });
+
+  const badge = document.getElementById('fulfillment-badge-indicator');
+  const groupAddress = document.getElementById('group-cust-address');
+  const groupTable = document.getElementById('group-table-number');
+  const takeawayBanner = document.getElementById('fulfillment-takeaway-banner');
+  const dineinBanner = document.getElementById('fulfillment-dinein-banner');
+  const addressInp = document.getElementById('cust-address');
+
+  if (type === 'delivery') {
+    if (badge) badge.textContent = 'توصيل دليفري';
+    if (groupAddress) groupAddress.style.display = 'block';
+    if (groupTable) groupTable.style.display = 'none';
+    if (takeawayBanner) takeawayBanner.style.display = 'none';
+    if (dineinBanner) dineinBanner.style.display = 'none';
+    if (addressInp) addressInp.required = true;
+  } else if (type === 'takeaway') {
+    if (badge) badge.textContent = 'استلام من الفرع';
+    if (groupAddress) groupAddress.style.display = 'none';
+    if (groupTable) groupTable.style.display = 'none';
+    if (takeawayBanner) takeawayBanner.style.display = 'flex';
+    if (dineinBanner) dineinBanner.style.display = 'none';
+    if (addressInp) addressInp.required = false;
+  } else if (type === 'dinein') {
+    if (badge) badge.textContent = 'داخل المطعم';
+    if (groupAddress) groupAddress.style.display = 'none';
+    if (groupTable) groupTable.style.display = 'block';
+    if (takeawayBanner) takeawayBanner.style.display = 'none';
+    if (dineinBanner) dineinBanner.style.display = 'flex';
+    if (addressInp) addressInp.required = false;
+  }
+
+  if (typeof updateLedgerUI === 'function') updateLedgerUI();
+};
 
 window.openLastOrderTracker = function() {
   const lastOrder = Store.getLastOrder();
   if (lastOrder && lastOrder.orderId) {
-    openLiveOrderTracker(lastOrder.orderId, lastOrder);
+    if (typeof handleNavTabClick === 'function') {
+      handleNavTabClick('orders');
+    }
   }
 };
 
@@ -34,11 +80,11 @@ function renderLastOrderRecall() {
 
     const st = lastOrder.status || 'pending';
     const statusMap = {
-      pending: { text: '1. استلام الطلب 📥', color: '#f59e0b', bg: 'rgba(245,158,11,0.15)' },
-      preparing: { text: '2. المطبخ يجهز 👨‍🍳', color: '#3b82f6', bg: 'rgba(59,130,246,0.15)' },
-      out_for_delivery: { text: '3. في الطريق إليك 🛵', color: '#a855f7', bg: 'rgba(168,85,247,0.15)' },
-      delivered: { text: '4. تم التسليم بنجاح ✅', color: '#22c55e', bg: 'rgba(34,197,94,0.15)' },
-      cancelled: { text: 'تم الإلغاء ✕', color: '#ef4444', bg: 'rgba(239,68,68,0.15)' }
+      pending: { text: '1. استلام الطلب', color: '#f59e0b', bg: 'rgba(245,158,11,0.15)' },
+      preparing: { text: '2. المطبخ يجهز', color: '#3b82f6', bg: 'rgba(59,130,246,0.15)' },
+      out_for_delivery: { text: '3. في الطريق إليك', color: '#a855f7', bg: 'rgba(168,85,247,0.15)' },
+      delivered: { text: '4. تم التسليم بنجاح', color: '#22c55e', bg: 'rgba(34,197,94,0.15)' },
+      cancelled: { text: 'تم الإلغاء', color: '#ef4444', bg: 'rgba(239,68,68,0.15)' }
     };
     const sInfo = statusMap[st] || statusMap.pending;
     if (statusBadge) {
@@ -243,8 +289,14 @@ function updateLedgerUI() {
   const appliedCoupon = Store.getAppliedCoupon();
   let couponDiscountAmount = 0;
   const promoInputContainer = document.getElementById('promo-input-container');
+  const promoBoxWrap = document.getElementById('promo-box-wrap') || document.querySelector('.promo-box-wrap');
 
-  if (appliedCoupon && subtotal > 0) {
+  // Hide coupon box completely when cart is empty per user requirement
+  if (promoBoxWrap) {
+    promoBoxWrap.style.display = (cart.length > 0) ? 'block' : 'none';
+  }
+
+  if (appliedCoupon && subtotal > 0 && cart.length > 0) {
     if (appliedCoupon.type === 'percent') {
       couponDiscountAmount = subtotal * (appliedCoupon.value / 100);
     } else {
@@ -257,7 +309,7 @@ function updateLedgerUI() {
     if (promoInputContainer) promoInputContainer.style.display = 'none';
   } else {
     if (elements.promoAppliedBadge) elements.promoAppliedBadge.style.display = 'none';
-    if (promoInputContainer) promoInputContainer.style.display = 'flex';
+    if (promoInputContainer) promoInputContainer.style.display = (cart.length > 0) ? 'flex' : 'none';
   }
 
   const subtotalAfterBasePromos = Math.max(0, subtotal - spendTierDiscountAmount - couponDiscountAmount);
@@ -273,10 +325,11 @@ function updateLedgerUI() {
 
   const totalDiscounts = spendTierDiscountAmount + couponDiscountAmount + walletDiscountAmount;
   
-  // Smart Delivery Calculation: Only reveal and calculate at Step 3 (Payment stage)
+  // Smart Delivery Calculation: Only reveal and calculate at Step 3 (Payment stage) and only if Delivery
   const isPaymentStep = (currentCheckoutStep === 3);
-  const deliveryInfo = detectDeliveryZone(elements.custAddress?.value || '', settings);
-  const deliveryFee = (cart.length > 0 && isPaymentStep) ? deliveryInfo.fee : 0;
+  const isDelivery = (window.currentFulfillmentType === 'delivery');
+  const deliveryInfo = isDelivery ? detectDeliveryZone(elements.custAddress?.value || '', settings) : { fee: 0, zoneName: (window.currentFulfillmentType === 'dinein' ? 'صالة' : 'استلام') };
+  const deliveryFee = (cart.length > 0 && isPaymentStep && isDelivery) ? deliveryInfo.fee : 0;
   const finalTotal = Math.max(0, subtotal - totalDiscounts) + deliveryFee;
 
   // Update Dynamic Island
@@ -300,6 +353,17 @@ function updateLedgerUI() {
       }
     } else {
       elements.dynamicIslandCart.classList.remove('active');
+    }
+  }
+
+  // Sync Fixed Bottom Navigation Bar Cart Badge
+  const bottomCartBadge = document.getElementById('bottom-cart-badge');
+  if (bottomCartBadge) {
+    if (totalItemsCount > 0) {
+      bottomCartBadge.textContent = totalItemsCount;
+      bottomCartBadge.style.display = 'flex';
+    } else {
+      bottomCartBadge.style.display = 'none';
     }
   }
 
@@ -410,6 +474,14 @@ window.openCartDrawer = function() {
   if (elements.dynamicIslandCart) elements.dynamicIslandCart.classList.add('hidden-during-drawer');
   if (elements.cartDrawer) elements.cartDrawer.classList.add('open');
   if (elements.cartDrawerBackdrop) elements.cartDrawerBackdrop.classList.add('open');
+
+  // Pre-fill profile if available
+  const profile = (typeof window.getCustomerProfile === 'function') ? window.getCustomerProfile() : null;
+  if (profile) {
+    if (elements.custName && !elements.custName.value) elements.custName.value = profile.name;
+    if (elements.custPhone && !elements.custPhone.value) elements.custPhone.value = profile.phone;
+  }
+
   pushNavState('cart_step_1', { step: 1 });
   goToCheckoutStep(1, false);
   SoundFX.playPop();
@@ -458,7 +530,7 @@ window.goToCheckoutStep = function(stepNumber, pushHistory = true) {
       } else if (stepNumber === 2) {
         labelSpan.textContent = "متابعة لاختيار طريقة الدفع ←";
       } else {
-        labelSpan.textContent = "تأكيد وإرسال الطلب مباشرة ⚡";
+        labelSpan.textContent = "تأكيد وإرسال الطلب مباشرة";
       }
     }
   }
@@ -468,6 +540,11 @@ window.goToCheckoutStep = function(stepNumber, pushHistory = true) {
   }
 
   if (stepNumber === 2) {
+    const profile = (typeof window.getCustomerProfile === 'function') ? window.getCustomerProfile() : null;
+    if (profile) {
+      if (elements.custName && !elements.custName.value) elements.custName.value = profile.name;
+      if (elements.custPhone && !elements.custPhone.value) elements.custPhone.value = profile.phone;
+    }
     updateDeliveryFeedbackUI();
   }
 
@@ -562,11 +639,29 @@ function setupEventListeners() {
       if (elements.custPhone) elements.custPhone.focus();
       return false;
     }
-    if (!address || address.length < 5) {
-      showToastNotification("يرجى كتابة عنوان التوصيل بالتفصيل (المنطقة، الشارع)", "error");
-      if (elements.custAddress) elements.custAddress.focus();
-      return false;
+    const fType = window.currentFulfillmentType || 'delivery';
+    const tableNum = (document.getElementById('cust-table-number')?.value || '').trim();
+
+    if (fType === 'delivery') {
+      if (!address || address.length < 5) {
+        showToastNotification("يرجى كتابة عنوان التوصيل بالتفصيل (المنطقة، الشارع)", "error");
+        if (elements.custAddress) elements.custAddress.focus();
+        return false;
+      }
+    } else if (fType === 'dinein') {
+      if (!tableNum) {
+        showToastNotification("يرجى تحديد رقم الطاولة التي تجلس عليها بالصالة", "error");
+        const tbl = document.getElementById('cust-table-number');
+        if (tbl) tbl.focus();
+        return false;
+      }
     }
+
+    // Automatically persist or update customer profile
+    if (typeof window.saveCustomerProfile === 'function') {
+      window.saveCustomerProfile(name, phone);
+    }
+
     return true;
   }
 
@@ -579,13 +674,13 @@ function setupEventListeners() {
         goToCheckoutStep(1);
       } else if (targetStep === 2) {
         if (cart.length === 0) {
-          showToastNotification("السلة فارغة، أضف بعض الوجبات أولاً 🛒", "warning");
+          showToastNotification("السلة فارغة، أضف بعض الوجبات أولاً", "warning");
           return;
         }
         goToCheckoutStep(2);
       } else if (targetStep === 3) {
         if (cart.length === 0) {
-          showToastNotification("السلة فارغة، أضف بعض الوجبات أولاً 🛒", "warning");
+          showToastNotification("السلة فارغة، أضف بعض الوجبات أولاً", "warning");
           return;
         }
         // Strict Validation: Cannot jump to Step 3 without completing Step 2 delivery info!
@@ -613,7 +708,7 @@ function setupEventListeners() {
         Store.setAppliedCoupon(validPromo);
         elements.promoCodeInput.value = '';
         SoundFX.playChime();
-        showToastNotification(`تم تفعيل خصم الكوبون بنجاح (${validPromo.code})! 🎉`, "success");
+        showToastNotification(`تم تفعيل خصم الكوبون بنجاح (${validPromo.code})`, "success");
         updateLedgerUI();
       } else {
         showToastNotification("كود الخصم غير صحيح أو غير متاح", "error");
@@ -637,9 +732,9 @@ function setupEventListeners() {
       const num = (elements.walletNumDisplay.textContent || '').trim();
       const doSuccessFeedback = () => {
         SoundFX.playPop();
-        if (elements.copyBtnText) elements.copyBtnText.textContent = "تم النسخ ✓";
+        if (elements.copyBtnText) elements.copyBtnText.textContent = "تم النسخ";
         elements.btnCopyNum.classList.add('copied');
-        showToastNotification("تم نسخ رقم المحفظة بنجاح ✓", "success");
+        showToastNotification("تم نسخ رقم المحفظة بنجاح", "success");
         setTimeout(() => {
           if (elements.copyBtnText) elements.copyBtnText.textContent = "نسخ الرقم";
           elements.btnCopyNum.classList.remove('copied');
@@ -688,7 +783,7 @@ function setupEventListeners() {
       reader.readAsDataURL(file);
 
       if (elements.receiptStatus) {
-        elements.receiptStatus.textContent = "جاري معالجة الإيصال... ⏳";
+        elements.receiptStatus.textContent = "جاري معالجة الإيصال...";
         elements.receiptStatus.className = "upload-status-chip loading";
         elements.receiptStatus.style.display = "inline-block";
       }
@@ -702,7 +797,7 @@ function setupEventListeners() {
           if (elements.dropzonePrompt) elements.dropzonePrompt.style.display = 'none';
 
           if (elements.receiptStatus) {
-            elements.receiptStatus.textContent = "تم تجهيز الإيصال بنجاح ✓";
+            elements.receiptStatus.textContent = "تم تجهيز الإيصال بنجاح";
             elements.receiptStatus.className = "upload-status-chip success";
           }
         } else {
@@ -717,7 +812,7 @@ function setupEventListeners() {
           if (elements.receiptPreviewWrap) elements.receiptPreviewWrap.style.display = 'block';
           if (elements.dropzonePrompt) elements.dropzonePrompt.style.display = 'none';
           if (elements.receiptStatus) {
-            elements.receiptStatus.textContent = "تم تجهيز الإيصال بنجاح ✓";
+            elements.receiptStatus.textContent = "تم تجهيز الإيصال بنجاح";
             elements.receiptStatus.className = "upload-status-chip success";
           }
         };

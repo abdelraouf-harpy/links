@@ -43,7 +43,7 @@ window.executeFactoryResetWithPassword = async function() {
 
   if (btn) {
     btn.disabled = true;
-    btn.textContent = "جاري التحقق... ⏳";
+    btn.textContent = "جاري التحقق...";
   }
 
   try {
@@ -54,14 +54,14 @@ window.executeFactoryResetWithPassword = async function() {
       window.closeFactoryResetPwdModal();
       await Store.resetAllDataToDefault(slug);
       if (typeof showToastNotification === 'function') {
-        showToastNotification("تمت استعادة إعدادات المصنع بنجاح! 🔄", "success");
+        showToastNotification("تمت استعادة إعدادات المصنع بنجاح!", "success");
       }
       if (typeof loadAllDashboardData === 'function') {
         loadAllDashboardData();
       }
     } else {
       if (err) {
-        err.textContent = "❌ كلمة المرور غير صحيحة! تم منع استعادة المصنع.";
+        err.textContent = "كلمة المرور غير صحيحة! تم منع استعادة المصنع.";
         err.style.display = 'block';
       }
       if (input) {
@@ -77,7 +77,7 @@ window.executeFactoryResetWithPassword = async function() {
   } finally {
     if (btn) {
       btn.disabled = false;
-      btn.textContent = "تأكيد استعادة المصنع ⚠️";
+      btn.textContent = "تأكيد استعادة المصنع";
     }
   }
 };
@@ -105,7 +105,7 @@ function setupBackupAndRestore() {
       reader.onload = async (ev) => {
         try {
           await Store.importAllDataJSON(ev.target.result);
-          showToastNotification("تم استرجاع كافة بيانات المنيو بنجاح! 📦", "success");
+          showToastNotification("تم استرجاع كافة بيانات المنيو بنجاح!", "success");
           loadAllDashboardData();
         } catch (err) {
           showToastNotification("حدث خطأ أثناء استرجاع الملف: " + err.message, "error");

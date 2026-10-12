@@ -30,7 +30,7 @@ function playKitchenOrderChime() {
 function showAdminOrderNotification(newOrder) {
   if ('Notification' in window) {
     if (Notification.permission === 'granted') {
-      const title = `🔔 طلب جديد ${newOrder.orderId}`;
+      const title = `طلب جديد ${newOrder.orderId}`;
       const options = {
         body: `العميل: ${newOrder.customer?.name || 'عميل'} | المبلغ: ${newOrder.finalTotal} ج.م`,
         icon: './manifest.json',
@@ -61,7 +61,7 @@ window.openStatusSheet = function(orderId, passedStatus = null) {
 
   if (orderIdSpan) orderIdSpan.textContent = orderId;
 
-  // Always lookup real current status from memory to prevent any stale param
+  // Lookup real current order and fulfillment details
   const orders = Store.getOrders();
   const cleanId = String(orderId).replace(/[^a-zA-Z0-9_-]/g, '');
   const currentOrder = orders.find(o => 
@@ -72,6 +72,40 @@ window.openStatusSheet = function(orderId, passedStatus = null) {
     (o.orderId && String(o.orderId).replace(/[^a-zA-Z0-9_-]/g, '') === cleanId)
   );
   const currentStatus = currentOrder?.status || passedStatus || 'pending';
+  const fInfo = parseOrderFulfillment(currentOrder);
+
+  // Dynamically update tile labels & descriptions to match fulfillment type
+  const tilePending = document.querySelector('.status-option-tile[data-status="pending"]');
+  if (tilePending) {
+    const nameEl = tilePending.querySelector('.status-option-name');
+    const descEl = tilePending.querySelector('.status-option-desc');
+    if (nameEl) nameEl.textContent = fInfo.isDineIn ? '1. استلام وتسجيل الطلب' : (fInfo.isTakeaway ? '1. استلام الطلب بالفرع' : '1. استلام وتأكيد الطلب');
+    if (descEl) descEl.textContent = fInfo.isDineIn ? `الطلب وصل لمطبخ الصالة لطاولة (${fInfo.tableNumber || '1'})` : (fInfo.isTakeaway ? 'الطلب مسجل للاستلام المباشر من الكاونتر' : 'الطلب وصل المطعم وقيد المراجعة');
+  }
+
+  const tilePrep = document.querySelector('.status-option-tile[data-status="preparing"]');
+  if (tilePrep) {
+    const nameEl = tilePrep.querySelector('.status-option-name');
+    const descEl = tilePrep.querySelector('.status-option-desc');
+    if (nameEl) nameEl.textContent = fInfo.isDineIn ? '2. قيد الطهي والتحضير بالمطبخ' : (fInfo.isTakeaway ? '2. تجهيز وتعليب الوجبات' : '2. قيد التجهيز في المطبخ');
+    if (descEl) descEl.textContent = fInfo.isDineIn ? 'طهاة المطعم يجهزون وجبات الطاولة الآن' : (fInfo.isTakeaway ? 'جاري تحضير وتغليف الطلب طازجاً بعناية' : 'طهاة المطعم بدأوا في تجهيز وطهي الوجبات');
+  }
+
+  const tileDelivery = document.querySelector('.status-option-tile[data-status="out_for_delivery"]');
+  if (tileDelivery) {
+    const nameEl = tileDelivery.querySelector('.status-option-name');
+    const descEl = tileDelivery.querySelector('.status-option-desc');
+    if (nameEl) nameEl.textContent = fInfo.isDineIn ? `3. تقديم لطاولة ${fInfo.tableNumber || '1'}` : (fInfo.isTakeaway ? '3. جاهز للاستلام بالفرع' : '3. مع الكابتن في الطريق');
+    if (descEl) descEl.textContent = fInfo.isDineIn ? `الوجبات جاهزة ويتم تقديمها لطاولة رقم ${fInfo.tableNumber || '1'}` : (fInfo.isTakeaway ? 'الطلب جاهز على كاونتر الاستلام بانتظار العميل' : 'الكابتن استلم الطلب وهو في الطريق لعنوان العميل');
+  }
+
+  const tileDelivered = document.querySelector('.status-option-tile[data-status="delivered"]');
+  if (tileDelivered) {
+    const nameEl = tileDelivered.querySelector('.status-option-name');
+    const descEl = tileDelivered.querySelector('.status-option-desc');
+    if (nameEl) nameEl.textContent = fInfo.isDineIn ? '4. تم التقديم بالهناء والشفاء' : (fInfo.isTakeaway ? '4. تم الاستلام بالفرع' : '4. تم التوصيل بنجاح');
+    if (descEl) descEl.textContent = fInfo.isDineIn ? 'تم إنهاء الخدمة وتقديم الطلب بالكامل للزبون' : (fInfo.isTakeaway ? 'قام العميل باستلام طلبه بنجاح من الفرع' : 'تم تسليم الوجبات بنجاح إلى باب العميل');
+  }
 
   // Highlight active tile
   document.querySelectorAll('.status-option-tile').forEach(tile => {
@@ -99,13 +133,28 @@ window.selectOrderStatus = async function(newStatus) {
   const orderId = currentEditingOrderId;
   closeStatusSheet();
 
+  const orders = Store.getOrders();
+  const cleanId = String(orderId).replace(/[^a-zA-Z0-9_-]/g, '');
+  const currentOrder = orders.find(o => 
+    o.orderId === orderId || 
+    o.orderId === `#${cleanId}` || 
+    o._fbKey === orderId || 
+    o.id === orderId ||
+    (o.orderId && String(o.orderId).replace(/[^a-zA-Z0-9_-]/g, '') === cleanId)
+  );
+  const fInfo = parseOrderFulfillment(currentOrder);
+
   // 1. Optimistic in-place DOM update (0ms)
+  let stage3Text = '3. في الطريق إليك';
+  if (fInfo.isDineIn) stage3Text = '3. تقديم للطاولة';
+  else if (fInfo.isTakeaway) stage3Text = '3. جاهز بالفرع';
+
   const statusBadgeMap = {
-    pending: { bg: 'rgba(245, 158, 11, 0.12)', color: '#f59e0b', borderColor: 'rgba(245, 158, 11, 0.3)', text: '1. استلام الطلب 📥' },
-    preparing: { bg: 'rgba(59, 130, 246, 0.12)', color: '#3b82f6', borderColor: 'rgba(59, 130, 246, 0.3)', text: '2. المطبخ يجهز 👨‍🍳' },
-    out_for_delivery: { bg: 'rgba(168, 85, 247, 0.12)', color: '#a855f7', borderColor: 'rgba(168, 85, 247, 0.3)', text: '3. في الطريق إليك 🛵' },
-    delivered: { bg: 'rgba(34, 197, 94, 0.12)', color: '#22c55e', borderColor: 'rgba(34, 197, 94, 0.3)', text: '4. تم التسليم ✅' },
-    cancelled: { bg: 'rgba(239, 68, 68, 0.12)', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)', text: 'تم الإلغاء ✕' }
+    pending: { bg: 'rgba(245, 158, 11, 0.12)', color: '#f59e0b', borderColor: 'rgba(245, 158, 11, 0.3)', text: '1. استلام الطلب' },
+    preparing: { bg: 'rgba(59, 130, 246, 0.12)', color: '#3b82f6', borderColor: 'rgba(59, 130, 246, 0.3)', text: '2. قيد التجهيز' },
+    out_for_delivery: { bg: 'rgba(168, 85, 247, 0.12)', color: '#a855f7', borderColor: 'rgba(168, 85, 247, 0.3)', text: stage3Text },
+    delivered: { bg: 'rgba(34, 197, 94, 0.12)', color: '#22c55e', borderColor: 'rgba(34, 197, 94, 0.3)', text: '4. تم التسليم' },
+    cancelled: { bg: 'rgba(239, 68, 68, 0.12)', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)', text: 'تم الإلغاء' }
   };
   const badgeInfo = statusBadgeMap[newStatus] || statusBadgeMap.pending;
 
@@ -174,7 +223,7 @@ window.requestKitchenWakeLock = async function(showToast = true) {
     localStorage.setItem('harpy_kitchen_wake_lock', 'true');
     updateWakeLockUI(true);
     if (showToast) {
-      showToastNotification('تم تفعيل إبقاء الشاشة مضاءة دائماً 💡', 'success');
+      showToastNotification('تم تفعيل إبقاء الشاشة مضاءة دائماً', 'success');
     }
     return true;
   } catch (err) {
@@ -230,7 +279,7 @@ function updateWakeLockUI(isActive) {
 // ── Luxury Branded Custom Confirm Dialog Engine ─────────────
 let customConfirmResolve = null;
 
-window.showCustomConfirm = function({ title, message, icon = '🗑️', confirmText = 'تأكيد الحذف 🗑️', cancelText = 'إلغاء', isDanger = true }) {
+window.showCustomConfirm = function({ title, message, icon = '', confirmText = 'تأكيد الحذف', cancelText = 'إلغاء', isDanger = true }) {
   return new Promise((resolve) => {
     customConfirmResolve = resolve;
     const modal = document.getElementById('custom-confirm-modal');
@@ -242,7 +291,7 @@ window.showCustomConfirm = function({ title, message, icon = '🗑️', confirmT
 
     if (titleEl) titleEl.textContent = title || "تأكيد الإجراء";
     if (msgEl) msgEl.innerHTML = message || "";
-    if (iconEl) iconEl.textContent = icon || "🗑️";
+    if (iconEl) if (icon) iconEl.textContent = icon; else iconEl.innerHTML = '<svg class="icon" viewBox="0 0 24 24" style="width:28px; height:28px;"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/></svg>';
     if (acceptBtn) {
       acceptBtn.textContent = confirmText;
       acceptBtn.style.background = isDanger ? 'var(--danger)' : 'var(--primary)';
@@ -315,7 +364,7 @@ window.executeArchivePasswordDelete = async function() {
 
   if (btn) {
     btn.disabled = true;
-    btn.textContent = "جاري التحقق... ⏳";
+    btn.textContent = "جاري التحقق...";
   }
 
   try {
@@ -327,11 +376,11 @@ window.executeArchivePasswordDelete = async function() {
       closeArchivePwdModal();
       await Store.deleteOrder(orderIdToDelete);
       if (typeof showToastNotification === 'function') {
-        showToastNotification("تم حذف الفاتورة من الأرشيف بنجاح 🗑️", "success");
+        showToastNotification("تم حذف الفاتورة من الأرشيف بنجاح", "success");
       }
     } else {
       if (err) {
-        err.textContent = "❌ كلمة المرور غير صحيحة! تم منع حذف الفاتورة.";
+        err.textContent = "كلمة المرور غير صحيحة! تم منع حذف الفاتورة.";
         err.style.display = 'block';
       }
       if (input) {
@@ -347,7 +396,7 @@ window.executeArchivePasswordDelete = async function() {
   } finally {
     if (btn) {
       btn.disabled = false;
-      btn.textContent = "تأكيد الحذف 🗑️";
+      btn.textContent = "تأكيد الحذف";
     }
   }
 };
@@ -460,6 +509,61 @@ window.openReceiptFullImage = function() {
   window.open(url, '_blank');
 };
 
+// ── Fulfillment Type Parser & Normalizer Engine ──────────────
+function parseOrderFulfillment(o) {
+  if (!o) return { type: 'delivery', tableNumber: null, badgeText: 'توصيل دليفري', tagClass: 'order-type-delivery', isDineIn: false, isTakeaway: false, isDelivery: true };
+
+  const fType = String(o.fulfillmentType || o.orderType || '').toLowerCase();
+  const addr = String(o.customer?.address || '').toLowerCase();
+  const zone = String(o.deliveryZone || '').toLowerCase();
+
+  let tableNumber = o.tableNumber || o.customer?.tableNumber || null;
+  if (!tableNumber) {
+    const match = (addr + ' ' + zone).match(/(?:طاولة|طاولة رقم|table)\s*([0-9A-Za-z\u0660-\u0669]+)/i);
+    if (match) tableNumber = match[1];
+  }
+
+  const isDineIn = fType === 'dinein' || fType === 'dine_in' || addr.includes('صالة') || addr.includes('طاولة') || zone.includes('طاولة') || zone.includes('صالة');
+  const isTakeaway = !isDineIn && (fType === 'takeaway' || addr.includes('استلام') || addr.includes('تيك أواي') || addr.includes('سفري') || zone.includes('استلام') || zone.includes('تيك أواي'));
+  const isDelivery = !isDineIn && !isTakeaway;
+
+  if (isDineIn) {
+    const tblDisplay = tableNumber ? `طاولة ${tableNumber}` : 'صالة';
+    return {
+      type: 'dine_in',
+      tableNumber: tableNumber || '1',
+      badgeText: `داخل المطعم (${tblDisplay})`,
+      tagClass: 'order-type-dinein',
+      isDineIn: true,
+      isTakeaway: false,
+      isDelivery: false
+    };
+  }
+
+  if (isTakeaway) {
+    return {
+      type: 'takeaway',
+      tableNumber: null,
+      badgeText: 'استلام من الفرع (تيك أواي)',
+      tagClass: 'order-type-takeaway',
+      isDineIn: false,
+      isTakeaway: true,
+      isDelivery: false
+    };
+  }
+
+  return {
+    type: 'delivery',
+    tableNumber: null,
+    badgeText: 'توصيل دليفري',
+    tagClass: 'order-type-delivery',
+    isDineIn: false,
+    isTakeaway: false,
+    isDelivery: true
+  };
+}
+window.parseOrderFulfillment = parseOrderFulfillment;
+
 // ── Instant Thermal POS / Kitchen Receipt Printing Engine ────
 let currentInvoiceOrder = null;
 
@@ -496,19 +600,29 @@ window.openOrderInvoiceModal = function(orderOrId) {
   if (storeNameEl) storeNameEl.textContent = storeName;
 
   // Order Type Banner (ZERO emojis)
-  const orderTypeTitle = order.orderType === 'dine_in'
-    ? `طلب صالة — طاولة رقم (${order.tableNumber || order.customer?.tableNumber || '1'})`
-    : (order.orderType === 'takeaway'
+  const fInfo = parseOrderFulfillment(order);
+  const orderTypeTitle = fInfo.isDineIn
+    ? `طلب صالة — طاولة رقم (${fInfo.tableNumber})`
+    : (fInfo.isTakeaway
         ? `طلب سفري (تيك أواي) — استلام من الفرع`
-        : `طلب توصيل منزلي`);
+        : `طلب توصيل منزلي (دليفري)`);
 
   let customerInfoBlock = '';
-  if (order.orderType === 'dine_in') {
-    if (order.customer?.name && !order.customer.name.includes('طاولة')) {
-      customerInfoBlock = `<div style="font-size:12px; margin-bottom:3px; color:#374151;"><strong>اسم العميل:</strong> ${order.customer.name}</div>`;
-    }
+  if (fInfo.isDineIn) {
+    customerInfoBlock = `
+      <div style="font-size:12px; margin-bottom:3px; color:#374151;"><strong>نوع الطلب:</strong> صالة — طاولة رقم (${fInfo.tableNumber})</div>
+      ${order.customer?.name ? `<div style="font-size:12px; margin-bottom:3px; color:#374151;"><strong>اسم العميل:</strong> ${order.customer.name}</div>` : ''}
+      ${order.customer?.phone && order.customer?.phone !== 'داخلي' ? `<div style="font-size:12px; margin-bottom:3px; color:#374151;"><strong>الهاتف:</strong> <span style="direction:ltr; display:inline-block;">${order.customer.phone}</span></div>` : ''}
+    `;
+  } else if (fInfo.isTakeaway) {
+    customerInfoBlock = `
+      <div style="font-size:12px; margin-bottom:3px; color:#374151;"><strong>نوع الطلب:</strong> سفري (استلام من الفرع)</div>
+      <div style="font-size:12px; margin-bottom:3px; color:#374151;"><strong>العميل:</strong> ${order.customer?.name || 'عميل نقدي'}</div>
+      ${order.customer?.phone && order.customer?.phone !== 'داخلي' ? `<div style="font-size:12px; margin-bottom:3px; color:#374151;"><strong>الهاتف:</strong> <span style="direction:ltr; display:inline-block;">${order.customer.phone}</span></div>` : ''}
+    `;
   } else {
     customerInfoBlock = `
+      <div style="font-size:12px; margin-bottom:3px; color:#374151;"><strong>نوع الطلب:</strong> توصيل منزلي (دليفري)</div>
       <div style="font-size:12px; margin-bottom:3px; color:#374151;"><strong>العميل:</strong> ${order.customer?.name || 'عميل نقدي'}</div>
       ${order.customer?.phone && order.customer?.phone !== 'داخلي' ? `<div style="font-size:12px; margin-bottom:3px; color:#374151;"><strong>الهاتف:</strong> <span style="direction:ltr; display:inline-block;">${order.customer.phone}</span></div>` : ''}
       ${order.customer?.address ? `<div style="font-size:12px; margin-bottom:3px; color:#374151;"><strong>العنوان:</strong> ${order.customer.address}</div>` : ''}
@@ -663,19 +777,29 @@ function executePrintReceipt(order, mode) {
 
   const totalDiscount = parseFloat(order.discount) || (order.discounts ? ((parseFloat(order.discounts.spendTier) || 0) + (parseFloat(order.discounts.promo) || 0) + (parseFloat(order.discounts.wallet) || 0)) : 0);
 
-  const orderTypeTitle = order.orderType === 'dine_in'
-    ? `طلب صالة — طاولة رقم (${order.tableNumber || order.customer?.tableNumber || '1'})`
-    : (order.orderType === 'takeaway'
+  const fInfo = parseOrderFulfillment(order);
+  const orderTypeTitle = fInfo.isDineIn
+    ? `طلب صالة — طاولة رقم (${fInfo.tableNumber})`
+    : (fInfo.isTakeaway
         ? `طلب سفري (تيك أواي) — استلام من الفرع`
-        : `طلب توصيل منزلي`);
+        : `طلب توصيل منزلي (دليفري)`);
 
   let customerInfoBlock = '';
-  if (order.orderType === 'dine_in') {
-    if (order.customer?.name && !order.customer.name.includes('طاولة')) {
-      customerInfoBlock = `<div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>اسم العميل:</strong> ${order.customer.name}</div>`;
-    }
+  if (fInfo.isDineIn) {
+    customerInfoBlock = `
+      <div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>نوع الطلب:</strong> صالة — طاولة رقم (${fInfo.tableNumber})</div>
+      ${order.customer?.name ? `<div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>اسم العميل:</strong> ${order.customer.name}</div>` : ''}
+      ${order.customer?.phone && order.customer?.phone !== 'داخلي' ? `<div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>الهاتف:</strong> ${order.customer.phone}</div>` : ''}
+    `;
+  } else if (fInfo.isTakeaway) {
+    customerInfoBlock = `
+      <div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>نوع الطلب:</strong> سفري (استلام من الفرع)</div>
+      <div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>العميل:</strong> ${order.customer?.name || 'عميل نقدي'}</div>
+      ${order.customer?.phone && order.customer?.phone !== 'داخلي' ? `<div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>الهاتف:</strong> ${order.customer.phone}</div>` : ''}
+    `;
   } else {
     customerInfoBlock = `
+      <div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>نوع الطلب:</strong> توصيل منزلي (دليفري)</div>
       <div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>العميل:</strong> ${order.customer?.name || 'عميل نقدي'}</div>
       ${order.customer?.phone && order.customer?.phone !== 'داخلي' ? `<div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>الهاتف:</strong> ${order.customer.phone}</div>` : ''}
       ${order.customer?.address ? `<div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>العنوان:</strong> ${order.customer.address}</div>` : ''}
@@ -895,21 +1019,21 @@ window.filterKitchenOrders = function(filter) {
 
 window.advanceOrderStatus = async function(orderId, targetStatus) {
   const statusLabels = {
-    preparing: 'المطبخ يجهز الطلب الآن 👨‍🍳',
-    out_for_delivery: 'الطلب في الطريق للتوصيل 🛵',
-    delivered: 'تم تسليم الطلب ونقله لأرشيف الفواتير بنجاح ✅'
+    preparing: 'المطبخ يجهز الطلب الآن',
+    out_for_delivery: 'تم تحديث حالة الطلب إلى المرحلة التالية',
+    delivered: 'تم إنهاء الطلب ونقله لأرشيف الفواتير بنجاح'
   };
   await Store.updateOrderStatus(orderId, targetStatus);
   renderOrdersList();
   renderInvoicesArchive();
-  showToastNotification(statusLabels[targetStatus] || `تم تحديث حالة الطلب ✓`, 'success');
+  showToastNotification(statusLabels[targetStatus] || `تم تحديث حالة الطلب`, 'success');
 };
 
 window.reopenOrderToKitchen = async function(orderId) {
   await Store.updateOrderStatus(orderId, 'preparing');
   renderOrdersList();
   renderInvoicesArchive();
-  showToastNotification(`تمت إعادة الطلب ${orderId} إلى شاشة المطبخ النشطة بنجاح ✓`, 'success');
+  showToastNotification(`تمت إعادة الطلب ${orderId} إلى شاشة المطبخ النشطة بنجاح`, 'success');
 };
 
 window.filterArchiveOrders = function(filter) {
@@ -995,11 +1119,13 @@ window.renderOrdersList = function(orders = null) {
   if (displayOrders.length === 0) {
     adminElements.adminOrdersContainer.innerHTML = `
       <div style="text-align:center; padding:45px 20px; color:var(--text-muted); background:var(--surface); border:1px dashed var(--border); border-radius:var(--radius-md);">
-        <div style="font-size:38px; margin-bottom:12px;">👨‍🍳</div>
+        <div style="margin-bottom:12px; color:var(--text-muted); display:flex; justify-content:center;">
+          <svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2v20M2 15h10M2 2v6a4 4 0 0 0 4 4v8M10 2v6a4 4 0 0 1-4 4"/></svg>
+        </div>
         <div style="font-size:16px; font-weight:800; color:var(--text-main); margin-bottom:4px;">المطبخ جاهز ونظيف! لا توجد طلبات جارية حالياً</div>
         <div style="font-size:12.5px; color:var(--text-muted); margin-bottom:16px;">أي طلب جديد يتم إرساله من المنيو سيظهر هنا فورياً ومباشرة مع صوت رنين المطبخ.</div>
         <button type="button" class="btn btn-ghost btn-sm" onclick="switchTab('tab-archive', true)" style="font-weight:800; font-size:12px; border:1px solid var(--border);">
-          📁 مراجعة أرشيف الفواتير المسلّمة ←
+          مراجعة أرشيف الفواتير المسلّمة ←
         </button>
       </div>
     `;
@@ -1010,42 +1136,56 @@ window.renderOrdersList = function(orders = null) {
     const safeOrderId = o.orderId || o.id || o._fbKey || (`#ORD-${(o.timestamp || Date.now()).toString().slice(-4)}`);
     const timeStr = o.createdAt ? new Date(o.createdAt).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' }) : 'الآن';
     const status = o.status || 'pending';
+    const fInfo = parseOrderFulfillment(o);
+
+    let stage3Text = '3. في الطريق إليك';
+    if (fInfo.isDineIn) stage3Text = '3. تقديم للطاولة';
+    else if (fInfo.isTakeaway) stage3Text = '3. جاهز بالفرع';
 
     const statusBadge = {
-      pending: { bg: 'rgba(245, 158, 11, 0.12)', color: '#f59e0b', borderColor: 'rgba(245, 158, 11, 0.3)', text: '1. استلام الطلب 📥' },
-      preparing: { bg: 'rgba(59, 130, 246, 0.12)', color: '#3b82f6', borderColor: 'rgba(59, 130, 246, 0.3)', text: '2. المطبخ يجهز 👨‍🍳' },
-      out_for_delivery: { bg: 'rgba(168, 85, 247, 0.12)', color: '#a855f7', borderColor: 'rgba(168, 85, 247, 0.3)', text: '3. في الطريق إليك 🛵' },
-      delivered: { bg: 'rgba(34, 197, 94, 0.12)', color: '#22c55e', borderColor: 'rgba(34, 197, 94, 0.3)', text: '4. تم التسليم ✅' },
-      cancelled: { bg: 'rgba(239, 68, 68, 0.12)', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)', text: 'تم الإلغاء ✕' }
-    }[status] || { bg: 'rgba(245, 158, 11, 0.12)', color: '#f59e0b', borderColor: 'rgba(245, 158, 11, 0.3)', text: '1. استلام الطلب 📥' };
+      pending: { bg: 'rgba(245, 158, 11, 0.12)', color: '#f59e0b', borderColor: 'rgba(245, 158, 11, 0.3)', text: '1. استلام الطلب' },
+      preparing: { bg: 'rgba(59, 130, 246, 0.12)', color: '#3b82f6', borderColor: 'rgba(59, 130, 246, 0.3)', text: '2. قيد التجهيز' },
+      out_for_delivery: { bg: 'rgba(168, 85, 247, 0.12)', color: '#a855f7', borderColor: 'rgba(168, 85, 247, 0.3)', text: stage3Text },
+      delivered: { bg: 'rgba(34, 197, 94, 0.12)', color: '#22c55e', borderColor: 'rgba(34, 197, 94, 0.3)', text: '4. تم التسليم' },
+      cancelled: { bg: 'rgba(239, 68, 68, 0.12)', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)', text: 'تم الإلغاء' }
+    }[status] || { bg: 'rgba(245, 158, 11, 0.12)', color: '#f59e0b', borderColor: 'rgba(245, 158, 11, 0.3)', text: '1. استلام الطلب' };
 
     // 1-Click Fast Workflow Progression Action Button
     let nextActionBtnHtml = '';
     if (status === 'pending') {
       nextActionBtnHtml = `
         <button type="button" class="btn btn-primary btn-sm" onclick="advanceOrderStatus('${safeOrderId}', 'preparing')" style="font-weight:800; padding:6px 14px; font-size:12px; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 10px rgba(234, 88, 12, 0.3);">
-          <span>👨‍🍳</span>
-          <span>بدء التجهيز بالمطبخ</span>
+          <span>${fInfo.isTakeaway ? 'بدء التجهيز والتعليب' : 'بدء التجهيز بالمطبخ'}</span>
         </button>
       `;
     } else if (status === 'preparing') {
-      const isDineInOrTakeaway = o.orderType === 'dine_in' || o.orderType === 'takeaway';
-      nextActionBtnHtml = isDineInOrTakeaway ? `
-        <button type="button" class="btn btn-sm" onclick="advanceOrderStatus('${safeOrderId}', 'delivered')" style="background:#16a34a; color:#fff; font-weight:800; padding:6px 14px; font-size:12px; border:none; border-radius:var(--radius-xs); display:inline-flex; align-items:center; gap:6px; cursor:pointer; box-shadow:0 2px 12px rgba(22, 163, 74, 0.35);">
-          <span>✅</span>
-          <span>جاهز وتم التقديم (أرشفة)</span>
-        </button>
-      ` : `
-        <button type="button" class="btn btn-sm" onclick="advanceOrderStatus('${safeOrderId}', 'out_for_delivery')" style="background:#a855f7; color:#fff; font-weight:800; padding:6px 14px; font-size:12px; border:none; border-radius:var(--radius-xs); display:inline-flex; align-items:center; gap:6px; cursor:pointer; box-shadow:0 2px 10px rgba(168, 85, 247, 0.3);">
-          <span>🛵</span>
-          <span>إرسال للتوصيل (مع الطيار)</span>
-        </button>
-      `;
+      if (fInfo.isDineIn) {
+        nextActionBtnHtml = `
+          <button type="button" class="btn btn-sm" onclick="advanceOrderStatus('${safeOrderId}', 'out_for_delivery')" style="background:#a855f7; color:#fff; font-weight:800; padding:6px 14px; font-size:12px; border:none; border-radius:var(--radius-xs); display:inline-flex; align-items:center; gap:6px; cursor:pointer; box-shadow:0 2px 12px rgba(168, 85, 247, 0.35);">
+            <span>جاهز للتقديم لطاولة ${fInfo.tableNumber}</span>
+          </button>
+        `;
+      } else if (fInfo.isTakeaway) {
+        nextActionBtnHtml = `
+          <button type="button" class="btn btn-sm" onclick="advanceOrderStatus('${safeOrderId}', 'out_for_delivery')" style="background:#a855f7; color:#fff; font-weight:800; padding:6px 14px; font-size:12px; border:none; border-radius:var(--radius-xs); display:inline-flex; align-items:center; gap:6px; cursor:pointer; box-shadow:0 2px 12px rgba(168, 85, 247, 0.35);">
+            <span>جاهز للاستلام بالفرع (على الكاونتر)</span>
+          </button>
+        `;
+      } else {
+        nextActionBtnHtml = `
+          <button type="button" class="btn btn-sm" onclick="advanceOrderStatus('${safeOrderId}', 'out_for_delivery')" style="background:#a855f7; color:#fff; font-weight:800; padding:6px 14px; font-size:12px; border:none; border-radius:var(--radius-xs); display:inline-flex; align-items:center; gap:6px; cursor:pointer; box-shadow:0 2px 10px rgba(168, 85, 247, 0.3);">
+            <span>إرسال للتوصيل (مع الكابتن)</span>
+          </button>
+        `;
+      }
     } else if (status === 'out_for_delivery') {
+      let label = 'تم التوصيل بنجاح (نقل للأرشيف)';
+      if (fInfo.isDineIn) label = 'تم التقديم للزبون (نقل للأرشيف)';
+      else if (fInfo.isTakeaway) label = 'تم تسليم الطلب بالفرع (نقل للأرشيف)';
+
       nextActionBtnHtml = `
         <button type="button" class="btn btn-sm" onclick="advanceOrderStatus('${safeOrderId}', 'delivered')" style="background:#16a34a; color:#fff; font-weight:800; padding:6px 14px; font-size:12px; border:none; border-radius:var(--radius-xs); display:inline-flex; align-items:center; gap:6px; cursor:pointer; box-shadow:0 2px 12px rgba(22, 163, 74, 0.35);">
-          <span>✅</span>
-          <span>تم التسليم بنجاح (نقل للأرشيف)</span>
+          <span>${label}</span>
         </button>
       `;
     }
@@ -1065,7 +1205,7 @@ window.renderOrdersList = function(orders = null) {
           ` : ''}
           ${it.notes ? `
             <div style="font-size:11px; color:#f59e0b; margin-top:3px; background:rgba(245, 158, 11, 0.08); padding:2px 6px; border-radius:4px;">
-              📝 ملاحظة: ${it.notes}
+              ملاحظة: ${it.notes}
             </div>
           ` : ''}
         </div>
@@ -1087,13 +1227,7 @@ window.renderOrdersList = function(orders = null) {
         <div class="order-card-header-row">
           <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
             <span class="order-id-chip font-num">${safeOrderId}</span>
-            ${o.orderType === 'dine_in' ? `
-              <span class="order-type-tag order-type-dinein">🍽️ صالة (طاولة ${o.tableNumber || 1})</span>
-            ` : (o.orderType === 'takeaway' ? `
-              <span class="order-type-tag order-type-takeaway">🥡 سفري</span>
-            ` : `
-              <span class="order-type-tag order-type-delivery">🛵 ديليفري</span>
-            `)}
+            <span class="order-type-tag ${fInfo.tagClass}">${fInfo.badgeText}</span>
             <span class="order-time-chip">
               <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               ${timeStr}
@@ -1105,7 +1239,7 @@ window.renderOrdersList = function(orders = null) {
 
             <!-- Instant Thermal Print Button -->
             <button type="button" class="btn btn-ghost btn-sm" onclick="printOrderReceipt('${safeOrderId}')" style="padding:5px 9px; font-size:11px; font-weight:800; border:1px solid var(--border); color:var(--text-main); background:var(--surface-raised); display:inline-flex; align-items:center; gap:4px;" title="طباعة بون الفاتورة الحرارية">
-              <span>🖨️</span>
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
               <span>طباعة</span>
             </button>
 
@@ -1132,7 +1266,7 @@ window.renderOrdersList = function(orders = null) {
           <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px; display:flex; flex-direction:column; justify-content:space-between; box-sizing:border-box;">
             <div>
               <div style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:6px; display:flex; align-items:center; gap:5px;">
-                <span>👤</span> بيانات العميل والتوصيل:
+                بيانات العميل والتوصيل:
               </div>
               
               <div style="font-size:14px; font-weight:900; color:var(--text-main); margin-bottom:6px; word-break:break-word;">
@@ -1144,17 +1278,19 @@ window.renderOrdersList = function(orders = null) {
                   ${o.customer?.phone || 'بدون هاتف'}
                 </span>
                 ${phoneRaw ? `
-                  <a href="${telUrl}" class="btn btn-ghost btn-sm" style="padding:3px 8px; font-size:11px; font-weight:700;" title="اتصال بالعميل">
-                    📞 اتصال
+                  <a href="${telUrl}" class="btn btn-ghost btn-sm" style="padding:3px 8px; font-size:11px; font-weight:700; display:inline-flex; align-items:center; gap:4px;" title="اتصال بالعميل">
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    اتصال
                   </a>
-                  <a href="${waUrl}" target="_blank" class="btn btn-ghost btn-sm" style="padding:3px 8px; font-size:11px; color:var(--accent-wa); font-weight:800;" title="محادثة واتساب">
-                    💬 واتساب
+                  <a href="${waUrl}" target="_blank" class="btn btn-ghost btn-sm" style="padding:3px 8px; font-size:11px; color:var(--accent-wa); font-weight:800; display:inline-flex; align-items:center; gap:4px;" title="محادثة واتساب">
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                    واتساب
                   </a>
                 ` : ''}
               </div>
 
               <div style="font-size:12px; color:var(--text-body); line-height:1.45; margin-bottom:6px; background:var(--surface-raised); padding:6px 10px; border-radius:6px; word-break:break-word;">
-                <span style="font-weight:800; color:var(--text-main);">📍 العنوان: </span>
+                <span style="font-weight:800; color:var(--text-main);">العنوان: </span>
                 ${o.customer?.address || 'استلام من المطعم'}
               </div>
 
@@ -1167,7 +1303,7 @@ window.renderOrdersList = function(orders = null) {
 
               ${o.customer?.notes ? `
                 <div style="font-size:11.5px; color:#f59e0b; background:rgba(245, 158, 11, 0.08); border:1px dashed rgba(245, 158, 11, 0.3); padding:6px 10px; border-radius:6px; margin-top:4px; word-break:break-word;">
-                  <span style="font-weight:800;">📝 ملاحظات: </span>
+                  <span style="font-weight:800;">ملاحظات: </span>
                   ${o.customer.notes}
                 </div>
               ` : ''}
@@ -1177,7 +1313,7 @@ window.renderOrdersList = function(orders = null) {
             <div style="margin-top:10px; padding-top:8px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
               <span style="font-size:11.5px; font-weight:800; color:var(--text-muted);">طريقة الدفع:</span>
               <span style="font-size:11.5px; font-weight:800; padding:3px 8px; border-radius:6px; ${isWalletPayment ? 'background:rgba(59, 130, 246, 0.12); color:#3b82f6;' : 'background:rgba(34, 197, 94, 0.12); color:#22c55e;'}">
-                ${isWalletPayment ? '💳 فودافون كاش / إنستاباي' : '💵 نقداً عند الاستلام (COD)'}
+                ${isWalletPayment ? 'فودافون كاش / إنستاباي' : 'نقداً عند الاستلام (COD)'}
               </span>
             </div>
           </div>
@@ -1186,7 +1322,7 @@ window.renderOrdersList = function(orders = null) {
           <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px; display:flex; flex-direction:column; justify-content:space-between; box-sizing:border-box;">
             <div>
               <div style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:6px; display:flex; align-items:center; gap:5px;">
-                <span>🍽️</span> محتويات الطلب:
+                محتويات الطلب:
               </div>
 
               <div style="max-height:150px; overflow-y:auto; padding-right:2px;">
@@ -1209,12 +1345,12 @@ window.renderOrdersList = function(orders = null) {
                   <div style="display:flex; align-items:center; gap:8px; min-width:0;">
                     <img src="${o.receiptUrl}" alt="Receipt" style="width:36px; height:36px; border-radius:4px; object-fit:cover; border:1px solid var(--border); cursor:pointer; flex-shrink:0;" onclick="openReceiptModalByOrderId('${o.id || o.orderId}')">
                     <div style="min-width:0;">
-                      <div style="font-size:11px; font-weight:800; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">📸 إيصال التحويل</div>
-                      <div style="font-size:10px; color:var(--accent-wa); font-weight:700;">تم الرفع ✓</div>
+                      <div style="font-size:11px; font-weight:800; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">إيصال التحويل</div>
+                      <div style="font-size:10px; color:var(--accent-wa); font-weight:700;">تم الرفع</div>
                     </div>
                   </div>
                   <button type="button" class="btn btn-primary btn-sm" onclick="openReceiptModalByOrderId('${o.id || o.orderId}')" style="padding:4px 8px; font-size:10.5px; font-weight:800; white-space:nowrap; flex-shrink:0;">
-                    🔍 معاينة
+                    معاينة
                   </button>
                 </div>
               ` : ''}
@@ -1266,11 +1402,11 @@ window.renderInvoicesArchive = function(orders = null) {
   } else if (currentArchiveFilter === 'cancelled') {
     displayArchived = cancelledOrders;
   } else if (currentArchiveFilter === 'dine_in') {
-    displayArchived = allArchived.filter(o => o.orderType === 'dine_in');
+    displayArchived = allArchived.filter(o => parseOrderFulfillment(o).isDineIn);
   } else if (currentArchiveFilter === 'takeaway') {
-    displayArchived = allArchived.filter(o => o.orderType === 'takeaway');
+    displayArchived = allArchived.filter(o => parseOrderFulfillment(o).isTakeaway);
   } else if (currentArchiveFilter === 'delivery') {
-    displayArchived = allArchived.filter(o => !o.orderType || o.orderType === 'delivery');
+    displayArchived = allArchived.filter(o => parseOrderFulfillment(o).isDelivery);
   }
 
   // Filter according to search query
@@ -1298,7 +1434,7 @@ window.renderInvoicesArchive = function(orders = null) {
   if (displayArchived.length === 0) {
     adminElements.adminArchiveContainer.innerHTML = `
       <div style="text-align:center; padding:45px 20px; color:var(--text-muted); background:var(--surface); border:1px dashed var(--border); border-radius:var(--radius-md);">
-        <div style="font-size:38px; margin-bottom:12px;">📁</div>
+        <div style="margin-bottom:12px;"><svg class="icon" viewBox="0 0 24 24" style="width:38px; height:38px; color:var(--text-muted);"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
         <div style="font-size:16px; font-weight:800; color:var(--text-main); margin-bottom:4px;">لا توجد فواتير مطابقة في الأرشيف</div>
         <div style="font-size:12.5px; color:var(--text-muted);">كافة الطلبات التي تكتمل وتصل لحالة (تم التسليم) أو تُلغى ستُحفظ هنا تلقائياً.</div>
       </div>
@@ -1310,6 +1446,7 @@ window.renderInvoicesArchive = function(orders = null) {
     const safeOrderId = o.orderId || o.id || o._fbKey || (`#ORD-${(o.timestamp || Date.now()).toString().slice(-4)}`);
     const timeStr = o.createdAt ? new Date(o.createdAt).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' }) : 'الآن';
     const isDelivered = o.status === 'delivered';
+    const fInfo = parseOrderFulfillment(o);
 
     const itemsHtml = (o.items || []).map(it => `
       <div style="display:flex; justify-content:space-between; align-items:flex-start; font-size:12px; padding:5px 0; border-bottom:1px dashed var(--border);">
@@ -1337,26 +1474,20 @@ window.renderInvoicesArchive = function(orders = null) {
         <div class="order-card-header-row">
           <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
             <span class="order-id-chip font-num">${safeOrderId}</span>
-            ${o.orderType === 'dine_in' ? `
-              <span class="order-type-tag order-type-dinein">🍽️ صالة (طاولة ${o.tableNumber || 1})</span>
-            ` : (o.orderType === 'takeaway' ? `
-              <span class="order-type-tag order-type-takeaway">🥡 سفري</span>
-            ` : `
-              <span class="order-type-tag order-type-delivery">🛵 ديليفري</span>
-            `)}
+            <span class="order-type-tag ${fInfo.tagClass}">${fInfo.badgeText}</span>
             <span class="order-time-chip">
               <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               ${timeStr}
             </span>
             <span style="font-size:11px; font-weight:800; padding:2px 8px; border-radius:6px; ${isDelivered ? 'background:rgba(34, 197, 94, 0.12); color:#22c55e; border:1px solid rgba(34, 197, 94, 0.3);' : 'background:rgba(239, 68, 68, 0.12); color:#ef4444; border:1px solid rgba(239, 68, 68, 0.3);'}">
-              ${isDelivered ? 'تم التسليم بنجاح ✅' : 'ملغي ✕'}
+              ${isDelivered ? 'تم التسليم بنجاح' : 'ملغي'}
             </span>
           </div>
 
           <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
             <!-- Instant Thermal Print Button -->
             <button type="button" class="btn btn-ghost btn-sm" onclick="printOrderReceipt('${safeOrderId}')" style="padding:5px 9px; font-size:11px; font-weight:800; border:1px solid var(--border); color:var(--text-main); background:var(--surface-raised); display:inline-flex; align-items:center; gap:4px;" title="إعادة طباعة بون الفاتورة الحرارية">
-              <span>🖨️</span>
+              <svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
               <span>طباعة الفاتورة</span>
             </button>
 
@@ -1383,7 +1514,7 @@ window.renderInvoicesArchive = function(orders = null) {
           <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px; display:flex; flex-direction:column; justify-content:space-between; box-sizing:border-box;">
             <div>
               <div style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:6px;">
-                <span>👤</span> العميل: <span style="font-size:13.5px; font-weight:900; color:var(--text-main);">${o.customer?.name || 'عميل'}</span>
+                العميل: <span style="font-size:13.5px; font-weight:900; color:var(--text-main);">${o.customer?.name || 'عميل'}</span>
               </div>
 
               <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px; flex-wrap:wrap;">
@@ -1391,13 +1522,13 @@ window.renderInvoicesArchive = function(orders = null) {
                   ${o.customer?.phone || 'بدون هاتف'}
                 </span>
                 ${phoneRaw ? `
-                  <a href="${telUrl}" class="btn btn-ghost btn-sm" style="padding:2px 6px; font-size:10.5px; font-weight:700;">📞 اتصال</a>
-                  <a href="${waUrl}" target="_blank" class="btn btn-ghost btn-sm" style="padding:2px 6px; font-size:10.5px; color:var(--accent-wa); font-weight:800;">💬 واتساب</a>
+                  <a href="${telUrl}" class="btn btn-ghost btn-sm" style="padding:2px 6px; font-size:10.5px; font-weight:700;">اتصال</a>
+                  <a href="${waUrl}" target="_blank" class="btn btn-ghost btn-sm" style="padding:2px 6px; font-size:10.5px; color:var(--accent-wa); font-weight:800;">واتساب</a>
                 ` : ''}
               </div>
 
               <div style="font-size:11.5px; color:var(--text-body); line-height:1.4; margin-bottom:6px; background:var(--surface-raised); padding:5px 8px; border-radius:6px;">
-                <span style="font-weight:800; color:var(--text-main);">📍 العنوان: </span>
+                <span style="font-weight:800; color:var(--text-main);">العنوان: </span>
                 ${o.customer?.address || 'استلام من المطعم'}
               </div>
 
@@ -1411,7 +1542,7 @@ window.renderInvoicesArchive = function(orders = null) {
 
             <div style="margin-top:8px; padding-top:6px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--text-muted);">
               <span>طريقة الدفع:</span>
-              <span style="font-weight:800; color:var(--text-main);">${isWalletPayment ? '💳 إلكتروني (محفظة)' : '💵 نقداً (COD)'}</span>
+              <span style="font-weight:800; color:var(--text-main);">${isWalletPayment ? 'إلكتروني (محفظة)' : 'نقداً (COD)'}</span>
             </div>
 
             <!-- Payment Receipt interactive widget in Archive if uploaded -->
@@ -1420,12 +1551,12 @@ window.renderInvoicesArchive = function(orders = null) {
                 <div style="display:flex; align-items:center; gap:8px; min-width:0;">
                   <img src="${o.receiptUrl}" alt="Receipt" style="width:36px; height:36px; border-radius:4px; object-fit:cover; border:1px solid var(--border); cursor:pointer; flex-shrink:0;" onclick="openReceiptModalByOrderId('${o.id || o.orderId}')">
                   <div style="min-width:0;">
-                    <div style="font-size:11px; font-weight:800; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">📸 إيصال التحويل</div>
-                    <div style="font-size:10px; color:var(--accent-wa); font-weight:700;">مرفق مع الطلب ✓</div>
+                    <div style="font-size:11px; font-weight:800; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">إيصال التحويل</div>
+                    <div style="font-size:10px; color:var(--accent-wa); font-weight:700;">مرفق مع الطلب</div>
                   </div>
                 </div>
                 <button type="button" class="btn btn-primary btn-sm" onclick="openReceiptModalByOrderId('${o.id || o.orderId}')" style="padding:4px 8px; font-size:10.5px; font-weight:800; white-space:nowrap; flex-shrink:0;">
-                  🔍 معاينة
+                  معاينة
                 </button>
               </div>
             ` : ''}
@@ -1434,7 +1565,7 @@ window.renderInvoicesArchive = function(orders = null) {
           <!-- Column 2: Items & Financial Total -->
           <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px; display:flex; flex-direction:column; justify-content:space-between; box-sizing:border-box;">
             <div>
-              <div style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:5px;">🍽️ الأصناف:</div>
+              <div style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:5px;">الأصناف:</div>
               <div style="max-height:130px; overflow-y:auto; padding-right:2px;">
                 ${itemsHtml}
               </div>

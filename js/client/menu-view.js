@@ -7,23 +7,59 @@ var activeDiscoveryFilter = 'all';
 var searchDebounceTimer = null;
 var currentPreviewProductId = null;
 
+function getCategorySvgIcon(catName) {
+  const c = (catName || '').toLowerCase().trim();
+  if (c === 'all' || c.includes('كل القائمة') || c.includes('الكل')) {
+    return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="currentColor"><path d="M12 1.5 2.5 19.8c2.8 1.8 6.3 2.7 9.5 2.7s6.7-.9 9.5-2.7L12 1.5zm0 4.3 5.4 10.8c-1.6-.5-3.5-.6-5.4.3-1.9-.9-3.8-.8-5.4-.3L12 5.8zm-2 9.2a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm4-4a1.3 1.3 0 1 1-2.6 0 1.3 1.3 0 0 1 2.6 0zm3 5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/></svg>';
+  }
+  if (c === 'fav' || c.includes('مفضل')) {
+    return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
+  }
+  if (c.includes('بيتزا') || c.includes('pizza')) {
+    return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="currentColor"><path d="M12 1.5 2.5 19.8c2.8 1.8 6.3 2.7 9.5 2.7s6.7-.9 9.5-2.7L12 1.5zm0 4.3 5.4 10.8c-1.6-.5-3.5-.6-5.4.3-1.9-.9-3.8-.8-5.4-.3L12 5.8zm-2 9.2a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm4-4a1.3 1.3 0 1 1-2.6 0 1.3 1.3 0 0 1 2.6 0zm3 5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/></svg>';
+  }
+  if (c.includes('برجر') || c.includes('burger')) {
+    return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="currentColor"><path d="M19.5 8.5C18.7 4.5 15.6 2 12 2s-6.7 2.5-7.5 6.5h15zM2 11h20v2H2zm1 4c.8 0 1.5-.7 1.5-1.5S5.2 12 6 12s1.5.7 1.5 1.5S8.2 15 9 15s1.5-.7 1.5-1.5S11.2 12 12 12s1.5.7 1.5 1.5S14.2 15 15 15s1.5-.7 1.5-1.5S17.2 12 18 12s1.5.7 1.5 1.5S20.2 15 21 15v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-1zm1 3h16a1 1 0 0 1 1 1c0 2-3 4-8 4s-8-2-8-4a1 1 0 0 1 1-1z"/></svg>';
+  }
+  if (c.includes('كريب') || c.includes('crepe') || c.includes('crape')) {
+    return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 19a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3L12 2z"/><path d="m8 12 4-2 4 2"/><path d="m6 16 6-2 6 2"/><circle cx="12" cy="7" r="1" fill="currentColor"/></svg>';
+  }
+  if (c.includes('ساندوتش') || c.includes('سوري') || c.includes('راب') || c.includes('sandwich')) {
+    return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="currentColor"><path d="M3 8.5C3 5.5 6 3 12 3s9 2.5 9 5.5v1H3v-1zm-1 3.5h20v2H2zm1 4h18v1.5c0 3-4 4.5-9 4.5s-9-1.5-9-4.5V16z"/><circle cx="8" cy="6" r=".7" fill="#fff"/><circle cx="12" cy="5.5" r=".7" fill="#fff"/><circle cx="16" cy="6" r=".7" fill="#fff"/></svg>';
+  }
+  if (c.includes('حواوشي') || c.includes('طاجن') || c.includes('طواجن') || c.includes('فطير')) {
+    return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 6.5v11"/><path d="m8 8 8 8"/><path d="m16 8-8 8"/><circle cx="12" cy="12" r="3" fill="currentColor" opacity="0.2"/></svg>';
+  }
+  if (c.includes('مشوي') || c.includes('مشاوي') || c.includes('كباب') || c.includes('شاورما') || c.includes('grill') || c.includes('shawarma')) {
+    return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="22" x2="22" y2="2"/><rect x="5" y="13" width="6" height="6" rx="1.5" transform="rotate(-45 8 16)" fill="currentColor" opacity="0.25"/><rect x="10" y="8" width="6" height="6" rx="1.5" transform="rotate(-45 13 11)" fill="currentColor" opacity="0.25"/><rect x="15" y="3" width="6" height="6" rx="1.5" transform="rotate(-45 18 6)" fill="currentColor" opacity="0.25"/></svg>';
+  }
+  if (c.includes('فراخ') || c.includes('دجاج') || c.includes('chicken') || c.includes('بروست')) {
+    return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="currentColor"><path d="M19.4 4.6c-2.8-2.8-8.2-1.2-11.2 1.8-2.6 2.6-3.4 6.8-1.7 9.8l-2.8 2.8a2 2 0 1 0 2.8 2.8l2.8-2.8c3 1.7 7.2.9 9.8-1.7 3.1-3.1 4.6-8.5 1.8-11.3l-1.5-1.4zm-2.4 3.4a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/></svg>';
+  }
+  if (c.includes('بطاطس') || c.includes('فرايز') || c.includes('fries') || c.includes('سناكس') || c.includes('مقبلات') || c.includes('إضافات')) {
+    return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="currentColor"><path d="M5 11l1.8 11h10.4L19 11H5zm3.5-9h2v7h-2V2zm4.5 0h2v7h-2V2zm-7 2.5h2v6.5h-2V4.5zm13.5 0h2v6.5h-2V4.5z"/></svg>';
+  }
+  if (c.includes('مشروب') || c.includes('عصير') || c.includes('drink') || c.includes('غازية') || c.includes('بيبسي') || c.includes('مياه')) {
+    return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="currentColor"><path d="M6 9l1.8 12.5a2 2 0 0 0 2 1.5h4.4a2 2 0 0 0 2-1.5L18 9H6zm-1-3h14a1 1 0 0 1 1 1v1H4V7a1 1 0 0 1 1-1zm8-4h2l-2 3h-2l2-3z"/></svg>';
+  }
+  if (c.includes('حلو') || c.includes('حلويات') || c.includes('ديزرت') || c.includes('dessert') || c.includes('وافل') || c.includes('waffle')) {
+    return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="currentColor"><path d="M12 2a2 2 0 0 0-2 2c0 .4.1.7.3 1L3 11v9a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-9l-7.3-6c.2-.3.3-.6.3-1a2 2 0 0 0-2-2zm-7 11h14v2H5v-2zm0 4h14v3H5v-3z"/></svg>';
+  }
+  if (c.includes('مكرونة') || c.includes('باستا') || c.includes('أرز') || c.includes('pasta') || c.includes('rice') || c.includes('نودلز')) {
+    return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="currentColor"><path d="M3 11c0 5 4 9 9 9s9-4 9-9H3zm4-7c-.5 0-1 .5-1 1s1 1.5 1 2.5c0 .6-.4 1-1 1s-1 .5-1 1 1 1.5 1 2.5H8c0-1.5-1-2-1-3 0-1 1-1.5 1-2.5 0-1-1-1-1-2zm5 0c-.5 0-1 .5-1 1s1 1.5 1 2.5c0 .6-.4 1-1 1s-1 .5-1 1 1 1.5 1 2.5h2c0-1.5-1-2-1-3 0-1 1-1.5 1-2.5 0-1-1-1-1-2zm5 0c-.5 0-1 .5-1 1s1 1.5 1 2.5c0 .6-.4 1-1 1s-1 .5-1 1 1 1.5 1 2.5h2c0-1.5-1-2-1-3 0-1 1-1.5 1-2.5 0-1-1-1-1-2z"/></svg>';
+  }
+  if (c.includes('صوص') || c.includes('سلط') || c.includes('salad')) {
+    return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="currentColor"><path d="M12 2C9 2 7 4 7 6c0 1.2.6 2.3 1.5 3H3c0 5 4 9 9 9s9-4 9-9h-5.5c.9-.7 1.5-1.8 1.5-3 0-2-2-4-5-4zm0 2c1.7 0 3 1 3 2s-1.3 2-3 2-3-1-3-2 1.3-2 3-2z"/></svg>';
+  }
+  if (c.includes('وجب') || c.includes('كومبو') || c.includes('meal')) {
+    return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="10" y1="10" x2="10" y2="20"/></svg>';
+  }
+  // Default Appetizing Food Cloche / Plate SVG
+  return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v2"/><path d="M4 18h16"/><path d="M4 18a8 8 0 0 1 16 0"/><line x1="2" y1="20" x2="22" y2="20"/></svg>';
+}
+
 function getCategoryEmoji(catName) {
-  const c = (catName || '').toLowerCase();
-  if (c.includes('برجر') || c.includes('burger')) return '🍔';
-  if (c.includes('بيتزا') || c.includes('pizza')) return '🍕';
-  if (c.includes('شاورما') || c.includes('shawarma')) return '🌯';
-  if (c.includes('كريب') || c.includes('crepe') || c.includes('crape')) return '🥞';
-  if (c.includes('وافل') || c.includes('waffle')) return '🧇';
-  if (c.includes('مشوي') || c.includes('مشاوي') || c.includes('كباب') || c.includes('grill')) return '🍢';
-  if (c.includes('دجاج') || c.includes('فراخ') || c.includes('chicken') || c.includes('بروست')) return '🍗';
-  if (c.includes('بطاطس') || c.includes('فرايز') || c.includes('fries')) return '🍟';
-  if (c.includes('مشروب') || c.includes('عصير') || c.includes('drink') || c.includes('بيبسي') || c.includes('مياه')) return '🥤';
-  if (c.includes('حلو') || c.includes('ديزرت') || c.includes('dessert') || c.includes('حلويات')) return '🍰';
-  if (c.includes('وجب') || c.includes('كومبو') || c.includes('meal')) return '🍱';
-  if (c.includes('سلط') || c.includes('salad')) return '🥗';
-  if (c.includes('ساندوتش') || c.includes('sandwich')) return '🥪';
-  if (c.includes('طاجن') || c.includes('طواجن')) return '🥘';
-  return '🍽️';
+  return '';
 }
 
 function renderDiscoveryRibbon() {
@@ -74,7 +110,7 @@ function extractCategoryEmojiAndLabel(catName) {
   if (!emoji) {
     emoji = getCategoryEmoji(cleanLabel);
   }
-  return { emoji: emoji || '🍽️', label: cleanLabel || raw };
+  return { emoji: emoji || '', label: cleanLabel || raw };
 }
 
 let lastRenderedCategoriesSignature = '';
@@ -92,15 +128,17 @@ function renderCategories() {
     const isFavActive = (activeDiscoveryFilter === 'fav');
 
     let html = `
-      <button class="cat-pill ${isAllActive ? 'active' : ''}" data-cat="all" onclick="handleCategoryFilter('all')">
-        <span>كل القائمة</span>
+      <button class="cat-card-pill cat-pill ${isAllActive ? 'active' : ''}" data-cat="all" onclick="handleCategoryFilter('all')" title="الكل">
+        <div class="cat-card-icon">${getCategorySvgIcon('all')}</div>
+        <span class="cat-card-label">الكل</span>
       </button>
     `;
 
     if (favCount > 0) {
       html += `
-        <button class="cat-pill ${isFavActive ? 'active' : ''}" data-cat="fav" onclick="handleCategoryFilter('fav')">
-          <span>المفضلة (${favCount})</span>
+        <button class="cat-card-pill cat-pill ${isFavActive ? 'active' : ''}" data-cat="fav" onclick="handleCategoryFilter('fav')" title="الأصناف المفضلة">
+          <div class="cat-card-icon">${getCategorySvgIcon('fav')}</div>
+          <span class="cat-card-label">المفضلة (${favCount})</span>
         </button>
       `;
     }
@@ -108,9 +146,11 @@ function renderCategories() {
     html += categories.map(cat => {
       const isSelected = (!isFavActive && activeCategoryFilter === cat);
       const cleanLabel = (cat || '').replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1FA00}-\u{1FAFF}\u{FE00}-\u{FE0F}]/gu, '').trim() || cat;
+      const iconSvg = getCategorySvgIcon(cat);
       return `
-        <button class="cat-pill ${isSelected ? 'active' : ''}" data-cat="${encodeURIComponent(cat)}" onclick="handleCategoryFilter(decodeURIComponent(this.dataset.cat))">
-          <span>${cleanLabel}</span>
+        <button class="cat-card-pill cat-pill ${isSelected ? 'active' : ''}" data-cat="${encodeURIComponent(cat)}" onclick="handleCategoryFilter(decodeURIComponent(this.dataset.cat))" title="${cleanLabel}">
+          <div class="cat-card-icon">${iconSvg}</div>
+          <span class="cat-card-label">${cleanLabel}</span>
         </button>
       `;
     }).join('');
@@ -124,7 +164,7 @@ function renderCategories() {
 
 function updateCategoryPillsActiveState() {
   if (!elements.categoriesContainer) return;
-  const pills = elements.categoriesContainer.querySelectorAll('.cat-pill');
+  const pills = elements.categoriesContainer.querySelectorAll('.cat-card-pill, .cat-pill');
   pills.forEach(pill => {
     const rawCat = pill.dataset.cat;
     let isMatch = false;
@@ -219,6 +259,21 @@ function renderProducts(forceRebuild = false) {
   const favorites = Store.getFavorites();
   const cart = Store.getCart();
   const searchQuery = (elements.searchInput && elements.searchInput.value || '').trim().toLowerCase();
+
+  // Dynamic Section Heading Sync (e.g. "الأكثر مبيعاً")
+  const secTitleEl = document.getElementById('menu-section-title');
+  if (secTitleEl) {
+    if (searchQuery) {
+      secTitleEl.textContent = `نتائج البحث عن "${searchQuery}"`;
+    } else if (activeDiscoveryFilter === 'fav') {
+      secTitleEl.textContent = 'الأصناف المفضلة';
+    } else if (activeCategoryFilter === 'all') {
+      secTitleEl.textContent = 'الأكثر مبيعاً';
+    } else {
+      const cleanCat = (activeCategoryFilter || '').replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1FA00}-\u{1FAFF}\u{FE00}-\u{FE0F}]/gu, '').trim();
+      secTitleEl.textContent = `${cleanCat || activeCategoryFilter}`;
+    }
+  }
 
   // Fast content signature to detect real product data changes
   const currentSig = allProds.map(p => `${p.id}_${p.price}_${p.originalPrice || 0}_${p.name}_${p.category}_${p.isFeatured ? 1 : 0}_${p.badge || ''}_${(p.sizes || []).length}_${(p.addons || []).length}`).join('|');
@@ -389,7 +444,7 @@ function renderHeroShowcase(p, currency) {
     <div class="hero-product-card" onclick="handleCardClick(event, '${p.id}')">
       <div class="hero-product-img-wrap">
         <img src="${p.image}" class="hero-product-img" alt="${p.name}" loading="eager" fetchpriority="high" decoding="async">
-        <span class="hero-badge-tag">${p.badge || '👑 اختيار الشيف'}</span>
+        <span class="hero-badge-tag">${p.badge || 'اختيار الشيف'}</span>
       </div>
       <div class="hero-product-content">
         <div>

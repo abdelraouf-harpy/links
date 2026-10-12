@@ -277,7 +277,7 @@
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
         <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(234,88,12,0.18); border:1px solid rgba(234,88,12,0.4); padding:4px 11px; border-radius:20px; font-size:12px; font-weight:800; color:#fb923c;">
           <span style="width:7px; height:7px; border-radius:50%; background:#f97316; display:inline-block; animation: harpyPulseGlow 1.5s infinite;"></span>
-          تحديث جديد متوفر 🚀
+          تحديث جديد متوفر
         </div>
         <button id="btn-update-card-close" style="background:transparent; border:none; color:#a8a29e; cursor:pointer; font-size:17px; width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:8px;" title="إغلاق">✕</button>
       </div>
@@ -297,7 +297,7 @@
       <div style="display:flex; align-items:center; gap:8px;">
         <button id="btn-update-apply-now" style="flex:1; background:linear-gradient(135deg, #ea580c, #f97316); color:#fff; border:none; border-radius:12px; padding:10px 16px; font-size:13px; font-weight:800; cursor:pointer; font-family:inherit; box-shadow:0 4px 16px rgba(234,88,12,0.38); display:flex; align-items:center; justify-content:center; gap:6px;">
           <span>تحديث التطبيق الآن</span>
-          <span style="font-size:14px;">⚡</span>
+          
         </button>
         <button id="btn-update-dismiss" style="background:rgba(255,255,255,0.06); color:#a8a29e; border:1px solid rgba(255,255,255,0.12); border-radius:12px; padding:10px 16px; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit;">
           لاحقاً
@@ -327,7 +327,7 @@
       const applyBtn = document.getElementById('btn-update-apply-now');
       if (applyBtn) {
         applyBtn.disabled = true;
-        applyBtn.innerHTML = `<span>جاري التحديث...</span> ⏳`;
+        applyBtn.innerHTML = `<span>جاري التحديث...</span>`;
       }
 
       // 1. Mark permanently as applied in localStorage so it NEVER shows again!
@@ -353,7 +353,7 @@
       }
 
       // 3. Dismiss modal smoothly and reload window
-      showToast(`🎉 تم تحديث التطبيق بنجاح!`);
+      showToast(`تم تحديث التطبيق بنجاح!`);
       card.style.animation = 'pwaUpdateFadeOut 0.25s forwards';
       backdrop.style.opacity = '0';
       setTimeout(() => {
@@ -437,7 +437,7 @@
   // ── 5. Register Service Worker with Clean Update Engine ───────
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      const swUrl = './sw.js?v=68.0';
+      const swUrl = './sw.js?v=69.0';
       navigator.serviceWorker.register(swUrl)
         .then(reg => {
           window.__swRegistration = reg;
@@ -490,7 +490,7 @@
     window.__deferredPWAInstallPrompt = null;
     markAppAsInstalled();
     updateInstallUI();
-    showToast(`🎉 تم تثبيت ${appDisplayName} بنجاح كبرنامج مستقل على جهازك.`);
+    showToast(`تم تثبيت ${appDisplayName} بنجاح كبرنامج مستقل على جهازك.`);
   });
 
   // ── 7. Smart Install UI Controller (Header Buttons + Bottom Banner) ──
@@ -573,7 +573,7 @@
     card.innerHTML = `
       <div style="display:inline-flex; align-items:center; gap:8px; background:rgba(234,88,12,0.18); border:1px solid rgba(234,88,12,0.45); padding:6px 14px; border-radius:30px; font-size:12.5px; font-weight:800; color:#fb923c; margin-bottom:16px;">
         <span style="width:8px; height:8px; border-radius:50%; background:#f97316; display:inline-block; animation: harpyPulseGlow 1.5s infinite;"></span>
-        🎉 تم حفظ هوية المطعم بنجاح!
+        تم حفظ هوية المطعم بنجاح!
       </div>
 
       <div style="position:relative; width:84px; height:84px; border-radius:22px; overflow:hidden; margin:0 auto 14px auto; background:#120e0c; border:2.5px solid rgba(249,115,22,0.6); box-shadow:0 8px 25px rgba(0,0,0,0.6);">
@@ -584,12 +584,12 @@
         ${displayTitle}
       </h3>
       <p style="font-size:13px; color:#d6d3d1; margin:0 0 20px 0; line-height:1.5;">
-        يمكنك الآن تثبيت ${isAdmin ? 'لوحة التحكم' : 'تطبيق المنيو'} كـ <strong style="color:#f97316;">Application مستقل</strong> على هاتفك أو جهازك لسرعة الوصول وإدارة الطلبات 📲
+        يمكنك الآن تثبيت ${isAdmin ? 'لوحة التحكم' : 'تطبيق المنيو'} كـ <strong style="color:#f97316;">Application مستقل</strong> على هاتفك أو جهازك لسرعة الوصول وإدارة الطلبات 
       </p>
 
       <div style="display:flex; flex-direction:column; gap:10px;">
         <button id="btn-modal-install-now" style="width:100%; background:linear-gradient(135deg, #ea580c, #f97316); color:#fff; border:none; border-radius:14px; padding:13px 18px; font-size:14.5px; font-weight:800; cursor:pointer; font-family:inherit; box-shadow:0 6px 22px rgba(234,88,12,0.45); display:flex; align-items:center; justify-content:center; gap:8px;">
-          <span>📲 تثبيت التطبيق الآن</span>
+          <span>تثبيت التطبيق الآن</span>
         </button>
         <button id="btn-modal-install-dismiss" style="width:100%; background:rgba(255,255,255,0.06); color:#a8a29e; border:1px solid rgba(255,255,255,0.12); border-radius:14px; padding:11px 16px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit;">
           لاحقاً
@@ -662,7 +662,7 @@
         if (choice && choice.outcome === 'accepted') {
           markAppAsInstalled();
           updateInstallUI();
-          showToast(`🎉 تم تثبيت ${appDisplayName} بنجاح كبرنامج مستقل.`);
+          showToast(`تم تثبيت ${appDisplayName} بنجاح كبرنامج مستقل.`);
         }
         deferredPrompt = null;
         window.__deferredPWAInstallPrompt = null;
@@ -674,18 +674,18 @@
 
     // 2. Apple iOS Safari Guidance
     if (isIOS) {
-      showToast(`📲 لتثبيت ${appDisplayName} على iPhone: اضغط زر المشاركة (Share ⎋) أسفل المتصفح واختر "إضافة إلى الشاشة الرئيسية ➕".`);
+      showToast(`لتثبيت ${appDisplayName} على iPhone: اضغط زر المشاركة (Share) أسفل المتصفح واختر "إضافة إلى الشاشة الرئيسية".`);
       return;
     }
 
     // 3. Standalone mode or already installed check
     if (isAppInstalled()) {
-      showToast(`✅ ${appDisplayName} مثبت بالفعل كـ Application على جهازك!`);
+      showToast(`${appDisplayName} مثبت بالفعل كـ Application على جهازك!`);
       return;
     }
 
     // 4. Fallback for in-app browsers (Facebook, Instagram, etc.)
-    showToast(`💡 لتثبيت التطبيق: اضغط على قائمة المتصفح (⋮) واختر "تثبيت التطبيق" أو "إضافة إلى الشاشة الرئيسية 📲".`);
+    showToast(`لتثبيت التطبيق: اضغط على قائمة المتصفح (⋮) واختر "تثبيت التطبيق" أو "إضافة إلى الشاشة الرئيسية ".`);
   };
 
   function showToast(msg) {

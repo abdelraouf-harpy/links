@@ -11,6 +11,7 @@ let customizerQty = 1;
 
 // ── Advanced Item Customizer Modal ─────────────────────────
 window.openCustomizer = function(productId) {
+  if (typeof checkOrderingPaused === 'function' && checkOrderingPaused()) return;
   const prods = Store.getProducts();
   const p = prods.find(item => item.id === productId);
   if (!p) return;

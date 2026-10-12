@@ -254,7 +254,7 @@ function setupAuth() {
     } finally {
       if (adminElements.btnLogin) {
         adminElements.btnLogin.disabled = false;
-        adminElements.btnLogin.textContent = "دخول لوحة التحكم 🚀";
+        adminElements.btnLogin.textContent = "دخول لوحة التحكم";
       }
     }
   };
@@ -272,7 +272,7 @@ function setupAuth() {
       const confirmed = await showCustomConfirm({
         title: "تسجيل الخروج",
         message: "هل تود تسجيل الخروج من لوحة التحكم؟",
-        icon: "🚪",
+        icon: "",
         confirmText: "تسجيل الخروج",
         cancelText: "إلغاء",
         isDanger: false
@@ -302,7 +302,7 @@ function setupRestaurantHub() {
       navigator.clipboard.writeText(text);
       
       const copyText = document.getElementById('copy-store-link-text');
-      if (copyText) copyText.textContent = "تم النسخ ✓";
+      if (copyText) copyText.textContent = "تم النسخ";
       btnCopy.classList.add('btn-primary');
       btnCopy.classList.remove('btn-ghost');
 
@@ -466,28 +466,28 @@ function setupSubscriptionWatcher() {
     if (suspendedOverlay) suspendedOverlay.classList.add('active');
 
     if (statusReason === 'deleted') {
-      if (iconEl) iconEl.textContent = '🗑️';
+      if (iconEl) iconEl.innerHTML = '<svg class="icon" viewBox="0 0 24 24" style="width:28px; height:28px;"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/></svg>';
       if (titleEl) titleEl.textContent = 'تم حذف حساب هذا المطعم نهائياً';
       if (msgEl) msgEl.textContent = 'تم حذف بيانات وترخيص هذا المطعم نهائياً من المنصة، ولم يعد متاحاً.';
       if (contactBtn) {
         contactBtn.href = `https://wa.me/201019971508?text=${encodeURIComponent(`مرحباً إدارة هاربي، أود الاستفسار عن إنشاء مطعم جديد بدلاً من (${slug})`)}`;
-        contactBtn.textContent = '💬 تواصل مع الإدارة لإنشاء حساب جديد';
+        contactBtn.textContent = 'تواصل مع الإدارة لإنشاء حساب جديد';
       }
     } else if (statusReason === 'expired') {
-      if (iconEl) iconEl.textContent = '⏳';
+      if (iconEl) iconEl.innerHTML = '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
       if (titleEl) titleEl.textContent = 'انتهت صلاحية اشتراك هذا المطعم';
       if (msgEl) msgEl.textContent = 'انتهت صلاحية اشتراك هذا المطعم. يرجى تجديد الباقة لاستئناف استقبال طلبات الزبائن وتعديل المنيو.';
       if (contactBtn) {
         contactBtn.href = `https://wa.me/201019971508?text=${encodeURIComponent(`مرحباً إدارة هاربي، أود تجديد اشتراك مطعمي (${slug})`)}`;
-        contactBtn.textContent = '💬 تواصل مع الإدارة لتجديد الاشتراك';
+        contactBtn.textContent = 'تواصل مع الإدارة لتجديد الاشتراك';
       }
     } else {
-      if (iconEl) iconEl.textContent = '❄️';
+      if (iconEl) iconEl.innerHTML = '<svg class="icon" viewBox="0 0 24 24" style="width:28px; height:28px;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
       if (titleEl) titleEl.textContent = 'حساب المطعم مجمّد / موقوف مؤقتاً';
       if (msgEl) msgEl.textContent = 'تم تجميد وإيقاف اشتراك هذا المطعم مؤقتاً من قبل الإدارة. يرجى التواصل لإلغاء التجميد والتفعيل.';
       if (contactBtn) {
         contactBtn.href = `https://wa.me/201019971508?text=${encodeURIComponent(`مرحباً إدارة هاربي، أود تفعيل وإلغاء تجميد مطعمي (${slug})`)}`;
-        contactBtn.textContent = '💬 تواصل مع الإدارة للتفعيل والتجديد';
+        contactBtn.textContent = 'تواصل مع الإدارة للتفعيل والتجديد';
       }
     }
   };

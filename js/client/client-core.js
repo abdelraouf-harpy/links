@@ -219,6 +219,24 @@ function handlePopStateNavigation(event) {
       return;
     }
   }
+  // 6. My Account Drawer
+  const accountDrawer = document.getElementById('my-account-drawer');
+  if (accountDrawer && accountDrawer.classList.contains('open')) {
+    closeMyAccountDrawer(false);
+    return;
+  }
+  // 7. QR Code Modal
+  const qrModal = document.getElementById('qr-code-modal');
+  if (qrModal && qrModal.classList.contains('open')) {
+    closeQrModal(false);
+    return;
+  }
+  // 8. Onboard Modal
+  const onboardModal = document.getElementById('customer-onboard-modal');
+  if (onboardModal && onboardModal.classList.contains('open')) {
+    closeCustomerOnboardModal(true, false);
+    return;
+  }
 }
 
 window.addEventListener('popstate', handlePopStateNavigation);
@@ -230,6 +248,7 @@ async function initApp() {
   updateThemeToggleIcons();
   updateSoundToggleIcon();
   initViewMode();
+  renderCleanProfileUI();
 
   const slug = Store.getRestaurantSlug();
   const isDemo = (slug === 'demo');
@@ -306,9 +325,10 @@ async function initApp() {
   initCustomizerEvents();
   setupSubscriptionWatcher();
   initBackgroundOrderTracking();
+  updateAccountDrawerProfileUI();
+  checkCustomerOnboarding();
 
-  // 2b. Ordering paused check — runs AFTER data is ready (blocks whole page if frozen)
-  checkOrderingPaused();
+  // 2b. Store status is already rendered in renderStoreInfo() without blocking browsing
 
   // 3. Pre-decode above-the-fold images so there is zero pop-in when splash disappears
   const topImgs = Array.from(document.querySelectorAll('.food-item-img')).slice(0, 6);
@@ -391,7 +411,7 @@ function setupOutboxSync() {
   if (navigator.onLine) {
     Store.processOutbox().then(count => {
       if (count > 0) {
-        showToastNotification(`✅ تم بنجاح إرسال وتأكيد ${count} طلب كان في قائمة الانتظار!`, "success");
+        showToastNotification(`تم بنجاح إرسال وتأكيد ${count} طلب كان في قائمة الانتظار!`, "success");
         renderLastOrderRecall();
       }
     }).catch(() => {});
@@ -401,14 +421,14 @@ function setupOutboxSync() {
   window.addEventListener('online', async () => {
     const settings = Store.getSettings();
     if (settings && settings.isOrderingPaused) {
-      showToastNotification("📡 عاد الاتصال بالإنترنت، ولكن استقبال الطلبات متوقف حالياً لدى المطعم.", "warning");
+      showToastNotification("عاد الاتصال بالإنترنت، ولكن استقبال الطلبات متوقف حالياً لدى المطعم.", "warning");
       return;
     }
-    showToastNotification("📡 عاد الاتصال بالإنترنت! جارٍ محاولة إرسال الطلبات المعلقة...", "info");
+    showToastNotification("عاد الاتصال بالإنترنت! جارٍ محاولة إرسال الطلبات المعلقة...", "info");
     const count = await Store.processOutbox();
     if (count > 0) {
       if (typeof SoundFX !== 'undefined' && SoundFX.playCash) SoundFX.playCash();
-      showToastNotification(`✅ تم بنجاح إرسال وتأكيد ${count} طلب كان معلقاً!`, "success");
+      showToastNotification(`تم بنجاح إرسال وتأكيد ${count} طلب كان معلقاً!`, "success");
       Store.clearCart();
       updateLedgerUI();
       renderLastOrderRecall();
@@ -423,7 +443,7 @@ function setupOutboxSync() {
         const count = await Store.processOutbox();
         if (count > 0) {
           if (typeof SoundFX !== 'undefined' && SoundFX.playCash) SoundFX.playCash();
-          showToastNotification(`✅ تم بنجاح إرسال وتأكيد ${count} طلب كان في قائمة الانتظار!`, "success");
+          showToastNotification(`تم بنجاح إرسال وتأكيد ${count} طلب كان في قائمة الانتظار!`, "success");
           Store.clearCart();
           updateLedgerUI();
           renderLastOrderRecall();
@@ -468,29 +488,47 @@ function updateThemeToggleIcons() {
 
   if (iconDark && iconLight) {
     if (currentMode === 'light') {
-      // In light mode: Show Moon icon (clicking switches to dark mode)
       iconDark.style.display = 'inline-block';
       iconLight.style.display = 'none';
     } else {
-      // In dark mode: Show Sun icon (clicking switches to light mode)
       iconDark.style.display = 'none';
       iconLight.style.display = 'inline-block';
     }
+  }
+
+  // Update Account View ("حسابي") theme row
+  const themeStatusText = document.getElementById('clean-theme-status-text');
+  const themeToggleLabel = document.getElementById('clean-theme-toggle-label');
+  const themeToggleBtn = document.getElementById('clean-theme-toggle-btn');
+  const isDark = (currentMode === 'dark');
+  if (themeStatusText) {
+    themeStatusText.textContent = isDark ? 'الوضع الداكن (Night Mode)' : 'الوضع النهاري (Light Mode)';
+  }
+  if (themeToggleLabel) {
+    themeToggleLabel.textContent = isDark ? 'تفعيل النهاري' : 'تفعيل الداكن';
+  }
+  if (themeToggleBtn) {
+    themeToggleBtn.classList.toggle('active', isDark);
   }
 }
 
 let lastThemeToggleTimestamp = 0;
 window.handleThemeToggle = function() {
   const now = Date.now();
-  if (now - lastThemeToggleTimestamp < 350) return; // Prevent double-trigger from multiple bindings
+  if (now - lastThemeToggleTimestamp < 250) return;
   lastThemeToggleTimestamp = now;
 
   const currentMode = Store.getThemeMode();
-  const newMode = currentMode === 'light' ? 'dark' : 'light';
+  const newMode = (currentMode === 'light') ? 'dark' : 'light';
   Store.setThemeMode(newMode);
   updateThemeToggleIcons();
-  SoundFX.playPop();
+  if (typeof renderCleanProfileUI === 'function') renderCleanProfileUI();
+  if (typeof SoundFX !== 'undefined' && SoundFX.playPop) SoundFX.playPop();
+  if (typeof showToastNotification === 'function') {
+    showToastNotification(newMode === 'dark' ? "تم تفعيل الوضع الداكن" : "تم تفعيل الوضع النهاري", "info");
+  }
 };
+window.toggleTheme = window.handleThemeToggle;
 
 function updateSoundToggleIcon() {
   const enabled = Store.getSoundEnabled();
@@ -505,18 +543,36 @@ function updateSoundToggleIcon() {
       if (elements.soundToggleBtn) elements.soundToggleBtn.classList.add('muted');
     }
   }
+
+  // Update Account View ("حسابي") sound row
+  const soundToggleLabel = document.getElementById('clean-sound-toggle-label');
+  const soundToggleBtn = document.getElementById('clean-sound-toggle-btn');
+  if (soundToggleLabel) {
+    soundToggleLabel.textContent = enabled ? 'صوت مفعل' : 'صوت صامت';
+  }
+  if (soundToggleBtn) {
+    soundToggleBtn.classList.toggle('active', enabled);
+  }
 }
 
 let lastSoundToggleTimestamp = 0;
-function handleSoundToggle() {
+window.handleSoundToggle = function() {
   const now = Date.now();
-  if (now - lastSoundToggleTimestamp < 350) return;
+  if (now - lastSoundToggleTimestamp < 250) return;
   lastSoundToggleTimestamp = now;
-  const enabled = Store.getSoundEnabled();
-  Store.setSoundEnabled(!enabled);
+  const prevEnabled = Store.getSoundEnabled();
+  const nextEnabled = !prevEnabled;
+  Store.setSoundEnabled(nextEnabled);
   updateSoundToggleIcon();
-  if (!enabled) SoundFX.playPop();
-}
+  if (typeof renderCleanProfileUI === 'function') renderCleanProfileUI();
+  if (nextEnabled) {
+    if (typeof SoundFX !== 'undefined' && SoundFX.playPop) SoundFX.playPop();
+    if (typeof showToastNotification === 'function') showToastNotification("تم تفعيل المؤثرات الصوتية بنجاح", "success");
+  } else {
+    if (typeof showToastNotification === 'function') showToastNotification("تم كتم المؤثرات الصوتية (وضع صامت)", "info");
+  }
+};
+window.toggleSound = window.handleSoundToggle;
 
 // ── 3-Dots More Options Menu (Hero Navigation) ────────────
 window.toggleHeroMoreMenu = function(e) {
@@ -634,35 +690,74 @@ function renderStoreInfo() {
   const slug = Store.getRestaurantSlug();
   const isDemo = (slug === 'demo');
 
-  if (elements.storeName) {
-    if (settings.storeName) {
-      elements.storeName.textContent = settings.storeName;
-    } else if (isDemo) {
-      elements.storeName.textContent = "سوبر برجر | Super Burger 🍔🔥";
-    } else {
-      elements.storeName.textContent = "...";
-    }
+  const displayName = settings.storeName || (isDemo ? "سوبر برجر | Super Burger" : "مطعمنا المتميز");
+  const displayTagline = settings.storeTagline || (isDemo ? "أشهى المأكولات الطازجة" : "أشهى وألذ المأكولات المحضرة يومياً");
+  const displayLogo = (settings.logo && settings.logo.trim() && settings.logo !== 'null') ? settings.logo : (isDemo ? 'assets/portfolio/logo.png' : 'assets/portfolio/logo.png');
+  const displayCover = (settings.cover && settings.cover.trim() && settings.cover !== 'null') ? settings.cover : (isDemo ? 'assets/portfolio/order_restaurant_showcase.jpg' : 'assets/portfolio/order_restaurant_showcase.jpg');
+  const displayDelivery = settings.deliveryTime || '25 - 35 دقيقة';
+
+  if (elements.storeName) elements.storeName.textContent = displayName;
+  if (elements.storeTagline) elements.storeTagline.textContent = displayTagline;
+  if (elements.storeLogo) elements.storeLogo.src = displayLogo;
+
+  // Update Portfolio elements in #view-portfolio
+  const pStoreName = document.getElementById('portfolio-store-name');
+  if (pStoreName) pStoreName.textContent = displayName;
+
+  const pStoreTagline = document.getElementById('portfolio-store-tagline');
+  if (pStoreTagline) pStoreTagline.textContent = displayTagline;
+
+  const pStoreLogo = document.getElementById('portfolio-store-logo');
+  if (pStoreLogo) pStoreLogo.src = displayLogo;
+
+  const pCoverImg = document.getElementById('portfolio-cover-img');
+  if (pCoverImg) pCoverImg.src = displayCover;
+
+  const pImmersiveBg = document.getElementById('portfolio-immersive-bg');
+  if (pImmersiveBg) {
+    pImmersiveBg.src = settings.portfolioHeroBg || displayCover || './assets/portfolio/order_restaurant_showcase.jpg';
   }
-  if (elements.storeTagline) {
-    if (settings.storeTagline) {
-      elements.storeTagline.textContent = settings.storeTagline;
-    } else if (isDemo) {
-      elements.storeTagline.textContent = "أشهى المأكولات الطازجة";
-    } else {
-      elements.storeTagline.textContent = "...";
-    }
+
+
+  const pAboutText = document.getElementById('portfolio-about-text');
+  if (pAboutText) {
+    pAboutText.textContent = settings.aboutText || settings.storeTagline || 'نقدم لكم أشهى وألذ المأكولات المحضرة يومياً بأعلى معايير الجودة والنظافة، بأيدي أمهر الطهاة لتستمتعوا بتجربة طعام استثنائية لا تُنسى.';
   }
-  
-  if (elements.storeLogo) {
-    if (settings.logo && settings.logo.trim() && settings.logo !== 'null') {
-      elements.storeLogo.src = settings.logo;
-      elements.storeLogo.style.display = 'block';
-    } else if (isDemo) {
-      elements.storeLogo.src = 'assets/portfolio/logo.png';
-      elements.storeLogo.style.display = 'block';
-    } else {
-      elements.storeLogo.style.display = 'none';
-    }
+
+  const pWorkingHours = document.getElementById('portfolio-working-hours');
+  if (pWorkingHours) {
+    pWorkingHours.textContent = settings.workingHours || 'يومياً من 11:00 صباحاً حتى 2:00 صباحاً';
+  }
+
+  const pDeliveryTime = document.getElementById('portfolio-delivery-time');
+  if (pDeliveryTime) {
+    pDeliveryTime.textContent = displayDelivery;
+  }
+
+  const pAddressText = document.getElementById('portfolio-address-text');
+  if (pAddressText) {
+    pAddressText.textContent = settings.address || 'العنوان متاح عبر خدمة التوصيل والاستلام من الفرع';
+  }
+
+  const pMapLink = document.getElementById('portfolio-map-link');
+  if (pMapLink) {
+    pMapLink.href = settings.locationUrl || ('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(settings.address || displayName));
+  }
+
+  const cleanWaNum = (settings.whatsappNumber || '').replace(/\D/g, '');
+  const pWaBtn = document.getElementById('portfolio-wa-btn');
+  if (pWaBtn) {
+    pWaBtn.href = `https://wa.me/${cleanWaNum}?text=${encodeURIComponent('مرحباً، أود الاستفسار عن تفاصيل المنيو والطلبات ')}`;
+  }
+
+  const rawPhone = settings.phone || settings.whatsappNumber || '';
+  const pPhoneBtn = document.getElementById('portfolio-phone-btn');
+  const pPhoneText = document.getElementById('portfolio-phone-text');
+  if (pPhoneBtn) {
+    pPhoneBtn.href = rawPhone ? `tel:${rawPhone.replace(/\s+/g, '')}` : '#';
+  }
+  if (pPhoneText && rawPhone) {
+    pPhoneText.textContent = `اتصال: ${rawPhone}`;
   }
 
   // Update PWA install banner & branding with restaurant name & logo
@@ -670,36 +765,59 @@ function renderStoreInfo() {
     window.updatePwaBranding(settings);
   }
 
-  // Hero Cover Image
+  // Hero Cover Image in Menu view
   const heroCoverImg = document.getElementById('hero-cover-img');
   if (heroCoverImg) {
-    if (settings.cover && settings.cover.trim() && settings.cover !== 'null') {
-      heroCoverImg.src = settings.cover;
-      heroCoverImg.style.display = 'block';
-    } else if (isDemo) {
-      heroCoverImg.src = "assets/portfolio/order_restaurant_showcase.jpg";
-      heroCoverImg.style.display = 'block';
-    }
+    heroCoverImg.src = displayCover;
+    heroCoverImg.style.display = 'block';
   }
 
-  // Hero Delivery Time
+  // Hero Delivery Time in Menu view
   const heroDelivery = document.getElementById('hero-delivery-time');
   if (heroDelivery) {
-    heroDelivery.textContent = settings.deliveryTime || '30-45 دقيقة';
+    heroDelivery.textContent = displayDelivery;
   }
 
-  // Hero Open/Closed Status
+  // Hero Open/Closed Status Badge (Dynamic: مفتوح الآن / مغلق الآن)
   const heroStatusChip = document.getElementById('hero-status-chip');
   const heroStatusText = document.getElementById('hero-status-text');
+  const pStatusChip = document.getElementById('portfolio-status-chip');
+  const pStatusText = document.getElementById('portfolio-status-text');
+  const pStatusBanner = document.getElementById('portfolio-current-status-banner');
+
+  const isClosed = (settings.isOrderingPaused === true);
+
   if (heroStatusChip && heroStatusText) {
-    if (settings.isOrderingPaused) {
+    if (isClosed) {
       heroStatusChip.classList.remove('open');
       heroStatusChip.classList.add('closed');
-      heroStatusText.textContent = 'مغلق حالياً';
+      heroStatusText.textContent = 'مغلق الآن';
     } else {
       heroStatusChip.classList.remove('closed');
       heroStatusChip.classList.add('open');
       heroStatusText.textContent = 'مفتوح الآن';
+    }
+  }
+
+  if (pStatusChip && pStatusText) {
+    if (isClosed) {
+      pStatusChip.classList.remove('open');
+      pStatusChip.classList.add('closed');
+      pStatusText.textContent = 'مغلق الآن';
+    } else {
+      pStatusChip.classList.remove('closed');
+      pStatusChip.classList.add('open');
+      pStatusText.textContent = 'مفتوح الآن';
+    }
+  }
+
+  if (pStatusBanner) {
+    if (isClosed) {
+      pStatusBanner.className = 'status-badge-inline closed';
+      pStatusBanner.textContent = 'المطعم مغلق حالياً عن استقبال الطلبات';
+    } else {
+      pStatusBanner.className = 'status-badge-inline open';
+      pStatusBanner.textContent = 'نستقبل طلباتكم الآن بكل حب';
     }
   }
 
@@ -712,8 +830,7 @@ function renderStoreInfo() {
   }
 
   if (elements.storeWhatsAppLink) {
-    const cleanNum = (settings.whatsappNumber || '').replace(/\D/g, '');
-    elements.storeWhatsAppLink.href = `https://wa.me/${cleanNum}`;
+    elements.storeWhatsAppLink.href = `https://wa.me/${cleanWaNum}`;
   }
 
   if (elements.walletNameDisplay) {
@@ -795,7 +912,7 @@ function renderAnnouncement() {
   if (promoCard) {
     if (settings.isOrderingPaused) {
       promoCard.style.display = 'flex';
-      if (promoTitle) promoTitle.textContent = '🛑 المطعم متوقف حالياً عن استقبال الطلبات';
+      if (promoTitle) promoTitle.textContent = 'المطعم متوقف حالياً عن استقبال الطلبات';
       if (promoSubtitle) promoSubtitle.textContent = 'وضع تصفح واستعراض قائمة الطعام فقط';
     } else {
       const hasAnnouncement = settings.showAnnouncement && settings.announcementText;
@@ -806,7 +923,7 @@ function renderAnnouncement() {
       const promoBadge = document.querySelector('.promo-deal-badge');
       if (hasAnnouncement) {
         promoCard.style.display = 'flex';
-        if (promoBadge) promoBadge.textContent = '🛵';
+        if (promoBadge) promoBadge.textContent = '';
         if (promoTitle) promoTitle.textContent = settings.announcementText;
         if (promoSubtitle) promoSubtitle.textContent = settings.deliveryTime ? `وقت التوصيل التقديري: ${settings.deliveryTime}` : 'العرض متاح للطلب الفوري أونلاين';
       } else if (spendDiscount) {
@@ -814,21 +931,21 @@ function renderAnnouncement() {
         if (promoBadge) promoBadge.textContent = '%';
         const tierValue = settings.spendTierDiscountValue || 15;
         const valStr = settings.spendTierDiscountType !== 'fixed' ? `${tierValue}%` : `${tierValue} ج.م`;
-        if (promoTitle) promoTitle.textContent = `خصم ${valStr} على الطلبات الأكثر من ${settings.spendTierMinAmount} ج.م 🔥`;
+        if (promoTitle) promoTitle.textContent = `خصم ${valStr} على الطلبات الأكثر من ${settings.spendTierMinAmount} ج.م `;
         if (promoSubtitle) promoSubtitle.textContent = 'يطبق الخصم تلقائياً في السلة وعند الدفع';
       } else if (walletDiscount) {
         promoCard.style.display = 'flex';
         if (promoBadge) promoBadge.textContent = '%';
         const walletValue = settings.walletDiscountValue || 10;
         const valStr = settings.walletDiscountType !== 'fixed' ? `${walletValue}%` : `${walletValue} ج.م`;
-        if (promoTitle) promoTitle.textContent = `خصم ${valStr} عند الدفع بالمحفظة الإلكترونية ⚡`;
+        if (promoTitle) promoTitle.textContent = `خصم ${valStr} عند الدفع بالمحفظة الإلكترونية`;
         if (promoSubtitle) promoSubtitle.textContent = 'فودافون كاش، إنستاباي والمحافظ البنكية';
       } else {
         const slug = Store.getRestaurantSlug();
         if (slug === 'demo') {
           promoCard.style.display = 'flex';
           if (promoBadge) promoBadge.textContent = '%';
-          if (promoTitle) promoTitle.textContent = 'خصم 15% على جميع الطلبات 🔥';
+          if (promoTitle) promoTitle.textContent = 'خصم 15% على جميع الطلبات';
           if (promoSubtitle) promoSubtitle.textContent = 'العرض متاح اليوم فقط عند الطلب عبر المنيو';
         } else {
           promoCard.style.display = 'none';
@@ -843,8 +960,9 @@ function renderAnnouncement() {
 }
 
 
-// ── Store Ordering Paused (Full-Screen Lock) ─────────────────
-function applyOrderingPausedUI(settings) {
+// ── Store Ordering Paused (Friendly Non-Blocking Notice When Attempting to Order) ──
+function showOrderingPausedNotice(customMsg) {
+  const s = Store.getSettings();
   const backdrop = document.getElementById('ordering-paused-backdrop');
   const modal = document.getElementById('ordering-paused-modal');
   const msgEl = document.getElementById('ordering-paused-modal-msg');
@@ -853,58 +971,55 @@ function applyOrderingPausedUI(settings) {
   const waBtn = document.getElementById('ordering-paused-wa-btn');
 
   if (msgEl) {
-    msgEl.textContent = (settings && settings.orderingPausedMessage)
-      ? settings.orderingPausedMessage
-      : 'عذراً، المطعم متوقف مؤقتاً عن استقبال الطلبات الأونلاين. سيعود قريباً لخدمتكم!';
+    msgEl.textContent = customMsg || (s && s.orderingPausedMessage)
+      ? (customMsg || s.orderingPausedMessage)
+      : 'عذراً، المطعم لا يستقبل طلبات جديدة في الوقت الحالي. يمكنك تصفح قائمة الطعام والأسعار بحرية، وسنعاود استقبال الطلبات قريباً! ';
   }
   if (titleEl) titleEl.textContent = 'المطعم متوقف حالياً عن استقبال الطلبات';
-  if (iconEl) iconEl.textContent = '🛑';
+  if (iconEl) iconEl.innerHTML = '<svg class="icon" viewBox="0 0 24 24" style="width:32px; height:32px;"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>';
 
-  // Set WhatsApp contact button if available
-  if (waBtn && settings && settings.whatsappNumber) {
-    const cleanWa = String(settings.whatsappNumber).replace(/\D/g, '');
-    const storeName = settings.storeName || '';
-    waBtn.href = `https://wa.me/${cleanWa}?text=${encodeURIComponent(`مرحباً، متى يبدأ الاستقبال؟ 🙏`)}`;
-    waBtn.style.display = 'block';
+  if (waBtn && s && s.whatsappNumber) {
+    const cleanWa = String(s.whatsappNumber).replace(/\D/g, '');
+    waBtn.href = `https://wa.me/${cleanWa}?text=${encodeURIComponent('مرحباً، متى يبدأ استقبال الطلبات؟')}`;
+    waBtn.style.display = 'inline-block';
   } else if (waBtn) {
     waBtn.style.display = 'none';
   }
 
   if (backdrop) backdrop.classList.add('active');
   if (modal) modal.classList.add('active');
-  document.body.classList.add('harpy-account-locked');
+  if (typeof SoundFX !== 'undefined' && SoundFX.playPop) SoundFX.playPop();
 }
 
-function removeOrderingPausedUI() {
+function closeOrderingPausedNotice() {
   const backdrop = document.getElementById('ordering-paused-backdrop');
   const modal = document.getElementById('ordering-paused-modal');
   if (backdrop) backdrop.classList.remove('active');
   if (modal) modal.classList.remove('active');
-  document.body.classList.remove('harpy-account-locked');
 }
 
 function checkOrderingPaused() {
   const s = Store.getSettings();
   if (s.isOrderingPaused === true) {
-    applyOrderingPausedUI(s);
+    showOrderingPausedNotice(s.orderingPausedMessage);
     return true;
   }
   return false;
 }
 
-// Keep legacy compat: these are now no-ops since overlay cannot be dismissed by user
-window.openOrderingPausedModal = function(customMsg) {
-  const s = Store.getSettings();
-  if (customMsg) {
-    const overrideSettings = Object.assign({}, s, { orderingPausedMessage: customMsg });
-    applyOrderingPausedUI(overrideSettings);
-  } else {
-    applyOrderingPausedUI(s);
-  }
-};
-window.closeOrderingPausedModal = function() {
-  // Intentionally does nothing — ordering paused = locked page
-};
+function applyOrderingPausedUI(settings) {
+  renderStoreInfo();
+}
+
+function removeOrderingPausedUI() {
+  closeOrderingPausedNotice();
+  renderStoreInfo();
+}
+
+window.showOrderingPausedNotice = showOrderingPausedNotice;
+window.closeOrderingPausedNotice = closeOrderingPausedNotice;
+window.openOrderingPausedModal = showOrderingPausedNotice;
+window.closeOrderingPausedModal = closeOrderingPausedNotice;
 
 function setupSubscriptionWatcher() {
   const suspendedBackdrop = document.getElementById('subscription-suspended-backdrop');
@@ -923,32 +1038,32 @@ function setupSubscriptionWatcher() {
     if (suspendedOverlay) suspendedOverlay.classList.add('active');
 
     if (statusReason === 'deleted') {
-      if (iconEl) iconEl.textContent = '🗑️';
+      if (iconEl) iconEl.innerHTML = '<svg class="icon" viewBox="0 0 24 24" style="width:28px; height:28px;"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/></svg>';
       if (titleEl) titleEl.textContent = 'المطعم غير موجود أو تم حذفه نهائياً';
       if (descEl) descEl.textContent = 'تم إيقاف هذا الرابط وحذف بيانات هذا المطعم بالكامل من منصة هاربي.';
       if (contactBtn) {
         contactBtn.href = `https://wa.me/201019971508?text=${encodeURIComponent(`مرحباً إدارة منصة هاربي، أود الاستفسار عن رابط المطعم (${slug})`)}`;
-        contactBtn.textContent = '💬 تواصل مع إدارة منصة هاربي';
+        contactBtn.textContent = 'تواصل مع إدارة منصة هاربي';
       }
     } else if (statusReason === 'expired') {
-      if (iconEl) iconEl.textContent = '⏳';
+      if (iconEl) iconEl.innerHTML = '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
       if (titleEl) titleEl.textContent = 'انتهت صلاحية اشتراك هذا المطعم';
       if (descEl) descEl.textContent = 'قائمة هذا المطعم متوقفة مؤقتاً لانتهاء الباقة. يرجى التجديد للاستمرار.';
       if (contactBtn) {
         const settings = Store.getSettings();
         const cleanWa = (settings.whatsappNumber || '').replace(/\D/g, '');
         contactBtn.href = `https://wa.me/${cleanWa}?text=${encodeURIComponent(`مرحباً، أود الاستفسار عن تجديد اشتراك منيو ${settings.storeName || slug}`)}`;
-        contactBtn.textContent = '💬 تواصل مع المطعم لتجديد الاشتراك';
+        contactBtn.textContent = 'تواصل مع المطعم لتجديد الاشتراك';
       }
     } else {
-      if (iconEl) iconEl.textContent = '❄️';
+      if (iconEl) iconEl.innerHTML = '<svg class="icon" viewBox="0 0 24 24" style="width:28px; height:28px;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
       if (titleEl) titleEl.textContent = 'عفواً، الخدمة متوقفة مؤقتاً';
       if (descEl) descEl.textContent = 'قائمة هذا المطعم غير متاحة حالياً لتلقي طلبات الأونلاين أو جاري تجديد الاشتراك.';
       if (contactBtn) {
         const settings = Store.getSettings();
         const cleanWa = (settings.whatsappNumber || '').replace(/\D/g, '');
         contactBtn.href = `https://wa.me/${cleanWa}?text=${encodeURIComponent(`مرحباً، أود الاستفسار عن منيو ${settings.storeName || slug}`)}`;
-        contactBtn.textContent = '💬 تواصل مع المطعم عبر الواتساب';
+        contactBtn.textContent = 'تواصل مع المطعم عبر الواتساب';
       }
     }
   };
@@ -995,6 +1110,752 @@ function setupSubscriptionWatcher() {
   });
 }
 
+// ═══════════════════════════════════════════════════════════
+// CUSTOMER PROFILE & ONBOARDING ENGINE ("حسابي" & Auto-Fill)
+// ═══════════════════════════════════════════════════════════
+
+function getCustomerProfile() {
+  try {
+    const raw = localStorage.getItem('harpy_customer_profile');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.name && parsed.phone) return parsed;
+    }
+  } catch(e) {}
+  // Legacy fallback: check past order fields
+  try {
+    const legacyName = localStorage.getItem('harpy_last_order_customer_name');
+    const legacyPhone = localStorage.getItem('harpy_last_order_customer_phone');
+    if (legacyName && legacyPhone) {
+      const p = { name: legacyName.trim(), phone: legacyPhone.trim(), updatedAt: Date.now() };
+      localStorage.setItem('harpy_customer_profile', JSON.stringify(p));
+      return p;
+    }
+  } catch(e) {}
+  return null;
+}
+
+function saveCustomerProfile(name, phone) {
+  if (!name || !phone) return false;
+  const cleanName = name.trim();
+  const cleanPhone = phone.trim();
+  const profile = { name: cleanName, phone: cleanPhone, updatedAt: Date.now() };
+  try {
+    localStorage.setItem('harpy_customer_profile', JSON.stringify(profile));
+    localStorage.setItem('harpy_last_order_customer_name', cleanName);
+    localStorage.setItem('harpy_last_order_customer_phone', cleanPhone);
+  } catch(e) {}
+
+  if (elements.custName) elements.custName.value = cleanName;
+  if (elements.custPhone) elements.custPhone.value = cleanPhone;
+
+  updateAccountDrawerProfileUI();
+  return true;
+}
+
+function checkCustomerOnboarding() {
+  const profile = getCustomerProfile();
+  if (!profile) {
+    const skipped = sessionStorage.getItem('harpy_onboard_skipped');
+    if (skipped !== 'true') {
+      setTimeout(() => {
+        openCustomerOnboardModal();
+      }, 700);
+    }
+  } else {
+    // Already has profile, pre-fill checkout inputs
+    if (elements.custName && !elements.custName.value) elements.custName.value = profile.name;
+    if (elements.custPhone && !elements.custPhone.value) elements.custPhone.value = profile.phone;
+    updateAccountDrawerProfileUI();
+  }
+}
+
+function openCustomerOnboardModal() {
+  const backdrop = document.getElementById('customer-onboard-backdrop');
+  const modal = document.getElementById('customer-onboard-modal');
+  if (backdrop && modal) {
+    backdrop.classList.add('active');
+    modal.classList.add('open');
+    pushNavState('onboard_modal');
+    setTimeout(() => {
+      const nameInput = document.getElementById('onboard-name');
+      if (nameInput) nameInput.focus();
+    }, 300);
+  }
+}
+
+function closeCustomerOnboardModal(skipped = false, updateHistory = true) {
+  const backdrop = document.getElementById('customer-onboard-backdrop');
+  const modal = document.getElementById('customer-onboard-modal');
+  if (backdrop) backdrop.classList.remove('active');
+  if (modal) modal.classList.remove('open');
+  if (skipped) {
+    sessionStorage.setItem('harpy_onboard_skipped', 'true');
+  }
+  if (updateHistory && history.state && history.state.harpyNav === 'onboard_modal') {
+    history.back();
+  }
+}
+
+function handleCustomerOnboardSubmit(e) {
+  if (e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+  const nameInput = document.getElementById('onboard-name');
+  const phoneInput = document.getElementById('onboard-phone');
+  const name = nameInput ? nameInput.value.trim() : '';
+  const phone = phoneInput ? phoneInput.value.trim() : '';
+
+  if (!name || name.length < 2) {
+    showToastNotification("يرجى كتابة الاسم بشكل صحيح (حرفين على الأقل)", "error");
+    if (nameInput) nameInput.focus();
+    return;
+  }
+  if (!phone || phone.length < 8) {
+    showToastNotification("يرجى كتابة رقم هاتف صحيح", "error");
+    if (phoneInput) phoneInput.focus();
+    return;
+  }
+
+  saveCustomerProfile(name, phone);
+  closeCustomerOnboardModal(false, false);
+  showToastNotification(`أهلاً بك يا ${name}! تم حفظ بياناتك بنجاح`, "success");
+  if (typeof SoundFX !== 'undefined' && SoundFX.playPop) SoundFX.playPop();
+}
+
+// ── MY ACCOUNT DRAWER ─────────────────────────────────────
+
+function openMyAccountDrawer() {
+  const backdrop = document.getElementById('my-account-backdrop');
+  const drawer = document.getElementById('my-account-drawer');
+  if (!drawer) return;
+
+  updateAccountDrawerProfileUI();
+
+  if (backdrop) backdrop.classList.add('active');
+  drawer.classList.add('open');
+  document.body.classList.add('cart-drawer-open');
+  pushNavState('account_drawer');
+  if (typeof SoundFX !== 'undefined' && SoundFX.playPop) SoundFX.playPop();
+}
+
+function closeMyAccountDrawer(updateHistory = true) {
+  const backdrop = document.getElementById('my-account-backdrop');
+  const drawer = document.getElementById('my-account-drawer');
+  if (backdrop) backdrop.classList.remove('active');
+  if (drawer) drawer.classList.remove('open');
+  document.body.classList.remove('cart-drawer-open');
+  toggleEditProfileForm(false);
+  if (updateHistory && history.state && history.state.harpyNav === 'account_drawer') {
+    history.back();
+  }
+}
+
+function updateAccountDrawerProfileUI() {
+  const profile = getCustomerProfile();
+  const nameEl = document.getElementById('account-display-name');
+  const phoneEl = document.getElementById('account-display-phone');
+  const avatarChar = document.getElementById('account-avatar-char');
+  const favCountEl = document.getElementById('account-fav-count');
+  const soundStateEl = document.getElementById('account-sound-state');
+  const lastOrderSub = document.getElementById('account-last-order-sub');
+  const waLink = document.getElementById('account-whatsapp-link');
+
+  if (profile) {
+    if (nameEl) nameEl.textContent = profile.name;
+    if (phoneEl) phoneEl.textContent = profile.phone;
+    if (avatarChar) {
+      avatarChar.textContent = profile.name.trim().charAt(0) || 'م';
+    }
+  } else {
+    if (nameEl) nameEl.textContent = 'عميلنا العزيز';
+    if (phoneEl) phoneEl.textContent = 'انقر تعديل لتسجيل بياناتك';
+    if (avatarChar) avatarChar.innerHTML = '<svg class="icon" viewBox="0 0 24 24" style="width:24px; height:24px;"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+  }
+
+  if (favCountEl) {
+    const favs = (Store.getFavorites && typeof Store.getFavorites === 'function') ? Store.getFavorites() : [];
+    favCountEl.textContent = favs.length;
+  }
+
+  if (soundStateEl) {
+    const soundOn = (Store.getSoundEnabled && typeof Store.getSoundEnabled === 'function') ? Store.getSoundEnabled() : true;
+    soundStateEl.textContent = soundOn ? 'مفعلة' : 'مكتومة';
+  }
+
+  const lastOrderId = localStorage.getItem('harpy_last_order_id');
+  if (lastOrderSub) {
+    lastOrderSub.textContent = lastOrderId ? `طلب مسجل (${lastOrderId})` : 'لا توجد طلبات سابقة مسجلة';
+  }
+
+  const settings = Store.getSettings();
+  if (waLink && settings && settings.whatsappNumber) {
+    const cleanWa = String(settings.whatsappNumber).replace(/\D/g, '');
+    waLink.href = `https://wa.me/${cleanWa}`;
+    waLink.style.display = 'flex';
+  }
+
+  // Pre-fill edit inputs if form is rendered
+  const editName = document.getElementById('edit-profile-name');
+  const editPhone = document.getElementById('edit-profile-phone');
+  if (profile) {
+    if (editName && !editName.value) editName.value = profile.name;
+    if (editPhone && !editPhone.value) editPhone.value = profile.phone;
+  }
+}
+
+function toggleEditProfileForm(show) {
+  const form = document.getElementById('account-edit-form');
+  if (!form) return;
+  const isCurrentlyOpen = form.style.display === 'block';
+  const shouldOpen = (typeof show === 'boolean') ? show : !isCurrentlyOpen;
+  form.style.display = shouldOpen ? 'block' : 'none';
+  if (shouldOpen) {
+    const profile = getCustomerProfile();
+    const editName = document.getElementById('edit-profile-name');
+    const editPhone = document.getElementById('edit-profile-phone');
+    if (profile) {
+      if (editName) editName.value = profile.name;
+      if (editPhone) editPhone.value = profile.phone;
+    }
+    if (editName) editName.focus();
+  }
+}
+
+function handleAccountEditSubmit(e) {
+  if (e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+  const cleanNameInput = document.getElementById('edit-profile-name-clean');
+  const cleanPhoneInput = document.getElementById('edit-profile-phone-clean');
+  const editName = cleanNameInput || document.getElementById('edit-profile-name');
+  const editPhone = cleanPhoneInput || document.getElementById('edit-profile-phone');
+  const name = editName ? editName.value.trim() : '';
+  const phone = editPhone ? editPhone.value.trim() : '';
+
+  if (!name || name.length < 2) {
+    showToastNotification("يرجى إدخال اسم صحيح (حرفين على الأقل)", "error");
+    return;
+  }
+  if (!phone || phone.length < 8) {
+    showToastNotification("يرجى إدخال رقم هاتف صحيح", "error");
+    return;
+  }
+
+  saveCustomerProfile(name, phone);
+  toggleEditProfileForm(false);
+  toggleCleanProfileEdit(false);
+  renderCleanProfileUI();
+  updateAccountDrawerProfileUI();
+
+  // Auto-fill checkout fields if available
+  if (elements.custName) elements.custName.value = name;
+  if (elements.custPhone) elements.custPhone.value = phone;
+
+  showToastNotification("تم حفظ وتحديث بياناتك بنجاح", "success");
+}
+
+// ── CLEAN PROFILE UI ("حسابي" Sleek View) ───────────────────
+
+function renderCleanProfileUI() {
+  const profile = getCustomerProfile();
+  const nameEl = document.getElementById('clean-profile-name');
+  const phoneEl = document.getElementById('clean-profile-phone');
+  const avatarChar = document.getElementById('clean-avatar-char');
+  const waLink = document.getElementById('clean-account-wa-link');
+
+  const defaultUserSvg = `<svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px; height:22px;"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
+
+  if (profile && profile.name) {
+    if (nameEl) nameEl.textContent = profile.name;
+    if (phoneEl) phoneEl.textContent = profile.phone;
+    if (avatarChar) avatarChar.textContent = profile.name.trim().charAt(0) || 'ع';
+  } else {
+    if (nameEl) nameEl.textContent = 'عميلنا العزيز';
+    if (phoneEl) phoneEl.textContent = 'انقر على تعديل لحفظ اسمك ورقمك';
+    if (avatarChar) avatarChar.innerHTML = defaultUserSvg;
+  }
+
+  // Update theme row info
+  const isDark = (Store.getThemeMode() === 'dark' || document.documentElement.getAttribute('data-theme') === 'dark');
+  const themeStatusText = document.getElementById('clean-theme-status-text');
+  const themeToggleLabel = document.getElementById('clean-theme-toggle-label');
+  const themeToggleBtn = document.getElementById('clean-theme-toggle-btn');
+  if (themeStatusText) themeStatusText.textContent = isDark ? 'الوضع الداكن (Night Mode)' : 'الوضع النهاري (Light Mode)';
+  if (themeToggleLabel) themeToggleLabel.textContent = isDark ? 'تفعيل النهاري' : 'تفعيل الداكن';
+  if (themeToggleBtn) themeToggleBtn.classList.toggle('active', isDark);
+
+  // Update sound row info
+  const soundEnabled = Store.getSoundEnabled();
+  const soundToggleLabel = document.getElementById('clean-sound-toggle-label');
+  const soundToggleBtn = document.getElementById('clean-sound-toggle-btn');
+  if (soundToggleLabel) soundToggleLabel.textContent = soundEnabled ? 'صوت مفعل' : 'صوت صامت';
+  if (soundToggleBtn) soundToggleBtn.classList.toggle('active', soundEnabled);
+
+  // WhatsApp link
+  const settings = (typeof Store !== 'undefined' && Store.getSettings) ? Store.getSettings() : {};
+  if (waLink && settings.whatsappNumber) {
+    const cleanWa = settings.whatsappNumber.replace(/\D/g, '');
+    waLink.href = `https://wa.me/${cleanWa}?text=${encodeURIComponent('مرحباً، أود التواصل مع خدمة العملاء')}`;
+  }
+}
+
+function toggleCleanProfileEdit(show) {
+  const form = document.getElementById('clean-profile-edit-form');
+  if (!form) return;
+  const isCurrentlyOpen = (form.style.display !== 'none');
+  const shouldOpen = (typeof show === 'boolean') ? show : !isCurrentlyOpen;
+  form.style.display = shouldOpen ? 'block' : 'none';
+  if (shouldOpen) {
+    const profile = getCustomerProfile();
+    const editName = document.getElementById('edit-profile-name-clean');
+    const editPhone = document.getElementById('edit-profile-phone-clean');
+    if (profile) {
+      if (editName) editName.value = profile.name;
+      if (editPhone) editPhone.value = profile.phone;
+    }
+    if (editName) editName.focus();
+  }
+}
+
+// ── ORDERS VIEW & LIVE TRACKING TAB ("طلباتي") ──────────────
+
+function triggerOrdersTabPulse() {
+  const tabOrders = document.getElementById('nav-tab-orders');
+  const pulseDot = document.getElementById('order-pulse-dot');
+  if (tabOrders) tabOrders.classList.add('order-pulsing');
+  if (pulseDot) pulseDot.style.display = 'block';
+}
+
+function clearOrdersTabPulse() {
+  const tabOrders = document.getElementById('nav-tab-orders');
+  const pulseDot = document.getElementById('order-pulse-dot');
+  if (tabOrders) tabOrders.classList.remove('order-pulsing');
+  if (pulseDot) pulseDot.style.display = 'none';
+}
+
+function renderOrdersView() {
+  const lastOrder = (typeof Store !== 'undefined' && Store.getLastOrder) ? Store.getLastOrder() : null;
+  const history = (typeof Store !== 'undefined' && Store.getOrderHistory) ? Store.getOrderHistory() : [];
+  const settings = (typeof Store !== 'undefined' && Store.getSettings) ? Store.getSettings() : {};
+  const currency = settings.currency || 'ج.م';
+
+  const cardActive = document.getElementById('active-order-tracking-card');
+  const secPrevious = document.getElementById('previous-orders-section');
+  const emptyState = document.getElementById('orders-empty-state');
+  const prevList = document.getElementById('previous-orders-list');
+
+  const hasActiveOrder = !!(lastOrder && !lastOrder.archived && lastOrder.items && lastOrder.items.length > 0);
+  const hasHistory = (history && history.length > 0);
+
+  if (!hasActiveOrder && !hasHistory) {
+    if (cardActive) cardActive.style.display = 'none';
+    if (secPrevious) secPrevious.style.display = 'none';
+    if (emptyState) emptyState.style.display = 'block';
+    return;
+  }
+
+  if (emptyState) emptyState.style.display = 'none';
+
+  // 1. Active Order Live Tracker Card
+  if (hasActiveOrder) {
+    if (cardActive) cardActive.style.display = 'block';
+
+    const orderIdEl = document.getElementById('orders-active-id');
+    if (orderIdEl) orderIdEl.textContent = lastOrder.orderId || '#ORD-NEW';
+
+    const typePill = document.getElementById('orders-active-type-pill');
+    if (typePill) {
+      const addrLower = String(lastOrder.customer?.address || '').toLowerCase();
+      const rawF = String(lastOrder.fulfillmentType || lastOrder.orderType || '').toLowerCase();
+      let tbl = lastOrder.tableNumber;
+      if (!tbl) {
+        const m = addrLower.match(/(?:طاولة|طاولة رقم|table)\s*([0-9A-Za-z\u0660-\u0669]+)/i);
+        if (m) tbl = m[1];
+      }
+      if (rawF === 'dinein' || rawF === 'dine_in' || addrLower.includes('صالة') || addrLower.includes('طاولة')) {
+        typePill.textContent = `داخل المطعم (طاولة ${tbl || '1'})`;
+      } else if (rawF === 'takeaway' || addrLower.includes('استلام') || addrLower.includes('تيك أواي') || addrLower.includes('سفري')) {
+        typePill.textContent = 'استلام من الفرع (تيك أواي)';
+      } else {
+        typePill.textContent = 'توصيل دليفري';
+      }
+    }
+
+    // Update 4-stage stepper
+    updateOrdersStepperUI(lastOrder.status || 'pending', lastOrder);
+
+    // Items list
+    const itemsList = document.getElementById('orders-active-items-list');
+    if (itemsList && lastOrder.items) {
+      itemsList.innerHTML = lastOrder.items.map(it => `
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:12.5px; padding:4px 0; border-bottom:1px dashed var(--border-subtle, rgba(0,0,0,0.06));">
+          <span><b style="color:var(--primary); font-weight:800;">${it.qty}x</b> ${it.name} ${it.selectedSize ? `[${it.selectedSize.name}]` : ''}</span>
+          <span class="font-num" style="font-weight:700;">${((it.price || 0) * it.qty).toFixed(2)} ${currency}</span>
+        </div>
+      `).join('');
+    }
+
+    // Total
+    const totalEl = document.getElementById('orders-active-total');
+    if (totalEl) {
+      totalEl.textContent = `${(parseFloat(lastOrder.finalTotal) || 0).toFixed(2)} ${currency}`;
+    }
+
+    // Direct WhatsApp & Phone contact
+    const waBtn = document.getElementById('orders-active-wa-btn');
+    if (waBtn && settings.whatsappNumber) {
+      const cleanWa = settings.whatsappNumber.replace(/\D/g, '');
+      waBtn.href = `https://wa.me/${cleanWa}?text=${encodeURIComponent(`مرحباً، أستفسر عن طلبي رقم ${lastOrder.orderId}`)}`;
+    }
+    const phoneBtn = document.getElementById('orders-active-phone-btn');
+    if (phoneBtn && (settings.phone || settings.whatsappNumber)) {
+      const rawP = (settings.phone || settings.whatsappNumber).replace(/\s+/g, '');
+      phoneBtn.href = `tel:${rawP}`;
+    }
+  } else {
+    if (cardActive) cardActive.style.display = 'none';
+  }
+
+  // 2. Previous Orders / Re-order Section
+  if (hasHistory) {
+    if (secPrevious) secPrevious.style.display = 'block';
+    if (prevList) {
+      prevList.innerHTML = history.map(order => {
+        const dateStr = order.createdAt ? new Date(order.createdAt).toLocaleDateString('ar-EG', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'طلب سابق';
+        const itemsSummary = (order.items || []).map(i => `${i.qty}x ${i.name}`).join('، ');
+        let fulfillmentBadge = 'دليفري';
+        if (order.fulfillmentType === 'takeaway') fulfillmentBadge = 'تيك أواي';
+        else if (order.fulfillmentType === 'dinein') fulfillmentBadge = `صالة (طاولة ${order.tableNumber || '-'})`;
+
+        const st = order.status || 'pending';
+        let stBadge = 'قيد التنفيذ';
+        let stColor = 'var(--primary)';
+        if (st === 'delivered') { stBadge = 'تم التسليم'; stColor = '#22c55e'; }
+        else if (st === 'cancelled') { stBadge = 'ملغي'; stColor = '#ef4444'; }
+
+        return `
+          <div class="previous-order-card" style="background:var(--surface-raised, #ffffff); border:1px solid var(--border-strong, rgba(0,0,0,0.08)); border-radius:14px; padding:12px 14px; margin-bottom:12px; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <div>
+                <strong class="font-num" style="color:var(--text-main); font-size:13.5px;">${order.orderId || '#ORD'}</strong>
+                <span style="font-size:11px; color:var(--text-muted); margin-right:6px;">${dateStr}</span>
+              </div>
+              <div style="display:flex; gap:6px; align-items:center;">
+                <span style="font-size:10.5px; padding:2px 7px; border-radius:6px; background:rgba(0,0,0,0.05); color:var(--text-muted); font-weight:700;">${fulfillmentBadge}</span>
+                <span style="font-size:10.5px; padding:2px 7px; border-radius:6px; background:rgba(34,197,94,0.12); color:${stColor}; font-weight:800;">${stBadge}</span>
+              </div>
+            </div>
+            <p style="font-size:12px; color:var(--text-body); margin:6px 0 10px 0; line-height:1.4; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${itemsSummary}</p>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-subtle, rgba(0,0,0,0.05)); padding-top:8px;">
+              <span class="font-num" style="font-weight:800; font-size:13px; color:var(--text-main);">${(parseFloat(order.finalTotal) || 0).toFixed(2)} ${currency}</span>
+              <button type="button" class="btn btn-primary btn-sm" onclick="window.reorderPreviousOrder && window.reorderPreviousOrder('${order.orderId}')" style="font-size:11.5px; padding:5px 12px; border-radius:8px;">
+                <span>إعادة الطلب</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  } else {
+    if (secPrevious) secPrevious.style.display = 'none';
+  }
+}
+
+function updateOrdersStepperUI(status = 'pending', order = null) {
+  const step1 = document.getElementById('orders-step-1');
+  const step2 = document.getElementById('orders-step-2');
+  const step3 = document.getElementById('orders-step-3');
+  const step4 = document.getElementById('orders-step-4');
+
+  const step1Icon = document.getElementById('orders-step-1-icon');
+  const step1Name = document.getElementById('orders-step-1-name');
+  const step2Icon = document.getElementById('orders-step-2-icon');
+  const step2Name = document.getElementById('orders-step-2-name');
+  const step3Icon = document.getElementById('orders-step-3-icon');
+  const step3Name = document.getElementById('orders-step-3-name');
+  const step4Icon = document.getElementById('orders-step-4-icon');
+  const step4Name = document.getElementById('orders-step-4-name');
+
+  const fill = document.getElementById('orders-stepper-fill');
+  const descEl = document.getElementById('orders-active-desc');
+  const etaEl = document.getElementById('orders-active-eta');
+  const etaIcon = document.getElementById('orders-active-eta-icon');
+  const etaTitle = document.getElementById('orders-active-eta-title');
+  const locBanner = document.getElementById('orders-active-location-banner');
+  const locIcon = document.getElementById('orders-active-location-icon');
+  const locText = document.getElementById('orders-active-location-text');
+
+  const settings = (typeof Store !== 'undefined' && Store.getSettings) ? Store.getSettings() : {};
+
+  // Detect fulfillment and table number robustly
+  const rawType = String((order && (order.fulfillmentType || order.orderType)) || window.currentFulfillmentType || 'delivery').toLowerCase();
+  const addr = String(order?.customer?.address || '').toLowerCase();
+  let tableNumber = order?.tableNumber || null;
+  if (!tableNumber) {
+    const match = addr.match(/(?:طاولة|طاولة رقم|table)\s*([0-9A-Za-z\u0660-\u0669]+)/i);
+    if (match) tableNumber = match[1];
+  }
+
+  const isDineIn = rawType === 'dinein' || rawType === 'dine_in' || addr.includes('صالة') || addr.includes('طاولة');
+  const isTakeaway = !isDineIn && (rawType === 'takeaway' || addr.includes('استلام') || addr.includes('تيك أواي') || addr.includes('سفري'));
+  const isDelivery = !isDineIn && !isTakeaway;
+
+  // 1. Stage names tailored to fulfillment
+  if (isDineIn) {
+    if (step1Name) step1Name.textContent = 'تسجيل الطلب';
+    if (step2Name) step2Name.textContent = 'قيد الطهي';
+    if (step3Name) step3Name.textContent = 'تقديم للطاولة';
+    if (step4Name) step4Name.textContent = 'بالهناء والشفاء';
+
+    if (etaTitle) etaTitle.textContent = 'خدمة الصالة والمائدة';
+    if (etaEl) etaEl.textContent = `طاولة رقم (${tableNumber || '1'})`;
+
+    if (locBanner && locText) {
+      locBanner.style.display = 'flex';
+      locText.innerHTML = `مكان الخدمة: <strong>طاولة رقم ${tableNumber || '1'} داخل صالة المطعم</strong>`;
+    }
+  } else if (isTakeaway) {
+    if (step1Name) step1Name.textContent = 'استلام الطلب';
+    if (step2Name) step2Name.textContent = 'تجهيز وتعليب';
+    if (step3Name) step3Name.textContent = 'جاهز بالفرع';
+    if (step4Name) step4Name.textContent = 'تم الاستلام';
+
+    if (etaTitle) etaTitle.textContent = 'وقت التجهيز للاستلام';
+    if (etaEl) etaEl.textContent = '15 - 20 دقيقة';
+
+    if (locBanner && locText) {
+      locBanner.style.display = 'flex';
+      locText.innerHTML = `مكان الاستلام: <strong>كاونتر فرع المطعم الرئيسي مباشرة</strong>`;
+    }
+  } else {
+    // Delivery
+    if (step1Name) step1Name.textContent = 'استلام الطلب';
+    if (step2Name) step2Name.textContent = 'في المطبخ';
+    if (step3Name) step3Name.textContent = 'مع الكابتن';
+    if (step4Name) step4Name.textContent = 'تم التوصيل';
+
+    if (etaTitle) etaTitle.textContent = 'الوقت التقديري للوصول';
+    if (etaEl) etaEl.textContent = settings.deliveryTime || '25 - 35 دقيقة';
+
+    if (locBanner && locText) {
+      locBanner.style.display = 'flex';
+      locText.innerHTML = `عنوان التوصيل: <strong>${order?.customer?.address || 'العنوان المسجل للطلب'}</strong>`;
+    }
+  }
+
+  // 2. Stepper progression
+  [step1, step2, step3, step4].forEach(s => {
+    if (s) s.classList.remove('active', 'completed');
+  });
+
+  const checkSvg = `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+
+  if (step1Icon) step1Icon.textContent = '1';
+  if (step2Icon) step2Icon.textContent = '2';
+  if (step3Icon) step3Icon.textContent = '3';
+  if (step4Icon) step4Icon.textContent = '4';
+
+  if (status === 'pending') {
+    if (step1) step1.classList.add('active');
+    if (fill) fill.style.width = '25%';
+    if (descEl) {
+      if (isDineIn) descEl.textContent = `تم تسجيل طلبك وتوجيهه إلى مطبخ الصالة لطاولة (${tableNumber || '1'})، جاري التأكيد.`;
+      else if (isTakeaway) descEl.textContent = 'تم تسجيل طلبك للاستلام من الفرع، وسنبدأ تحضيره طازجاً فوراً.';
+      else descEl.textContent = 'تم استلام طلبك بنجاح وهو قيد المراجعة في المطعم الآن.';
+    }
+  } else if (status === 'preparing') {
+    if (step1) { step1.classList.add('completed'); if (step1Icon) step1Icon.innerHTML = checkSvg; }
+    if (step2) step2.classList.add('active');
+    if (fill) fill.style.width = '50%';
+    if (descEl) {
+      if (isDineIn) descEl.textContent = `طهاة المطعم يجهزون وجبتك الساخنة الآن لتقديمها لطاولة (${tableNumber || '1'}).`;
+      else if (isTakeaway) descEl.textContent = 'جاري تحضير طلبك وتعليبه بعناية ليكون ساخناً وجاهزاً فور وصولك للفرع.';
+      else descEl.textContent = 'طهاة المطعم يجهزون وجبتك الطازجة الآن بأعلى معايير الجودة.';
+    }
+  } else if (status === 'out_for_delivery') {
+    if (step1) { step1.classList.add('completed'); if (step1Icon) step1Icon.innerHTML = checkSvg; }
+    if (step2) { step2.classList.add('completed'); if (step2Icon) step2Icon.innerHTML = checkSvg; }
+    if (step3) step3.classList.add('active');
+    if (fill) fill.style.width = '75%';
+    if (descEl) {
+      if (isDineIn) descEl.textContent = `وجبتك جاهزة تماماً! طاقم الخدمة يقدمها الآن إلى طاولة رقم (${tableNumber || '1'}).`;
+      else if (isTakeaway) descEl.textContent = 'طلبك جاهز تماماً الآن على كاونتر الاستلام بالفرع، تفضل بالاستلام.';
+      else descEl.textContent = 'الكابتن استلم وجبتك وهو في الطريق إلى عنوانك الآن.';
+    }
+  } else if (status === 'delivered') {
+    if (step1) { step1.classList.add('completed'); if (step1Icon) step1Icon.innerHTML = checkSvg; }
+    if (step2) { step2.classList.add('completed'); if (step2Icon) step2Icon.innerHTML = checkSvg; }
+    if (step3) { step3.classList.add('completed'); if (step3Icon) step3Icon.innerHTML = checkSvg; }
+    if (step4) { step4.classList.add('completed', 'active'); if (step4Icon) step4Icon.innerHTML = checkSvg; }
+    if (fill) fill.style.width = '100%';
+    if (descEl) {
+      if (isDineIn) descEl.textContent = `بالهناء والشفاء! نتمنى لك تجربة طعام رائعة في ضيافتنا، أهلاً بك دائماً.`;
+      else if (isTakeaway) descEl.textContent = 'تم تسليمك الطلب بالفرع بنجاح، بالهناء والشفاء وسعداء بزيارتك دائماً.';
+      else descEl.textContent = 'تم تسليم الطلب بنجاح إلى باب منزلك! بالهناء والشفاء، سعداء بخدمتك دائماً.';
+    }
+  } else if (status === 'cancelled') {
+    if (fill) fill.style.width = '0%';
+    if (descEl) descEl.textContent = 'تم إلغاء هذا الطلب من قِبل إدارة المطعم.';
+  }
+}
+
+function reorderPreviousOrder(orderId) {
+  if (checkOrderingPaused()) return;
+  const history = (typeof Store !== 'undefined' && Store.getOrderHistory) ? Store.getOrderHistory() : [];
+  const lastOrder = (typeof Store !== 'undefined' && Store.getLastOrder) ? Store.getLastOrder() : null;
+
+  let found = history.find(o => o.orderId === orderId);
+  if (!found && lastOrder && lastOrder.orderId === orderId) found = lastOrder;
+
+  if (!found || !found.items || found.items.length === 0) {
+    showToastNotification("تعذر العثور على أصناف هذا الطلب", "error");
+    return;
+  }
+
+  // Refill cart with the exact items
+  Store.saveCart([...found.items]);
+
+  // Refill customer details & fulfillment if present
+  if (found.customer) {
+    if (elements.custName && found.customer.name) elements.custName.value = found.customer.name;
+    if (elements.custPhone && found.customer.phone) elements.custPhone.value = found.customer.phone;
+    if (elements.custAddress && found.customer.address && found.fulfillmentType === 'delivery') {
+      elements.custAddress.value = found.customer.address;
+    }
+  }
+  if (found.fulfillmentType && typeof window.setFulfillmentType === 'function') {
+    window.setFulfillmentType(found.fulfillmentType);
+  }
+  if (found.tableNumber) {
+    const tableInput = document.getElementById('cust-table-number');
+    if (tableInput) tableInput.value = found.tableNumber;
+  }
+
+  updateLedgerUI();
+  renderProducts();
+  showToastNotification("تمت إضافة أصناف الطلب إلى سلتك بنجاح!", "success");
+  if (typeof openCartDrawer === 'function') openCartDrawer();
+}
+
+// ── DIGITAL MENU QR CODE MODAL ────────────────────────────
+
+function openQrModal() {
+  const backdrop = document.getElementById('qr-modal-backdrop');
+  const modal = document.getElementById('qr-code-modal');
+  const imgEl = document.getElementById('qr-code-image');
+  const nameEl = document.getElementById('qr-store-name');
+
+  if (!modal) return;
+
+  const settings = Store.getSettings();
+  if (nameEl) nameEl.textContent = settings.storeName || 'منيو المطعم الرقمي';
+
+  const currentUrl = window.location.href;
+  if (imgEl) {
+    imgEl.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&format=png&data=${encodeURIComponent(currentUrl)}`;
+  }
+
+  if (backdrop) backdrop.classList.add('active');
+  modal.classList.add('open');
+  pushNavState('qr_modal');
+  if (typeof SoundFX !== 'undefined' && SoundFX.playPop) SoundFX.playPop();
+}
+
+function closeQrModal(updateHistory = true) {
+  const backdrop = document.getElementById('qr-modal-backdrop');
+  const modal = document.getElementById('qr-code-modal');
+  if (backdrop) backdrop.classList.remove('active');
+  if (modal) modal.classList.remove('open');
+  if (updateHistory && history.state && history.state.harpyNav === 'qr_modal') {
+    history.back();
+  }
+}
+
+function shareMenuLink() {
+  const settings = Store.getSettings();
+  const title = settings.storeName || 'منيو المطعم';
+  const url = window.location.href;
+
+  if (navigator.share) {
+    navigator.share({
+      title: title,
+      text: `تفضل بزيارة قائمة طعام ${title} والطلب أونلاين:`,
+      url: url
+    }).catch(() => {});
+  } else {
+    copyMenuLink();
+  }
+}
+
+function copyMenuLink() {
+  const url = window.location.href;
+  const copyBtnText = document.getElementById('copy-menu-link-text');
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(() => {
+      if (copyBtnText) copyBtnText.textContent = 'تم نسخ الرابط بنجاح!';
+      showToastNotification("تم نسخ رابط المنيو إلى الحافظة", "success");
+      setTimeout(() => {
+        if (copyBtnText) copyBtnText.textContent = 'نسخ الرابط إلى الحافظة';
+      }, 3000);
+    }).catch(() => {
+      showToastNotification("تعذر النسخ التلقائي، يمكنك نسخ الرابط من المتصفح", "info");
+    });
+  } else {
+    showToastNotification("يمكنك نسخ الرابط من شريط عنوان المتصفح", "info");
+  }
+}
+
+// ── BOTTOM NAVIGATION BAR CONTROLLER (5 Tabs RTL) ──────────
+
+function handleNavTabClick(tabId) {
+  const tabs = document.querySelectorAll('.bottom-nav-bar .nav-tab-btn');
+  const viewHome = document.getElementById('view-portfolio');
+  const viewMenu = document.getElementById('view-menu');
+  const viewOrders = document.getElementById('view-orders');
+  const viewAccount = document.getElementById('view-account');
+
+  // Helper to switch views cleanly
+  function switchAppView(activeView) {
+    [viewHome, viewMenu, viewOrders, viewAccount].forEach(v => {
+      if (v) v.style.display = 'none';
+    });
+    if (activeView) activeView.style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (typeof SoundFX !== 'undefined' && SoundFX.playPop) SoundFX.playPop();
+  }
+
+  if (tabId === 'home') {
+    tabs.forEach(t => t.classList.remove('active'));
+    const clickedTab = document.getElementById('nav-tab-home');
+    if (clickedTab) clickedTab.classList.add('active');
+    switchAppView(viewHome);
+  } else if (tabId === 'cart') {
+    if (typeof openCartDrawer === 'function') {
+      openCartDrawer();
+    }
+  } else if (tabId === 'menu') {
+    tabs.forEach(t => t.classList.remove('active'));
+    const clickedTab = document.getElementById('nav-tab-menu');
+    if (clickedTab) clickedTab.classList.add('active');
+    switchAppView(viewMenu);
+  } else if (tabId === 'orders') {
+    tabs.forEach(t => t.classList.remove('active'));
+    const clickedTab = document.getElementById('nav-tab-orders');
+    if (clickedTab) clickedTab.classList.add('active');
+    clearOrdersTabPulse();
+    switchAppView(viewOrders);
+    renderOrdersView();
+  } else if (tabId === 'account') {
+    tabs.forEach(t => t.classList.remove('active'));
+    const clickedTab = document.getElementById('nav-tab-account');
+    if (clickedTab) clickedTab.classList.add('active');
+    switchAppView(viewAccount);
+    renderCleanProfileUI();
+  }
+}
 
 window.pushNavState = pushNavState;
 window.handlePopStateNavigation = handlePopStateNavigation;
@@ -1013,3 +1874,28 @@ window.initViewMode = initViewMode;
 window.applyViewMode = applyViewMode;
 window.handleViewModeChange = handleViewModeChange;
 window.cycleViewMode = cycleViewMode;
+
+// Export New Customer & Bottom Bar Features Globally
+window.getCustomerProfile = getCustomerProfile;
+window.saveCustomerProfile = saveCustomerProfile;
+window.checkCustomerOnboarding = checkCustomerOnboarding;
+window.openCustomerOnboardModal = openCustomerOnboardModal;
+window.closeCustomerOnboardModal = closeCustomerOnboardModal;
+window.handleCustomerOnboardSubmit = handleCustomerOnboardSubmit;
+window.openMyAccountDrawer = openMyAccountDrawer;
+window.closeMyAccountDrawer = closeMyAccountDrawer;
+window.updateAccountDrawerProfileUI = updateAccountDrawerProfileUI;
+window.toggleEditProfileForm = toggleEditProfileForm;
+window.handleAccountEditSubmit = handleAccountEditSubmit;
+window.renderCleanProfileUI = renderCleanProfileUI;
+window.toggleCleanProfileEdit = toggleCleanProfileEdit;
+window.triggerOrdersTabPulse = triggerOrdersTabPulse;
+window.clearOrdersTabPulse = clearOrdersTabPulse;
+window.renderOrdersView = renderOrdersView;
+window.updateOrdersStepperUI = updateOrdersStepperUI;
+window.reorderPreviousOrder = reorderPreviousOrder;
+window.openQrModal = openQrModal;
+window.closeQrModal = closeQrModal;
+window.shareMenuLink = shareMenuLink;
+window.copyMenuLink = copyMenuLink;
+window.handleNavTabClick = handleNavTabClick;

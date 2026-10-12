@@ -50,29 +50,29 @@ const STORAGE_KEYS = {
 const THEME_PRESETS = {
   charcoal: {
     id: "charcoal",
-    name: "دفتر الفحم الدافئ (ليلي أساسي)",
-    badge: "فحم وخشب داكن",
-    bg: "#120e0c",
-    surface: "#1e1814",
-    surfaceRaised: "#28201a",
-    headerBg: "#120e0c",
-    textMain: "#faf6f0",
-    textBody: "#d4c9ba",
-    primary: "#ea580c",
-    border: "rgba(245, 238, 227, 0.09)"
+    name: "الأسود الليلي العصري (ليلي أساسي)",
+    badge: "كحلي مسائي وأسود ملكي",
+    bg: "#070B13",
+    surface: "#0E1726",
+    surfaceRaised: "#142034",
+    headerBg: "#070B13",
+    textMain: "#ffffff",
+    textBody: "#e2e8f0",
+    primary: "#FF6A00",
+    border: "rgba(255, 255, 255, 0.08)"
   },
   cream: {
     id: "cream",
-    name: "الورق العاجي الفاخر (نهاري أساسي)",
-    badge: "نهاري راقي ومقاهي",
-    bg: "#f8f6f0",
+    name: "النهاري الناصع العصري (نهاري أساسي)",
+    badge: "أبيض ناصع ومقاهي",
+    bg: "#F8FAFC",
     surface: "#ffffff",
-    surfaceRaised: "#f3ede2",
-    headerBg: "#f8f6f0",
-    textMain: "#18130f",
-    textBody: "#3d332a",
-    primary: "#c2410c",
-    border: "rgba(45, 35, 25, 0.10)"
+    surfaceRaised: "#F8FAFC",
+    headerBg: "#ffffff",
+    textMain: "#0F172A",
+    textBody: "#334155",
+    primary: "#FF6A00",
+    border: "#E2E8F0"
   },
   midnight: {
     id: "midnight",
@@ -160,7 +160,12 @@ const DEFAULT_SETTINGS = (typeof window !== 'undefined' && window.HARPY_DEMO_SEE
       deliverySettings: { defaultFee: 15, customZones: [] },
       isOrderingPaused: false,
       orderingPausedMessage: "المطعم متوقف حالياً عن استقبال الطلبات.",
-      printerPaperSize: "80mm"
+      printerPaperSize: "80mm",
+      aboutText: "نقدم لكم أشهى وألذ المأكولات المحضرة يومياً بأعلى معايير الجودة والنظافة، بأيدي أمهر الطهاة لتستمتعوا بتجربة طعام استثنائية لا تُنسى.",
+      workingHours: "يومياً من 11:00 صباحاً حتى 2:00 صباحاً",
+      address: "خدمة التوصيل والاستلام متوفرة",
+      phone: "01019971508",
+      locationUrl: "https://maps.google.com"
     };
 const BLANK_SETTINGS = {
   storeName: "",
@@ -690,6 +695,16 @@ const Store = {
         if (isDemo && (!storyArray || storyArray.length === 0)) {
           storyArray = DEFAULT_STORIES;
         }
+        storyArray = storyArray.map(st => {
+          if (!st || typeof st !== 'object') return st;
+          const copy = { ...st };
+          if (copy.title) copy.title = this.stripEmojiNoise(copy.title);
+          if (copy.badge) copy.badge = this.stripEmojiNoise(copy.badge);
+          if (copy.tagline) copy.tagline = this.stripEmojiNoise(copy.tagline);
+          if (copy.ctaText) copy.ctaText = this.stripEmojiNoise(copy.ctaText);
+          if (copy.headline) copy.headline = this.stripEmojiNoise(copy.headline);
+          return copy;
+        });
         this._memoryCache.stories = storyArray;
         this.safeSetItem(this.getKey(STORAGE_KEYS.STORIES), JSON.stringify(storyArray));
         hasChanges = true;
@@ -959,8 +974,8 @@ const Store = {
     });
   },
 
-  getOrders() {
-    if (this._memoryCache.orders !== null) {
+  getOrders(forceRefresh = false) {
+    if (!forceRefresh && this._memoryCache.orders !== null) {
       return this._memoryCache.orders;
     }
     try {
@@ -1298,7 +1313,8 @@ const Store = {
     let targetFbKey = cleanId;
     try {
       this.orderStatusLocks[cleanId] = { status: newStatus, timestamp: nowTs };
-      const cached = this.getOrders();
+      this._memoryCache.orders = null;
+      const cached = this.getOrders(true);
       const order = cached.find(o => 
         o.orderId === orderId || 
         o.orderId === `#${cleanId}` || 
@@ -1313,6 +1329,67 @@ const Store = {
         if (order._fbKey) targetFbKey = order._fbKey;
         this.saveOrders(cached);
       }
+
+      // Update client's lastOrder across all known multi-tenant and fallback keys
+      this._memoryCache.lastOrder = null;
+      const lastOrder = this.getLastOrder(true);
+      if (lastOrder) {
+        const lastClean = String(lastOrder.orderId || lastOrder.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
+        if (lastOrder.orderId === orderId || lastClean === cleanId || lastOrder.id === orderId) {
+          lastOrder.status = newStatus;
+          lastOrder.updatedAt = nowIso;
+          lastOrder.timestampUpdated = nowTs;
+          this.saveLastOrder(lastOrder);
+        }
+      }
+
+      // Persist status lock and update all keys in localStorage containing last_order
+      try {
+        const lockJson = JSON.stringify({ status: newStatus, timestamp: nowTs });
+        this.safeSetItem('harpy_status_lock_' + cleanId, lockJson);
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && k.includes('last_order')) {
+            try {
+              const item = JSON.parse(localStorage.getItem(k));
+              if (item) {
+                const itemClean = String(item.orderId || item.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
+                if (item.orderId === orderId || itemClean === cleanId || item.id === orderId) {
+                  item.status = newStatus;
+                  item.updatedAt = nowIso;
+                  item.timestampUpdated = nowTs;
+                  localStorage.setItem(k, JSON.stringify(item));
+                }
+              }
+            } catch(e) {}
+          }
+        }
+      } catch(e) {}
+
+      // Update order history if present
+      const history = this.getOrderHistory();
+      if (Array.isArray(history)) {
+        let histChanged = false;
+        history.forEach(h => {
+          const hClean = String(h.orderId || h.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
+          if (h.orderId === orderId || hClean === cleanId || h.id === orderId) {
+            h.status = newStatus;
+            h.updatedAt = nowIso;
+            h.timestampUpdated = nowTs;
+            histChanged = true;
+          }
+        });
+        if (histChanged) {
+          this.safeSetItem(this.getKey('harpy_order_history'), JSON.stringify(history));
+          this.safeSetItem('harpy_demo_harpy_order_history', JSON.stringify(history));
+          this.safeSetItem('harpy_order_history', JSON.stringify(history));
+        }
+      }
+
+      // Instant local broadcast for cross-tab and cross-view syncing
+      const broadcastData = { orderId, cleanId, status: newStatus, timestamp: nowTs };
+      this.safeSetItem('harpy_order_status_broadcast', JSON.stringify(broadcastData));
+      window.dispatchEvent(new CustomEvent('harpy_order_status_updated', { detail: broadcastData }));
     } catch(e) {}
 
     const patchPayload = {
@@ -1436,11 +1513,48 @@ const Store = {
     if (!slug || !orderId) return () => {};
     let isDestroyed = false;
     let pollTimer = null;
-    const cleanId = orderId.replace(/[^a-zA-Z0-9_-]/g, '');
+    const cleanId = String(orderId).replace(/[^a-zA-Z0-9_-]/g, '');
     let lastKnownOrderHash = '';
+
+    const STATUS_RANK = {
+      pending: 1,
+      preparing: 2,
+      out_for_delivery: 3,
+      delivered: 4,
+      cancelled: 5
+    };
 
     const handleOrderPayload = (data) => {
       if (isDestroyed || !data) return;
+
+      // Monotonic guard: Never demote if local status lock or stored order is ahead
+      const lockKey = 'harpy_status_lock_' + cleanId;
+      try {
+        const rawLock = localStorage.getItem(lockKey);
+        if (rawLock) {
+          const lock = JSON.parse(rawLock);
+          if (lock && lock.status && (STATUS_RANK[lock.status] || 1) > (STATUS_RANK[data.status] || 1)) {
+            data.status = lock.status;
+            if (lock.timestamp) {
+              data.updatedAt = new Date(lock.timestamp).toISOString();
+              data.timestampUpdated = lock.timestamp;
+            }
+          }
+        }
+      } catch(e) {}
+
+      try {
+        const curLast = this.getLastOrder();
+        if (curLast) {
+          const curClean = String(curLast.orderId || curLast.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
+          if ((curClean === cleanId || curLast.orderId === orderId) && (STATUS_RANK[curLast.status] || 1) > (STATUS_RANK[data.status] || 1)) {
+            data.status = curLast.status;
+            if (curLast.updatedAt) data.updatedAt = curLast.updatedAt;
+            if (curLast.timestampUpdated) data.timestampUpdated = curLast.timestampUpdated;
+          }
+        }
+      } catch(e) {}
+
       const hash = JSON.stringify({ st: data.status, upd: data.updatedAt || data.timestampUpdated, tot: data.finalTotal });
       if (hash !== lastKnownOrderHash) {
         lastKnownOrderHash = hash;
@@ -1450,7 +1564,49 @@ const Store = {
       }
     };
 
-    // 1. WebSocket Listener (Primary)
+    // 1. Instant Cross-Tab Storage Listener
+    const storageHandler = (e) => {
+      if (isDestroyed) return;
+      if (!e.key || e.key.includes('last_order') || e.key.includes('orders') || e.key.includes('order_status_broadcast') || e.key.includes('order_history')) {
+        this._memoryCache.lastOrder = null;
+        this._memoryCache.orders = null;
+        const lastOrder = this.getLastOrder(true);
+        if (lastOrder && (lastOrder.orderId === orderId || String(lastOrder.orderId).replace(/[^a-zA-Z0-9_-]/g, '') === cleanId)) {
+          handleOrderPayload(lastOrder);
+          return;
+        }
+        const cached = this.getOrders(true);
+        const found = cached.find(o => o.orderId === orderId || String(o.orderId || '').replace(/[^a-zA-Z0-9_-]/g, '') === cleanId);
+        if (found) {
+          handleOrderPayload(found);
+        }
+      }
+    };
+    window.addEventListener('storage', storageHandler);
+
+    // 2. Same-Window Custom Event Listener
+    const customEventHandler = (e) => {
+      if (isDestroyed || !e.detail) return;
+      if (e.detail.orderId === orderId || e.detail.cleanId === cleanId) {
+        this._memoryCache.lastOrder = null;
+        this._memoryCache.orders = null;
+        const lastOrder = this.getLastOrder(true);
+        if (lastOrder) handleOrderPayload(lastOrder);
+      }
+    };
+    window.addEventListener('harpy_order_status_updated', customEventHandler);
+
+    // 3. Local High-Frequency Poll (800ms) for instant local updates
+    const localPollTimer = setInterval(() => {
+      if (isDestroyed) return;
+      this._memoryCache.lastOrder = null;
+      const lastOrder = this.getLastOrder(true);
+      if (lastOrder && (lastOrder.orderId === orderId || String(lastOrder.orderId).replace(/[^a-zA-Z0-9_-]/g, '') === cleanId)) {
+        handleOrderPayload(lastOrder);
+      }
+    }, 800);
+
+    // 4. WebSocket Listener (Primary Cloud)
     let orderRef = null;
     let wsCallback = null;
     try {
@@ -1463,7 +1619,7 @@ const Store = {
       }
     } catch (e) {}
 
-    // 2. High-Frequency Fast REST Tracker Pulse (3.5s fallback)
+    // 5. Cloud REST Tracker Pulse (3.5s fallback)
     const fetchOrderFast = async () => {
       if (isDestroyed) return;
       try {
@@ -1485,6 +1641,9 @@ const Store = {
     return () => {
       isDestroyed = true;
       if (pollTimer) clearInterval(pollTimer);
+      if (localPollTimer) clearInterval(localPollTimer);
+      window.removeEventListener('storage', storageHandler);
+      window.removeEventListener('harpy_order_status_updated', customEventHandler);
       if (orderRef && wsCallback) {
         try { orderRef.off('value', wsCallback); } catch(e) {}
       }
@@ -1568,14 +1727,13 @@ const Store = {
         }
       }
 
-      // 5. Standalone PWA Installed App Recovery (Only when running as an installed app)
+      // 5. Standalone PWA or LocalStorage Active Slug Recovery
       if (!urlSlug && typeof window !== 'undefined' && window.localStorage) {
-        const isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || 
-                             (window.navigator && window.navigator.standalone === true);
-        if (isStandalone) {
-          urlSlug = localStorage.getItem('harpy_customer_installed_slug') ||
-                    localStorage.getItem('harpy_admin_installed_slug');
-        }
+        urlSlug = localStorage.getItem('harpy_active_slug') ||
+                  localStorage.getItem('harpy_admin_active_slug') ||
+                  localStorage.getItem('harpy_customer_installed_slug') ||
+                  localStorage.getItem('harpy_admin_installed_slug') ||
+                  localStorage.getItem('harpy_last_visited_slug');
       }
 
       if (urlSlug) {
@@ -1589,7 +1747,7 @@ const Store = {
       }
     } catch {}
 
-    const fallbackSlug = 'demo';
+    const fallbackSlug = 'king';
     if (typeof window !== 'undefined') window.__harpySlug = fallbackSlug;
     return fallbackSlug;
   },
@@ -1632,6 +1790,21 @@ const Store = {
     return `harpy_${slug}_${baseKey}`;
   },
 
+  stripEmojiNoise(text) {
+    if (!text || typeof text !== 'string') return text || '';
+    try {
+      return text
+        .replace(/\p{Extended_Pictographic}/gu, '')
+        .replace(/[\uFE0E\uFE0F\u200D]/g, '')
+        .replace(/[\u2B50\u2700-\u27BF\uE000-\uF8FF\u2600-\u26FF]/g, '')
+        .replace(/^[•\s\-_–—]+/, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    } catch(e) {
+      return text.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uD000-\uDFFF]|\u2B50)/g, '').replace(/^[•\s\-_–—]+/, '').replace(/\s+/g, ' ').trim();
+    }
+  },
+
   getSettings() {
     if (this._memoryCache.settings !== null) {
       return this._memoryCache.settings;
@@ -1672,6 +1845,10 @@ const Store = {
       parsed.whatsappNumber = parsed.phone;
     }
     if (!parsed.printerPaperSize) parsed.printerPaperSize = "80mm";
+
+    if (parsed.storeName) parsed.storeName = this.stripEmojiNoise(parsed.storeName);
+    if (parsed.storeTagline) parsed.storeTagline = this.stripEmojiNoise(parsed.storeTagline);
+    if (parsed.announcementText) parsed.announcementText = this.stripEmojiNoise(parsed.announcementText);
 
     this._memoryCache.settings = parsed;
     return parsed;
@@ -1716,7 +1893,10 @@ const Store = {
       if (body) body.style.removeProperty(p);
     });
 
-    const primaryColor = s.siteColors?.primary || (mode === 'light' ? '#c2410c' : '#ea580c');
+    let primaryColor = s.siteColors?.primary;
+    if (!primaryColor || primaryColor === '#ea580c' || primaryColor === '#c2410c') {
+      primaryColor = '#FF6A00';
+    }
     root.style.setProperty('--primary', primaryColor);
     root.style.setProperty('--primary-hover', primaryColor);
     root.style.setProperty('--border-focus', primaryColor);
@@ -1737,10 +1917,24 @@ const Store = {
     root.style.setProperty('--primary-subtle', primarySubtle);
 
     if (s.siteColors) {
-      const c = s.siteColors;
+      const c = { ...s.siteColors };
+
+      // Upgrade legacy brown/charcoal palette to modern obsidian mockup palette
+      if (c.bg === '#120e0c') c.bg = '#070B13';
+      if (c.surface === '#1e1814') c.surface = '#0E1726';
+      if (c.surfaceRaised === '#28201a') c.surfaceRaised = '#142034';
+      if (c.headerBg === '#120e0c') c.headerBg = '#070B13';
+      if (c.textMain === '#faf6f0') c.textMain = '#ffffff';
+      if (c.textBody === '#d4c9ba') c.textBody = '#e2e8f0';
+
+      // Upgrade legacy warm cream to crisp modern daylight
+      if (c.bg === '#f8f6f0') c.bg = '#F8FAFC';
+      if (c.surfaceRaised === '#f3ede2') c.surfaceRaised = '#F8FAFC';
+      if (c.textMain === '#18130f') c.textMain = '#0F172A';
+      if (c.textBody === '#3d332a') c.textBody = '#334155';
 
       let isDarkPalette = true;
-      if (c.id === 'cream') {
+      if (c.id === 'cream' || c.bg === '#F8FAFC') {
         isDarkPalette = false;
       } else if (c.bg && c.bg.startsWith('#') && c.bg.length === 7) {
         const r = parseInt(c.bg.slice(1, 3), 16);
@@ -1752,8 +1946,6 @@ const Store = {
 
       // If in dark mode and palette is dark, OR in light mode and palette is light:
       // apply custom surfaces and backgrounds.
-      // In light mode with a dark preset, DO NOT override with dark bg/surfaces!
-      // Let :root[data-theme="light"] provide the clean luxury daylight background!
       const shouldApplyCustomSurfaces = (mode === 'dark' && isDarkPalette) || (mode === 'light' && !isDarkPalette);
 
       if (shouldApplyCustomSurfaces) {
@@ -1801,11 +1993,13 @@ const Store = {
       if (isDemo && (!res || res.length === 0)) {
         res = defaultCategories;
       }
+      res = res.map(c => this.stripEmojiNoise(typeof c === 'string' ? c : (c?.name || ''))).filter(Boolean);
       this._memoryCache.categories = res;
       return res;
     } catch {
-      this._memoryCache.categories = defaultCategories;
-      return defaultCategories;
+      const cleanDefaults = defaultCategories.map(c => this.stripEmojiNoise(typeof c === 'string' ? c : (c?.name || ''))).filter(Boolean);
+      this._memoryCache.categories = cleanDefaults;
+      return cleanDefaults;
     }
   },
 
@@ -1842,6 +2036,13 @@ const Store = {
       if (isDemo && (!res || res.length === 0)) {
         res = defaultProducts;
       }
+      res = res.map(p => {
+        if (!p || typeof p !== 'object') return p;
+        if (p.name) p.name = this.stripEmojiNoise(p.name);
+        if (p.badge) p.badge = this.stripEmojiNoise(p.badge);
+        if (p.category) p.category = this.stripEmojiNoise(p.category);
+        return p;
+      });
       this._memoryCache.products = res;
       return res;
     } catch {
@@ -1951,13 +2152,36 @@ const Store = {
     return this.getFavorites().includes(productId);
   },
 
-  getLastOrder() {
-    if (this._memoryCache.lastOrder !== null) {
+  getLastOrder(forceRefresh = false) {
+    if (!forceRefresh && this._memoryCache.lastOrder !== null) {
       return this._memoryCache.lastOrder;
     }
-    const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.LAST_ORDER));
+    let raw = localStorage.getItem(this.getKey(STORAGE_KEYS.LAST_ORDER));
+    if (!raw) {
+      raw = localStorage.getItem('harpy_last_order');
+    }
+    if (!raw && this.getRestaurantSlug() !== 'demo') {
+      raw = localStorage.getItem('harpy_demo_harpy_order_last_order');
+    }
     try {
       const res = raw ? JSON.parse(raw) : null;
+      if (res && res.orderId) {
+        const cleanId = String(res.orderId).replace(/[^a-zA-Z0-9_-]/g, '');
+        const lockRaw = localStorage.getItem('harpy_status_lock_' + cleanId);
+        if (lockRaw) {
+          try {
+            const lock = JSON.parse(lockRaw);
+            const statusRank = { pending: 1, preparing: 2, out_for_delivery: 3, delivered: 4, cancelled: 5 };
+            if (lock && lock.status && (statusRank[lock.status] || 1) > (statusRank[res.status] || 1)) {
+              res.status = lock.status;
+              if (lock.timestamp) {
+                res.updatedAt = new Date(lock.timestamp).toISOString();
+                res.timestampUpdated = lock.timestamp;
+              }
+            }
+          } catch(e) {}
+        }
+      }
       this._memoryCache.lastOrder = res;
       return res;
     } catch {
@@ -1968,11 +2192,39 @@ const Store = {
   saveLastOrder(orderData) {
     this._memoryCache.lastOrder = orderData;
     if (orderData) {
-      this.safeSetItem(this.getKey(STORAGE_KEYS.LAST_ORDER), JSON.stringify(orderData));
+      const json = JSON.stringify(orderData);
+      this.safeSetItem(this.getKey(STORAGE_KEYS.LAST_ORDER), json);
+      this.safeSetItem('harpy_last_order', json);
+      this.safeSetItem('harpy_demo_harpy_order_last_order', json);
+      this.addOrderToHistory(orderData);
     } else {
       localStorage.removeItem(this.getKey(STORAGE_KEYS.LAST_ORDER));
+      localStorage.removeItem('harpy_last_order');
+      localStorage.removeItem('harpy_demo_harpy_order_last_order');
     }
     window.dispatchEvent(new Event('store_last_order_updated'));
+  },
+
+  getOrderHistory() {
+    const raw = localStorage.getItem(this.getKey('harpy_order_history'));
+    try {
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  },
+
+  addOrderToHistory(orderData) {
+    if (!orderData || !orderData.orderId) return;
+    const history = this.getOrderHistory();
+    const existingIdx = history.findIndex(o => o.orderId === orderData.orderId);
+    if (existingIdx !== -1) {
+      history[existingIdx] = orderData;
+    } else {
+      history.unshift(orderData);
+    }
+    const trimmed = history.slice(0, 20);
+    this.safeSetItem(this.getKey('harpy_order_history'), JSON.stringify(trimmed));
   },
 
   getThemeModeKey() {
@@ -2012,6 +2264,18 @@ const Store = {
       if (isDemo && (!res || res.length === 0)) {
         res = defaultStories;
       }
+      if (Array.isArray(res)) {
+        res = res.map(st => {
+          if (!st || typeof st !== 'object') return st;
+          const copy = { ...st };
+          if (copy.title) copy.title = this.stripEmojiNoise(copy.title);
+          if (copy.badge) copy.badge = this.stripEmojiNoise(copy.badge);
+          if (copy.tagline) copy.tagline = this.stripEmojiNoise(copy.tagline);
+          if (copy.ctaText) copy.ctaText = this.stripEmojiNoise(copy.ctaText);
+          if (copy.headline) copy.headline = this.stripEmojiNoise(copy.headline);
+          return copy;
+        });
+      }
       this._memoryCache.stories = res;
       return res;
     } catch {
@@ -2046,11 +2310,12 @@ const Store = {
   },
 
   getSoundEnabled() {
-    const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.SOUND_ENABLED));
+    const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.SOUND_ENABLED)) || localStorage.getItem('harpy_sound_enabled');
     return raw === null ? true : raw === 'true';
   },
   setSoundEnabled(enabled) {
     this.safeSetItem(this.getKey(STORAGE_KEYS.SOUND_ENABLED), String(enabled));
+    this.safeSetItem('harpy_sound_enabled', String(enabled));
     window.dispatchEvent(new CustomEvent('store_sound_changed', { detail: enabled }));
   },
 

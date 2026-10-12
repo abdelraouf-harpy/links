@@ -34,7 +34,7 @@ window.renderPOSCategories = function() {
   const cats = Store.getCategories() || [];
   let html = `
     <button type="button" class="pos-cat-pill ${posCurrentCategory === 'all' ? 'active' : ''}" onclick="setPOSCategory('all')">
-      <span>🍽️</span>
+      
       <span>الكل</span>
     </button>
   `;
@@ -150,7 +150,7 @@ window.renderPOSProducts = function() {
           ${p.image ? `
             <img src="${p.image}" class="pos-card-img" alt="${p.name}" loading="lazy">
           ` : `
-            <div class="pos-card-img" style="display:flex; align-items:center; justify-content:center; font-size:26px; background:var(--surface);">🍽️</div>
+            <div class="pos-card-img" style="display:flex; align-items:center; justify-content:center; font-size:26px; background:var(--surface);"></div>
           `}
           ${hasMultipleSizes ? `<span class="pos-card-size-badge">عدة أحجام</span>` : ''}
         </div>
@@ -427,7 +427,7 @@ window.updatePOSCartUI = function() {
   if (posCart.length === 0) {
     container.innerHTML = `
       <div id="pos-empty-state" style="text-align:center; padding:10px 8px; color:var(--text-muted); font-size:11.5px;">
-        <div style="font-size:18px; margin-bottom:2px;">🛒</div>
+        <svg class="icon" viewBox="0 0 24 24" style="width:20px; height:20px;"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
         الفاتورة فارغة (اضغط على أي صنف لإضافته)
       </div>
     `;
@@ -443,7 +443,7 @@ window.updatePOSCartUI = function() {
             <div style="font-size:10px; color:var(--accent-wa);">+ ${it.selectedAddons.map(a => a.name).join('، ')}</div>
           ` : ''}
           ${it.notes ? `
-            <div style="font-size:10px; color:#f59e0b;">📝 ${it.notes}</div>
+            <div style="font-size:10px; color:#f59e0b;">${it.notes}</div>
           ` : ''}
           <div class="font-num" style="font-size:11.5px; font-weight:800; color:var(--primary); margin-top:2px;">
             ${(it.price * it.qty).toFixed(0)} ${currency}
@@ -454,7 +454,7 @@ window.updatePOSCartUI = function() {
           <button type="button" class="pos-qty-btn" onclick="changePOSItemQty('${it.cartItemId}', -1)">-</button>
           <span class="font-num" style="font-size:13px; font-weight:900; min-width:18px; text-align:center;">${it.qty}</span>
           <button type="button" class="pos-qty-btn" onclick="changePOSItemQty('${it.cartItemId}', 1)">+</button>
-          <button type="button" class="pos-ticket-del" onclick="removePOSItem('${it.cartItemId}')" title="حذف">✕</button>
+          <button type="button" class="pos-ticket-del" onclick="removePOSItem('${it.cartItemId}')" title="حذف"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
         </div>
       </div>
     `).join('');
@@ -691,7 +691,7 @@ window.submitPOSOrder = async function(printReceipt = true) {
   try {
     await Store.pushOrderToCloud(newOrder);
 
-    showToastNotification(`تم إرسال الطلب ${orderId} للمطبخ بنجاح! 👨‍🍳`, "success");
+    showToastNotification(`تم إرسال الطلب ${orderId} للمطبخ بنجاح!`, "success");
 
     if (printReceipt) {
       setTimeout(() => {

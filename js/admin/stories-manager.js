@@ -58,8 +58,8 @@ function renderStoriesList() {
         ${s.badge ? `<span style="font-size:10px; background:var(--primary-subtle); color:var(--primary); padding:1px 6px; border-radius:4px; font-weight:700;">${s.badge}</span>` : ''}
       </div>
       <div style="display:flex; flex-direction:column; gap:4px;">
-        <button class="btn btn-ghost btn-sm" onclick="openStoryModal('${s.id}')">✏️</button>
-        <button class="btn btn-ghost btn-sm" style="color:var(--danger);" onclick="deleteStoryFast('${s.id}')">🗑️</button>
+        <button class="btn btn-ghost btn-sm" onclick="openStoryModal('${s.id}')"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
+        <button class="btn btn-ghost btn-sm" style="color:var(--danger);" onclick="deleteStoryFast('${s.id}')"></button>
       </div>
     </div>
   `).join('');
@@ -135,7 +135,7 @@ async function saveStoryForm() {
 
   if (submitBtn) {
     submitBtn.disabled = true;
-    submitBtn.innerHTML = 'جاري الحفظ... ⏳';
+    submitBtn.innerHTML = 'جاري الحفظ...';
   }
 
   try {
@@ -150,10 +150,10 @@ async function saveStoryForm() {
           navigator.serviceWorker.controller.postMessage({ type: 'PURGE_IMAGE_URL', url: storyData.image });
         }
       }
-      showToastNotification("تم تحديث القصة بنجاح! ✓", "success");
+      showToastNotification("تم تحديث القصة بنجاح!", "success");
     } else {
       await Store.addStory(storyData);
-      showToastNotification("تمت إضافة القصة بنجاح! ✓", "success");
+      showToastNotification("تمت إضافة القصة بنجاح!", "success");
     }
     closeStoryModal();
     renderStoriesList();
@@ -171,15 +171,15 @@ window.deleteStoryFast = async function(id) {
   const confirmed = await showCustomConfirm({
     title: "حذف القصة / العرض",
     message: "هل أنت متأكد من رغبتك في حذف هذه القصة أو العرض الترويجي؟",
-    icon: "⭐",
-    confirmText: "حذف القصة 🗑️",
+    icon: "",
+    confirmText: "حذف القصة",
     cancelText: "إلغاء",
     isDanger: true
   });
   if (confirmed) {
     await Store.deleteStory(id);
     renderStoriesList();
-    showToastNotification("تم حذف القصة بنجاح ✓", "success");
+    showToastNotification("تم حذف القصة بنجاح", "success");
   }
 };
 
@@ -257,8 +257,8 @@ function renderPickerProducts() {
     const isSel = p.id === pickerSelectedProductId;
     return `
       <div class="product-picker-card ${isSel ? 'selected' : ''}" onclick="selectPickerProduct('${p.id}')">
-        <div class="product-picker-badge-check">✓</div>
-        <img src="${p.image || ''}" class="product-picker-card-thumb" alt="${p.name}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22><text y=%22.9em%22 font-size=%2232%22>🍽️</text></svg>'">
+        <div class="product-picker-badge-check"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <img src="${p.image || ''}" class="product-picker-card-thumb" alt="${p.name}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22><text y=%22.9em%22 font-size=%2232%22></text></svg>'">
         <div style="flex:1; min-width:0;">
           <div style="font-weight:800; font-size:13px; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.name}</div>
           <div style="font-size:11px; color:var(--text-muted); margin:2px 0;">${p.category}</div>
@@ -286,14 +286,14 @@ function updateStoryProductPickerUI(productId) {
   if (!productId) {
     trigger.classList.remove('has-selected');
     info.innerHTML = `
-      <span style="font-size:13px; font-weight:700; color:var(--text-muted);">🔍 اضغط لاختيار صنف من المنيو (بدون ربط حالياً)</span>
+      <span style="font-size:13px; font-weight:700; color:var(--text-muted);">اضغط لاختيار صنف من المنيو (بدون ربط حالياً)</span>
     `;
   } else {
     const p = Store.getProducts().find(prod => prod.id === productId);
     if (!p) {
       trigger.classList.remove('has-selected');
       info.innerHTML = `
-        <span style="font-size:13px; font-weight:700; color:var(--text-muted);">🔍 اضغط لاختيار صنف من المنيو (بدون ربط حالياً)</span>
+        <span style="font-size:13px; font-weight:700; color:var(--text-muted);">اضغط لاختيار صنف من المنيو (بدون ربط حالياً)</span>
       `;
       return;
     }
@@ -301,12 +301,12 @@ function updateStoryProductPickerUI(productId) {
     const currency = settings.currency || "ج.م";
     trigger.classList.add('has-selected');
     info.innerHTML = `
-      <img src="${p.image || ''}" class="product-picker-thumb" alt="${p.name}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22><text y=%22.9em%22 font-size=%2232%22>🍽️</text></svg>'">
+      <img src="${p.image || ''}" class="product-picker-thumb" alt="${p.name}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22><text y=%22.9em%22 font-size=%2232%22></text></svg>'">
       <div style="flex:1; min-width:0;">
         <div style="font-weight:800; font-size:13px; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.name}</div>
         <div style="font-size:11px; color:var(--text-muted);">${p.category} • <b style="color:var(--primary); font-family:var(--font-num);">${p.price} ${currency}</b></div>
       </div>
-      <button type="button" class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); selectPickerProduct('');" style="color:var(--danger); padding:4px 8px; border-radius:6px; font-size:11px; font-weight:800;" title="إلغاء الربط">✕ إزالة</button>
+      <button type="button" class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); selectPickerProduct('');" style="color:var(--danger); padding:4px 8px; border-radius:6px; font-size:11px; font-weight:800;" title="إلغاء الربط">إزالة</button>
     `;
   }
 }

@@ -62,7 +62,7 @@ function renderCatalog() {
 
     adminElements.catalogContainer.innerHTML = `
       <div style="grid-column:1/-1; text-align:center; padding:45px 20px; background:var(--surface); border:1px dashed var(--border-strong); border-radius:var(--radius-md);">
-        <div style="font-size:38px; margin-bottom:12px;">🍽️</div>
+        <div style="margin-bottom:12px;"><svg class="icon" viewBox="0 0 24 24" style="width:38px; height:38px; color:var(--text-muted);"><path d="M18 2v6a3 3 0 0 1-3 3 3 3 0 0 1-3-3V2"/><path d="M15 11v11"/><path d="M5 2v13a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V2"/><path d="M7 2v6"/><path d="M8 17v5"/></svg></div>
         <div style="font-size:16px; font-weight:800; color:var(--text-main); margin-bottom:6px;">لا توجد أصناف في المنيو بعد</div>
         <div style="font-size:12.5px; color:var(--text-muted); margin-bottom:20px; max-width:320px; margin-left:auto; margin-right:auto;">
           ابدأ بإضافة أول صنف أو وجبة في منيو مطعمك وحدد السعر والصورة والأقسام بسهولة
@@ -80,7 +80,7 @@ function renderCatalog() {
       <div style="position:relative; width:100%; height:140px; background:var(--bg);">
         <img src="${p.image}" alt="${p.name}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover;">
         ${p.badge ? `<span style="position:absolute; top:8px; right:8px; background:rgba(0,0,0,0.75); color:#fff; font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px;">${p.badge}</span>` : ''}
-        ${p.isFeatured ? `<span style="position:absolute; top:8px; left:8px; background:var(--primary); color:#fff; font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px;">👑 هيرو</span>` : ''}
+        ${p.isFeatured ? `<span style="position:absolute; top:8px; left:8px; background:var(--primary); color:#fff; font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px;">هيرو</span>` : ''}
       </div>
 
       <div style="padding:12px; flex:1; display:flex; flex-direction:column; justify-content:space-between;">
@@ -152,15 +152,15 @@ window.deleteProductFast = async function(id) {
   const confirmed = await showCustomConfirm({
     title: "حذف صنف من المنيو",
     message: `هل أنت متأكد من رغبتك في حذف الصنف "<strong>${name}</strong>" نهائياً من المنيو؟`,
-    icon: "🍔",
-    confirmText: "حذف الصنف 🗑️",
+    icon: "",
+    confirmText: "حذف الصنف",
     cancelText: "إلغاء",
     isDanger: true
   });
   if (confirmed) {
     await Store.deleteProduct(id);
     renderCatalog();
-    showToastNotification("تم حذف الصنف بنجاح ✓", "success");
+    showToastNotification("تم حذف الصنف بنجاح", "success");
   }
 };
 
@@ -244,7 +244,7 @@ function addSizeRow(name = '', price = 0) {
   div.innerHTML = `
     <input type="text" class="form-input size-name-input" placeholder="اسم الحجم (مثال: سنجل / لارج)" value="${name}" style="flex:1; padding:6px 10px; font-size:12px;">
     <input type="number" class="form-input font-num size-price-input" placeholder="+السعر" value="${price}" step="0.5" style="width:80px; padding:6px 8px; font-size:12px;">
-    <button type="button" class="btn btn-ghost btn-sm" style="color:var(--danger); padding:4px 8px;" onclick="this.parentElement.remove()">✕</button>
+    <button type="button" class="btn btn-ghost btn-sm" style="color:var(--danger); padding:4px 8px; display:inline-flex; align-items:center;" onclick="this.parentElement.remove()"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
   `;
   adminElements.prodSizesList.appendChild(div);
 }
@@ -259,7 +259,7 @@ function addAddonRow(name = '', price = 10) {
   div.innerHTML = `
     <input type="text" class="form-input addon-name-input" placeholder="اسم الإضافة (مثال: جبنة زيادة)" value="${name}" style="flex:1; padding:6px 10px; font-size:12px;">
     <input type="number" class="form-input font-num addon-price-input" placeholder="السعر" value="${price}" step="0.5" style="width:80px; padding:6px 8px; font-size:12px;">
-    <button type="button" class="btn btn-ghost btn-sm" style="color:var(--danger); padding:4px 8px;" onclick="this.parentElement.remove()">✕</button>
+    <button type="button" class="btn btn-ghost btn-sm" style="color:var(--danger); padding:4px 8px; display:inline-flex; align-items:center;" onclick="this.parentElement.remove()"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
   `;
   adminElements.prodAddonsList.appendChild(div);
 }
@@ -330,7 +330,7 @@ async function saveProductForm() {
 
   if (submitBtn) {
     submitBtn.disabled = true;
-    submitBtn.innerHTML = 'جاري الحفظ... ⏳';
+    submitBtn.innerHTML = 'جاري الحفظ...';
   }
 
   try {
@@ -345,10 +345,10 @@ async function saveProductForm() {
           navigator.serviceWorker.controller.postMessage({ type: 'PURGE_IMAGE_URL', url: productData.image });
         }
       }
-      showToastNotification("تم حفظ وتحديث بيانات الصنف بنجاح! ✓", "success");
+      showToastNotification("تم حفظ وتحديث بيانات الصنف بنجاح!", "success");
     } else {
       await Store.addProduct(productData);
-      showToastNotification("تمت إضافة الصنف الجديد بنجاح! ✓", "success");
+      showToastNotification("تمت إضافة الصنف الجديد بنجاح!", "success");
     }
     closeProductModal();
     renderCatalog();

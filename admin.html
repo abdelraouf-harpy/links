@@ -28,7 +28,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
   
   <!-- Favicons & High-Res App Icons -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%23ea580c'/%3E%3Cpath d='M30 75V25M70 75V25M30 50h40' stroke='%23ffffff' stroke-width='12' stroke-linecap='round'/%3E%3C/svg%3E">
   <link rel="apple-touch-icon" href="https://iili.io/n3rYXyu.png">
   
   <!-- Android & Modern PWA Meta -->
@@ -41,9 +41,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Admin">
 
-  <link rel="stylesheet" href="css/order-tokens.css?v=68.0">
-  <link rel="stylesheet" href="css/order-client.css?v=68.0">
-  <link rel="stylesheet" href="css/order-admin.css?v=68.0">
+  <link rel="stylesheet" href="css/order-tokens.css?v=77.0">
+  <link rel="stylesheet" href="css/order-client.css?v=77.0">
+  <link rel="stylesheet" href="css/order-admin.css?v=77.0">
   <script>
     // Instant zero-delay theme toggle available immediately on page paint
     window.handleThemeToggle = function() {
@@ -104,7 +104,7 @@
 
         // Clean default: on harpymenu.com/admin without ?m=, always load demo restaurant if nothing stored
         if (!slug) {
-          slug = 'demo';
+          slug = 'king';
         }
         slug = slug.toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
         window.__harpySlug = slug;
@@ -306,7 +306,7 @@
       </div>
       <div id="login-error-msg" style="display:none; color:var(--danger); font-size:0.82rem; margin-bottom:12px; font-weight:700; text-align:center; background:rgba(239,68,68,0.1); padding:8px; border-radius:6px;"></div>
       <button type="submit" id="btn-login" class="btn btn-primary" style="width:100%; padding:12px; font-size:0.95rem; font-weight:800;">
-        دخول لوحة التحكم 🚀
+        دخول لوحة التحكم
       </button>
     </form>
   </div>
@@ -373,10 +373,10 @@
         <!-- Mobile Segmented View Switcher (Menu vs Ticket) -->
         <div class="pos-mobile-toggle">
           <button type="button" class="pos-mobile-tab-btn active" id="btn-pos-tab-menu" onclick="switchPOSMobileTab('menu')">
-            <span>🍽️ الأصناف والمنيو</span>
+            <span>الأصناف والمنيو</span>
           </button>
           <button type="button" class="pos-mobile-tab-btn" id="btn-pos-tab-ticket" onclick="switchPOSMobileTab('ticket')">
-            <span>🛒 الفاتورة والدفع</span>
+            <span>الفاتورة والدفع</span>
             <span id="pos-tab-badge" class="pos-badge-bubble">0</span>
           </button>
         </div>
@@ -387,10 +387,10 @@
             <!-- Search Bar & Mobile Quick Reset Row -->
             <div class="pos-search-row">
               <div class="pos-search-input-wrap">
-                <input type="text" id="pos-search-input" class="form-input" placeholder="🔍 بحث سريع عن وجبة، صنف، أو مشروب..." oninput="handlePOSSearch(this.value)">
+                <input type="text" id="pos-search-input" class="form-input" placeholder="بحث سريع عن وجبة، صنف، أو مشروب..." oninput="handlePOSSearch(this.value)">
               </div>
               <button type="button" class="btn btn-ghost pos-mobile-quick-reset" onclick="resetPOSCart(true)" title="تفريغ وبدء فاتورة جديدة">
-                <span>🧹</span>
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/></svg>
                 <span>فاتورة جديدة</span>
               </button>
             </div>
@@ -416,11 +416,11 @@
             <!-- Order Type Selector -->
             <div class="pos-type-toggle">
               <button type="button" id="pos-type-dinein-btn" class="pos-type-btn active" onclick="setPOSOrderType('dine_in')">
-                <span>🍽️</span>
+                
                 <span>صالة (طاولة)</span>
               </button>
               <button type="button" id="pos-type-takeaway-btn" class="pos-type-btn" onclick="setPOSOrderType('takeaway')">
-                <span>🥡</span>
+                
                 <span>سفري (تيك أواي)</span>
               </button>
             </div>
@@ -450,7 +450,7 @@
             <div id="pos-ticket-items" class="pos-ticket-items">
               <!-- Empty state default -->
               <div id="pos-empty-state" style="text-align:center; padding:8px; color:var(--text-muted); font-size:11.5px;">
-                <span style="font-size:18px; display:inline-block; margin-bottom:2px;">🛒</span>
+                <svg class="icon" viewBox="0 0 24 24" style="width:20px; height:20px;"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
                 <div>الفاتورة فارغة (اضغط على أي صنف لإضافته)</div>
               </div>
             </div>
@@ -459,14 +459,14 @@
             <div class="pos-ticket-footer">
               <!-- Note input -->
               <div style="margin-bottom:3px;">
-                <input type="text" id="pos-order-note" class="form-input" placeholder="📝 ملاحظات خاصة (بدون بصل، ثلج زيادة...)" style="font-size:11px; padding:4px 8px; height:26px;">
+                <input type="text" id="pos-order-note" class="form-input" placeholder="ملاحظات خاصة (بدون بصل، ثلج زيادة...)" style="font-size:11px; padding:4px 8px; height:26px;">
               </div>
 
               <!-- Discount Quick Selector Box -->
               <div class="pos-discount-box" style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:4px 8px; margin-bottom:4px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px;">
                   <span style="font-size:10.5px; font-weight:800; color:var(--text-main); display:inline-flex; align-items:center; gap:4px;">
-                    <span>🏷️</span>
+                    <span>كوبون:</span>
                     <span>نظام الخصم:</span>
                   </span>
                   <span id="pos-discount-tag" class="pos-discount-tag-badge" style="display:none; font-size:10px; font-weight:900; background:#dcfce7; color:#15803d; padding:1px 5px; border-radius:5px;">خصم 0%</span>
@@ -509,20 +509,20 @@
                   <span style="font-size:10px; font-weight:800; color:var(--text-muted);">طريقة الدفع:</span>
                 </div>
                 <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:3px;">
-                  <button type="button" class="btn btn-sm pos-pay-method-btn active" id="pos-pay-cash-btn" data-pay="cash" onclick="setPOSPayMethod('cash')">💵 كاش</button>
-                  <button type="button" class="btn btn-sm pos-pay-method-btn" id="pos-pay-card-btn" data-pay="card" onclick="setPOSPayMethod('card')">💳 فيزا</button>
-                  <button type="button" class="btn btn-sm pos-pay-method-btn" id="pos-pay-wallet-btn" data-pay="wallet" onclick="setPOSPayMethod('wallet')">📱 محفظة</button>
+                  <button type="button" class="btn btn-sm pos-pay-method-btn active" id="pos-pay-cash-btn" data-pay="cash" onclick="setPOSPayMethod('cash')">نقداً (كاش)</button>
+                  <button type="button" class="btn btn-sm pos-pay-method-btn" id="pos-pay-card-btn" data-pay="card" onclick="setPOSPayMethod('card')">فيزا / بطاقة</button>
+                  <button type="button" class="btn btn-sm pos-pay-method-btn" id="pos-pay-wallet-btn" data-pay="wallet" onclick="setPOSPayMethod('wallet')">محفظة إلكترونية</button>
                 </div>
               </div>
 
               <!-- Action Buttons -->
               <div style="display:flex; gap:6px; margin-top:4px;">
                 <button type="button" id="btn-pos-submit-print" class="btn btn-primary" onclick="submitPOSOrder(true)" style="flex:1; padding:9px 10px; font-size:12.5px; font-weight:900; display:flex; align-items:center; justify-content:center; gap:6px; border-radius:8px; box-shadow:0 3px 10px rgba(234,88,12,0.3); cursor:pointer;">
-                  <span style="font-size:15px;">🖨️</span>
+                  <svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
                   <span>حفظ وإرسال للمطبخ وطباعة</span>
                 </button>
                 <button type="button" class="btn btn-ghost" onclick="resetPOSCart(true)" style="padding:9px 10px; font-size:11.5px; font-weight:700; border:1px solid var(--border); color:var(--text-muted); border-radius:8px;" title="تفريغ الفاتورة">
-                  <span>🗑️ تفريغ</span>
+                  <span>تفريغ السلة</span>
                 </button>
               </div>
             </div>
@@ -532,7 +532,7 @@
         <!-- Mobile Floating Quick Cart Bar -->
         <div id="pos-mobile-cart-bar" class="pos-mobile-cart-bar" onclick="scrollPOSToTicket()">
           <div style="display:flex; align-items:center; gap:8px;">
-            <span style="font-size:22px;">🛒</span>
+            <svg class="icon" viewBox="0 0 24 24" style="width:24px; height:24px;"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
             <div>
               <div id="pos-mobile-items-text" style="font-size:12.5px; font-weight:900; color:#fff;">0 صنف بالفاتورة</div>
               <div style="font-size:10px; color:rgba(255,255,255,0.85);">اضغط للمراجعة والدفع</div>
@@ -551,7 +551,7 @@
       <div class="admin-card">
                 <div style="display:flex; justify-content:flex-end; align-items:center; margin-bottom:14px; gap:12px; flex-wrap:wrap;">
           <button type="button" id="btn-toggle-wake-lock" class="btn-wake-lock-toggle" onclick="toggleKitchenWakeLock()" title="منع إطفاء الشاشة أثناء العمل في المطبخ">
-            <span class="wake-lock-bulb">💡</span>
+            <span class="wake-lock-bulb"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 2v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="M2 12h4"/><path d="m4.93 19.07 2.83-2.83"/><path d="M12 18v4"/><path d="m19.07 19.07-2.83-2.83"/><path d="M18 12h4"/><path d="m19.07 4.93-2.83 2.83"/></svg></span>
             <span id="wake-lock-label">إبقاء الشاشة مضاءة</span>
             <span id="wake-lock-status-dot" class="wake-lock-dot"></span>
           </button>
@@ -568,15 +568,15 @@
             <div id="stat-active-orders" class="font-num" style="font-size:20px; font-weight:900; color:var(--text-main); margin-top:3px;">0</div>
           </div>
           <div class="kitchen-stat-card" style="background:var(--surface); border:1px solid var(--border); padding:12px; border-radius:var(--radius-sm); text-align:center;">
-            <div style="font-size:11px; color:var(--text-muted); font-weight:700;">1. استلام الطلب 📥</div>
+            <div style="font-size:11px; color:var(--text-muted); font-weight:700;">1. استلام الطلب</div>
             <div id="stat-pending-orders" class="font-num" style="font-size:20px; font-weight:900; color:#f59e0b; margin-top:3px;">0</div>
           </div>
           <div class="kitchen-stat-card" style="background:var(--surface); border:1px solid var(--border); padding:12px; border-radius:var(--radius-sm); text-align:center;">
-            <div style="font-size:11px; color:var(--text-muted); font-weight:700;">2. المطبخ يجهز 👨‍🍳</div>
+            <div style="font-size:11px; color:var(--text-muted); font-weight:700;">2. المطبخ يجهز</div>
             <div id="stat-preparing-orders" class="font-num" style="font-size:20px; font-weight:900; color:#3b82f6; margin-top:3px;">0</div>
           </div>
           <div class="kitchen-stat-card" style="background:var(--surface); border:1px solid var(--border); padding:12px; border-radius:var(--radius-sm); text-align:center;">
-            <div style="font-size:11px; color:var(--text-muted); font-weight:700;">3. في الطريق 🛵</div>
+            <div style="font-size:11px; color:var(--text-muted); font-weight:700;">3. في الطريق / جاهز</div>
             <div id="stat-delivery-orders" class="font-num" style="font-size:20px; font-weight:900; color:#a855f7; margin-top:3px;">0</div>
           </div>
         </div>
@@ -584,9 +584,9 @@
         <!-- Kitchen Status Filter Chips -->
         <div class="kitchen-filters-row" style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
           <button type="button" class="btn btn-sm btn-filter-kitchen active" data-kitchen-filter="all" onclick="filterKitchenOrders('all')">جميع النشطة (<span id="count-filter-all">0</span>)</button>
-          <button type="button" class="btn btn-sm btn-filter-kitchen" data-kitchen-filter="pending" onclick="filterKitchenOrders('pending')">1. استلام الطلب 📥 (<span id="count-filter-pending">0</span>)</button>
-          <button type="button" class="btn btn-sm btn-filter-kitchen" data-kitchen-filter="preparing" onclick="filterKitchenOrders('preparing')">2. المطبخ يجهز 👨‍🍳 (<span id="count-filter-preparing">0</span>)</button>
-          <button type="button" class="btn btn-sm btn-filter-kitchen" data-kitchen-filter="out_for_delivery" onclick="filterKitchenOrders('out_for_delivery')">3. في الطريق 🛵 (<span id="count-filter-delivery">0</span>)</button>
+          <button type="button" class="btn btn-sm btn-filter-kitchen" data-kitchen-filter="pending" onclick="filterKitchenOrders('pending')">1. استلام الطلب (<span id="count-filter-pending">0</span>)</button>
+          <button type="button" class="btn btn-sm btn-filter-kitchen" data-kitchen-filter="preparing" onclick="filterKitchenOrders('preparing')">2. المطبخ يجهز (<span id="count-filter-preparing">0</span>)</button>
+          <button type="button" class="btn btn-sm btn-filter-kitchen" data-kitchen-filter="out_for_delivery" onclick="filterKitchenOrders('out_for_delivery')">3. في الطريق / جاهز (<span id="count-filter-delivery">0</span>)</button>
         </div>
 
         <!-- Active Orders List Container -->
@@ -618,14 +618,14 @@
         <!-- Archive Search & Filter Bar -->
         <div style="display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap; align-items:center;">
           <div style="flex:1; min-width:240px; position:relative;">
-            <input type="text" id="archive-search-input" class="form-input" placeholder="🔍 بحث برقم الفاتورة، اسم العميل، أو رقم الهاتف..." oninput="handleArchiveSearch(this.value)">
+            <input type="text" id="archive-search-input" class="form-input" placeholder="بحث برقم الفاتورة، اسم العميل، أو رقم الهاتف..." oninput="handleArchiveSearch(this.value)">
           </div>
           <div class="archive-filters-row" style="display:flex; gap:6px; flex-wrap:wrap;">
-            <button type="button" class="btn btn-sm btn-filter-archive active" data-archive-filter="delivered" onclick="filterArchiveOrders('delivered')">مسلّمة ✅</button>
-            <button type="button" class="btn btn-sm btn-filter-archive" data-archive-filter="dine_in" onclick="filterArchiveOrders('dine_in')">🍽️ صالة</button>
-            <button type="button" class="btn btn-sm btn-filter-archive" data-archive-filter="takeaway" onclick="filterArchiveOrders('takeaway')">🥡 سفري</button>
-            <button type="button" class="btn btn-sm btn-filter-archive" data-archive-filter="delivery" onclick="filterArchiveOrders('delivery')">🛵 ديليفري</button>
-            <button type="button" class="btn btn-sm btn-filter-archive" data-archive-filter="cancelled" onclick="filterArchiveOrders('cancelled')">ملغاة ✕</button>
+            <button type="button" class="btn btn-sm btn-filter-archive active" data-archive-filter="delivered" onclick="filterArchiveOrders('delivered')">مسلّمة</button>
+            <button type="button" class="btn btn-sm btn-filter-archive" data-archive-filter="dine_in" onclick="filterArchiveOrders('dine_in')">صالة</button>
+            <button type="button" class="btn btn-sm btn-filter-archive" data-archive-filter="takeaway" onclick="filterArchiveOrders('takeaway')">سفري</button>
+            <button type="button" class="btn btn-sm btn-filter-archive" data-archive-filter="delivery" onclick="filterArchiveOrders('delivery')">ديليفري</button>
+            <button type="button" class="btn btn-sm btn-filter-archive" data-archive-filter="cancelled" onclick="filterArchiveOrders('cancelled')">ملغاة</button>
             <button type="button" class="btn btn-sm btn-filter-archive" data-archive-filter="all" onclick="filterArchiveOrders('all')">عرض الكل</button>
           </div>
         </div>
@@ -642,7 +642,7 @@
         <div class="cat-action-banner" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px 20px; margin-bottom:24px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
           <div style="display:flex; align-items:center; gap:12px;">
             <div style="width:42px; height:42px; border-radius:10px; background:var(--primary-subtle); color:var(--primary); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;">
-              📂
+              
             </div>
             <div>
               <div style="font-size:15px; font-weight:800; color:var(--text-main);">أقسام وتصنيفات المنيو</div>
@@ -684,7 +684,7 @@
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:16px;">
           <!-- Export Card -->
           <div style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:18px;">
-            <div style="font-size:15px; font-weight:800; color:var(--text-main); margin-bottom:8px;">تصدير نسخة احتياطية 📥</div>
+            <div style="font-size:15px; font-weight:800; color:var(--text-main); margin-bottom:8px;">تصدير نسخة احتياطية</div>
             <p style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">تحميل ملف JSON كامل يحتوي على كل بيانات المنيو الخاصة بك.</p>
             <button id="btn-export-backup" class="btn btn-primary" style="width:100%; font-weight:800;">
               تحميل ملف النسخة الاحتياطية (JSON)
@@ -693,7 +693,7 @@
 
           <!-- Import Card -->
           <div style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:18px;">
-            <div style="font-size:15px; font-weight:800; color:var(--text-main); margin-bottom:8px;">استرجاع من ملف 📤</div>
+            <div style="font-size:15px; font-weight:800; color:var(--text-main); margin-bottom:8px;">استرجاع من ملف احتياطي</div>
             <p style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">رفع ملف النسخة الاحتياطية لتحديث المنيو واسترجاع الأصناف فوراً.</p>
             <label class="btn btn-ghost" style="width:100%; border:1px solid var(--border-strong); cursor:pointer; text-align:center; display:block; font-weight:800;">
               اختر ملف النسخة الاحتياطية
@@ -743,7 +743,7 @@
               <span id="copy-store-link-text">نسخ الرابط</span>
             </button>
             <a id="btn-open-store-link" href="#" target="_blank" class="btn btn-ghost btn-sm" style="border:1px solid var(--border); font-weight:800; font-size:12px; border-radius:10px; display:inline-flex; align-items:center; gap:6px;">
-              <span>👁️</span>
+              <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
               <span>فتح المنيو</span>
             </a>
           </div>
@@ -766,12 +766,21 @@
             </div>
           </div>
 
-          <!-- Color Studio -->
-          <div style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:18px; margin-bottom:18px;">
-            <div style="font-size:14px; font-weight:800; color:var(--text-main); margin-bottom:12px;">
-              <span>قوالب ألوان وهوية المنيو</span>
+          <!-- Day / Night Theme Toggle Row in Settings -->
+          <div style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:16px 18px; margin-bottom:18px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+            <div>
+              <div style="font-size:14px; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:6px;">
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
+                <span>مظهر لوحة التحكم (الوضع الليلي والنهاري)</span>
+              </div>
+              <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">
+                التبديل بين الوضع الداكن والوضع الفاتح بلمسة واحدة
+              </div>
             </div>
-            <div id="theme-presets-grid" class="theme-presets-grid"></div>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="handleThemeToggle()" style="border:1px solid var(--border); font-weight:800; padding:6px 14px; border-radius:var(--radius-xs); display:inline-flex; align-items:center; gap:6px; cursor:pointer; background:var(--surface);">
+              <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
+              <span>تبديل المظهر (ليلي / نهاري)</span>
+            </button>
           </div>
 
           <!-- Automatic Multi-Discount Matrix -->
@@ -877,7 +886,7 @@
                 </div>
                 <div class="device-preview-wrapper" id="logo-preview-wrap">
                   <img id="logo-preview-img" class="device-preview-thumb" alt="Logo Preview">
-                  <button type="button" id="btn-remove-logo" class="device-preview-remove-btn">✕</button>
+                  <button type="button" id="btn-remove-logo" class="device-preview-remove-btn"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                 </div>
               </div>
               <input type="hidden" id="set-logo-url">
@@ -898,7 +907,7 @@
                 </div>
                 <div class="device-preview-wrapper" id="cover-preview-wrap">
                   <img id="cover-preview-img" class="device-preview-thumb" alt="Cover Preview">
-                  <button type="button" id="btn-remove-cover" class="device-preview-remove-btn">✕</button>
+                  <button type="button" id="btn-remove-cover" class="device-preview-remove-btn"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                 </div>
               </div>
               <input type="hidden" id="set-cover-url">
@@ -926,6 +935,82 @@
             <div class="form-group">
               <label class="form-label">وقت التوصيل المتوقع</label>
               <input type="text" id="set-delivery-time" class="form-input" placeholder="مثال: 30-45 دقيقة">
+            </div>
+          </div>
+
+          <!-- Theme Mode Setting: Clean Day / Night Toggle -->
+          <div class="admin-theme-toggle-row" style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:16px 18px; margin-top:16px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+            <div>
+              <div style="font-size:14px; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:8px;">
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
+                <span>مظهر لوحة التحكم (الوضع الليلي والنهاري)</span>
+              </div>
+              <div style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">
+                التبديل الفوري بين الوضع النهاري الفاتح والوضع الليلي الداكن الفاخر
+              </div>
+            </div>
+            <button type="button" class="btn btn-ghost" onclick="window.handleThemeToggle && window.handleThemeToggle()" style="border:1.5px solid var(--border-strong); padding:8px 18px; font-weight:800; font-size:12.5px; border-radius:999px; display:inline-flex; align-items:center; gap:8px; cursor:pointer; background:var(--surface);">
+              <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
+              <span>تبديل المظهر (ليلي / نهاري)</span>
+            </button>
+          </div>
+
+          <!-- Restaurant Portfolio & Landing Page Studio -->
+          <div style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:18px; margin-top:16px;">
+            <div style="font-size:14.5px; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:6px; margin-bottom:8px;">
+              <svg class="icon icon-sm" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <span>بيانات ومعلومات الصفحة الرئيسية (بورتفوليو المطعم)</span>
+            </div>
+            <p style="font-size:12px; color:var(--text-muted); line-height:1.5; margin-bottom:14px;">
+              تظهر هذه البيانات للعملاء عند الضغط على تبويب "الرئيسية" في شريط التنقل السفلي لعرض قصة مطعمك، مواعيد العمل، والعنوان.
+            </p>
+
+            <div class="form-group">
+              <label class="form-label">عن المطعم وقصتنا (نبذة تعريفية)</label>
+              <textarea id="set-about-text" class="form-input" rows="3" placeholder="نقدم لكم أشهى وألذ المأكولات المحضرة يومياً بأعلى معايير الجودة والنظافة..."></textarea>
+            </div>
+
+            <!-- Portfolio Hero Background Image Uploader -->
+            <div class="form-group">
+              <label class="form-label">صورة خلفية الصفحة الرئيسية (صورة بورتفوليو المطعم الكبيرة)</label>
+              <div class="device-image-uploader" id="portfolio-bg-dropzone">
+                <input type="file" id="set-portfolio-bg-file" accept="image/*" class="device-image-input">
+                <div class="device-image-prompt" id="portfolio-bg-prompt">
+                  <div class="device-image-icon">
+                    <svg class="icon" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.08-3.08a2 2 0 0 0-2.82 0L6 21"/></svg>
+                  </div>
+                  <div class="device-image-title">اختر صورة الخلفية من جهازك</div>
+                  <div class="device-image-sub">صورة أفقية واضحة للمطعم أو الأجواء (1920x1080 مستحسنة)</div>
+                </div>
+                <div class="device-image-preview" id="portfolio-bg-preview-wrap" style="display:none;">
+                  <img id="portfolio-bg-preview-img" src="" alt="معاينة الخلفية">
+                  <button type="button" class="btn-remove-image" id="btn-remove-portfolio-bg" title="حذف الصورة"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                </div>
+              </div>
+              <input type="hidden" id="set-portfolio-bg-url">
+              <input type="url" id="set-portfolio-bg-url-direct" class="form-input" placeholder="أو الصق رابط صورة الخلفية مباشرة (https://...)" style="margin-top:8px; font-size:12px; font-family:inherit;">
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
+              <div class="form-group">
+                <label class="form-label">مواعيد العمل والاستقبال</label>
+                <input type="text" id="set-working-hours" class="form-input" placeholder="يومياً من 11:00 صباحاً حتى 2:00 صباحاً">
+              </div>
+              <div class="form-group">
+                <label class="form-label">رقم الهاتف للاتصال المباشر</label>
+                <input type="tel" id="set-phone" class="form-input font-num" placeholder="010xxxxxxxx">
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-bottom:0;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">عنوان الفرع أو المكان</label>
+                <input type="text" id="set-address" class="form-input" placeholder="مثال: شارع التحرير، الدقي، الجيزة">
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">رابط موقع الفرع في خرائط Google</label>
+                <input type="url" id="set-location-url" class="form-input font-num" placeholder="https://maps.app.goo.gl/...">
+              </div>
             </div>
           </div>
 
@@ -1001,7 +1086,7 @@
             <div class="form-group" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
               <div>
                 <label for="set-ordering-paused" style="font-size:0.92rem; font-weight:800; color:var(--text-main); cursor:pointer; display:flex; align-items:center; gap:6px;">
-                  <span>🛑</span> إيقاف استقبال الطلبات مؤقتاً (المطعم مغلق حالياً)
+                  إيقاف استقبال الطلبات مؤقتاً (المطعم مغلق حالياً)
                 </label>
                 <div style="font-size:11.5px; color:var(--text-muted); margin-top:3px;">
                   يتيح للعملاء تصفح المنيو والأسعار بحرية، ولكن عند محاولة طلب أي وجبة تظهر لهم رسالة توضيحية بمواعيد العمل.
@@ -1018,7 +1103,7 @@
           <!-- Thermal Printer Paper Size Setting -->
           <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:16px; margin-top:16px;">
             <div style="font-size:0.92rem; font-weight:800; color:var(--text-main); margin-bottom:4px; display:flex; align-items:center; gap:6px;">
-              <span>🖨️</span> مقاس طابعة الفواتير الحرارية (رول الورق)
+              مقاس طابعة الفواتير الحرارية (رول الورق)
             </div>
             <div style="font-size:11.5px; color:var(--text-muted); margin-bottom:12px;">
               اختر مقاس الطابعة الحرارية المستخدمة في الكاشير والمطبخ لضبط أبعاد وهوامش البون تلقائياً دون أي اقتطاع.
@@ -1046,7 +1131,7 @@
   <div class="modal-box" id="product-modal" style="max-width:580px; max-height:90vh; overflow-y:auto;">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
       <h3 id="product-modal-title" style="font-size:1.05rem; font-weight:900; color:var(--text-main);">إضافة صنف جديد</h3>
-      <button class="btn-close" id="btn-close-product-modal">✕</button>
+      <button class="btn-close" id="btn-close-product-modal"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     </div>
 
     <form id="product-form">
@@ -1134,7 +1219,7 @@
           </div>
           <div class="device-preview-wrapper" id="prod-preview-wrap">
             <img id="prod-preview-img" class="device-preview-thumb" alt="Product Preview">
-            <button type="button" id="btn-remove-prod-img" class="device-preview-remove-btn">✕</button>
+            <button type="button" id="btn-remove-prod-img" class="device-preview-remove-btn"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
           </div>
         </div>
         <input type="hidden" id="prod-img-url">
@@ -1152,7 +1237,7 @@
   <div class="modal-box" id="story-modal" style="max-width:480px; max-height:90vh; overflow-y:auto;">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
       <h3 id="story-modal-title" style="font-size:1.05rem; font-weight:900; color:var(--text-main);">إضافة قصة / عرض جديد</h3>
-      <button class="btn-close" id="btn-close-story-modal">✕</button>
+      <button class="btn-close" id="btn-close-story-modal"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     </div>
 
     <form id="story-form">
@@ -1182,7 +1267,7 @@
         <select id="story-product-select" style="display:none;"></select>
         <div class="product-picker-trigger" id="story-product-picker-trigger" onclick="openStoryProductPicker()">
           <div class="product-picker-selected-info" id="story-picker-selected-info">
-            <span style="font-size:13px; font-weight:700; color:var(--text-muted);">🔍 اضغط لاختيار صنف من المنيو (بدون ربط حالياً)</span>
+            <span style="font-size:13px; font-weight:700; color:var(--text-muted);">اضغط لاختيار صنف من المنيو (بدون ربط حالياً)</span>
           </div>
           <span style="font-size:12px; font-weight:800; color:var(--primary); white-space:nowrap;">تغيير ▾</span>
         </div>
@@ -1207,7 +1292,7 @@
           </div>
           <div class="device-preview-wrapper" id="story-preview-wrap">
             <img id="story-preview-img" class="device-preview-thumb" alt="Story Preview">
-            <button type="button" id="btn-remove-story-img" class="device-preview-remove-btn">✕</button>
+            <button type="button" id="btn-remove-story-img" class="device-preview-remove-btn"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
           </div>
         </div>
         <input type="hidden" id="story-img-url">
@@ -1229,13 +1314,13 @@
         <div class="status-sheet-title">تحديث حالة الطلب <span id="status-sheet-order-id" class="font-num" style="color:var(--primary);">#ORD-0000</span></div>
         <div class="status-sheet-sub">اختر المرحلة الحالية ليتم إخطار الزبون وتحديث شاشة التتبع فورياً:</div>
       </div>
-      <button type="button" class="btn-close-sheet" onclick="closeStatusSheet()" aria-label="إغلاق">✕</button>
+      <button type="button" class="btn-close-sheet" onclick="closeStatusSheet()" aria-label="إغلاق"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     </div>
 
     <div class="status-options-grid">
       <!-- Stage 1 -->
       <button type="button" class="status-option-tile" data-status="pending" onclick="selectOrderStatus('pending')">
-        <div class="status-option-icon" style="background:rgba(245,158,11,0.15); color:#f59e0b;">📥</div>
+        <div class="status-option-icon" style="background:rgba(245,158,11,0.15); color:#f59e0b;"><svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div>
         <div class="status-option-info">
           <div class="status-option-name">1. تم استلام الطلب (قيد المراجعة)</div>
           <div class="status-option-desc">الطلب وصل المطعم وفي انتظار البدء والتأكيد</div>
@@ -1245,7 +1330,7 @@
 
       <!-- Stage 2 -->
       <button type="button" class="status-option-tile" data-status="preparing" onclick="selectOrderStatus('preparing')">
-        <div class="status-option-icon" style="background:rgba(59,130,246,0.15); color:#3b82f6;">👨‍🍳</div>
+        <div class="status-option-icon" style="background:rgba(59,130,246,0.15); color:#3b82f6;"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M18 2v6a3 3 0 0 1-3 3 3 3 0 0 1-3-3V2"/><path d="M15 11v11"/><path d="M5 2v13a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V2"/><path d="M7 2v6"/><path d="M8 17v5"/></svg></div>
         <div class="status-option-info">
           <div class="status-option-name">2. المطبخ يجهز طلبك الآن</div>
           <div class="status-option-desc">طهاة المطعم بدأوا في تجهيز وطهي الوجبات</div>
@@ -1255,7 +1340,7 @@
 
       <!-- Stage 3 -->
       <button type="button" class="status-option-tile" data-status="out_for_delivery" onclick="selectOrderStatus('out_for_delivery')">
-        <div class="status-option-icon" style="background:rgba(168,85,247,0.15); color:#a855f7;">🛵</div>
+        <div class="status-option-icon" style="background:rgba(168,85,247,0.15); color:#a855f7;"><svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/></svg></div>
         <div class="status-option-info">
           <div class="status-option-name">3. الطلب في الطريق إليك</div>
           <div class="status-option-desc">الكابتن استلم الأوردر وهو في طريقه لعنوان العميل</div>
@@ -1265,7 +1350,7 @@
 
       <!-- Stage 4 -->
       <button type="button" class="status-option-tile" data-status="delivered" onclick="selectOrderStatus('delivered')">
-        <div class="status-option-icon" style="background:rgba(34,197,94,0.15); color:#22c55e;">✅</div>
+        <div class="status-option-icon" style="background:rgba(34,197,94,0.15); color:#22c55e;"><svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
         <div class="status-option-info">
           <div class="status-option-name">4. تم التسليم بالهناء والشفاء</div>
           <div class="status-option-desc">تم تسليم الوجبات بنجاح وتحصيل الحساب</div>
@@ -1275,7 +1360,7 @@
 
       <!-- Cancel Stage -->
       <button type="button" class="status-option-tile cancel-tile" data-status="cancelled" onclick="selectOrderStatus('cancelled')">
-        <div class="status-option-icon" style="background:rgba(239,68,68,0.15); color:#ef4444;">✕</div>
+        <div class="status-option-icon" style="background:rgba(239,68,68,0.15); color:#ef4444;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div>
         <div class="status-option-info">
           <div class="status-option-name" style="color:var(--danger);">إلغاء الطلب</div>
           <div class="status-option-desc">إيقاف تجهيز هذا الطلب</div>
@@ -1290,9 +1375,9 @@
   <div id="receipt-lightbox" class="receipt-lightbox-dialog">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid var(--border); padding-bottom:10px;">
       <h3 style="margin:0; font-size:1.05rem; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:8px;">
-        <span>📸</span> إيصال تحويل فودافون كاش / إنستاباي
+        <svg class="icon icon-sm" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg> إيصال تحويل فودافون كاش / إنستاباي
       </h3>
-      <button type="button" class="btn-close-sheet" onclick="closeReceiptModal()" aria-label="إغلاق">✕</button>
+      <button type="button" class="btn-close-sheet" onclick="closeReceiptModal()" aria-label="إغلاق"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     </div>
     <div id="receipt-lightbox-wrap" style="border-radius:var(--radius-sm); overflow:hidden; background:#000; max-height:58vh; display:flex; align-items:center; justify-content:center; border:1px solid var(--border-strong); cursor:pointer;" onclick="toggleReceiptImageZoom()" title="اضغط للتكبير / التصغير">
       <img id="receipt-lightbox-img" src="" alt="Receipt Image" style="max-width:100%; max-height:56vh; object-fit:contain; display:block; transition:transform 0.2s ease;">
@@ -1303,7 +1388,7 @@
           فتح الصورة بالحجم الكامل ↗
         </button>
         <button type="button" class="btn btn-ghost btn-sm" onclick="toggleReceiptImageZoom()" style="font-weight:700; font-size:0.85rem; padding:8px 12px; border:1px solid var(--border);">
-          🔍 تكبير / تصغير
+          تكبير / تصغير
         </button>
       </div>
       <button type="button" class="btn btn-ghost btn-sm" onclick="closeReceiptModal()" style="font-weight:700;">إغلاق</button>
@@ -1313,8 +1398,8 @@
   <!-- ═══ LUXURY BRANDED CONFIRMATION MODAL ═════════════════ -->
   <div id="custom-confirm-backdrop" class="status-sheet-backdrop" onclick="closeCustomConfirm(false)"></div>
   <div id="custom-confirm-modal" class="custom-confirm-dialog">
-    <div id="custom-confirm-icon" style="width: 52px; height: 52px; border-radius: 50%; background: rgba(239, 68, 68, 0.15); color: #ef4444; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 12px auto;">
-      🗑️
+    <div id="custom-confirm-icon" style="width: 52px; height: 52px; border-radius: 50%; background: rgba(239, 68, 68, 0.15); color: #ef4444; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;">
+      <svg class="icon" viewBox="0 0 24 24" style="width:26px; height:26px;"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/></svg>
     </div>
     <h3 id="custom-confirm-title" style="margin: 0 0 8px 0; font-size: 1.1rem; font-weight: 900; color: var(--text-main); text-align: center;">
       تأكيد الحذف
@@ -1324,7 +1409,7 @@
     </div>
     <div style="display: flex; gap: 10px;">
       <button type="button" id="btn-custom-confirm-accept" class="btn btn-danger" style="flex: 1; padding: 12px; font-weight: 800; font-size: 0.88rem; border-radius: var(--radius-sm); background: var(--danger); color: #fff; border: none; cursor: pointer;">
-        تأكيد الحذف 🗑️
+        تأكيد الحذف
       </button>
       <button type="button" class="btn btn-ghost" onclick="closeCustomConfirm(false)" style="flex: 1; padding: 12px; font-weight: 700; font-size: 0.88rem; border-radius: var(--radius-sm); border: 1px solid var(--border); cursor: pointer;">
         إلغاء
@@ -1335,8 +1420,8 @@
   <!-- Secure Password Confirmation Modal for Archive Deletion -->
   <div class="modal-backdrop" id="archive-pwd-backdrop" onclick="closeArchivePwdModal()"></div>
   <div class="modal-box" id="archive-pwd-modal" style="max-width:390px; text-align:center;">
-    <div style="width:58px; height:58px; border-radius:50%; background:rgba(239, 68, 68, 0.12); color:var(--danger); display:flex; align-items:center; justify-content:center; margin:0 auto 14px; font-size:26px;">
-      🔒
+    <div style="width:58px; height:58px; border-radius:50%; background:rgba(239, 68, 68, 0.12); color:var(--danger); display:flex; align-items:center; justify-content:center; margin:0 auto 14px;">
+      <svg class="icon" viewBox="0 0 24 24" style="width:28px; height:28px;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     </div>
     <h3 style="font-size:1.18rem; font-weight:900; color:var(--text-main); margin-bottom:6px;">تأكيد كلمة المرور للحذف</h3>
     <p style="font-size:0.83rem; color:var(--text-muted); line-height:1.6; margin-bottom:16px;">
@@ -1353,7 +1438,7 @@
       </div>
       <div style="display:flex; gap:10px;">
         <button type="button" id="btn-confirm-archive-pwd-delete" class="btn btn-danger" onclick="executeArchivePasswordDelete()" style="flex:1; padding:11px; font-weight:800; font-size:0.9rem;">
-          تأكيد الحذف 🗑️
+          تأكيد الحذف
         </button>
         <button type="button" class="btn btn-ghost" onclick="closeArchivePwdModal()" style="flex:1; padding:11px; font-weight:700; font-size:0.9rem; border:1px solid var(--border);">
           إلغاء
@@ -1365,8 +1450,8 @@
   <!-- Secure Password Confirmation Modal for Factory Reset -->
   <div class="modal-backdrop" id="factory-reset-pwd-backdrop" onclick="closeFactoryResetPwdModal()"></div>
   <div class="modal-box" id="factory-reset-pwd-modal" style="max-width:400px; text-align:center;">
-    <div style="width:58px; height:58px; border-radius:50%; background:rgba(239, 68, 68, 0.12); color:var(--danger); display:flex; align-items:center; justify-content:center; margin:0 auto 14px; font-size:26px;">
-      ⚠️
+    <div style="width:58px; height:58px; border-radius:50%; background:rgba(239, 68, 68, 0.12); color:var(--danger); display:flex; align-items:center; justify-content:center; margin:0 auto 14px;">
+      <svg class="icon" viewBox="0 0 24 24" style="width:28px; height:28px;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
     </div>
     <h3 style="font-size:1.18rem; font-weight:900; color:var(--text-main); margin-bottom:6px;">تأكيد استعادة إعدادات المصنع</h3>
     <p style="font-size:0.83rem; color:var(--text-muted); line-height:1.6; margin-bottom:16px;">
@@ -1383,7 +1468,7 @@
       </div>
       <div style="display:flex; gap:10px;">
         <button type="button" id="btn-confirm-factory-reset-pwd" class="btn btn-danger" onclick="executeFactoryResetWithPassword()" style="flex:1; padding:11px; font-weight:800; font-size:0.9rem;">
-          تأكيد استعادة المصنع ⚠️
+          تأكيد استعادة المصنع
         </button>
         <button type="button" class="btn btn-ghost" onclick="closeFactoryResetPwdModal()" style="flex:1; padding:11px; font-weight:700; font-size:0.9rem; border:1px solid var(--border);">
           إلغاء
@@ -1397,14 +1482,14 @@
   <div class="modal-box" id="pos-item-modal" style="max-width:420px; text-align:right;">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border);">
       <h3 id="pos-item-modal-title" style="font-size:1.05rem; font-weight:900; color:var(--text-main);">تخصيص الصنف</h3>
-      <button type="button" class="btn-close" onclick="closePOSItemModal()">✕</button>
+      <button type="button" class="btn-close" onclick="closePOSItemModal()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     </div>
     <div id="pos-item-modal-body" style="max-height:60vh; overflow-y:auto; margin-bottom:14px;">
       <!-- Populated dynamically via JS -->
     </div>
     <div style="display:flex; gap:10px;">
       <button type="button" id="btn-pos-add-item-confirm" class="btn btn-primary" onclick="confirmPOSItemCustomization()" style="flex:1; padding:11px; font-weight:800; font-size:0.9rem;">
-        إضافة إلى الفاتورة 🛒
+        إضافة إلى الفاتورة
       </button>
       <button type="button" class="btn btn-ghost" onclick="closePOSItemModal()" style="flex:1; padding:11px; font-weight:700; font-size:0.9rem; border:1px solid var(--border);">
         إلغاء
@@ -1417,20 +1502,20 @@
   <div class="modal-box" id="category-edit-modal" style="max-width:400px; text-align:right;">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border);">
       <h3 style="font-size:1.05rem; font-weight:900; color:var(--text-main);">تعديل اسم ورمز القسم</h3>
-      <button type="button" class="btn-close" onclick="closeCategoryEditModal()">✕</button>
+      <button type="button" class="btn-close" onclick="closeCategoryEditModal()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     </div>
     <form id="category-edit-form" onsubmit="saveCategoryEdit(); return false;">
       <input type="hidden" id="edit-cat-index" value="">
       <div class="form-group" style="margin-bottom:14px;">
         <label class="form-label" style="font-size:12px; margin-bottom:6px; font-weight:800;">اسم القسم والرمز التعبيري (Emoji)</label>
-        <input type="text" id="edit-cat-name-input" class="form-input" placeholder="مثال: 🌯 الكريب والصاج" required autofocus>
+        <input type="text" id="edit-cat-name-input" class="form-input" placeholder="مثال: الكريب والصاج" required autofocus>
         <p style="font-size:11px; color:var(--text-muted); margin-top:5px; line-height:1.4;">
           سيتم تحديث كافة المنتجات المرتبطة بهذا القسم تلقائياً دون أي فقدان للبيانات.
         </p>
       </div>
       <div style="display:flex; gap:10px;">
         <button type="submit" id="btn-save-cat-edit" class="btn btn-primary" style="flex:1; padding:11px; font-weight:800; font-size:0.9rem;">
-          حفظ التعديل ✓
+          حفظ التعديل
         </button>
         <button type="button" class="btn btn-ghost" onclick="closeCategoryEditModal()" style="flex:1; padding:11px; font-weight:700; font-size:0.9rem; border:1px solid var(--border);">
           إلغاء
@@ -1447,11 +1532,11 @@
         <h3 style="font-size:1.1rem; font-weight:900; color:var(--text-main);">ربط القصة بصنف من المنيو</h3>
         <p style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">اختر الصنف للطلب المباشر عند مشاهدة القصة</p>
       </div>
-      <button type="button" class="btn-close" onclick="closeStoryProductPicker()">✕</button>
+      <button type="button" class="btn-close" onclick="closeStoryProductPicker()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     </div>
     
     <div style="margin-bottom:10px;">
-      <input type="text" id="picker-search-input" class="form-input" placeholder="🔍 ابحث عن صنف بالاسم أو الوصف..." oninput="filterPickerProducts()" style="padding:9px 12px; font-size:13px;">
+      <input type="text" id="picker-search-input" class="form-input" placeholder="ابحث عن صنف بالاسم أو الوصف..." oninput="filterPickerProducts()" style="padding:9px 12px; font-size:13px;">
     </div>
     
     <div id="picker-cat-pills" style="display:flex; gap:6px; overflow-x:auto; padding-bottom:8px; margin-bottom:8px; scrollbar-width:none;">
@@ -1460,7 +1545,7 @@
 
     <div style="margin-bottom:10px;">
       <button type="button" class="btn btn-ghost btn-sm" onclick="selectPickerProduct('')" style="width:100%; border:1.5px dashed var(--border); padding:8px; font-weight:800; color:var(--text-muted); border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; gap:6px;">
-        <span>🚫 بدون ربط بصنف (قصة ترويجية عامة)</span>
+        <span>بدون ربط بصنف (قصة ترويجية عامة)</span>
       </button>
     </div>
 
@@ -1472,7 +1557,7 @@
   <!-- POS Clear Cart Confirmation Modal -->
   <div class="modal-backdrop" id="pos-clear-confirm-backdrop" onclick="closePOSClearModal(false)"></div>
   <div class="modal-box pos-confirm-box" id="pos-clear-confirm-modal" style="max-width:380px;">
-    <div class="pos-confirm-icon-wrap">🗑️</div>
+    <div class="pos-confirm-icon-wrap"><svg class="icon" viewBox="0 0 24 24" style="width:36px; height:36px;"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/></svg></div>
     <h3 style="font-size:1.15rem; font-weight:900; color:var(--text-main); margin-bottom:8px;">تفريغ الفاتورة الحالية؟</h3>
     <p style="font-size:13px; color:var(--text-muted); margin-bottom:18px; line-height:1.5;">
       هل أنت متأكد من مسح جميع الأصناف والبيانات في شاشة الكاشير والبدء بفاتورة جديدة؟
@@ -1490,15 +1575,15 @@
   <!-- Subscription Suspended Overlay for Admin -->
   <div id="subscription-suspended-backdrop" class="harpy-lock-backdrop"></div>
   <div id="subscription-suspended-overlay" class="harpy-lock-modal">
-    <div id="admin-sub-suspended-icon" style="width:68px; height:68px; border-radius:50%; background:rgba(239,68,68,0.12); color:var(--danger); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:32px;">
-      ❄️
+    <div id="admin-sub-suspended-icon" style="width:68px; height:68px; border-radius:50%; background:rgba(239,68,68,0.12); color:var(--danger); display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+      <svg class="icon" viewBox="0 0 24 24" style="width:32px; height:32px; stroke-width:2;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     </div>
     <h3 id="admin-sub-suspended-title" style="font-size:1.22rem; font-weight:900; color:var(--text-main); margin-bottom:8px;">حساب المطعم مجمّد / موقوف مؤقتاً</h3>
     <p id="admin-sub-suspended-msg" style="font-size:0.88rem; color:var(--text-muted); line-height:1.65; margin-bottom:22px;">
       تم تجميد وإيقاف اشتراك هذا المطعم مؤقتاً من قبل الإدارة. يرجى التواصل لإلغاء التجميد والتفعيل.
     </p>
     <a id="admin-sub-contact-btn" href="#" target="_blank" class="btn btn-primary" style="width:100%; padding:13px; font-weight:800; text-decoration:none; display:inline-block; font-size:0.92rem; border-radius:var(--radius-sm);">
-      💬 تواصل مع الإدارة للتفعيل والتجديد
+      تواصل مع الإدارة للتفعيل والتجديد
     </a>
   </div>
 
@@ -1538,19 +1623,19 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=68.0"></script>
-  <script src="js/core/sound-effects.js?v=68.0"></script>
-  <script src="js/store.js?v=68.0"></script>
-  <script src="js/admin/admin-core.js?v=68.0"></script>
-  <script src="js/admin/admin-auth.js?v=68.0"></script>
-  <script src="js/admin/kitchen-orders.js?v=68.0"></script>
-  <script src="js/admin/catalog-manager.js?v=68.0"></script>
-  <script src="js/admin/category-manager.js?v=68.0"></script>
-  <script src="js/admin/stories-manager.js?v=68.0"></script>
-  <script src="js/admin/backup-restore.js?v=68.0"></script>
-  <script src="js/admin/settings-manager.js?v=68.0"></script>
-  <script src="js/admin/pos-terminal.js?v=68.0"></script>
-  <script src="js/admin.js?v=68.0"></script>
-  <script src="js/pwa.js?v=68.0"></script>
+  <script src="js/core/demo-seed-data.js?v=77.0"></script>
+  <script src="js/core/sound-effects.js?v=77.0"></script>
+  <script src="js/store.js?v=77.0"></script>
+  <script src="js/admin/admin-core.js?v=77.0"></script>
+  <script src="js/admin/admin-auth.js?v=77.0"></script>
+  <script src="js/admin/kitchen-orders.js?v=77.0"></script>
+  <script src="js/admin/catalog-manager.js?v=77.0"></script>
+  <script src="js/admin/category-manager.js?v=77.0"></script>
+  <script src="js/admin/stories-manager.js?v=77.0"></script>
+  <script src="js/admin/backup-restore.js?v=77.0"></script>
+  <script src="js/admin/settings-manager.js?v=77.0"></script>
+  <script src="js/admin/pos-terminal.js?v=77.0"></script>
+  <script src="js/admin.js?v=77.0"></script>
+  <script src="js/pwa.js?v=77.0"></script>
 </body>
 </html>

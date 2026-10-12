@@ -4,6 +4,7 @@
 
 let logoImageUploader = null;
 let coverImageUploader = null;
+let portfolioBgImageUploader = null;
 
 // ── Settings & Identity Studio ─────────────────────────────
 function setupSettingsForm() {
@@ -29,6 +30,17 @@ function setupSettingsForm() {
     directUrlInputId: 'set-cover-url-direct'
   });
 
+  portfolioBgImageUploader = bindDeviceImageUploader({
+    dropzoneId: 'portfolio-bg-dropzone',
+    fileInputId: 'set-portfolio-bg-file',
+    promptId: 'portfolio-bg-prompt',
+    previewWrapId: 'portfolio-bg-preview-wrap',
+    previewImgId: 'portfolio-bg-preview-img',
+    removeBtnId: 'btn-remove-portfolio-bg',
+    hiddenUrlInputId: 'set-portfolio-bg-url',
+    directUrlInputId: 'set-portfolio-bg-url-direct'
+  });
+
   if (adminElements.themePresetsGrid) {
     adminElements.themePresetsGrid.innerHTML = Object.values(THEME_PRESETS).map(preset => `
       <div class="theme-preset-card" data-preset="${preset.id}" onclick="applyPresetToPickers('${preset.id}')" style="cursor:pointer; transition:all 0.18s ease; position:relative; overflow:hidden;">
@@ -37,7 +49,7 @@ function setupSettingsForm() {
             <span style="width:14px; height:14px; border-radius:50%; background:${preset.primary}; display:inline-block; border:1px solid rgba(255,255,255,0.25);"></span>
             <span style="font-size:12.5px; font-weight:800; color:var(--text-main);">${preset.name}</span>
           </div>
-          <span class="preset-check-badge" style="font-size:11px; font-weight:900; color:var(--primary); background:var(--primary-glow, rgba(234,88,12,0.15)); padding:2px 6px; border-radius:10px; opacity:0; transition:all 0.2s;">✓ مختار</span>
+          <span class="preset-check-badge" style="font-size:11px; font-weight:900; color:var(--primary); background:var(--primary-glow, rgba(234,88,12,0.15)); padding:2px 8px; border-radius:10px; opacity:0; transition:all 0.2s; display:inline-flex; align-items:center; gap:4px;"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> <span>مختار</span></span>
         </div>
         <div style="font-size:11px; color:var(--text-muted);">${preset.badge}</div>
       </div>
@@ -73,7 +85,7 @@ function setupSettingsForm() {
       if (adminElements.newPromoCode) adminElements.newPromoCode.value = '';
       if (adminElements.newPromoVal) adminElements.newPromoVal.value = '';
       renderPromoCodesList(settings.promoCodes);
-      showToastNotification("تمت إضافة كود الخصم بنجاح! ✓", "success");
+      showToastNotification("تمت إضافة كود الخصم بنجاح!", "success");
     });
   }
 
@@ -120,7 +132,7 @@ function setupSettingsForm() {
       if (adminElements.newZoneFee) adminElements.newZoneFee.value = '';
 
       renderDeliveryZonesList(settings.deliverySettings.customZones);
-      showToastNotification(`تمت إضافة نطاق "${name}" بسعر ${fee} ج.م بنجاح! ✓`, "success");
+      showToastNotification(`تمت إضافة نطاق "${name}" بسعر ${fee} ج.م بنجاح!`, "success");
     });
   }
 
@@ -222,6 +234,15 @@ function loadSettingsIntoForm() {
     else coverImageUploader.clearPreview();
   }
 
+  const pBgInput = document.getElementById('set-portfolio-bg-url');
+  if (pBgInput) pBgInput.value = s.portfolioHeroBg || '';
+  const pBgDirectInput = document.getElementById('set-portfolio-bg-url-direct');
+  if (pBgDirectInput) pBgDirectInput.value = (s.portfolioHeroBg && s.portfolioHeroBg.startsWith('http')) ? s.portfolioHeroBg : '';
+  if (portfolioBgImageUploader) {
+    if (s.portfolioHeroBg) portfolioBgImageUploader.showPreview(s.portfolioHeroBg);
+    else portfolioBgImageUploader.clearPreview();
+  }
+
   if (adminElements.setEnableWalletDiscount) adminElements.setEnableWalletDiscount.checked = s.enableWalletDiscount !== false;
   if (adminElements.setWalletDiscountType) adminElements.setWalletDiscountType.value = s.walletDiscountType || 'percent';
   if (adminElements.setWalletDiscountVal) adminElements.setWalletDiscountVal.value = s.walletDiscountValue !== undefined ? s.walletDiscountValue : 10;
@@ -236,6 +257,17 @@ function loadSettingsIntoForm() {
   if (adminElements.setAnnouncementText) adminElements.setAnnouncementText.value = s.announcementText || '';
   if (adminElements.setOrderingPaused) adminElements.setOrderingPaused.checked = s.isOrderingPaused === true;
   if (adminElements.setOrderingPausedMsg) adminElements.setOrderingPausedMsg.value = s.orderingPausedMessage || '';
+
+  const aboutInput = document.getElementById('set-about-text');
+  if (aboutInput) aboutInput.value = s.aboutText || '';
+  const hoursInput = document.getElementById('set-working-hours');
+  if (hoursInput) hoursInput.value = s.workingHours || '';
+  const phoneInput = document.getElementById('set-phone');
+  if (phoneInput) phoneInput.value = s.phone || '';
+  const addrInput = document.getElementById('set-address');
+  if (addrInput) addrInput.value = s.address || '';
+  const locInput = document.getElementById('set-location-url');
+  if (locInput) locInput.value = s.locationUrl || '';
 
   const ds = s.deliverySettings || { defaultFee: (s.deliveryFee !== undefined ? s.deliveryFee : 15), customZones: [] };
   if (adminElements.setDefaultDeliveryFee) {
@@ -268,7 +300,7 @@ function renderDeliveryZonesList(zones = []) {
           الكلمات: <span style="color:var(--text-body); font-weight:600;">${(z.keywords || []).join('، ')}</span>
         </div>
       </div>
-      <button type="button" class="btn btn-ghost btn-sm" style="color:var(--danger); padding:4px 8px; font-weight:800; flex-shrink:0;" onclick="deleteDeliveryZoneFast(${idx})">✕ حذف</button>
+      <button type="button" class="btn btn-ghost btn-sm" style="color:var(--danger); padding:4px 8px; font-weight:800; flex-shrink:0;" onclick="deleteDeliveryZoneFast(${idx})">حذف</button>
     </div>
   `).join('');
 }
@@ -280,7 +312,7 @@ window.deleteDeliveryZoneFast = async function(index) {
   settings.deliverySettings.customZones.splice(index, 1);
   await Store.saveSettings(settings);
   renderDeliveryZonesList(settings.deliverySettings.customZones);
-  showToastNotification("تم حذف النطاق السعري بنجاح ✓", "success");
+  showToastNotification("تم حذف النطاق السعري بنجاح", "success");
 };
 
 function renderPromoCodesList(promos) {
@@ -289,7 +321,7 @@ function renderPromoCodesList(promos) {
     <div style="display:flex; align-items:center; gap:6px; background:var(--surface); border:1px solid var(--border); padding:4px 10px; border-radius:4px; font-size:12px;">
       <span class="font-num" style="font-weight:800; color:var(--primary);">${p.code}</span>
       <span style="color:var(--text-muted);">(${p.value}${p.type === 'percent' ? '%' : ' ج.م'})</span>
-      <button type="button" class="btn btn-ghost btn-sm" style="color:var(--danger); padding:0 4px;" onclick="deletePromoFast(${idx})">✕</button>
+      <button type="button" class="btn btn-ghost btn-sm" style="color:var(--danger); padding:0 4px; display:inline-flex; align-items:center;" onclick="deletePromoFast(${idx})"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     </div>
   `).join('');
 }
@@ -299,7 +331,7 @@ window.deletePromoFast = async function(index) {
   settings.promoCodes.splice(index, 1);
   await Store.saveSettings(settings);
   renderPromoCodesList(settings.promoCodes);
-  showToastNotification("تم حذف كود الخصم ✓", "success");
+  showToastNotification("تم حذف كود الخصم", "success");
 };
 
 async function saveSettingsFromForm() {
@@ -315,7 +347,7 @@ async function saveSettingsFromForm() {
 
   if (submitBtn) {
     submitBtn.disabled = true;
-    submitBtn.innerHTML = 'جاري حفظ الإعدادات... ⏳';
+    submitBtn.innerHTML = 'جاري حفظ الإعدادات...';
   }
 
   try {
@@ -330,7 +362,7 @@ async function saveSettingsFromForm() {
     }
     if (cleanLogo && cleanLogo.startsWith('data:image/')) {
       try {
-        if (submitBtn) submitBtn.innerHTML = 'جاري رفع الشعار إلى سحابة الصور... ⏳';
+        if (submitBtn) submitBtn.innerHTML = 'جاري رفع الشعار إلى سحابة الصور...';
         const cdnUrl = await Store.uploadImage(cleanLogo);
         if (cdnUrl && cdnUrl.startsWith('http')) {
           cleanLogo = cdnUrl;
@@ -340,6 +372,11 @@ async function saveSettingsFromForm() {
       } catch (err) {
         console.warn('[Admin] CDN logo upload error on save:', err);
       }
+    }
+
+    let cleanPortfolioBg = (document.getElementById('set-portfolio-bg-url')?.value || '').trim();
+    if (!cleanPortfolioBg && document.getElementById('set-portfolio-bg-url-direct')) {
+      cleanPortfolioBg = (document.getElementById('set-portfolio-bg-url-direct').value || '').trim();
     }
 
     const updated = {
@@ -352,6 +389,7 @@ async function saveSettingsFromForm() {
       walletName: (adminElements.setWalletName?.value || '').trim(),
       logo: cleanLogo,
       cover: (document.getElementById('set-cover-url')?.value || '').trim(),
+      portfolioHeroBg: cleanPortfolioBg,
       imgbbApiKey: current.imgbbApiKey || '',
 
       deliveryTime: (adminElements.setDeliveryTime?.value || '').trim() || '30-45 دقيقة',
@@ -359,6 +397,12 @@ async function saveSettingsFromForm() {
       announcementText: (adminElements.setAnnouncementText?.value || '').trim(),
       isOrderingPaused: adminElements.setOrderingPaused?.checked === true,
       orderingPausedMessage: (adminElements.setOrderingPausedMsg?.value || '').trim(),
+
+      aboutText: (document.getElementById('set-about-text')?.value || '').trim(),
+      workingHours: (document.getElementById('set-working-hours')?.value || '').trim(),
+      phone: (document.getElementById('set-phone')?.value || '').trim(),
+      address: (document.getElementById('set-address')?.value || '').trim(),
+      locationUrl: (document.getElementById('set-location-url')?.value || '').trim(),
 
       themePreset: activePresetId,
       siteColors: siteColors,
@@ -382,9 +426,9 @@ async function saveSettingsFromForm() {
 
     const res = await Store.saveSettings(updated);
     if (res && res.success) {
-      showToastNotification("تم حفظ وتحديث كافة الإعدادات بنجاح! ✓", "success");
+      showToastNotification("تم حفظ وتحديث كافة الإعدادات بنجاح!", "success");
     } else {
-      showToastNotification("تم حفظ وتحديث الإعدادات بنجاح! ✓", "success");
+      showToastNotification("تم حفظ وتحديث الإعدادات بنجاح!", "success");
     }
     loadSettingsIntoForm();
     checkOnboardingSetup();

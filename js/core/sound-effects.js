@@ -158,6 +158,19 @@
     window.playKitchenOrderChime = function() {
       SoundFX.playKitchenChime();
     };
+
+    // Auto-unlock Web Audio on first user interaction (touch/click/keypress)
+    const unlockAudio = () => {
+      try {
+        SoundFX._ensureAudioContext();
+      } catch(e) {}
+      window.removeEventListener('click', unlockAudio);
+      window.removeEventListener('touchstart', unlockAudio);
+      window.removeEventListener('keydown', unlockAudio);
+    };
+    window.addEventListener('click', unlockAudio, { once: true, passive: true });
+    window.addEventListener('touchstart', unlockAudio, { once: true, passive: true });
+    window.addEventListener('keydown', unlockAudio, { once: true, passive: true });
   }
 
   if (typeof module !== 'undefined' && module.exports) {
