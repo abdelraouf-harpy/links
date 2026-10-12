@@ -578,9 +578,6 @@ const Store = {
 
   isAdminAuthenticated(slug) {
     const activeSlug = slug || this.getRestaurantSlug();
-    if (this.isSubscriptionSuspended(activeSlug)) {
-      return false;
-    }
     const localSession = localStorage.getItem(`harpy_admin_auth_${activeSlug}`);
     if (localSession) {
       try {
@@ -620,13 +617,6 @@ const Store = {
     const isDemo = (slug === 'demo');
 
     if (!data || typeof data !== 'object') {
-      if (!isDemo && data === null) {
-        this.purgeRestaurantCache(slug);
-        try { localStorage.setItem(`harpy_${slug}_sub_status`, 'deleted'); } catch(e) {}
-        window.dispatchEvent(new CustomEvent('harpy_subscription_status', { 
-          detail: { active: false, reason: 'deleted', lic: null } 
-        }));
-      }
       return false;
     }
 
@@ -2481,11 +2471,8 @@ const Store = {
       let reason = 'active';
       const isDemo = (slug === 'demo');
 
-      if (!isDemo && (lic === null || lic === undefined)) {
-        isDeleted = true;
-        isBlocked = true;
-        reason = 'deleted';
-      } else if (lic) {
+      // Strict Guard: Only evaluate if an explicit license object is present; NEVER declare deleted on network null/transient state!
+      if (lic && typeof lic === 'object') {
         if (lic.status === 'suspended' || lic.status === 'blocked' || lic.status === 'inactive') {
           isBlocked = true;
           reason = 'blocked';
@@ -2503,23 +2490,23 @@ const Store = {
         }
       }
 
-      if (subSettings && (subSettings.status === 'suspended' || subSettings.status === 'blocked' || subSettings.status === 'deleted')) {
-        isBlocked = true;
-        if (subSettings.status === 'deleted') {
+      if (subSettings && typeof subSettings === 'object') {
+        if (subSettings.status === 'suspended' || subSettings.status === 'blocked') {
+          isBlocked = true;
+          if (reason === 'active') reason = 'blocked';
+        } else if (subSettings.status === 'deleted') {
           isDeleted = true;
           reason = 'deleted';
-        } else if (reason === 'active') {
-          reason = 'blocked';
         }
       }
 
-      if (meta && (meta.status === 'suspended' || meta.status === 'blocked' || meta.status === 'deleted')) {
-        isBlocked = true;
-        if (meta.status === 'deleted') {
+      if (meta && typeof meta === 'object') {
+        if (meta.status === 'suspended' || meta.status === 'blocked') {
+          isBlocked = true;
+          if (reason === 'active') reason = 'blocked';
+        } else if (meta.status === 'deleted') {
           isDeleted = true;
           reason = 'deleted';
-        } else if (reason === 'active') {
-          reason = 'blocked';
         }
       }
 
@@ -2529,9 +2516,6 @@ const Store = {
           reason = isDeleted ? 'deleted' : (isBlocked ? 'blocked' : 'expired');
         }
         try { localStorage.setItem(`harpy_${slug}_sub_status`, reason); } catch(e) {}
-        if (isDeleted) {
-          this.purgeRestaurantCache(slug);
-        }
       } else {
         try { localStorage.setItem(`harpy_${slug}_sub_status`, 'active'); } catch(e) {}
       }
@@ -2552,7 +2536,10 @@ const Store = {
       if (db) {
         licRef = db.ref(`licenses/${slug}`);
         wsCallback = snap => {
-          evaluateLicense(snap.val());
+          const val = snap ? snap.val() : null;
+          if (val && typeof val === 'object') {
+            evaluateLicense(val);
+          }
         };
         licRef.on('value', wsCallback, err => {
           console.warn("[Store] License WS notice:", err);
@@ -2569,12 +2556,12 @@ const Store = {
       try {
         const licRes = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${slug}.json`, { cache: 'no-store' }).catch(() => null);
 
-        let licData = null;
         if (licRes && licRes.ok) {
-          licData = await licRes.json();
+          const licData = await licRes.json();
+          if (licData && typeof licData === 'object') {
+            evaluateLicense(licData, null, null);
+          }
         }
-
-        evaluateLicense(licData, null, null);
       } catch (e) {}
     };
 

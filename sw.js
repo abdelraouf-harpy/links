@@ -1,5 +1,5 @@
 // Order PWA Service Worker — Native App Shell & Offline Engine
-const CACHE_NAME = 'order-pwa-v83.0';
+const CACHE_NAME = 'order-pwa-v84.0';
 const IMAGE_CACHE_NAME = 'order-images-v2';
 const ASSETS_TO_CACHE = [
   './',
@@ -253,11 +253,16 @@ self.addEventListener('fetch', (event) => {
         if (networkResponse && networkResponse.status === 404) {
           const accept = event.request.headers.get('accept') || '';
           if (accept.includes('text/html') || event.request.mode === 'navigate') {
-            if (event.request.url.includes('/admin')) {
-              return caches.match('./admin.html', { ignoreSearch: true }).then(r => r || networkResponse);
+            const reqUrlLower = event.request.url.toLowerCase();
+            if (reqUrlLower.includes('admin')) {
+              return caches.match('./admin.html', { ignoreSearch: true })
+                .then(r => r || caches.match('admin.html', { ignoreSearch: true }))
+                .then(r => r || networkResponse);
             }
-            if (event.request.url.includes('m=') || event.request.url.includes('/order')) {
-              return caches.match('./order.html', { ignoreSearch: true }).then(r => r || networkResponse);
+            if (reqUrlLower.includes('/order') || reqUrlLower.includes('order.html') || reqUrlLower.includes('m=')) {
+              return caches.match('./order.html', { ignoreSearch: true })
+                .then(r => r || caches.match('order.html', { ignoreSearch: true }))
+                .then(r => r || networkResponse);
             }
             return caches.match('./index.html', { ignoreSearch: true }).then(r => r || networkResponse);
           }
@@ -268,11 +273,14 @@ self.addEventListener('fetch', (event) => {
         return caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
           if (cachedResponse) return cachedResponse;
           if (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html')) {
-            if (event.request.url.includes('/admin')) {
-              return caches.match('./admin.html', { ignoreSearch: true });
+            const reqUrlLower = event.request.url.toLowerCase();
+            if (reqUrlLower.includes('admin')) {
+              return caches.match('./admin.html', { ignoreSearch: true })
+                .then(r => r || caches.match('admin.html', { ignoreSearch: true }));
             }
-            if (event.request.url.includes('m=') || event.request.url.includes('/order')) {
-              return caches.match('./order.html', { ignoreSearch: true });
+            if (reqUrlLower.includes('/order') || reqUrlLower.includes('order.html') || reqUrlLower.includes('m=')) {
+              return caches.match('./order.html', { ignoreSearch: true })
+                .then(r => r || caches.match('order.html', { ignoreSearch: true }));
             }
             return caches.match('./index.html', { ignoreSearch: true });
           }

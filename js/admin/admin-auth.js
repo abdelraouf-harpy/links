@@ -8,7 +8,7 @@ function setupAuth() {
   let syncUnsubscribe = null;
   let ordersUnsubscribe = null;
 
-  const unlockDashboard = async () => {
+  const unlockDashboard = () => {
     isAuthenticated = true;
     document.documentElement.classList.remove('admin-locked');
     document.documentElement.classList.add('admin-unlocked');
@@ -16,37 +16,7 @@ function setupAuth() {
     if (adminElements.loginBackdrop) adminElements.loginBackdrop.classList.remove('open');
     if (adminElements.btnAdminLogout) adminElements.btnAdminLogout.style.display = 'inline-flex';
     
-    // Fast-resolve preloaded cloud data before rendering to eliminate flash on refresh
-    if (window.__harpyPreloadPromise) {
-      try {
-        const hasCachedSettings = !!(Store.getSettings() && Store.getSettings().storeName);
-        const maxWaitMs = hasCachedSettings ? 350 : 1200;
-        const preloadData = await Promise.race([
-          window.__harpyPreloadPromise,
-          new Promise(r => setTimeout(() => r(null), maxWaitMs))
-        ]);
-        if (preloadData && typeof preloadData === 'object') {
-          Store.applySnapshotData(preloadData);
-        }
-      } catch(e) {}
-    } else {
-      // First-time interactive login: fetch tenant cloud data immediately
-      try {
-        const fbBase = 'https://harpy-order-default-rtdb.firebaseio.com/restaurants/' + encodeURIComponent(slug);
-        const fOpt = { cache: 'no-store' };
-        const results = await Promise.all([
-          fetch(fbBase + '/settings.json', fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
-          fetch(fbBase + '/categories.json', fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
-          fetch(fbBase + '/products.json', fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
-          fetch(fbBase + '/stories.json', fOpt).then(r => r.ok ? r.json() : null).catch(() => null)
-        ]);
-        const s = results[0], c = results[1], p = results[2], st = results[3];
-        if (s || c || p) {
-          Store.applySnapshotData({ settings: s, categories: c, products: p, stories: st });
-        }
-      } catch(e) {}
-    }
-
+    // 0ms Instant Render: Display all cached orders, categories, and products immediately
     loadAllDashboardData();
 
     // Dismiss native splash shield smoothly with instant complete reveal
@@ -54,8 +24,37 @@ function setupAuth() {
     if (splash) {
       requestAnimationFrame(() => {
         splash.classList.add('fade-out');
-        setTimeout(() => { try { splash.remove(); } catch(e) {} }, 240);
+        setTimeout(() => { try { splash.remove(); } catch(e) {} }, 180);
       });
+    }
+
+    // Background Non-blocking preloaded cloud refresh (Zero delay to user)
+    if (window.__harpyPreloadPromise) {
+      window.__harpyPreloadPromise.then(preloadData => {
+        if (preloadData && typeof preloadData === 'object') {
+          const changed = Store.applySnapshotData(preloadData);
+          if (changed) loadAllDashboardData();
+        }
+      }).catch(() => {});
+    } else {
+      // First-time interactive login: fetch tenant cloud data in background
+      (async () => {
+        try {
+          const fbBase = 'https://harpy-order-default-rtdb.firebaseio.com/restaurants/' + encodeURIComponent(slug);
+          const fOpt = { cache: 'no-store' };
+          const results = await Promise.all([
+            fetch(fbBase + '/settings.json', fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
+            fetch(fbBase + '/categories.json', fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
+            fetch(fbBase + '/products.json', fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
+            fetch(fbBase + '/stories.json', fOpt).then(r => r.ok ? r.json() : null).catch(() => null)
+          ]);
+          const s = results[0], c = results[1], p = results[2], st = results[3];
+          if (s || c || p) {
+            Store.applySnapshotData({ settings: s, categories: c, products: p, stories: st });
+            loadAllDashboardData();
+          }
+        } catch(e) {}
+      })();
     }
 
     // Clean up previous listeners
@@ -358,10 +357,14 @@ function renderRestaurantHub() {
   }
   if (previewBtn) {
     previewBtn.href = isFile ? `./order.html?m=${slug}` : targetUrl;
+    previewBtn.target = '_blank';
+    previewBtn.rel = 'noopener noreferrer';
   }
   const openStoreBtn = document.getElementById('btn-open-store-link');
   if (openStoreBtn) {
     openStoreBtn.href = isFile ? `./order.html?m=${slug}` : targetUrl;
+    openStoreBtn.target = '_blank';
+    openStoreBtn.rel = 'noopener noreferrer';
   }
 }
 
@@ -492,29 +495,34 @@ function setupSubscriptionWatcher() {
     }
   };
 
-  if (cachedStatus === 'suspended' || cachedStatus === 'blocked' || cachedStatus === 'expired' || cachedStatus === 'deleted') {
+  // Auto-heal stale corrupted status on page load
+  if (cachedStatus === 'deleted') {
+    const isAuthed = Store.isAdminAuthenticated(slug);
+    const curSettings = Store.getSettings ? Store.getSettings(slug) : null;
+    const hasActiveSub = curSettings && curSettings.subscription && curSettings.subscription.status === 'active';
+    if (isAuthed || hasActiveSub) {
+      try { localStorage.setItem(`harpy_${slug}_sub_status`, 'active'); } catch(e) {}
+    } else {
+      applyAdminStatusUI('deleted');
+    }
+  } else if (cachedStatus === 'suspended' || cachedStatus === 'blocked' || cachedStatus === 'expired') {
     applyAdminStatusUI(cachedStatus);
   }
 
   Store.startSubscriptionWatcher((status) => {
     if (!status.active) {
       applyAdminStatusUI(status.reason);
-      if (status.reason === 'deleted') {
-        try { Store.logoutAdmin(slug); } catch(err) {}
-      }
     } else {
       document.body.classList.remove('harpy-account-locked');
       if (suspendedBackdrop) suspendedBackdrop.classList.remove('active');
       if (suspendedOverlay) suspendedOverlay.classList.remove('active');
+      try { localStorage.setItem(`harpy_${slug}_sub_status`, 'active'); } catch(e) {}
     }
   });
 
   window.addEventListener('harpy_subscription_status', (e) => {
     if (e && e.detail && !e.detail.active) {
       applyAdminStatusUI(e.detail.reason);
-      if (e.detail.reason === 'deleted') {
-        try { Store.logoutAdmin(slug); } catch(err) {}
-      }
     }
   });
 }
