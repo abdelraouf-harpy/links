@@ -693,10 +693,6 @@ function handleViewModeChange(mode) {
       if (cycleBtn) cycleBtn.classList.remove('anim-rotate-pop');
     }, 260);
   }
-
-  if (typeof SoundFX !== 'undefined' && SoundFX.playPop) {
-    SoundFX.playPop();
-  }
 }
 
 function renderStoreInfo() {
@@ -1003,7 +999,6 @@ function showOrderingPausedNotice(customMsg) {
 
   if (backdrop) backdrop.classList.add('active');
   if (modal) modal.classList.add('active');
-  if (typeof SoundFX !== 'undefined' && SoundFX.playPop) SoundFX.playPop();
 }
 
 function closeOrderingPausedNotice() {
@@ -1636,10 +1631,6 @@ window.showHarpyConfirmModal = function({
       acceptBtn.onclick = () => window.closeHarpyConfirmModal(true);
     }
 
-    if (window.SoundFX && typeof window.SoundFX.playPop === 'function') {
-      try { window.SoundFX.playPop(); } catch(e) {}
-    }
-
     if (modal) modal.classList.add('open');
     if (backdrop) backdrop.classList.add('open');
   });
@@ -1915,7 +1906,6 @@ function openQrModal() {
   if (backdrop) backdrop.classList.add('active');
   modal.classList.add('open');
   pushNavState('qr_modal');
-  if (typeof SoundFX !== 'undefined' && SoundFX.playPop) SoundFX.playPop();
 }
 
 function closeQrModal(updateHistory = true) {
@@ -1974,11 +1964,16 @@ function handleNavTabClick(tabId) {
   // Helper to switch views cleanly
   function switchAppView(activeView) {
     [viewHome, viewMenu, viewOrders, viewAccount].forEach(v => {
-      if (v) v.style.display = 'none';
+      if (v) {
+        v.style.display = 'none';
+        v.classList.remove('active');
+      }
     });
-    if (activeView) activeView.style.display = 'block';
+    if (activeView) {
+      activeView.style.display = 'block';
+      activeView.classList.add('active');
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    if (typeof SoundFX !== 'undefined' && SoundFX.playPop) SoundFX.playPop();
   }
 
   // If navigating away from cart, ensure cart drawer closes immediately!
@@ -2055,6 +2050,7 @@ window.renderCleanProfileUI = renderCleanProfileUI;
 window.toggleCleanProfileEdit = toggleCleanProfileEdit;
 window.triggerOrdersTabPulse = triggerOrdersTabPulse;
 window.clearOrdersTabPulse = clearOrdersTabPulse;
+window.handleNavTabClick = handleNavTabClick;
 window.renderOrdersView = renderOrdersView;
 window.updateOrdersStepperUI = updateOrdersStepperUI;
 window.reorderPreviousOrder = reorderPreviousOrder;

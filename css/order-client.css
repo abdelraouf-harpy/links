@@ -6469,4 +6469,24 @@ body.harpy-account-locked {
   color: #ffffff;
 }
 
+/* ── Smooth Native App View Transitions ─────────────────── */
+.app-view-container {
+  width: 100%;
+}
+.app-view-container.active {
+  animation: appViewFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes appViewFadeIn {
+  from {
+    opacity: 0.25;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
 

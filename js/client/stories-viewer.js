@@ -40,7 +40,6 @@ window.openStoryViewer = function(index) {
   if (elements.storyViewerModal) elements.storyViewerModal.classList.add('active');
 
   pushNavState('story', { index: currentStoryIndex });
-  SoundFX.playPop();
   loadCurrentStory();
 };
 

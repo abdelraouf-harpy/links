@@ -19,7 +19,7 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
 
   const cart = Store.getCart();
   if (cart.length === 0) {
-    showToastNotification("السلة فارغة، أضف بعض الوجبات أولاً", "error");
+    showToastNotification("السلة فارغة، تصفح المنيو واختر وجباتك المفضلة", "warning");
     return;
   }
 
@@ -43,22 +43,22 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
       if (!validateDeliveryStep()) return;
     } else {
       if (!name || name.length < 2) {
-        showToastNotification("يرجى كتابة الاسم بشكل صحيح (حرفين على الأقل)", "error");
+        showToastNotification("يرجى كتابة الاسم لتسهيل التواصل ومتابعة الطلب", "warning");
         if (elements.custName) elements.custName.focus();
         return;
       }
       if (!phone) {
-        showToastNotification("يرجى كتابة رقم الهاتف للتواصل", "error");
+        showToastNotification("يرجى كتابة رقم الهاتف للتواصل بخصوص الطلب", "warning");
         if (elements.custPhone) elements.custPhone.focus();
         return;
       }
       if (fType === 'delivery' && (!address || address.length < 5)) {
-        showToastNotification("يرجى كتابة عنوان التوصيل بالتفصيل", "error");
+        showToastNotification("يرجى كتابة عنوان التوصيل بالتفصيل لضمان سرعة الوصول", "warning");
         if (elements.custAddress) elements.custAddress.focus();
         return;
       }
       if (fType === 'dinein' && !tableNum) {
-        showToastNotification("يرجى إدخال رقم الطاولة داخل المطعم", "error");
+        showToastNotification("يرجى إدخال رقم الطاولة لخدمتك داخل المطعم", "warning");
         const tInput = document.getElementById('cust-table-number');
         if (tInput) tInput.focus();
         return;
@@ -70,17 +70,17 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
 
   // If user is on Step 3, ensure fields are complete before sending
   if (!name || !phone) {
-    showToastNotification("يرجى استكمال بياناتك أولاً", "error");
+    showToastNotification("يرجى إكمال بيانات التوصيل للمتابعة", "warning");
     goToCheckoutStep(2);
     return;
   }
   if (fType === 'delivery' && (!address || address.length < 5)) {
-    showToastNotification("يرجى كتابة عنوان التوصيل بالتفصيل", "error");
+    showToastNotification("يرجى كتابة عنوان التوصيل بالتفصيل لضمان سرعة الوصول", "warning");
     goToCheckoutStep(2);
     return;
   }
   if (fType === 'dinein' && !tableNum) {
-    showToastNotification("يرجى كتابة رقم الطاولة داخل المطعم", "error");
+    showToastNotification("يرجى كتابة رقم الطاولة لخدمتك داخل المطعم", "warning");
     goToCheckoutStep(2);
     return;
   }
@@ -221,7 +221,7 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
 
   if (isDelivered) {
     SoundFX.playCash();
-    showToastNotification("تم إرسال واستلام طلبك بنجاح! جاري التجهيز", "success");
+    showToastNotification("تم إرسال واستلام طلبك بنجاح! بدأ المطعم بالتجهيز", "success");
     Store.clearCart();
     closeCartDrawer();
     goToCheckoutStep(1);
@@ -230,7 +230,7 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
   } else {
     // Offline Queue
     Store.addToOutbox(orderData);
-    showToastNotification("تعذر الاتصال بالخادم حالياً. تم حفظ طلبك في قائمة الانتظار وسنرسله تلقائياً فور عودة الشبكة.", "warning");
+    showToastNotification("تم حفظ طلبك بنجاح وسيتأكد تلقائياً فور عودة الاتصال بالإنترنت", "warning");
     closeCartDrawer();
   }
 

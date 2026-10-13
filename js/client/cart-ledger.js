@@ -619,12 +619,12 @@ function setupEventListeners() {
     const address = (elements.custAddress?.value || '').trim();
 
     if (!name || name.length < 2) {
-      showToastNotification("يرجى كتابة الاسم بشكل صحيح (حرفين على الأقل)", "error");
+      showToastNotification("يرجى كتابة الاسم لتسهيل التواصل ومتابعة الطلب", "warning");
       if (elements.custName) elements.custName.focus();
       return false;
     }
     if (!phone) {
-      showToastNotification("يرجى كتابة رقم الهاتف للتواصل", "error");
+      showToastNotification("يرجى كتابة رقم الهاتف للتواصل بخصوص الطلب", "warning");
       if (elements.custPhone) elements.custPhone.focus();
       return false;
     }
@@ -633,7 +633,7 @@ function setupEventListeners() {
     const egyptianMobile = /^(01[0-9]{9})$/.test(phoneDigits);
     const internationalMobile = /^(20[0-9]{10}|[0-9]{10,15})$/.test(phoneDigits);
     if (!egyptianMobile && !internationalMobile) {
-      showToastNotification("يرجى كتابة رقم هاتف صحيح (مثال: 01012345678)", "error");
+      showToastNotification("يرجى التأكد من صحة رقم الهاتف للتواصل (مثال: 01012345678)", "warning");
       if (elements.custPhone) elements.custPhone.focus();
       return false;
     }
@@ -642,13 +642,13 @@ function setupEventListeners() {
 
     if (fType === 'delivery') {
       if (!address || address.length < 5) {
-        showToastNotification("يرجى كتابة عنوان التوصيل بالتفصيل (المنطقة، الشارع)", "error");
+        showToastNotification("يرجى كتابة عنوان التوصيل بالتفصيل لضمان سرعة الوصول", "warning");
         if (elements.custAddress) elements.custAddress.focus();
         return false;
       }
     } else if (fType === 'dinein') {
       if (!tableNum) {
-        showToastNotification("يرجى تحديد رقم الطاولة التي تجلس عليها بالصالة", "error");
+        showToastNotification("يرجى إدخال رقم الطاولة لخدمتك داخل المطعم", "warning");
         const tbl = document.getElementById('cust-table-number');
         if (tbl) tbl.focus();
         return false;
@@ -697,7 +697,7 @@ function setupEventListeners() {
     elements.btnApplyPromo.addEventListener('click', () => {
       const code = (elements.promoCodeInput.value || '').trim().toUpperCase();
       if (!code) {
-        showToastNotification("يرجى إدخال كود الخصم أولاً", "error");
+        showToastNotification("يرجى كتابة كود الخصم لتطبيقه", "warning");
         return;
       }
       const settings = Store.getSettings();
@@ -709,7 +709,7 @@ function setupEventListeners() {
         showToastNotification(`تم تفعيل خصم الكوبون بنجاح (${validPromo.code})`, "success");
         updateLedgerUI();
       } else {
-        showToastNotification("كود الخصم غير صحيح أو غير متاح", "error");
+        showToastNotification("عذراً، كود الخصم غير صحيح أو منتهي", "warning");
       }
     });
   }

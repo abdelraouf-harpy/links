@@ -229,7 +229,7 @@ function setupAuth() {
 
     if (!password) {
       if (adminElements.loginErrorMsg) {
-        adminElements.loginErrorMsg.textContent = "يرجى إدخال كلمة مرور الإدارة";
+        adminElements.loginErrorMsg.textContent = "يرجى إدخال كلمة المرور للمتابعة";
         adminElements.loginErrorMsg.style.display = 'block';
       }
       return;
@@ -248,7 +248,7 @@ function setupAuth() {
       unlockDashboard();
     } catch (err) {
       console.warn("[Admin] Login failed:", err);
-      let msg = "كلمة المرور غير صحيحة لهذا المطعم. يرجى التأكد والمحاولة مجدداً.";
+      let msg = "كلمة المرور غير صحيحة، يرجى التحقق وإعادة المحاولة.";
       if (err.code === 'auth/too-many-requests') {
         msg = "تم تجاوز عدد المحاولات المسموح به. يرجى المحاولة لاحقاً.";
       }

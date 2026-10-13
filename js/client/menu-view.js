@@ -92,7 +92,6 @@ window.handleDiscoveryFilter = function(filterId) {
   renderDiscoveryRibbon();
   renderCategories();
   renderProducts();
-  SoundFX.playPop();
 
   if (elements.discoveryContainer) {
     const activeBtn = elements.discoveryContainer.querySelector('.discovery-chip.active');
@@ -235,9 +234,6 @@ window.handleCategoryFilter = function(cat) {
 
   // 4. Instant 0ms product filtering (CSS display toggle)
   renderProducts();
-
-  // 5. Sound feedback
-  SoundFX.playPop();
 };
 
 let lastRenderedProductsSignature = '';
@@ -722,7 +718,6 @@ window.openQuickPreview = function(productId) {
   if (elements.previewModal) elements.previewModal.classList.add('open');
   if (elements.previewModalBackdrop) elements.previewModalBackdrop.classList.add('open');
   pushNavState('preview', { productId });
-  SoundFX.playPop();
 };
 
 function updatePreviewModalActions(productId) {
