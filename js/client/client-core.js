@@ -1089,29 +1089,39 @@ function setupSubscriptionWatcher() {
     }
   };
 
-  // Verify suspended cache against current settings and Firebase before showing lock overlay (eliminates split-second false flash on refresh)
+  // Apply cached suspended/deleted/blocked state immediately on page load to prevent flashing
   if (cachedStatus === 'suspended' || cachedStatus === 'blocked' || cachedStatus === 'expired' || cachedStatus === 'deleted') {
-    const curSettings = (typeof Store !== 'undefined' && Store.getSettings) ? Store.getSettings() : null;
-    if (curSettings && curSettings.subscription && curSettings.subscription.status === 'active') {
-      try { localStorage.setItem(`harpy_${slug}_sub_status`, 'active'); } catch(e) {}
-    } else {
-      const _slug = slug;
-      fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${_slug}.json`, { cache: 'no-store' })
-        .then(r => r.ok ? r.json() : null)
-        .then(lic => {
-          if (!lic) return;
-          const nowOk = lic.status === 'active' && (!lic.expiresAt || new Date() < new Date(lic.expiresAt));
-          if (!nowOk) {
-            applyStatusUI(lic.status || 'blocked');
-          } else {
-            try { localStorage.setItem(`harpy_${_slug}_sub_status`, 'active'); } catch(e) {}
-            document.body.classList.remove('harpy-account-locked');
-            if (suspendedBackdrop) suspendedBackdrop.classList.remove('active');
-            if (suspendedOverlay) suspendedOverlay.classList.remove('active');
-          }
-        })
-        .catch(() => {});
-    }
+    applyStatusUI(cachedStatus);
+    const _slug = slug;
+    fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${_slug}.json`, { cache: 'no-store' })
+      .then(r => r.ok ? r.json() : null)
+      .then(lic => {
+        if (lic && lic.status === 'active' && (!lic.expiresAt || new Date() < new Date(lic.expiresAt))) {
+          // Re-activated!
+          try { localStorage.setItem(`harpy_${_slug}_sub_status`, 'active'); } catch(e) {}
+          document.body.classList.remove('harpy-account-locked');
+          if (suspendedBackdrop) suspendedBackdrop.classList.remove('active');
+          if (suspendedOverlay) suspendedOverlay.classList.remove('active');
+        } else if (lic && lic.status === 'deleted') {
+          try { Store.purgeRestaurantCache(_slug); } catch(e) {}
+          try { localStorage.setItem(`harpy_${_slug}_sub_status`, 'deleted'); } catch(e) {}
+          applyStatusUI('deleted');
+        } else if (lic && lic.status) {
+          applyStatusUI(lic.status);
+        } else if (lic === null && _slug !== 'demo') {
+          // Verify with shallow settings check if restaurant was deleted
+          fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${_slug}/settings.json?shallow=true`, { cache: 'no-store' })
+            .then(sr => sr.ok ? sr.json() : null)
+            .then(sData => {
+              if (sData === null) {
+                try { Store.purgeRestaurantCache(_slug); } catch(e) {}
+                try { localStorage.setItem(`harpy_${_slug}_sub_status`, 'deleted'); } catch(e) {}
+                applyStatusUI('deleted');
+              }
+            }).catch(() => {});
+        }
+      })
+      .catch(() => {});
   }
 
   Store.startSubscriptionWatcher((status) => {
@@ -1606,11 +1616,65 @@ function renderOrdersView() {
   }
 }
 
+// ── HARPY PRO LUXURY CUSTOM CONFIRM MODAL ENGINE ─────────
+let harpyConfirmResolve = null;
+
+window.showHarpyConfirmModal = function({
+  title = "مسح الطلب من السجل",
+  message = "هل تريد إخفاء ومسح هذا الطلب من هاتفك؟ (لن يؤثر على سجل المطعم)",
+  confirmText = "مسح من هاتفي",
+  cancelText = "إلغاء وتراجع",
+  isDanger = true
+} = {}) {
+  return new Promise((resolve) => {
+    harpyConfirmResolve = resolve;
+    const modal = document.getElementById('harpy-confirm-modal');
+    const backdrop = document.getElementById('harpy-confirm-backdrop');
+    const titleEl = document.getElementById('harpy-confirm-title');
+    const msgEl = document.getElementById('harpy-confirm-msg');
+    const acceptBtn = document.getElementById('btn-harpy-confirm-accept');
+
+    if (titleEl) titleEl.textContent = title;
+    if (msgEl) msgEl.innerHTML = message;
+    if (acceptBtn) {
+      acceptBtn.textContent = confirmText;
+      acceptBtn.style.background = isDanger ? '#ef4444' : 'var(--primary, #ea580c)';
+      acceptBtn.onclick = () => window.closeHarpyConfirmModal(true);
+    }
+
+    if (window.SoundFX && typeof window.SoundFX.playPop === 'function') {
+      try { window.SoundFX.playPop(); } catch(e) {}
+    }
+
+    if (modal) modal.classList.add('open');
+    if (backdrop) backdrop.classList.add('open');
+  });
+};
+
+window.closeHarpyConfirmModal = function(result = false) {
+  const modal = document.getElementById('harpy-confirm-modal');
+  const backdrop = document.getElementById('harpy-confirm-backdrop');
+  if (modal) modal.classList.remove('open');
+  if (backdrop) backdrop.classList.remove('open');
+
+  if (typeof harpyConfirmResolve === 'function') {
+    const res = harpyConfirmResolve;
+    harpyConfirmResolve = null;
+    res(result);
+  }
+};
+
 window.cancelActiveCustomerOrder = async function() {
   const lastOrder = (typeof Store !== 'undefined' && Store.getLastOrder) ? Store.getLastOrder() : null;
   const orderId = (lastOrder && (lastOrder.orderId || lastOrder.id)) || (document.getElementById('orders-active-id')?.textContent || '').trim();
   
-  const confirmed = confirm("هل تريد إلغاء ومسح هذا الطلب من قائمة المتابعة؟");
+  const confirmed = await window.showHarpyConfirmModal({
+    title: "إخفاء بطاقة المتابعة",
+    message: "هل تريد إخفاء هذا الطلب من شاشة المتابعة بهاتفك؟<br><span style='font-size:0.82rem; opacity:0.8;'>* سيبقى الطلب مسجلاً لدى المطعم دون أي حذف من نظامهم.</span>",
+    confirmText: "إخفاء من هاتفي",
+    cancelText: "إلغاء وتراجع",
+    isDanger: true
+  });
   if (!confirmed) return;
 
   const card = document.getElementById('active-order-tracking-card');
@@ -1622,15 +1686,11 @@ window.cancelActiveCustomerOrder = async function() {
   }
 
   try {
-    const slug = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : 'saj';
-    if (orderId && typeof Store !== 'undefined') {
-      Store.recordDeletedOrderId(slug, orderId);
+    if (typeof Store !== 'undefined') {
       Store.saveLastOrder(null);
-      if (Store.removeOrderFromHistory) Store.removeOrderFromHistory(orderId);
-      if (Store.updateOrderStatus) Store.updateOrderStatus(orderId, 'cancelled').catch(() => {});
-      if (Store.deleteOrder) Store.deleteOrder(orderId).catch(() => {});
-    } else if (typeof Store !== 'undefined') {
-      Store.saveLastOrder(null);
+      if (orderId && Store.removeOrderFromHistory) {
+        Store.removeOrderFromHistory(orderId);
+      }
     }
   } catch(e) {}
 
@@ -1641,27 +1701,32 @@ window.cancelActiveCustomerOrder = async function() {
     renderLastOrderRecall();
   }
   if (typeof showToastNotification === 'function') {
-    showToastNotification("تم مسح وإلغاء الطلب بنجاح", "success");
+    showToastNotification("تم إخفاء الطلب من هاتفك فقط", "success");
   }
 };
 
-window.deleteCustomerHistoryOrder = function(orderId) {
+window.deleteCustomerHistoryOrder = async function(orderId) {
   if (!orderId) return;
-  const confirmed = confirm("هل تريد مسح هذا الطلب من سجل طلباتك؟");
+  const confirmed = await window.showHarpyConfirmModal({
+    title: "مسح الطلب من سجلك",
+    message: "هل تريد مسح هذا الطلب من سجل طلباتك على هاتفك؟<br><span style='font-size:0.82rem; opacity:0.8;'>* سيبقى الطلب مسجلاً لدى المطعم دون أي حذف من نظامهم.</span>",
+    confirmText: "مسح من هاتفي",
+    cancelText: "إلغاء وتراجع",
+    isDanger: true
+  });
   if (!confirmed) return;
+
   try {
-    const slug = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : 'saj';
-    if (typeof Store !== 'undefined') {
-      Store.recordDeletedOrderId(slug, orderId);
-      if (Store.removeOrderFromHistory) Store.removeOrderFromHistory(orderId);
-      if (Store.deleteOrder) Store.deleteOrder(orderId).catch(() => {});
+    if (typeof Store !== 'undefined' && Store.removeOrderFromHistory) {
+      Store.removeOrderFromHistory(orderId);
     }
   } catch(e) {}
+
   if (typeof renderOrdersView === 'function') {
     renderOrdersView();
   }
   if (typeof showToastNotification === 'function') {
-    showToastNotification("تم مسح الطلب من السجل", "success");
+    showToastNotification("تم مسح الطلب من هاتفك فقط", "success");
   }
 };
 

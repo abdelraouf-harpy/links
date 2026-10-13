@@ -41,9 +41,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Admin">
 
-  <link rel="stylesheet" href="css/order-tokens.css?v=87.0">
-  <link rel="stylesheet" href="css/order-client.css?v=87.0">
-  <link rel="stylesheet" href="css/order-admin.css?v=87.0">
+  <link rel="stylesheet" href="css/order-tokens.css?v=90.0">
+  <link rel="stylesheet" href="css/order-client.css?v=90.0">
+  <link rel="stylesheet" href="css/order-admin.css?v=90.0">
   <script>
     // Instant zero-delay theme toggle available immediately on page paint
     window.handleThemeToggle = function() {
@@ -189,9 +189,10 @@
           try { var s2 = JSON.parse(sessionAuth); isAuth = s2 && s2.authenticated === true; } catch(e) {}
         }
 
-        // If authenticated admin session exists, auto-heal any stale 'deleted' status
-        if (isAuth && subStatus === 'deleted') {
-          try { localStorage.setItem('harpy_' + slug + '_sub_status', 'active'); } catch(e) {}
+        // If status is deleted, suspended, or blocked, lock immediately
+        if (subStatus === 'deleted' || subStatus === 'suspended' || subStatus === 'blocked') {
+          document.documentElement.classList.add('harpy-account-locked');
+          if (document.body) document.body.classList.add('harpy-account-locked');
         }
         var mode = localStorage.getItem('harpy_' + slug + '_theme_mode') || 'light';
         document.documentElement.setAttribute('data-theme', mode);
@@ -1712,19 +1713,19 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=89.0"></script>
-  <script src="js/core/sound-effects.js?v=89.0"></script>
-  <script src="js/store.js?v=89.0"></script>
-  <script src="js/admin/admin-core.js?v=89.0"></script>
-  <script src="js/admin/admin-auth.js?v=89.0"></script>
-  <script src="js/admin/kitchen-orders.js?v=89.0"></script>
-  <script src="js/admin/catalog-manager.js?v=89.0"></script>
-  <script src="js/admin/category-manager.js?v=89.0"></script>
-  <script src="js/admin/stories-manager.js?v=89.0"></script>
-  <script src="js/admin/backup-restore.js?v=89.0"></script>
-  <script src="js/admin/settings-manager.js?v=89.0"></script>
-  <script src="js/admin/pos-terminal.js?v=89.0"></script>
-  <script src="js/admin.js?v=89.0"></script>
-  <script src="js/pwa.js?v=89.0"></script>
+  <script src="js/core/demo-seed-data.js?v=90.0"></script>
+  <script src="js/core/sound-effects.js?v=90.0"></script>
+  <script src="js/store.js?v=90.0"></script>
+  <script src="js/admin/admin-core.js?v=90.0"></script>
+  <script src="js/admin/admin-auth.js?v=90.0"></script>
+  <script src="js/admin/kitchen-orders.js?v=90.0"></script>
+  <script src="js/admin/catalog-manager.js?v=90.0"></script>
+  <script src="js/admin/category-manager.js?v=90.0"></script>
+  <script src="js/admin/stories-manager.js?v=90.0"></script>
+  <script src="js/admin/backup-restore.js?v=90.0"></script>
+  <script src="js/admin/settings-manager.js?v=90.0"></script>
+  <script src="js/admin/pos-terminal.js?v=90.0"></script>
+  <script src="js/admin.js?v=90.0"></script>
+  <script src="js/pwa.js?v=90.0"></script>
 </body>
 </html>

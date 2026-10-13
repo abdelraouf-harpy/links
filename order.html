@@ -47,8 +47,8 @@
   <link rel="preconnect" href="https://i.ibb.co" crossorigin>
   <link rel="dns-prefetch" href="https://i.ibb.co">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/order-tokens.css?v=87.0">
-  <link rel="stylesheet" href="css/order-client.css?v=87.0">
+  <link rel="stylesheet" href="css/order-tokens.css?v=90.0">
+  <link rel="stylesheet" href="css/order-client.css?v=90.0">
   <style id="harpy-critical-layout">
     /* ═══════════════════════════════════════════════════════════
        CRITICAL DEFENSIVE INLINE SHIELD (Prevents SW Cache Mismatches)
@@ -535,82 +535,91 @@
         if (document.body) document.body.setAttribute('data-theme', mode);
 
         // Pre-fill store branding from cache immediately before DOM render to eliminate flash or jumping on refresh
+        var earlySubStatus = null;
         try {
-          const cachedSettingsRaw = localStorage.getItem('harpy_' + slug + '_settings');
-          if (cachedSettingsRaw) {
-            const cs = JSON.parse(cachedSettingsRaw);
-            if (cs) {
-              if (cs.storeName) {
-                document.title = cs.storeName;
-              }
-              document.addEventListener('DOMContentLoaded', function() {
+          earlySubStatus = localStorage.getItem('harpy_' + slug + '_sub_status');
+          if (earlySubStatus === 'deleted' || earlySubStatus === 'suspended' || earlySubStatus === 'blocked') {
+            document.documentElement.classList.add('harpy-account-locked');
+            if (document.body) document.body.classList.add('harpy-account-locked');
+          } else {
+            const cachedSettingsRaw = localStorage.getItem('harpy_' + slug + '_settings');
+            if (cachedSettingsRaw) {
+              const cs = JSON.parse(cachedSettingsRaw);
+              if (cs) {
                 if (cs.storeName) {
-                  const elName = document.getElementById('store-name');
-                  if (elName && (!elName.textContent || elName.textContent.trim() === '...')) elName.textContent = cs.storeName;
+                  document.title = cs.storeName;
                 }
-                if (cs.storeTagline) {
-                  const elTagline = document.getElementById('store-tagline');
-                  if (elTagline && (!elTagline.textContent || elTagline.textContent.trim() === '...')) elTagline.textContent = cs.storeTagline;
-                }
+                document.addEventListener('DOMContentLoaded', function() {
+                  if (cs.storeName) {
+                    const elName = document.getElementById('store-name');
+                    if (elName && (!elName.textContent || elName.textContent.trim() === '...')) elName.textContent = cs.storeName;
+                  }
+                  if (cs.storeTagline) {
+                    const elTagline = document.getElementById('store-tagline');
+                    if (elTagline && (!elTagline.textContent || elTagline.textContent.trim() === '...')) elTagline.textContent = cs.storeTagline;
+                  }
+                  if (cs.logo || cs.logoUrl) {
+                    const elLogo = document.getElementById('store-logo');
+                    if (elLogo) elLogo.src = cs.logo || cs.logoUrl;
+                  }
+                  if (cs.cover) {
+                    const elCover = document.getElementById('hero-cover-img');
+                    if (elCover) elCover.src = cs.cover;
+                  }
+                }, { once: true });
                 if (cs.logo || cs.logoUrl) {
-                  const elLogo = document.getElementById('store-logo');
-                  if (elLogo) elLogo.src = cs.logo || cs.logoUrl;
+                  var apTouch = document.querySelector('link[rel="apple-touch-icon"]');
+                  if (apTouch) apTouch.href = cs.logo || cs.logoUrl;
                 }
-                if (cs.cover) {
-                  const elCover = document.getElementById('hero-cover-img');
-                  if (elCover) elCover.src = cs.cover;
-                }
-              }, { once: true });
-              if (cs.logo || cs.logoUrl) {
-                var apTouch = document.querySelector('link[rel="apple-touch-icon"]');
-                if (apTouch) apTouch.href = cs.logo || cs.logoUrl;
               }
             }
           }
         } catch(e) {}
 
         // Preload critical menu data (Settings, Categories, Products) with strict 3.2s timeout for weak network resilience
-        var fbBase = 'https://harpy-order-default-rtdb.firebaseio.com/restaurants/' + encodeURIComponent(slug);
-        function fetchWithPreloadTimeout(url, timeoutMs) {
-          var ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
-          var tId = ctrl ? setTimeout(function() { try { ctrl.abort(); } catch(e){} }, timeoutMs || 3200) : null;
-          var opt = { cache: 'no-store' };
-          if (ctrl) opt.signal = ctrl.signal;
-          return fetch(url, opt).then(function(r) {
-            if (tId) clearTimeout(tId);
-            return r.ok ? r.json() : null;
-          }).catch(function() {
-            if (tId) clearTimeout(tId);
-            return null;
-          });
+        if (earlySubStatus !== 'deleted') {
+          var fbBase = 'https://harpy-order-default-rtdb.firebaseio.com/restaurants/' + encodeURIComponent(slug);
+          function fetchWithPreloadTimeout(url, timeoutMs) {
+            var ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+            var tId = ctrl ? setTimeout(function() { try { ctrl.abort(); } catch(e){} }, timeoutMs || 3200) : null;
+            var opt = { cache: 'no-store' };
+            if (ctrl) opt.signal = ctrl.signal;
+            return fetch(url, opt).then(function(r) {
+              if (tId) clearTimeout(tId);
+              return r.ok ? r.json() : null;
+            }).catch(function() {
+              if (tId) clearTimeout(tId);
+              return null;
+            });
+          }
+
+          window.__harpyPreloadPromise = Promise.all([
+            fetchWithPreloadTimeout(fbBase + '/settings.json', 3200),
+            fetchWithPreloadTimeout(fbBase + '/categories.json', 3200),
+            fetchWithPreloadTimeout(fbBase + '/products.json', 3200)
+          ]).then(function(results) {
+            var settings = results[0];
+            var categories = results[1];
+            var products = results[2];
+            if (settings && typeof settings === 'object') {
+              if (!settings.storeName && settings.restaurantName) settings.storeName = settings.restaurantName;
+              if (!settings.whatsappNumber && settings.phone) settings.whatsappNumber = settings.phone;
+            }
+            if (slug === 'demo') {
+              if (!categories || (Array.isArray(categories) && categories.length === 0)) categories = null;
+              if (!products || (Array.isArray(products) && products.length === 0)) products = null;
+            }
+            if (!settings && !categories && !products) return null;
+            var out = {};
+            if (settings) out.settings = settings;
+            if (categories) out.categories = categories;
+            if (products) out.products = products;
+            return out;
+          }).catch(function() { return null; });
+
+          // Non-blocking background stream for stories (Decoupled to never hold up the critical splash/menu reveal)
+          window.__harpyStoriesPromise = fetchWithPreloadTimeout(fbBase + '/stories.json', 3500);
         }
-
-        window.__harpyPreloadPromise = Promise.all([
-          fetchWithPreloadTimeout(fbBase + '/settings.json', 3200),
-          fetchWithPreloadTimeout(fbBase + '/categories.json', 3200),
-          fetchWithPreloadTimeout(fbBase + '/products.json', 3200)
-        ]).then(function(results) {
-          var settings = results[0];
-          var categories = results[1];
-          var products = results[2];
-          if (settings && typeof settings === 'object') {
-            if (!settings.storeName && settings.restaurantName) settings.storeName = settings.restaurantName;
-            if (!settings.whatsappNumber && settings.phone) settings.whatsappNumber = settings.phone;
-          }
-          if (slug === 'demo') {
-            if (!categories || (Array.isArray(categories) && categories.length === 0)) categories = null;
-            if (!products || (Array.isArray(products) && products.length === 0)) products = null;
-          }
-          if (!settings && !categories && !products) return null;
-          var out = {};
-          if (settings) out.settings = settings;
-          if (categories) out.categories = categories;
-          if (products) out.products = products;
-          return out;
-        }).catch(function() { return null; });
-
-        // Non-blocking background stream for stories (Decoupled to never hold up the critical splash/menu reveal)
-        window.__harpyStoriesPromise = fetchWithPreloadTimeout(fbBase + '/stories.json', 3500);
       } catch(e) {}
 
       // Failsafe watchdog: Ensures splash shield never traps the page under any circumstance (3800ms benchmark)
@@ -1026,7 +1035,7 @@
           </div>
           <div style="display:flex; align-items:center; gap:8px;">
             <span class="tracker-type-pill" id="orders-active-type-pill">توصيل دليفري</span>
-            <button type="button" class="btn-cancel-active-order" id="btn-cancel-active-order" onclick="window.cancelActiveCustomerOrder && window.cancelActiveCustomerOrder()" title="إلغاء ومسح الطلب" aria-label="إلغاء ومسح الطلب">
+            <button type="button" class="btn-cancel-active-order" id="btn-cancel-active-order" onclick="window.cancelActiveCustomerOrder && window.cancelActiveCustomerOrder()" title="إخفاء ومسح الطلب من هاتفي" aria-label="إخفاء ومسح الطلب من هاتفي">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -1814,6 +1823,30 @@
   </div>
 
   <!-- ═══════════════════════════════════════════════════════════
+       HARPY PRO LUXURY CONFIRMATION MODAL (Replaces Native Confirm)
+       ═══════════════════════════════════════════════════════════ -->
+  <div id="harpy-confirm-backdrop" class="harpy-confirm-backdrop" onclick="window.closeHarpyConfirmModal && window.closeHarpyConfirmModal(false)"></div>
+  <div id="harpy-confirm-modal" class="harpy-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="harpy-confirm-title">
+    <div id="harpy-confirm-icon-wrap" class="harpy-confirm-icon-wrap">
+      <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 6h18"></path>
+        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+      </svg>
+    </div>
+    <h3 id="harpy-confirm-title" class="harpy-confirm-title">مسح الطلب من السجل</h3>
+    <div id="harpy-confirm-msg" class="harpy-confirm-msg">هل تريد إخفاء ومسح هذا الطلب من هاتفك؟<br><span style="font-size:0.82rem; opacity:0.8;">* لن يتم حذفه من سجل المطعم.</span></div>
+    <div class="harpy-confirm-actions">
+      <button type="button" id="btn-harpy-confirm-accept" class="btn-harpy-confirm-accept">
+        مسح من هاتفي
+      </button>
+      <button type="button" class="btn-harpy-confirm-cancel" onclick="window.closeHarpyConfirmModal && window.closeHarpyConfirmModal(false)">
+        إلغاء وتراجع
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
        CUSTOMER ONBOARDING MODAL (One-Time Frictionless Profile)
        ═══════════════════════════════════════════════════════════ -->
   <div class="modal-backdrop" id="customer-onboard-backdrop"></div>
@@ -2079,16 +2112,16 @@
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=89.0"></script>
-  <script src="js/core/sound-effects.js?v=89.0"></script>
-  <script src="js/store.js?v=89.0"></script>
-  <script src="js/client/client-core.js?v=89.0"></script>
-  <script src="js/client/menu-view.js?v=89.0"></script>
-  <script src="js/client/stories-viewer.js?v=89.0"></script>
-  <script src="js/client/customizer-modal.js?v=89.0"></script>
-  <script src="js/client/cart-ledger.js?v=89.0"></script>
-  <script src="js/client/order-tracking.js?v=89.0"></script>
-  <script src="js/app.js?v=89.0"></script>
-  <script src="js/pwa.js?v=89.0"></script>
+  <script src="js/core/demo-seed-data.js?v=90.0"></script>
+  <script src="js/core/sound-effects.js?v=90.0"></script>
+  <script src="js/store.js?v=90.0"></script>
+  <script src="js/client/client-core.js?v=90.0"></script>
+  <script src="js/client/menu-view.js?v=90.0"></script>
+  <script src="js/client/stories-viewer.js?v=90.0"></script>
+  <script src="js/client/customizer-modal.js?v=90.0"></script>
+  <script src="js/client/cart-ledger.js?v=90.0"></script>
+  <script src="js/client/order-tracking.js?v=90.0"></script>
+  <script src="js/app.js?v=90.0"></script>
+  <script src="js/pwa.js?v=90.0"></script>
 </body>
 </html>

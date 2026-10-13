@@ -501,16 +501,9 @@ function setupSubscriptionWatcher() {
     }
   };
 
-  // Auto-heal stale corrupted status on page load
+  // Apply cached status immediately on page load
   if (cachedStatus === 'deleted') {
-    const isAuthed = Store.isAdminAuthenticated(slug);
-    const curSettings = Store.getSettings ? Store.getSettings(slug) : null;
-    const hasActiveSub = curSettings && curSettings.subscription && curSettings.subscription.status === 'active';
-    if (isAuthed || hasActiveSub) {
-      try { localStorage.setItem(`harpy_${slug}_sub_status`, 'active'); } catch(e) {}
-    } else {
-      applyAdminStatusUI('deleted');
-    }
+    applyAdminStatusUI('deleted');
   } else if (cachedStatus === 'suspended' || cachedStatus === 'blocked' || cachedStatus === 'expired') {
     applyAdminStatusUI(cachedStatus);
   }

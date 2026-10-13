@@ -2721,6 +2721,9 @@ const Store = {
           reason = isDeleted ? 'deleted' : (isBlocked ? 'blocked' : 'expired');
         }
         try { localStorage.setItem(`harpy_${slug}_sub_status`, reason); } catch(e) {}
+        if (reason === 'deleted') {
+          try { this.purgeRestaurantCache(slug); } catch(e) {}
+        }
       } else {
         try { localStorage.setItem(`harpy_${slug}_sub_status`, 'active'); } catch(e) {}
       }
@@ -2744,6 +2747,8 @@ const Store = {
           const val = snap ? snap.val() : null;
           if (val && typeof val === 'object') {
             evaluateLicense(val);
+          } else if (val === null && slug !== 'demo') {
+            fetchLicenseFast();
           }
         };
         licRef.on('value', wsCallback, err => {
@@ -2765,6 +2770,15 @@ const Store = {
           const licData = await licRes.json();
           if (licData && typeof licData === 'object') {
             evaluateLicense(licData, null, null);
+          } else if (licData === null && slug !== 'demo') {
+            // Null license: verify if settings are also null to declare permanent deletion
+            const setRes = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/settings.json?shallow=true`, { cache: 'no-store' }).catch(() => null);
+            if (setRes && setRes.ok) {
+              const setData = await setRes.json();
+              if (setData === null) {
+                evaluateLicense({ status: 'deleted', restaurantSlug: slug }, null, null);
+              }
+            }
           }
         }
       } catch (e) {}
