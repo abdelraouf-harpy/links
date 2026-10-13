@@ -327,7 +327,7 @@
       const applyBtn = document.getElementById('btn-update-apply-now');
       if (applyBtn) {
         applyBtn.disabled = true;
-        applyBtn.innerHTML = `<span>جاري التحديث...</span>`;
+        applyBtn.innerHTML = `<span>جاري التحديث</span>`;
       }
 
       // 1. Mark permanently as applied in localStorage so it NEVER shows again!
@@ -632,7 +632,7 @@
     // Fast-wait for deferredPrompt if user clicked immediately
     if (!deferredPrompt && !isIOS) {
       if (installBtn) {
-        installBtn.textContent = 'جاري التثبيت...';
+        installBtn.textContent = 'جاري التثبيت';
         installBtn.disabled = true;
       }
       await new Promise((resolve) => {

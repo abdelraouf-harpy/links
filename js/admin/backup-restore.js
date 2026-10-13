@@ -43,7 +43,7 @@ window.executeFactoryResetWithPassword = async function() {
 
   if (btn) {
     btn.disabled = true;
-    btn.textContent = "جاري التحقق...";
+    btn.textContent = "جاري التحقق";
   }
 
   try {

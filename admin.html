@@ -41,9 +41,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Admin">
 
-  <link rel="stylesheet" href="css/order-tokens.css?v=90.0">
-  <link rel="stylesheet" href="css/order-client.css?v=90.0">
-  <link rel="stylesheet" href="css/order-admin.css?v=90.0">
+  <link rel="stylesheet" href="css/order-tokens.css?v=91.0">
+  <link rel="stylesheet" href="css/order-client.css?v=91.0">
+  <link rel="stylesheet" href="css/order-admin.css?v=91.0">
   <script>
     // Instant zero-delay theme toggle available immediately on page paint
     window.handleThemeToggle = function() {
@@ -403,7 +403,7 @@
             <!-- Search Bar & Mobile Quick Reset Row -->
             <div class="pos-search-row">
               <div class="pos-search-input-wrap">
-                <input type="text" id="pos-search-input" class="form-input" placeholder="بحث سريع عن وجبة، صنف، أو مشروب..." oninput="handlePOSSearch(this.value)">
+                <input type="text" id="pos-search-input" class="form-input" placeholder="بحث سريع عن وجبة، صنف، أو مشروب" oninput="handlePOSSearch(this.value)">
               </div>
               <button type="button" class="btn btn-ghost pos-mobile-quick-reset" onclick="resetPOSCart(true)" title="تفريغ وبدء فاتورة جديدة">
                 <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/></svg>
@@ -454,7 +454,7 @@
 
             <!-- Takeaway Customer Name (shown if takeaway) -->
             <div id="pos-takeaway-wrap" style="display:none; margin-bottom:6px;">
-              <input type="text" id="pos-takeaway-name" class="form-input" placeholder="اسم العميل أو رقم النداء (اختياري)..." style="font-size:11.5px; padding:6px 10px; height:28px;">
+              <input type="text" id="pos-takeaway-name" class="form-input" placeholder="اسم العميل أو رقم النداء (اختياري)" style="font-size:11.5px; padding:6px 10px; height:28px;">
             </div>
 
             <!-- Ticket Items List -->
@@ -475,7 +475,7 @@
             <div class="pos-ticket-footer">
               <!-- Note input -->
               <div style="margin-bottom:3px;">
-                <input type="text" id="pos-order-note" class="form-input" placeholder="ملاحظات خاصة (بدون بصل، ثلج زيادة...)" style="font-size:11px; padding:4px 8px; height:26px;">
+                <input type="text" id="pos-order-note" class="form-input" placeholder="ملاحظات خاصة (بدون بصل، ثلج زيادة)" style="font-size:11px; padding:4px 8px; height:26px;">
               </div>
 
               <!-- Discount Quick Selector Box -->
@@ -668,7 +668,7 @@
         <!-- Archive Search & Filter Bar -->
         <div style="display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap; align-items:center;">
           <div style="flex:1; min-width:240px; position:relative;">
-            <input type="text" id="archive-search-input" class="form-input" placeholder="بحث برقم الفاتورة، اسم العميل، أو رقم الهاتف..." oninput="handleArchiveSearch(this.value)">
+            <input type="text" id="archive-search-input" class="form-input" placeholder="بحث برقم الفاتورة، اسم العميل، أو رقم الهاتف" oninput="handleArchiveSearch(this.value)">
           </div>
           <div class="archive-filters-row" style="display:flex; gap:6px; flex-wrap:wrap;">
             <button type="button" class="btn btn-sm btn-filter-archive active" data-archive-filter="delivered" onclick="filterArchiveOrders('delivered')">مسلّمة</button>
@@ -701,7 +701,7 @@
           </div>
           
           <div class="cat-add-input-wrap" style="display:flex; gap:10px; flex:1; max-width:480px; min-width:260px;">
-            <input type="text" id="new-cat-input" class="form-input" placeholder="اسم القسم الجديد..." style="font-weight:700;">
+            <input type="text" id="new-cat-input" class="form-input" placeholder="اسم القسم الجديد" style="font-weight:700;">
             <button id="btn-add-cat" class="btn btn-primary" style="white-space:nowrap; display:inline-flex; align-items:center; gap:6px; font-weight:800; padding:0 20px;">
               <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
               <span>إضافة قسم</span>
@@ -778,11 +778,11 @@
             <div class="tenant-text-col">
               <div class="tenant-title-row">
                 <span class="tenant-title-label">اسم المطعم الحالي:</span>
-                <span id="active-restaurant-title" class="tenant-title-name">...</span>
+                <span id="active-restaurant-title" class="tenant-title-name"></span>
               </div>
               <div class="tenant-link-row">
                 <span class="tenant-link-label">رابط منيو العملاء:</span>
-                <a id="tenant-share-link" href="#" target="_blank" class="tenant-share-link font-num">...</a>
+                <a id="tenant-share-link" href="#" target="_blank" class="tenant-share-link font-num"></a>
               </div>
             </div>
           </div>
@@ -818,7 +818,7 @@
               </div>
               <div class="form-group" style="margin-bottom:0;">
                 <label class="form-label" style="margin-bottom:6px;">الوصف الترويجي (Tagline)</label>
-                <input type="text" id="set-store-tagline" class="form-input" placeholder="أشهى المشويات، البرجر الفاخر...">
+                <input type="text" id="set-store-tagline" class="form-input" placeholder="أشهى المشويات، البرجر الفاخر">
               </div>
               <div class="form-group" style="margin-bottom:0;">
                 <label class="form-label" style="margin-bottom:6px;">رمز العملة *</label>
@@ -845,7 +845,7 @@
                   </div>
                 </div>
                 <input type="hidden" id="set-logo-url">
-                <input type="url" id="set-logo-url-direct" class="form-input" placeholder="أو الصق رابط صورة الشعار مباشرة (https://...)" style="margin-top:8px; font-size:12px; font-family:inherit;">
+                <input type="url" id="set-logo-url-direct" class="form-input" placeholder="أو الصق رابط صورة الشعار مباشرة (https://example.com/logo.png)" style="margin-top:8px; font-size:12px; font-family:inherit;">
               </div>
 
               <!-- Cover Banner Uploader -->
@@ -866,7 +866,7 @@
                   </div>
                 </div>
                 <input type="hidden" id="set-cover-url">
-                <input type="url" id="set-cover-url-direct" class="form-input" placeholder="أو الصق رابط صورة الغلاف مباشرة (https://...)" style="margin-top:8px; font-size:12px; font-family:inherit;">
+                <input type="url" id="set-cover-url-direct" class="form-input" placeholder="أو الصق رابط صورة الغلاف مباشرة (https://example.com/cover.jpg)" style="margin-top:8px; font-size:12px; font-family:inherit;">
               </div>
             </div>
           </div>
@@ -899,7 +899,7 @@
               </div>
               <div class="form-group" style="margin-bottom:0;">
                 <label class="form-label">رابط موقع الفرع على خرائط Google</label>
-                <input type="url" id="set-location-url" class="form-input font-num" placeholder="https://maps.app.goo.gl/...">
+                <input type="url" id="set-location-url" class="form-input font-num" placeholder="https://maps.app.goo.gl/xxxxxx">
               </div>
             </div>
 
@@ -1181,7 +1181,7 @@
 
             <div class="form-group" style="margin-bottom:0;">
               <label class="form-label">عن المطعم وقصتنا (نبذة تعريفية)</label>
-              <textarea id="set-about-text" class="form-input" rows="3" placeholder="نقدم لكم أشهى وألذ المأكولات المحضرة يومياً بأعلى معايير الجودة والنظافة..."></textarea>
+              <textarea id="set-about-text" class="form-input" rows="3" placeholder="نقدم لكم أشهى وألذ المأكولات المحضرة يومياً بأعلى معايير الجودة والنظافة"></textarea>
             </div>
           </div>
 
@@ -1274,7 +1274,7 @@
 
       <div class="form-group">
         <label class="form-label">وصف ومكونات الصنف</label>
-        <textarea id="prod-desc" class="form-textarea" rows="2" placeholder="اكتب تفاصيل المكونات والنكهات..."></textarea>
+        <textarea id="prod-desc" class="form-textarea" rows="2" placeholder="اكتب تفاصيل المكونات والنكهات"></textarea>
       </div>
 
       <!-- Advanced Sizes Manager -->
@@ -1365,7 +1365,7 @@
 
       <div class="form-group">
         <label class="form-label">وصف وتفاصيل العرض</label>
-        <textarea id="story-desc-input" class="form-textarea" rows="2" placeholder="تفاصيل العرض للزبائن..."></textarea>
+        <textarea id="story-desc-input" class="form-textarea" rows="2" placeholder="تفاصيل العرض للزبائن"></textarea>
       </div>
 
       <!-- Device Image Uploader for Story -->
@@ -1626,7 +1626,7 @@
     </div>
     
     <div style="margin-bottom:10px;">
-      <input type="text" id="picker-search-input" class="form-input" placeholder="ابحث عن صنف بالاسم أو الوصف..." oninput="filterPickerProducts()" style="padding:9px 12px; font-size:13px;">
+      <input type="text" id="picker-search-input" class="form-input" placeholder="ابحث عن صنف بالاسم أو الوصف" oninput="filterPickerProducts()" style="padding:9px 12px; font-size:13px;">
     </div>
     
     <div id="picker-cat-pills" style="display:flex; gap:6px; overflow-x:auto; padding-bottom:8px; margin-bottom:8px; scrollbar-width:none;">
@@ -1713,19 +1713,19 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=90.0"></script>
-  <script src="js/core/sound-effects.js?v=90.0"></script>
-  <script src="js/store.js?v=90.0"></script>
-  <script src="js/admin/admin-core.js?v=90.0"></script>
-  <script src="js/admin/admin-auth.js?v=90.0"></script>
-  <script src="js/admin/kitchen-orders.js?v=90.0"></script>
-  <script src="js/admin/catalog-manager.js?v=90.0"></script>
-  <script src="js/admin/category-manager.js?v=90.0"></script>
-  <script src="js/admin/stories-manager.js?v=90.0"></script>
-  <script src="js/admin/backup-restore.js?v=90.0"></script>
-  <script src="js/admin/settings-manager.js?v=90.0"></script>
-  <script src="js/admin/pos-terminal.js?v=90.0"></script>
-  <script src="js/admin.js?v=90.0"></script>
-  <script src="js/pwa.js?v=90.0"></script>
+  <script src="js/core/demo-seed-data.js?v=91.0"></script>
+  <script src="js/core/sound-effects.js?v=91.0"></script>
+  <script src="js/store.js?v=91.0"></script>
+  <script src="js/admin/admin-core.js?v=91.0"></script>
+  <script src="js/admin/admin-auth.js?v=91.0"></script>
+  <script src="js/admin/kitchen-orders.js?v=91.0"></script>
+  <script src="js/admin/catalog-manager.js?v=91.0"></script>
+  <script src="js/admin/category-manager.js?v=91.0"></script>
+  <script src="js/admin/stories-manager.js?v=91.0"></script>
+  <script src="js/admin/backup-restore.js?v=91.0"></script>
+  <script src="js/admin/settings-manager.js?v=91.0"></script>
+  <script src="js/admin/pos-terminal.js?v=91.0"></script>
+  <script src="js/admin.js?v=91.0"></script>
+  <script src="js/pwa.js?v=91.0"></script>
 </body>
 </html>

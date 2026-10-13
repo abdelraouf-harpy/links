@@ -47,8 +47,8 @@
   <link rel="preconnect" href="https://i.ibb.co" crossorigin>
   <link rel="dns-prefetch" href="https://i.ibb.co">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/order-tokens.css?v=90.0">
-  <link rel="stylesheet" href="css/order-client.css?v=90.0">
+  <link rel="stylesheet" href="css/order-tokens.css?v=91.0">
+  <link rel="stylesheet" href="css/order-client.css?v=91.0">
   <style id="harpy-critical-layout">
     /* ═══════════════════════════════════════════════════════════
        CRITICAL DEFENSIVE INLINE SHIELD (Prevents SW Cache Mismatches)
@@ -662,8 +662,8 @@
           <img id="hero-store-logo" src="assets/portfolio/logo.png" alt="شعار المطعم" class="menu-header-logo-img" onerror="this.onerror=null;">
         </div>
         <div class="menu-header-text-col">
-          <h1 id="hero-store-name" class="menu-header-store-name">...</h1>
-          <p id="hero-store-tagline" class="menu-header-store-tagline">...</p>
+          <h1 id="hero-store-name" class="menu-header-store-name"></h1>
+          <p id="hero-store-tagline" class="menu-header-store-tagline"></p>
         </div>
       </div>
 
@@ -705,7 +705,7 @@
         </svg>
       </div>
       <div class="promo-announcement-text-col">
-        <span id="promo-deal-title" class="promo-announcement-text">...</span>
+        <span id="promo-deal-title" class="promo-announcement-text"></span>
       </div>
     </div>
 
@@ -715,31 +715,6 @@
       <div class="stories-track" id="stories-track"></div>
     </section>
 
-    <!-- Last Order Recall Banner -->
-    <div id="last-order-banner" class="last-order-banner" style="display:none;">
-      <div class="last-order-info">
-        <div class="last-order-icon">
-          <svg class="icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-        </div>
-        <div>
-          <div class="last-order-title" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-            <span>طلبك الأخير مسجل</span>
-            <span id="last-order-status-badge" style="font-size:11px; padding:2px 8px; border-radius:12px; font-weight:800; background:rgba(245,158,11,0.15); color:#f59e0b;">قيد المتابعة</span>
-          </div>
-          <div id="last-order-summary" class="last-order-sub">تفاصيل طلبك مسجلة ويمكنك تتبع حالته أو إعادته</div>
-        </div>
-      </div>
-      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-        <button id="btn-open-tracker" class="btn btn-primary btn-sm" style="font-weight:800; font-size:12px; padding:7px 14px; display:inline-flex; align-items:center; gap:6px;" onclick="openLastOrderTracker()">
-          <span>تتبع الطلب</span>
-        </button>
-        <button id="btn-reorder" class="btn btn-ghost btn-sm" style="font-weight:700; font-size:12px; padding:7px 12px; border:1px solid var(--border);">
-          <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> 
-          إعادة نفس الطلب
-        </button>
-      </div>
-    </div>
-
     <!-- Unified Categories Navigation Strip (Design Item 4: Starts with 'كل القائمة' with no duplicate buttons) -->
     <nav id="categories-container" class="category-strip"></nav>
 
@@ -747,7 +722,7 @@
     <div class="search-and-view-bar">
       <div class="search-box-compact">
         <svg class="icon search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" id="search-input" class="search-input-field" placeholder="ابحث في المنيو (مثال: برجر، وجبات، صوص)...">
+        <input type="text" id="search-input" class="search-input-field" placeholder="ابحث في المنيو (مثال: برجر، وجبات، صوص)">
       </div>
       <div class="view-controls-compact">
         <button type="button" id="view-mode-cycle-btn" class="btn-view-toggle active" onclick="window.cycleViewMode && window.cycleViewMode()" title="طريقة العرض: صنفين بجانب بعض (انقر للتغيير)" aria-label="تغيير طريقة عرض المنتجات">
@@ -824,7 +799,7 @@
         </div>
         <div class="portfolio-hero-name-col">
           <div class="portfolio-hero-name-row">
-            <h1 id="portfolio-store-name" class="portfolio-hero-store-name">...</h1>
+            <h1 id="portfolio-store-name" class="portfolio-hero-store-name"></h1>
             <span class="portfolio-hero-flame-icon">🔥</span>
           </div>
           <div id="portfolio-status-chip" class="portfolio-live-chip open">
@@ -841,7 +816,7 @@
       <!-- Card 1: Tagline & Quick Stats (Rating & Time) -->
       <div class="portfolio-card portfolio-tagline-card">
         <div class="portfolio-tagline-top-row">
-          <h2 id="portfolio-store-tagline" class="portfolio-card-tagline">...</h2>
+          <h2 id="portfolio-store-tagline" class="portfolio-card-tagline"></h2>
           <div class="portfolio-tagline-icon-badge">
             <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <path d="M7 6.5 C11 4, 16 5.5, 19.5 9" stroke-width="2.2"/>
@@ -947,7 +922,7 @@
           <div class="location-pin-icon">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
           </div>
-          <span id="portfolio-address-text" class="location-address-name">...</span>
+          <span id="portfolio-address-text" class="location-address-name"></span>
         </div>
         <div class="location-left-arrow">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
@@ -1084,7 +1059,7 @@
         <!-- Location / Destination Info Banner -->
         <div class="tracker-location-banner" id="orders-active-location-banner" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:10px; padding:9px 12px; margin:10px 0 14px; font-size:12px; display:flex; align-items:center; gap:8px;">
           <span id="orders-active-location-icon" style="display:flex; align-items:center; color:var(--text-muted);"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span>
-          <span id="orders-active-location-text" style="color:var(--text-main); font-weight:700;">العنوان: جارٍ التحميل...</span>
+          <span id="orders-active-location-text" style="color:var(--text-main); font-weight:700;">العنوان: جارٍ التحميل</span>
         </div>
 
         <!-- Order Items Breakdown -->
@@ -1398,7 +1373,7 @@
               <span class="input-leading-icon top-icon">
                 <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
               </span>
-              <textarea id="cust-address" class="input-luxury-textarea" rows="3" placeholder="المنطقة، اسم الشارع، رقم العمارة والشقة..." required></textarea>
+              <textarea id="cust-address" class="input-luxury-textarea" rows="3" placeholder="المنطقة، اسم الشارع، رقم العمارة والشقة" required></textarea>
             </div>
           </div>
 
@@ -1411,7 +1386,7 @@
               <span class="input-leading-icon">
                 <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
               </span>
-              <input type="text" id="cust-notes" class="input-luxury-field" placeholder="أي تفاصيل خاصة للتوصيل...">
+              <input type="text" id="cust-notes" class="input-luxury-field" placeholder="أي تفاصيل خاصة للتوصيل">
             </div>
           </div>
         </div>
@@ -1571,7 +1546,7 @@
         <span id="preview-category" style="display:none;"></span>
       </div>
 
-      <p class="preview-desc" id="preview-desc">وصف الصنف الكامل...</p>
+      <p class="preview-desc" id="preview-desc"></p>
 
       <div style="display:flex; align-items:center; justify-content:space-between; padding-top:16px; border-top:1px solid var(--border);">
         <div class="food-item-price font-num" id="preview-price" style="font-size:22px;">0 <span>ج.م</span></div>
@@ -1670,7 +1645,7 @@
         <div class="customizer-section-title">
           <span>ملاحظات خاصة للشيف</span>
         </div>
-        <input type="text" id="customizer-notes" class="customizer-notes-input" placeholder="مثال: بدون بصل، صصوص زيادة، حار جداً...">
+        <input type="text" id="customizer-notes" class="customizer-notes-input" placeholder="مثال: بدون بصل، صوص زيادة، حار جداً">
       </div>
     </div>
 
@@ -2027,7 +2002,7 @@
       <div class="qr-code-card">
         <img id="qr-code-image" src="" alt="QR Code" class="qr-code-img">
       </div>
-      <h4 id="qr-store-name" class="qr-store-name">...</h4>
+      <h4 id="qr-store-name" class="qr-store-name"></h4>
       <p class="qr-modal-desc">
         امسح رمز الـ QR بكاميرا الهاتف لفتح المنيو ومشاركته مع الأصدقاء فوراً
       </p>
@@ -2112,16 +2087,16 @@
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=90.0"></script>
-  <script src="js/core/sound-effects.js?v=90.0"></script>
-  <script src="js/store.js?v=90.0"></script>
-  <script src="js/client/client-core.js?v=90.0"></script>
-  <script src="js/client/menu-view.js?v=90.0"></script>
-  <script src="js/client/stories-viewer.js?v=90.0"></script>
-  <script src="js/client/customizer-modal.js?v=90.0"></script>
-  <script src="js/client/cart-ledger.js?v=90.0"></script>
-  <script src="js/client/order-tracking.js?v=90.0"></script>
-  <script src="js/app.js?v=90.0"></script>
-  <script src="js/pwa.js?v=90.0"></script>
+  <script src="js/core/demo-seed-data.js?v=91.0"></script>
+  <script src="js/core/sound-effects.js?v=91.0"></script>
+  <script src="js/store.js?v=91.0"></script>
+  <script src="js/client/client-core.js?v=91.0"></script>
+  <script src="js/client/menu-view.js?v=91.0"></script>
+  <script src="js/client/stories-viewer.js?v=91.0"></script>
+  <script src="js/client/customizer-modal.js?v=91.0"></script>
+  <script src="js/client/cart-ledger.js?v=91.0"></script>
+  <script src="js/client/order-tracking.js?v=91.0"></script>
+  <script src="js/app.js?v=91.0"></script>
+  <script src="js/pwa.js?v=91.0"></script>
 </body>
 </html>

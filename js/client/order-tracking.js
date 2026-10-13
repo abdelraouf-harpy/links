@@ -114,7 +114,7 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
     if (!uploadedReceiptUrl && elements.receiptInput?.files?.length > 0) {
       const file = elements.receiptInput.files[0];
       if (file) {
-        showToastNotification("جاري تجهيز صورة الإيصال... يرجى الانتظار", "info");
+        showToastNotification("جاري تجهيز صورة الإيصال، يرجى الانتظار", "info");
         try {
           uploadedReceiptUrl = await Store.compressImage(file, 900, 900, 0.78);
         } catch (e) {
@@ -196,7 +196,7 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
   submitBtns.forEach(b => {
     b.dataset.origText = b.innerHTML;
     b.disabled = true;
-    b.innerHTML = 'جارٍ تأكيد الطلب...';
+    b.innerHTML = 'جارٍ تأكيد الطلب';
   });
 
   // 2. Await verified cloud push

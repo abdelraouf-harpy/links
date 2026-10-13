@@ -54,7 +54,7 @@ function renderCatalog() {
       adminElements.catalogContainer.innerHTML = `
         <div style="grid-column:1/-1; text-align:center; padding:45px 20px; background:var(--surface); border:1px dashed var(--border); border-radius:var(--radius-md);">
           <div style="width:28px; height:28px; border:3px solid var(--border); border-top-color:var(--primary); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 12px;"></div>
-          <div style="font-size:14px; font-weight:700; color:var(--text-muted);">جاري تحميل أصناف المنيو...</div>
+          <div style="font-size:14px; font-weight:700; color:var(--text-muted);">جاري تحميل أصناف المنيو</div>
         </div>
       `;
       return;
@@ -330,7 +330,7 @@ async function saveProductForm() {
 
   if (submitBtn) {
     submitBtn.disabled = true;
-    submitBtn.innerHTML = 'جاري الحفظ...';
+    submitBtn.innerHTML = 'جاري الحفظ';
   }
 
   try {

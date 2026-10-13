@@ -333,7 +333,7 @@ async function saveSettingsFromForm() {
 
   if (submitBtn) {
     submitBtn.disabled = true;
-    submitBtn.innerHTML = 'جاري حفظ الإعدادات...';
+    submitBtn.innerHTML = 'جاري حفظ الإعدادات';
   }
 
   try {
@@ -348,7 +348,7 @@ async function saveSettingsFromForm() {
     }
     if (cleanLogo && cleanLogo.startsWith('data:image/')) {
       try {
-        if (submitBtn) submitBtn.innerHTML = 'جاري رفع الشعار إلى سحابة الصور...';
+        if (submitBtn) submitBtn.innerHTML = 'جاري رفع الشعار إلى سحابة الصور';
         const cdnUrl = await Store.uploadImage(cleanLogo);
         if (cdnUrl && cdnUrl.startsWith('http')) {
           cleanLogo = cdnUrl;

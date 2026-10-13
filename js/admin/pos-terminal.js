@@ -250,7 +250,7 @@ window.openPOSItemModal = function(prod) {
   html += `
     <div>
       <div style="font-size:12px; font-weight:800; color:var(--text-main); margin-bottom:4px;">ملاحظة خاصة بالصنف:</div>
-      <input type="text" id="pos-modal-item-note" class="form-input" placeholder="مثال: بدون مايونيز، تسوية جيدة..." style="font-size:12px; padding:7px 10px;">
+      <input type="text" id="pos-modal-item-note" class="form-input" placeholder="مثال: بدون مايونيز، تسوية جيدة" style="font-size:12px; padding:7px 10px;">
     </div>
   `;
 

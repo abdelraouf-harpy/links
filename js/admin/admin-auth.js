@@ -237,7 +237,7 @@ function setupAuth() {
 
     if (adminElements.btnLogin) {
       adminElements.btnLogin.disabled = true;
-      adminElements.btnLogin.textContent = "...جاري التحقق والدخول";
+      adminElements.btnLogin.textContent = "جاري التحقق والدخول";
     }
     if (adminElements.loginErrorMsg) {
       adminElements.loginErrorMsg.style.display = 'none';

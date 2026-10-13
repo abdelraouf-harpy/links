@@ -135,7 +135,7 @@ async function saveStoryForm() {
 
   if (submitBtn) {
     submitBtn.disabled = true;
-    submitBtn.innerHTML = 'جاري الحفظ...';
+    submitBtn.innerHTML = 'جاري الحفظ';
   }
 
   try {

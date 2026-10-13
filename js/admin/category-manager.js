@@ -152,7 +152,7 @@ window.saveCategoryEdit = async function() {
   const saveBtn = document.getElementById('btn-save-cat-edit');
   if (saveBtn) {
     saveBtn.disabled = true;
-    saveBtn.textContent = "جاري الحفظ...";
+    saveBtn.textContent = "جاري الحفظ";
   }
 
   try {

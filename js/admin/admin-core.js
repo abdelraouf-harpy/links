@@ -399,7 +399,7 @@ function bindDeviceImageUploader({
   fileInput.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (prompt) prompt.innerHTML = '<span style="font-size:12px; color:var(--primary); font-weight:800;">جاري معالجة وضغط الصورة...</span>';
+    if (prompt) prompt.innerHTML = '<span style="font-size:12px; color:var(--primary); font-weight:800;">جاري معالجة وضغط الصورة</span>';
     try {
       const compressed = await Store.uploadImage(file);
       if (compressed) {
@@ -444,7 +444,7 @@ function bindDeviceImageUploader({
     dropzone.style.borderColor = '';
     const file = e.dataTransfer.files[0];
     if (file && file.type.startsWith('image/')) {
-      if (prompt) prompt.innerHTML = '<span style="font-size:12px; color:var(--primary); font-weight:800;">جاري معالجة وضغط الصورة...</span>';
+      if (prompt) prompt.innerHTML = '<span style="font-size:12px; color:var(--primary); font-weight:800;">جاري معالجة وضغط الصورة</span>';
       try {
         const compressed = await Store.uploadImage(file);
         if (compressed) {

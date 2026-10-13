@@ -60,41 +60,16 @@ window.openLastOrderTracker = function() {
 
 function renderLastOrderRecall() {
   const lastOrder = Store.getLastOrder();
-  const headerTrackerBtn = document.getElementById('btn-header-tracker');
-  const headerTrackerText = document.getElementById('header-tracker-text');
-  const statusBadge = document.getElementById('last-order-status-badge');
+  if (elements.lastOrderBanner) elements.lastOrderBanner.style.display = 'none';
 
   if (lastOrder && !lastOrder.archived && lastOrder.items && lastOrder.items.length > 0 && lastOrder.orderId) {
-    if (elements.lastOrderBanner) elements.lastOrderBanner.style.display = 'flex';
-    if (elements.lastOrderSummary) {
-      const itemNames = lastOrder.items.map(i => `${i.qty}x ${i.name}`).join('، ');
-      elements.lastOrderSummary.textContent = `${lastOrder.orderId}: ${itemNames}`;
-    }
-
-    if (headerTrackerBtn) {
-      headerTrackerBtn.style.display = 'inline-flex';
-      if (headerTrackerText) {
-        headerTrackerText.textContent = `تتبع ${lastOrder.orderId}`;
-      }
-    }
-
-    const st = lastOrder.status || 'pending';
-    const statusMap = {
-      pending: { text: '1. استلام الطلب', color: '#f59e0b', bg: 'rgba(245,158,11,0.15)' },
-      preparing: { text: '2. المطبخ يجهز', color: '#3b82f6', bg: 'rgba(59,130,246,0.15)' },
-      out_for_delivery: { text: '3. في الطريق إليك', color: '#a855f7', bg: 'rgba(168,85,247,0.15)' },
-      delivered: { text: '4. تم التسليم بنجاح', color: '#22c55e', bg: 'rgba(34,197,94,0.15)' },
-      cancelled: { text: 'تم الإلغاء', color: '#ef4444', bg: 'rgba(239,68,68,0.15)' }
-    };
-    const sInfo = statusMap[st] || statusMap.pending;
-    if (statusBadge) {
-      statusBadge.textContent = sInfo.text;
-      statusBadge.style.color = sInfo.color;
-      statusBadge.style.background = sInfo.bg;
+    if (typeof triggerOrdersTabPulse === 'function') {
+      triggerOrdersTabPulse();
     }
   } else {
-    if (elements.lastOrderBanner) elements.lastOrderBanner.style.display = 'none';
-    if (headerTrackerBtn) headerTrackerBtn.style.display = 'none';
+    if (typeof clearOrdersTabPulse === 'function') {
+      clearOrdersTabPulse();
+    }
   }
 }
 
@@ -806,7 +781,7 @@ function setupEventListeners() {
       reader.readAsDataURL(file);
 
       if (elements.receiptStatus) {
-        elements.receiptStatus.textContent = "جاري معالجة الإيصال...";
+        elements.receiptStatus.textContent = "جاري معالجة الإيصال";
         elements.receiptStatus.className = "upload-status-chip loading";
         elements.receiptStatus.style.display = "inline-block";
       }

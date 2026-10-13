@@ -444,7 +444,7 @@ function setupOutboxSync() {
       showToastNotification("عاد الاتصال بالإنترنت، ولكن استقبال الطلبات متوقف حالياً لدى المطعم.", "warning");
       return;
     }
-    showToastNotification("عاد الاتصال بالإنترنت! جارٍ محاولة إرسال الطلبات المعلقة...", "info");
+    showToastNotification("عاد الاتصال بالإنترنت! جارٍ محاولة إرسال الطلبات المعلقة", "info");
     const count = await Store.processOutbox();
     if (count > 0) {
       if (typeof SoundFX !== 'undefined' && SoundFX.playCash) SoundFX.playCash();
@@ -544,9 +544,6 @@ window.handleThemeToggle = function() {
   updateThemeToggleIcons();
   if (typeof renderCleanProfileUI === 'function') renderCleanProfileUI();
   if (typeof SoundFX !== 'undefined' && SoundFX.playPop) SoundFX.playPop();
-  if (typeof showToastNotification === 'function') {
-    showToastNotification(newMode === 'dark' ? "تم تفعيل الوضع الداكن" : "تم تفعيل الوضع النهاري", "info");
-  }
 };
 window.toggleTheme = window.handleThemeToggle;
 
@@ -587,9 +584,6 @@ window.handleSoundToggle = function() {
   if (typeof renderCleanProfileUI === 'function') renderCleanProfileUI();
   if (nextEnabled) {
     if (typeof SoundFX !== 'undefined' && SoundFX.playPop) SoundFX.playPop();
-    if (typeof showToastNotification === 'function') showToastNotification("تم تفعيل المؤثرات الصوتية بنجاح", "success");
-  } else {
-    if (typeof showToastNotification === 'function') showToastNotification("تم كتم المؤثرات الصوتية (وضع صامت)", "info");
   }
 };
 window.toggleSound = window.handleSoundToggle;
@@ -1700,9 +1694,6 @@ window.cancelActiveCustomerOrder = async function() {
   if (typeof renderLastOrderRecall === 'function') {
     renderLastOrderRecall();
   }
-  if (typeof showToastNotification === 'function') {
-    showToastNotification("تم إخفاء الطلب من هاتفك فقط", "success");
-  }
 };
 
 window.deleteCustomerHistoryOrder = async function(orderId) {
@@ -1724,9 +1715,6 @@ window.deleteCustomerHistoryOrder = async function(orderId) {
 
   if (typeof renderOrdersView === 'function') {
     renderOrdersView();
-  }
-  if (typeof showToastNotification === 'function') {
-    showToastNotification("تم مسح الطلب من هاتفك فقط", "success");
   }
 };
 

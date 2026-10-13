@@ -253,9 +253,9 @@ window.releaseKitchenWakeLock = async function(showToast = true) {
 
 window.toggleKitchenWakeLock = async function() {
   if (isWakeLockRequested && wakeLockSentinel) {
-    await releaseKitchenWakeLock(true);
+    await releaseKitchenWakeLock(false);
   } else {
-    await requestKitchenWakeLock(true);
+    await requestKitchenWakeLock(false);
   }
 };
 
@@ -364,7 +364,7 @@ window.executeArchivePasswordDelete = async function() {
 
   if (btn) {
     btn.disabled = true;
-    btn.textContent = "جاري التحقق...";
+    btn.textContent = "جاري التحقق";
   }
 
   try {
