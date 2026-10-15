@@ -153,8 +153,8 @@
       };
 
       const authenticHref = isAdmin 
-        ? `admin-manifest-${slug}.json?v=94.1` 
-        : `manifest-${slug}.json?v=94.1`;
+        ? `admin-manifest-${slug}.json?v=94.2` 
+        : `manifest-${slug}.json?v=94.2`;
 
       let manifestLink = document.querySelector('link[rel="manifest"]');
       if (!manifestLink) {

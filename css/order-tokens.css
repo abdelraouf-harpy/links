@@ -250,9 +250,10 @@ img {
 }
 
 html {
-  scroll-behavior: smooth;
   font-size: 15.5px;
   -webkit-text-size-adjust: 100%;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 @media (min-width: 768px) {
@@ -278,7 +279,11 @@ body {
   line-height: 1.6;
   min-height: 100vh;
   min-height: 100dvh;
+  width: 100%;
+  max-width: 100%;
   overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   padding-bottom: calc(115px + env(safe-area-inset-bottom, 0px));
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -289,15 +294,29 @@ body {
   letter-spacing: -0.01em;
 }
 
-/* ── Scrollbars ──────────────────────────────────────────── */
-::-webkit-scrollbar {
+/* ── Modern App Shell: Suppress root page scrollbar track gap in RTL ── */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Inner scrollbars for containers (modal, drawer items) */
+.modal-box::-webkit-scrollbar,
+.cart-drawer-items::-webkit-scrollbar,
+.customizer-body::-webkit-scrollbar {
   width: 5px;
   height: 5px;
 }
-::-webkit-scrollbar-track {
+.modal-box::-webkit-scrollbar-track,
+.cart-drawer-items::-webkit-scrollbar-track,
+.customizer-body::-webkit-scrollbar-track {
   background: transparent;
 }
-::-webkit-scrollbar-thumb {
+.modal-box::-webkit-scrollbar-thumb,
+.cart-drawer-items::-webkit-scrollbar-thumb,
+.customizer-body::-webkit-scrollbar-thumb {
   background: var(--surface-raised);
   border-radius: var(--radius-full);
 }

@@ -2044,7 +2044,7 @@ function handleNavTabClick(tabId) {
       activeView.style.display = 'block';
       activeView.classList.add('active');
     }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo(0, 0);
   }
 
   // Helper to sync active state across mobile & desktop navigation

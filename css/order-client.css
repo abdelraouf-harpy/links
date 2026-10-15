@@ -4427,8 +4427,9 @@ body.harpy-account-locked {
   left: 0 !important;
   right: 0 !important;
   bottom: 0 !important;
-  width: 100vw !important;
+  width: 100% !important;
   height: 100vh !important;
+  height: 100dvh !important;
   background: rgba(10, 10, 15, 0.92) !important;
   backdrop-filter: blur(16px) !important;
   -webkit-backdrop-filter: blur(16px) !important;
@@ -5146,8 +5147,11 @@ body.harpy-account-locked {
    Strictly matched with mobile mockup (Cover Hero + Metric Cards)
    ═══════════════════════════════════════════════════════════ */
 .portfolio-screen-container {
-  background: #F8F6F2;
-  min-height: calc(100vh - 65px);
+  background: var(--bg);
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  max-width: 100%;
   padding-bottom: 84px;
   direction: rtl;
   box-sizing: border-box;
@@ -5177,33 +5181,9 @@ body.harpy-account-locked {
   pointer-events: none;
 }
 
-.portfolio-top-bar {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 10;
-}
-
+.portfolio-top-bar,
 .portfolio-back-btn {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: rgba(18, 18, 18, 0.55);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #FFFFFF;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: transform 0.2s, background 0.2s;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
-}
-
-.portfolio-back-btn:hover {
-  background: rgba(18, 18, 18, 0.85);
-  transform: scale(1.05);
+  display: none !important;
 }
 
 /* ── Hero Identity Wrap (Logo + Store Name + Live Status Pill) ── */
@@ -6589,6 +6569,8 @@ body.harpy-account-locked {
 /* ── Smooth Native App View Transitions ─────────────────── */
 .app-view-container {
   width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 .app-view-container.active {
   animation: appViewFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;

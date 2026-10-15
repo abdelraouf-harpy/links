@@ -47,14 +47,27 @@
   <link rel="preconnect" href="https://i.ibb.co" crossorigin>
   <link rel="dns-prefetch" href="https://i.ibb.co">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/order-tokens.css?v=94.1">
-  <link rel="stylesheet" href="css/order-client.css?v=94.1">
+  <link rel="stylesheet" href="css/order-tokens.css?v=94.2">
+  <link rel="stylesheet" href="css/order-client.css?v=94.2">
   <style id="harpy-critical-layout">
     /* ═══════════════════════════════════════════════════════════
        CRITICAL DEFENSIVE INLINE SHIELD (Prevents SW Cache Mismatches)
        ═══════════════════════════════════════════════════════════ */
     *, *::before, *::after { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; overflow-x: hidden; max-width: 100vw; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      width: 100%;
+      max-width: 100%;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    html::-webkit-scrollbar, body::-webkit-scrollbar {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
     img { max-width: 100%; height: auto; }
 
     body {
@@ -533,7 +546,7 @@
         if (oldManifest) oldManifest.remove();
         var mLink = document.createElement('link');
         mLink.rel = 'manifest';
-        mLink.href = 'manifest-' + slug + '.json?v=94.1';
+        mLink.href = 'manifest-' + slug + '.json?v=94.2';
         document.head.appendChild(mLink);
 
         // Safety Recovery: If browser lands on index.html with an admin tab hash, route directly to /admin.html
@@ -844,15 +857,6 @@
       <img id="portfolio-cover-img" src="assets/portfolio/order_restaurant_showcase.jpg" alt="غلاف المطعم" class="portfolio-cover-photo" onerror="this.onerror=null;">
       <div class="portfolio-cover-scrim"></div>
       
-      <!-- Top Bar: Back Circular Button -->
-      <div class="portfolio-top-bar">
-        <button type="button" class="portfolio-back-btn" onclick="window.handleNavTabClick && window.handleNavTabClick('menu')" title="العودة للمنيو" aria-label="العودة لقائمة الطعام">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="15 18 9 12 15 6"/>
-          </svg>
-        </button>
-      </div>
-
       <!-- Hero Restaurant Identity Row (Logo + Name + Live Status Pill) -->
       <div class="portfolio-hero-brand-wrap">
         <div class="portfolio-hero-logo-box">
@@ -2148,16 +2152,16 @@
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=94.1"></script>
-  <script src="js/core/sound-effects.js?v=94.1"></script>
-  <script src="js/store.js?v=94.1"></script>
-  <script src="js/client/client-core.js?v=94.1"></script>
-  <script src="js/client/menu-view.js?v=94.1"></script>
-  <script src="js/client/stories-viewer.js?v=94.1"></script>
-  <script src="js/client/customizer-modal.js?v=94.1"></script>
-  <script src="js/client/cart-ledger.js?v=94.1"></script>
-  <script src="js/client/order-tracking.js?v=94.1"></script>
-  <script src="js/app.js?v=94.1"></script>
-  <script src="js/pwa.js?v=94.1"></script>
+  <script src="js/core/demo-seed-data.js?v=94.2"></script>
+  <script src="js/core/sound-effects.js?v=94.2"></script>
+  <script src="js/store.js?v=94.2"></script>
+  <script src="js/client/client-core.js?v=94.2"></script>
+  <script src="js/client/menu-view.js?v=94.2"></script>
+  <script src="js/client/stories-viewer.js?v=94.2"></script>
+  <script src="js/client/customizer-modal.js?v=94.2"></script>
+  <script src="js/client/cart-ledger.js?v=94.2"></script>
+  <script src="js/client/order-tracking.js?v=94.2"></script>
+  <script src="js/app.js?v=94.2"></script>
+  <script src="js/pwa.js?v=94.2"></script>
 </body>
 </html>
