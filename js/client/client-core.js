@@ -552,6 +552,18 @@ window.handleThemeToggle = function() {
 
   const currentMode = Store.getThemeMode();
   const newMode = (currentMode === 'light') ? 'dark' : 'light';
+
+  // Instant DOM synchronization
+  const root = document.documentElement;
+  const body = document.body;
+  root.setAttribute('data-theme', newMode);
+  if (body) body.setAttribute('data-theme', newMode);
+
+  const s = (typeof Store !== 'undefined' && Store.getSettings) ? Store.getSettings() : {};
+  const newPreset = (newMode === 'light') ? 'cream' : ((s.themePreset && s.themePreset !== 'cream') ? s.themePreset : 'charcoal');
+  root.setAttribute('data-theme-preset', newPreset);
+  if (body) body.setAttribute('data-theme-preset', newPreset);
+
   Store.setThemeMode(newMode);
   updateThemeToggleIcons();
   if (typeof renderCleanProfileUI === 'function') renderCleanProfileUI();

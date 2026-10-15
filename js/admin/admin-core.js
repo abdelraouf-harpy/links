@@ -213,6 +213,18 @@ window.handleThemeToggle = function() {
 
   const current = Store.getThemeMode();
   const next = current === 'light' ? 'dark' : 'light';
+
+  // Instant DOM synchronization
+  const root = document.documentElement;
+  const body = document.body;
+  root.setAttribute('data-theme', next);
+  if (body) body.setAttribute('data-theme', next);
+
+  const s = (typeof Store !== 'undefined' && Store.getSettings) ? Store.getSettings() : {};
+  const nextPreset = (next === 'light') ? 'cream' : ((s.themePreset && s.themePreset !== 'cream') ? s.themePreset : 'charcoal');
+  root.setAttribute('data-theme-preset', nextPreset);
+  if (body) body.setAttribute('data-theme-preset', nextPreset);
+
   Store.setThemeMode(next);
   updateAdminThemeToggleIcons();
 };

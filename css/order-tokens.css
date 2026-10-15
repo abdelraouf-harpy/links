@@ -57,8 +57,8 @@
   --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.65);
 }
 
-body, .food-item-card, .cat-pill, .cat-card-pill, .discovery-chip, .search-input, .cart-drawer, .modal-box, .dynamic-island-cart {
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+body, .food-item-card, .cat-pill, .cat-card-pill, .discovery-chip, .search-input, .cart-drawer, .modal-box, .dynamic-island-cart, .menu-compact-header, .main-content-sheet, .search-input-field, .view-controls-compact {
+  transition: background-color 0.22s ease, color 0.22s ease, border-color 0.22s ease;
 }
 
 /* Light Theme Mode (Day Mode - Crisp Modern Daylight As shown in mockups) */
@@ -91,27 +91,14 @@ body, .food-item-card, .cat-pill, .cat-card-pill, .discovery-chip, .search-input
 
 /* ═══════════════════════════════════════════════════════════
    HARPY PRO: 7 PURE CSS THEME PRESETS (Zero-FOUC Instant Styling)
+   Carefully scoped to mode to guarantee 100% pure Night & Day modes
    ═══════════════════════════════════════════════════════════ */
-:root[data-theme-preset="charcoal"],
-body[data-theme-preset="charcoal"] {
-  --bg: #070B13;
-  --bg-subtle: #0B1320;
-  --surface: #0E1726;
-  --surface-raised: #142034;
-  --surface-hover: #1A2942;
-  --header-bg: #070B13;
-  --text-main: #ffffff;
-  --text-body: #e2e8f0;
-  --text-muted: #94a3b8;
-  --primary: #FF6A00;
-  --primary-hover: #FF7D1A;
-  --primary-subtle: rgba(255, 106, 0, 0.15);
-  --primary-glow: rgba(255, 106, 0, 0.35);
-  --border: rgba(255, 255, 255, 0.08);
-}
 
-:root[data-theme-preset="cream"],
-body[data-theme-preset="cream"] {
+/* 1. Day Mode Base Preset: cream (Only active when data-theme="light") */
+:root[data-theme="light"][data-theme-preset="cream"],
+body[data-theme="light"][data-theme-preset="cream"],
+:root[data-theme-preset="cream"]:not([data-theme="dark"]),
+body[data-theme-preset="cream"]:not([data-theme="dark"]) {
   --bg: #F8FAFC;
   --bg-subtle: #F1F5F9;
   --surface: #ffffff;
@@ -128,8 +115,31 @@ body[data-theme-preset="cream"] {
   --border: #E2E8F0;
 }
 
-:root[data-theme-preset="midnight"],
-body[data-theme-preset="midnight"] {
+/* 2. Night Mode Presets (Active when data-theme="dark" or not light) */
+:root[data-theme="dark"][data-theme-preset="charcoal"],
+body[data-theme="dark"][data-theme-preset="charcoal"],
+:root[data-theme-preset="charcoal"]:not([data-theme="light"]),
+body[data-theme-preset="charcoal"]:not([data-theme="light"]) {
+  --bg: #070B13;
+  --bg-subtle: #0B1320;
+  --surface: #0E1726;
+  --surface-raised: #142034;
+  --surface-hover: #1A2942;
+  --header-bg: #070B13;
+  --text-main: #ffffff;
+  --text-body: #e2e8f0;
+  --text-muted: #94a3b8;
+  --primary: #FF6A00;
+  --primary-hover: #FF7D1A;
+  --primary-subtle: rgba(255, 106, 0, 0.15);
+  --primary-glow: rgba(255, 106, 0, 0.35);
+  --border: rgba(255, 255, 255, 0.08);
+}
+
+:root[data-theme="dark"][data-theme-preset="midnight"],
+body[data-theme="dark"][data-theme-preset="midnight"],
+:root[data-theme-preset="midnight"]:not([data-theme="light"]),
+body[data-theme-preset="midnight"]:not([data-theme="light"]) {
   --bg: #0d0d0e;
   --bg-subtle: #141416;
   --surface: #18181b;
@@ -146,8 +156,10 @@ body[data-theme-preset="midnight"] {
   --border: rgba(217, 119, 6, 0.20);
 }
 
-:root[data-theme-preset="sunset"],
-body[data-theme-preset="sunset"] {
+:root[data-theme="dark"][data-theme-preset="sunset"],
+body[data-theme="dark"][data-theme-preset="sunset"],
+:root[data-theme-preset="sunset"]:not([data-theme="light"]),
+body[data-theme-preset="sunset"]:not([data-theme="light"]) {
   --bg: #140e0a;
   --bg-subtle: #1a120d;
   --surface: #221812;
@@ -164,8 +176,10 @@ body[data-theme-preset="sunset"] {
   --border: rgba(249, 115, 22, 0.16);
 }
 
-:root[data-theme-preset="olive"],
-body[data-theme-preset="olive"] {
+:root[data-theme="dark"][data-theme-preset="olive"],
+body[data-theme="dark"][data-theme-preset="olive"],
+:root[data-theme-preset="olive"]:not([data-theme="light"]),
+body[data-theme-preset="olive"]:not([data-theme="light"]) {
   --bg: #0d1410;
   --bg-subtle: #121c17;
   --surface: #18241d;
@@ -182,8 +196,10 @@ body[data-theme-preset="olive"] {
   --border: rgba(22, 163, 74, 0.20);
 }
 
-:root[data-theme-preset="indigo"],
-body[data-theme-preset="indigo"] {
+:root[data-theme="dark"][data-theme-preset="indigo"],
+body[data-theme="dark"][data-theme-preset="indigo"],
+:root[data-theme-preset="indigo"]:not([data-theme="light"]),
+body[data-theme-preset="indigo"]:not([data-theme="light"]) {
   --bg: #0b1120;
   --bg-subtle: #101930;
   --surface: #141d33;
@@ -200,8 +216,10 @@ body[data-theme-preset="indigo"] {
   --border: rgba(59, 130, 246, 0.20);
 }
 
-:root[data-theme-preset="bordeaux"],
-body[data-theme-preset="bordeaux"] {
+:root[data-theme="dark"][data-theme-preset="bordeaux"],
+body[data-theme="dark"][data-theme-preset="bordeaux"],
+:root[data-theme-preset="bordeaux"]:not([data-theme="light"]),
+body[data-theme-preset="bordeaux"]:not([data-theme="light"]) {
   --bg: #140a0e;
   --bg-subtle: #1d0f15;
   --surface: #24141a;

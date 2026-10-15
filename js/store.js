@@ -2037,7 +2037,14 @@ const Store = {
     root.setAttribute('data-theme', mode);
     if (body) body.setAttribute('data-theme', mode);
 
-    const preset = s.themePreset || (mode === 'light' ? 'cream' : 'charcoal');
+    let preset;
+    if (mode === 'light') {
+      // In daylight mode, preset is ALWAYS the crisp daylight preset
+      preset = 'cream';
+    } else {
+      // In night mode, use tenant's chosen dark preset, or fallback to 'charcoal' if not set or if set to 'cream'
+      preset = (s.themePreset && s.themePreset !== 'cream') ? s.themePreset : 'charcoal';
+    }
     root.setAttribute('data-theme-preset', preset);
     if (body) body.setAttribute('data-theme-preset', preset);
 
@@ -2053,7 +2060,11 @@ const Store = {
 
     let primaryColor = s.siteColors?.primary;
     if (!primaryColor || primaryColor === '#ea580c' || primaryColor === '#c2410c') {
-      primaryColor = '#FF6A00';
+      if (mode === 'dark' && THEME_PRESETS[preset]?.primary) {
+        primaryColor = THEME_PRESETS[preset].primary;
+      } else {
+        primaryColor = '#FF6A00';
+      }
     }
     root.style.setProperty('--primary', primaryColor);
     root.style.setProperty('--primary-hover', primaryColor);
