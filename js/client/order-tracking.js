@@ -3,6 +3,10 @@
 // ═══════════════════════════════════════════════════════════
 
 var uploadedReceiptUrl = null;
+var roundCurrency = (val) => {
+  const n = Number(val || 0);
+  return Math.sign(n) * (Math.round(Math.abs(n) * 100 + 1e-6) / 100);
+};
 
 // ── Direct In-App Ordering & Live Tracker Engine ────────────
 
@@ -97,13 +101,13 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
   let spendTierDiscountAmount = 0;
   if (settings.enableSpendTierDiscount && settings.spendTierMinAmount > 0 && subtotal >= settings.spendTierMinAmount) {
     const tierValue = settings.spendTierDiscountValue || 15;
-    spendTierDiscountAmount = settings.spendTierDiscountType !== 'fixed' ? (subtotal * (tierValue / 100)) : tierValue;
+    spendTierDiscountAmount = roundCurrency(settings.spendTierDiscountType !== 'fixed' ? (subtotal * (tierValue / 100)) : tierValue);
   }
 
   const appliedCoupon = Store.getAppliedCoupon();
   let couponDiscountAmount = 0;
   if (appliedCoupon && subtotal > 0) {
-    couponDiscountAmount = appliedCoupon.type === 'percent' ? (subtotal * (appliedCoupon.value / 100)) : appliedCoupon.value;
+    couponDiscountAmount = roundCurrency(appliedCoupon.type === 'percent' ? (subtotal * (appliedCoupon.value / 100)) : appliedCoupon.value);
   }
 
   const subtotalAfterBase = Math.max(0, subtotal - spendTierDiscountAmount - couponDiscountAmount);
@@ -139,10 +143,10 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
   if (isWallet && settings.enableWalletDiscount !== false && subtotalAfterBase > 0) {
     const isPercent = settings.walletDiscountType !== 'fixed';
     const val = settings.walletDiscountValue !== undefined ? settings.walletDiscountValue : 10;
-    walletDiscountAmount = isPercent ? (subtotalAfterBase * (val / 100)) : val;
+    walletDiscountAmount = roundCurrency(isPercent ? (subtotalAfterBase * (val / 100)) : val);
   }
 
-  const totalDiscounts = spendTierDiscountAmount + couponDiscountAmount + walletDiscountAmount;
+  const totalDiscounts = roundCurrency(spendTierDiscountAmount + couponDiscountAmount + walletDiscountAmount);
 
   // Fulfillment-aware delivery fee & zone calculation
   let deliveryFee = 0;
@@ -151,7 +155,7 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
 
   if (fType === 'delivery') {
     const deliveryInfo = detectDeliveryZone(address, settings);
-    deliveryFee = deliveryInfo.fee;
+    deliveryFee = roundCurrency(deliveryInfo.fee);
     deliveryZone = deliveryInfo.zoneName;
   } else if (fType === 'dinein') {
     deliveryFee = 0;
@@ -163,8 +167,10 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
     formattedAddress = 'استلام من الفرع';
   }
 
-  const finalTotal = Math.max(0, subtotal - totalDiscounts) + deliveryFee;
-  const orderId = `#ORD-${Math.floor(1000 + Math.random() * 9000)}`;
+  const finalTotal = roundCurrency(Math.max(0, subtotal - totalDiscounts) + deliveryFee);
+  const randAlpha = Math.random().toString(36).substring(2, 6).toUpperCase();
+  const timeSuffix = Date.now().toString().slice(-4);
+  const orderId = `#ORD-${timeSuffix}${randAlpha}`;
 
   const orderData = {
     orderId,
@@ -302,85 +308,137 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
   initBackgroundOrderTracking();
 }
 
-// ── Persistent Background Order Tracking & Audio Alerts Engine ──
-let backgroundOrderWatcherUnsub = null;
-let lastKnownBackgroundStatus = null;
+// ── Multi-Order Real-Time Background Tracking & Audio Alerts Engine ──
+const activeOrderWatchers = new Map(); // orderId -> { unsub, getStatus }
+let backgroundOrderWatcherUnsub = () => {
+  activeOrderWatchers.forEach(w => { if (w && typeof w.unsub === 'function') w.unsub(); });
+  activeOrderWatchers.clear();
+};
+
+function getActiveCustomerOrders() {
+  const list = [];
+  const seen = new Set();
+  const lastOrder = (typeof Store !== 'undefined' && Store.getLastOrder) ? Store.getLastOrder() : null;
+  if (lastOrder && lastOrder.orderId && !lastOrder.archived) {
+    list.push(lastOrder);
+    seen.add(lastOrder.orderId);
+  }
+  const history = (typeof Store !== 'undefined' && Store.getOrderHistory) ? Store.getOrderHistory() : [];
+  if (Array.isArray(history)) {
+    history.forEach(o => {
+      if (o && o.orderId && !seen.has(o.orderId)) {
+        const st = o.status || 'pending';
+        if (st === 'pending' || st === 'preparing' || st === 'out_for_delivery') {
+          list.push(o);
+          seen.add(o.orderId);
+        }
+      }
+    });
+  }
+  return list;
+}
 
 function initBackgroundOrderTracking() {
-  const slug = Store.getRestaurantSlug();
-  const lastOrder = Store.getLastOrder();
-  if (!slug || !lastOrder || !lastOrder.orderId || lastOrder.archived) {
-    if (backgroundOrderWatcherUnsub) {
-      backgroundOrderWatcherUnsub();
-      backgroundOrderWatcherUnsub = null;
-    }
+  const slug = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : null;
+  if (!slug) {
+    activeOrderWatchers.forEach(w => { if (w && typeof w.unsub === 'function') w.unsub(); });
+    activeOrderWatchers.clear();
     return;
   }
 
-  if (lastKnownBackgroundStatus === null) {
-    lastKnownBackgroundStatus = lastOrder.status || 'pending';
+  const activeOrders = getActiveCustomerOrders();
+  const activeIds = new Set(activeOrders.map(o => o.orderId));
+
+  // 1. Clean up watchers for orders that are no longer active or have been deleted
+  for (const [orderId, watcher] of activeOrderWatchers.entries()) {
+    if (!activeIds.has(orderId)) {
+      if (watcher && typeof watcher.unsub === 'function') watcher.unsub();
+      activeOrderWatchers.delete(orderId);
+    }
   }
 
-  if (backgroundOrderWatcherUnsub) {
-    backgroundOrderWatcherUnsub();
-    backgroundOrderWatcherUnsub = null;
-  }
+  // 2. Establish resilient parallel watchers for every active customer order
+  activeOrders.forEach(order => {
+    if (activeOrderWatchers.has(order.orderId)) return; // Already watching
 
-  backgroundOrderWatcherUnsub = Store.subscribeToOrder(slug, lastOrder.orderId, (updatedOrder) => {
-    if (!updatedOrder) return;
-    if (updatedOrder.deleted || updatedOrder.status === 'deleted') {
-      Store.saveLastOrder(null);
+    const orderId = order.orderId;
+    let lastKnownStatus = order.status || 'pending';
+
+    const unsub = Store.subscribeToOrder(slug, orderId, (updatedOrder) => {
+      if (!updatedOrder) return;
+
+      // Handle remote deletion from cloud
+      if (updatedOrder.deleted || updatedOrder.status === 'deleted') {
+        const curLast = Store.getLastOrder();
+        if (curLast && (curLast.orderId === orderId || curLast.id === orderId)) {
+          Store.saveLastOrder(null);
+        }
+        if (typeof Store.removeOrderFromHistory === 'function') {
+          Store.removeOrderFromHistory(orderId);
+        }
+        if (activeOrderWatchers.has(orderId)) {
+          const w = activeOrderWatchers.get(orderId);
+          if (w && typeof w.unsub === 'function') w.unsub();
+          activeOrderWatchers.delete(orderId);
+        }
+        if (typeof window.renderOrdersView === 'function') window.renderOrdersView();
+        if (elements.trackerModal && elements.trackerModal.classList.contains('open')) {
+          if (typeof closeOrderTracker === 'function') closeOrderTracker();
+        }
+        return;
+      }
+
+      const statusRank = { pending: 1, preparing: 2, out_for_delivery: 3, delivered: 4, cancelled: 5 };
+      const curStored = Store.getLastOrder();
+      const isCurLastOrder = curStored && (curStored.orderId === orderId || curStored.id === orderId);
+
+      if (isCurLastOrder && (statusRank[curStored.status] || 1) > (statusRank[updatedOrder.status] || 1)) {
+        updatedOrder.status = curStored.status;
+      }
+
+      const newStatus = updatedOrder.status || 'pending';
+      const prevStatus = lastKnownStatus;
+      lastKnownStatus = newStatus;
+
+      // Keep order history persistently in sync
+      if (typeof Store.addOrderToHistory === 'function') {
+        Store.addOrderToHistory(updatedOrder);
+      }
+
+      // If this order is the active/last order, update lastOrder state, steppers & modal
+      if (isCurLastOrder) {
+        const merged = { ...curStored, ...updatedOrder };
+        Store.saveLastOrder(merged);
+        renderLastOrderRecall();
+
+        if (typeof window.updateOrdersStepperUI === 'function') {
+          window.updateOrdersStepperUI(newStatus, merged);
+        }
+
+        if (elements.trackerModal && elements.trackerModal.classList.contains('open')) {
+          const settings = Store.getSettings();
+          const currency = settings.currency || "ج.م";
+          renderTrackerOrderData(merged, currency);
+          updateTrackerStepper(newStatus);
+        }
+      }
+
+      // Instantly update live tracking board & history badges in #view-orders
       if (typeof window.renderOrdersView === 'function') {
         window.renderOrdersView();
       }
-      if (elements.trackerModal && elements.trackerModal.classList.contains('open')) {
-        if (typeof closeOrderTracker === 'function') closeOrderTracker();
-      }
-      return;
-    }
-    const statusRank = { pending: 1, preparing: 2, out_for_delivery: 3, delivered: 4, cancelled: 5 };
-    const currentStored = Store.getLastOrder();
 
-    if (currentStored && (statusRank[currentStored.status] || 1) > (statusRank[updatedOrder.status] || 1)) {
-      updatedOrder.status = currentStored.status;
-    }
-
-    const newStatus = updatedOrder.status || 'pending';
-    const prevStatus = lastKnownBackgroundStatus;
-    lastKnownBackgroundStatus = newStatus;
-
-    if (currentStored) {
-      const merged = { ...currentStored, ...updatedOrder };
-      Store.saveLastOrder(merged);
-      renderLastOrderRecall();
-
-      // Instantly update live tracking board in #view-orders
-      if (typeof window.renderOrdersView === 'function') {
-        window.renderOrdersView();
-      }
-      if (typeof window.updateOrdersStepperUI === 'function') {
-        window.updateOrdersStepperUI(newStatus, merged);
-      }
-
-      // If tracker modal is open, update UI in real-time
-      if (elements.trackerModal && elements.trackerModal.classList.contains('open')) {
-        const settings = Store.getSettings();
-        const currency = settings.currency || "ج.م";
-        renderTrackerOrderData(merged, currency);
-        updateTrackerStepper(newStatus);
-      }
-
-      // Audio chime and clean toast notification on status transition
+      // Audio chime and toast notification on status transition
       if (prevStatus && prevStatus !== newStatus) {
-        const isDineIn = merged.fulfillmentType === 'dinein' || merged.orderType === 'dine_in' || String(merged.customer?.address || '').includes('صالة');
-        const isTakeaway = merged.fulfillmentType === 'takeaway' || String(merged.customer?.address || '').includes('استلام');
+        const isDineIn = updatedOrder.fulfillmentType === 'dinein' || updatedOrder.orderType === 'dine_in' || String(updatedOrder.customer?.address || '').includes('صالة');
+        const isTakeaway = updatedOrder.fulfillmentType === 'takeaway' || String(updatedOrder.customer?.address || '').includes('استلام');
         
-        let alertText = "تم تحديث حالة طلبك";
-        if (newStatus === 'pending') alertText = "تم استلام طلبك ومراجعته في المطعم";
-        else if (newStatus === 'preparing') alertText = isDineIn ? "بدأ طهاة المطعم في تحضير وجباتك الآن" : (isTakeaway ? "جاري تحضير وتغليف طلبك للاستلام من الفرع" : "بدأ طهاة المطعم في تحضير وجباتك الآن");
-        else if (newStatus === 'out_for_delivery') alertText = isDineIn ? "وجبتك جاهزة ويتم تقديمها لطاولتك الآن" : (isTakeaway ? "طلبك جاهز للاستلام على كاونتر الفرع" : "طلبك مع الكابتن وفي الطريق إليك الآن");
-        else if (newStatus === 'delivered') alertText = isDineIn ? "بالهناء والشفاء! نتمنى لك تجربة طعام مميزة" : (isTakeaway ? "تم استلام الطلب بالفرع بنجاح، بالهناء والشفاء" : "تم تسليم الطلب بنجاح، بالهناء والشفاء");
-        else if (newStatus === 'cancelled') alertText = "تم إلغاء الطلب من قِبل إدارة المطعم";
+        let alertText = (activeOrders.length > 1 ? `طلب ${orderId}: ` : "");
+        if (newStatus === 'pending') alertText += "تم استلام طلبك ومراجعته في المطعم";
+        else if (newStatus === 'preparing') alertText += isDineIn ? "بدأ طهاة المطعم في تحضير وجباتك الآن" : (isTakeaway ? "جاري تحضير وتغليف طلبك للاستلام من الفرع" : "بدأ طهاة المطعم في تحضير وجباتك الآن");
+        else if (newStatus === 'out_for_delivery') alertText += isDineIn ? "وجبتك جاهزة ويتم تقديمها لطاولتك الآن" : (isTakeaway ? "طلبك جاهز للاستلام على كاونتر الفرع" : "طلبك مع الكابتن وفي الطريق إليك الآن");
+        else if (newStatus === 'delivered') alertText += isDineIn ? "بالهناء والشفاء! نتمنى لك تجربة طعام مميزة" : (isTakeaway ? "تم استلام الطلب بالفرع بنجاح، بالهناء والشفاء" : "تم تسليم الطلب بنجاح، بالهناء والشفاء");
+        else if (newStatus === 'cancelled') alertText += "تم إلغاء الطلب من قِبل إدارة المطعم";
 
         if (newStatus === 'delivered') SoundFX.playCash();
         else SoundFX.playChime();
@@ -395,7 +453,23 @@ function initBackgroundOrderTracking() {
         showToastNotification(alertText, newStatus === 'delivered' ? 'success' : 'info');
         notifyCustomerOrderStatus(newStatus);
       }
-    }
+
+      // Terminal state watcher cleanup with gentle grace period
+      if (newStatus === 'delivered' || newStatus === 'cancelled') {
+        setTimeout(() => {
+          if (activeOrderWatchers.has(orderId)) {
+            const w = activeOrderWatchers.get(orderId);
+            if (w && typeof w.unsub === 'function') w.unsub();
+            activeOrderWatchers.delete(orderId);
+          }
+        }, 8000);
+      }
+    });
+
+    activeOrderWatchers.set(orderId, {
+      unsub,
+      getStatus: () => lastKnownStatus
+    });
   });
 }
 
@@ -525,9 +599,10 @@ function closeLiveOrderTracker(triggerHistoryBack = true) {
   if (lastOrder && (lastOrder.status === 'delivered' || lastOrder.status === 'cancelled')) {
     lastOrder.archived = true;
     Store.saveLastOrder(lastOrder);
-    if (backgroundOrderWatcherUnsub) {
-      backgroundOrderWatcherUnsub();
-      backgroundOrderWatcherUnsub = null;
+    if (activeOrderWatchers.has(lastOrder.orderId)) {
+      const w = activeOrderWatchers.get(lastOrder.orderId);
+      if (w && typeof w.unsub === 'function') w.unsub();
+      activeOrderWatchers.delete(lastOrder.orderId);
     }
     renderLastOrderRecall();
   }

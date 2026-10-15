@@ -2,6 +2,12 @@
 // HarpyOrder — Cart Ledger, Smart Upselling & Checkout Drawer
 // ═══════════════════════════════════════════════════════════
 
+var esc = (s) => (typeof window.escapeHtml === 'function' ? window.escapeHtml(s) : String(s == null ? '' : s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])));
+var roundCurrency = (val) => {
+  const n = Number(val || 0);
+  return Math.sign(n) * (Math.round(Math.abs(n) * 100 + 1e-6) / 100);
+};
+
 var currentCheckoutStep = 1;
 var selectedPaymentMethod = 'cod';
 var currentFulfillmentType = 'delivery';
@@ -238,7 +244,7 @@ function updateLedgerUI() {
     const isPercent = settings.spendTierDiscountType !== 'fixed';
 
     if (subtotal >= minSpend) {
-      spendTierDiscountAmount = isPercent ? (subtotal * (tierValue / 100)) : tierValue;
+      spendTierDiscountAmount = roundCurrency(isPercent ? (subtotal * (tierValue / 100)) : tierValue);
       spendTierProgress = 100;
       if (elements.spendTierCard) {
         elements.spendTierCard.style.display = 'block';
@@ -273,9 +279,9 @@ function updateLedgerUI() {
 
   if (appliedCoupon && subtotal > 0 && cart.length > 0) {
     if (appliedCoupon.type === 'percent') {
-      couponDiscountAmount = subtotal * (appliedCoupon.value / 100);
+      couponDiscountAmount = roundCurrency(subtotal * (appliedCoupon.value / 100));
     } else {
-      couponDiscountAmount = appliedCoupon.value;
+      couponDiscountAmount = roundCurrency(appliedCoupon.value);
     }
     if (elements.promoAppliedBadge) {
       elements.promoAppliedBadge.style.display = 'flex';
@@ -295,17 +301,17 @@ function updateLedgerUI() {
   if (isWallet && settings.enableWalletDiscount !== false && subtotalAfterBasePromos > 0) {
     const isPercent = settings.walletDiscountType !== 'fixed';
     const val = settings.walletDiscountValue !== undefined ? settings.walletDiscountValue : 10;
-    walletDiscountAmount = isPercent ? (subtotalAfterBasePromos * (val / 100)) : val;
+    walletDiscountAmount = roundCurrency(isPercent ? (subtotalAfterBasePromos * (val / 100)) : val);
   }
 
-  const totalDiscounts = spendTierDiscountAmount + couponDiscountAmount + walletDiscountAmount;
+  const totalDiscounts = roundCurrency(spendTierDiscountAmount + couponDiscountAmount + walletDiscountAmount);
   
   // Smart Delivery Calculation: Only reveal and calculate at Step 3 (Payment stage) and only if Delivery
   const isPaymentStep = (currentCheckoutStep === 3);
   const isDelivery = (window.currentFulfillmentType === 'delivery');
   const deliveryInfo = isDelivery ? detectDeliveryZone(elements.custAddress?.value || '', settings) : { fee: 0, zoneName: (window.currentFulfillmentType === 'dinein' ? 'صالة' : 'استلام') };
-  const deliveryFee = (cart.length > 0 && isPaymentStep && isDelivery) ? deliveryInfo.fee : 0;
-  const finalTotal = Math.max(0, subtotal - totalDiscounts) + deliveryFee;
+  const deliveryFee = (cart.length > 0 && isPaymentStep && isDelivery) ? roundCurrency(deliveryInfo.fee) : 0;
+  const finalTotal = roundCurrency(Math.max(0, subtotal - totalDiscounts) + deliveryFee);
 
   // Update Dynamic Island
   if (elements.dynamicIslandCart) {
@@ -331,16 +337,19 @@ function updateLedgerUI() {
     }
   }
 
-  // Sync Fixed Bottom Navigation Bar Cart Badge
+  // Sync Fixed Bottom Navigation Bar & Desktop Navigation Cart Badges
   const bottomCartBadge = document.getElementById('bottom-cart-badge');
-  if (bottomCartBadge) {
-    if (totalItemsCount > 0) {
-      bottomCartBadge.textContent = totalItemsCount;
-      bottomCartBadge.style.display = 'flex';
-    } else {
-      bottomCartBadge.style.display = 'none';
+  const desktopCartBadge = document.getElementById('desktop-cart-badge');
+  [bottomCartBadge, desktopCartBadge].forEach(b => {
+    if (b) {
+      if (totalItemsCount > 0) {
+        b.textContent = totalItemsCount;
+        b.style.display = 'flex';
+      } else {
+        b.style.display = 'none';
+      }
     }
-  }
+  });
 
   if (elements.cartTotalPrice) {
     elements.cartTotalPrice.innerHTML = `${finalTotal.toFixed(2)} <span>${currency}</span>`;
@@ -416,28 +425,32 @@ function renderCartDrawerItems() {
   }
 
   elements.cartDrawerItems.innerHTML = cart.map(item => {
-    const sizeText = item.selectedSize ? `<span style="display:inline-block; background:var(--surface-hover); color:var(--text-muted); font-size:10.5px; padding:1px 6px; border-radius:4px; margin-top:2px;">${item.selectedSize.name}</span>` : '';
+    const rawId = item.id || '';
+    const cleanId = String(rawId).replace(/[^a-zA-Z0-9#\-_]/g, '');
+    const safeImage = (item.image && typeof item.image === 'string' && (item.image.startsWith('http') || item.image.startsWith('data:') || item.image.startsWith('/') || item.image.startsWith('./'))) ? esc(item.image) : '';
+    const safeName = esc(item.name || '');
+    const sizeText = item.selectedSize ? `<span style="display:inline-block; background:var(--surface-hover); color:var(--text-muted); font-size:10.5px; padding:1px 6px; border-radius:4px; margin-top:2px;">${esc(item.selectedSize.name)}</span>` : '';
     const addonsText = item.selectedAddons && item.selectedAddons.length > 0 
-      ? `<div style="font-size:10px; color:var(--primary); margin-top:2px;">+ ${item.selectedAddons.map(a => a.name).join('، ')}</div>` 
+      ? `<div style="font-size:10px; color:var(--primary); margin-top:2px;">+ ${item.selectedAddons.map(a => esc(a.name)).join('، ')}</div>` 
       : '';
-    const notesText = item.notes ? `<div style="font-size:10px; color:var(--text-faint); font-style:italic;">ملاحظة: ${item.notes}</div>` : '';
+    const notesText = item.notes ? `<div style="font-size:10px; color:var(--text-faint); font-style:italic;">ملاحظة: ${esc(item.notes)}</div>` : '';
 
     return `
       <div class="cart-ledger-item">
-        <img src="${item.image}" class="cart-ledger-img" alt="${item.name}">
+        ${safeImage ? `<img src="${safeImage}" class="cart-ledger-img" alt="${safeName}">` : ''}
         <div class="cart-ledger-details">
-          <div class="cart-ledger-name">${item.name}</div>
+          <div class="cart-ledger-name">${safeName}</div>
           ${sizeText}
           ${addonsText}
           ${notesText}
-          <div class="cart-ledger-price font-num" style="margin-top:4px;">${(item.price * item.qty).toFixed(2)} ${currency}</div>
+          <div class="cart-ledger-price font-num" style="margin-top:4px;">${((item.price || 0) * (item.qty || 1)).toFixed(2)} ${currency}</div>
         </div>
         <div class="qty-stepper" style="padding:1px;">
-          <button class="qty-stepper-btn" onclick="handleUpdateItemQty('${item.id}', -1)">
+          <button class="qty-stepper-btn" onclick="handleUpdateItemQty('${cleanId}', -1)">
             ${item.qty === 1 ? '<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/></svg>' : '−'}
           </button>
-          <span class="qty-stepper-val font-num" style="min-width:18px; font-size:12.5px;">${item.qty}</span>
-          <button class="qty-stepper-btn" onclick="handleUpdateItemQty('${item.id}', 1)">+</button>
+          <span class="qty-stepper-val font-num" style="min-width:18px; font-size:12.5px;">${esc(item.qty)}</span>
+          <button class="qty-stepper-btn" onclick="handleUpdateItemQty('${cleanId}', 1)">+</button>
         </div>
       </div>
     `;
@@ -839,21 +852,42 @@ function setupEventListeners() {
   }
 
   if (elements.btnConfirmOrderDirect) {
-    elements.btnConfirmOrderDirect.addEventListener('click', () => handleDirectOrderSubmit(false));
+    elements.btnConfirmOrderDirect.addEventListener('click', () => {
+      if (typeof window.handleDirectOrderSubmit === 'function') {
+        window.handleDirectOrderSubmit(false);
+      } else if (typeof handleDirectOrderSubmit === 'function') {
+        handleDirectOrderSubmit(false);
+      }
+    });
   }
 
   if (elements.btnSendWhatsApp) {
-    elements.btnSendWhatsApp.addEventListener('click', () => handleDirectOrderSubmit(true));
+    elements.btnSendWhatsApp.addEventListener('click', () => {
+      if (typeof window.handleDirectOrderSubmit === 'function') {
+        window.handleDirectOrderSubmit(true);
+      } else if (typeof handleDirectOrderSubmit === 'function') {
+        handleDirectOrderSubmit(true);
+      }
+    });
   }
 
   if (elements.btnCloseTracker) {
-    elements.btnCloseTracker.addEventListener('click', closeLiveOrderTracker);
+    elements.btnCloseTracker.addEventListener('click', () => {
+      if (typeof window.closeLiveOrderTracker === 'function') window.closeLiveOrderTracker();
+      else if (typeof closeLiveOrderTracker === 'function') closeLiveOrderTracker();
+    });
   }
   if (elements.btnTrackerNewOrder) {
-    elements.btnTrackerNewOrder.addEventListener('click', closeLiveOrderTracker);
+    elements.btnTrackerNewOrder.addEventListener('click', () => {
+      if (typeof window.closeLiveOrderTracker === 'function') window.closeLiveOrderTracker();
+      else if (typeof closeLiveOrderTracker === 'function') closeLiveOrderTracker();
+    });
   }
   if (elements.trackerModalBackdrop) {
-    elements.trackerModalBackdrop.addEventListener('click', closeLiveOrderTracker);
+    elements.trackerModalBackdrop.addEventListener('click', () => {
+      if (typeof window.closeLiveOrderTracker === 'function') window.closeLiveOrderTracker();
+      else if (typeof closeLiveOrderTracker === 'function') closeLiveOrderTracker();
+    });
   }
 
   window.addEventListener('store_settings_updated', () => {

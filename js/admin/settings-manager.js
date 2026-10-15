@@ -370,7 +370,6 @@ async function saveSettingsFromForm() {
       walletName: (adminElements.setWalletName?.value || '').trim(),
       logo: cleanLogo,
       cover: (document.getElementById('set-cover-url')?.value || '').trim(),
-      imgbbApiKey: current.imgbbApiKey || '',
 
       deliveryTime: (adminElements.setDeliveryTime?.value || '').trim() || '25 - 35 دقيقة',
       showAnnouncement: adminElements.setShowAnnouncement?.checked === true,
@@ -405,6 +404,10 @@ async function saveSettingsFromForm() {
       spendTierDiscountType: adminElements.setSpendDiscountType?.value || 'percent',
       spendTierDiscountValue: parseFloat(adminElements.setSpendDiscountVal?.value) || 0
     };
+
+    // Ensure legacy security keys are never stored in public settings
+    delete updated.adminPin;
+    delete updated.imgbbApiKey;
 
     const res = await Store.saveSettings(updated);
     if (res && res.success) {

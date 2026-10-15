@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>تقرير الفحص الشامل لمنصة مطاعم هاربي الذكية (Harpy Order v92.0)</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800;900&display=swap');
+
+    @page {
+      size: A4 portrait;
+      margin: 12mm 10mm 14mm 10mm;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    body {
+      font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+      font-size: 11px;
+      line-height: 1.5;
+      color: #1e293b;
+      background: #ffffff;
+      direction: rtl;
+      text-align: right;
+    }
+
+    .font-num {
+      font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, sans-serif;
+    }
+
+    .page-break {
+      page-break-before: always;
+      break-before: page;
+    }
+
+    /* ── Cover Page ── */
+    .cover-container {
+      height: 260mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 2px solid #0f172a;
+      border-radius: 12px;
+      padding: 35px 30px;
+      background: linear-gradient(145deg, #0f172a 0%, #1e293b 60%, #090d16 100%);
+      color: #ffffff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cover-container::after {
+      content: '';
+      position: absolute;
+      top: -60px;
+      left: -60px;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, rgba(234, 88, 12, 0.3) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .cover-header {
+      border-bottom: 2px solid rgba(255, 255, 255, 0.12);
+      padding-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cover-badge {
+      background: rgba(234, 88, 12, 0.2);
+      border: 1px solid #ea580c;
+      color: #ffedd5;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 11.5px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .cover-title-box {
+      margin-top: 40px;
+    }
+
+    .cover-subtitle {
+      color: #fb923c;
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+    }
+
+    .cover-title {
+      font-size: 28px;
+      font-weight: 900;
+      line-height: 1.35;
+      margin-bottom: 14px;
+      color: #ffffff;
+    }
+
+    .cover-desc {
+      color: #cbd5e1;
+      font-size: 12.5px;
+      line-height: 1.7;
+      max-width: 650px;
+    }
+
+    .cover-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 30px 0;
+    }
+
+    .cover-stat-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 16px 12px;
+      text-align: center;
+    }
+
+    .cover-stat-card.danger {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.12);
+    }
+    .cover-stat-card.warning {
+      border-color: #f97316;
+      background: rgba(249, 115, 22, 0.12);
+    }
+    .cover-stat-card.info {
+      border-color: #3b82f6;
+      background: rgba(59, 130, 246, 0.12);
+    }
+    .cover-stat-card.neutral {
+      border-color: #64748b;
+      background: rgba(100, 116, 139, 0.12);
+    }
+
+    .cover-stat-num {
+      font-size: 26px;
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .cover-stat-card.danger .cover-stat-num { color: #f87171; }
+    .cover-stat-card.warning .cover-stat-num { color: #fb923c; }
+    .cover-stat-card.info .cover-stat-num { color: #60a5fa; }
+    .cover-stat-card.neutral .cover-stat-num { color: #94a3b8; }
+
+    .cover-stat-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #e2e8f0;
+    }
+
+    .cover-meta {
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      padding-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    .cover-meta strong {
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    /* ── Section Headers ── */
+    .section-title-wrap {
+      border-bottom: 2.5px solid #0f172a;
+      padding-bottom: 6px;
+      margin: 18px 0 14px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 900;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-badge {
+      font-size: 10px;
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid #cbd5e1;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-weight: 700;
+    }
+
+    /* ── Tables ── */
+    table.audit-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 16px;
+      font-size: 10px;
+      background: #ffffff;
+    }
+
+    table.audit-table thead th {
+      background: #0f172a;
+      color: #ffffff;
+      padding: 7px 6px;
+      font-weight: 800;
+      text-align: right;
+      border: 1px solid #0f172a;
+      white-space: nowrap;
+    }
+
+    table.audit-table tbody tr {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    table.audit-table tbody tr:nth-child(even) {
+      background: #f8fafc;
+    }
+
+    table.audit-table tbody td {
+      padding: 6px 6px;
+      border: 1px solid #cbd5e1;
+      vertical-align: top;
+      line-height: 1.45;
+    }
+
+    /* ── Severity Badges ── */
+    .badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-weight: 800;
+      font-size: 9.5px;
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    .badge-critical {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #f87171;
+    }
+
+    .badge-medium {
+      background: #ffedd5;
+      color: #9a3412;
+      border: 1px solid #fb923c;
+    }
+
+    .badge-low {
+      background: #fef9c3;
+      color: #854d0e;
+      border: 1px solid #fde047;
+    }
+
+    .badge-unpro {
+      background: #eff6ff;
+      color: #1e40af;
+      border: 1px solid #93c5fd;
+    }
+
+    /* ── Pillar Detail Cards ── */
+    .pillar-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      page-break-inside: avoid;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .pillar-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      border-bottom: 1px solid #f1f5f9;
+      padding-bottom: 5px;
+    }
+
+    .pillar-card-title {
+      font-size: 12.5px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .pillar-card-body {
+      font-size: 10.5px;
+      color: #334155;
+      line-height: 1.55;
+    }
+
+    .evidence-box {
+      background: #f8fafc;
+      border-right: 3px solid #0f172a;
+      padding: 6px 10px;
+      margin-top: 6px;
+      font-size: 10px;
+      color: #0f172a;
+      font-family: 'Consolas', 'Cairo', monospace;
+    }
+
+    /* ── Roadmap Cards ── */
+    .roadmap-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .roadmap-card {
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 12px 14px;
+      background: #ffffff;
+      page-break-inside: avoid;
+    }
+
+    .roadmap-card.phase-1 { border-top: 4px solid #ef4444; }
+    .roadmap-card.phase-2 { border-top: 4px solid #f97316; }
+    .roadmap-card.phase-3 { border-top: 4px solid #3b82f6; }
+    .roadmap-card.phase-4 { border-top: 4px solid #10b981; }
+
+    .roadmap-card-title {
+      font-size: 12.5px;
+      font-weight: 900;
+      margin-bottom: 6px;
+      color: #0f172a;
+    }
+
+    .roadmap-list {
+      padding-right: 16px;
+      font-size: 10.5px;
+      color: #334155;
+      line-height: 1.6;
+    }
+
+    /* ── Footer ── */
+    .report-footer {
+      border-top: 1px solid #cbd5e1;
+      margin-top: 14px;
+      padding-top: 6px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 9px;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- 1. غلاف التقرير الرسمي -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="cover-container">
+    <div class="cover-header">
+      <div style="font-weight:900; font-size:16px; letter-spacing:0.5px; color:#ffffff;">
+        🦅 HARPY ORDER ENTERPRISE PLATFORM
+      </div>
+      <div class="cover-badge font-num">VERSION 92.0 • GIT 63d1223</div>
+    </div>
+
+    <div class="cover-title-box">
+      <div class="cover-subtitle">تقرير التدقيق الشامل والفحص الجنائي والتشغيلي</div>
+      <h1 class="cover-title">
+        الفحص الهندسي المتكامل لمنظومة المنيو وإدارة المطابخ والطلبات
+      </h1>
+      <p class="cover-desc">
+        وثيقة رسمية تتضمن نتائج الفحص الميداني الحي على المحاور الثمانية (الأمان، الموثوقية، الأداء، الواجهة وتجربة المستخدم، الحسابات والطباعة، PWA والكاش، المعمارية والاعتماديات، والعمليات السحابية)، والمثبتة بالأدلة القاطعة والاستعلامات الحية على بيئة الاختبار المستقلة (<span class="font-num">king</span>) وقراءة المستأجر المحمي (<span class="font-num">saj</span>) دون تعديل أي بيانات حية.
+      </p>
+
+      <div class="cover-stats-grid">
+        <div class="cover-stat-card danger">
+          <div class="cover-stat-num font-num">5</div>
+          <div class="cover-stat-label">ثغرات ومخاطر حرجة</div>
+        </div>
+        <div class="cover-stat-card warning">
+          <div class="cover-stat-num font-num">9</div>
+          <div class="cover-stat-label">نقاط ضعف متوسطة</div>
+        </div>
+        <div class="cover-stat-card info">
+          <div class="cover-stat-num font-num">7</div>
+          <div class="cover-stat-label">تعمل لكنها غير احترافية</div>
+        </div>
+        <div class="cover-stat-card neutral">
+          <div class="cover-stat-num font-num">1</div>
+          <div class="cover-stat-label">ملاحظة بسيطة</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cover-meta">
+      <div>
+        <strong>بيئة الفحص والاختبار:</strong> مستأجر king الحي وقواعد بيانات RTDB الحية<br>
+        <strong>المستأجر المحمي (للقراءة فقط):</strong> مطعم صاج (saj) — لم يتم تعديل أي سجل
+      </div>
+      <div style="text-align:left;">
+        <strong>تاريخ وتوقيت الفحص:</strong> 14 أكتوبر 2026 — 16:15 بالتوقيت المحلي<br>
+        <strong>المنهجية:</strong> فحص حي بالأدلة الرقمية (Edge CDP + Live REST Probes)
+      </div>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- 2. جدول نتائج الفحص الشامل لزوايا النظام (الـ 22 نتيجة كاملة) -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="section-title-wrap">
+    <div class="section-title">
+      <span>جدول نتائج الفحص الشامل لزوايا النظام (الـ 22 اكتشافاً كاملاً)</span>
+    </div>
+    <div class="section-badge">مصفوفة الرصد الجنائي الحي بالأدلة</div>
+  </div>
+
+  <table class="audit-table">
+    <thead>
+      <tr>
+        <th style="width:4%; text-align:center;">#</th>
+        <th style="width:11%;">المحور</th>
+        <th style="width:23%;">المشكلة ونقاط الضعف</th>
+        <th style="width:20%;">الموقع الدقيق بالكود/القاعدة</th>
+        <th style="width:10%; text-align:center;">مستوى الخطورة</th>
+        <th style="width:32%;">الدليل الحي والعملي المثبت</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="text-align:center;" class="font-num">1</td>
+        <td><strong>1. الأمان</strong></td>
+        <td>تسريب الرمز السري للإدارة <span class="font-num">adminPin</span> ومفتاح <span class="font-num">imgbbApiKey</span> علناً بدون مصادقة</td>
+        <td><span class="font-num">/restaurants/{slug}/settings.json</span></td>
+        <td style="text-align:center;"><span class="badge badge-critical">حرج</span></td>
+        <td>استعلام REST علني بدون أي توكن أعاد HTTP 200 وحقول الـ PIN ومفتاح ImgBB مكشوفة لأي زائر لصفحة المنيو.</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;" class="font-num">2</td>
+        <td><strong>1. الأمان</strong></td>
+        <td>إمكانية حصد كافة بيانات الزبائن (الاسم، الهاتف، العنوان) بسبب توليد معرفات طلبات متوقعة وقابلة للتخمين</td>
+        <td><span class="font-num">order-tracking.js:167</span> وقواعد الفايربيس</td>
+        <td style="text-align:center;"><span class="badge badge-critical">حرج</span></td>
+        <td>المعرف يولد 4 أرقام فقط (9000 احتمال)، وقاعدة <span class="font-num">$orderId</span> تسمح بالقراءة العلنية بدون مصادقة.</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;" class="font-num">3</td>
+        <td><strong>1. الأمان</strong></td>
+        <td>ثغرة أمنية خطيرة Stored XSS في لوحة تحكم المطبخ عبر حقن نصوص ببيانات العميل</td>
+        <td><span class="font-num">kitchen-orders.js:1373, 1438, 1472</span></td>
+        <td style="text-align:center;"><span class="badge badge-critical">حرج</span></td>
+        <td>اسم العميل وملاحظاته يتم حقنها مباشرة داخل <span class="font-num">innerHTML</span> بدون أي تعقيم أو استدعاء لـ <span class="font-num">escapeHtml</span>.</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;" class="font-num">4</td>
+        <td><strong>1. الأمان</strong></td>
+        <td>إمكانية إرسال طلبات بأسعار سالبة أو بيانات مجهولة بدون تحقق من جانب الخادم</td>
+        <td>قواعد RTDB مسار <span class="font-num">$orderId</span> سطر 42</td>
+        <td style="text-align:center;"><span class="badge badge-critical">حرج</span></td>
+        <td>تم إرسال طلب تجريبي بدون مصادقة بقيمة سالبة <span class="font-num">total: -500</span> وقبله السيرفر بـ HTTP 200 (تم تنظيفه فوراً).</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;" class="font-num">5</td>
+        <td><strong>1. الأمان</strong></td>
+        <td>تسريب البريد الإلكتروني للمالك ومعرّف UID وتاريخ انتهاء الترخيص للعامة</td>
+        <td><span class="font-num">/licenses/{slug}.json</span></td>
+        <td style="text-align:center;"><span class="badge badge-medium">متوسط</span></td>
+        <td>استعلام مسار التراخيص لـ king و saj مفتوح علناً برمز 200 ويكشف <span class="font-num">ownerEmail</span> و <span class="font-num">ownerUid</span>.</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;" class="font-num">6</td>
+        <td><strong>2. الموثوقية</strong></td>
+        <td>خطر تصادم معرفات الطلبات وفشل الحفظ السحابي للطلبات الجديدة في المطبخ</td>
+        <td><span class="font-num">order-tracking.js:167</span> وقاعدة <span class="font-num">!data.exists()</span></td>
+        <td style="text-align:center;"><span class="badge badge-critical">حرج</span></td>
+        <td>معرف الطلب من 4 أرقام يسبب رياضياً تصادم المعرف، وقاعدة RTDB تمنع الكتابة فوق سجل موجود مما يُسقط طلب الزبون.</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;" class="font-num">7</td>
+        <td><strong>2. الموثوقية</strong></td>
+        <td>متابعة حالة طلب واحد فقط لحظياً وفقدان الإشعارات عند تعدد طلبات العميل في الجلسة</td>
+        <td><span class="font-num">order-tracking.js:311</span></td>
+        <td style="text-align:center;"><span class="badge badge-medium">متوسط</span></td>
+        <td>دالة المتابعة مربوطة فقط بـ <span class="font-num">lastOrder</span>؛ إذا طلب العميل أوردرين، يُلغى الاستماع اللحظي للطلب الأول ويبقى ثابتاً.</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;" class="font-num">8</td>
+        <td><strong>2. الموثوقية</strong></td>
+        <td>استدعاء دالة اعتماد الطلب غير محصن بالكامل ضد أخطاء عدم التعريف المسبق</td>
+        <td><span class="font-num">cart-ledger.js:842</span></td>
+        <td style="text-align:center;"><span class="badge badge-unpro">غير احترافي</span></td>
+        <td>استدعاء <span class="font-num">handleDirectOrderSubmit</span> بدون بادئة <span class="font-num">window.</span> يعتمد على ترتيب تحميل السكربتات وقد يسبب انهياراً.</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;" class="font-num">9</td>
+        <td><strong>3. الأداء</strong></td>
+        <td>أحجام ملفات ضخمة وغير مضغوطة تُثقل التصفح في الهواتف الضعيفة والشبكات البطيئة</td>
+        <td><span class="font-num">order.html</span> (124KB), <span class="font-num">store.js</span> (103KB)</td>
+        <td style="text-align:center;"><span class="badge badge-medium">متوسط</span></td>
+        <td>حجم ملفات المشروع تجاوز 6.8MB مع استدعاء ملف ديمو <span class="font-num">demo-seed-data.js</span> (62.8KB) في كل تحميل حتى مع المطاعم الحقيقية.</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;" class="font-num">10</td>
+        <td><strong>3. الأداء</strong></td>
+        <td>صور البورتفوليو بأحجام غير معالجة تتجاوز 750KB للصورة الواحدة</td>
+        <td><span class="font-num">assets/portfolio/</span> بصيغة JPEG</td>
+        <td style="text-align:center;"><span class="badge badge-medium">متوسط</span></td>
+        <td>فحص الأحجام أظهر صوراً بوزن 764.6KB و 751.7KB بدلاً من استخدام صيغ WebP الحديثة فائقة الضغط (~50KB).</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;" class="font-num">11</td>
+        <td><strong>3. الأداء</strong></td>
+        <td>تكرار طلب ملف المانيفست <span class="font-num">manifest-king.json</span> مرتين إلى 3 مرات عند الإقلاع</td>
+        <td><span class="font-num">order.html</span> و <span class="font-num">js/pwa.js:165</span></td>
+        <td style="text-align:center;"><span class="badge badge-unpro">غير احترافي</span></td>
+        <td>سجل شبكة المتصفح الفعلي (Edge CDP) أثبت طلب المانيفست مرتين بسبب استبدال رابط المانيفست عبر الجافاسكربت.</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;" class="font-num">12</td>
+        <td><strong>4. الواجهة</strong></td>
+        <td>أزرار تفاعلية ذات مساحة لمس صغيرة جداً على الهواتف مخالفة لمعايير الوصول القياسية</td>
+        <td><span class="font-num">order.html</span> و <span class="font-num">order-client.css</span></td>
+        <td style="text-align:center;"><span class="badge badge-medium">متوسط</span></td>
+        <td>فحص شجرة DOM أظهر 61 عنصراً تفاعلياً بارتفاع أقل من 40px، وأبرزها زر "تخصيص +" بارتفاع 28px فقط (المعيار 48px).</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;" class="font-num">13</td>
+        <td><strong>4. الواجهة</strong></td>
+        <td>بقاء شريط التنقل السفلي للموبايل ظاهراً في شاشات الحواسيب المكتبية العريضة</td>
+        <td><span class="font-num">order-client.css</span> شاشات 1280px</td>
+        <td style="text-align:center;"><span class="badge badge-medium">متوسط</span></td>
+        <td>الفحص الحي لشاشات الحاسوب أظهر أن <span class="font-num">.bottom-nav-bar</span> تعمل بخاصية <span class="font-num">display: flex</span> على دقة 1280px.</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;" class="font-num">14</td>
+        <td><strong>4. الواجهة</strong></td>
+        <td>ظهور وسم شباك مزدوج <span class="font-num">##ORD-...</span> في فواتير الطباعة الورقية للمطعم</td>
+        <td><span class="font-num">kitchen-orders.js:908</span></td>
+        <td style="text-align:center;"><span class="badge badge-unpro">غير احترافي</span></td>
+        <td>معرف الطلب يتضمن <span class="font-num">#</span> مسبقاً، وقالب طباعة الفاتورة يضيف <span class="font-num">#</span> إضافية مسبباً طباعة <span class="font-num">##ORD-1234</span>.</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;" class="font-num">15</td>
+        <td><strong>4. الواجهة</strong></td>
+        <td>اعتماد الثيمات السبعة على ضبط يدوي مكثف بالـ JS بدلاً من قواعد CSS نقية</td>
+        <td><span class="font-num">js/store.js:2027</span></td>
+        <td style="text-align:center;"><span class="badge badge-unpro">غير احترافي</span></td>
+        <td>ملف <span class="font-num">order-tokens.css</span> يخلو من كلاسات الثيمات الـ 7، مما يجبر الكود على حذف وإعادة حقن 17 متغيراً في الـ DOM.</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;" class="font-num">16</td>
+        <td><strong>5. الحسابات</strong></td>
+        <td>الحسابات العشرية للخصومات تفتقر إلى تقريب منضبط قبل المقارنة المنطقية</td>
+        <td><span class="font-num">cart-ledger.js</span> و <span class="font-num">store.js</span></td>
+        <td style="text-align:center;"><span class="badge badge-medium">متوسط</span></td>
+        <td>حسابات النسب المئوية تنتج أرقاماً عشرية مثل <span class="font-num">15.000000000000002</span> مسببة فروقاً طفيفة في الكسور قبل التقريب.</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;" class="font-num">17</td>
+        <td><strong>6. PWA والكاش</strong></td>
+        <td>استبدال اسم المطعم في PWA Manifest Fallback بكلمة "Order" الافتراضية</td>
+        <td><span class="font-num">sw.js:170</span></td>
+        <td style="text-align:center;"><span class="badge badge-medium">متوسط</span></td>
+        <td>الكود يجلب اسم المطعم بنجاح لكن السطر 170 يثبت الاسم قسراً <span class="font-num">finalName = 'Order'</span> عند توليد المانيفست الاحتياطي.</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;" class="font-num">18</td>
+        <td><strong>5. الحسابات</strong></td>
+        <td>غياب قواعد الطباعة <span class="font-num">@media print</span> تماماً عن صفحة المنيو للعميل</td>
+        <td><span class="font-num">css/order-client.css</span></td>
+        <td style="text-align:center;"><span class="badge badge-low">بسيط</span></td>
+        <td>فحص الـ CSS أثبت وجود 0 قواعد طباعة لصفحة المنيو، والطباعة تعمل حصرياً عبر iframe معزول بلوحة الأدمن.</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;" class="font-num">19</td>
+        <td><strong>7. المعمارية</strong></td>
+        <td>اعتماد أيقونات التطبيق وPWA على نطاق خارجي مجاني قد يتعطل أو يُحجب</td>
+        <td>رابط الأيقونة: <span class="font-num">https://iili.io/n3HVHX4.jpg</span></td>
+        <td style="text-align:center;"><span class="badge badge-medium">متوسط</span></td>
+        <td>خوادم <span class="font-num">iili.io</span> معرضة للحجب داخل مصر أو حذف الصور، مما يؤدي لاختفاء أيقونة التطبيق المثبت.</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;" class="font-num">20</td>
+        <td><strong>8. العمليات</strong></td>
+        <td>استبعاد سجل الطلبات والفواتير من ملف النسخة الاحتياطية المصدر من لوحة التحكم</td>
+        <td><span class="font-num">js/store.js:2540</span></td>
+        <td style="text-align:center;"><span class="badge badge-medium">متوسط</span></td>
+        <td>ملف الباك أب يصدر الأقسام والمنتجات والإعدادات والقصص فقط، ويتجاهل مبيعات وأرشيف فواتير المطعم تماماً.</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;" class="font-num">21</td>
+        <td><strong>8. العمليات</strong></td>
+        <td>وجود نقطة عطل قاتلة واحدة (Single Point of Failure) على مستوى خوادم السحابة</td>
+        <td>سحابة Firebase RTDB</td>
+        <td style="text-align:center;"><span class="badge badge-critical">حرج</span></td>
+        <td>أي انقطاع في خوادم فايربيس يوقف استلام المطبخ للطلبات اللحظية ويوقف التحقق من اشتراكات وتراخيص المطاعم.</td>
+      </tr>
+      <tr>
+        <td style="text-align:center;" class="font-num">22</td>
+        <td><strong>8. العمليات</strong></td>
+        <td>بقاء بيانات المنيو المحذوف ظاهرة للمستخدمين الذين زاروه سابقاً عند ضعف الشبكة</td>
+        <td><span class="font-num">store.js</span> وذاكرة <span class="font-num">localStorage</span></td>
+        <td style="text-align:center;"><span class="badge badge-medium">متوسط</span></td>
+        <td>المطعم المحذوف من البوت تظل بياناته مسجلة في كاش المتصفح المحلي، ولا تُمسح إلا بعد اتصال ناجح ومكتمل مع سحابة التراخيص.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="page-break"></div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- 3. التفصيل الفني للمحاور الثمانية بالأدلة -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="section-title-wrap">
+    <div class="section-title">
+      <span>التفصيل الفني المعمق للمحاور الثمانية مع الأدلة الحية</span>
+    </div>
+    <div class="section-badge">تحليل جنائي مباشر للكود والبيانات</div>
+  </div>
+
+  <!-- المحور الأول: الأمان -->
+  <div class="pillar-card">
+    <div class="pillar-card-header">
+      <div class="pillar-card-title">المحور 1: الأمان وحماية الأسرار وقواعد Firebase الحية (Security)</div>
+      <span class="badge badge-critical">3 ثغرات حرجة + 1 متوسطة</span>
+    </div>
+    <div class="pillar-card-body">
+      <strong>النتائج والإثبات الحي:</strong>
+      <ul>
+        <li><strong>كشف الـ adminPin علناً:</strong> فحص مسار <span class="font-num">https://harpy-order-default-rtdb.firebaseio.com/restaurants/king/settings.json</span> أثبت أنه قابل للقراءة العامة برمز <span class="font-num">HTTP 200</span>، ويعيد كائناً يحتوي مباشرة على مفتاح الدخول للوحة التحكم <span class="font-num">"adminPin": "1234"</span> ومفتاح خدمة الصور <span class="font-num">"imgbbApiKey"</span> دون أي مصادقة!</li>
+        <li><strong>ثغرة الحقن المخزن Stored XSS:</strong> فحص كود عرض الطلبات داخل المطبخ (<span class="font-num">kitchen-orders.js</span>) أثبت أن بيانات الزبون (<span class="font-num">customer.name, phone, address, notes</span>) تُحقن نصياً وبشكل مباشر داخل قوالب الـ HTML دون تمريرها على دالة تعقيم، مما يتيح لأي مهاجم وضع كود جافاسكربت خبيث يُنفذ فور فتح الشاشة في المطبخ.</li>
+        <li><strong>انعدام التحقق من صحة الطلبات:</strong> تم إرسال طلب تجريبي بدون أي مصادقة عبر بروتوكول REST مباشرة للمسار <span class="font-num">/restaurants/king/orders/PROBE_TEST.json</span> ببيانات أسعار سالبة، وقبله خادم الفايربيس برمز 200 لأن القواعد لا تتحقق من قيم الحقول إطلاقاً.</li>
+      </ul>
+      <div class="evidence-box">
+        دليل الفحص الحي: استعلام REST لـ settings أعاد: { status: 200, keys: ['adminPin', 'imgbbApiKey', 'address', ...] }
+      </div>
+    </div>
+  </div>
+
+  <!-- المحور الثاني: الموثوقية ومسار الطلب -->
+  <div class="pillar-card">
+    <div class="pillar-card-header">
+      <div class="pillar-card-title">المحور 2: الموثوقية ومسار الطلب وتعدد الأجهزة (Reliability)</div>
+      <span class="badge badge-critical">1 حرج + 1 متوسط + 1 غير احترافي</span>
+    </div>
+    <div class="pillar-card-body">
+      <strong>النتائج والإثبات الحي:</strong>
+      <ul>
+        <li><strong>خطر تصادم معرف الطلب وفشل الإرسال:</strong> كود <span class="font-num">order-tracking.js</span> يولد المعرف بصيغة <span class="font-num">#ORD-Math.floor(1000 + Math.random() * 9000)</span>. هذا الفضاء الضيق (9000 رقم فقط) يعني أنه بحسابات "مفارقة يوم الميلاد" (Birthday Paradox) سيتكرر المعرف بسرعة، وحيث أن قاعدة الفايربيس تشترط <span class="font-num">!data.exists()</span> لمنع الكتابة فوق سجل سابق، فإن الطلب الجديد سيُرفض برمز <span class="font-num">Permission Denied</span> ويسقط من المطبخ نهائياً.</li>
+        <li><strong>قصور متابعة تعدد الطلبات:</strong> في حال قام الزبون بطلب وجبتين متتاليتين، يقوم كود المتابعة باستبدال كائن <span class="font-num">lastOrder</span> بالطلب الأخير فقط، ويفقد الطلب الأول ميزة التحديث الصوتي واللحظي لحالته.</li>
+      </ul>
+      <div class="evidence-box">
+        دليل الكود: orderId = '#ORD-' + Math.floor(1000 + Math.random() * 9000) // 9000 combinations only!
+      </div>
+    </div>
+  </div>
+
+  <!-- المحور الثالث: الأداء والأصول -->
+  <div class="pillar-card">
+    <div class="pillar-card-header">
+      <div class="pillar-card-title">المحور 3: الأداء وأحجام الأصول والشبكات الضعيفة (Performance)</div>
+      <span class="badge badge-medium">2 متوسط + 1 غير احترافي</span>
+    </div>
+    <div class="pillar-card-body">
+      <strong>النتائج والإثبات الحي:</strong>
+      <ul>
+        <li><strong>أحجام ملفات النواة:</strong> بلغ إجمالي حجم ملفات المشروع الأساسية 6.88MB، مع وجود ملفات أحادية ضخمة مثل <span class="font-num">order-client.css</span> بحجم 147.9KB و <span class="font-num">admin.html</span> بحجم 125.6KB و <span class="font-num">order.html</span> بحجم 123.9KB و <span class="font-num">store.js</span> بحجم 103KB.</li>
+        <li><strong>صور غير مضغوطة:</strong> وُجدت صور في مسار البورتفوليو بأوزان تتراوح بين 637KB إلى 764KB للصورة الواحدة بصيغة JPEG غير المعالجة.</li>
+        <li><strong>تكرار طلب المانيفست:</strong> رصدت أداة Edge CDP طلب ملف المانيفست مرتين متتاليتين في بداية تحميل صفحة المنيو.</li>
+      </ul>
+      <div class="evidence-box">
+        دليل الفحص: feature_qr_customer_scanning.jpg: 764.6 KB | Duplicate Requests: ['manifest-king.json', 2]
+      </div>
+    </div>
+  </div>
+
+  <!-- المحور الرابع: الواجهة والتجربة -->
+  <div class="pillar-card">
+    <div class="pillar-card-header">
+      <div class="pillar-card-title">المحور 4: الواجهة وتجربة المستخدم والاستجابة والثيمات (UI & UX)</div>
+      <span class="badge badge-medium">2 متوسط + 2 غير احترافي</span>
+    </div>
+    <div class="pillar-card-body">
+      <strong>النتائج والإثبات الحي:</strong>
+      <ul>
+        <li><strong>مساحات لمس غير مريحة للموبايل:</strong> الفحص الآلي أظهر 61 عنصراً تفاعلياً بمساحة لمس أقل من 40px، أبرزها أزرار إضافة الوجبات السريعة "تخصيص +" بارتفاع 28px فقط، مما يسبب صعوبة للمستخدمين على الشاشات الصغيرة.</li>
+        <li><strong>شريط التنقل السفلي في الحاسوب:</strong> استمر ظهور شريط التنقل السفلي المخصص للهواتف (<span class="font-num">.bottom-nav-bar</span>) على شاشات سطح المكتب بدقة 1280px بخاصية <span class="font-num">display: flex</span>.</li>
+        <li><strong>ازدواجية الشباك في الفاتورة:</strong> طباعة الفاتورة الحرارية تظهر المعرف بصيغة <span class="font-num">##ORD-1234</span> بسبب دمج <span class="font-num">#</span> الثابتة مع المعرف المخزن الذي يحتوي على شباك مسبقاً.</li>
+      </ul>
+      <div class="evidence-box">
+        دليل اللمس: Interactive Elements: 225 | Touch Targets < 40px: 61 | Sample: .btn-quick-add (width: 77px, height: 28px)
+      </div>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- المحور الخامس: البيانات والحسابات والطباعة -->
+  <div class="pillar-card">
+    <div class="pillar-card-header">
+      <div class="pillar-card-title">المحور 5: البيانات والحسابات والطباعة الحرارية (Data & Calculations)</div>
+      <span class="badge badge-medium">1 متوسط + 1 بسيط</span>
+    </div>
+    <div class="pillar-card-body">
+      <strong>النتائج والإثبات الحي:</strong>
+      <ul>
+        <li><strong>كسور الخصومات العائمة:</strong> عدم إجراء تقريب فوري (<span class="font-num">Math.round</span> أو <span class="font-num">toFixed</span>) لنتائج خصم النسب المئوية قبل الحسابات الوسيطة يولد كسوراً عائمة دقيقة جداً في الذاكرة (مثل <span class="font-num">0.30000000000000004</span>).</li>
+        <li><strong>فصل كود الطباعة:</strong> صفحة المنيو للزبائن تخلو من أي كود <span class="font-num">@media print</span>، وتم قصر الطباعة بالكامل على لوحة تحكم المطبخ باستخدام iframe معزول يولد مقاسات 58mm و 80mm و A4.</li>
+      </ul>
+      <div class="evidence-box">
+        دليل الحسابات: Floating precision: 0.1 + 0.2 = 0.30000000000000004 | Client @media print rules count: 0
+      </div>
+    </div>
+  </div>
+
+  <!-- المحور السادس: PWA والكاش -->
+  <div class="pillar-card">
+    <div class="pillar-card-header">
+      <div class="pillar-card-title">المحور 6: تطبيقات الويب التقدمية PWA والكاش وأوفلاين (PWA & Cache)</div>
+      <span class="badge badge-medium">1 متوسط</span>
+    </div>
+    <div class="pillar-card-body">
+      <strong>النتائج والإثبات الحي:</strong>
+      <ul>
+        <li><strong>تجاوز اسم المطعم في PWA Fallback:</strong> في كود عامل الخدمة (<span class="font-num">sw.js</span> سطر 170)، عند توليد مانيفست بديل للمطعم، يقوم الكود بجلب اسم المطعم بنجاح من الفايربيس، ولكنه يتجاهله ويثبت اسم التطبيق كـ <span class="font-num">finalName = 'Order'</span> بدلاً من اسم المطعم الفعلي.</li>
+        <li><strong>استراتيجية الكاش الممتازة:</strong> أثبت الفحص أن كود <span class="font-num">sw.js</span> يدعم بنجاح العمل أوفلاين وتخزين الصور السحابية بنمط <span class="font-num">Stale-While-Revalidate</span> عبر كاش <span class="font-num">order-images-v2</span>.</li>
+      </ul>
+      <div class="evidence-box">
+        دليل الكود: const finalName = isAdm ? 'Admin' : 'Order'; // ignores fetched storeName variable!
+      </div>
+    </div>
+  </div>
+
+  <!-- المحور السابع: المعمارية والصيانة -->
+  <div class="pillar-card">
+    <div class="pillar-card-header">
+      <div class="pillar-card-title">المحور 7: البنية البرمجية والاعتماديات الخارجية (Architecture)</div>
+      <span class="badge badge-medium">1 متوسط</span>
+    </div>
+    <div class="pillar-card-body">
+      <strong>النتائج والإثبات الحي:</strong>
+      <ul>
+        <li><strong>الاعتماد على استضافة مجانية خارجية:</strong> أيقونة PWA الأساسية وأيقونة آبل يتم تحميلهما من خوادم <span class="font-num">https://iili.io</span>. أي تعطل أو حجب لهذه الخوادم يؤدي فوراً لفشل ظهور أيقونة التطبيق أثناء التثبيت على الهاتف.</li>
+        <li><strong>الاعتمادية على ImgBB:</strong> رفع الصور في لوحة الأدمن يعتمد على مفتاح API خارجي لخدمة ImgBB دون وجود بديل رفع محلي آمن في حال نفاد الحصة أو حجب الخدمة.</li>
+      </ul>
+      <div class="evidence-box">
+        دليل الروابط: link rel="apple-touch-icon" href="https://iili.io/n3rYXyu.png" (External Free Host Dependency)
+      </div>
+    </div>
+  </div>
+
+  <!-- المحور الثامن: العمليات والبوت -->
+  <div class="pillar-card">
+    <div class="pillar-card-header">
+      <div class="pillar-card-title">المحور 8: العمليات وتشغيل البوت ونقاط العطل القاتلة (Operations & Bot)</div>
+      <span class="badge badge-critical">1 حرج + 2 متوسط</span>
+    </div>
+    <div class="pillar-card-body">
+      <strong>النتائج والإثبات الحي:</strong>
+      <ul>
+        <li><strong>نقطة عطل واحدة قاتلة (SPOF):</strong> قاعدة بيانات Firebase Realtime Database تمثل نقطة العطل الوحيدة للمنظومة بالكامل؛ تعطلها يوقف تدفق الطلبات الحية، واستقبال المطبخ، وتجديد التراخيص.</li>
+        <li><strong>قصور النسخ الاحتياطي:</strong> دالة تصدير البيانات في لوحة الإدارة (<span class="font-num">exportAllDataJSON</span>) تستخرج فقط المنتجات والأقسام والإعدادات، وتستبعد سجل الطلبات والمبيعات والفواتير السابقة بالكامل.</li>
+        <li><strong>تأخر إخفاء المنيو المحذوف في الكاش:</strong> عند حذف مطعم من البوت، لا يختفي المنيو من هواتف الزبائن الذين فتحوه مسبقاً إلا إذا كان الهاتف متصلاً بالإنترنت وقام بتحديث كاش التراخيص بنجاح.</li>
+      </ul>
+      <div class="evidence-box">
+        دليل الكود: exportAllDataJSON() { ... return { settings, categories, products, stories }; } // Orders missing!
+      </div>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- 4. خريطة الطريق المقترحة للمعالجة (المراحل الأربعة) -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="section-title-wrap">
+    <div class="section-title">
+      <span>خريطة الطريق المقترحة للمعالجة (مرتبة حسب الأولوية القصوى)</span>
+    </div>
+    <div class="section-badge">خطة تنفيذية من 4 مراحل متتالية</div>
+  </div>
+
+  <p style="font-size:11px; color:#475569; margin-bottom:12px; line-height:1.6;">
+    تم ترتيب خطة المعالجة وفقاً لتقييم المخاطر المباشرة على أمن المنظومة، وسلامة بيانات الزبائن، واستقرار تدفق الطلبات إلى المطبخ دون أي توقف أو تصادم، مقسمة إلى أربع مراحل واضحة:
+  </p>
+
+  <div class="roadmap-grid">
+    <!-- المرحلة الأولى -->
+    <div class="roadmap-card phase-1">
+      <div class="roadmap-card-title" style="color:#b91c1c;">
+        المرحلة 1: الأمان وقفل الثغرات الحرجة (أولوية قصوى)
+      </div>
+      <ul class="roadmap-list">
+        <li><strong>حماية الـ PIN والمفاتيح:</strong> نقل حقل <span class="font-num">adminPin</span> و <span class="font-num">imgbbApiKey</span> من مسار <span class="font-num">/settings</span> العام إلى مسار مشفر ومحمي يتطلب مصادقة <span class="font-num">auth != null</span>.</li>
+        <li><strong>سد ثغرة الـ Stored XSS:</strong> إنشاء وتطبيق دالة تعقيم موحدة <span class="font-num">escapeHtml()</span> في كافة شاشات عرض بيانات الزبائن وملاحظاتهم في المطبخ وسجل المبيعات.</li>
+        <li><strong>تحصين قواعد كتابة الطلبات:</strong> تعديل قواعد Firebase RTDB للتحقق من أن الأسعار والكميات أرقام موجبة، ومنع استعلام الطلبات بدون معرف دقيق.</li>
+        <li><strong>تأمين مسار التراخيص:</strong> تقييد قراءة <span class="font-num">/licenses/{slug}</span> بحيث لا تكشف البريد الشخصي للمالك أو معرف UID.</li>
+      </ul>
+    </div>
+
+    <!-- المرحلة الثانية -->
+    <div class="roadmap-card phase-2">
+      <div class="roadmap-card-title" style="color:#c2410c;">
+        المرحلة 2: موثوقية مسار الطلبات ومعالجة التصادم
+      </div>
+      <ul class="roadmap-list">
+        <li><strong>ترقية معرف الطلب (Anti-Collision ID):</strong> استبدال فضاء الـ 4 أرقام بمعرف آمن يجمع بين طابع زمني دقيق وأحرف عشوائية مشفرة (مثل <span class="font-num">#ORD-9X4K2</span>) لمنع أي تصادم أو حصد لبيانات الزبائن.</li>
+        <li><strong>دعم تعدد طلبات الزبون اللحظية:</strong> تطوير محرك التتبع في صفحة المنيو ليدعم الاستماع المتوازي لعدة طلبات قيد التنفيذ بدلاً من حصر التتبع في آخر طلب فقط.</li>
+        <li><strong>تحصين استدعاءات إرسال الطلب:</strong> ربط دوال الإرسال بكائن <span class="font-num">window.</span> صراحة لضمان عدم تأثرها بأي اختلاف في ترتيب تحميل السكربتات.</li>
+      </ul>
+    </div>
+
+    <!-- المرحلة الثالثة -->
+    <div class="roadmap-card phase-3">
+      <div class="roadmap-card-title" style="color:#1d4ed8;">
+        المرحلة 3: تجربة المستخدم ومساحات اللمس والطباعة
+      </div>
+      <ul class="roadmap-list">
+        <li><strong>تصحيح مساحات اللمس (Touch Targets):</strong> زيادة ارتفاع زر "تخصيص +" وزر تغيير العرض إلى 44px كحد أدنى لتحقيق التوافق التام مع معايير الهواتف المحمولة.</li>
+        <li><strong>ضبط استجابة شاشات الحاسوب:</strong> إضافة قاعدة استعلام شاشات تخفي شريط التنقل السفلي للهواتف تلقائياً على الشاشات العريضة (>992px).</li>
+        <li><strong>تنظيف بون الطباعة الحرارية:</strong> إزالة وسم الشباك المكرر لمنع طباعة <span class="font-num">##ORD</span> على فواتير المطبخ والكاشير.</li>
+        <li><strong>تحويل الثيمات السبعة إلى CSS خالص:</strong> كتابة قواعد <span class="font-num">[data-theme-preset]</span> نقية داخل ملف التوكنز لتقليل الاعتماد على ضبط الخصائص بالجافاسكربت.</li>
+      </ul>
+    </div>
+
+    <!-- المرحلة الرابعة -->
+    <div class="roadmap-card phase-4">
+      <div class="roadmap-card-title" style="color:#047857;">
+        المرحلة 4: تحسين الأداء والأصول وتوسيع النسخ الاحتياطي
+      </div>
+      <ul class="roadmap-list">
+        <li><strong>استقلالية الأصول وتخزينها محلياً:</strong> حفظ أيقونات PWA داخل مجلد أصول المشروع المحلي والتوقف التام عن الاعتماد على خوادم <span class="font-num">iili.io</span> الخارجية.</li>
+        <li><strong>ضغط صور البورتفوليو:</strong> تحويل صور الـ JPEG الضخمة إلى صيغة WebP فائقة الجودة لتقليص حجمها من 750KB إلى أقل من 60KB.</li>
+        <li><strong>تصحيح اسم المطعم في Service Worker:</strong> تمرير متغير <span class="font-num">storeName</span> الحقيقي في المانيفست الاحتياطي داخل <span class="font-num">sw.js</span>.</li>
+        <li><strong>توسيع ملف النسخ الاحتياطي:</strong> إضافة خيار تصدير واسترجاع سجل الطلبات والفواتير اليومية والمؤرشفة ضمن ملف الـ JSON الشامل.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="margin-top:22px; padding:12px 14px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px;">
+    <div style="font-weight:800; font-size:11.5px; color:#0f172a; margin-bottom:4px;">
+      💡 التوصية التشغيلية والإشعار النهائي:
+    </div>
+    <div style="font-size:10.5px; color:#334155; line-height:1.6;">
+      هذا الفحص شامل وموثق ولم يتم خلاله إجراء أي تعديلات برمجية حتى الآن حفاظاً على سير العمل واستقرار مطعم صاج وكينج. نوصي بالبدء الفوري بتنفيذ <strong>المرحلة الأولى (الأمان)</strong> لعزل الـ PIN وسد ثغرة الـ XSS وحماية الطلبات، تليها المراحل التالية تباعاً وفقاً للأولويات الموضحة.
+    </div>
+  </div>
+
+  <div class="report-footer">
+    <div>تم إصدار التقرير رسمياً بواسطة: Harpy Order Automated Forensic Audit Engine</div>
+    <div class="font-num">Document Ref: HARPY-AUDIT-V92-20261014</div>
+  </div>
+
+</body>
+</html>

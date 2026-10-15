@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-theme="dark" data-theme-preset="charcoal">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -47,8 +47,8 @@
   <link rel="preconnect" href="https://i.ibb.co" crossorigin>
   <link rel="dns-prefetch" href="https://i.ibb.co">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/order-tokens.css?v=92.0">
-  <link rel="stylesheet" href="css/order-client.css?v=92.0">
+  <link rel="stylesheet" href="css/order-tokens.css?v=94.0">
+  <link rel="stylesheet" href="css/order-client.css?v=94.0">
   <style id="harpy-critical-layout">
     /* ═══════════════════════════════════════════════════════════
        CRITICAL DEFENSIVE INLINE SHIELD (Prevents SW Cache Mismatches)
@@ -666,6 +666,36 @@
           <p id="hero-store-tagline" class="menu-header-store-tagline"></p>
         </div>
       </div>
+
+      <!-- Desktop Navigation Bar (Visible on >= 992px) -->
+      <nav class="desktop-header-nav" id="desktop-header-nav" aria-label="التنقل الرئيسي للشاشات الكبيرة">
+        <button type="button" class="desktop-nav-link active" id="desktop-nav-menu" onclick="window.handleNavTabClick && window.handleNavTabClick('menu')" title="المنيو">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 3v6a2 2 0 0 0 2 2v10M10 3v6a2 2 0 0 1-2 2M8 3v8"/><path d="M18 3v18M18 3a3 3 0 0 0-3 3v5h3"/>
+          </svg>
+          <span>المنيو</span>
+        </button>
+        <button type="button" class="desktop-nav-link" id="desktop-nav-orders" onclick="window.handleNavTabClick && window.handleNavTabClick('orders')" title="طلباتي">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2 3.5 6.5 12 11l8.5-4.5L12 2z"/><path d="M3.5 6.5V16L12 20.5V11"/><path d="M20.5 6.5V16L12 20.5"/><polyline points="14.5 13.5 16.5 15.5 20.5 11"/>
+          </svg>
+          <span>طلباتي</span>
+          <span class="order-pulse-dot" id="desktop-order-pulse-dot" style="display:none; position:relative; top:0; right:0; margin-right:4px;"></span>
+        </button>
+        <button type="button" class="desktop-nav-link" id="desktop-nav-cart" onclick="window.handleNavTabClick && window.handleNavTabClick('cart')" title="السلة">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h3l2.2 9.5a1.5 1.5 0 0 0 1.5 1.2h7.8a1.5 1.5 0 0 0 1.5-1.1L21 7H7"/><circle cx="10" cy="19.5" r="1.5" fill="currentColor"/><circle cx="18" cy="19.5" r="1.5" fill="currentColor"/>
+          </svg>
+          <span>السلة</span>
+          <span class="desktop-nav-badge font-num" id="desktop-cart-badge" style="display:none;">0</span>
+        </button>
+        <button type="button" class="desktop-nav-link" id="desktop-nav-home" onclick="window.handleNavTabClick && window.handleNavTabClick('home')" title="عن المطعم">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10.5 12 3l9 7.5v9.5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22v-6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v6"/>
+          </svg>
+          <span>عن المطعم</span>
+        </button>
+      </nav>
 
       <!-- Left Side (RTL): 3 Meta Badges (Rating, Delivery, Status) -->
       <div class="menu-header-meta-chips">
@@ -2087,16 +2117,16 @@
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=92.0"></script>
-  <script src="js/core/sound-effects.js?v=92.0"></script>
-  <script src="js/store.js?v=92.0"></script>
-  <script src="js/client/client-core.js?v=92.0"></script>
-  <script src="js/client/menu-view.js?v=92.0"></script>
-  <script src="js/client/stories-viewer.js?v=92.0"></script>
-  <script src="js/client/customizer-modal.js?v=92.0"></script>
-  <script src="js/client/cart-ledger.js?v=92.0"></script>
-  <script src="js/client/order-tracking.js?v=92.0"></script>
-  <script src="js/app.js?v=92.0"></script>
-  <script src="js/pwa.js?v=92.0"></script>
+  <script src="js/core/demo-seed-data.js?v=94.0"></script>
+  <script src="js/core/sound-effects.js?v=94.0"></script>
+  <script src="js/store.js?v=94.0"></script>
+  <script src="js/client/client-core.js?v=94.0"></script>
+  <script src="js/client/menu-view.js?v=94.0"></script>
+  <script src="js/client/stories-viewer.js?v=94.0"></script>
+  <script src="js/client/customizer-modal.js?v=94.0"></script>
+  <script src="js/client/cart-ledger.js?v=94.0"></script>
+  <script src="js/client/order-tracking.js?v=94.0"></script>
+  <script src="js/app.js?v=94.0"></script>
+  <script src="js/pwa.js?v=94.0"></script>
 </body>
 </html>

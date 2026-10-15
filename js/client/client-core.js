@@ -10,6 +10,8 @@ var SoundFX = (typeof window !== 'undefined' && window.SoundFX) ? window.SoundFX
   playCash: () => {}
 };
 
+var esc = (s) => (typeof window.escapeHtml === 'function' ? window.escapeHtml(s) : String(s == null ? '' : s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])));
+
 var elements = {
   soundToggleBtn: document.getElementById('sound-toggle-btn'),
   soundIconOn: document.getElementById('sound-icon-on'),
@@ -324,7 +326,11 @@ async function initApp() {
   setupEventListeners();
   initCustomizerEvents();
   setupSubscriptionWatcher();
-  initBackgroundOrderTracking();
+  if (typeof window.initBackgroundOrderTracking === 'function') {
+    window.initBackgroundOrderTracking();
+  } else if (typeof initBackgroundOrderTracking === 'function') {
+    initBackgroundOrderTracking();
+  }
   updateAccountDrawerProfileUI();
   checkCustomerOnboarding();
 
@@ -433,6 +439,8 @@ function setupOutboxSync() {
       if (count > 0) {
         showToastNotification(`تم بنجاح إرسال وتأكيد ${count} طلب كان في قائمة الانتظار!`, "success");
         renderLastOrderRecall();
+        if (typeof renderOrdersView === 'function') renderOrdersView();
+        if (typeof initBackgroundOrderTracking === 'function') initBackgroundOrderTracking();
       }
     }).catch(() => {});
   }
@@ -452,6 +460,8 @@ function setupOutboxSync() {
       Store.clearCart();
       updateLedgerUI();
       renderLastOrderRecall();
+      if (typeof renderOrdersView === 'function') renderOrdersView();
+      if (typeof initBackgroundOrderTracking === 'function') initBackgroundOrderTracking();
     }
   });
 
@@ -467,6 +477,8 @@ function setupOutboxSync() {
           Store.clearCart();
           updateLedgerUI();
           renderLastOrderRecall();
+          if (typeof renderOrdersView === 'function') renderOrdersView();
+          if (typeof initBackgroundOrderTracking === 'function') initBackgroundOrderTracking();
         }
       }
     }
@@ -1444,16 +1456,24 @@ function toggleCleanProfileEdit(show) {
 
 function triggerOrdersTabPulse() {
   const tabOrders = document.getElementById('nav-tab-orders');
+  const desktopOrders = document.getElementById('desktop-nav-orders');
   const pulseDot = document.getElementById('order-pulse-dot');
+  const desktopPulseDot = document.getElementById('desktop-order-pulse-dot');
   if (tabOrders) tabOrders.classList.add('order-pulsing');
+  if (desktopOrders) desktopOrders.classList.add('order-pulsing');
   if (pulseDot) pulseDot.style.display = 'block';
+  if (desktopPulseDot) desktopPulseDot.style.display = 'inline-block';
 }
 
 function clearOrdersTabPulse() {
   const tabOrders = document.getElementById('nav-tab-orders');
+  const desktopOrders = document.getElementById('desktop-nav-orders');
   const pulseDot = document.getElementById('order-pulse-dot');
+  const desktopPulseDot = document.getElementById('desktop-order-pulse-dot');
   if (tabOrders) tabOrders.classList.remove('order-pulsing');
+  if (desktopOrders) desktopOrders.classList.remove('order-pulsing');
   if (pulseDot) pulseDot.style.display = 'none';
+  if (desktopPulseDot) desktopPulseDot.style.display = 'none';
 }
 
 function renderOrdersView() {
@@ -1530,7 +1550,7 @@ function renderOrdersView() {
     if (itemsList && lastOrder.items) {
       itemsList.innerHTML = lastOrder.items.map(it => `
         <div style="display:flex; justify-content:space-between; align-items:center; font-size:12.5px; padding:4px 0; border-bottom:1px dashed var(--border-subtle, rgba(0,0,0,0.06));">
-          <span><b style="color:var(--primary); font-weight:800;">${it.qty}x</b> ${it.name} ${it.selectedSize ? `[${it.selectedSize.name}]` : ''}</span>
+          <span><b style="color:var(--primary); font-weight:800;">${esc(it.qty)}x</b> ${esc(it.name)} ${it.selectedSize ? `[${esc(it.selectedSize.name)}]` : ''}</span>
           <span class="font-num" style="font-weight:700;">${((it.price || 0) * it.qty).toFixed(2)} ${currency}</span>
         </div>
       `).join('');
@@ -1562,29 +1582,48 @@ function renderOrdersView() {
     if (secPrevious) secPrevious.style.display = 'block';
     if (prevList) {
       prevList.innerHTML = cleanHistory.map(order => {
+        const rawId = order.orderId || '#ORD';
+        const cleanId = String(rawId).replace(/[^a-zA-Z0-9#\-_]/g, '');
+        const safeOrderId = cleanId || '#ORD';
         const dateStr = order.createdAt ? new Date(order.createdAt).toLocaleDateString('ar-EG', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'طلب سابق';
-        const itemsSummary = (order.items || []).map(i => `${i.qty}x ${i.name}`).join('، ');
+        const itemsSummary = (order.items || []).map(i => `${esc(i.qty)}x ${esc(i.name)}`).join('، ');
         let fulfillmentBadge = 'دليفري';
         if (order.fulfillmentType === 'takeaway') fulfillmentBadge = 'تيك أواي';
-        else if (order.fulfillmentType === 'dinein') fulfillmentBadge = `صالة (طاولة ${order.tableNumber || '-'})`;
+        else if (order.fulfillmentType === 'dinein') fulfillmentBadge = `صالة (طاولة ${esc(order.tableNumber || '-')})`;
 
         const st = order.status || 'pending';
-        let stBadge = 'قيد التنفيذ';
+        let stBadge = 'قيد المراجعة';
         let stColor = 'var(--primary)';
-        if (st === 'delivered') { stBadge = 'تم التسليم'; stColor = '#22c55e'; }
-        else if (st === 'cancelled') { stBadge = 'ملغي'; stColor = '#ef4444'; }
+        let stBg = 'var(--primary-subtle, rgba(234,88,12,0.12))';
+        if (st === 'preparing') {
+          stBadge = 'جاري التجهيز';
+          stColor = '#d97706';
+          stBg = 'rgba(217, 119, 6, 0.12)';
+        } else if (st === 'out_for_delivery') {
+          stBadge = (order.fulfillmentType === 'takeaway' || order.orderType === 'takeaway') ? 'جاهز للاستلام' : 'في الطريق';
+          stColor = '#2563eb';
+          stBg = 'rgba(37, 99, 235, 0.12)';
+        } else if (st === 'delivered') {
+          stBadge = 'تم التسليم';
+          stColor = '#16a34a';
+          stBg = 'rgba(22, 163, 74, 0.12)';
+        } else if (st === 'cancelled') {
+          stBadge = 'ملغي';
+          stColor = '#dc2626';
+          stBg = 'rgba(220, 38, 38, 0.12)';
+        }
 
         return `
           <div class="previous-order-card" style="background:var(--surface-raised, #ffffff); border:1px solid var(--border-strong, rgba(0,0,0,0.08)); border-radius:14px; padding:12px 14px; margin-bottom:12px; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
               <div>
-                <strong class="font-num" style="color:var(--text-main); font-size:13.5px;">${order.orderId || '#ORD'}</strong>
+                <strong class="font-num" style="color:var(--text-main); font-size:13.5px;">${esc(safeOrderId)}</strong>
                 <span style="font-size:11px; color:var(--text-muted); margin-right:6px;">${dateStr}</span>
               </div>
               <div style="display:flex; gap:6px; align-items:center;">
                 <span style="font-size:10.5px; padding:2px 7px; border-radius:6px; background:rgba(0,0,0,0.05); color:var(--text-muted); font-weight:700;">${fulfillmentBadge}</span>
-                <span style="font-size:10.5px; padding:2px 7px; border-radius:6px; background:rgba(34,197,94,0.12); color:${stColor}; font-weight:800;">${stBadge}</span>
-                <button type="button" class="btn-delete-history-order" onclick="window.deleteCustomerHistoryOrder && window.deleteCustomerHistoryOrder('${order.orderId}')" title="مسح الطلب من السجل" aria-label="مسح الطلب">
+                <span style="font-size:10.5px; padding:2px 7px; border-radius:6px; background:${stBg}; color:${stColor}; font-weight:800;">${stBadge}</span>
+                <button type="button" class="btn-delete-history-order" onclick="window.deleteCustomerHistoryOrder && window.deleteCustomerHistoryOrder('${cleanId}')" title="مسح الطلب من السجل" aria-label="مسح الطلب">
                   <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
               </div>
@@ -1592,7 +1631,7 @@ function renderOrdersView() {
             <p style="font-size:12px; color:var(--text-body); margin:6px 0 10px 0; line-height:1.4; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${itemsSummary}</p>
             <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-subtle, rgba(0,0,0,0.05)); padding-top:8px;">
               <span class="font-num" style="font-weight:800; font-size:13px; color:var(--text-main);">${(parseFloat(order.finalTotal) || 0).toFixed(2)} ${currency}</span>
-              <button type="button" class="btn btn-primary btn-sm" onclick="window.reorderPreviousOrder && window.reorderPreviousOrder('${order.orderId}')" style="font-size:11.5px; padding:5px 12px; border-radius:8px;">
+              <button type="button" class="btn btn-primary btn-sm" onclick="window.reorderPreviousOrder && window.reorderPreviousOrder('${cleanId}')" style="font-size:11.5px; padding:5px 12px; border-radius:8px;">
                 <span>إعادة الطلب</span>
               </button>
             </div>
@@ -1679,6 +1718,9 @@ window.cancelActiveCustomerOrder = async function() {
     }
   } catch(e) {}
 
+  if (typeof initBackgroundOrderTracking === 'function') {
+    initBackgroundOrderTracking();
+  }
   if (typeof renderOrdersView === 'function') {
     setTimeout(renderOrdersView, 220);
   }
@@ -1699,13 +1741,29 @@ window.deleteCustomerHistoryOrder = async function(orderId) {
   if (!confirmed) return;
 
   try {
-    if (typeof Store !== 'undefined' && Store.removeOrderFromHistory) {
-      Store.removeOrderFromHistory(orderId);
+    if (typeof Store !== 'undefined') {
+      if (Store.removeOrderFromHistory) {
+        Store.removeOrderFromHistory(orderId);
+      }
+      const curLast = Store.getLastOrder();
+      if (curLast) {
+        const lCid = String(curLast.orderId || curLast.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
+        const targetCid = String(orderId).replace(/[^a-zA-Z0-9_-]/g, '');
+        if (lCid === targetCid || curLast.orderId === orderId || curLast.id === orderId) {
+          Store.saveLastOrder(null);
+        }
+      }
     }
   } catch(e) {}
 
+  if (typeof initBackgroundOrderTracking === 'function') {
+    initBackgroundOrderTracking();
+  }
   if (typeof renderOrdersView === 'function') {
     renderOrdersView();
+  }
+  if (typeof renderLastOrderRecall === 'function') {
+    renderLastOrderRecall();
   }
 };
 
@@ -1956,6 +2014,7 @@ function copyMenuLink() {
 
 function handleNavTabClick(tabId) {
   const tabs = document.querySelectorAll('.bottom-nav-bar .nav-tab-btn');
+  const desktopLinks = document.querySelectorAll('.desktop-header-nav .desktop-nav-link');
   const viewHome = document.getElementById('view-portfolio');
   const viewMenu = document.getElementById('view-menu');
   const viewOrders = document.getElementById('view-orders');
@@ -1976,6 +2035,16 @@ function handleNavTabClick(tabId) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  // Helper to sync active state across mobile & desktop navigation
+  function setActiveNavTab(id) {
+    tabs.forEach(t => t.classList.remove('active'));
+    desktopLinks.forEach(l => l.classList.remove('active'));
+    const clickedTab = document.getElementById('nav-tab-' + id);
+    const clickedDesktop = document.getElementById('desktop-nav-' + id);
+    if (clickedTab) clickedTab.classList.add('active');
+    if (clickedDesktop) clickedDesktop.classList.add('active');
+  }
+
   // If navigating away from cart, ensure cart drawer closes immediately!
   if (tabId !== 'cart') {
     if (typeof window.closeCartDrawer === 'function') {
@@ -1984,33 +2053,23 @@ function handleNavTabClick(tabId) {
   }
 
   if (tabId === 'home') {
-    tabs.forEach(t => t.classList.remove('active'));
-    const clickedTab = document.getElementById('nav-tab-home');
-    if (clickedTab) clickedTab.classList.add('active');
+    setActiveNavTab('home');
     switchAppView(viewHome);
   } else if (tabId === 'cart') {
-    tabs.forEach(t => t.classList.remove('active'));
-    const clickedTab = document.getElementById('nav-tab-cart');
-    if (clickedTab) clickedTab.classList.add('active');
+    setActiveNavTab('cart');
     if (typeof openCartDrawer === 'function') {
       openCartDrawer();
     }
   } else if (tabId === 'menu') {
-    tabs.forEach(t => t.classList.remove('active'));
-    const clickedTab = document.getElementById('nav-tab-menu');
-    if (clickedTab) clickedTab.classList.add('active');
+    setActiveNavTab('menu');
     switchAppView(viewMenu);
   } else if (tabId === 'orders') {
-    tabs.forEach(t => t.classList.remove('active'));
-    const clickedTab = document.getElementById('nav-tab-orders');
-    if (clickedTab) clickedTab.classList.add('active');
+    setActiveNavTab('orders');
     clearOrdersTabPulse();
     switchAppView(viewOrders);
     renderOrdersView();
   } else if (tabId === 'account') {
-    tabs.forEach(t => t.classList.remove('active'));
-    const clickedTab = document.getElementById('nav-tab-account');
-    if (clickedTab) clickedTab.classList.add('active');
+    setActiveNavTab('account');
     switchAppView(viewAccount);
     renderCleanProfileUI();
   }

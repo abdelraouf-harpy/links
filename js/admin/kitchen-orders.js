@@ -4,6 +4,18 @@
 
 let lastKnownOrderIds = null;
 
+const esc = (str) => {
+  if (typeof window.escapeHtml === 'function') return window.escapeHtml(str);
+  if (typeof Store !== 'undefined' && typeof Store.escapeHtml === 'function') return Store.escapeHtml(str);
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+};
+
 function playKitchenOrderChime() {
   if (typeof window !== 'undefined' && window.SoundFX && typeof window.SoundFX.playKitchenChime === 'function') {
     window.SoundFX.playKitchenChime();
@@ -631,26 +643,26 @@ window.openOrderInvoiceModal = function(orderOrId) {
   let customerInfoBlock = '';
   if (fInfo.isDineIn) {
     customerInfoBlock = `
-      <div style="font-size:12px; margin-bottom:3px; color:#374151;"><strong>نوع الطلب:</strong> صالة — طاولة رقم (${fInfo.tableNumber})</div>
-      ${order.customer?.name ? `<div style="font-size:12px; margin-bottom:3px; color:#374151;"><strong>اسم العميل:</strong> ${order.customer.name}</div>` : ''}
-      ${order.customer?.phone && order.customer?.phone !== 'داخلي' ? `<div style="font-size:12px; margin-bottom:3px; color:#374151;"><strong>الهاتف:</strong> <span style="direction:ltr; display:inline-block;">${order.customer.phone}</span></div>` : ''}
+      <div style="font-size:12px; margin-bottom:3px; color:#374151;"><strong>نوع الطلب:</strong> صالة — طاولة رقم (${esc(fInfo.tableNumber)})</div>
+      ${order.customer?.name ? `<div style="font-size:12px; margin-bottom:3px; color:#374151;"><strong>اسم العميل:</strong> ${esc(order.customer.name)}</div>` : ''}
+      ${order.customer?.phone && order.customer?.phone !== 'داخلي' ? `<div style="font-size:12px; margin-bottom:3px; color:#374151;"><strong>الهاتف:</strong> <span style="direction:ltr; display:inline-block;">${esc(order.customer.phone)}</span></div>` : ''}
     `;
   } else if (fInfo.isTakeaway) {
     customerInfoBlock = `
       <div style="font-size:12px; margin-bottom:3px; color:#374151;"><strong>نوع الطلب:</strong> سفري (استلام من الفرع)</div>
-      <div style="font-size:12px; margin-bottom:3px; color:#374151;"><strong>العميل:</strong> ${order.customer?.name || 'عميل نقدي'}</div>
-      ${order.customer?.phone && order.customer?.phone !== 'داخلي' ? `<div style="font-size:12px; margin-bottom:3px; color:#374151;"><strong>الهاتف:</strong> <span style="direction:ltr; display:inline-block;">${order.customer.phone}</span></div>` : ''}
+      <div style="font-size:12px; margin-bottom:3px; color:#374151;"><strong>العميل:</strong> ${esc(order.customer?.name || 'عميل نقدي')}</div>
+      ${order.customer?.phone && order.customer?.phone !== 'داخلي' ? `<div style="font-size:12px; margin-bottom:3px; color:#374151;"><strong>الهاتف:</strong> <span style="direction:ltr; display:inline-block;">${esc(order.customer.phone)}</span></div>` : ''}
     `;
   } else {
     customerInfoBlock = `
       <div style="font-size:12px; margin-bottom:3px; color:#374151;"><strong>نوع الطلب:</strong> توصيل منزلي (دليفري)</div>
-      <div style="font-size:12px; margin-bottom:3px; color:#374151;"><strong>العميل:</strong> ${order.customer?.name || 'عميل نقدي'}</div>
-      ${order.customer?.phone && order.customer?.phone !== 'داخلي' ? `<div style="font-size:12px; margin-bottom:3px; color:#374151;"><strong>الهاتف:</strong> <span style="direction:ltr; display:inline-block;">${order.customer.phone}</span></div>` : ''}
-      ${order.customer?.address ? `<div style="font-size:12px; margin-bottom:3px; color:#374151;"><strong>العنوان:</strong> ${order.customer.address}</div>` : ''}
+      <div style="font-size:12px; margin-bottom:3px; color:#374151;"><strong>العميل:</strong> ${esc(order.customer?.name || 'عميل نقدي')}</div>
+      ${order.customer?.phone && order.customer?.phone !== 'داخلي' ? `<div style="font-size:12px; margin-bottom:3px; color:#374151;"><strong>الهاتف:</strong> <span style="direction:ltr; display:inline-block;">${esc(order.customer.phone)}</span></div>` : ''}
+      ${order.customer?.address ? `<div style="font-size:12px; margin-bottom:3px; color:#374151;"><strong>العنوان:</strong> ${esc(order.customer.address)}</div>` : ''}
     `;
   }
   if (order.customer?.notes) {
-    customerInfoBlock += `<div style="font-size:12px; margin-top:3px; color:#b45309;"><strong>ملاحظات:</strong> ${order.customer.notes}</div>`;
+    customerInfoBlock += `<div style="font-size:12px; margin-top:3px; color:#b45309;"><strong>ملاحظات:</strong> ${esc(order.customer.notes)}</div>`;
   }
 
   // Items Rows (ZERO emojis)
@@ -658,10 +670,10 @@ window.openOrderInvoiceModal = function(orderOrId) {
     <tr>
       <td style="text-align:right; padding:6px 0; border-bottom:1px dotted #e5e7eb; vertical-align:top;">
         <div style="font-weight:800; font-size:12.5px; color:#111827;">
-          ${it.name}${it.selectedSize ? ` <span style="font-weight:600; font-size:11px; color:#6b7280;">(${it.selectedSize.name})</span>` : ''}
+          ${esc(it.name)}${it.selectedSize ? ` <span style="font-weight:600; font-size:11px; color:#6b7280;">(${esc(it.selectedSize.name)})</span>` : ''}
         </div>
-        ${it.selectedAddons && it.selectedAddons.length ? `<div style="color:#4b5563; font-size:10.5px; font-weight:600; margin-top:2px;">+ ${it.selectedAddons.map(a => a.name).join('، ')}</div>` : ''}
-        ${it.notes ? `<div style="color:#b45309; font-weight:600; font-size:10.5px; margin-top:2px;">ملاحظة: ${it.notes}</div>` : ''}
+        ${it.selectedAddons && it.selectedAddons.length ? `<div style="color:#4b5563; font-size:10.5px; font-weight:600; margin-top:2px;">+ ${it.selectedAddons.map(a => esc(a.name)).join('، ')}</div>` : ''}
+        ${it.notes ? `<div style="color:#b45309; font-weight:600; font-size:10.5px; margin-top:2px;">ملاحظة: ${esc(it.notes)}</div>` : ''}
       </td>
       <td style="text-align:center; padding:6px 4px; border-bottom:1px dotted #e5e7eb; font-weight:800; vertical-align:top; font-size:13px; font-variant-numeric:tabular-nums;">${it.qty}</td>
       <td style="text-align:left; padding:6px 0; border-bottom:1px dotted #e5e7eb; font-weight:800; vertical-align:top; white-space:nowrap; font-size:13px; font-variant-numeric:tabular-nums;">${((it.price || 0) * it.qty).toFixed(0)}</td>
@@ -808,36 +820,36 @@ function executePrintReceipt(order, mode) {
   let customerInfoBlock = '';
   if (fInfo.isDineIn) {
     customerInfoBlock = `
-      <div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>نوع الطلب:</strong> صالة — طاولة رقم (${fInfo.tableNumber})</div>
-      ${order.customer?.name ? `<div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>اسم العميل:</strong> ${order.customer.name}</div>` : ''}
-      ${order.customer?.phone && order.customer?.phone !== 'داخلي' ? `<div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>الهاتف:</strong> ${order.customer.phone}</div>` : ''}
+      <div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>نوع الطلب:</strong> صالة — طاولة رقم (${esc(fInfo.tableNumber)})</div>
+      ${order.customer?.name ? `<div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>اسم العميل:</strong> ${esc(order.customer.name)}</div>` : ''}
+      ${order.customer?.phone && order.customer?.phone !== 'داخلي' ? `<div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>الهاتف:</strong> ${esc(order.customer.phone)}</div>` : ''}
     `;
   } else if (fInfo.isTakeaway) {
     customerInfoBlock = `
       <div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>نوع الطلب:</strong> سفري (استلام من الفرع)</div>
-      <div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>العميل:</strong> ${order.customer?.name || 'عميل نقدي'}</div>
-      ${order.customer?.phone && order.customer?.phone !== 'داخلي' ? `<div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>الهاتف:</strong> ${order.customer.phone}</div>` : ''}
+      <div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>العميل:</strong> ${esc(order.customer?.name || 'عميل نقدي')}</div>
+      ${order.customer?.phone && order.customer?.phone !== 'داخلي' ? `<div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>الهاتف:</strong> ${esc(order.customer.phone)}</div>` : ''}
     `;
   } else {
     customerInfoBlock = `
       <div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>نوع الطلب:</strong> توصيل منزلي (دليفري)</div>
-      <div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>العميل:</strong> ${order.customer?.name || 'عميل نقدي'}</div>
-      ${order.customer?.phone && order.customer?.phone !== 'داخلي' ? `<div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>الهاتف:</strong> ${order.customer.phone}</div>` : ''}
-      ${order.customer?.address ? `<div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>العنوان:</strong> ${order.customer.address}</div>` : ''}
+      <div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>العميل:</strong> ${esc(order.customer?.name || 'عميل نقدي')}</div>
+      ${order.customer?.phone && order.customer?.phone !== 'داخلي' ? `<div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>الهاتف:</strong> ${esc(order.customer.phone)}</div>` : ''}
+      ${order.customer?.address ? `<div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>العنوان:</strong> ${esc(order.customer.address)}</div>` : ''}
     `;
   }
   if (order.customer?.notes) {
-    customerInfoBlock += `<div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-top:2px;"><strong>ملاحظات الطلب:</strong> ${order.customer.notes}</div>`;
+    customerInfoBlock += `<div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-top:2px;"><strong>ملاحظات الطلب:</strong> ${esc(order.customer.notes)}</div>`;
   }
 
   const itemsRows = (order.items || []).map(it => `
     <tr>
       <td style="text-align:right; padding:${is58mm ? '3px 0' : '4px 0'}; border-bottom:1px dotted #ccc; vertical-align:top; word-break:break-word;">
         <div style="font-weight:800; font-size:${is58mm ? '11px' : '12px'}; line-height:1.3;">
-          ${it.name}${it.selectedSize ? ` <span style="font-weight:600; font-size:${is58mm ? '9.5px' : '10.5px'};">(${it.selectedSize.name})</span>` : ''}
+          ${esc(it.name)}${it.selectedSize ? ` <span style="font-weight:600; font-size:${is58mm ? '9.5px' : '10.5px'};">(${esc(it.selectedSize.name)})</span>` : ''}
         </div>
-        ${it.selectedAddons && it.selectedAddons.length ? `<div style="color:#333; font-size:${is58mm ? '9px' : '10px'}; font-weight:600;">+ ${it.selectedAddons.map(a => a.name).join('، ')}</div>` : ''}
-        ${it.notes ? `<div style="color:#000; font-weight:600; font-size:${is58mm ? '9px' : '10px'}; margin-top:2px;">ملاحظة: ${it.notes}</div>` : ''}
+        ${it.selectedAddons && it.selectedAddons.length ? `<div style="color:#333; font-size:${is58mm ? '9px' : '10px'}; font-weight:600;">+ ${it.selectedAddons.map(a => esc(a.name)).join('، ')}</div>` : ''}
+        ${it.notes ? `<div style="color:#000; font-weight:600; font-size:${is58mm ? '9px' : '10px'}; margin-top:2px;">ملاحظة: ${esc(it.notes)}</div>` : ''}
       </td>
       <td style="text-align:center; padding:${is58mm ? '3px 2px' : '4px 2px'}; border-bottom:1px dotted #ccc; font-weight:800; vertical-align:top; font-size:${is58mm ? '11px' : '12px'}; font-variant-numeric:tabular-nums;">${it.qty}</td>
       <td style="text-align:left; padding:${is58mm ? '3px 0' : '4px 0'}; border-bottom:1px dotted #ccc; font-weight:800; vertical-align:top; white-space:nowrap; font-size:${is58mm ? '11px' : '12px'}; font-variant-numeric:tabular-nums;">${((it.price || 0) * it.qty).toFixed(0)}</td>
@@ -905,7 +917,7 @@ function executePrintReceipt(order, mode) {
       <!-- Order Meta -->
       <div style="display:flex; justify-content:space-between; font-size:${is58mm ? '10px' : '11.5px'}; font-weight:700; margin:2px 0;">
         <span>رقم الفاتورة:</span>
-        <span style="font-weight:900;">#${order.orderId || ''}</span>
+        <span style="font-weight:900;">${esc(String(order.orderId || '').startsWith('#') ? order.orderId : '#' + (order.orderId || ''))}</span>
       </div>
       <div style="display:flex; justify-content:space-between; font-size:${is58mm ? '9px' : '10.5px'}; color:#444; margin-bottom:3px;">
         <span>التاريخ والوقت:</span>
@@ -1360,17 +1372,17 @@ window.renderOrdersList = function(orders = null) {
         <div style="flex:1; padding-left:8px; min-width:0;">
           <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
             <span style="font-weight:900; background:var(--primary-subtle); color:var(--primary); padding:1px 6px; border-radius:4px; font-size:11px;">${it.qty}x</span>
-            <span style="font-weight:800; color:var(--text-main);">${it.name}</span>
-            ${it.selectedSize ? `<span style="font-size:10.5px; background:var(--surface); border:1px solid var(--border); color:var(--text-muted); padding:1px 5px; border-radius:4px;">${it.selectedSize.name}</span>` : ''}
+            <span style="font-weight:800; color:var(--text-main);">${esc(it.name)}</span>
+            ${it.selectedSize ? `<span style="font-size:10.5px; background:var(--surface); border:1px solid var(--border); color:var(--text-muted); padding:1px 5px; border-radius:4px;">${esc(it.selectedSize.name)}</span>` : ''}
           </div>
           ${it.selectedAddons && it.selectedAddons.length ? `
             <div style="font-size:11px; color:var(--accent-wa); margin-top:2px;">
-              + إضافات: ${it.selectedAddons.map(a => a.name).join('، ')}
+              + إضافات: ${it.selectedAddons.map(a => esc(a.name)).join('، ')}
             </div>
           ` : ''}
           ${it.notes ? `
             <div style="font-size:11px; color:#f59e0b; margin-top:3px; background:rgba(245, 158, 11, 0.08); padding:2px 6px; border-radius:4px;">
-              ملاحظة: ${it.notes}
+              ملاحظة: ${esc(it.notes)}
             </div>
           ` : ''}
         </div>
@@ -1386,12 +1398,12 @@ window.renderOrdersList = function(orders = null) {
     const isWalletPayment = o.paymentMethod === 'wallet';
 
     return `
-      <div class="order-card-pro" data-order-id="${safeOrderId}">
+      <div class="order-card-pro" data-order-id="${esc(safeOrderId)}">
         
         <!-- Header: Order ID, Time, Progression Action & Status Sheet Trigger -->
         <div class="order-card-header-row">
           <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-            <span class="order-id-chip font-num">${safeOrderId}</span>
+            <span class="order-id-chip font-num">${esc(safeOrderId)}</span>
             <span class="order-type-tag ${fInfo.tagClass}">${fInfo.badgeText}</span>
             <span class="order-time-chip">
               <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -1435,12 +1447,12 @@ window.renderOrdersList = function(orders = null) {
               </div>
               
               <div style="font-size:14px; font-weight:900; color:var(--text-main); margin-bottom:6px; word-break:break-word;">
-                ${o.customer?.name || 'عميل'}
+                ${esc(o.customer?.name || 'عميل')}
               </div>
 
               <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px; flex-wrap:wrap;">
                 <span class="font-num" style="font-size:12.5px; font-weight:800; color:var(--text-main); background:var(--surface-raised); padding:3px 8px; border-radius:4px; border:1px solid var(--border);">
-                  ${o.customer?.phone || 'بدون هاتف'}
+                  ${esc(o.customer?.phone || 'بدون هاتف')}
                 </span>
                 ${phoneRaw ? `
                   <a href="${telUrl}" class="btn btn-ghost btn-sm" style="padding:3px 8px; font-size:11px; font-weight:700; display:inline-flex; align-items:center; gap:4px;" title="اتصال بالعميل">
@@ -1456,12 +1468,12 @@ window.renderOrdersList = function(orders = null) {
 
               <div style="font-size:12px; color:var(--text-body); line-height:1.45; margin-bottom:6px; background:var(--surface-raised); padding:6px 10px; border-radius:6px; word-break:break-word;">
                 <span style="font-weight:800; color:var(--text-main);">العنوان: </span>
-                ${o.customer?.address || 'استلام من المطعم'}
+                ${esc(o.customer?.address || 'استلام من المطعم')}
               </div>
 
               ${(parseFloat(o.deliveryFee) > 0 || o.deliveryZone) ? `
                 <div style="font-size:11.5px; color:var(--primary); background:var(--primary-subtle); padding:4px 8px; border-radius:6px; margin-bottom:6px; font-weight:800; display:flex; align-items:center; justify-content:space-between;">
-                  <span>خدمة التوصيل (${o.deliveryZone || 'السعر الموحد'}):</span>
+                  <span>خدمة التوصيل (${esc(o.deliveryZone || 'السعر الموحد')}):</span>
                   <span class="font-num">+${(parseFloat(o.deliveryFee) || 0).toFixed(2)} ${currency}</span>
                 </div>
               ` : ''}
@@ -1469,7 +1481,7 @@ window.renderOrdersList = function(orders = null) {
               ${o.customer?.notes ? `
                 <div style="font-size:11.5px; color:#f59e0b; background:rgba(245, 158, 11, 0.08); border:1px dashed rgba(245, 158, 11, 0.3); padding:6px 10px; border-radius:6px; margin-top:4px; word-break:break-word;">
                   <span style="font-weight:800;">ملاحظات: </span>
-                  ${o.customer.notes}
+                  ${esc(o.customer.notes)}
                 </div>
               ` : ''}
             </div>
@@ -1619,7 +1631,9 @@ window.renderInvoicesArchive = function(orders = null) {
   }
 
   adminElements.adminArchiveContainer.innerHTML = displayArchived.map(o => {
-    const safeOrderId = o.orderId || o.id || o._fbKey || (`#ORD-${(o.timestamp || Date.now()).toString().slice(-4)}`);
+    const rawId = o.orderId || o.id || o._fbKey || (`#ORD-${(o.timestamp || Date.now()).toString().slice(-4)}`);
+    const cleanId = String(rawId).replace(/[^a-zA-Z0-9#\-_]/g, '');
+    const safeOrderId = cleanId || ('#ORD-' + (o.timestamp || Date.now()).toString().slice(-4));
     const timeStr = o.createdAt ? new Date(o.createdAt).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' }) : 'الآن';
     const isDelivered = o.status === 'delivered';
     const fInfo = parseOrderFulfillment(o);
@@ -1627,10 +1641,10 @@ window.renderInvoicesArchive = function(orders = null) {
     const itemsHtml = (o.items || []).map(it => `
       <div style="display:flex; justify-content:space-between; align-items:flex-start; font-size:12px; padding:5px 0; border-bottom:1px dashed var(--border);">
         <div style="flex:1; padding-left:8px; min-width:0;">
-          <span style="font-weight:900; background:var(--primary-subtle); color:var(--primary); padding:1px 5px; border-radius:4px; font-size:10.5px;">${it.qty}x</span>
-          <span style="font-weight:800; color:var(--text-main);">${it.name}</span>
-          ${it.selectedSize ? `<span style="font-size:10px; color:var(--text-muted);">(${it.selectedSize.name})</span>` : ''}
-          ${it.selectedAddons && it.selectedAddons.length ? `<span style="font-size:10px; color:var(--accent-wa);">+ ${it.selectedAddons.map(a => a.name).join('، ')}</span>` : ''}
+          <span style="font-weight:900; background:var(--primary-subtle); color:var(--primary); padding:1px 5px; border-radius:4px; font-size:10.5px;">${esc(it.qty)}x</span>
+          <span style="font-weight:800; color:var(--text-main);">${esc(it.name)}</span>
+          ${it.selectedSize ? `<span style="font-size:10px; color:var(--text-muted);">(${esc(it.selectedSize.name)})</span>` : ''}
+          ${it.selectedAddons && it.selectedAddons.length ? `<span style="font-size:10px; color:var(--accent-wa);">+ ${it.selectedAddons.map(a => esc(a.name)).join('، ')}</span>` : ''}
         </div>
         <div class="font-num" style="font-weight:800; color:var(--text-main); white-space:nowrap; flex-shrink:0;">
           ${((it.price || 0) * it.qty).toFixed(2)} ${currency}
@@ -1639,6 +1653,11 @@ window.renderInvoicesArchive = function(orders = null) {
     `).join('');
 
     const phoneRaw = (o.customer?.phone || '').replace(/[^0-9]/g, '');
+    const custName = esc(o.customer?.name || 'عميل');
+    const custPhone = esc(o.customer?.phone || 'بدون هاتف');
+    const custAddress = esc(o.customer?.address || 'استلام من المطعم');
+    const deliveryZone = esc(o.deliveryZone || 'السعر الموحد');
+    const safeReceiptUrl = (o.receiptUrl && typeof o.receiptUrl === 'string' && o.receiptUrl.startsWith('http')) ? esc(o.receiptUrl) : '';
     const waUrl = phoneRaw ? `https://wa.me/${phoneRaw.startsWith('0') ? '2' + phoneRaw : phoneRaw}?text=${encodeURIComponent(`مرحباً أستاذ ${o.customer?.name || ''}، بخصوص فاتورتك رقم ${safeOrderId} من المطعم`)}` : '#';
     const telUrl = phoneRaw ? `tel:${phoneRaw}` : '#';
     const isWalletPayment = o.paymentMethod === 'wallet';
@@ -1662,19 +1681,19 @@ window.renderInvoicesArchive = function(orders = null) {
 
           <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
             <!-- Instant Thermal Print Button -->
-            <button type="button" class="btn btn-ghost btn-sm" onclick="printOrderReceipt('${safeOrderId}')" style="padding:5px 9px; font-size:11px; font-weight:800; border:1px solid var(--border); color:var(--text-main); background:var(--surface-raised); display:inline-flex; align-items:center; gap:4px;" title="إعادة طباعة بون الفاتورة الحرارية">
+            <button type="button" class="btn btn-ghost btn-sm" onclick="printOrderReceipt('${cleanId}')" style="padding:5px 9px; font-size:11px; font-weight:800; border:1px solid var(--border); color:var(--text-main); background:var(--surface-raised); display:inline-flex; align-items:center; gap:4px;" title="إعادة طباعة بون الفاتورة الحرارية">
               <svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
               <span>طباعة الفاتورة</span>
             </button>
 
             <!-- Reopen to Kitchen Button -->
-            <button type="button" class="btn btn-ghost btn-sm" onclick="reopenOrderToKitchen('${safeOrderId}')" style="padding:5px 9px; font-size:11px; font-weight:800; border:1px solid var(--border); color:var(--text-main); background:var(--surface-raised); display:inline-flex; align-items:center; gap:4px;" title="إعادة فتح الطلب وإرجاعه لشاشة المطبخ النشطة">
+            <button type="button" class="btn btn-ghost btn-sm" onclick="reopenOrderToKitchen('${cleanId}')" style="padding:5px 9px; font-size:11px; font-weight:800; border:1px solid var(--border); color:var(--text-main); background:var(--surface-raised); display:inline-flex; align-items:center; gap:4px;" title="إعادة فتح الطلب وإرجاعه لشاشة المطبخ النشطة">
               <span>↩️</span>
               <span>إعادة للمطبخ</span>
             </button>
 
             <!-- Delete Button -->
-            <button type="button" class="btn-order-delete-chic" onclick="confirmDeleteOrder('${safeOrderId}')" title="حذف الفاتورة نهائياً من الأرشيف" aria-label="حذف الفاتورة">
+            <button type="button" class="btn-order-delete-chic" onclick="confirmDeleteOrder('${cleanId}')" title="حذف الفاتورة نهائياً من الأرشيف" aria-label="حذف الفاتورة">
               <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -1690,12 +1709,12 @@ window.renderInvoicesArchive = function(orders = null) {
           <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px; display:flex; flex-direction:column; justify-content:space-between; box-sizing:border-box;">
             <div>
               <div style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:6px;">
-                العميل: <span style="font-size:13.5px; font-weight:900; color:var(--text-main);">${o.customer?.name || 'عميل'}</span>
+                العميل: <span style="font-size:13.5px; font-weight:900; color:var(--text-main);">${custName}</span>
               </div>
 
               <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px; flex-wrap:wrap;">
                 <span class="font-num" style="font-size:12px; font-weight:800; color:var(--text-main); background:var(--surface-raised); padding:2px 7px; border-radius:4px; border:1px solid var(--border);">
-                  ${o.customer?.phone || 'بدون هاتف'}
+                  ${custPhone}
                 </span>
                 ${phoneRaw ? `
                   <a href="${telUrl}" class="btn btn-ghost btn-sm" style="padding:2px 6px; font-size:10.5px; font-weight:700;">اتصال</a>
@@ -1705,12 +1724,12 @@ window.renderInvoicesArchive = function(orders = null) {
 
               <div style="font-size:11.5px; color:var(--text-body); line-height:1.4; margin-bottom:6px; background:var(--surface-raised); padding:5px 8px; border-radius:6px;">
                 <span style="font-weight:800; color:var(--text-main);">العنوان: </span>
-                ${o.customer?.address || 'استلام من المطعم'}
+                ${custAddress}
               </div>
 
               ${(parseFloat(o.deliveryFee) > 0 || o.deliveryZone) ? `
                 <div style="font-size:11px; color:var(--primary); background:var(--primary-subtle); padding:3px 7px; border-radius:5px; margin-bottom:4px; font-weight:800; display:flex; justify-content:space-between;">
-                  <span>خدمة التوصيل (${o.deliveryZone || 'السعر الموحد'}):</span>
+                  <span>خدمة التوصيل (${deliveryZone}):</span>
                   <span class="font-num">+${(parseFloat(o.deliveryFee) || 0).toFixed(2)} ${currency}</span>
                 </div>
               ` : ''}
@@ -1722,16 +1741,16 @@ window.renderInvoicesArchive = function(orders = null) {
             </div>
 
             <!-- Payment Receipt interactive widget in Archive if uploaded -->
-            ${o.receiptUrl ? `
+            ${safeReceiptUrl ? `
               <div style="margin-top:8px; background:var(--surface-raised); border:1px solid var(--border); border-radius:6px; padding:6px 10px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
                 <div style="display:flex; align-items:center; gap:8px; min-width:0;">
-                  <img src="${o.receiptUrl}" alt="Receipt" style="width:36px; height:36px; border-radius:4px; object-fit:cover; border:1px solid var(--border); cursor:pointer; flex-shrink:0;" onclick="openReceiptModalByOrderId('${o.id || o.orderId}')">
+                  <img src="${safeReceiptUrl}" alt="Receipt" style="width:36px; height:36px; border-radius:4px; object-fit:cover; border:1px solid var(--border); cursor:pointer; flex-shrink:0;" onclick="openReceiptModalByOrderId('${cleanId}')">
                   <div style="min-width:0;">
                     <div style="font-size:11px; font-weight:800; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">إيصال التحويل</div>
                     <div style="font-size:10px; color:var(--accent-wa); font-weight:700;">مرفق مع الطلب</div>
                   </div>
                 </div>
-                <button type="button" class="btn btn-primary btn-sm" onclick="openReceiptModalByOrderId('${o.id || o.orderId}')" style="padding:4px 8px; font-size:10.5px; font-weight:800; white-space:nowrap; flex-shrink:0;">
+                <button type="button" class="btn btn-primary btn-sm" onclick="openReceiptModalByOrderId('${cleanId}')" style="padding:4px 8px; font-size:10.5px; font-weight:800; white-space:nowrap; flex-shrink:0;">
                   معاينة
                 </button>
               </div>

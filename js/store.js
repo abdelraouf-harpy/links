@@ -179,7 +179,6 @@ const BLANK_SETTINGS = {
   currency: "ج.م",
   logo: "",
   cover: "",
-  imgbbApiKey: "",
   facebookUrl: "",
   instagramUrl: "",
   tiktokUrl: "",
@@ -237,6 +236,17 @@ const Store = {
     favorites: null,
     lastOrder: null,
     orders: null
+  },
+
+  // ── Bulletproof HTML Sanitizer (XSS Prevention) ───────────
+  escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   },
 
   clearMemoryCache() {
@@ -1249,7 +1259,7 @@ const Store = {
           return null;
         }
 
-        const resolvedId = o.orderId || o.id || (fbKey !== 'undefined' ? fbKey : `#ORD-${Math.floor(1000 + Math.random() * 9000)}`);
+        const resolvedId = o.orderId || o.id || (fbKey !== 'undefined' ? fbKey : `#ORD-${Date.now().toString().slice(-4)}${Math.random().toString(36).substring(2, 6).toUpperCase()}`);
         const cid = resolvedId.replace(/[^a-zA-Z0-9_-]/g, '');
 
         // If order was marked as deleted, ensure cloud is cleaned and NEVER let it enter the UI
@@ -1999,6 +2009,9 @@ const Store = {
     if (this._memoryCache.settings?.subscription && !settings.subscription) {
       settings.subscription = this._memoryCache.settings.subscription;
     }
+    // Security: never persist legacy adminPin or third-party api keys in public settings node
+    delete settings.adminPin;
+    delete settings.imgbbApiKey;
     this._memoryCache.settings = settings;
     this.saveLocks.settings = true;
     this.safeSetItem(this.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(settings));
@@ -2023,6 +2036,10 @@ const Store = {
 
     root.setAttribute('data-theme', mode);
     if (body) body.setAttribute('data-theme', mode);
+
+    const preset = s.themePreset || (mode === 'light' ? 'cream' : 'charcoal');
+    root.setAttribute('data-theme-preset', preset);
+    if (body) body.setAttribute('data-theme-preset', preset);
 
     const themeProps = [
       '--bg', '--bg-subtle', '--surface', '--surface-raised', '--surface-hover',
@@ -2799,6 +2816,7 @@ const Store = {
 
 if (typeof window !== 'undefined') {
   window.Store = Store;
+  window.escapeHtml = Store.escapeHtml;
 }
 
 if (typeof document !== 'undefined') {
