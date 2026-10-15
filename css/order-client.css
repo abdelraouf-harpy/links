@@ -6605,5 +6605,38 @@ body.harpy-account-locked {
   }
 }
 
+/* ═══════════════════════════════════════════════════════════
+   HARPY PRO: CLIENT MENU PRINT MEDIA STYLES
+   ═══════════════════════════════════════════════════════════ */
+@media print {
+  .bottom-nav-bar,
+  .desktop-header-nav,
+  .dynamic-island-cart,
+  .cart-drawer,
+  .cart-drawer-backdrop,
+  .btn-quick-add,
+  .view-controls-compact,
+  .promo-announcement-bar,
+  .stories-strip-section,
+  .category-strip {
+    display: none !important;
+  }
+  body, .main-content-sheet {
+    background: #ffffff !important;
+    color: #111827 !important;
+    padding-bottom: 0 !important;
+  }
+  .food-item-card {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    border: 1px solid #E2E8F0 !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+  }
+  .food-item-title, .food-item-price {
+    color: #000000 !important;
+  }
+}
+
 
 

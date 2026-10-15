@@ -170,8 +170,8 @@ self.addEventListener('fetch', (event) => {
           }
         } catch (e) {}
 
-        const finalName = isAdm ? 'Admin' : 'Order';
-        const finalShortName = isAdm ? 'Admin' : 'Order';
+        const finalName = isAdm ? `${storeName} | إدارة` : storeName;
+        const finalShortName = isAdm ? `إدارة ${storeName}` : storeName;
         const iconUrl = isAdm ? 'https://iili.io/n3rYXyu.png' : 'https://iili.io/n3HVHX4.jpg';
         const iconType = isAdm ? 'image/png' : 'image/jpeg';
 

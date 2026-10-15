@@ -2554,6 +2554,13 @@ const Store = {
 
   // ── Backup & Restore JSON Engine ───────────────────────────
   exportAllDataJSON() {
+    let orderHistory = [];
+    try {
+      if (typeof this.getOrderHistory === 'function') {
+        orderHistory = this.getOrderHistory();
+      }
+    } catch (e) {}
+
     const data = {
       version: "2.0",
       timestamp: new Date().toISOString(),
@@ -2561,7 +2568,8 @@ const Store = {
       settings: this.getSettings(),
       categories: this.getCategories(),
       products: this.getProducts(),
-      stories: this.getStories()
+      stories: this.getStories(),
+      orders: orderHistory
     };
     return JSON.stringify(data, null, 2);
   },
@@ -2576,6 +2584,11 @@ const Store = {
       if (data.categories) await this.saveCategories(data.categories);
       if (data.products) await this.saveProducts(data.products);
       if (data.stories) await this.saveStories(data.stories);
+      if (data.orders && Array.isArray(data.orders) && data.orders.length > 0) {
+        try {
+          this.safeSetItem(this.getKey(STORAGE_KEYS.ORDER_HISTORY), JSON.stringify(data.orders));
+        } catch (e) {}
+      }
       return true;
     } catch (err) {
       console.error("[Store] Import error:", err);
