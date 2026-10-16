@@ -47,8 +47,8 @@
   <link rel="preconnect" href="https://i.ibb.co" crossorigin>
   <link rel="dns-prefetch" href="https://i.ibb.co">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/order-tokens.css?v=94.2">
-  <link rel="stylesheet" href="css/order-client.css?v=94.2">
+  <link rel="stylesheet" href="css/order-tokens.css?v=94.3">
+  <link rel="stylesheet" href="css/order-client.css?v=94.3">
   <style id="harpy-critical-layout">
     /* ═══════════════════════════════════════════════════════════
        CRITICAL DEFENSIVE INLINE SHIELD (Prevents SW Cache Mismatches)
@@ -411,6 +411,20 @@
     .products-flow.view-mode-dual .food-item-body {
       order: 1 !important;
       padding: 10px 10px !important;
+    }
+
+    /* 7. Critical Modal & Bottom-Nav Stacking Defense */
+    .preview-modal { z-index: 1250 !important; }
+    .customizer-modal { z-index: 1250 !important; }
+    .modal-backdrop, .customizer-modal-backdrop { z-index: 1200 !important; }
+    body.preview-open .bottom-nav-bar,
+    body.customizer-open .bottom-nav-bar,
+    body.cart-drawer-open .bottom-nav-bar,
+    body:has(#preview-modal.open) .bottom-nav-bar,
+    body:has(#customizer-modal.open) .bottom-nav-bar {
+      transform: translateY(115%) !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
     }
   </style>
   <script>
@@ -2152,16 +2166,16 @@
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=94.2"></script>
-  <script src="js/core/sound-effects.js?v=94.2"></script>
-  <script src="js/store.js?v=94.2"></script>
-  <script src="js/client/client-core.js?v=94.2"></script>
-  <script src="js/client/menu-view.js?v=94.2"></script>
-  <script src="js/client/stories-viewer.js?v=94.2"></script>
-  <script src="js/client/customizer-modal.js?v=94.2"></script>
-  <script src="js/client/cart-ledger.js?v=94.2"></script>
-  <script src="js/client/order-tracking.js?v=94.2"></script>
-  <script src="js/app.js?v=94.2"></script>
-  <script src="js/pwa.js?v=94.2"></script>
+  <script src="js/core/demo-seed-data.js?v=94.3"></script>
+  <script src="js/core/sound-effects.js?v=94.3"></script>
+  <script src="js/store.js?v=94.3"></script>
+  <script src="js/client/client-core.js?v=94.3"></script>
+  <script src="js/client/menu-view.js?v=94.3"></script>
+  <script src="js/client/stories-viewer.js?v=94.3"></script>
+  <script src="js/client/customizer-modal.js?v=94.3"></script>
+  <script src="js/client/cart-ledger.js?v=94.3"></script>
+  <script src="js/client/order-tracking.js?v=94.3"></script>
+  <script src="js/app.js?v=94.3"></script>
+  <script src="js/pwa.js?v=94.3"></script>
 </body>
 </html>

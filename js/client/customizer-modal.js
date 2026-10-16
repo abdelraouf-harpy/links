@@ -70,6 +70,7 @@ window.openCustomizer = function(productId) {
 
   if (elements.customizerBackdrop) elements.customizerBackdrop.classList.add('open');
   if (elements.customizerModal) elements.customizerModal.classList.add('open');
+  document.body.classList.add('customizer-open');
   pushNavState('customizer', { productId });
   SoundFX.playPop();
 };
@@ -206,6 +207,7 @@ function closeCustomizer(triggerHistoryBack = true) {
   customizerProduct = null;
   if (elements.customizerBackdrop) elements.customizerBackdrop.classList.remove('open');
   if (elements.customizerModal) elements.customizerModal.classList.remove('open');
+  document.body.classList.remove('customizer-open');
   if (triggerHistoryBack && window.history.state && window.history.state.harpyNav === 'customizer') {
     try { history.back(); } catch(e) {}
   }

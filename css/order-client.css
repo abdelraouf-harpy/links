@@ -979,15 +979,16 @@
 /* ── Quick Preview Sheet / Modal ─────────────────────────── */
 .preview-modal {
   position: fixed;
-  z-index: 85;
+  z-index: 1250;
   background: var(--surface);
   border: 1px solid var(--border-strong);
   overflow-y: auto;
   opacity: 0;
   pointer-events: none;
-  transition: all 0.28s ease;
+  transition: all 0.28s cubic-bezier(0.25, 1, 0.5, 1);
   box-shadow: var(--shadow-lg);
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 @media (min-width: 641px) {
@@ -1014,10 +1015,10 @@
     right: 0;
     top: auto;
     width: 100%;
-    max-height: 86vh;
-    border-radius: 18px 18px 0 0;
+    max-height: min(88dvh, 88vh);
+    border-radius: 20px 20px 0 0;
     transform: translateY(100%);
-    padding-bottom: max(16px, env(safe-area-inset-bottom, 16px));
+    padding-bottom: max(20px, env(safe-area-inset-bottom, 20px));
   }
   .preview-modal.open {
     opacity: 1;
@@ -1243,7 +1244,7 @@
   background: rgba(10, 8, 7, 0.8);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-  z-index: 60;
+  z-index: 1200;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s ease;
@@ -1257,8 +1258,12 @@
 
 #customer-onboard-backdrop,
 #my-account-backdrop,
-#qr-modal-backdrop {
-  z-index: 1040;
+#qr-modal-backdrop,
+#preview-modal-backdrop,
+#cart-drawer-backdrop,
+#tracker-modal-backdrop,
+#ordering-paused-backdrop {
+  z-index: 1200;
 }
 
 .cart-drawer {
@@ -1272,7 +1277,7 @@
   height: 100dvh;
   background: var(--bg);
   border-right: 1px solid var(--border-strong);
-  z-index: 70;
+  z-index: 1250;
   display: flex;
   flex-direction: column;
   transform: translateX(-100%);
@@ -2768,7 +2773,11 @@
   transform: translateX(-50%) translateY(0) scale(1);
 }
 .dynamic-island-cart.hidden-during-drawer,
-body.cart-drawer-open .dynamic-island-cart {
+body.cart-drawer-open .dynamic-island-cart,
+body.preview-open .dynamic-island-cart,
+body.customizer-open .dynamic-island-cart,
+body:has(#preview-modal.open) .dynamic-island-cart,
+body:has(#customizer-modal.open) .dynamic-island-cart {
   opacity: 0 !important;
   pointer-events: none !important;
   transform: translateX(-50%) translateY(160px) scale(0.85) !important;
@@ -3191,7 +3200,7 @@ body.cart-drawer-open .dynamic-island-cart {
   background: var(--surface);
   border: 1px solid var(--border-strong);
   border-radius: 24px 24px 0 0;
-  z-index: 1210;
+  z-index: 1250;
   display: flex;
   flex-direction: column;
   box-shadow: var(--shadow-lg);
@@ -3447,7 +3456,7 @@ body.cart-drawer-open .dynamic-island-cart {
 
 .customizer-footer {
   padding: 10px 14px;
-  padding-bottom: max(12px, env(safe-area-inset-bottom, 12px));
+  padding-bottom: max(16px, env(safe-area-inset-bottom, 16px));
   background: var(--surface);
   border-top: 1px solid var(--border-strong);
   display: flex;
@@ -4529,11 +4538,22 @@ body.harpy-account-locked {
   -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
   direction: rtl;
+  transition: transform 0.28s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.22s ease, background-color 0.22s ease, border-color 0.22s ease;
 }
 [data-theme="dark"] .bottom-nav-bar {
   background: rgba(7, 11, 19, 0.96) !important;
   border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
   box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.6) !important;
+}
+
+body.preview-open .bottom-nav-bar,
+body.customizer-open .bottom-nav-bar,
+body.cart-drawer-open .bottom-nav-bar,
+body:has(#preview-modal.open) .bottom-nav-bar,
+body:has(#customizer-modal.open) .bottom-nav-bar {
+  transform: translateY(115%) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 .nav-tab-btn {
   flex: 1;

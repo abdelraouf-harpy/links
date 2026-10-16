@@ -717,6 +717,7 @@ window.openQuickPreview = function(productId) {
 
   if (elements.previewModal) elements.previewModal.classList.add('open');
   if (elements.previewModalBackdrop) elements.previewModalBackdrop.classList.add('open');
+  document.body.classList.add('preview-open');
   pushNavState('preview', { productId });
 };
 
@@ -747,6 +748,7 @@ function closeQuickPreview(triggerHistoryBack = true) {
   currentPreviewProductId = null;
   if (elements.previewModal) elements.previewModal.classList.remove('open');
   if (elements.previewModalBackdrop) elements.previewModalBackdrop.classList.remove('open');
+  document.body.classList.remove('preview-open');
   if (triggerHistoryBack && window.history.state && window.history.state.harpyNav === 'preview') {
     try { history.back(); } catch(e) {}
   }
