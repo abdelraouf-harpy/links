@@ -47,8 +47,8 @@
   <link rel="preconnect" href="https://i.ibb.co" crossorigin>
   <link rel="dns-prefetch" href="https://i.ibb.co">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/order-tokens.css?v=94.3">
-  <link rel="stylesheet" href="css/order-client.css?v=94.3">
+  <link rel="stylesheet" href="css/order-tokens.css?v=94.4">
+  <link rel="stylesheet" href="css/order-client.css?v=94.4">
   <style id="harpy-critical-layout">
     /* ═══════════════════════════════════════════════════════════
        CRITICAL DEFENSIVE INLINE SHIELD (Prevents SW Cache Mismatches)
@@ -414,8 +414,15 @@
     }
 
     /* 7. Critical Modal & Bottom-Nav Stacking Defense */
-    .preview-modal { z-index: 1250 !important; }
-    .customizer-modal { z-index: 1250 !important; }
+    .preview-modal,
+    .customizer-modal,
+    .cart-drawer,
+    .customer-onboard-modal,
+    .my-account-drawer,
+    .qr-code-modal,
+    .tracker-modal {
+      z-index: 1250 !important;
+    }
     .modal-backdrop, .customizer-modal-backdrop { z-index: 1200 !important; }
     body.preview-open .bottom-nav-bar,
     body.customizer-open .bottom-nav-bar,
@@ -1903,7 +1910,7 @@
   <!-- ═══════════════════════════════════════════════════════════
        CUSTOMER ONBOARDING MODAL (One-Time Frictionless Profile)
        ═══════════════════════════════════════════════════════════ -->
-  <div class="modal-backdrop" id="customer-onboard-backdrop"></div>
+  <div class="modal-backdrop" id="customer-onboard-backdrop" onclick="window.closeCustomerOnboardModal && window.closeCustomerOnboardModal(true)"></div>
   <div class="customer-onboard-modal" id="customer-onboard-modal" role="dialog" aria-modal="true" aria-labelledby="onboard-title">
     <div class="onboard-header">
       <div class="onboard-avatar-circle">
@@ -2166,16 +2173,16 @@
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=94.3"></script>
-  <script src="js/core/sound-effects.js?v=94.3"></script>
-  <script src="js/store.js?v=94.3"></script>
-  <script src="js/client/client-core.js?v=94.3"></script>
-  <script src="js/client/menu-view.js?v=94.3"></script>
-  <script src="js/client/stories-viewer.js?v=94.3"></script>
-  <script src="js/client/customizer-modal.js?v=94.3"></script>
-  <script src="js/client/cart-ledger.js?v=94.3"></script>
-  <script src="js/client/order-tracking.js?v=94.3"></script>
-  <script src="js/app.js?v=94.3"></script>
-  <script src="js/pwa.js?v=94.3"></script>
+  <script src="js/core/demo-seed-data.js?v=94.4"></script>
+  <script src="js/core/sound-effects.js?v=94.4"></script>
+  <script src="js/store.js?v=94.4"></script>
+  <script src="js/client/client-core.js?v=94.4"></script>
+  <script src="js/client/menu-view.js?v=94.4"></script>
+  <script src="js/client/stories-viewer.js?v=94.4"></script>
+  <script src="js/client/customizer-modal.js?v=94.4"></script>
+  <script src="js/client/cart-ledger.js?v=94.4"></script>
+  <script src="js/client/order-tracking.js?v=94.4"></script>
+  <script src="js/app.js?v=94.4"></script>
+  <script src="js/pwa.js?v=94.4"></script>
 </body>
 </html>

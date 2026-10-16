@@ -1199,14 +1199,7 @@ function saveCustomerProfile(name, phone) {
 
 function checkCustomerOnboarding() {
   const profile = getCustomerProfile();
-  if (!profile) {
-    const skipped = sessionStorage.getItem('harpy_onboard_skipped');
-    if (skipped !== 'true') {
-      setTimeout(() => {
-        openCustomerOnboardModal();
-      }, 700);
-    }
-  } else {
+  if (profile) {
     // Already has profile, pre-fill checkout inputs
     if (elements.custName && !elements.custName.value) elements.custName.value = profile.name;
     if (elements.custPhone && !elements.custPhone.value) elements.custPhone.value = profile.phone;
