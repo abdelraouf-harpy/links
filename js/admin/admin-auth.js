@@ -8,6 +8,46 @@ function setupAuth() {
   let syncUnsubscribe = null;
   let ordersUnsubscribe = null;
 
+  const syncRawMaterialsCloud = async (user) => {
+    if (!slug || slug === 'demo') return;
+    try {
+      if (db) {
+        db.ref(`restaurants/${slug}/rawMaterials`).once('value').then(snap => {
+          const val = snap.val();
+          if (val && (Array.isArray(val) ? val.length > 0 : Object.keys(val).length > 0)) {
+            Store.applySnapshotData({ rawMaterials: val });
+            if (typeof renderInventory === 'function') renderInventory();
+            if (typeof renderCatalog === 'function') renderCatalog();
+          } else {
+            const localMats = Store.getRawMaterials();
+            if (localMats && localMats.length > 0) {
+              Store.pushToCloud('rawMaterials', localMats).catch(() => {});
+            }
+          }
+        }).catch(e => console.warn('[RawMaterials SDK sync notice]', e));
+      }
+
+      let idToken = '';
+      if (user && typeof user.getIdToken === 'function') {
+        try { idToken = await user.getIdToken(); } catch(e) {}
+      } else if (window.firebase && firebase.auth && firebase.auth().currentUser) {
+        try { idToken = await firebase.auth().currentUser.getIdToken(); } catch(e) {}
+      }
+      if (idToken) {
+        const fbBase = 'https://harpy-order-default-rtdb.firebaseio.com/restaurants/' + encodeURIComponent(slug);
+        fetch(`${fbBase}/rawMaterials.json?auth=${idToken}`, { cache: 'no-store' })
+          .then(r => r.ok ? r.json() : null)
+          .then(data => {
+            if (data && (Array.isArray(data) ? data.length > 0 : Object.keys(data).length > 0)) {
+              Store.applySnapshotData({ rawMaterials: data });
+              if (typeof renderInventory === 'function') renderInventory();
+              if (typeof renderCatalog === 'function') renderCatalog();
+            }
+          }).catch(() => {});
+      }
+    } catch(e) {}
+  };
+
   const unlockDashboard = () => {
     isAuthenticated = true;
     document.documentElement.classList.remove('admin-locked');
@@ -41,21 +81,30 @@ function setupAuth() {
       (async () => {
         try {
           const fbBase = 'https://harpy-order-default-rtdb.firebaseio.com/restaurants/' + encodeURIComponent(slug);
+          let idToken = '';
+          if (window.firebase && firebase.auth && firebase.auth().currentUser) {
+            try { idToken = await firebase.auth().currentUser.getIdToken(); } catch(e) {}
+          }
+          const authParam = idToken ? `?auth=${idToken}` : '';
           const fOpt = { cache: 'no-store' };
           const results = await Promise.all([
-            fetch(fbBase + '/settings.json', fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
-            fetch(fbBase + '/categories.json', fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
-            fetch(fbBase + '/products.json', fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
-            fetch(fbBase + '/stories.json', fOpt).then(r => r.ok ? r.json() : null).catch(() => null)
+            fetch(fbBase + '/settings.json' + authParam, fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
+            fetch(fbBase + '/categories.json' + authParam, fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
+            fetch(fbBase + '/products.json' + authParam, fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
+            fetch(fbBase + '/stories.json' + authParam, fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
+            fetch(fbBase + '/rawMaterials.json' + authParam, fOpt).then(r => r.ok ? r.json() : null).catch(() => null)
           ]);
-          const s = results[0], c = results[1], p = results[2], st = results[3];
-          if (s || c || p) {
-            Store.applySnapshotData({ settings: s, categories: c, products: p, stories: st });
+          const s = results[0], c = results[1], p = results[2], st = results[3], rm = results[4];
+          if (s || c || p || rm) {
+            Store.applySnapshotData({ settings: s, categories: c, products: p, stories: st, rawMaterials: rm });
             loadAllDashboardData();
           }
         } catch(e) {}
       })();
     }
+
+    // Sync raw materials with cloud using available auth credentials
+    syncRawMaterialsCloud(window.firebase && firebase.auth ? firebase.auth().currentUser : null);
 
     // Clean up previous listeners
     if (typeof syncUnsubscribe === 'function') syncUnsubscribe();
@@ -67,6 +116,7 @@ function setupAuth() {
         renderCatalog();
         renderCategoriesList();
         renderStoriesList();
+        if (typeof renderInventory === 'function') renderInventory();
         if (typeof renderPOSCategories === 'function') renderPOSCategories();
         if (typeof renderPOSProducts === 'function') renderPOSProducts();
         loadSettingsIntoForm();
@@ -185,12 +235,15 @@ function setupAuth() {
       // If not yet unlocked, unlock immediately so dashboard data and listeners mount
       if (!isAuthenticated) {
         unlockDashboard();
-      } else if (typeof ordersUnsubscribe !== 'function') {
-        // Ensure orders sync is active if not previously initialized
-        ordersUnsubscribe = Store.syncOrdersFromCloud(slug, (orders) => {
-          renderOrdersList(orders);
-          renderInvoicesArchive(orders);
-        });
+      } else {
+        // Authenticated credentials now ready: sync secured raw materials from cloud
+        syncRawMaterialsCloud(user);
+        if (typeof ordersUnsubscribe !== 'function') {
+          ordersUnsubscribe = Store.syncOrdersFromCloud(slug, (orders) => {
+            renderOrdersList(orders);
+            renderInvoicesArchive(orders);
+          });
+        }
       }
 
       // Verify tenant ownership concurrently in background without blocking orders stream

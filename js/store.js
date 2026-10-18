@@ -717,10 +717,12 @@ const Store = {
         }
         this._memoryCache.products = prodArray;
         this.safeSetItem(this.getKey(STORAGE_KEYS.PRODUCTS), JSON.stringify(prodArray));
+        if (slug) this.safeSetItem(`harpy_${slug}_products`, JSON.stringify(prodArray));
         hasChanges = true;
       } else if (isDemo && (!this._memoryCache.products || this._memoryCache.products.length === 0)) {
         this._memoryCache.products = DEFAULT_PRODUCTS;
         this.safeSetItem(this.getKey(STORAGE_KEYS.PRODUCTS), JSON.stringify(DEFAULT_PRODUCTS));
+        if (slug) this.safeSetItem(`harpy_${slug}_products`, JSON.stringify(DEFAULT_PRODUCTS));
         hasChanges = true;
       }
     }
@@ -743,10 +745,12 @@ const Store = {
         });
         this._memoryCache.stories = storyArray;
         this.safeSetItem(this.getKey(STORAGE_KEYS.STORIES), JSON.stringify(storyArray));
+        if (slug) this.safeSetItem(`harpy_${slug}_stories`, JSON.stringify(storyArray));
         hasChanges = true;
       } else if (isDemo && (!this._memoryCache.stories || this._memoryCache.stories.length === 0)) {
         this._memoryCache.stories = DEFAULT_STORIES;
         this.safeSetItem(this.getKey(STORAGE_KEYS.STORIES), JSON.stringify(DEFAULT_STORIES));
+        if (slug) this.safeSetItem(`harpy_${slug}_stories`, JSON.stringify(DEFAULT_STORIES));
         hasChanges = true;
       }
     }
@@ -756,15 +760,19 @@ const Store = {
         let matArray = Array.isArray(data.rawMaterials) ? data.rawMaterials : Object.values(data.rawMaterials);
         if (Array.isArray(matArray)) {
           matArray = matArray.filter(m => m && typeof m === 'object' && m.id && m.name);
+        } else {
+          matArray = [];
         }
         const existingLocal = this.getRawMaterials();
         if (matArray && matArray.length > 0) {
           this._memoryCache.rawMaterials = matArray;
           this.safeSetItem(this.getKey(STORAGE_KEYS.RAW_MATERIALS), JSON.stringify(matArray));
+          if (slug) this.safeSetItem(`harpy_${slug}_raw_materials`, JSON.stringify(matArray));
           hasChanges = true;
         } else if (isDemo && (!existingLocal || existingLocal.length === 0)) {
           this._memoryCache.rawMaterials = DEFAULT_RAW_MATERIALS;
           this.safeSetItem(this.getKey(STORAGE_KEYS.RAW_MATERIALS), JSON.stringify(DEFAULT_RAW_MATERIALS));
+          if (slug) this.safeSetItem(`harpy_${slug}_raw_materials`, JSON.stringify(DEFAULT_RAW_MATERIALS));
           hasChanges = true;
         }
       }
@@ -785,12 +793,14 @@ const Store = {
       const curCats = localStorage.getItem(this.getKey(STORAGE_KEYS.CATEGORIES));
       const curProds = localStorage.getItem(this.getKey(STORAGE_KEYS.PRODUCTS));
       const curStories = localStorage.getItem(this.getKey(STORAGE_KEYS.STORIES));
-      if (curSettings || curProds) {
+      const curMats = localStorage.getItem(this.getKey(STORAGE_KEYS.RAW_MATERIALS));
+      if (curSettings || curProds || curMats) {
         lastKnownDataHash = JSON.stringify({
           s: curSettings ? JSON.parse(curSettings) : null,
           c: curCats ? JSON.parse(curCats) : null,
           p: curProds ? JSON.parse(curProds) : null,
-          st: curStories ? JSON.parse(curStories) : null
+          st: curStories ? JSON.parse(curStories) : null,
+          rm: curMats ? JSON.parse(curMats) : null
         });
       }
     } catch(e) {}
@@ -803,12 +813,14 @@ const Store = {
         if (!data.products || (Array.isArray(data.products) && data.products.length === 0)) data.products = DEFAULT_PRODUCTS;
         if (!data.stories || (typeof data.stories === 'object' && Object.keys(data.stories).length === 0)) data.stories = DEFAULT_STORIES;
         if (!data.settings || (typeof data.settings === 'object' && Object.keys(data.settings).length === 0)) data.settings = DEFAULT_SETTINGS;
+        if (!data.rawMaterials || (Array.isArray(data.rawMaterials) && data.rawMaterials.length === 0)) data.rawMaterials = DEFAULT_RAW_MATERIALS;
       }
       const currentDataHash = JSON.stringify({
         s: data.settings,
         c: data.categories,
         p: data.products,
-        st: data.stories
+        st: data.stories,
+        rm: data.rawMaterials
       });
       if (currentDataHash === lastKnownDataHash) {
         if (typeof onUpdate === 'function') {
@@ -823,6 +835,7 @@ const Store = {
       window.dispatchEvent(new Event('store_categories_updated'));
       window.dispatchEvent(new Event('store_products_updated'));
       window.dispatchEvent(new Event('store_stories_updated'));
+      window.dispatchEvent(new Event('store_raw_materials_updated'));
 
       if (typeof onUpdate === 'function') {
         onUpdate({ success: true, hasData: !!data, data, hasChanges: true });
@@ -853,7 +866,8 @@ const Store = {
           settings: this.getSettings ? this.getSettings() : (isDemo ? DEFAULT_SETTINGS : null),
           categories: this.getCategories ? this.getCategories() : (isDemo ? DEFAULT_CATEGORIES : null),
           products: this.getProducts ? this.getProducts() : (isDemo ? DEFAULT_PRODUCTS : null),
-          stories: this.getStories ? this.getStories() : (isDemo ? DEFAULT_STORIES : null)
+          stories: this.getStories ? this.getStories() : (isDemo ? DEFAULT_STORIES : null),
+          rawMaterials: this.getRawMaterials ? this.getRawMaterials() : (isDemo ? DEFAULT_RAW_MATERIALS : null)
         };
 
         subCallbacks = {};
@@ -873,6 +887,43 @@ const Store = {
             console.warn(`[Store] Cloud sync read error for ${k}:`, err);
           });
         });
+
+        // Auth-Aware Realtime Raw Materials Subscriptions
+        const attachRawMaterialsSub = () => {
+          if (!db || isDestroyed) return;
+          const user = (window.firebase && firebase.auth && firebase.auth().currentUser) || null;
+          if (!user && !isDemo) return;
+          try {
+            if (subRefs.rawMaterials && subCallbacks.rawMaterials) {
+              try { subRefs.rawMaterials.off('value', subCallbacks.rawMaterials); } catch(e) {}
+            }
+            subRefs.rawMaterials = db.ref(`restaurants/${slug}/rawMaterials`);
+            subCallbacks.rawMaterials = snap => {
+              let val = snap ? snap.val() : null;
+              if (isDemo && (!val || (Array.isArray(val) && val.length === 0))) val = DEFAULT_RAW_MATERIALS;
+              if (val) {
+                currentAgg.rawMaterials = val;
+                processSnapshotData(currentAgg);
+              }
+            };
+            subRefs.rawMaterials.on('value', subCallbacks.rawMaterials, err => {
+              console.warn("[Store] Cloud sync rawMaterials notice:", err ? (err.message || err) : err);
+            });
+          } catch(e) {}
+        };
+
+        if (isDemo || (window.firebase && firebase.auth && firebase.auth().currentUser)) {
+          attachRawMaterialsSub();
+        }
+        if (window.firebase && firebase.auth) {
+          try {
+            firebase.auth().onAuthStateChanged(u => {
+              if (u && !isDestroyed) {
+                attachRawMaterialsSub();
+              }
+            });
+          } catch(e) {}
+        }
 
         const offAllFn = () => {
           Object.keys(subRefs).forEach(k => {
@@ -900,7 +951,7 @@ const Store = {
         }
 
         // If preload promise already supplied menu data, process it and skip duplicate network requests
-        if (preloadData && typeof preloadData === 'object' && (preloadData.settings || preloadData.products || preloadData.categories)) {
+        if (preloadData && typeof preloadData === 'object' && (preloadData.settings || preloadData.products || preloadData.categories || preloadData.rawMaterials)) {
           if (typeof window !== 'undefined' && window.__harpyStoriesPromise && !preloadData.stories) {
             window.__harpyStoriesPromise.then(stories => {
               if (stories && !isDestroyed) {
@@ -914,6 +965,11 @@ const Store = {
         }
 
         // Fallback: If preload was unavailable or failed, fetch REST directly with strict 3.2s timeout
+        let idToken = '';
+        if (typeof window !== 'undefined' && window.firebase && firebase.auth && firebase.auth().currentUser) {
+          try { idToken = await firebase.auth().currentUser.getIdToken(); } catch(e) {}
+        }
+        const authParam = idToken ? `?auth=${idToken}` : '';
         const baseUrl = `https://harpy-order-default-rtdb.firebaseio.com/restaurants/${encodeURIComponent(slug)}`;
         const fetchRestWithTimeout = (endpointUrl) => {
           const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
@@ -922,31 +978,35 @@ const Store = {
             .finally(() => { if (tid) clearTimeout(tid); })
             .catch(() => null);
         };
-        const [sRes, cRes, pRes, stRes] = await Promise.all([
-          fetchRestWithTimeout(`${baseUrl}/settings.json`),
-          fetchRestWithTimeout(`${baseUrl}/categories.json`),
-          fetchRestWithTimeout(`${baseUrl}/products.json`),
-          fetchRestWithTimeout(`${baseUrl}/stories.json`)
+        const [sRes, cRes, pRes, stRes, rmRes] = await Promise.all([
+          fetchRestWithTimeout(`${baseUrl}/settings.json${authParam}`),
+          fetchRestWithTimeout(`${baseUrl}/categories.json${authParam}`),
+          fetchRestWithTimeout(`${baseUrl}/products.json${authParam}`),
+          fetchRestWithTimeout(`${baseUrl}/stories.json${authParam}`),
+          fetchRestWithTimeout(`${baseUrl}/rawMaterials.json${authParam}`)
         ]);
 
         let settings = sRes && sRes.ok ? await sRes.json().catch(() => null) : null;
         let categories = cRes && cRes.ok ? await cRes.json().catch(() => null) : null;
         let products = pRes && pRes.ok ? await pRes.json().catch(() => null) : null;
         let stories = stRes && stRes.ok ? await stRes.json().catch(() => null) : null;
+        let rawMaterials = rmRes && rmRes.ok ? await rmRes.json().catch(() => null) : null;
 
         if (isDemo) {
           if (!settings || (typeof settings === 'object' && Object.keys(settings).length === 0)) settings = DEFAULT_SETTINGS;
           if (!categories || (Array.isArray(categories) && categories.length === 0)) categories = DEFAULT_CATEGORIES;
           if (!products || (Array.isArray(products) && products.length === 0)) products = DEFAULT_PRODUCTS;
           if (!stories || (typeof stories === 'object' && Object.keys(stories).length === 0)) stories = DEFAULT_STORIES;
+          if (!rawMaterials || (Array.isArray(rawMaterials) && rawMaterials.length === 0)) rawMaterials = DEFAULT_RAW_MATERIALS;
         }
 
-        if (settings !== null || categories !== null || products !== null) {
+        if (settings !== null || categories !== null || products !== null || rawMaterials !== null) {
           processSnapshotData({
             settings: settings,
             categories: categories,
             products: products,
-            stories: stories
+            stories: stories,
+            rawMaterials: rawMaterials
           });
         }
       } catch (e) {}
@@ -983,9 +1043,16 @@ const Store = {
     // Only fallback to REST PUT if SDK push was not successful or unavailable
     if (!success) {
       try {
+        let authParam = '';
+        if (typeof window !== 'undefined' && window.firebase && firebase.auth && firebase.auth().currentUser) {
+          try {
+            const token = await firebase.auth().currentUser.getIdToken();
+            if (token) authParam = `?auth=${token}`;
+          } catch(e) {}
+        }
         const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
         const tid = ctrl ? setTimeout(() => { try { ctrl.abort(); } catch(e){} }, 3500) : null;
-        const res = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/${path}.json`, {
+        const res = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/${path}.json${authParam}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),
@@ -1020,7 +1087,14 @@ const Store = {
     }
 
     try {
-      const res = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/${path}.json`, {
+      let authParam = '';
+      if (typeof window !== 'undefined' && window.firebase && firebase.auth && firebase.auth().currentUser) {
+        try {
+          const token = await firebase.auth().currentUser.getIdToken();
+          if (token) authParam = `?auth=${token}`;
+        } catch(e) {}
+      }
+      const res = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/${path}.json${authParam}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(partialData),
@@ -1465,7 +1539,7 @@ const Store = {
         order.timestampUpdated = nowTs;
         if (order._fbKey) targetFbKey = order._fbKey;
         this.saveOrders(cached);
-        if (newStatus === 'preparing' || newStatus === 'delivered') {
+        if (newStatus === 'preparing' || newStatus === 'out_for_delivery' || newStatus === 'delivered' || newStatus === 'completed') {
           try {
             this.depleteRawMaterialsForOrder(order).catch(e => console.warn('[Deplete]', e));
           } catch(e) {}
@@ -1539,6 +1613,13 @@ const Store = {
       updatedAt: nowIso,
       timestampUpdated: nowTs
     };
+    try {
+      const cachedOrders = this.getOrders(true);
+      const matchedOrder = cachedOrders.find(o => (o.orderId || o.id) === orderId || (o.orderId && String(o.orderId).replace(/[^a-zA-Z0-9_-]/g, '') === cleanId));
+      if (matchedOrder && matchedOrder.rawMaterialsDepleted) {
+        patchPayload.rawMaterialsDepleted = true;
+      }
+    } catch(e) {}
 
     // 2. Instant Parallel Cloud Dispatch: SDK + REST PATCH
     if (db) {
@@ -2228,9 +2309,11 @@ const Store = {
   },
 
   async saveCategories(cats) {
+    const slug = this.getRestaurantSlug();
     this._memoryCache.categories = cats;
     this.saveLocks.categories = true;
     this.safeSetItem(this.getKey(STORAGE_KEYS.CATEGORIES), JSON.stringify(cats));
+    if (slug) this.safeSetItem(`harpy_${slug}_categories`, JSON.stringify(cats));
     this.lastSaveTimestamps.categories = Date.now();
     window.dispatchEvent(new Event('store_categories_updated'));
 
@@ -2287,9 +2370,11 @@ const Store = {
   },
 
   async saveProducts(prods) {
+    const slug = this.getRestaurantSlug();
     this._memoryCache.products = prods;
     this.saveLocks.products = true;
     this.safeSetItem(this.getKey(STORAGE_KEYS.PRODUCTS), JSON.stringify(prods));
+    if (slug) this.safeSetItem(`harpy_${slug}_products`, JSON.stringify(prods));
     this.lastSaveTimestamps.products = Date.now();
     window.dispatchEvent(new Event('store_products_updated'));
 
@@ -2356,16 +2441,21 @@ const Store = {
   },
 
   async saveRawMaterials(materials) {
+    const slug = this.getRestaurantSlug();
     this._memoryCache.rawMaterials = materials;
     this.saveLocks.rawMaterials = true;
     this.safeSetItem(this.getKey(STORAGE_KEYS.RAW_MATERIALS), JSON.stringify(materials));
+    if (slug) this.safeSetItem(`harpy_${slug}_raw_materials`, JSON.stringify(materials));
+    this.lastSaveTimestamps.rawMaterials = Date.now();
     window.dispatchEvent(new Event('store_raw_materials_updated'));
 
-    this.lastSaveTimestamps.rawMaterials = Date.now();
-    this.saveLocks.rawMaterials = false;
-
-    // Gracefully push to cloud without throwing or state disruption
-    this.pushToCloud('rawMaterials', materials).catch(() => {});
+    // Ultra-Fast Optimistic Flow: Push to cloud in background without blocking UI
+    this.pushToCloud('rawMaterials', materials).then(() => {
+      this.lastSaveTimestamps.rawMaterials = Date.now();
+      this.saveLocks.rawMaterials = false;
+    }).catch(err => {
+      this.saveLocks.rawMaterials = false;
+    });
 
     return { success: true, localSaved: true };
   },
@@ -2453,15 +2543,20 @@ const Store = {
     const orderId = order.orderId || order.id;
     if (!orderId) return false;
 
-    const depletedSet = this.getDepletedOrderIds();
-    // Synchronous immediate double-depletion guard
-    if (depletedSet.has(orderId) || order.rawMaterialsDepleted) {
+    // Strict double-depletion guard: only skip if order was already confirmed depleted
+    if (order.rawMaterialsDepleted === true) {
       return false;
     }
-    depletedSet.add(orderId);
+    const depletedSet = this.getDepletedOrderIds();
+    if (depletedSet.has(orderId) && order.rawMaterialsDepleted === true) {
+      return false;
+    }
 
     const mats = this.getRawMaterials();
-    if (!mats || mats.length === 0) return false;
+    if (!mats || mats.length === 0) {
+      // Materials not loaded yet - DO NOT add to depletedSet so it can be retried once materials sync!
+      return false;
+    }
     const matMap = new Map(mats.map(m => [String(m.id), m]));
 
     const allProducts = this.getProducts();
@@ -2474,43 +2569,59 @@ const Store = {
       if (qty <= 0) return;
 
       const prodId = String(item.productId || item.id || '');
-      const prod = prodMap.get(prodId) || allProducts.find(p => String(p.id) === prodId || p.name === item.name);
+      const itemName = String(item.name || '').trim().toLowerCase();
+      // Match by ID or Name (case-insensitive & trimmed)
+      const prod = prodMap.get(prodId) || allProducts.find(p => String(p.id) === prodId || String(p.name || '').trim().toLowerCase() === itemName);
       if (!prod || !prod.recipe) return;
 
       const recipe = prod.recipe;
 
       const deductMaterial = (materialId, amountVal) => {
         if (!materialId) return;
-        const mat = matMap.get(String(materialId));
+        const targetId = String(materialId);
+        const mat = matMap.get(targetId) || mats.find(m => String(m.id) === targetId || String(m.name || '').trim().toLowerCase() === targetId.toLowerCase());
         if (mat) {
           const amt = parseFloat(String(amountVal).replace(/,/g, '').trim()) || 0;
           if (amt > 0) {
             const consumeAmount = amt * qty;
             const currentStock = parseFloat(String(mat.stock).replace(/,/g, '').trim()) || 0;
-            mat.stock = Math.max(0, currentStock - consumeAmount);
+            const newStock = Math.max(0, Math.round((currentStock - consumeAmount) * 1000) / 1000);
+            mat.stock = newStock;
             anyDeducted = true;
           }
         }
       };
 
-      // 1. Base recipe items
+      // 1. Base recipe items (deducted for all units of this product)
       if (Array.isArray(recipe.base)) {
-        recipe.base.forEach(r => deductMaterial(r.materialId, r.amount));
+        recipe.base.forEach(r => deductMaterial(r.materialId || r.matId || r.id, r.amount));
       }
 
       // 2. Per Size recipe items
-      const selectedSizeName = item.selectedSize?.name || item.size || null;
-      if (selectedSizeName && recipe.sizes && Array.isArray(recipe.sizes[selectedSizeName])) {
-        recipe.sizes[selectedSizeName].forEach(r => deductMaterial(r.materialId, r.amount));
+      let selectedSizeName = '';
+      if (item.selectedSize) {
+        selectedSizeName = typeof item.selectedSize === 'object' ? (item.selectedSize.name || '') : String(item.selectedSize);
+      } else if (item.size) {
+        selectedSizeName = typeof item.size === 'object' ? (item.size.name || '') : String(item.size);
+      }
+      selectedSizeName = selectedSizeName.trim().toLowerCase();
+
+      if (selectedSizeName && recipe.sizes && typeof recipe.sizes === 'object') {
+        const sizeKey = Object.keys(recipe.sizes).find(k => k.trim().toLowerCase() === selectedSizeName);
+        if (sizeKey && Array.isArray(recipe.sizes[sizeKey])) {
+          recipe.sizes[sizeKey].forEach(r => deductMaterial(r.materialId || r.matId || r.id, r.amount));
+        }
       }
 
       // 3. Per Addon recipe items
       const selectedAddons = item.selectedAddons || item.addons || [];
-      if (Array.isArray(selectedAddons) && recipe.addons) {
+      if (Array.isArray(selectedAddons) && recipe.addons && typeof recipe.addons === 'object') {
         selectedAddons.forEach(addon => {
-          const addonName = typeof addon === 'string' ? addon : addon.name;
-          if (addonName && Array.isArray(recipe.addons[addonName])) {
-            recipe.addons[addonName].forEach(r => deductMaterial(r.materialId, r.amount));
+          const addonName = (typeof addon === 'string' ? addon : (addon.name || '')).trim().toLowerCase();
+          if (!addonName) return;
+          const addonKey = Object.keys(recipe.addons).find(k => k.trim().toLowerCase() === addonName);
+          if (addonKey && Array.isArray(recipe.addons[addonKey])) {
+            recipe.addons[addonKey].forEach(r => deductMaterial(r.materialId || r.matId || r.id, r.amount));
           }
         });
       }
@@ -2518,6 +2629,7 @@ const Store = {
 
     if (anyDeducted) {
       order.rawMaterialsDepleted = true;
+      depletedSet.add(orderId);
       this.markOrderAsDepleted(orderId);
 
       // Persist order status flag in orders cache
