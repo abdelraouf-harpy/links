@@ -333,6 +333,28 @@ function updateAllBrandHeadings(customName = null) {
   const adminStoreName = document.getElementById('admin-store-name');
   if (adminStoreName) adminStoreName.textContent = `إدارة: ${brandName}`;
 
+  const drawerStoreName = document.getElementById('drawer-store-name');
+  if (drawerStoreName) drawerStoreName.textContent = `إدارة: ${brandName}`;
+
+  const logo = settings.logo || '';
+  ['admin-header-logo-img', 'drawer-logo-img'].forEach(id => {
+    const img = document.getElementById(id);
+    if (img) {
+      if (logo) {
+        img.src = logo;
+        img.style.display = 'block';
+      } else {
+        img.style.display = 'none';
+      }
+    }
+  });
+  ['admin-header-logo-placeholder', 'drawer-logo-placeholder'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.style.display = logo ? 'none' : 'flex';
+    }
+  });
+
   const activeTitle = document.getElementById('active-restaurant-title');
   if (activeTitle) activeTitle.textContent = brandName;
 

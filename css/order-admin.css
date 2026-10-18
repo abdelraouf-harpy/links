@@ -2799,3 +2799,437 @@ html.admin-unlocked #login-modal-backdrop {
   }
 }
 
+
+
+/* ═══════════════════════════════════════════════════════════
+   HARPY PRO: LUXURY RESPONSIVE ADMIN HEADER & SIDE DRAWER
+   ═══════════════════════════════════════════════════════════ */
+.admin-modern-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 0;
+  transition: all 0.25s ease;
+}
+[data-theme="dark"] .admin-modern-header {
+  background: rgba(15, 23, 42, 0.94);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.admin-modern-header .header-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* Brand Display */
+.admin-modern-header .brand-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.admin-modern-header .brand-logo-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+.admin-modern-header .brand-logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border-strong);
+  background: var(--surface-raised);
+  object-fit: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+.admin-modern-header .brand-text {
+  min-width: 0;
+}
+.admin-modern-header .brand-text h1 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.2;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.admin-modern-header .brand-text p {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin: 2px 0 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Header Action Controls */
+.admin-modern-header .header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.btn-drawer-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 0.88rem;
+  font-weight: 800;
+  border-radius: 10px;
+  cursor: pointer;
+  background: var(--primary);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 3px 12px var(--primary-glow);
+  transition: all 0.2s ease;
+}
+.btn-drawer-toggle:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+.btn-drawer-toggle:active {
+  transform: translateY(0);
+}
+.btn-theme-toggle {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-raised);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-theme-toggle:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+}
+
+/* ── Luxury Side Drawer ───────────────────────────────────── */
+.admin-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 10000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+.admin-drawer-backdrop.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.admin-drawer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 320px;
+  max-width: 86vw;
+  background: var(--surface);
+  border-right: 1px solid var(--border-strong);
+  z-index: 10001;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-105%);
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+.admin-drawer.open {
+  transform: translateX(0);
+}
+
+/* Drawer Header */
+.admin-drawer-header {
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-raised);
+  flex-shrink: 0;
+}
+.drawer-brand-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.drawer-logo-box, .drawer-logo-img {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.drawer-logo-box {
+  background: var(--primary-subtle);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-strong);
+}
+.drawer-brand-text {
+  min-width: 0;
+}
+.drawer-store-name {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.drawer-store-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-top: 2px;
+}
+.btn-close-drawer {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+.btn-close-drawer:hover {
+  color: var(--text-main);
+  border-color: var(--border-strong);
+  background: var(--surface-hover);
+}
+
+/* Drawer Navigation List */
+.admin-drawer-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  scrollbar-width: thin;
+}
+.drawer-nav-group-title {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 6px 12px 4px;
+  margin-top: 4px;
+}
+.admin-drawer-nav .admin-tab-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-align: right;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  user-select: none;
+}
+.admin-drawer-nav .admin-tab-btn svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: inherit;
+  transition: transform 0.18s ease;
+}
+.admin-drawer-nav .admin-tab-btn .tab-label {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.admin-drawer-nav .admin-tab-btn .tab-badge {
+  background: var(--primary);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 10px;
+  margin-right: auto;
+}
+.admin-drawer-nav .admin-tab-btn .tab-badge.badge-warning {
+  background: #f59e0b;
+}
+.admin-drawer-nav .admin-tab-btn:hover {
+  background: var(--surface-raised);
+  color: var(--text-main);
+  border-color: var(--border);
+}
+.admin-drawer-nav .admin-tab-btn:hover svg {
+  transform: scale(1.08);
+}
+.admin-drawer-nav .admin-tab-btn.active {
+  background: var(--primary);
+  color: #ffffff !important;
+  font-weight: 800;
+  box-shadow: 0 4px 14px var(--primary-glow);
+}
+.admin-drawer-nav .admin-tab-btn.active svg {
+  color: #ffffff !important;
+}
+
+/* Drawer Footer */
+.admin-drawer-footer {
+  padding: 14px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--surface-raised);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.btn-drawer-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-main);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-drawer-action:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+}
+.btn-drawer-logout {
+  color: var(--danger) !important;
+  border-color: rgba(239, 68, 68, 0.25) !important;
+  background: rgba(239, 68, 68, 0.06) !important;
+}
+.btn-drawer-logout:hover {
+  background: rgba(239, 68, 68, 0.15) !important;
+}
+
+/* Responsive adjustments across Mobile & Tablet */
+@media (max-width: 768px) {
+  .admin-modern-header {
+    padding: 8px 0;
+  }
+  .admin-modern-header .brand-logo {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+  }
+  .admin-modern-header .brand-text h1 {
+    font-size: 0.95rem;
+  }
+  .admin-modern-header .brand-text p {
+    display: block;
+    font-size: 10px;
+    opacity: 0.85;
+  }
+  .btn-header-preview {
+    display: none !important;
+  }
+  .btn-drawer-toggle .drawer-btn-label {
+    display: none;
+  }
+  .btn-drawer-toggle {
+    padding: 8px 10px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   UNIFIED MENU CATEGORY RAIL & INVENTORY CARDS
+   ═══════════════════════════════════════════════════════════ */
+.catalog-category-rail {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+.catalog-category-rail::-webkit-scrollbar {
+  height: 4px;
+}
+.catalog-category-rail::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 4px;
+}
+
+.btn-cat-chip {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+.btn-cat-chip:hover {
+  transform: translateY(-1px);
+  border-color: var(--primary-glow);
+}
+.btn-cat-chip.active {
+  box-shadow: 0 4px 12px var(--primary-glow);
+}
+
+.inv-material-card {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+.inv-material-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+.recipe-base-row,
+.recipe-size-item-row,
+.recipe-addon-item-row {
+  transition: background 0.15s ease;
+}
+
+.recipe-size-block,
+.recipe-addon-block {
+  border: 1px solid var(--border);
+  transition: border-color 0.2s ease;
+}
+.recipe-size-block:hover,
+.recipe-addon-block:hover {
+  border-color: var(--border-strong);
+}
+

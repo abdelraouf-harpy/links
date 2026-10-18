@@ -182,7 +182,7 @@ window.selectOrderStatus = async function(newStatus) {
     }
   }
 
-  // 2. Persist to Store and Firebase
+  // 2. Persist to Store and Firebase (Store.updateOrderStatus handles depletion with internal locking)
   await Store.updateOrderStatus(orderId, newStatus);
   renderOrdersList();
   renderInvoicesArchive();

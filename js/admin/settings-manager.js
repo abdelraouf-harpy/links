@@ -31,21 +31,7 @@ function setupSettingsForm() {
   });
 
 
-  if (adminElements.themePresetsGrid) {
-    adminElements.themePresetsGrid.innerHTML = Object.values(THEME_PRESETS).map(preset => `
-      <div class="theme-preset-card" data-preset="${preset.id}" onclick="applyPresetToPickers('${preset.id}')" style="cursor:pointer; transition:all 0.18s ease; position:relative; overflow:hidden;">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
-          <div style="display:flex; align-items:center; gap:6px;">
-            <span style="width:14px; height:14px; border-radius:50%; background:${preset.primary}; display:inline-block; border:1px solid rgba(255,255,255,0.25);"></span>
-            <span style="font-size:12.5px; font-weight:800; color:var(--text-main);">${preset.name}</span>
-          </div>
-          <span class="preset-check-badge" style="font-size:11px; font-weight:900; color:var(--primary); background:var(--primary-glow, rgba(234,88,12,0.15)); padding:2px 8px; border-radius:10px; opacity:0; transition:all 0.2s; display:inline-flex; align-items:center; gap:4px;"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> <span>مختار</span></span>
-        </div>
-        <div style="font-size:11px; color:var(--text-muted);">${preset.badge}</div>
-      </div>
-    `).join('');
-    updateThemePresetCardsUI();
-  }
+
 
   if (adminElements.setStoreName) {
     adminElements.setStoreName.addEventListener('input', (e) => {
@@ -134,60 +120,8 @@ function setupSettingsForm() {
   }
 }
 
-function updateThemePresetCardsUI(selectedPresetId) {
-  const s = Store.getSettings();
-  const currentId = selectedPresetId || s.themePreset || 'charcoal';
-  const cards = document.querySelectorAll('.theme-preset-card');
-  cards.forEach(card => {
-    const isSelected = card.getAttribute('data-preset') === currentId;
-    card.classList.toggle('active', isSelected);
-    card.style.borderColor = isSelected ? 'var(--primary)' : 'var(--border)';
-    card.style.borderWidth = isSelected ? '2px' : '1px';
-    card.style.background = isSelected ? 'var(--surface-raised)' : 'var(--surface)';
-    card.style.boxShadow = isSelected ? '0 0 14px var(--primary-glow, rgba(234, 88, 12, 0.22))' : 'none';
-    const badge = card.querySelector('.preset-check-badge');
-    if (badge) {
-      badge.style.opacity = isSelected ? '1' : '0';
-      badge.style.transform = isSelected ? 'scale(1)' : 'scale(0.85)';
-    }
-  });
-}
-
-window.applyPresetToPickers = async function(presetId) {
-  const p = THEME_PRESETS[presetId];
-  if (!p) return;
-
-  // 1. Optimistic UI: Update settings in memory and apply theme to DOM immediately (0ms instant response)
-  const current = Store.getSettings();
-  current.themePreset = presetId;
-  current.siteColors = { ...p };
-
-  // Set mode appropriately for the preset
-  const targetMode = (presetId === 'cream') ? 'light' : 'dark';
-  Store.safeSetItem(Store.getThemeModeKey(), targetMode);
-  Store.safeSetItem(Store.getKey(STORAGE_KEYS.THEME_MODE), targetMode);
-
-  Store.applyTheme();
-  updateThemePresetCardsUI(presetId);
-  if (typeof updateAdminThemeToggleIcons === 'function') updateAdminThemeToggleIcons();
-
-  // 2. Persist to localStorage immediately
-  Store.safeSetItem(Store.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(current));
-  window.dispatchEvent(new Event('store_settings_updated'));
-
-  // 3. Temporarily lock settings to prevent background sync from immediately reverting
-  Store.saveLocks.settings = true;
-  Store.lastSaveTimestamps.settings = Date.now();
-
-  // 4. Sync to Cloud in background using PATCH
-  try {
-    await Store.syncThemePresetToCloud(presetId, p);
-  } catch (err) {
-    console.warn('[Admin] Cloud theme sync background error:', err);
-  } finally {
-    setTimeout(() => { Store.saveLocks.settings = false; }, 2500);
-  }
-};
+function updateThemePresetCardsUI() {}
+window.applyPresetToPickers = function() {};
 
 function loadSettingsIntoForm() {
   const s = Store.getSettings();
@@ -338,9 +272,6 @@ async function saveSettingsFromForm() {
 
   try {
     const current = Store.getSettings();
-    const activePresetId = current.themePreset || 'charcoal';
-    const fallbackColors = THEME_PRESETS[activePresetId] || THEME_PRESETS.charcoal;
-    const siteColors = current.siteColors ? { ...current.siteColors } : { ...fallbackColors };
 
     let cleanLogo = (document.getElementById('set-logo-url')?.value || '').trim();
     if (!cleanLogo && document.getElementById('set-logo-url-direct')) {
@@ -385,8 +316,6 @@ async function saveSettingsFromForm() {
       instagramUrl: (document.getElementById('set-instagram-url')?.value || '').trim(),
       tiktokUrl: (document.getElementById('set-tiktok-url')?.value || '').trim(),
 
-      themePreset: activePresetId,
-      siteColors: siteColors,
       printerPaperSize: (adminElements.setPrinterPaperSize?.value || '80mm'),
 
       deliverySettings: {

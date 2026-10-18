@@ -690,6 +690,13 @@ window.submitPOSOrder = async function(printReceipt = true) {
 
   try {
     await Store.pushOrderToCloud(newOrder);
+    try {
+      if (typeof Store.depleteRawMaterialsForOrder === 'function') {
+        await Store.depleteRawMaterialsForOrder(newOrder);
+      }
+    } catch (depErr) {
+      console.warn("[POS] Depletion warning:", depErr);
+    }
 
     showToastNotification(`تم إرسال الطلب ${orderId} للمطبخ بنجاح!`, "success");
 

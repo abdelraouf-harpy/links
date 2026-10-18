@@ -44,7 +44,8 @@ const STORAGE_KEYS = {
   APPLIED_COUPON: 'harpy_applied_coupon',
   SOUND_ENABLED: 'harpy_sound_enabled',
   VIEW_MODE: 'harpy_view_mode_v2',
-  STORIES: 'harpy_order_stories'
+  STORIES: 'harpy_order_stories',
+  RAW_MATERIALS: 'harpy_order_raw_materials'
 };
 
 const THEME_PRESETS = {
@@ -224,6 +225,14 @@ const BLANK_SETTINGS = {
 const DEFAULT_CATEGORIES = (typeof window !== 'undefined' && window.HARPY_DEMO_SEED && window.HARPY_DEMO_SEED.DEFAULT_CATEGORIES) || [];
 const DEFAULT_PRODUCTS = (typeof window !== 'undefined' && window.HARPY_DEMO_SEED && window.HARPY_DEMO_SEED.DEFAULT_PRODUCTS) || [];
 const DEFAULT_STORIES = (typeof window !== 'undefined' && window.HARPY_DEMO_SEED && window.HARPY_DEMO_SEED.DEFAULT_STORIES) || [];
+const DEFAULT_RAW_MATERIALS = [
+  { id: 'mat_flour', name: 'دقيق فاخر', unit: 'g', stock: 25000, minAlert: 5000, costPerUnit: 0.03, updatedAt: new Date().toISOString() },
+  { id: 'mat_mozzarella', name: 'جبنة موتزاريلا طبيعي', unit: 'g', stock: 15000, minAlert: 3000, costPerUnit: 0.25, updatedAt: new Date().toISOString() },
+  { id: 'mat_sauce', name: 'صوص طماطم إيطالي', unit: 'g', stock: 10000, minAlert: 2000, costPerUnit: 0.08, updatedAt: new Date().toISOString() },
+  { id: 'mat_beef', name: 'لحم بقري مفروم بلدي', unit: 'g', stock: 8000, minAlert: 2000, costPerUnit: 0.35, updatedAt: new Date().toISOString() },
+  { id: 'mat_box_large', name: 'كرتونة بيتزا لارج', unit: 'pcs', stock: 120, minAlert: 30, costPerUnit: 4.5, updatedAt: new Date().toISOString() },
+  { id: 'mat_can_coke', name: 'كانز كوكاكولا 330مل', unit: 'pcs', stock: 80, minAlert: 24, costPerUnit: 12, updatedAt: new Date().toISOString() }
+];
 const Store = {
   // ── High-Speed In-Memory State Cache ───────────────────────
   _memoryCache: {
@@ -232,6 +241,7 @@ const Store = {
     categories: null,
     settings: null,
     stories: null,
+    rawMaterials: null,
     cart: null,
     favorites: null,
     lastOrder: null,
@@ -256,6 +266,7 @@ const Store = {
       categories: null,
       settings: null,
       stories: null,
+      rawMaterials: null,
       cart: null,
       favorites: null,
       lastOrder: null,
@@ -287,13 +298,15 @@ const Store = {
     settings: false,
     categories: false,
     products: false,
-    stories: false
+    stories: false,
+    rawMaterials: false
   },
   lastSaveTimestamps: {
     settings: 0,
     categories: 0,
     products: 0,
-    stories: 0
+    stories: 0,
+    rawMaterials: 0
   },
   activeListeners: {
     restaurant: null,
@@ -738,6 +751,25 @@ const Store = {
       }
     }
 
+    if (!this.saveLocks.rawMaterials && (now - this.lastSaveTimestamps.rawMaterials > 2500)) {
+      if (data.rawMaterials !== undefined && data.rawMaterials !== null) {
+        let matArray = Array.isArray(data.rawMaterials) ? data.rawMaterials : Object.values(data.rawMaterials);
+        if (Array.isArray(matArray)) {
+          matArray = matArray.filter(m => m && typeof m === 'object' && m.id && m.name);
+        }
+        const existingLocal = this.getRawMaterials();
+        if (matArray && matArray.length > 0) {
+          this._memoryCache.rawMaterials = matArray;
+          this.safeSetItem(this.getKey(STORAGE_KEYS.RAW_MATERIALS), JSON.stringify(matArray));
+          hasChanges = true;
+        } else if (isDemo && (!existingLocal || existingLocal.length === 0)) {
+          this._memoryCache.rawMaterials = DEFAULT_RAW_MATERIALS;
+          this.safeSetItem(this.getKey(STORAGE_KEYS.RAW_MATERIALS), JSON.stringify(DEFAULT_RAW_MATERIALS));
+          hasChanges = true;
+        }
+      }
+    }
+
     return hasChanges;
   },
 
@@ -948,18 +980,25 @@ const Store = {
       }
     }
 
-    try {
-      const res = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/${path}.json`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-        keepalive: true
-      });
-      if (res && res.ok) {
-        success = true;
+    // Only fallback to REST PUT if SDK push was not successful or unavailable
+    if (!success) {
+      try {
+        const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+        const tid = ctrl ? setTimeout(() => { try { ctrl.abort(); } catch(e){} }, 3500) : null;
+        const res = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/${path}.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+          signal: ctrl ? ctrl.signal : undefined,
+          keepalive: true
+        });
+        if (tid) clearTimeout(tid);
+        if (res && res.ok) {
+          success = true;
+        }
+      } catch (e) {
+        console.warn(`[Store] REST cloud push error for ${subPath}:`, e);
       }
-    } catch (e) {
-      console.warn(`[Store] REST cloud push error for ${subPath}:`, e);
     }
 
     return success;
@@ -1426,6 +1465,11 @@ const Store = {
         order.timestampUpdated = nowTs;
         if (order._fbKey) targetFbKey = order._fbKey;
         this.saveOrders(cached);
+        if (newStatus === 'preparing' || newStatus === 'delivered') {
+          try {
+            this.depleteRawMaterialsForOrder(order).catch(e => console.warn('[Deplete]', e));
+          } catch(e) {}
+        }
       }
 
       // Update client's lastOrder across all known multi-tenant and fallback keys
@@ -2015,17 +2059,22 @@ const Store = {
     this._memoryCache.settings = settings;
     this.saveLocks.settings = true;
     this.safeSetItem(this.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(settings));
+    this.lastSaveTimestamps.settings = Date.now();
     if (settings.storeName) {
       this.registerRestaurant(this.getRestaurantSlug(), settings.storeName);
     }
     this.applyTheme();
     window.dispatchEvent(new Event('store_settings_updated'));
 
-    const cloudSuccess = await this.pushToCloud('settings', settings);
-    this.lastSaveTimestamps.settings = Date.now();
-    this.saveLocks.settings = false;
+    // Ultra-Fast Optimistic Flow: Push to cloud in background without blocking UI
+    this.pushToCloud('settings', settings).then(cloudSuccess => {
+      this.lastSaveTimestamps.settings = Date.now();
+      this.saveLocks.settings = false;
+    }).catch(err => {
+      this.saveLocks.settings = false;
+    });
 
-    return { success: cloudSuccess, localSaved: true };
+    return { success: true, localSaved: true };
   },
 
   applyTheme() {
@@ -2182,13 +2231,18 @@ const Store = {
     this._memoryCache.categories = cats;
     this.saveLocks.categories = true;
     this.safeSetItem(this.getKey(STORAGE_KEYS.CATEGORIES), JSON.stringify(cats));
+    this.lastSaveTimestamps.categories = Date.now();
     window.dispatchEvent(new Event('store_categories_updated'));
 
-    const cloudSuccess = await this.pushToCloud('categories', cats);
-    this.lastSaveTimestamps.categories = Date.now();
-    this.saveLocks.categories = false;
+    // Ultra-Fast Optimistic Flow: Push to cloud in background without blocking UI
+    this.pushToCloud('categories', cats).then(cloudSuccess => {
+      this.lastSaveTimestamps.categories = Date.now();
+      this.saveLocks.categories = false;
+    }).catch(err => {
+      this.saveLocks.categories = false;
+    });
 
-    return { success: cloudSuccess, localSaved: true };
+    return { success: true, localSaved: true };
   },
 
   getProducts() {
@@ -2236,13 +2290,18 @@ const Store = {
     this._memoryCache.products = prods;
     this.saveLocks.products = true;
     this.safeSetItem(this.getKey(STORAGE_KEYS.PRODUCTS), JSON.stringify(prods));
+    this.lastSaveTimestamps.products = Date.now();
     window.dispatchEvent(new Event('store_products_updated'));
 
-    const cloudSuccess = await this.pushToCloud('products', prods);
-    this.lastSaveTimestamps.products = Date.now();
-    this.saveLocks.products = false;
+    // Ultra-Fast Optimistic Flow: Push to cloud in background without blocking UI
+    this.pushToCloud('products', prods).then(cloudSuccess => {
+      this.lastSaveTimestamps.products = Date.now();
+      this.saveLocks.products = false;
+    }).catch(err => {
+      this.saveLocks.products = false;
+    });
 
-    return { success: cloudSuccess, localSaved: true };
+    return { success: true, localSaved: true };
   },
 
   async addProduct(prod) {
@@ -2259,6 +2318,222 @@ const Store = {
   async deleteProduct(id) {
     const prods = this.getProducts().filter(p => p.id !== id);
     return await this.saveProducts(prods);
+  },
+
+  // ═══════════════════════════════════════════════════════════
+  // RAW MATERIALS & INVENTORY ENGINE
+  // ═══════════════════════════════════════════════════════════
+  getRawMaterials() {
+    const slug = this.getRestaurantSlug();
+    const isDemo = (slug === 'demo');
+    const defaultMats = isDemo ? DEFAULT_RAW_MATERIALS : [];
+    if (this._memoryCache.rawMaterials !== null) {
+      if (isDemo && (!this._memoryCache.rawMaterials || this._memoryCache.rawMaterials.length === 0)) {
+        this._memoryCache.rawMaterials = defaultMats;
+      }
+      return this._memoryCache.rawMaterials;
+    }
+    let raw = localStorage.getItem(this.getKey(STORAGE_KEYS.RAW_MATERIALS));
+    if (!raw && slug) {
+      raw = localStorage.getItem(`harpy_${slug}_raw_materials`);
+    }
+    if (!raw) {
+      if (isDemo) {
+        this._memoryCache.rawMaterials = defaultMats;
+      }
+      return defaultMats;
+    }
+    try {
+      const parsed = JSON.parse(raw);
+      let res = Array.isArray(parsed) ? parsed : (parsed && typeof parsed === 'object' ? Object.values(parsed) : defaultMats);
+      if (isDemo && (!res || res.length === 0)) res = defaultMats;
+      this._memoryCache.rawMaterials = res;
+      return res;
+    } catch {
+      if (isDemo) this._memoryCache.rawMaterials = defaultMats;
+      return defaultMats;
+    }
+  },
+
+  async saveRawMaterials(materials) {
+    this._memoryCache.rawMaterials = materials;
+    this.saveLocks.rawMaterials = true;
+    this.safeSetItem(this.getKey(STORAGE_KEYS.RAW_MATERIALS), JSON.stringify(materials));
+    window.dispatchEvent(new Event('store_raw_materials_updated'));
+
+    this.lastSaveTimestamps.rawMaterials = Date.now();
+    this.saveLocks.rawMaterials = false;
+
+    // Gracefully push to cloud without throwing or state disruption
+    this.pushToCloud('rawMaterials', materials).catch(() => {});
+
+    return { success: true, localSaved: true };
+  },
+
+  async addRawMaterial(mat) {
+    const mats = this.getRawMaterials();
+    const stockVal = parseFloat(String(mat.stock || 0).replace(/,/g, '')) || 0;
+    const alertVal = parseFloat(String(mat.minAlert || 0).replace(/,/g, '')) || 0;
+    const costVal = parseFloat(String(mat.costPerUnit || 0).replace(/,/g, '')) || 0;
+    const newMat = {
+      id: mat.id || ('mat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4)),
+      name: (mat.name || '').trim(),
+      unit: mat.unit || 'g', // g, kg, ml, L, pcs
+      stock: stockVal,
+      minAlert: alertVal,
+      costPerUnit: costVal,
+      updatedAt: new Date().toISOString()
+    };
+    mats.unshift(newMat);
+    return await this.saveRawMaterials(mats);
+  },
+
+  async updateRawMaterial(id, updatedMat) {
+    const mats = this.getRawMaterials().map(m => {
+      if (m.id !== id) return m;
+      const copy = { ...m, ...updatedMat };
+      if ('stock' in updatedMat) copy.stock = parseFloat(String(updatedMat.stock).replace(/,/g, '')) || 0;
+      if ('minAlert' in updatedMat) copy.minAlert = parseFloat(String(updatedMat.minAlert).replace(/,/g, '')) || 0;
+      if ('costPerUnit' in updatedMat) copy.costPerUnit = parseFloat(String(updatedMat.costPerUnit).replace(/,/g, '')) || 0;
+      copy.updatedAt = new Date().toISOString();
+      return copy;
+    });
+    return await this.saveRawMaterials(mats);
+  },
+
+  async deleteRawMaterial(id) {
+    const mats = this.getRawMaterials().filter(m => m.id !== id);
+    return await this.saveRawMaterials(mats);
+  },
+
+  async restockRawMaterial(id, addedQuantity, note = '') {
+    const qty = parseFloat(String(addedQuantity).replace(/,/g, ''));
+    if (isNaN(qty) || qty <= 0) return { success: false, message: 'كمية التوريد غير صحيحة' };
+    const mats = this.getRawMaterials();
+    const target = mats.find(m => m.id === id);
+    if (!target) return { success: false, message: 'المادة الخام غير موجودة' };
+    target.stock = (parseFloat(String(target.stock).replace(/,/g, '')) || 0) + qty;
+    target.updatedAt = new Date().toISOString();
+    if (note) target.lastRestockNote = note;
+    return await this.saveRawMaterials(mats);
+  },
+
+  // ── Smart Depletion Engine (Proportions per Size & Addon) ────
+  _depletedOrderIds: null,
+  getDepletedOrderIds() {
+    if (this._depletedOrderIds) return this._depletedOrderIds;
+    const slug = this.getRestaurantSlug();
+    try {
+      const raw = localStorage.getItem(`harpy_${slug}_depleted_order_ids`);
+      if (raw) {
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr)) {
+          this._depletedOrderIds = new Set(arr);
+          return this._depletedOrderIds;
+        }
+      }
+    } catch (e) {}
+    this._depletedOrderIds = new Set();
+    return this._depletedOrderIds;
+  },
+
+  markOrderAsDepleted(orderId) {
+    if (!orderId) return;
+    const set = this.getDepletedOrderIds();
+    set.add(orderId);
+    const slug = this.getRestaurantSlug();
+    try {
+      const arr = Array.from(set).slice(-500);
+      this.safeSetItem(`harpy_${slug}_depleted_order_ids`, JSON.stringify(arr));
+    } catch(e) {}
+  },
+
+  async depleteRawMaterialsForOrder(order) {
+    if (!order || !order.items || !Array.isArray(order.items) || order.items.length === 0) return false;
+    const orderId = order.orderId || order.id;
+    if (!orderId) return false;
+
+    const depletedSet = this.getDepletedOrderIds();
+    // Synchronous immediate double-depletion guard
+    if (depletedSet.has(orderId) || order.rawMaterialsDepleted) {
+      return false;
+    }
+    depletedSet.add(orderId);
+
+    const mats = this.getRawMaterials();
+    if (!mats || mats.length === 0) return false;
+    const matMap = new Map(mats.map(m => [String(m.id), m]));
+
+    const allProducts = this.getProducts();
+    const prodMap = new Map(allProducts.map(p => [String(p.id), p]));
+
+    let anyDeducted = false;
+
+    order.items.forEach(item => {
+      const qty = parseInt(item.qty || item.quantity || 1, 10);
+      if (qty <= 0) return;
+
+      const prodId = String(item.productId || item.id || '');
+      const prod = prodMap.get(prodId) || allProducts.find(p => String(p.id) === prodId || p.name === item.name);
+      if (!prod || !prod.recipe) return;
+
+      const recipe = prod.recipe;
+
+      const deductMaterial = (materialId, amountVal) => {
+        if (!materialId) return;
+        const mat = matMap.get(String(materialId));
+        if (mat) {
+          const amt = parseFloat(String(amountVal).replace(/,/g, '').trim()) || 0;
+          if (amt > 0) {
+            const consumeAmount = amt * qty;
+            const currentStock = parseFloat(String(mat.stock).replace(/,/g, '').trim()) || 0;
+            mat.stock = Math.max(0, currentStock - consumeAmount);
+            anyDeducted = true;
+          }
+        }
+      };
+
+      // 1. Base recipe items
+      if (Array.isArray(recipe.base)) {
+        recipe.base.forEach(r => deductMaterial(r.materialId, r.amount));
+      }
+
+      // 2. Per Size recipe items
+      const selectedSizeName = item.selectedSize?.name || item.size || null;
+      if (selectedSizeName && recipe.sizes && Array.isArray(recipe.sizes[selectedSizeName])) {
+        recipe.sizes[selectedSizeName].forEach(r => deductMaterial(r.materialId, r.amount));
+      }
+
+      // 3. Per Addon recipe items
+      const selectedAddons = item.selectedAddons || item.addons || [];
+      if (Array.isArray(selectedAddons) && recipe.addons) {
+        selectedAddons.forEach(addon => {
+          const addonName = typeof addon === 'string' ? addon : addon.name;
+          if (addonName && Array.isArray(recipe.addons[addonName])) {
+            recipe.addons[addonName].forEach(r => deductMaterial(r.materialId, r.amount));
+          }
+        });
+      }
+    });
+
+    if (anyDeducted) {
+      order.rawMaterialsDepleted = true;
+      this.markOrderAsDepleted(orderId);
+
+      // Persist order status flag in orders cache
+      try {
+        const cached = this.getOrders(true);
+        const target = cached.find(o => (o.orderId || o.id) === orderId);
+        if (target) {
+          target.rawMaterialsDepleted = true;
+          this.safeSetItem(this.getKey('harpy_orders_cache'), JSON.stringify(cached));
+        }
+      } catch (e) {}
+
+      await this.saveRawMaterials(Array.from(matMap.values()));
+      return true;
+    }
+    return false;
   },
 
   getCart() {
@@ -2516,13 +2791,18 @@ const Store = {
     this._memoryCache.stories = stories;
     this.saveLocks.stories = true;
     this.safeSetItem(this.getKey(STORAGE_KEYS.STORIES), JSON.stringify(stories));
+    this.lastSaveTimestamps.stories = Date.now();
     window.dispatchEvent(new Event('store_stories_updated'));
 
-    const cloudSuccess = await this.pushToCloud('stories', stories);
-    this.lastSaveTimestamps.stories = Date.now();
-    this.saveLocks.stories = false;
+    // Ultra-Fast Optimistic Flow: Push to cloud in background without blocking UI
+    this.pushToCloud('stories', stories).then(cloudSuccess => {
+      this.lastSaveTimestamps.stories = Date.now();
+      this.saveLocks.stories = false;
+    }).catch(err => {
+      this.saveLocks.stories = false;
+    });
 
-    return { success: cloudSuccess, localSaved: true };
+    return { success: true, localSaved: true };
   },
   async addStory(story) {
     const stories = this.getStories();
@@ -2580,6 +2860,7 @@ const Store = {
       categories: this.getCategories(),
       products: this.getProducts(),
       stories: this.getStories(),
+      rawMaterials: this.getRawMaterials(),
       orders: orderHistory
     };
     return JSON.stringify(data, null, 2);
@@ -2595,6 +2876,7 @@ const Store = {
       if (data.categories) await this.saveCategories(data.categories);
       if (data.products) await this.saveProducts(data.products);
       if (data.stories) await this.saveStories(data.stories);
+      if (data.rawMaterials) await this.saveRawMaterials(data.rawMaterials);
       if (data.orders && Array.isArray(data.orders) && data.orders.length > 0) {
         try {
           this.safeSetItem(this.getKey(STORAGE_KEYS.ORDER_HISTORY), JSON.stringify(data.orders));
@@ -2617,6 +2899,7 @@ const Store = {
     localStorage.removeItem(this.getKey(STORAGE_KEYS.CATEGORIES));
     localStorage.removeItem(this.getKey(STORAGE_KEYS.PRODUCTS));
     localStorage.removeItem(this.getKey(STORAGE_KEYS.STORIES));
+    localStorage.removeItem(this.getKey(STORAGE_KEYS.RAW_MATERIALS));
     localStorage.removeItem(this.getKey(STORAGE_KEYS.CART));
     localStorage.removeItem(this.getKey(STORAGE_KEYS.APPLIED_COUPON));
     localStorage.removeItem(this.getKey(STORAGE_KEYS.THEME_MODE));
@@ -2628,11 +2911,13 @@ const Store = {
     await this.pushToCloud('categories', isDemo ? DEFAULT_CATEGORIES : []);
     await this.pushToCloud('products', isDemo ? DEFAULT_PRODUCTS : []);
     await this.pushToCloud('stories', isDemo ? DEFAULT_STORIES : []);
+    await this.pushToCloud('rawMaterials', isDemo ? DEFAULT_RAW_MATERIALS : []);
 
     window.dispatchEvent(new Event('store_settings_updated'));
     window.dispatchEvent(new Event('store_categories_updated'));
     window.dispatchEvent(new Event('store_products_updated'));
     window.dispatchEvent(new Event('store_stories_updated'));
+    window.dispatchEvent(new Event('store_raw_materials_updated'));
 
     return { success: true };
   },

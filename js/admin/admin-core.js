@@ -1,3 +1,30 @@
+
+// ── Luxury Admin Side Drawer Controller ─────────────────────
+window.openAdminDrawer = function() {
+  const drawer = document.getElementById('admin-drawer');
+  const backdrop = document.getElementById('admin-drawer-backdrop');
+  if (drawer) drawer.classList.add('open');
+  if (backdrop) backdrop.classList.add('open');
+  document.body.classList.add('admin-drawer-open');
+};
+
+window.closeAdminDrawer = function() {
+  const drawer = document.getElementById('admin-drawer');
+  const backdrop = document.getElementById('admin-drawer-backdrop');
+  if (drawer) drawer.classList.remove('open');
+  if (backdrop) backdrop.classList.remove('open');
+  document.body.classList.remove('admin-drawer-open');
+};
+
+window.toggleAdminDrawer = function() {
+  const drawer = document.getElementById('admin-drawer');
+  if (drawer && drawer.classList.contains('open')) {
+    window.closeAdminDrawer();
+  } else {
+    window.openAdminDrawer();
+  }
+};
+
 // ═══════════════════════════════════════════════════════════
 // HarpyOrder — Admin Core Engine (State, Nav, Toast & Bootstrap)
 // ═══════════════════════════════════════════════════════════
@@ -183,6 +210,7 @@ function initAdmin() {
   try { initKitchenWakeLock(); } catch(e) { console.error("[initAdmin] initKitchenWakeLock error:", e); }
   try { setupProductManagement(); } catch(e) { console.error("[initAdmin] setupProductManagement error:", e); }
   try { setupCategoryManagement(); } catch(e) { console.error("[initAdmin] setupCategoryManagement error:", e); }
+  try { if (typeof initInventoryManagement === 'function') initInventoryManagement(); } catch(e) { console.error("[initAdmin] initInventoryManagement error:", e); }
   try { setupStoriesManagement(); } catch(e) { console.error("[initAdmin] setupStoriesManagement error:", e); }
   try { setupBackupAndRestore(); } catch(e) { console.error("[initAdmin] setupBackupAndRestore error:", e); }
   try { setupSettingsForm(); } catch(e) { console.error("[initAdmin] setupSettingsForm error:", e); }
@@ -235,6 +263,27 @@ function setupAdminThemeToggle() {
 
 // ── Navigation Tabs with State Persistence & Zero-Latency Routing ────
 window.switchTab = function(targetTabId, updateHash = true) {
+  const TAB_TITLES = {
+    'tab-orders': 'طلبات المطبخ والتجهيز',
+    'tab-pos': 'كاشير الصالة والسفري (POS)',
+    'tab-archive': 'أرشيف الفواتير المسلّمة',
+    'tab-products': 'إدارة المنيو والأصناف',
+    'tab-inventory': 'المخزون والمواد الخام',
+    'tab-stories': 'قصص وعروض اليوم',
+    'tab-settings': 'إعدادات المكان',
+    'tab-backup': 'النسخ الاحتياطي والأمان'
+  };
+  const titleText = document.getElementById('active-tab-title-text');
+  if (titleText && TAB_TITLES[targetTabId]) {
+    titleText.textContent = TAB_TITLES[targetTabId];
+  }
+  const headerSectionTitle = document.getElementById('admin-header-section-title');
+  if (headerSectionTitle && TAB_TITLES[targetTabId]) {
+    headerSectionTitle.textContent = TAB_TITLES[targetTabId];
+  }
+  if (typeof window.closeAdminDrawer === 'function') {
+    window.closeAdminDrawer();
+  }
   if (!targetTabId) targetTabId = 'tab-products';
   if (!targetTabId.startsWith('tab-')) targetTabId = 'tab-' + targetTabId;
 
@@ -295,6 +344,8 @@ window.switchTab = function(targetTabId, updateHash = true) {
       if (typeof renderInvoicesArchive === 'function') renderInvoicesArchive(Store.getOrders());
     } else if (targetTabId === 'tab-categories') {
       if (typeof renderCategoriesList === 'function') renderCategoriesList();
+    } else if (targetTabId === 'tab-inventory') {
+      if (typeof renderInventory === 'function') renderInventory();
     } else if (targetTabId === 'tab-stories') {
       if (typeof renderStoriesList === 'function') renderStoriesList();
     } else if (targetTabId === 'tab-settings') {
@@ -510,6 +561,7 @@ function loadAllDashboardData() {
   try { if (typeof renderInvoicesArchive === 'function') renderInvoicesArchive(Store.getOrders()); } catch(e) { console.error("[loadAllDashboardData] renderInvoicesArchive:", e); }
   try { if (typeof renderCatalog === 'function') renderCatalog(); } catch(e) { console.error("[loadAllDashboardData] renderCatalog:", e); }
   try { if (typeof renderCategoriesList === 'function') renderCategoriesList(); } catch(e) { console.error("[loadAllDashboardData] renderCategoriesList:", e); }
+  try { if (typeof renderInventory === 'function') renderInventory(); } catch(e) { console.error("[loadAllDashboardData] renderInventory:", e); }
   try { if (typeof renderStoriesList === 'function') renderStoriesList(); } catch(e) { console.error("[loadAllDashboardData] renderStoriesList:", e); }
   try { if (typeof initPOS === 'function') initPOS(); } catch(e) { console.error("[loadAllDashboardData] initPOS:", e); }
   try { if (typeof loadSettingsIntoForm === 'function') loadSettingsIntoForm(); } catch(e) { console.error("[loadAllDashboardData] loadSettingsIntoForm:", e); }
@@ -524,3 +576,10 @@ function loadAllDashboardData() {
 }
 window.loadAllDashboardData = loadAllDashboardData;
 window.initAdmin = initAdmin;
+
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && typeof window.closeAdminDrawer === 'function') {
+      window.closeAdminDrawer();
+    }
+  });
