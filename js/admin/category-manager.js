@@ -89,118 +89,206 @@ window.deleteCategoryFastByIndex = function(idx) {
   }
 };
 
-window.openCategoryEditModal = function(index) {
+window.openCategoryModal = function(index = null) {
+  const modal = document.getElementById('category-modal');
+  const backdrop = document.getElementById('category-modal-backdrop');
+  const title = document.getElementById('category-modal-title');
+  const subtitle = document.getElementById('category-modal-subtitle');
+  const submitBtn = document.getElementById('btn-save-category-modal');
+  const indexInput = document.getElementById('category-modal-index');
+  const nameInput = document.getElementById('category-modal-name-input');
+  const errBox = document.getElementById('category-modal-error');
+  const legacyIdx = document.getElementById('edit-cat-index');
+  const legacyName = document.getElementById('edit-cat-name-input');
+
+  if (errBox) {
+    errBox.style.display = 'none';
+    errBox.textContent = '';
+  }
+
   const cats = Store.getCategories();
-  if (index < 0 || index >= cats.length) return;
-  const currentCat = cats[index];
+  const isEdit = (index !== null && index !== undefined && index !== '' && !isNaN(parseInt(index, 10)));
 
-  const modal = document.getElementById('category-edit-modal');
-  const backdrop = document.getElementById('category-edit-backdrop');
-  const indexInput = document.getElementById('edit-cat-index');
-  const nameInput = document.getElementById('edit-cat-name-input');
+  if (isEdit) {
+    const idx = parseInt(index, 10);
+    if (idx >= 0 && idx < cats.length) {
+      const currentCat = cats[idx];
+      if (title) title.textContent = "تعديل اسم القسم";
+      if (subtitle) subtitle.textContent = "سيتم تحديث كافة المنتجات المرتبطة بهذا القسم تلقائياً دون أي فقدان للبيانات";
+      if (submitBtn) submitBtn.textContent = "حفظ التعديل";
+      if (indexInput) indexInput.value = idx;
+      if (nameInput) nameInput.value = currentCat;
+      if (legacyIdx) legacyIdx.value = idx;
+      if (legacyName) legacyName.value = currentCat;
+    }
+  } else {
+    if (title) title.textContent = "إضافة قسم جديد";
+    if (subtitle) subtitle.textContent = "تنظيم وتصنيف الأصناف في المنيو وشاشات المطبخ والكاشير";
+    if (submitBtn) submitBtn.textContent = "إضافة القسم";
+    if (indexInput) indexInput.value = '';
+    if (nameInput) nameInput.value = '';
+    if (legacyIdx) legacyIdx.value = '';
+    if (legacyName) legacyName.value = '';
+  }
 
-  if (!modal || !indexInput || !nameInput) return;
-
-  indexInput.value = index;
-  nameInput.value = currentCat;
-
-  modal.classList.add('open', 'show');
+  if (modal) modal.classList.add('open', 'show');
   if (backdrop) backdrop.classList.add('open', 'show');
-  setTimeout(() => {
-    nameInput.focus();
-    nameInput.select();
-  }, 100);
+  if (nameInput) {
+    setTimeout(() => {
+      nameInput.focus();
+      if (isEdit) nameInput.select();
+    }, 100);
+  }
 };
 
-window.closeCategoryEditModal = function() {
-  const modal = document.getElementById('category-edit-modal');
-  const backdrop = document.getElementById('category-edit-backdrop');
+window.closeCategoryModal = function() {
+  const modal = document.getElementById('category-modal');
+  const backdrop = document.getElementById('category-modal-backdrop');
   if (modal) modal.classList.remove('open', 'show');
   if (backdrop) backdrop.classList.remove('open', 'show');
+  const errBox = document.getElementById('category-modal-error');
+  if (errBox) {
+    errBox.style.display = 'none';
+    errBox.textContent = '';
+  }
 };
 
-window.saveCategoryEdit = async function() {
-  const indexInput = document.getElementById('edit-cat-index');
-  const nameInput = document.getElementById('edit-cat-name-input');
-  if (!indexInput || !nameInput) return;
+window.handleCategoryModalSubmit = async function(event) {
+  if (event && event.preventDefault) event.preventDefault();
 
-  const index = parseInt(indexInput.value, 10);
-  const newName = (nameInput.value || '').trim();
+  const indexInput = document.getElementById('category-modal-index');
+  const nameInput = document.getElementById('category-modal-name-input');
+  const errBox = document.getElementById('category-modal-error');
+  const submitBtn = document.getElementById('btn-save-category-modal');
 
-  if (isNaN(index) || !newName) {
-    showToastNotification("يرجى كتابة اسم صحيح للقسم", "error");
+  const rawName = (nameInput ? nameInput.value : '').trim();
+  if (!rawName) {
+    if (errBox) {
+      errBox.textContent = "يرجى كتابة اسم صحيح للقسم";
+      errBox.style.display = 'block';
+    }
     return;
   }
 
+  const rawIdx = indexInput ? indexInput.value : '';
+  const isEdit = (rawIdx !== '' && !isNaN(parseInt(rawIdx, 10)));
   const cats = Store.getCategories();
-  if (index < 0 || index >= cats.length) return;
-  const oldName = cats[index];
 
-  // If no changes made, quietly close modal
-  if (newName === oldName) {
-    closeCategoryEditModal();
-    return;
-  }
+  if (isEdit) {
+    const index = parseInt(rawIdx, 10);
+    if (index < 0 || index >= cats.length) return;
+    const oldName = cats[index];
 
-  // Check if newName already exists in another category
-  const existingIdx = cats.findIndex((c, i) => i !== index && c.trim().toLowerCase() === newName.toLowerCase());
-  if (existingIdx !== -1) {
-    showToastNotification("يوجد قسم آخر بهذا الاسم بالفعل!", "error");
-    return;
-  }
+    if (rawName === oldName) {
+      closeCategoryModal();
+      return;
+    }
 
-  const saveBtn = document.getElementById('btn-save-cat-edit');
-  if (saveBtn) {
-    saveBtn.disabled = true;
-    saveBtn.textContent = "جاري الحفظ";
-  }
-
-  try {
-    // 1. Update category name in-place
-    cats[index] = newName;
-
-    // 2. Non-destructive update: Update all products linked to old category name
-    const prods = Store.getProducts();
-    let updatedProductsCount = 0;
-    prods.forEach(p => {
-      if (p && p.category === oldName) {
-        p.category = newName;
-        updatedProductsCount++;
+    const existingIdx = cats.findIndex((c, i) => i !== index && c.trim().toLowerCase() === rawName.toLowerCase());
+    if (existingIdx !== -1) {
+      if (errBox) {
+        errBox.textContent = "يوجد قسم آخر بهذا الاسم بالفعل!";
+        errBox.style.display = 'block';
+      } else {
+        showToastNotification("يوجد قسم آخر بهذا الاسم بالفعل!", "error");
       }
-    });
+      return;
+    }
 
-    if (updatedProductsCount > 0) {
-      await Store.saveProducts(prods);
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "جاري الحفظ...";
     }
-    await Store.saveCategories(cats);
 
-    renderCategoriesList();
-    if (typeof renderCatalog === 'function') {
-      renderCatalog();
+    try {
+      cats[index] = rawName;
+      const prods = Store.getProducts();
+      let updatedProductsCount = 0;
+      prods.forEach(p => {
+        if (p && p.category === oldName) {
+          p.category = rawName;
+          updatedProductsCount++;
+        }
+      });
+
+      if (updatedProductsCount > 0) {
+        await Store.saveProducts(prods);
+      }
+      await Store.saveCategories(cats);
+
+      if (typeof currentCatalogCategoryFilter !== 'undefined' && currentCatalogCategoryFilter === oldName) {
+        currentCatalogCategoryFilter = rawName;
+      }
+
+      renderCategoriesList();
+      if (typeof renderCatalog === 'function') renderCatalog();
+      if (typeof renderPOSCategories === 'function') renderPOSCategories();
+      if (typeof renderPOSProducts === 'function') renderPOSProducts();
+
+      closeCategoryModal();
+      showToastNotification(`تم تعديل القسم وتحديث (${updatedProductsCount}) صنف مرتبط بنجاح!`, "success");
+    } catch(err) {
+      console.error("Error saving category edit:", err);
+      showToastNotification("حدث خطأ أثناء حفظ تعديل القسم", "error");
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "حفظ التعديل";
+      }
     }
-    if (typeof renderPOSCategories === 'function') {
-      renderPOSCategories();
+  } else {
+    // Add mode
+    const existingIdx = cats.findIndex(c => c.trim().toLowerCase() === rawName.toLowerCase());
+    if (existingIdx !== -1) {
+      if (errBox) {
+        errBox.textContent = "هذا القسم مسجل بالفعل!";
+        errBox.style.display = 'block';
+      } else {
+        showToastNotification("هذا القسم مسجل بالفعل!", "error");
+      }
+      return;
     }
-    if (typeof renderPOSProducts === 'function') {
-      renderPOSProducts();
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "جاري الإضافة...";
     }
-    if (typeof renderPOSCategories === 'function') {
-      renderPOSCategories();
-    }
-    if (typeof renderPOSProducts === 'function') {
-      renderPOSProducts();
-    }
-    closeCategoryEditModal();
-    showToastNotification(`تم تعديل القسم وتحديث (${updatedProductsCount}) منتج مرتبط بنجاح!`, "success");
-  } catch(err) {
-    console.error("Error saving category edit:", err);
-    showToastNotification("حدث خطأ أثناء حفظ تعديل القسم", "error");
-  } finally {
-    if (saveBtn) {
-      saveBtn.disabled = false;
-      saveBtn.textContent = "حفظ التعديل";
+
+    try {
+      cats.push(rawName);
+      await Store.saveCategories(cats);
+
+      if (typeof currentCatalogCategoryFilter !== 'undefined') {
+        currentCatalogCategoryFilter = rawName;
+      }
+
+      renderCategoriesList();
+      if (typeof renderCatalog === 'function') renderCatalog();
+      if (typeof renderPOSCategories === 'function') renderPOSCategories();
+
+      closeCategoryModal();
+      showToastNotification(`تمت إضافة قسم "${rawName}" بنجاح!`, "success");
+    } catch(err) {
+      console.error("Error adding category:", err);
+      showToastNotification("حدث خطأ أثناء إضافة القسم", "error");
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "إضافة القسم";
+      }
     }
   }
+};
+
+// Backwards compatibility aliases
+window.openCategoryEditModal = function(index) {
+  window.openCategoryModal(index);
+};
+window.closeCategoryEditModal = function() {
+  window.closeCategoryModal();
+};
+window.saveCategoryEdit = function() {
+  return window.handleCategoryModalSubmit();
 };
 
 window.deleteCategoryFast = async function(cat) {

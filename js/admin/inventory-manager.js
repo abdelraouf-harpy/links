@@ -152,8 +152,9 @@ function renderInventory() {
           <div style="font-size:12.5px; color:var(--text-muted); margin-bottom:20px; max-width:340px; margin-left:auto; margin-right:auto;">
             ابدأ بتسجيل المواد الخام التي يعتمد عليها مطبخك (الدقيق، الجبنة، اللحوم، الصوصات، كراتين التعبئة) لمراقبة الاستهلاك بدقة ومنع النواقص.
           </div>
-          <button type="button" class="btn btn-primary" onclick="openRawMaterialModal(null)" style="padding:10px 22px; font-weight:800; font-size:0.9rem;">
-            + إضافة أول مادة خام
+          <button type="button" class="btn btn-primary" onclick="openRawMaterialModal(null)" style="padding:10px 22px; font-weight:800; font-size:0.9rem; display:inline-flex; align-items:center; gap:6px;">
+            <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span>إضافة أول مادة خام</span>
           </button>
         </div>
       `;
@@ -219,7 +220,7 @@ function renderInventory() {
         <div style="display:flex; gap:6px; align-items:center; border-top:1px solid var(--border); padding-top:10px; margin-top:6px;">
           <button type="button" class="btn btn-sm btn-primary" onclick="openRestockModal('${m.id}')" style="flex:1; font-weight:800; font-size:12px; padding:6px 10px; display:inline-flex; align-items:center; justify-content:center; gap:5px;">
             <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            <span>+ وارد جديد</span>
+            <span>وارد جديد</span>
           </button>
           <button type="button" class="btn btn-sm btn-ghost" onclick="openRawMaterialModal('${m.id}')" title="تعديل المادة الخام" style="border:1px solid var(--border); padding:6px 10px; font-size:12px; font-weight:700;">
             <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>

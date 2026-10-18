@@ -65,22 +65,10 @@ function setCatalogCategoryFilter(cat) {
   renderCatalog();
 }
 
-window.quickAddCategoryPrompt = async function() {
-  const name = prompt("أدخل اسم القسم الجديد لترتيب الأصناف:");
-  if (!name || !name.trim()) return;
-  const cleanName = name.trim();
-  const cats = Store.getCategories();
-  if (cats.includes(cleanName)) {
-    showToastNotification("هذا القسم مسجل بالفعل!", "error");
-    return;
+window.quickAddCategoryPrompt = function() {
+  if (typeof window.openCategoryModal === 'function') {
+    window.openCategoryModal(null);
   }
-  cats.push(cleanName);
-  await Store.saveCategories(cats);
-  currentCatalogCategoryFilter = cleanName;
-  renderCatalog();
-  if (typeof renderPOSCategories === 'function') renderPOSCategories();
-  if (typeof renderCategoriesList === 'function') renderCategoriesList();
-  showToastNotification(`تمت إضافة قسم "${cleanName}" بنجاح!`, "success");
 };
 
 function renderCatalogCategoryRail() {
@@ -139,8 +127,9 @@ function renderCatalogItemsOnly() {
         <div style="font-size:12.5px; color:var(--text-muted); margin-bottom:20px; max-width:320px; margin-left:auto; margin-right:auto;">
           ابدأ بإضافة أول صنف أو وجبة في منيو مطعمك وحدد السعر والصورة والأقسام بسهولة
         </div>
-        <button type="button" class="btn btn-primary" onclick="openProductModal(null)" style="padding:10px 22px; font-weight:800; font-size:0.9rem;">
-          + إضافة أول صنف الآن
+        <button type="button" class="btn btn-primary" onclick="openProductModal(null)" style="padding:10px 22px; font-weight:800; font-size:0.9rem; display:inline-flex; align-items:center; gap:6px;">
+          <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <span>إضافة أول صنف الآن</span>
         </button>
       </div>
     `;
@@ -167,8 +156,9 @@ function renderCatalogItemsOnly() {
         <div style="font-size:15px; font-weight:800; color:var(--text-main); margin-bottom:4px;">لا توجد أصناف مطابقة لبحثك</div>
         <div style="font-size:12px; margin-bottom:14px;">جرب تغيير كلمة البحث أو اختيار قسم آخر</div>
         ${currentCatalogCategoryFilter !== 'all' ? `
-          <button type="button" class="btn btn-primary btn-sm" onclick="openProductModalForCategory('${Store.escapeHtml(currentCatalogCategoryFilter)}')" style="font-weight:800;">
-            + إضافة صنف في قسم "${Store.escapeHtml(currentCatalogCategoryFilter)}"
+          <button type="button" class="btn btn-primary btn-sm" onclick="openProductModalForCategory('${Store.escapeHtml(currentCatalogCategoryFilter)}')" style="font-weight:800; display:inline-flex; align-items:center; gap:6px;">
+            <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span>إضافة صنف في قسم "${Store.escapeHtml(currentCatalogCategoryFilter)}"</span>
           </button>
         ` : ''}
       </div>
@@ -380,7 +370,7 @@ function syncRecipeSizesUI(savedSizesRecipe = null) {
     block.innerHTML = `
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
         <span style="font-size:11.5px; font-weight:800; color:var(--text-main);">حجم: <strong>${Store.escapeHtml(name)}</strong></span>
-        <button type="button" class="btn btn-ghost btn-sm" onclick="addRecipeSizeRow('${Store.escapeHtml(name)}')" style="font-size:11px; padding:2px 8px; border:1px solid var(--border);">+ مكون للحجم</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="addRecipeSizeRow('${Store.escapeHtml(name)}')" style="font-size:11px; padding:2px 8px; border:1px solid var(--border);">إضافة مكوّن</button>
       </div>
       <div class="recipe-size-items-wrap" id="recipe-size-wrap-${encodeURIComponent(name)}" style="display:flex; flex-direction:column; gap:6px;"></div>
     `;
@@ -474,7 +464,7 @@ function syncRecipeAddonsUI(savedAddonsRecipe = null) {
     block.innerHTML = `
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
         <span style="font-size:11.5px; font-weight:800; color:var(--text-main);">إضافة: <strong>${Store.escapeHtml(name)}</strong></span>
-        <button type="button" class="btn btn-ghost btn-sm" onclick="addRecipeAddonRow('${Store.escapeHtml(name)}')" style="font-size:11px; padding:2px 8px; border:1px solid var(--border);">+ مكون للإضافة</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="addRecipeAddonRow('${Store.escapeHtml(name)}')" style="font-size:11px; padding:2px 8px; border:1px solid var(--border);">إضافة مكوّن</button>
       </div>
       <div class="recipe-addon-items-wrap" id="recipe-addon-wrap-${encodeURIComponent(name)}" style="display:flex; flex-direction:column; gap:6px;"></div>
     `;

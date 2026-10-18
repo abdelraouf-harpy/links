@@ -41,9 +41,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Admin">
 
-  <link rel="stylesheet" href="css/order-tokens.css?v=94.5">
-  <link rel="stylesheet" href="css/order-client.css?v=94.5">
-  <link rel="stylesheet" href="css/order-admin.css?v=94.5">
+  <link rel="stylesheet" href="css/order-tokens.css?v=94.6">
+  <link rel="stylesheet" href="css/order-client.css?v=94.6">
+  <link rel="stylesheet" href="css/order-admin.css?v=94.6">
   <script>
     // Instant zero-delay theme toggle available immediately on page paint
     window.handleThemeToggle = function() {
@@ -455,13 +455,13 @@
           </div>
 
           <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-            <button type="button" class="btn btn-ghost" onclick="quickAddCategoryPrompt()" style="border:1.5px solid var(--border-strong); font-weight:800; font-size:12.5px; padding:8px 14px; border-radius:var(--radius-sm); display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
+            <button type="button" class="btn btn-ghost" onclick="openCategoryModal(null)" style="border:1.5px solid var(--border-strong); font-weight:800; font-size:12.5px; padding:8px 14px; border-radius:var(--radius-sm); display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-              <span>+ إضافة قسم</span>
+              <span>إضافة قسم</span>
             </button>
             <button id="btn-open-add-product" class="btn btn-primary" style="font-weight:800; font-size:12.5px; padding:8px 18px; border-radius:var(--radius-sm); display:inline-flex; align-items:center; gap:6px;">
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-              <span>+ إضافة صنف جديد</span>
+              <span>إضافة صنف جديد</span>
             </button>
           </div>
         </div>
@@ -485,11 +485,17 @@
             <div id="inv-stat-total" class="font-num" style="font-size:22px; font-weight:900; color:var(--text-main); margin-top:3px;">0</div>
           </div>
           <div style="background:var(--surface); border:1px solid var(--border); padding:14px; border-radius:var(--radius-sm); text-align:center;">
-            <div style="font-size:11px; color:var(--text-muted); font-weight:700;">قارب على النفاد ⚠️</div>
+            <div style="font-size:11px; color:var(--text-muted); font-weight:700; display:flex; align-items:center; justify-content:center; gap:5px;">
+              <span style="width:7px; height:7px; border-radius:50%; background:#f59e0b; display:inline-block;"></span>
+              <span>قارب على النفاد</span>
+            </div>
             <div id="inv-stat-low" class="font-num" style="font-size:22px; font-weight:900; color:#f59e0b; margin-top:3px;">0</div>
           </div>
           <div style="background:var(--surface); border:1px solid var(--border); padding:14px; border-radius:var(--radius-sm); text-align:center;">
-            <div style="font-size:11px; color:var(--text-muted); font-weight:700;">متوفر بأمان 🟢</div>
+            <div style="font-size:11px; color:var(--text-muted); font-weight:700; display:flex; align-items:center; justify-content:center; gap:5px;">
+              <span style="width:7px; height:7px; border-radius:50%; background:#16a34a; display:inline-block;"></span>
+              <span>متوفر بأمان</span>
+            </div>
             <div id="inv-stat-safe" class="font-num" style="font-size:22px; font-weight:900; color:#16a34a; margin-top:3px;">0</div>
           </div>
           <div style="background:var(--surface); border:1px solid var(--border); padding:14px; border-radius:var(--radius-sm); text-align:center;">
@@ -507,11 +513,11 @@
 
           <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
             <button type="button" class="btn btn-sm btn-filter-inventory active" data-inventory-filter="all" onclick="filterInventory('all')">عرض الكل</button>
-            <button type="button" class="btn btn-sm btn-filter-inventory" data-inventory-filter="low" onclick="filterInventory('low')">قارب على النفاد ⚠️</button>
-            <button type="button" class="btn btn-sm btn-filter-inventory" data-inventory-filter="safe" onclick="filterInventory('safe')">متوفر 🟢</button>
+            <button type="button" class="btn btn-sm btn-filter-inventory" data-inventory-filter="low" onclick="filterInventory('low')">قارب على النفاد</button>
+            <button type="button" class="btn btn-sm btn-filter-inventory" data-inventory-filter="safe" onclick="filterInventory('safe')">متوفر</button>
             <button type="button" id="btn-open-add-raw-material" class="btn btn-primary btn-sm" style="font-weight:800; padding:6px 14px; border-radius:8px; display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-              <span>+ إضافة مادة خام</span>
+              <span>إضافة مادة خام</span>
             </button>
           </div>
         </div>
@@ -768,7 +774,7 @@
               <button type="button" class="btn btn-sm btn-date-preset" data-preset="yesterday" onclick="setArchiveDatePreset('yesterday')">أمس</button>
               <button type="button" class="btn btn-sm btn-date-preset" data-preset="week" onclick="setArchiveDatePreset('week')">آخر 7 أيام</button>
               <button type="button" class="btn btn-sm btn-date-preset" data-preset="month" onclick="setArchiveDatePreset('month')">هذا الشهر</button>
-              <button type="button" class="btn btn-sm btn-date-preset" data-preset="custom" onclick="toggleArchiveCustomDates()">فترة مخصصة 📅</button>
+              <button type="button" class="btn btn-sm btn-date-preset" data-preset="custom" onclick="toggleArchiveCustomDates()">فترة مخصصة</button>
               <button type="button" class="btn btn-sm btn-date-preset" data-preset="all" onclick="setArchiveDatePreset('all')">كل الأوقات</button>
             </div>
           </div>
@@ -831,8 +837,8 @@
         <!-- Add Category Executive Banner -->
         <div class="cat-action-banner" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px 20px; margin-bottom:24px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
           <div style="display:flex; align-items:center; gap:12px;">
-            <div style="width:42px; height:42px; border-radius:10px; background:var(--primary-subtle); color:var(--primary); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;">
-              
+            <div style="width:42px; height:42px; border-radius:10px; background:var(--primary-subtle); color:var(--primary); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
             </div>
             <div>
               <div style="font-size:15px; font-weight:800; color:var(--text-main);">أقسام وتصنيفات المنيو</div>
@@ -858,7 +864,7 @@
       <div class="admin-card">
                 <div style="display:flex; justify-content:flex-end; align-items:center; margin-bottom:16px;">
           <button id="btn-open-add-story" class="btn btn-primary">
-            + إضافة قصة / عرض جديد
+            إضافة قصة أو عرض جديد
           </button>
         </div>
 
@@ -1250,7 +1256,7 @@
                 </div>
               </div>
               <button type="button" id="btn-add-promo-code" class="btn btn-primary" style="width:100%; padding:10px; font-weight:800; margin-bottom:12px;">
-                + إضافة كود الخصم
+                إضافة كود الخصم
               </button>
               <div id="promo-codes-list" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
             </div>
@@ -1302,7 +1308,7 @@
               </div>
 
               <button type="button" id="btn-add-delivery-zone" class="btn btn-primary" style="width:100%; padding:10px; font-weight:800; margin-bottom:12px;">
-                + إضافة هذا النطاق السعري
+                إضافة هذا النطاق السعري
               </button>
 
               <div id="delivery-zones-list" style="display:flex; flex-direction:column; gap:8px;"></div>
@@ -1402,7 +1408,7 @@
       <div style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-sm); padding:14px; margin-bottom:14px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
           <span style="font-size:0.86rem; font-weight:800; color:var(--text-main);">الأحجام والأوزان (اختياري)</span>
-          <button type="button" id="btn-add-size-row" class="btn btn-ghost btn-sm">+ إضافة حجم</button>
+          <button type="button" id="btn-add-size-row" class="btn btn-ghost btn-sm">إضافة حجم</button>
         </div>
         <div id="prod-sizes-list" style="display:flex; flex-direction:column; gap:8px;"></div>
       </div>
@@ -1411,7 +1417,7 @@
       <div style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-sm); padding:14px; margin-bottom:14px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
           <span style="font-size:0.86rem; font-weight:800; color:var(--text-main);">الإضافات المدفوعة (اختياري)</span>
-          <button type="button" id="btn-add-addon-row" class="btn btn-ghost btn-sm">+ إضافة خيار</button>
+          <button type="button" id="btn-add-addon-row" class="btn btn-ghost btn-sm">إضافة خيار إضافي</button>
         </div>
         <div id="prod-addons-list" style="display:flex; flex-direction:column; gap:8px;"></div>
       </div>
@@ -1426,7 +1432,7 @@
             </div>
             <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">يتم خصم هذه الكميات من المخزون تلقائياً عند تنفيذ الطلب في المطبخ والكاشير</div>
           </div>
-          <button type="button" class="btn btn-ghost btn-sm" onclick="addRecipeBaseRow()" style="border:1px solid var(--border); font-weight:700;">+ إضافة مكون</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="addRecipeBaseRow()" style="border:1px solid var(--border); font-weight:700;">إضافة مكوّن</button>
         </div>
         
         <!-- Base ingredients consumption -->
@@ -1738,27 +1744,40 @@
     </div>
   </div>
 
-  <!-- Category Edit Modal -->
-  <div class="modal-backdrop" id="category-edit-backdrop" onclick="closeCategoryEditModal()"></div>
-  <div class="modal-box" id="category-edit-modal" style="max-width:400px; text-align:right;">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border);">
-      <h3 style="font-size:1.05rem; font-weight:900; color:var(--text-main);">تعديل اسم ورمز القسم</h3>
-      <button type="button" class="btn-close" onclick="closeCategoryEditModal()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+  <!-- ═══ LUXURY UNIFIED CATEGORY MODAL (ADD & EDIT) ═════════ -->
+  <div class="modal-backdrop" id="category-modal-backdrop" onclick="closeCategoryModal()"></div>
+  <div class="modal-box" id="category-modal" style="max-width:440px; text-align:right;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border);">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div style="width:38px; height:38px; border-radius:10px; background:var(--primary-subtle); color:var(--primary); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+          <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div>
+          <h3 id="category-modal-title" style="margin:0; font-size:1.1rem; font-weight:900; color:var(--text-main);">إضافة قسم جديد</h3>
+          <div id="category-modal-subtitle" style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">تنظيم وتصنيف الأصناف في المنيو وشاشات المطبخ والكاشير</div>
+        </div>
+      </div>
+      <button type="button" class="btn-close" onclick="closeCategoryModal()" aria-label="إغلاق">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
     </div>
-    <form id="category-edit-form" onsubmit="saveCategoryEdit(); return false;">
+    <form id="category-modal-form" onsubmit="handleCategoryModalSubmit(event)">
+      <input type="hidden" id="category-modal-index" value="">
       <input type="hidden" id="edit-cat-index" value="">
-      <div class="form-group" style="margin-bottom:14px;">
-        <label class="form-label" style="font-size:12px; margin-bottom:6px; font-weight:800;">اسم القسم والرمز التعبيري (Emoji)</label>
-        <input type="text" id="edit-cat-name-input" class="form-input" placeholder="مثال: الكريب والصاج" required autofocus>
-        <p style="font-size:11px; color:var(--text-muted); margin-top:5px; line-height:1.4;">
-          سيتم تحديث كافة المنتجات المرتبطة بهذا القسم تلقائياً دون أي فقدان للبيانات.
-        </p>
+      <div class="form-group" style="margin-bottom:16px;">
+        <label class="form-label" style="font-size:12px; margin-bottom:6px; font-weight:800;">اسم القسم *</label>
+        <input type="text" id="category-modal-name-input" class="form-input" placeholder="مثال: بيتزا، شاورما، سندوتشات، مشروبات" required autocomplete="off">
+        <input type="hidden" id="edit-cat-name-input" value="">
+        <div id="category-modal-error" style="display:none; color:var(--danger); font-size:11.5px; font-weight:700; margin-top:6px;"></div>
       </div>
       <div style="display:flex; gap:10px;">
-        <button type="submit" id="btn-save-cat-edit" class="btn btn-primary" style="flex:1; padding:11px; font-weight:800; font-size:0.9rem;">
-          حفظ التعديل
+        <button type="submit" id="btn-save-category-modal" class="btn btn-primary" style="flex:1; padding:12px; font-weight:800; font-size:0.92rem;">
+          إضافة القسم
         </button>
-        <button type="button" class="btn btn-ghost" onclick="closeCategoryEditModal()" style="flex:1; padding:11px; font-weight:700; font-size:0.9rem; border:1px solid var(--border);">
+        <button type="button" class="btn btn-ghost" onclick="closeCategoryModal()" style="flex:1; padding:12px; font-weight:700; font-size:0.92rem; border:1px solid var(--border);">
           إلغاء
         </button>
       </div>
@@ -1916,7 +1935,7 @@
   <div class="modal-box" id="raw-material-restock-modal" style="max-width:400px; max-height:90vh; overflow-y:auto;">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
       <div>
-        <h3 style="font-size:1.05rem; font-weight:900; color:var(--text-main);">توريد مادة خام (+ وارد)</h3>
+        <h3 style="font-size:1.05rem; font-weight:900; color:var(--text-main);">توريد مادة خام (وارد مخزن)</h3>
         <div id="restock-modal-mat-name" style="font-size:12px; color:var(--primary); font-weight:800; margin-top:2px;">-</div>
       </div>
       <button type="button" class="btn-close" onclick="closeRestockModal()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
@@ -1952,20 +1971,20 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=94.2"></script>
-  <script src="js/core/sound-effects.js?v=94.2"></script>
-  <script src="js/store.js?v=94.2"></script>
-  <script src="js/admin/admin-core.js?v=94.2"></script>
-  <script src="js/admin/admin-auth.js?v=94.2"></script>
-  <script src="js/admin/kitchen-orders.js?v=94.2"></script>
-  <script src="js/admin/inventory-manager.js?v=94.2"></script>
-  <script src="js/admin/catalog-manager.js?v=94.2"></script>
-  <script src="js/admin/category-manager.js?v=94.2"></script>
-  <script src="js/admin/stories-manager.js?v=94.2"></script>
-  <script src="js/admin/backup-restore.js?v=94.2"></script>
-  <script src="js/admin/settings-manager.js?v=94.2"></script>
-  <script src="js/admin/pos-terminal.js?v=94.2"></script>
-  <script src="js/admin.js?v=94.2"></script>
-  <script src="js/pwa.js?v=94.2"></script>
+  <script src="js/core/demo-seed-data.js?v=94.6"></script>
+  <script src="js/core/sound-effects.js?v=94.6"></script>
+  <script src="js/store.js?v=94.6"></script>
+  <script src="js/admin/admin-core.js?v=94.6"></script>
+  <script src="js/admin/admin-auth.js?v=94.6"></script>
+  <script src="js/admin/kitchen-orders.js?v=94.6"></script>
+  <script src="js/admin/inventory-manager.js?v=94.6"></script>
+  <script src="js/admin/catalog-manager.js?v=94.6"></script>
+  <script src="js/admin/category-manager.js?v=94.6"></script>
+  <script src="js/admin/stories-manager.js?v=94.6"></script>
+  <script src="js/admin/backup-restore.js?v=94.6"></script>
+  <script src="js/admin/settings-manager.js?v=94.6"></script>
+  <script src="js/admin/pos-terminal.js?v=94.6"></script>
+  <script src="js/admin.js?v=94.6"></script>
+  <script src="js/pwa.js?v=94.6"></script>
 </body>
 </html>
