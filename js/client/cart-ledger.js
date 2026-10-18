@@ -313,30 +313,6 @@ function updateLedgerUI() {
   const deliveryFee = (cart.length > 0 && isPaymentStep && isDelivery) ? roundCurrency(deliveryInfo.fee) : 0;
   const finalTotal = roundCurrency(Math.max(0, subtotal - totalDiscounts) + deliveryFee);
 
-  // Update Dynamic Island
-  if (elements.dynamicIslandCart) {
-    if (totalItemsCount > 0) {
-      elements.dynamicIslandCart.classList.add('active');
-      if (elements.islandItemCount) {
-        elements.islandItemCount.textContent = `${totalItemsCount} ${totalItemsCount === 1 ? 'صنف بالسلة' : 'أصناف بالسلة'}`;
-      }
-      if (elements.islandPriceDisplay) {
-        elements.islandPriceDisplay.textContent = `${finalTotal.toFixed(2)} ${currency}`;
-      }
-      if (elements.islandProgressFill) {
-        elements.islandProgressFill.style.width = `${spendTierProgress}%`;
-      }
-      if (elements.islandAvatarStack) {
-        const topAvatars = cart.slice(0, 3);
-        elements.islandAvatarStack.innerHTML = topAvatars.map(i => `
-          <img src="${i.image}" class="island-avatar-thumb" alt="${i.name}">
-        `).join('');
-      }
-    } else {
-      elements.dynamicIslandCart.classList.remove('active');
-    }
-  }
-
   // Sync Fixed Bottom Navigation Bar & Desktop Navigation Cart Badges
   const bottomCartBadge = document.getElementById('bottom-cart-badge');
   const desktopCartBadge = document.getElementById('desktop-cart-badge');
@@ -459,7 +435,6 @@ function renderCartDrawerItems() {
 
 window.openCartDrawer = function() {
   document.body.classList.add('cart-drawer-open');
-  if (elements.dynamicIslandCart) elements.dynamicIslandCart.classList.add('hidden-during-drawer');
   if (elements.cartDrawer) elements.cartDrawer.classList.add('open');
   if (elements.cartDrawerBackdrop) elements.cartDrawerBackdrop.classList.add('open');
 
@@ -483,7 +458,6 @@ window.openCartDrawer = function() {
 
 window.closeCartDrawer = function(triggerHistoryBack = true) {
   document.body.classList.remove('cart-drawer-open');
-  if (elements.dynamicIslandCart) elements.dynamicIslandCart.classList.remove('hidden-during-drawer');
   if (elements.cartDrawer) elements.cartDrawer.classList.remove('open');
   if (elements.cartDrawerBackdrop) elements.cartDrawerBackdrop.classList.remove('open');
   if (triggerHistoryBack && window.history.state && window.history.state.harpyNav && window.history.state.harpyNav.startsWith('cart_step')) {
@@ -615,7 +589,6 @@ function setupEventListeners() {
   if (elements.btnClosePreview) elements.btnClosePreview.addEventListener('click', closeQuickPreview);
   if (elements.previewModalBackdrop) elements.previewModalBackdrop.addEventListener('click', closeQuickPreview);
 
-  if (elements.dynamicIslandCart) elements.dynamicIslandCart.addEventListener('click', openCartDrawer);
   if (elements.btnCloseCartDrawer) elements.btnCloseCartDrawer.addEventListener('click', closeCartDrawer);
   if (elements.cartDrawerBackdrop) elements.cartDrawerBackdrop.addEventListener('click', closeCartDrawer);
 

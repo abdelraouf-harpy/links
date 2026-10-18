@@ -47,8 +47,8 @@
   <link rel="preconnect" href="https://i.ibb.co" crossorigin>
   <link rel="dns-prefetch" href="https://i.ibb.co">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/order-tokens.css?v=94.4">
-  <link rel="stylesheet" href="css/order-client.css?v=94.4">
+  <link rel="stylesheet" href="css/order-tokens.css?v=94.5">
+  <link rel="stylesheet" href="css/order-client.css?v=94.5">
   <style id="harpy-critical-layout">
     /* ═══════════════════════════════════════════════════════════
        CRITICAL DEFENSIVE INLINE SHIELD (Prevents SW Cache Mismatches)
@@ -424,9 +424,16 @@
       z-index: 1250 !important;
     }
     .modal-backdrop, .customizer-modal-backdrop { z-index: 1200 !important; }
+    .bottom-nav-bar { z-index: 1260 !important; }
+    @media (max-width: 991px) {
+      .cart-drawer {
+        bottom: 64px !important;
+        height: calc(100% - 64px) !important;
+        height: calc(100dvh - 64px) !important;
+      }
+    }
     body.preview-open .bottom-nav-bar,
     body.customizer-open .bottom-nav-bar,
-    body.cart-drawer-open .bottom-nav-bar,
     body:has(#preview-modal.open) .bottom-nav-bar,
     body:has(#customizer-modal.open) .bottom-nav-bar {
       transform: translateY(115%) !important;
@@ -839,29 +846,6 @@
     </div>
   </main>
 
-  <!-- Dynamic Island Floating Cart (Hidden per user request - use bottom nav cart tab) -->
-  <div class="dynamic-island-cart" id="dynamic-island-cart" style="display:none !important;">
-    <div class="island-glow-aura"></div>
-    <div class="island-content-wrap">
-      <div class="island-left-cluster">
-        <div class="island-avatar-stack" id="island-avatar-stack"></div>
-        <div class="island-text-info">
-          <div class="island-title font-num" id="island-item-count">0 أصناف بالسلة</div>
-          <div class="island-sub" id="island-sub-text">انقر للمراجعة والتأكيد</div>
-        </div>
-      </div>
-      <div class="island-right-cluster">
-        <div class="island-price-chip font-num" id="island-price-display">0 ج.م</div>
-        <div class="island-chevron">
-          <svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-        </div>
-      </div>
-    </div>
-    <!-- Mini progress bar along bottom of island -->
-    <div class="island-progress-track">
-      <div class="island-progress-fill" id="island-progress-fill" style="width: 0%;"></div>
-    </div>
-  </div>
   </div> <!-- ═══ End #view-menu ═══ -->
 
   <!-- ═══════════════════════════════════════════════════════════
@@ -2173,16 +2157,16 @@
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=94.4"></script>
-  <script src="js/core/sound-effects.js?v=94.4"></script>
-  <script src="js/store.js?v=94.4"></script>
-  <script src="js/client/client-core.js?v=94.4"></script>
-  <script src="js/client/menu-view.js?v=94.4"></script>
-  <script src="js/client/stories-viewer.js?v=94.4"></script>
-  <script src="js/client/customizer-modal.js?v=94.4"></script>
-  <script src="js/client/cart-ledger.js?v=94.4"></script>
-  <script src="js/client/order-tracking.js?v=94.4"></script>
-  <script src="js/app.js?v=94.4"></script>
-  <script src="js/pwa.js?v=94.4"></script>
+  <script src="js/core/demo-seed-data.js?v=94.5"></script>
+  <script src="js/core/sound-effects.js?v=94.5"></script>
+  <script src="js/store.js?v=94.5"></script>
+  <script src="js/client/client-core.js?v=94.5"></script>
+  <script src="js/client/menu-view.js?v=94.5"></script>
+  <script src="js/client/stories-viewer.js?v=94.5"></script>
+  <script src="js/client/customizer-modal.js?v=94.5"></script>
+  <script src="js/client/cart-ledger.js?v=94.5"></script>
+  <script src="js/client/order-tracking.js?v=94.5"></script>
+  <script src="js/app.js?v=94.5"></script>
+  <script src="js/pwa.js?v=94.5"></script>
 </body>
 </html>

@@ -1287,6 +1287,13 @@
 .cart-drawer.open {
   transform: translateX(0);
 }
+@media (max-width: 991px) {
+  .cart-drawer {
+    bottom: 64px;
+    height: calc(100% - 64px);
+    height: calc(100dvh - 64px);
+  }
+}
 
 .drawer-header {
   padding: 14px 18px;
@@ -2724,172 +2731,6 @@
   bottom: -4px;
   left: -4px;
   right: -4px;
-}
-
-/* ── Dynamic Island Floating Cart ── */
-.dynamic-island-cart,
-#dynamic-island-cart {
-  display: none !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-  opacity: 0 !important;
-  position: fixed;
-  bottom: 74px;
-  left: 50%;
-  transform: translateX(-50%) translateY(160px) scale(0.9);
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  width: calc(100% - 32px);
-  max-width: 480px;
-  background: rgba(18, 14, 12, 0.88);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(245, 238, 227, 0.16);
-  border-radius: 999px;
-  padding: 8px 16px;
-  z-index: 999;
-  cursor: pointer;
-  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, visibility 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
-  overflow: hidden;
-}
-@media (min-width: 1024px) {
-  .dynamic-island-cart {
-    max-width: 540px;
-    padding: 10px 22px;
-    bottom: 80px;
-  }
-}
-[data-theme="light"] .dynamic-island-cart {
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(60, 45, 30, 0.14);
-  box-shadow: 0 16px 40px rgba(60, 40, 20, 0.2);
-}
-.dynamic-island-cart.active {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-  transform: translateX(-50%) translateY(0) scale(1);
-}
-.dynamic-island-cart.hidden-during-drawer,
-body.cart-drawer-open .dynamic-island-cart,
-body.preview-open .dynamic-island-cart,
-body.customizer-open .dynamic-island-cart,
-body:has(#preview-modal.open) .dynamic-island-cart,
-body:has(#customizer-modal.open) .dynamic-island-cart {
-  opacity: 0 !important;
-  pointer-events: none !important;
-  transform: translateX(-50%) translateY(160px) scale(0.85) !important;
-  visibility: hidden !important;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-.dynamic-island-cart:hover {
-  transform: translateX(-50%) translateY(-3px) scale(1.01);
-  border-color: var(--primary);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 20px var(--primary-subtle);
-}
-.dynamic-island-cart:active {
-  transform: translateX(-50%) translateY(0) scale(0.98);
-}
-.island-glow-aura {
-  position: absolute;
-  top: 0;
-  left: 20%;
-  width: 60%;
-  height: 100%;
-  background: radial-gradient(ellipse at center, var(--primary-glow) 0%, transparent 70%);
-  opacity: 0.35;
-  pointer-events: none;
-}
-.island-content-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: relative;
-  z-index: 2;
-}
-.island-left-cluster {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.island-avatar-stack {
-  display: flex;
-  align-items: center;
-}
-.island-avatar-thumb {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--surface);
-  margin-left: -10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  transition: transform 0.2s ease;
-}
-@media (min-width: 1024px) {
-  .island-avatar-thumb {
-    width: 38px;
-    height: 38px;
-  }
-}
-.island-avatar-thumb:first-child {
-  margin-left: 0;
-}
-.island-title {
-  font-size: 0.92rem;
-  font-weight: 800;
-  color: var(--text-main);
-  line-height: 1.2;
-}
-@media (min-width: 1024px) {
-  .island-title {
-    font-size: 1.02rem;
-  }
-}
-.island-sub {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-.island-right-cluster {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.island-price-chip {
-  background: var(--primary);
-  color: #fff;
-  padding: 7px 16px;
-  border-radius: 999px;
-  font-size: 0.95rem;
-  font-weight: 900;
-  box-shadow: 0 4px 14px var(--primary-glow);
-}
-@media (min-width: 1024px) {
-  .island-price-chip {
-    padding: 8px 18px;
-    font-size: 1.05rem;
-  }
-}
-.island-chevron {
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-}
-.island-progress-track {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 3px;
-  background: rgba(255, 255, 255, 0.08);
-}
-.island-progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--primary), #f59e0b);
-  border-radius: 99px;
-  transition: width 0.3s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 /* ── Fly To Cart Particle ── */
@@ -4523,7 +4364,7 @@ body.harpy-account-locked {
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 990;
+  z-index: 1260;
   height: 64px;
   background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(20px);
@@ -4548,7 +4389,6 @@ body.harpy-account-locked {
 
 body.preview-open .bottom-nav-bar,
 body.customizer-open .bottom-nav-bar,
-body.cart-drawer-open .bottom-nav-bar,
 body:has(#preview-modal.open) .bottom-nav-bar,
 body:has(#customizer-modal.open) .bottom-nav-bar {
   transform: translateY(115%) !important;
@@ -6613,7 +6453,6 @@ body:has(#customizer-modal.open) .bottom-nav-bar {
 @media print {
   .bottom-nav-bar,
   .desktop-header-nav,
-  .dynamic-island-cart,
   .cart-drawer,
   .cart-drawer-backdrop,
   .btn-quick-add,

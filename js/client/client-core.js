@@ -13,47 +13,39 @@ var SoundFX = (typeof window !== 'undefined' && window.SoundFX) ? window.SoundFX
 var esc = (s) => (typeof window.escapeHtml === 'function' ? window.escapeHtml(s) : String(s == null ? '' : s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])));
 
 var elements = {
-  soundToggleBtn: document.getElementById('sound-toggle-btn'),
-  soundIconOn: document.getElementById('sound-icon-on'),
-  soundIconOff: document.getElementById('sound-icon-off'),
+  soundToggleBtn: document.getElementById('clean-sound-toggle-btn') || document.getElementById('sound-toggle-btn'),
+  soundIconOn: null,
+  soundIconOff: null,
 
-  themeToggleBtn: document.getElementById('theme-toggle-btn'),
-  themeIconDark: document.getElementById('theme-icon-dark'),
-  themeIconLight: document.getElementById('theme-icon-light'),
+  themeToggleBtn: document.getElementById('clean-theme-toggle-btn') || document.getElementById('theme-toggle-btn'),
+  themeIconDark: null,
+  themeIconLight: null,
 
-  storeName: document.getElementById('store-name'),
-  storeTagline: document.getElementById('store-tagline'),
-  storeLogo: document.getElementById('store-logo'),
-  storeWhatsAppLink: document.getElementById('store-whatsapp-link'),
+  storeName: document.getElementById('hero-store-name') || document.getElementById('portfolio-store-name'),
+  storeTagline: document.getElementById('hero-store-tagline') || document.getElementById('portfolio-store-tagline'),
+  storeLogo: document.getElementById('hero-store-logo') || document.getElementById('portfolio-store-logo'),
+  storeWhatsAppLink: null,
 
   storiesSection: document.getElementById('stories-section'),
   storiesTrack: document.getElementById('stories-track'),
 
-  announcementBar: document.getElementById('announcement-bar'),
-  announcementText: document.getElementById('announcement-text'),
-  deliveryTimeBadge: document.getElementById('delivery-time-badge'),
+  announcementBar: null,
+  announcementText: null,
+  deliveryTimeBadge: null,
 
-  lastOrderBanner: document.getElementById('last-order-banner'),
-  lastOrderSummary: document.getElementById('last-order-summary'),
-  btnReorder: document.getElementById('btn-reorder'),
+  lastOrderBanner: null,
+  lastOrderSummary: null,
+  btnReorder: null,
 
-  discoveryContainer: document.getElementById('discovery-container'),
+  discoveryContainer: null,
   searchInput: document.getElementById('search-input'),
   viewModeCycleBtn: document.getElementById('view-mode-cycle-btn'),
-  viewToggleGrid: document.getElementById('view-toggle-grid'),
-  viewToggleList: document.getElementById('view-toggle-list'),
+  viewToggleGrid: null,
+  viewToggleList: null,
 
   categoriesContainer: document.getElementById('categories-container'),
   heroShowcaseContainer: document.getElementById('hero-showcase-container'),
   productsContainer: document.getElementById('products-container'),
-
-  // Dynamic Island
-  dynamicIslandCart: document.getElementById('dynamic-island-cart'),
-  islandAvatarStack: document.getElementById('island-avatar-stack'),
-  islandItemCount: document.getElementById('island-item-count'),
-  islandSubText: document.getElementById('island-sub-text'),
-  islandPriceDisplay: document.getElementById('island-price-display'),
-  islandProgressFill: document.getElementById('island-progress-fill'),
 
   // Quick Preview Modal
   previewModal: document.getElementById('preview-modal'),
@@ -943,10 +935,13 @@ function renderStoreInfo() {
 
 // ── Fly-to-Cart Particle Animation ─────────────────────────
 function animateFlyToCart(sourceElement, imageUrl) {
-  if (!sourceElement || !elements.dynamicIslandCart) return;
+  if (!sourceElement) return;
+  const targetElement = document.getElementById('nav-tab-cart') || document.getElementById('desktop-nav-cart');
+  if (!targetElement) return;
 
   const rect = sourceElement.getBoundingClientRect();
-  const targetRect = elements.dynamicIslandCart.getBoundingClientRect();
+  const targetRect = targetElement.getBoundingClientRect();
+  if (targetRect.width === 0 && targetRect.height === 0) return;
 
   const particle = document.createElement('img');
   particle.src = imageUrl || '';
@@ -962,13 +957,11 @@ function animateFlyToCart(sourceElement, imageUrl) {
 
   setTimeout(() => {
     particle.remove();
-    if (elements.dynamicIslandCart) {
-      elements.dynamicIslandCart.animate([
-        { transform: 'translateX(-50%) translateY(0) scale(1)' },
-        { transform: 'translateX(-50%) translateY(-6px) scale(1.06)' },
-        { transform: 'translateX(-50%) translateY(0) scale(1)' }
-      ], { duration: 300, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' });
-    }
+    targetElement.animate([
+      { transform: 'scale(1)' },
+      { transform: 'scale(1.25)' },
+      { transform: 'scale(1)' }
+    ], { duration: 300, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' });
   }, 650);
 }
 
