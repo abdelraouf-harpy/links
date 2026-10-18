@@ -72,7 +72,7 @@ const adminElements = {
   adminPasswordInput: document.getElementById('admin-password-input'),
   loginErrorMsg: document.getElementById('login-error-msg'),
   btnLogin: document.getElementById('btn-login'),
-  btnAdminLogout: document.getElementById('btn-admin-logout'),
+  btnAdminLogout: document.getElementById('btn-admin-drawer-logout') || document.getElementById('btn-admin-logout'),
 
   adminStoreName: document.getElementById('admin-store-name'),
   tabBtns: document.querySelectorAll('.admin-tab-btn'),

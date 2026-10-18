@@ -237,22 +237,25 @@
             fetch(fbBase + '/settings.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
             fetch(fbBase + '/categories.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
             fetch(fbBase + '/products.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
-            fetch(fbBase + '/stories.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; })
+            fetch(fbBase + '/stories.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
+            fetch(fbBase + '/settings/rawMaterials.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; })
           ]).then(function(results) {
             var settings = results[0];
             var categories = results[1];
             var products = results[2];
             var stories = results[3];
+            var rawMaterials = results[4] || (settings && settings.rawMaterials ? settings.rawMaterials : null);
             if (settings && typeof settings === 'object') {
               if (!settings.storeName && settings.restaurantName) settings.storeName = settings.restaurantName;
               if (!settings.whatsappNumber && settings.phone) settings.whatsappNumber = settings.phone;
             }
-            if (!settings && !categories && !products) return null;
+            if (!settings && !categories && !products && !rawMaterials) return null;
             return {
               settings: settings || {},
               categories: categories || [],
               products: products || [],
-              stories: stories || {}
+              stories: stories || {},
+              rawMaterials: rawMaterials || null
             };
           }).catch(function() { return null; });
         }
@@ -1971,20 +1974,20 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=94.7"></script>
-  <script src="js/core/sound-effects.js?v=94.7"></script>
-  <script src="js/store.js?v=94.7"></script>
-  <script src="js/admin/admin-core.js?v=94.7"></script>
-  <script src="js/admin/admin-auth.js?v=94.7"></script>
-  <script src="js/admin/kitchen-orders.js?v=94.7"></script>
-  <script src="js/admin/inventory-manager.js?v=94.7"></script>
-  <script src="js/admin/catalog-manager.js?v=94.7"></script>
-  <script src="js/admin/category-manager.js?v=94.7"></script>
-  <script src="js/admin/stories-manager.js?v=94.7"></script>
-  <script src="js/admin/backup-restore.js?v=94.7"></script>
-  <script src="js/admin/settings-manager.js?v=94.7"></script>
-  <script src="js/admin/pos-terminal.js?v=94.7"></script>
-  <script src="js/admin.js?v=94.7"></script>
-  <script src="js/pwa.js?v=94.7"></script>
+  <script src="js/core/demo-seed-data.js?v=94.8"></script>
+  <script src="js/core/sound-effects.js?v=94.8"></script>
+  <script src="js/store.js?v=94.8"></script>
+  <script src="js/admin/admin-core.js?v=94.8"></script>
+  <script src="js/admin/admin-auth.js?v=94.8"></script>
+  <script src="js/admin/kitchen-orders.js?v=94.8"></script>
+  <script src="js/admin/inventory-manager.js?v=94.8"></script>
+  <script src="js/admin/catalog-manager.js?v=94.8"></script>
+  <script src="js/admin/category-manager.js?v=94.8"></script>
+  <script src="js/admin/stories-manager.js?v=94.8"></script>
+  <script src="js/admin/backup-restore.js?v=94.8"></script>
+  <script src="js/admin/settings-manager.js?v=94.8"></script>
+  <script src="js/admin/pos-terminal.js?v=94.8"></script>
+  <script src="js/admin.js?v=94.8"></script>
+  <script src="js/pwa.js?v=94.8"></script>
 </body>
 </html>

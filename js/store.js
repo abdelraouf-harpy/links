@@ -756,8 +756,12 @@ const Store = {
     }
 
     if (!this.saveLocks.rawMaterials && (now - this.lastSaveTimestamps.rawMaterials > 2500)) {
-      if (data.rawMaterials !== undefined && data.rawMaterials !== null) {
-        let matArray = Array.isArray(data.rawMaterials) ? data.rawMaterials : Object.values(data.rawMaterials);
+      const rmSource = (data.rawMaterials !== undefined && data.rawMaterials !== null)
+        ? data.rawMaterials
+        : (data.settings && data.settings.rawMaterials !== undefined && data.settings.rawMaterials !== null ? data.settings.rawMaterials : null);
+
+      if (rmSource !== null && rmSource !== undefined) {
+        let matArray = Array.isArray(rmSource) ? rmSource : Object.values(rmSource);
         if (Array.isArray(matArray)) {
           matArray = matArray.filter(m => m && typeof m === 'object' && m.id && m.name);
         } else {
@@ -859,7 +863,8 @@ const Store = {
           settings: db.ref(`restaurants/${slug}/settings`),
           categories: db.ref(`restaurants/${slug}/categories`),
           products: db.ref(`restaurants/${slug}/products`),
-          stories: db.ref(`restaurants/${slug}/stories`)
+          stories: db.ref(`restaurants/${slug}/stories`),
+          settingsRawMaterials: db.ref(`restaurants/${slug}/settings/rawMaterials`)
         };
 
         const currentAgg = {
@@ -879,6 +884,16 @@ const Store = {
               if (k === 'categories' && (!val || (Array.isArray(val) && val.length === 0))) val = DEFAULT_CATEGORIES;
               if (k === 'stories' && (!val || (typeof val === 'object' && Object.keys(val).length === 0))) val = DEFAULT_STORIES;
               if (k === 'settings' && (!val || (typeof val === 'object' && Object.keys(val).length === 0))) val = DEFAULT_SETTINGS;
+            }
+            if (k === 'settingsRawMaterials') {
+              if (val) {
+                currentAgg.rawMaterials = val;
+                processSnapshotData(currentAgg);
+              }
+              return;
+            }
+            if (k === 'settings' && val && val.rawMaterials) {
+              currentAgg.rawMaterials = val.rawMaterials;
             }
             currentAgg[k] = val;
             processSnapshotData(currentAgg);
@@ -1541,8 +1556,10 @@ const Store = {
         this.saveOrders(cached);
         if (newStatus === 'preparing' || newStatus === 'out_for_delivery' || newStatus === 'delivered' || newStatus === 'completed') {
           try {
-            this.depleteRawMaterialsForOrder(order).catch(e => console.warn('[Deplete]', e));
-          } catch(e) {}
+            await this.depleteRawMaterialsForOrder(order);
+          } catch(e) {
+            console.warn('[Deplete]', e);
+          }
         }
       }
 
@@ -2134,6 +2151,15 @@ const Store = {
     if (this._memoryCache.settings?.subscription && !settings.subscription) {
       settings.subscription = this._memoryCache.settings.subscription;
     }
+    // Preserve rawMaterials inside settings to prevent form wipes
+    if (!settings.rawMaterials) {
+      const curMats = this.getRawMaterials();
+      if (curMats && curMats.length > 0) {
+        settings.rawMaterials = curMats;
+      } else if (this._memoryCache.settings?.rawMaterials) {
+        settings.rawMaterials = this._memoryCache.settings.rawMaterials;
+      }
+    }
     // Security: never persist legacy adminPin or third-party api keys in public settings node
     delete settings.adminPin;
     delete settings.imgbbApiKey;
@@ -2423,6 +2449,17 @@ const Store = {
       raw = localStorage.getItem(`harpy_${slug}_raw_materials`);
     }
     if (!raw) {
+      // Fallback: check if rawMaterials is bundled inside settings
+      const curSettings = this.getSettings();
+      if (curSettings && curSettings.rawMaterials) {
+        const sMats = Array.isArray(curSettings.rawMaterials) ? curSettings.rawMaterials : Object.values(curSettings.rawMaterials);
+        if (sMats && sMats.length > 0) {
+          this._memoryCache.rawMaterials = sMats;
+          this.safeSetItem(this.getKey(STORAGE_KEYS.RAW_MATERIALS), JSON.stringify(sMats));
+          if (slug) this.safeSetItem(`harpy_${slug}_raw_materials`, JSON.stringify(sMats));
+          return sMats;
+        }
+      }
       if (isDemo) {
         this._memoryCache.rawMaterials = defaultMats;
       }
@@ -2447,10 +2484,23 @@ const Store = {
     this.safeSetItem(this.getKey(STORAGE_KEYS.RAW_MATERIALS), JSON.stringify(materials));
     if (slug) this.safeSetItem(`harpy_${slug}_raw_materials`, JSON.stringify(materials));
     this.lastSaveTimestamps.rawMaterials = Date.now();
+
+    // Dual-write: Mirror to settings.rawMaterials for zero-auth public discovery across devices
+    try {
+      const curSettings = this.getSettings() || {};
+      curSettings.rawMaterials = materials;
+      this._memoryCache.settings = curSettings;
+      this.safeSetItem(this.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(curSettings));
+      if (slug) this.safeSetItem(`harpy_${slug}_settings`, JSON.stringify(curSettings));
+    } catch(e) {}
+
     window.dispatchEvent(new Event('store_raw_materials_updated'));
 
-    // Ultra-Fast Optimistic Flow: Push to cloud in background without blocking UI
-    this.pushToCloud('rawMaterials', materials).then(() => {
+    // Ultra-Fast Optimistic Flow: Push to cloud across both nodes
+    Promise.all([
+      this.pushToCloud('settings/rawMaterials', materials),
+      this.pushToCloud('rawMaterials', materials)
+    ]).then(() => {
       this.lastSaveTimestamps.rawMaterials = Date.now();
       this.saveLocks.rawMaterials = false;
     }).catch(err => {
@@ -2568,10 +2618,17 @@ const Store = {
       const qty = parseInt(item.qty || item.quantity || 1, 10);
       if (qty <= 0) return;
 
-      const prodId = String(item.productId || item.id || '');
+      let prodId = String(item.productId || item.prodId || item.id || '');
+      if (prodId.startsWith('c_')) {
+        const parts = prodId.split('_');
+        if (parts.length >= 3) {
+          const potentialId = parts.slice(1, -1).join('_');
+          if (prodMap.has(potentialId)) prodId = potentialId;
+        }
+      }
       const itemName = String(item.name || '').trim().toLowerCase();
       // Match by ID or Name (case-insensitive & trimmed)
-      const prod = prodMap.get(prodId) || allProducts.find(p => String(p.id) === prodId || String(p.name || '').trim().toLowerCase() === itemName);
+      const prod = prodMap.get(prodId) || allProducts.find(p => String(p.id) === prodId || String(p.name || '').trim().toLowerCase() === itemName || itemName.includes(String(p.name || '').trim().toLowerCase()) || String(p.name || '').trim().toLowerCase().includes(itemName));
       if (!prod || !prod.recipe) return;
 
       const recipe = prod.recipe;
@@ -2593,9 +2650,10 @@ const Store = {
       };
 
       // 1. Base recipe items (deducted for all units of this product)
-      if (Array.isArray(recipe.base)) {
-        recipe.base.forEach(r => deductMaterial(r.materialId || r.matId || r.id, r.amount));
-      }
+      const baseList = Array.isArray(recipe.base) ? recipe.base : (recipe.base && typeof recipe.base === 'object' ? Object.values(recipe.base) : []);
+      baseList.forEach(r => {
+        if (r) deductMaterial(r.materialId || r.matId || r.id, r.amount);
+      });
 
       // 2. Per Size recipe items
       let selectedSizeName = '';
@@ -2608,8 +2666,12 @@ const Store = {
 
       if (selectedSizeName && recipe.sizes && typeof recipe.sizes === 'object') {
         const sizeKey = Object.keys(recipe.sizes).find(k => k.trim().toLowerCase() === selectedSizeName);
-        if (sizeKey && Array.isArray(recipe.sizes[sizeKey])) {
-          recipe.sizes[sizeKey].forEach(r => deductMaterial(r.materialId || r.matId || r.id, r.amount));
+        if (sizeKey) {
+          const rawSizeItems = recipe.sizes[sizeKey];
+          const sizeList = Array.isArray(rawSizeItems) ? rawSizeItems : (rawSizeItems && typeof rawSizeItems === 'object' ? Object.values(rawSizeItems) : []);
+          sizeList.forEach(r => {
+            if (r) deductMaterial(r.materialId || r.matId || r.id, r.amount);
+          });
         }
       }
 
@@ -2620,8 +2682,12 @@ const Store = {
           const addonName = (typeof addon === 'string' ? addon : (addon.name || '')).trim().toLowerCase();
           if (!addonName) return;
           const addonKey = Object.keys(recipe.addons).find(k => k.trim().toLowerCase() === addonName);
-          if (addonKey && Array.isArray(recipe.addons[addonKey])) {
-            recipe.addons[addonKey].forEach(r => deductMaterial(r.materialId || r.matId || r.id, r.amount));
+          if (addonKey) {
+            const rawAddonItems = recipe.addons[addonKey];
+            const addonList = Array.isArray(rawAddonItems) ? rawAddonItems : (rawAddonItems && typeof rawAddonItems === 'object' ? Object.values(rawAddonItems) : []);
+            addonList.forEach(r => {
+              if (r) deductMaterial(r.materialId || r.matId || r.id, r.amount);
+            });
           }
         });
       }

@@ -303,7 +303,15 @@ window.showCustomConfirm = function({ title, message, icon = '', confirmText = '
 
     if (titleEl) titleEl.textContent = title || "تأكيد الإجراء";
     if (msgEl) msgEl.innerHTML = message || "";
-    if (iconEl) if (icon) iconEl.textContent = icon; else iconEl.innerHTML = '<svg class="icon" viewBox="0 0 24 24" style="width:28px; height:28px;"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/></svg>';
+    if (iconEl) {
+      if (typeof icon === 'string' && icon.trim().startsWith('<')) {
+        iconEl.innerHTML = icon;
+      } else if (icon) {
+        iconEl.textContent = icon;
+      } else {
+        iconEl.innerHTML = '<svg class="icon" viewBox="0 0 24 24" style="width:28px; height:28px;"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/></svg>';
+      }
+    }
     if (acceptBtn) {
       acceptBtn.textContent = confirmText;
       acceptBtn.style.background = isDanger ? 'var(--danger)' : 'var(--primary)';
@@ -1296,8 +1304,13 @@ window.renderOrdersList = function(orders = null) {
   if (displayOrders.length === 0) {
     adminElements.adminOrdersContainer.innerHTML = `
       <div style="text-align:center; padding:45px 20px; color:var(--text-muted); background:var(--surface); border:1px dashed var(--border); border-radius:var(--radius-md);">
-        <div style="margin-bottom:12px; color:var(--text-muted); display:flex; justify-content:center;">
-          <svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2v20M2 15h10M2 2v6a4 4 0 0 0 4 4v8M10 2v6a4 4 0 0 1-4 4"/></svg>
+        <div style="margin-bottom:16px; display:flex; justify-content:center;">
+          <div style="width:76px; height:76px; border-radius:50%; background:linear-gradient(135deg, rgba(234, 88, 12, 0.12), rgba(245, 158, 11, 0.06)); border:1.5px solid rgba(234, 88, 12, 0.25); display:flex; align-items:center; justify-content:center; box-shadow:0 8px 24px -6px rgba(234, 88, 12, 0.18);">
+            <svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="#ea580c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/>
+              <line x1="6" y1="17" x2="18" y2="17"/>
+            </svg>
+          </div>
         </div>
         <div style="font-size:16px; font-weight:800; color:var(--text-main); margin-bottom:4px;">المطبخ جاهز ونظيف! لا توجد طلبات جارية حالياً</div>
         <div style="font-size:12.5px; color:var(--text-muted); margin-bottom:16px;">أي طلب جديد يتم إرساله من المنيو سيظهر هنا فورياً ومباشرة مع صوت رنين المطبخ.</div>

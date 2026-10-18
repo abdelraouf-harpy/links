@@ -12,20 +12,39 @@ function setupAuth() {
     if (!slug || slug === 'demo') return;
     try {
       if (db) {
+        // 1. Direct realtime fetch from public settings/rawMaterials node
+        db.ref(`restaurants/${slug}/settings/rawMaterials`).once('value').then(snap => {
+          const val = snap.val();
+          if (val && (Array.isArray(val) ? val.length > 0 : Object.keys(val).length > 0)) {
+            Store.applySnapshotData({ rawMaterials: val });
+            if (typeof renderInventory === 'function') renderInventory();
+            if (typeof renderCatalog === 'function') renderCatalog();
+          }
+        }).catch(() => {});
+
+        // 2. Direct realtime fetch from top-level rawMaterials node
         db.ref(`restaurants/${slug}/rawMaterials`).once('value').then(snap => {
           const val = snap.val();
           if (val && (Array.isArray(val) ? val.length > 0 : Object.keys(val).length > 0)) {
             Store.applySnapshotData({ rawMaterials: val });
             if (typeof renderInventory === 'function') renderInventory();
             if (typeof renderCatalog === 'function') renderCatalog();
-          } else {
-            const localMats = Store.getRawMaterials();
-            if (localMats && localMats.length > 0) {
-              Store.pushToCloud('rawMaterials', localMats).catch(() => {});
-            }
           }
         }).catch(e => console.warn('[RawMaterials SDK sync notice]', e));
       }
+
+      const fbBase = 'https://harpy-order-default-rtdb.firebaseio.com/restaurants/' + encodeURIComponent(slug);
+
+      // Public fast REST fetch without auth token barrier
+      fetch(`${fbBase}/settings/rawMaterials.json`, { cache: 'no-store' })
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (data && (Array.isArray(data) ? data.length > 0 : Object.keys(data).length > 0)) {
+            Store.applySnapshotData({ rawMaterials: data });
+            if (typeof renderInventory === 'function') renderInventory();
+            if (typeof renderCatalog === 'function') renderCatalog();
+          }
+        }).catch(() => {});
 
       let idToken = '';
       if (user && typeof user.getIdToken === 'function') {
@@ -34,7 +53,6 @@ function setupAuth() {
         try { idToken = await firebase.auth().currentUser.getIdToken(); } catch(e) {}
       }
       if (idToken) {
-        const fbBase = 'https://harpy-order-default-rtdb.firebaseio.com/restaurants/' + encodeURIComponent(slug);
         fetch(`${fbBase}/rawMaterials.json?auth=${idToken}`, { cache: 'no-store' })
           .then(r => r.ok ? r.json() : null)
           .then(data => {
@@ -92,9 +110,11 @@ function setupAuth() {
             fetch(fbBase + '/categories.json' + authParam, fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
             fetch(fbBase + '/products.json' + authParam, fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
             fetch(fbBase + '/stories.json' + authParam, fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
+            fetch(fbBase + '/settings/rawMaterials.json', fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
             fetch(fbBase + '/rawMaterials.json' + authParam, fOpt).then(r => r.ok ? r.json() : null).catch(() => null)
           ]);
-          const s = results[0], c = results[1], p = results[2], st = results[3], rm = results[4];
+          const s = results[0], c = results[1], p = results[2], st = results[3];
+          const rm = results[4] || results[5] || (s && s.rawMaterials);
           if (s || c || p || rm) {
             Store.applySnapshotData({ settings: s, categories: c, products: p, stories: st, rawMaterials: rm });
             loadAllDashboardData();
@@ -325,12 +345,13 @@ function setupAuth() {
   }
 
   // Handle Logout
-  if (adminElements.btnAdminLogout) {
-    adminElements.btnAdminLogout.addEventListener('click', async () => {
+  const performLogout = async () => {
+    try {
+      if (typeof closeAdminDrawer === 'function') closeAdminDrawer();
       const confirmed = await showCustomConfirm({
         title: "تسجيل الخروج",
         message: "هل تود تسجيل الخروج من لوحة التحكم؟",
-        icon: "",
+        icon: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:28px; height:28px; color:var(--primary);"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>',
         confirmText: "تسجيل الخروج",
         cancelText: "إلغاء",
         isDanger: false
@@ -345,6 +366,24 @@ function setupAuth() {
         await Store.logoutAdmin();
         showToastNotification("تم تسجيل الخروج بنجاح", "info");
       }
+    } catch (err) {
+      console.error("[Logout Error]", err);
+    }
+  };
+
+  window.adminLogout = performLogout;
+
+  const drawerLogoutBtn = document.getElementById('btn-admin-drawer-logout');
+  if (drawerLogoutBtn) {
+    drawerLogoutBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      performLogout();
+    });
+  }
+  if (adminElements.btnAdminLogout && adminElements.btnAdminLogout !== drawerLogoutBtn) {
+    adminElements.btnAdminLogout.addEventListener('click', (e) => {
+      e.preventDefault();
+      performLogout();
     });
   }
 }
