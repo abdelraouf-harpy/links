@@ -969,7 +969,7 @@
 
             <div class="settings-identity-grid" style="margin-bottom:16px;">
               <div class="form-group" style="margin-bottom:0;">
-                <label class="form-label" style="margin-bottom:6px;">اسم المطعم / المكان *</label>
+                <label class="form-label" style="margin-bottom:6px;">اسم المطعم / المكان</label>
                 <input type="text" id="set-store-name" class="form-input" placeholder="اسم المطعم" required>
               </div>
               <div class="form-group" style="margin-bottom:0;">
@@ -977,7 +977,7 @@
                 <input type="text" id="set-store-tagline" class="form-input" placeholder="أشهى المشويات، البرجر الفاخر">
               </div>
               <div class="form-group" style="margin-bottom:0;">
-                <label class="form-label" style="margin-bottom:6px;">رمز العملة *</label>
+                <label class="form-label" style="margin-bottom:6px;">رمز العملة</label>
                 <input type="text" id="set-currency" class="form-input font-num" placeholder="ج.م" required>
               </div>
             </div>
@@ -1039,7 +1039,7 @@
 
             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-bottom:16px;">
               <div class="form-group" style="margin-bottom:0;">
-                <label class="form-label">رقم الواتساب لاستقبال الطلبات *</label>
+                <label class="form-label">رقم الواتساب لاستقبال الطلبات</label>
                 <input type="tel" id="set-whatsapp" class="form-input font-num" placeholder="2010xxxxxxxx" required>
               </div>
               <div class="form-group" style="margin-bottom:0;">
@@ -1166,7 +1166,7 @@
 
             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-bottom:16px;">
               <div class="form-group" style="margin-bottom:0;">
-                <label class="form-label">رقم محفظة الكاش لاستقبال التحويلات *</label>
+                <label class="form-label">رقم محفظة الكاش لاستقبال التحويلات</label>
                 <input type="text" id="set-wallet-number" class="form-input font-num" placeholder="010xxxxxxxx" required>
               </div>
               <div class="form-group" style="margin-bottom:0;">
@@ -1298,7 +1298,7 @@
             <!-- Default Delivery Fee -->
             <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:14px; margin-bottom:14px;">
               <label class="form-label" style="font-size:12px; font-weight:800;">
-                سعر التوصيل الموحد لكافة الأماكن (ج.م) *
+                سعر التوصيل الموحد لكافة الأماكن (ج.م)
               </label>
               <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                 <input type="number" id="set-default-delivery-fee" class="form-input font-num" placeholder="15" min="0" step="0.5" style="max-width:180px;">
@@ -1375,13 +1375,13 @@
       <input type="hidden" id="prod-id">
 
       <div class="form-group" style="margin-bottom:10px;">
-        <label class="form-label" style="font-size:12px; margin-bottom:4px;">اسم الصنف *</label>
+        <label class="form-label" style="font-size:12px; margin-bottom:4px;">اسم الصنف</label>
         <input type="text" id="prod-name" class="form-input" placeholder="مثال: جراند بيرجر لحم دبل" required>
       </div>
 
       <div class="form-row-2col" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
         <div class="form-group" style="margin-bottom:0;">
-          <label class="form-label" style="font-size:12px; margin-bottom:4px;">القسم *</label>
+          <label class="form-label" style="font-size:12px; margin-bottom:4px;">القسم</label>
           <input type="hidden" id="prod-category" required>
           <button type="button" id="btn-prod-category-picker" class="custom-select-trigger" onclick="openCategoryPickerSheet()">
             <span class="trigger-label">
@@ -1392,7 +1392,7 @@
           </button>
         </div>
         <div class="form-group" style="margin-bottom:0;">
-          <label class="form-label" style="font-size:12px; margin-bottom:4px;">سعر البيع الأساسي (ج.م) *</label>
+          <label class="form-label" style="font-size:12px; margin-bottom:4px;">سعر البيع الأساسي (ج.م)</label>
           <input type="number" id="prod-price" class="form-input font-num" placeholder="120" step="0.5" required>
         </div>
       </div>
@@ -1481,7 +1481,7 @@
 
       <!-- Device Image Uploader for Product -->
       <div class="form-group">
-        <label class="form-label">صورة الصنف *</label>
+        <label class="form-label">صورة الصنف</label>
         <div class="device-image-uploader" id="prod-image-dropzone">
           <input type="file" id="prod-img-file" accept="image/*" class="device-image-input">
           <div class="device-image-prompt" id="prod-image-prompt">
@@ -1518,7 +1518,7 @@
       <input type="hidden" id="story-id">
 
       <div class="form-group">
-        <label class="form-label">عنوان القصة *</label>
+        <label class="form-label">عنوان القصة</label>
         <input type="text" id="story-title-input" class="form-input" placeholder="مثال: عرض اليوم الحصري" required>
       </div>
 
@@ -1554,7 +1554,7 @@
 
       <!-- Device Image Uploader for Story -->
       <div class="form-group">
-        <label class="form-label">صورة القصة *</label>
+        <label class="form-label">صورة القصة</label>
         <div class="device-image-uploader" id="story-image-dropzone">
           <input type="file" id="story-img-file" accept="image/*" class="device-image-input">
           <div class="device-image-prompt" id="story-image-prompt">
@@ -1795,7 +1795,7 @@
       <input type="hidden" id="category-modal-index" value="">
       <input type="hidden" id="edit-cat-index" value="">
       <div class="form-group" style="margin-bottom:16px;">
-        <label class="form-label" style="font-size:12px; margin-bottom:6px; font-weight:800;">اسم القسم *</label>
+        <label class="form-label" style="font-size:12px; margin-bottom:6px; font-weight:800;">اسم القسم</label>
         <input type="text" id="category-modal-name-input" class="form-input" placeholder="مثال: بيتزا، شاورما، سندوتشات، مشروبات" required autocomplete="off">
         <input type="hidden" id="edit-cat-name-input" value="">
         <div id="category-modal-error" style="display:none; color:var(--danger); font-size:11.5px; font-weight:700; margin-top:6px;"></div>
@@ -1955,12 +1955,12 @@
       <input type="hidden" id="mat-id">
 
       <div class="form-group" style="margin-bottom:12px;">
-        <label class="form-label" style="font-size:12px; margin-bottom:4px;">اسم المادة الخام *</label>
+        <label class="form-label" style="font-size:12px; margin-bottom:4px;">اسم المادة الخام</label>
         <input type="text" id="mat-name" class="form-input" placeholder="مثال: جبنة موتزاريلا طبيعي" required>
       </div>
 
       <div class="form-group" style="margin-bottom:12px;">
-        <label class="form-label" style="font-size:12px; margin-bottom:4px;">وحدة القياس *</label>
+        <label class="form-label" style="font-size:12px; margin-bottom:4px;">وحدة القياس</label>
         <input type="hidden" id="mat-unit" value="g" required>
         <div class="unit-pills-selector" id="mat-unit-chips">
           <button type="button" class="unit-pill-btn active" data-unit="g" onclick="selectRawMaterialUnit('g')">جرام (g)</button>
@@ -1973,11 +1973,11 @@
 
       <div class="form-row-2col" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
         <div class="form-group" style="margin-bottom:0;">
-          <label class="form-label" style="font-size:11.5px; margin-bottom:4px;">الرصيد الافتتاحي *</label>
+          <label class="form-label" style="font-size:11.5px; margin-bottom:4px;">الرصيد الافتتاحي</label>
           <input type="text" inputmode="decimal" id="mat-stock" class="form-input font-num" placeholder="مثال: 10000" required>
         </div>
         <div class="form-group" style="margin-bottom:0;">
-          <label class="form-label" style="font-size:11.5px; margin-bottom:4px;">حد تنبيه النقص *</label>
+          <label class="form-label" style="font-size:11.5px; margin-bottom:4px;">حد تنبيه النقص</label>
           <input type="text" inputmode="decimal" id="mat-min-alert" class="form-input font-num" placeholder="مثال: 1000" required>
         </div>
       </div>
@@ -2012,7 +2012,7 @@
       </div>
 
       <div class="form-group">
-        <label class="form-label">الكمية المضافة للرصيد *</label>
+        <label class="form-label">الكمية المضافة للرصيد</label>
         <div style="position:relative; display:flex; align-items:center;">
           <input type="text" inputmode="decimal" id="restock-qty-input" class="form-input font-num" placeholder="مثال: 5000" required autofocus style="padding-inline-end:55px;">
           <span id="restock-unit-badge" style="position:absolute; left:12px; font-size:11px; font-weight:800; color:var(--text-muted); pointer-events:none;">جرام</span>
@@ -2061,20 +2061,20 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=96.0"></script>
-  <script src="js/core/sound-effects.js?v=96.0"></script>
-  <script src="js/store.js?v=96.0"></script>
-  <script src="js/admin/admin-core.js?v=96.0"></script>
-  <script src="js/admin/admin-auth.js?v=96.0"></script>
-  <script src="js/admin/kitchen-orders.js?v=96.0"></script>
-  <script src="js/admin/inventory-manager.js?v=96.0"></script>
-  <script src="js/admin/catalog-manager.js?v=96.0"></script>
-  <script src="js/admin/category-manager.js?v=96.0"></script>
-  <script src="js/admin/stories-manager.js?v=96.0"></script>
-  <script src="js/admin/backup-restore.js?v=96.0"></script>
-  <script src="js/admin/settings-manager.js?v=96.0"></script>
-  <script src="js/admin/pos-terminal.js?v=96.0"></script>
-  <script src="js/admin.js?v=96.0"></script>
-  <script src="js/pwa.js?v=96.0"></script>
+  <script src="js/core/demo-seed-data.js?v=98.0"></script>
+  <script src="js/core/sound-effects.js?v=98.0"></script>
+  <script src="js/store.js?v=98.0"></script>
+  <script src="js/admin/admin-core.js?v=98.0"></script>
+  <script src="js/admin/admin-auth.js?v=98.0"></script>
+  <script src="js/admin/kitchen-orders.js?v=98.0"></script>
+  <script src="js/admin/inventory-manager.js?v=98.0"></script>
+  <script src="js/admin/catalog-manager.js?v=98.0"></script>
+  <script src="js/admin/category-manager.js?v=98.0"></script>
+  <script src="js/admin/stories-manager.js?v=98.0"></script>
+  <script src="js/admin/backup-restore.js?v=98.0"></script>
+  <script src="js/admin/settings-manager.js?v=98.0"></script>
+  <script src="js/admin/pos-terminal.js?v=98.0"></script>
+  <script src="js/admin.js?v=98.0"></script>
+  <script src="js/pwa.js?v=98.0"></script>
 </body>
 </html>

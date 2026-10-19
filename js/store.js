@@ -1423,6 +1423,7 @@ const Store = {
     // 1. WebSocket Realtime Channel (Sub-50ms when active)
     let ordersRef = null;
     let wsCallback = null;
+    let lastWsSnapshotTime = 0;
 
     const setupWsListener = () => {
       if (!db || isDestroyed) return;
@@ -1437,6 +1438,7 @@ const Store = {
       try {
         ordersRef = db.ref(`restaurants/${slug}/orders`);
         wsCallback = snapshot => {
+          lastWsSnapshotTime = Date.now();
           handleOrdersPayload(snapshot.val() || {});
         };
         ordersRef.on('value', wsCallback, err => {
@@ -1458,9 +1460,14 @@ const Store = {
       }
     };
 
-    // 2. High-Frequency REST Heartbeat Pulse (Every 4.0 seconds fallback with token-aware burst)
+    // 2. High-Efficiency REST Fallback (Smart data saver: pauses when hidden, skips if WS is active)
     const fetchOrdersFast = async () => {
       if (isDestroyed) return;
+      // Mobile Data Saver: Do not burn quota when screen is locked or tab is hidden in background
+      if (typeof document !== 'undefined' && document.hidden) return;
+      // Live WS Guard: If WebSocket is connected and delivered updates within 45s, skip redundant heavy REST download
+      if (ordersRef && (Date.now() - lastWsSnapshotTime < 45000)) return;
+
       try {
         let authParam = '';
         try {
@@ -1516,12 +1523,28 @@ const Store = {
       } catch(e) {}
     }
 
-    pollTimer = setInterval(fetchOrdersFast, 4000);
+    // Immediate refresh when tab becomes visible again
+    const onVisibilityChange = () => {
+      if (typeof document !== 'undefined' && !document.hidden && !isDestroyed) {
+        if (Date.now() - lastWsSnapshotTime > 20000) {
+          fetchOrdersFast();
+        }
+      }
+    };
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', onVisibilityChange);
+    }
+
+    // Adaptive fallback polling (12s instead of 4s, bypassed 100% when WS is active)
+    pollTimer = setInterval(fetchOrdersFast, 12000);
 
     return () => {
       isDestroyed = true;
       if (pollTimer) clearInterval(pollTimer);
       if (authUnsubscribe) { try { authUnsubscribe(); } catch(e) {} }
+      if (typeof document !== 'undefined') {
+        try { document.removeEventListener('visibilitychange', onVisibilityChange); } catch(e) {}
+      }
       if (ordersRef && wsCallback) {
         try { ordersRef.off('value', wsCallback); } catch(e) {}
       }
@@ -3244,10 +3267,12 @@ const Store = {
     // 1. WebSocket Listener (Primary, sub-50ms instant)
     let licRef = null;
     let wsCallback = null;
+    let lastLicWsTime = 0;
     try {
       if (db) {
         licRef = db.ref(`licenses/${slug}`);
         wsCallback = snap => {
+          lastLicWsTime = Date.now();
           const val = snap ? snap.val() : null;
           if (val && typeof val === 'object') {
             evaluateLicense(val);
@@ -3264,9 +3289,11 @@ const Store = {
       console.warn("[Store] Firebase license watcher init notice:", err);
     }
 
-    // 2. Smooth REST Fallback (Every 30 seconds, zero CPU/memory pressure)
+    // 2. Smooth REST Fallback (Data-saver: skips when live WS or hidden)
     const fetchLicenseFast = async () => {
       if (isDestroyed) return;
+      if (typeof document !== 'undefined' && document.hidden) return;
+      if (licRef && (Date.now() - lastLicWsTime < 180000)) return;
       try {
         const licRes = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${slug}.json`, { cache: 'no-store' }).catch(() => null);
 
@@ -3289,7 +3316,7 @@ const Store = {
     };
 
     fetchLicenseFast();
-    pollTimer = setInterval(fetchLicenseFast, 30000);
+    pollTimer = setInterval(fetchLicenseFast, 180000);
 
     return () => {
       isDestroyed = true;
