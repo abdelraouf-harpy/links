@@ -250,6 +250,14 @@
   transform: translate(-50%, -50%) scale(1);
 }
 
+@media (max-width: 640px) {
+  .modal-box {
+    padding: 20px 16px;
+    width: calc(100% - 20px);
+    border-radius: var(--radius-md);
+  }
+}
+
 .login-icon-bubble {
   width: 58px;
   height: 58px;

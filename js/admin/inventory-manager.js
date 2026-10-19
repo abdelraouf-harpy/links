@@ -210,8 +210,8 @@ function renderInventory() {
               <div style="width:${pct}%; height:100%; background:${barColor}; border-radius:3px; transition:width 0.3s ease;"></div>
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px; font-size:10px; color:var(--text-muted);">
-              <span>حد التنبيه: ${minAlert.toLocaleString('en-US')} ${m.unit}</span>
-              ${cost > 0 ? `<span>التكلفة: ${cost} ${currency}/${m.unit}</span>` : ''}
+              <span>حد التنبيه: ${minAlert.toLocaleString('en-US')} ${UNIT_LABELS[m.unit] || m.unit}</span>
+              ${cost > 0 ? `<span>التكلفة: ${cost} ${currency}/${UNIT_LABELS[m.unit] || m.unit}</span>` : ''}
             </div>
           </div>
         </div>
