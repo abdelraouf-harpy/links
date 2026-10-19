@@ -25,36 +25,68 @@ window.setFulfillmentType = function(type) {
   });
 
   const badge = document.getElementById('fulfillment-badge-indicator');
+  const badge2 = document.getElementById('step2-badge-indicator');
   const groupAddress = document.getElementById('group-cust-address');
   const groupTable = document.getElementById('group-table-number');
   const takeawayBanner = document.getElementById('fulfillment-takeaway-banner');
   const dineinBanner = document.getElementById('fulfillment-dinein-banner');
+  const deliveryBanner = document.getElementById('cart-saved-profile-banner');
   const addressInp = document.getElementById('cust-address');
 
   if (type === 'delivery') {
     if (badge) badge.textContent = 'توصيل دليفري';
-    if (groupAddress) groupAddress.style.display = 'block';
-    if (groupTable) groupTable.style.display = 'none';
+    if (badge2) badge2.textContent = 'توصيل دليفري';
+    if (deliveryBanner) deliveryBanner.style.display = 'flex';
     if (takeawayBanner) takeawayBanner.style.display = 'none';
     if (dineinBanner) dineinBanner.style.display = 'none';
+    if (groupAddress) groupAddress.style.display = 'block';
+    if (groupTable) groupTable.style.display = 'none';
     if (addressInp) addressInp.required = true;
   } else if (type === 'takeaway') {
     if (badge) badge.textContent = 'استلام من الفرع';
-    if (groupAddress) groupAddress.style.display = 'none';
-    if (groupTable) groupTable.style.display = 'none';
+    if (badge2) badge2.textContent = 'استلام من الفرع';
+    if (deliveryBanner) deliveryBanner.style.display = 'none';
     if (takeawayBanner) takeawayBanner.style.display = 'flex';
     if (dineinBanner) dineinBanner.style.display = 'none';
+    if (groupAddress) groupAddress.style.display = 'none';
+    if (groupTable) groupTable.style.display = 'none';
     if (addressInp) addressInp.required = false;
   } else if (type === 'dinein') {
-    if (badge) badge.textContent = 'داخل المطعم';
-    if (groupAddress) groupAddress.style.display = 'none';
-    if (groupTable) groupTable.style.display = 'block';
+    if (badge) badge.textContent = 'داخل المطعم (صالة)';
+    if (badge2) badge2.textContent = 'داخل المطعم (صالة)';
+    if (deliveryBanner) deliveryBanner.style.display = 'none';
     if (takeawayBanner) takeawayBanner.style.display = 'none';
     if (dineinBanner) dineinBanner.style.display = 'flex';
+    if (groupAddress) groupAddress.style.display = 'none';
+    if (groupTable) groupTable.style.display = 'block';
     if (addressInp) addressInp.required = false;
   }
 
+  if (typeof window.updateCartSavedProfileBanner === 'function') {
+    window.updateCartSavedProfileBanner();
+  }
   if (typeof updateLedgerUI === 'function') updateLedgerUI();
+  if (typeof updateFooterButtonLabel === 'function') updateFooterButtonLabel();
+};
+
+window.syncTableNumber = function(val) {
+  const hiddenInp = document.getElementById('cust-table-number');
+  if (hiddenInp) hiddenInp.value = val;
+  const step1Inp = document.getElementById('cust-table-number-step1');
+  if (step1Inp && step1Inp.value !== val) step1Inp.value = val;
+};
+
+window.togglePromoInput = function() {
+  const container = document.getElementById('promo-input-container');
+  const icon = document.getElementById('promo-toggle-icon');
+  if (!container) return;
+  const isHidden = container.style.display === 'none' || !container.style.display;
+  container.style.display = isHidden ? 'flex' : 'none';
+  if (icon) icon.textContent = isHidden ? '✕ إغلاق' : '+ إضافة كود';
+  if (isHidden) {
+    const inp = document.getElementById('promo-code-input');
+    if (inp) inp.focus();
+  }
 };
 
 window.openLastOrderTracker = function() {
@@ -513,21 +545,37 @@ window.goToCheckoutStep = function(stepNumber, pushHistory = true) {
   });
 
   // Dynamic drawer footer button label according to current step
-  if (elements.btnConfirmOrderDirect) {
+  function updateFooterButtonLabel() {
+    if (!elements.btnConfirmOrderDirect) return;
     const labelSpan = elements.btnConfirmOrderDirect.querySelector('span');
-    if (labelSpan) {
-      if (stepNumber === 1) {
-        const profile = (typeof window.getCustomerProfile === 'function') ? window.getCustomerProfile() : null;
-        const fType = window.currentFulfillmentType || 'delivery';
-        const hasSavedDetails = profile && profile.name && profile.phone && (fType !== 'delivery' || profile.address);
-        labelSpan.textContent = hasSavedDetails ? "متابعة للدفع (بياناتك جاهزة) ←" : "متابعة لبيانات التوصيل ←";
-      } else if (stepNumber === 2) {
-        labelSpan.textContent = "متابعة لاختيار طريقة الدفع ←";
+    if (!labelSpan) return;
+    const profile = (typeof window.getCustomerProfile === 'function') ? window.getCustomerProfile() : null;
+    const fType = window.currentFulfillmentType || 'delivery';
+    const name = (elements.custName?.value || profile?.name || '').trim();
+    const phone = (elements.custPhone?.value || profile?.phone || '').trim();
+    const address = (elements.custAddress?.value || profile?.address || '').trim();
+    const hasDeliveryDetails = name && phone && address;
+    const hasTakeawayDetails = name && phone;
+
+    if (currentCheckoutStep === 1) {
+      if (fType === 'delivery') {
+        labelSpan.textContent = hasDeliveryDetails ? "متابعة للدفع (بياناتك جاهزة) ←" : "متابعة لعنوان التوصيل ←";
+      } else if (fType === 'takeaway') {
+        labelSpan.textContent = hasTakeawayDetails ? "متابعة للدفع (استلام من الفرع) ←" : "متابعة لبيانات الاستلام ←";
       } else {
-        labelSpan.textContent = "تأكيد وإرسال الطلب مباشرة";
+        labelSpan.textContent = "متابعة للدفع (طلب صالة) ←";
       }
+      if (elements.btnSendWhatsapp) elements.btnSendWhatsapp.style.display = 'none';
+    } else if (currentCheckoutStep === 2) {
+      labelSpan.textContent = "متابعة لاختيار طريقة الدفع ←";
+      if (elements.btnSendWhatsapp) elements.btnSendWhatsapp.style.display = 'none';
+    } else {
+      labelSpan.textContent = "تأكيد وإرسال الطلب مباشرة";
+      if (elements.btnSendWhatsapp) elements.btnSendWhatsapp.style.display = 'flex';
     }
   }
+  window.updateFooterButtonLabel = updateFooterButtonLabel;
+  updateFooterButtonLabel();
 
   if (elements.cartDrawer) {
     elements.cartDrawer.scrollTop = 0;
@@ -614,9 +662,14 @@ function setupEventListeners() {
   }
 
   function validateDeliveryStep() {
-    const name = (elements.custName?.value || '').trim();
-    const phone = (elements.custPhone?.value || '').trim();
-    const address = (elements.custAddress?.value || '').trim();
+    const profile = (typeof window.getCustomerProfile === 'function') ? window.getCustomerProfile() : null;
+    const name = (elements.custName?.value || profile?.name || '').trim();
+    const phone = (elements.custPhone?.value || profile?.phone || '').trim();
+    const address = (elements.custAddress?.value || profile?.address || '').trim();
+
+    if (elements.custName && !elements.custName.value && name) elements.custName.value = name;
+    if (elements.custPhone && !elements.custPhone.value && phone) elements.custPhone.value = phone;
+    if (elements.custAddress && !elements.custAddress.value && address) elements.custAddress.value = address;
 
     if (!name || name.length < 2) {
       showToastNotification("يرجى كتابة الاسم لتسهيل التواصل ومتابعة الطلب", "warning");
@@ -638,7 +691,13 @@ function setupEventListeners() {
       return false;
     }
     const fType = window.currentFulfillmentType || 'delivery';
-    const tableNum = (document.getElementById('cust-table-number')?.value || '').trim();
+    const tableStep1 = (document.getElementById('cust-table-number-step1')?.value || '').trim();
+    const tableStep2 = (document.getElementById('cust-table-number')?.value || '').trim();
+    const tableNum = tableStep2 || tableStep1;
+    if (tableNum) {
+      if (document.getElementById('cust-table-number') && !tableStep2) document.getElementById('cust-table-number').value = tableNum;
+      if (document.getElementById('cust-table-number-step1') && !tableStep1) document.getElementById('cust-table-number-step1').value = tableNum;
+    }
 
     if (fType === 'delivery') {
       if (!address || address.length < 5) {
@@ -649,7 +708,7 @@ function setupEventListeners() {
     } else if (fType === 'dinein') {
       if (!tableNum) {
         showToastNotification("يرجى إدخال رقم الطاولة لخدمتك داخل المطعم", "warning");
-        const tbl = document.getElementById('cust-table-number');
+        const tbl = document.getElementById('cust-table-number') || document.getElementById('cust-table-number-step1');
         if (tbl) tbl.focus();
         return false;
       }
@@ -956,21 +1015,39 @@ function setupEventListeners() {
 window.updateCartSavedProfileBanner = function() {
   const banner = document.getElementById('cart-saved-profile-banner');
   const textEl = document.getElementById('cart-saved-profile-text');
+  const editBtn = document.getElementById('cart-saved-profile-edit-btn');
+  const fType = window.currentFulfillmentType || 'delivery';
   if (!banner || !textEl) return;
+
+  if (fType !== 'delivery') {
+    banner.style.display = 'none';
+    return;
+  }
 
   const profile = (typeof window.getCustomerProfile === 'function') ? window.getCustomerProfile() : null;
   const name = (elements.custName?.value || profile?.name || '').trim();
   const phone = (elements.custPhone?.value || profile?.phone || '').trim();
   const address = (elements.custAddress?.value || profile?.address || '').trim();
 
-  if (name && (address || phone)) {
-    let summary = `<strong>${esc(name)}</strong>`;
+  if (address) {
+    let summary = '';
+    if (name) summary += `<strong>${esc(name)}</strong>`;
     if (phone) summary += ` (${esc(phone)})`;
-    if (address) summary += ` — 📍 ${esc(address)}`;
+    summary += ` — 📍 ${esc(address)}`;
     textEl.innerHTML = summary;
+    if (editBtn) editBtn.textContent = 'تعديل';
+    banner.style.display = 'flex';
+  } else if (name || phone) {
+    let summary = `<strong>${esc(name || 'عميلنا العزيز')}</strong>`;
+    if (phone) summary += ` (${esc(phone)})`;
+    summary += ` — <span style="color:var(--primary);">لم تسجل عنوان التوصيل بعد</span>`;
+    textEl.innerHTML = summary;
+    if (editBtn) editBtn.textContent = 'إضافة عنوان';
     banner.style.display = 'flex';
   } else {
-    banner.style.display = 'none';
+    textEl.innerHTML = `<span style="color:var(--text-muted);">انقر لإضافة عنوان التوصيل وبياناتك</span>`;
+    if (editBtn) editBtn.textContent = 'إضافة بيانات';
+    banner.style.display = 'flex';
   }
 };
 

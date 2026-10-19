@@ -34,28 +34,66 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
     const name = (elements.custName?.value || profile?.name || '').trim();
     const phone = (elements.custPhone?.value || profile?.phone || '').trim();
     const address = (elements.custAddress?.value || profile?.address || '').trim();
+    const tableNum = (document.getElementById('cust-table-number-step1')?.value || document.getElementById('cust-table-number')?.value || '').trim();
 
     // Validate phone: Egyptian mobile (01x) or international (+20x / 20x) — digits only, 10-15 digits
     const phoneDigits = phone.replace(/[\s\-\+]/g, '');
     const isPhoneValid = /^(01[0-9]{9})$/.test(phoneDigits) || /^(20[0-9]{10}|[0-9]{10,15})$/.test(phoneDigits);
 
-    // If returning customer already has complete valid delivery info, jump directly to Step 3 (Payment & Confirmation)
-    if (name.length >= 2 && isPhoneValid && (fType !== 'delivery' || address.length >= 5)) {
-      if (elements.custName && !elements.custName.value) elements.custName.value = name;
-      if (elements.custPhone && !elements.custPhone.value) elements.custPhone.value = phone;
-      if (elements.custAddress && !elements.custAddress.value && address) elements.custAddress.value = address;
-      goToCheckoutStep(3);
-      showToastNotification(`مرحباً ${name}، تم استخدام بياناتك المحفوظة للتوصيل السريع ✓ (يمكنك تعديلها بأي وقت)`, "info");
-      return;
+    if (fType === 'dinein') {
+      if (!tableNum) {
+        showToastNotification("يرجى إدخال رقم الطاولة في الصالة للمتابعة", "warning");
+        const t1 = document.getElementById('cust-table-number-step1') || document.getElementById('cust-table-number');
+        if (t1) {
+          t1.focus();
+          t1.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return;
+      }
+      if (document.getElementById('cust-table-number')) document.getElementById('cust-table-number').value = tableNum;
+      if (document.getElementById('cust-table-number-step1')) document.getElementById('cust-table-number-step1').value = tableNum;
+      if (name.length >= 2 && isPhoneValid) {
+        if (elements.custName && !elements.custName.value) elements.custName.value = name;
+        if (elements.custPhone && !elements.custPhone.value) elements.custPhone.value = phone;
+        goToCheckoutStep(3);
+        showToastNotification(`مرحباً ${name}، تم تجهيز الطلب لطاولة رقم ${tableNum} ✓`, "info");
+        return;
+      } else {
+        goToCheckoutStep(2);
+        if (elements.custName) elements.custName.focus();
+        return;
+      }
+    } else if (fType === 'takeaway') {
+      if (name.length >= 2 && isPhoneValid) {
+        if (elements.custName && !elements.custName.value) elements.custName.value = name;
+        if (elements.custPhone && !elements.custPhone.value) elements.custPhone.value = phone;
+        goToCheckoutStep(3);
+        showToastNotification(`مرحباً ${name}، تم تجهيز الطلب للاستلام من الفرع (تيك أواي) ✓`, "info");
+        return;
+      } else {
+        goToCheckoutStep(2);
+        if (elements.custName) elements.custName.focus();
+        return;
+      }
+    } else {
+      // delivery
+      if (name.length >= 2 && isPhoneValid && address.length >= 5) {
+        if (elements.custName && !elements.custName.value) elements.custName.value = name;
+        if (elements.custPhone && !elements.custPhone.value) elements.custPhone.value = phone;
+        if (elements.custAddress && !elements.custAddress.value) elements.custAddress.value = address;
+        goToCheckoutStep(3);
+        showToastNotification(`مرحباً ${name}، تم استخدام بياناتك المحفوظة للتوصيل السريع ✓`, "info");
+        return;
+      } else {
+        goToCheckoutStep(2);
+        if (elements.custName) elements.custName.focus();
+        return;
+      }
     }
-
-    goToCheckoutStep(2);
-    if (elements.custName) elements.custName.focus();
-    return;
   }
 
   const fType = window.currentFulfillmentType || 'delivery';
-  const tableNum = (document.getElementById('cust-table-number')?.value || '').trim();
+  const tableNum = (document.getElementById('cust-table-number-step1')?.value || document.getElementById('cust-table-number')?.value || '').trim();
   const name = (elements.custName?.value || '').trim();
   const phone = (elements.custPhone?.value || '').trim();
   const address = (elements.custAddress?.value || '').trim();
