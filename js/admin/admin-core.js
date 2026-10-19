@@ -197,6 +197,179 @@ const adminElements = {
 };
 
 
+// ═══════════════════════════════════════════════════════════
+// LUXURY UI CONTROLLERS: SEGMENTED CONTROLS & OPTION PICKER
+// Eliminates all primitive OS native select pickers
+// ═══════════════════════════════════════════════════════════
+
+let currentPickerOnSelect = null;
+let currentPickerItems = [];
+
+window.openOptionPickerSheet = function({ title = 'اختر', iconSvg = '', items = [], selectedValue = '', onSelect = null }) {
+  const sheet = document.getElementById('custom-picker-sheet');
+  const titleEl = document.getElementById('custom-picker-title-text');
+  const iconWrap = document.getElementById('custom-picker-icon-wrap');
+  const searchWrap = document.getElementById('custom-picker-search-wrap');
+  const searchInput = document.getElementById('custom-picker-search-input');
+  const listEl = document.getElementById('custom-picker-items-list');
+
+  if (!sheet || !listEl) return;
+
+  currentPickerOnSelect = onSelect;
+  currentPickerItems = items || [];
+
+  if (titleEl) titleEl.textContent = title;
+  if (iconWrap) iconWrap.innerHTML = iconSvg || '';
+
+  if (searchInput) {
+    searchInput.value = '';
+    if (searchWrap) searchWrap.style.display = currentPickerItems.length > 5 ? 'block' : 'none';
+  }
+
+  function renderList(filteredItems) {
+    if (!filteredItems || filteredItems.length === 0) {
+      listEl.innerHTML = `
+        <div style="text-align:center; padding:28px 12px; color:var(--text-muted); font-size:13px; font-weight:700;">
+          لا توجد عناصر مطابقة لبحثك
+        </div>
+      `;
+      return;
+    }
+
+    listEl.innerHTML = filteredItems.map(item => {
+      const isSelected = String(item.id) === String(selectedValue);
+      return `
+        <div class="custom-picker-item ${isSelected ? 'selected' : ''}" data-item-id="${Store.escapeHtml(item.id)}">
+          <div class="item-meta">
+            ${item.icon ? `<span style="display:inline-flex; align-items:center;">${item.icon}</span>` : ''}
+            <div>
+              <div style="font-weight:800; font-size:13.5px; color:${isSelected ? 'var(--primary)' : 'var(--text-main)'};">${Store.escapeHtml(item.label || item.name || '')}</div>
+              ${item.sublabel ? `<div style="font-size:11px; color:var(--text-muted); margin-top:2px;">${Store.escapeHtml(item.sublabel)}</div>` : ''}
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            ${item.badge ? `<span class="item-badge">${Store.escapeHtml(item.badge)}</span>` : ''}
+            ${isSelected ? `
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--primary)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    listEl.querySelectorAll('.custom-picker-item').forEach(el => {
+      el.addEventListener('click', () => {
+        const id = el.getAttribute('data-item-id');
+        const chosen = currentPickerItems.find(i => String(i.id) === String(id));
+        if (typeof currentPickerOnSelect === 'function' && chosen) {
+          currentPickerOnSelect(chosen);
+        }
+        window.closeOptionPickerSheet();
+      });
+    });
+  }
+
+  renderList(currentPickerItems);
+
+  if (searchInput) {
+    searchInput.oninput = (e) => {
+      const q = (e.target.value || '').trim().toLowerCase();
+      if (!q) {
+        renderList(currentPickerItems);
+      } else {
+        const filtered = currentPickerItems.filter(i =>
+          (i.label || i.name || '').toLowerCase().includes(q) ||
+          (i.sublabel || '').toLowerCase().includes(q) ||
+          (i.badge || '').toLowerCase().includes(q)
+        );
+        renderList(filtered);
+      }
+    };
+  }
+
+  sheet.classList.add('open');
+  if (searchInput && currentPickerItems.length > 5) {
+    setTimeout(() => searchInput.focus(), 150);
+  }
+};
+
+window.closeOptionPickerSheet = function() {
+  const sheet = document.getElementById('custom-picker-sheet');
+  if (sheet) sheet.classList.remove('open');
+  currentPickerOnSelect = null;
+};
+
+// Segmented Controls Controller
+window.setupSegmentedControl = function(containerId, hiddenInputId, onValChange) {
+  const container = document.getElementById(containerId);
+  const hiddenInput = document.getElementById(hiddenInputId);
+  if (!container || !hiddenInput) return;
+
+  const btns = container.querySelectorAll('.segmented-btn');
+  btns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const val = btn.getAttribute('data-val');
+      btns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      hiddenInput.value = val;
+      hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+      if (typeof onValChange === 'function') onValChange(val);
+    });
+  });
+};
+
+window.setSegmentedValue = function(containerId, val) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const btns = container.querySelectorAll('.segmented-btn');
+  btns.forEach(btn => {
+    if (btn.getAttribute('data-val') === String(val)) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+};
+
+window.setupAllSegmentedControls = function() {
+  // Printer paper size: 80mm vs 58mm
+  setupSegmentedControl('seg-printer-paper-size', 'set-printer-paper-size', (val) => {
+    document.documentElement.setAttribute('data-paper-size', val);
+    document.body.setAttribute('data-paper-size', val);
+  });
+
+  // Wallet discount type: percent vs fixed
+  setupSegmentedControl('seg-wallet-discount-type', 'set-wallet-discount-type');
+
+  // Spend tier discount type: percent vs fixed
+  setupSegmentedControl('seg-spend-discount-type', 'set-spend-discount-type');
+
+  // Promo code discount type: percent vs fixed
+  setupSegmentedControl('seg-new-promo-type', 'new-promo-type');
+};
+
+// Unit Pills Selector Controller (Raw Materials)
+window.selectRawMaterialUnit = function(unit) {
+  const targetUnit = unit || 'g';
+  const hidden = document.getElementById('mat-unit');
+  if (hidden) {
+    hidden.value = targetUnit;
+    hidden.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+  const container = document.getElementById('mat-unit-chips');
+  if (container) {
+    const btns = container.querySelectorAll('.unit-pill-btn');
+    btns.forEach(b => {
+      if (b.getAttribute('data-unit') === targetUnit) {
+        b.classList.add('active');
+      } else {
+        b.classList.remove('active');
+      }
+    });
+  }
+};
+
 // Expose adminElements globally so all modules can share cached DOM
 window.adminElements = adminElements;
 
@@ -214,6 +387,7 @@ function initAdmin() {
   try { setupStoriesManagement(); } catch(e) { console.error("[initAdmin] setupStoriesManagement error:", e); }
   try { setupBackupAndRestore(); } catch(e) { console.error("[initAdmin] setupBackupAndRestore error:", e); }
   try { setupSettingsForm(); } catch(e) { console.error("[initAdmin] setupSettingsForm error:", e); }
+  try { setupAllSegmentedControls(); } catch(e) { console.error("[initAdmin] setupAllSegmentedControls error:", e); }
 }
 
 function updateAdminThemeToggleIcons() {

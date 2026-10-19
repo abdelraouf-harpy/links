@@ -224,6 +224,8 @@ window.openProductModalForCategory = function(catName) {
   openProductModal(null);
   if (adminElements.prodCategory && catName) {
     adminElements.prodCategory.value = catName;
+    const catDisp = document.getElementById('prod-category-display');
+    if (catDisp) catDisp.textContent = catName;
   }
 };
 
@@ -276,7 +278,69 @@ window.deleteProductFast = async function(id) {
 
 // ═══════════════════════════════════════════════════════════
 // RECIPE & RAW MATERIALS BUILDER (PER SIZE & PER ADDON)
+// Eliminates native OS select popups using luxury picker sheet
 // ═══════════════════════════════════════════════════════════
+
+function renderRecipeMatPickerHtml(materialId = '', fontSize = '12px') {
+  const mats = (Store.getRawMaterials ? Store.getRawMaterials() : []) || [];
+  const found = mats.find(m => m.id === materialId);
+  const displayName = found ? found.name : '-- اختر المادة الخام --';
+  const unit = found ? (found.unit || '') : '';
+
+  return `
+    <div class="recipe-mat-picker-wrap" style="flex:1; min-width:0; position:relative;">
+      <input type="hidden" class="recipe-mat-select" value="${materialId || ''}" data-unit="${unit}">
+      <button type="button" class="custom-select-trigger recipe-mat-trigger" style="padding:5px 9px; font-size:${fontSize}; width:100%;" onclick="openRecipeMaterialPicker(this)">
+        <span class="trigger-label text-truncate" style="flex:1; text-align:right;">
+          <span class="recipe-mat-name-display">${Store.escapeHtml(displayName)}</span>
+        </span>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+    </div>
+  `;
+}
+
+window.openRecipeMaterialPicker = function(triggerBtn) {
+  const row = triggerBtn.closest('.recipe-base-row, .recipe-size-item-row, .recipe-addon-item-row');
+  if (!row) return;
+
+  const hiddenInput = row.querySelector('.recipe-mat-select');
+  const nameDisplay = row.querySelector('.recipe-mat-name-display');
+  const unitLabel = row.querySelector('.recipe-unit-label');
+  const currentVal = hiddenInput ? hiddenInput.value : '';
+
+  const mats = (Store.getRawMaterials ? Store.getRawMaterials() : []) || [];
+  if (mats.length === 0) {
+    if (typeof showToastNotification === 'function') {
+      showToastNotification("يرجى إضافة مواد خام أولاً في تاب المخزون", "info");
+    }
+    return;
+  }
+
+  const items = mats.map(m => ({
+    id: m.id,
+    label: m.name,
+    badge: m.unit || '',
+    sublabel: `${m.stock ?? 0} ${m.unit || ''} متوفر`,
+    icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--primary)" stroke-width="2"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>`
+  }));
+
+  window.openOptionPickerSheet({
+    title: 'اختيار المادة الخام للمكون',
+    iconSvg: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>`,
+    items: items,
+    selectedValue: currentVal,
+    onSelect: (chosen) => {
+      if (hiddenInput) {
+        hiddenInput.value = chosen.id;
+        hiddenInput.setAttribute('data-unit', chosen.badge || '');
+        hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      if (nameDisplay) nameDisplay.textContent = chosen.label;
+      if (unitLabel) unitLabel.textContent = chosen.badge || '';
+    }
+  });
+};
 
 function getRawMaterialSelectOptions(selectedId = '') {
   const mats = (Store.getRawMaterials ? Store.getRawMaterials() : []) || [];
@@ -294,33 +358,25 @@ window.addRecipeBaseRow = function(materialId = '', amount = '') {
   const list = document.getElementById('prod-recipe-base-list');
   if (!list) return;
 
+  const mats = (Store.getRawMaterials ? Store.getRawMaterials() : []) || [];
+  const found = mats.find(m => m.id === materialId);
+  const initialUnit = found ? (found.unit || '') : '';
+
   const div = document.createElement('div');
   div.className = 'recipe-base-row';
   div.style.display = 'flex';
   div.style.gap = '8px';
   div.style.alignItems = 'center';
   div.innerHTML = `
-    <select class="form-select recipe-mat-select" style="flex:1; padding:6px 10px; font-size:12px;">
-      ${getRawMaterialSelectOptions(materialId)}
-    </select>
-    <div style="display:flex; align-items:center; gap:4px; width:120px;">
+    ${renderRecipeMatPickerHtml(materialId, '12px')}
+    <div style="display:flex; align-items:center; gap:4px; width:115px; flex-shrink:0;">
       <input type="number" class="form-input font-num recipe-amount-input" placeholder="المقدار" value="${amount}" step="any" min="0" style="padding:6px 8px; font-size:12px; flex:1;">
-      <span class="recipe-unit-label text-muted" style="font-size:11px; font-weight:700; min-width:26px;"></span>
+      <span class="recipe-unit-label text-muted" style="font-size:11px; font-weight:700; min-width:26px;">${initialUnit}</span>
     </div>
     <button type="button" class="btn btn-ghost btn-sm" style="color:var(--danger); padding:4px 8px;" onclick="this.parentElement.remove()">
       <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </button>
   `;
-
-  const sel = div.querySelector('.recipe-mat-select');
-  const unitLabel = div.querySelector('.recipe-unit-label');
-  const updateUnit = () => {
-    const opt = sel.options[sel.selectedIndex];
-    const u = opt ? opt.getAttribute('data-unit') : '';
-    unitLabel.textContent = u || '';
-  };
-  sel.addEventListener('change', updateUnit);
-  updateUnit();
 
   list.appendChild(div);
 };
@@ -389,33 +445,25 @@ window.addRecipeSizeRow = function(sizeName, materialId = '', amount = '') {
   const wrap = document.getElementById(`recipe-size-wrap-${encodeURIComponent(sizeName)}`);
   if (!wrap) return;
 
+  const mats = (Store.getRawMaterials ? Store.getRawMaterials() : []) || [];
+  const found = mats.find(m => m.id === materialId);
+  const initialUnit = found ? (found.unit || '') : '';
+
   const div = document.createElement('div');
   div.className = 'recipe-size-item-row';
   div.style.display = 'flex';
   div.style.gap = '6px';
   div.style.alignItems = 'center';
   div.innerHTML = `
-    <select class="form-select recipe-mat-select" style="flex:1; padding:4px 8px; font-size:11.5px;">
-      ${getRawMaterialSelectOptions(materialId)}
-    </select>
-    <div style="display:flex; align-items:center; gap:4px; width:110px;">
+    ${renderRecipeMatPickerHtml(materialId, '11.5px')}
+    <div style="display:flex; align-items:center; gap:4px; width:105px; flex-shrink:0;">
       <input type="number" class="form-input font-num recipe-amount-input" placeholder="المقدار" value="${amount}" step="any" min="0" style="padding:4px 6px; font-size:11.5px; flex:1;">
-      <span class="recipe-unit-label text-muted" style="font-size:10.5px; font-weight:700; min-width:24px;"></span>
+      <span class="recipe-unit-label text-muted" style="font-size:10.5px; font-weight:700; min-width:24px;">${initialUnit}</span>
     </div>
     <button type="button" class="btn btn-ghost btn-sm" style="color:var(--danger); padding:2px 6px;" onclick="this.parentElement.remove()">
       <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </button>
   `;
-
-  const sel = div.querySelector('.recipe-mat-select');
-  const unitLabel = div.querySelector('.recipe-unit-label');
-  const updateUnit = () => {
-    const opt = sel.options[sel.selectedIndex];
-    const u = opt ? opt.getAttribute('data-unit') : '';
-    unitLabel.textContent = u || '';
-  };
-  sel.addEventListener('change', updateUnit);
-  updateUnit();
 
   wrap.appendChild(div);
 };
@@ -482,33 +530,25 @@ window.addRecipeAddonRow = function(addonName, materialId = '', amount = '') {
   const wrap = document.getElementById(`recipe-addon-wrap-${encodeURIComponent(addonName)}`);
   if (!wrap) return;
 
+  const mats = (Store.getRawMaterials ? Store.getRawMaterials() : []) || [];
+  const found = mats.find(m => m.id === materialId);
+  const initialUnit = found ? (found.unit || '') : '';
+
   const div = document.createElement('div');
   div.className = 'recipe-addon-item-row';
   div.style.display = 'flex';
   div.style.gap = '6px';
   div.style.alignItems = 'center';
   div.innerHTML = `
-    <select class="form-select recipe-mat-select" style="flex:1; padding:4px 8px; font-size:11.5px;">
-      ${getRawMaterialSelectOptions(materialId)}
-    </select>
-    <div style="display:flex; align-items:center; gap:4px; width:110px;">
+    ${renderRecipeMatPickerHtml(materialId, '11.5px')}
+    <div style="display:flex; align-items:center; gap:4px; width:105px; flex-shrink:0;">
       <input type="number" class="form-input font-num recipe-amount-input" placeholder="المقدار" value="${amount}" step="any" min="0" style="padding:4px 6px; font-size:11.5px; flex:1;">
-      <span class="recipe-unit-label text-muted" style="font-size:10.5px; font-weight:700; min-width:24px;"></span>
+      <span class="recipe-unit-label text-muted" style="font-size:10.5px; font-weight:700; min-width:24px;">${initialUnit}</span>
     </div>
     <button type="button" class="btn btn-ghost btn-sm" style="color:var(--danger); padding:2px 6px;" onclick="this.parentElement.remove()">
       <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </button>
   `;
-
-  const sel = div.querySelector('.recipe-mat-select');
-  const unitLabel = div.querySelector('.recipe-unit-label');
-  const updateUnit = () => {
-    const opt = sel.options[sel.selectedIndex];
-    const u = opt ? opt.getAttribute('data-unit') : '';
-    unitLabel.textContent = u || '';
-  };
-  sel.addEventListener('change', updateUnit);
-  updateUnit();
 
   wrap.appendChild(div);
 };
@@ -517,21 +557,38 @@ window.addRecipeAddonRow = function(addonName, materialId = '', amount = '') {
 // PRODUCT MODAL OPERATIONS
 // ═══════════════════════════════════════════════════════════
 
+window.openCategoryPickerSheet = function() {
+  const cats = Store.getCategories ? Store.getCategories() : [];
+  const currentVal = document.getElementById('prod-category')?.value || (cats.length > 0 ? cats[0] : 'عام');
+  const items = (cats.length > 0 ? cats : ['عام']).map(c => ({
+    id: c,
+    label: c,
+    icon: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--primary)" stroke-width="2.2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>`
+  }));
+
+  window.openOptionPickerSheet({
+    title: 'اختيار قسم الصنف',
+    iconSvg: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>`,
+    items: items,
+    selectedValue: currentVal,
+    onSelect: (item) => {
+      const input = document.getElementById('prod-category');
+      const disp = document.getElementById('prod-category-display');
+      if (input) {
+        input.value = item.id;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      if (disp) disp.textContent = item.label;
+    }
+  });
+};
+
 function openProductModal(productId) {
   currentEditingProductId = productId;
   const cats = Store.getCategories();
   let editingProd = null;
   if (productId) {
     editingProd = Store.getProducts().find(i => i.id === productId);
-  }
-
-  if (adminElements.prodCategory) {
-    let opts = [...cats];
-    if (editingProd && editingProd.category && !opts.includes(editingProd.category)) {
-      opts.unshift(editingProd.category);
-    }
-    if (opts.length === 0) opts.push('عام');
-    adminElements.prodCategory.innerHTML = opts.map(c => `<option value="${c}">${c}</option>`).join('');
   }
 
   if (adminElements.prodSizesList) adminElements.prodSizesList.innerHTML = '';
@@ -546,7 +603,12 @@ function openProductModal(productId) {
     if (adminElements.productModalTitle) adminElements.productModalTitle.textContent = "تعديل الصنف";
     if (adminElements.prodId) adminElements.prodId.value = p.id;
     if (adminElements.prodName) adminElements.prodName.value = p.name || '';
-    if (adminElements.prodCategory) adminElements.prodCategory.value = p.category || (cats.length > 0 ? cats[0] : 'عام');
+    
+    const catVal = p.category || (cats.length > 0 ? cats[0] : 'عام');
+    if (adminElements.prodCategory) adminElements.prodCategory.value = catVal;
+    const catDisp = document.getElementById('prod-category-display');
+    if (catDisp) catDisp.textContent = catVal;
+
     if (adminElements.prodPrice) adminElements.prodPrice.value = p.price || 0;
     if (adminElements.prodOriginalPrice) adminElements.prodOriginalPrice.value = p.originalPrice || '';
     if (adminElements.prodPrepTime) adminElements.prodPrepTime.value = p.prepTime || '';
@@ -583,6 +645,12 @@ function openProductModal(productId) {
     if (adminElements.productModalTitle) adminElements.productModalTitle.textContent = "إضافة صنف جديد";
     if (adminElements.productForm) adminElements.productForm.reset();
     if (adminElements.prodId) adminElements.prodId.value = '';
+    
+    const defaultCat = cats.length > 0 ? cats[0] : 'عام';
+    if (adminElements.prodCategory) adminElements.prodCategory.value = defaultCat;
+    const catDisp = document.getElementById('prod-category-display');
+    if (catDisp) catDisp.textContent = defaultCat;
+
     if (adminElements.prodFeatured) adminElements.prodFeatured.checked = false;
     if (adminElements.prodVisible) adminElements.prodVisible.checked = true;
     if (prodImageUploader) prodImageUploader.clearPreview();

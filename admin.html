@@ -41,9 +41,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Admin">
 
-  <link rel="stylesheet" href="css/order-tokens.css?v=94.6">
-  <link rel="stylesheet" href="css/order-client.css?v=94.6">
-  <link rel="stylesheet" href="css/order-admin.css?v=94.8">
+  <link rel="stylesheet" href="css/order-tokens.css?v=95.0">
+  <link rel="stylesheet" href="css/order-client.css?v=95.0">
+  <link rel="stylesheet" href="css/order-admin.css?v=95.0">
   <script>
     // Instant zero-delay theme toggle available immediately on page paint
     window.handleThemeToggle = function() {
@@ -1131,11 +1131,18 @@
               <div style="font-size:11.5px; color:var(--text-muted); margin-bottom:10px;">
                 ضبط هوامش وأبعاد الفاتورة تلقائياً لتناسب طابعتك بدون أي قص للمعلومات.
               </div>
-              <div class="form-group" style="margin-bottom:0; max-width:340px;">
-                <select id="set-printer-paper-size" class="form-input" style="font-weight:800;">
-                  <option value="80mm">80mm — رول عريض (طابعات الكاشير القياسية والمطبخ - افتراضي)</option>
-                  <option value="58mm">58mm — رول ضيق (طابعات البلوتوث المحمولة وأجهزة POS)</option>
-                </select>
+              <div class="form-group" style="margin-bottom:0; max-width:440px;">
+                <input type="hidden" id="set-printer-paper-size" value="80mm">
+                <div class="segmented-control" id="seg-printer-paper-size">
+                  <button type="button" class="segmented-btn active" data-val="80mm">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect width="16" height="20" x="4" y="2" rx="2"/></svg>
+                    <span>80mm — رول عريض (افتراضي)</span>
+                  </button>
+                  <button type="button" class="segmented-btn" data-val="58mm">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect width="10" height="20" x="7" y="2" rx="2"/></svg>
+                    <span>58mm — رول ضيق (POS)</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -1172,10 +1179,11 @@
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                 <div class="form-group" style="margin-bottom:0;">
                   <label class="form-label" style="font-size:11px;">نوع الخصم</label>
-                  <select id="set-wallet-discount-type" class="form-input">
-                    <option value="percent">نسبة مئوية (%)</option>
-                    <option value="fixed">مبلغ ثابت (ج.م)</option>
-                  </select>
+                  <input type="hidden" id="set-wallet-discount-type" value="percent">
+                  <div class="segmented-control" id="seg-wallet-discount-type">
+                    <button type="button" class="segmented-btn active" data-val="percent">نسبة (%)</button>
+                    <button type="button" class="segmented-btn" data-val="fixed">مبلغ (ج.م)</button>
+                  </div>
                 </div>
                 <div class="form-group" style="margin-bottom:0;">
                   <label class="form-label" style="font-size:11px;">قيمة الخصم</label>
@@ -1224,10 +1232,11 @@
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                 <div class="form-group" style="margin-bottom:0;">
                   <label class="form-label" style="font-size:11px;">نوع الخصم</label>
-                  <select id="set-spend-discount-type" class="form-input">
-                    <option value="percent">نسبة مئوية (%)</option>
-                    <option value="fixed">مبلغ ثابت (ج.م)</option>
-                  </select>
+                  <input type="hidden" id="set-spend-discount-type" value="percent">
+                  <div class="segmented-control" id="seg-spend-discount-type">
+                    <button type="button" class="segmented-btn active" data-val="percent">نسبة (%)</button>
+                    <button type="button" class="segmented-btn" data-val="fixed">مبلغ (ج.م)</button>
+                  </div>
                 </div>
                 <div class="form-group" style="margin-bottom:0;">
                   <label class="form-label" style="font-size:11px;">قيمة الخصم</label>
@@ -1248,10 +1257,11 @@
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
                 <div class="form-group" style="margin-bottom:0;">
                   <label class="form-label" style="font-size:11px;">نوع الخصم</label>
-                  <select id="new-promo-type" class="form-input">
-                    <option value="percent">نسبة مئوية (%)</option>
-                    <option value="fixed">مبلغ ثابت (ج.م)</option>
-                  </select>
+                  <input type="hidden" id="new-promo-type" value="percent">
+                  <div class="segmented-control" id="seg-new-promo-type">
+                    <button type="button" class="segmented-btn active" data-val="percent">نسبة (%)</button>
+                    <button type="button" class="segmented-btn" data-val="fixed">مبلغ (ج.م)</button>
+                  </div>
                 </div>
                 <div class="form-group" style="margin-bottom:0;">
                   <label class="form-label" style="font-size:11px;">قيمة الخصم</label>
@@ -1348,54 +1358,61 @@
 
   <!-- Product Modal (Add / Edit Full Details & Sizes/Add-ons) -->
   <div class="modal-backdrop" id="product-modal-backdrop"></div>
-  <div class="modal-box" id="product-modal" style="max-width:580px; max-height:90vh; overflow-y:auto;">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-      <h3 id="product-modal-title" style="font-size:1.05rem; font-weight:900; color:var(--text-main);">إضافة صنف جديد</h3>
-      <button class="btn-close" id="btn-close-product-modal"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+  <div class="modal-box" id="product-modal" style="max-width:580px; max-height:92vh; overflow-y:auto;">
+    <div class="modal-sticky-header">
+      <h3 id="product-modal-title" style="font-size:1.05rem; font-weight:900; color:var(--text-main); margin:0;">إضافة صنف جديد</h3>
+      <button class="btn-close" id="btn-close-product-modal" type="button"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     </div>
 
     <form id="product-form">
       <input type="hidden" id="prod-id">
 
-      <div class="form-group">
-        <label class="form-label">اسم الصنف *</label>
+      <div class="form-group" style="margin-bottom:10px;">
+        <label class="form-label" style="font-size:12px; margin-bottom:4px;">اسم الصنف *</label>
         <input type="text" id="prod-name" class="form-input" placeholder="مثال: جراند بيرجر لحم دبل" required>
       </div>
 
-      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px;">
-        <div class="form-group">
-          <label class="form-label">القسم *</label>
-          <select id="prod-category" class="form-select" required></select>
+      <div class="form-row-2col" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label" style="font-size:12px; margin-bottom:4px;">القسم *</label>
+          <input type="hidden" id="prod-category" required>
+          <button type="button" id="btn-prod-category-picker" class="custom-select-trigger" onclick="openCategoryPickerSheet()">
+            <span class="trigger-label">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" style="color:var(--primary);"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+              <span id="prod-category-display">اختر القسم</span>
+            </span>
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
         </div>
-        <div class="form-group">
-          <label class="form-label">سعر البيع الأساسي (ج.م) *</label>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label" style="font-size:12px; margin-bottom:4px;">سعر البيع الأساسي (ج.م) *</label>
           <input type="number" id="prod-price" class="form-input font-num" placeholder="120" step="0.5" required>
         </div>
       </div>
 
-      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:12px;">
-        <div class="form-group">
-          <label class="form-label">السعر قبل الخصم</label>
+      <div class="form-row-3col" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-bottom:10px;">
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label" style="font-size:11px; margin-bottom:4px;">قبل الخصم</label>
           <input type="number" id="prod-original-price" class="form-input font-num" placeholder="مثال: 140" step="0.5">
         </div>
-        <div class="form-group">
-          <label class="form-label">وقت التحضير</label>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label" style="font-size:11px; margin-bottom:4px;">وقت التحضير</label>
           <input type="text" id="prod-preptime" class="form-input font-num" placeholder="مثال: 12 دقيقة">
         </div>
-        <div class="form-group">
-          <label class="form-label">شارة مميزة (Badge)</label>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label" style="font-size:11px; margin-bottom:4px;">شارة (Badge)</label>
           <input type="text" id="prod-badge" class="form-input" placeholder="مثال: الأكثر طلباً">
         </div>
       </div>
 
-      <div class="form-group" style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">
+      <div class="form-group" style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
         <input type="checkbox" id="prod-featured" style="width:18px; height:18px; accent-color:var(--primary); cursor:pointer;">
         <label for="prod-featured" style="font-size:0.88rem; font-weight:700; color:var(--text-main); cursor:pointer;">
           إبراز هذا الصنف كاختيار رئيسي للمطعم (Hero Featured)
         </label>
       </div>
 
-      <div class="form-group" style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">
+      <div class="form-group" style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
         <input type="checkbox" id="prod-visible" checked style="width:18px; height:18px; accent-color:var(--primary); cursor:pointer;">
         <label for="prod-visible" style="font-size:0.88rem; font-weight:700; color:var(--text-main); cursor:pointer;">
           ظهور الصنف في المنيو (متاح للزبائن)
@@ -1884,50 +1901,50 @@
 
   <!-- Raw Material Modal (Add / Edit) -->
   <div class="modal-backdrop" id="raw-material-modal-backdrop" onclick="closeRawMaterialModal()"></div>
-  <div class="modal-box" id="raw-material-modal" style="max-width:440px; max-height:90vh; overflow-y:auto;">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-      <h3 id="raw-material-modal-title" style="font-size:1.05rem; font-weight:900; color:var(--text-main);">إضافة مادة خام جديدة</h3>
+  <div class="modal-box" id="raw-material-modal" style="max-width:440px; max-height:92vh; overflow-y:auto;">
+    <div class="modal-sticky-header">
+      <h3 id="raw-material-modal-title" style="font-size:1.05rem; font-weight:900; color:var(--text-main); margin:0;">إضافة مادة خام جديدة</h3>
       <button type="button" class="btn-close" onclick="closeRawMaterialModal()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     </div>
 
     <form id="raw-material-form">
       <input type="hidden" id="mat-id">
 
-      <div class="form-group">
-        <label class="form-label">اسم المادة الخام *</label>
+      <div class="form-group" style="margin-bottom:12px;">
+        <label class="form-label" style="font-size:12px; margin-bottom:4px;">اسم المادة الخام *</label>
         <input type="text" id="mat-name" class="form-input" placeholder="مثال: جبنة موتزاريلا طبيعي" required>
       </div>
 
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-        <div class="form-group">
-          <label class="form-label">وحدة القياس *</label>
-          <select id="mat-unit" class="form-select" required>
-            <option value="g">جرام (g)</option>
-            <option value="kg">كيلوجرام (kg)</option>
-            <option value="ml">ملليلتر (ml)</option>
-            <option value="L">لتر (L)</option>
-            <option value="pcs">قطعة / حبة (pcs)</option>
-          </select>
+      <div class="form-group" style="margin-bottom:12px;">
+        <label class="form-label" style="font-size:12px; margin-bottom:4px;">وحدة القياس *</label>
+        <input type="hidden" id="mat-unit" value="g" required>
+        <div class="unit-pills-selector" id="mat-unit-chips">
+          <button type="button" class="unit-pill-btn active" data-unit="g" onclick="selectRawMaterialUnit('g')">جرام (g)</button>
+          <button type="button" class="unit-pill-btn" data-unit="kg" onclick="selectRawMaterialUnit('kg')">كيلوجرام (kg)</button>
+          <button type="button" class="unit-pill-btn" data-unit="ml" onclick="selectRawMaterialUnit('ml')">ملليلتر (ml)</button>
+          <button type="button" class="unit-pill-btn" data-unit="L" onclick="selectRawMaterialUnit('L')">لتر (L)</button>
+          <button type="button" class="unit-pill-btn" data-unit="pcs" onclick="selectRawMaterialUnit('pcs')">قطعة / حبة</button>
         </div>
-        <div class="form-group">
-          <label class="form-label">الرصيد الافتتاحي *</label>
+      </div>
+
+      <div class="form-row-2col" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label" style="font-size:11.5px; margin-bottom:4px;">الرصيد الافتتاحي *</label>
           <input type="text" inputmode="decimal" id="mat-stock" class="form-input font-num" placeholder="مثال: 10000" required>
         </div>
-      </div>
-
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-        <div class="form-group">
-          <label class="form-label">حد تنبيه النقص *</label>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label" style="font-size:11.5px; margin-bottom:4px;">حد تنبيه النقص *</label>
           <input type="text" inputmode="decimal" id="mat-min-alert" class="form-input font-num" placeholder="مثال: 1000" required>
         </div>
-        <div class="form-group">
-          <label class="form-label">تكلفة الوحدة (ج.م)</label>
-          <input type="text" inputmode="decimal" id="mat-cost" class="form-input font-num" placeholder="مثال: 0.45">
-        </div>
       </div>
 
-      <div style="display:flex; gap:10px; margin-top:20px;">
-        <button type="submit" class="btn btn-primary" style="flex:1; padding:12px; font-weight:800;">حفظ المادة الخام</button>
+      <div class="form-group" style="margin-bottom:16px;">
+        <label class="form-label" style="font-size:11.5px; margin-bottom:4px;">تكلفة الوحدة (ج.م)</label>
+        <input type="text" inputmode="decimal" id="mat-cost" class="form-input font-num" placeholder="مثال: 0.45">
+      </div>
+
+      <div style="display:flex; gap:10px; margin-top:16px;">
+        <button type="submit" class="btn btn-primary" style="flex:1; padding:11px; font-weight:800;">حفظ المادة الخام</button>
         <button type="button" class="btn btn-ghost" onclick="closeRawMaterialModal()">إلغاء</button>
       </div>
     </form>
@@ -1970,24 +1987,50 @@
     </form>
   </div>
 
+  <!-- ═══════════════════════════════════════════════════════════
+       PREMIUM CUSTOM OPTION PICKER (BOTTOM SHEET / MODAL)
+       Replaces all native OS picker dialogs with luxury branded UI
+       ═══════════════════════════════════════════════════════════ -->
+  <div id="custom-picker-sheet" class="custom-picker-sheet" onclick="if(event.target===this || event.target.classList.contains('custom-picker-backdrop')) closeOptionPickerSheet()">
+    <div class="custom-picker-backdrop"></div>
+    <div class="custom-picker-panel">
+      <div class="custom-picker-header">
+        <div class="custom-picker-title">
+          <span id="custom-picker-icon-wrap"></span>
+          <span id="custom-picker-title-text">اختر</span>
+        </div>
+        <button type="button" class="btn-close" onclick="closeOptionPickerSheet()">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div class="custom-picker-search" id="custom-picker-search-wrap">
+        <input type="text" id="custom-picker-search-input" placeholder="بحث سريع..." autocomplete="off">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      </div>
+      <div class="custom-picker-list" id="custom-picker-items-list">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+  </div>
+
   <!-- Firebase App, Auth & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=94.8"></script>
-  <script src="js/core/sound-effects.js?v=94.8"></script>
-  <script src="js/store.js?v=94.8"></script>
-  <script src="js/admin/admin-core.js?v=94.8"></script>
-  <script src="js/admin/admin-auth.js?v=94.8"></script>
-  <script src="js/admin/kitchen-orders.js?v=94.8"></script>
-  <script src="js/admin/inventory-manager.js?v=94.8"></script>
-  <script src="js/admin/catalog-manager.js?v=94.8"></script>
-  <script src="js/admin/category-manager.js?v=94.8"></script>
-  <script src="js/admin/stories-manager.js?v=94.8"></script>
-  <script src="js/admin/backup-restore.js?v=94.8"></script>
-  <script src="js/admin/settings-manager.js?v=94.8"></script>
-  <script src="js/admin/pos-terminal.js?v=94.8"></script>
-  <script src="js/admin.js?v=94.8"></script>
-  <script src="js/pwa.js?v=94.8"></script>
+  <script src="js/core/demo-seed-data.js?v=95.0"></script>
+  <script src="js/core/sound-effects.js?v=95.0"></script>
+  <script src="js/store.js?v=95.0"></script>
+  <script src="js/admin/admin-core.js?v=95.0"></script>
+  <script src="js/admin/admin-auth.js?v=95.0"></script>
+  <script src="js/admin/kitchen-orders.js?v=95.0"></script>
+  <script src="js/admin/inventory-manager.js?v=95.0"></script>
+  <script src="js/admin/catalog-manager.js?v=95.0"></script>
+  <script src="js/admin/category-manager.js?v=95.0"></script>
+  <script src="js/admin/stories-manager.js?v=95.0"></script>
+  <script src="js/admin/backup-restore.js?v=95.0"></script>
+  <script src="js/admin/settings-manager.js?v=95.0"></script>
+  <script src="js/admin/pos-terminal.js?v=95.0"></script>
+  <script src="js/admin.js?v=95.0"></script>
+  <script src="js/pwa.js?v=95.0"></script>
 </body>
 </html>

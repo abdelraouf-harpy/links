@@ -3241,3 +3241,357 @@ html.admin-unlocked #login-modal-backdrop {
   border-color: var(--border-strong);
 }
 
+/* ═══════════════════════════════════════════════════════════
+   PREMIUM MOBILE-FIRST UI ENGINE (SEGMENTED CONTROLS & PICKERS)
+   Eliminates all native OS picker dialogs & optimizes screen space
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── 1. Luxury Segmented Controls (iOS / Material 3 Style) ─ */
+.segmented-control {
+  display: flex;
+  background: var(--surface-sunken, rgba(0, 0, 0, 0.05));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm, 10px);
+  padding: 3px;
+  gap: 4px;
+  width: 100%;
+  box-sizing: border-box;
+  user-select: none;
+}
+.segmented-btn {
+  flex: 1;
+  padding: 8px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  border: none;
+  border-radius: calc(var(--radius-sm, 10px) - 2px);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+  line-height: 1.3;
+}
+.segmented-btn:hover:not(.active) {
+  color: var(--text-main);
+  background: rgba(0, 0, 0, 0.03);
+}
+.segmented-btn.active {
+  background: var(--primary);
+  color: #ffffff !important;
+  font-weight: 800;
+  box-shadow: 0 2px 8px rgba(255, 107, 0, 0.32);
+}
+.segmented-btn svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2.2;
+}
+
+/* ── 2. Unit Pills Selector (Raw Materials Modal) ────────── */
+.unit-pills-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+.unit-pill-btn {
+  flex: 1 1 calc(20% - 6px);
+  min-width: 58px;
+  padding: 8px 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  font-family: inherit;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.unit-pill-btn:hover:not(.active) {
+  border-color: var(--border-strong);
+  color: var(--text-main);
+}
+.unit-pill-btn.active {
+  background: var(--primary);
+  color: #ffffff !important;
+  border-color: var(--primary);
+  font-weight: 800;
+  box-shadow: 0 2px 8px rgba(255, 107, 0, 0.3);
+}
+
+/* ── 3. Custom Trigger Select Button (Category & Recipe) ──── */
+.custom-select-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  font-size: 12.5px;
+  font-weight: 700;
+  font-family: inherit;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs, 8px);
+  color: var(--text-main);
+  cursor: pointer;
+  text-align: right;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  box-sizing: border-box;
+}
+.custom-select-trigger:focus,
+.custom-select-trigger:hover {
+  border-color: var(--primary);
+  outline: none;
+}
+.custom-select-trigger .trigger-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.custom-select-trigger svg.chevron {
+  width: 15px;
+  height: 15px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+/* ── 4. Luxury Custom Picker Bottom Sheet / Dialog ────────── */
+.custom-picker-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 10050;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.22s ease, visibility 0.22s ease;
+}
+.custom-picker-sheet.open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+.custom-picker-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.custom-picker-panel {
+  position: relative;
+  z-index: 1;
+  background: var(--surface);
+  width: 100%;
+  max-width: 480px;
+  max-height: 82vh;
+  border-radius: 20px 20px 0 0;
+  border: 1px solid var(--border-strong);
+  border-bottom: none;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+.custom-picker-sheet.open .custom-picker-panel {
+  transform: translateY(0);
+}
+@media (min-width: 641px) {
+  .custom-picker-sheet {
+    align-items: center;
+  }
+  .custom-picker-panel {
+    border-radius: var(--radius-md, 16px);
+    border-bottom: 1px solid var(--border-strong);
+    max-height: 75vh;
+    transform: scale(0.95);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  }
+  .custom-picker-sheet.open .custom-picker-panel {
+    transform: scale(1);
+  }
+}
+.custom-picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-raised);
+}
+.custom-picker-title {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.custom-picker-search {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-sunken, rgba(0,0,0,0.02));
+  position: relative;
+}
+.custom-picker-search input {
+  width: 100%;
+  padding: 9px 34px 9px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs, 8px);
+  background: var(--surface);
+  color: var(--text-main);
+  box-sizing: border-box;
+  font-family: inherit;
+}
+.custom-picker-search input:focus {
+  border-color: var(--primary);
+  outline: none;
+}
+.custom-picker-search svg {
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+.custom-picker-list {
+  padding: 8px 12px;
+  overflow-y: auto;
+  max-height: 52vh;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  -webkit-overflow-scrolling: touch;
+}
+.custom-picker-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 14px;
+  border-radius: var(--radius-xs, 8px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  text-align: right;
+  width: 100%;
+  box-sizing: border-box;
+}
+.custom-picker-item:hover,
+.custom-picker-item:active {
+  background: var(--surface-hover, rgba(255, 107, 0, 0.05));
+  border-color: var(--primary);
+}
+.custom-picker-item.selected {
+  background: var(--primary-subtle, rgba(255, 107, 0, 0.1));
+  border-color: var(--primary);
+  color: var(--primary);
+  font-weight: 800;
+}
+.custom-picker-item .item-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.custom-picker-item .item-badge {
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--surface-sunken, rgba(0,0,0,0.06));
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.custom-picker-item.selected .item-badge {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* ── 5. Mobile Screen Space Optimization ─────────────────── */
+@media (max-width: 640px) {
+  /* Modals on mobile: maximize usable viewport */
+  .modal-box {
+    max-height: calc(100vh - 20px) !important;
+    padding: 16px 14px !important;
+    width: calc(100% - 16px) !important;
+  }
+  .modal-sticky-header {
+    position: sticky;
+    top: -16px;
+    margin: -16px -14px 14px;
+    padding: 14px 14px 10px;
+    background: var(--surface);
+    z-index: 20;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .form-row-2col {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    margin-bottom: 10px !important;
+  }
+  .form-row-3col {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 6px !important;
+    margin-bottom: 10px !important;
+  }
+  .admin-settings-card {
+    padding: 14px 12px !important;
+    margin-bottom: 14px !important;
+    border-radius: 12px !important;
+  }
+  .inventory-stats-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    margin-bottom: 12px !important;
+  }
+  .inventory-stats-grid > div {
+    padding: 10px 8px !important;
+  }
+  .inventory-stats-grid .font-num {
+    font-size: 19px !important;
+  }
+  .recipe-base-row,
+  .recipe-size-item-row,
+  .recipe-addon-item-row {
+    gap: 5px !important;
+    margin-bottom: 6px !important;
+  }
+  .recipe-amount-input {
+    width: 75px !important;
+    padding: 6px 6px !important;
+  }
+}
+
+

@@ -60,6 +60,8 @@ function setupSettingsForm() {
 
       if (adminElements.newPromoCode) adminElements.newPromoCode.value = '';
       if (adminElements.newPromoVal) adminElements.newPromoVal.value = '';
+      if (adminElements.newPromoType) adminElements.newPromoType.value = 'percent';
+      if (window.setSegmentedValue) window.setSegmentedValue('seg-new-promo-type', 'percent');
       renderPromoCodesList(settings.promoCodes);
       showToastNotification("تمت إضافة كود الخصم بنجاح!", "success");
     });
@@ -132,7 +134,10 @@ function loadSettingsIntoForm() {
     if (adminElements.setStoreName) adminElements.setStoreName.value = s.storeName || '';
   }
   if (adminElements.setStoreTagline) adminElements.setStoreTagline.value = s.storeTagline || '';
-  if (adminElements.setPrinterPaperSize) adminElements.setPrinterPaperSize.value = s.printerPaperSize || '80mm';
+  if (adminElements.setPrinterPaperSize) {
+    adminElements.setPrinterPaperSize.value = s.printerPaperSize || '80mm';
+    if (window.setSegmentedValue) window.setSegmentedValue('seg-printer-paper-size', s.printerPaperSize || '80mm');
+  }
   document.documentElement.setAttribute('data-paper-size', s.printerPaperSize || '80mm');
   document.body.setAttribute('data-paper-size', s.printerPaperSize || '80mm');
   if (adminElements.setCurrency) adminElements.setCurrency.value = s.currency || 'ج.م';
@@ -159,12 +164,18 @@ function loadSettingsIntoForm() {
   }
 
   if (adminElements.setEnableWalletDiscount) adminElements.setEnableWalletDiscount.checked = s.enableWalletDiscount !== false;
-  if (adminElements.setWalletDiscountType) adminElements.setWalletDiscountType.value = s.walletDiscountType || 'percent';
+  if (adminElements.setWalletDiscountType) {
+    adminElements.setWalletDiscountType.value = s.walletDiscountType || 'percent';
+    if (window.setSegmentedValue) window.setSegmentedValue('seg-wallet-discount-type', s.walletDiscountType || 'percent');
+  }
   if (adminElements.setWalletDiscountVal) adminElements.setWalletDiscountVal.value = s.walletDiscountValue !== undefined ? s.walletDiscountValue : 10;
 
   if (adminElements.setEnableSpendTier) adminElements.setEnableSpendTier.checked = s.enableSpendTierDiscount !== false;
   if (adminElements.setSpendMinAmount) adminElements.setSpendMinAmount.value = s.spendTierMinAmount || 300;
-  if (adminElements.setSpendDiscountType) adminElements.setSpendDiscountType.value = s.spendTierDiscountType || 'percent';
+  if (adminElements.setSpendDiscountType) {
+    adminElements.setSpendDiscountType.value = s.spendTierDiscountType || 'percent';
+    if (window.setSegmentedValue) window.setSegmentedValue('seg-spend-discount-type', s.spendTierDiscountType || 'percent');
+  }
   if (adminElements.setSpendDiscountVal) adminElements.setSpendDiscountVal.value = s.spendTierDiscountValue || 15;
 
   if (adminElements.setDeliveryTime) adminElements.setDeliveryTime.value = s.deliveryTime || '';

@@ -260,6 +260,7 @@ function openRawMaterialModal(materialId) {
     if (idInput) idInput.value = mat.id;
     if (nameInput) nameInput.value = mat.name || '';
     if (unitSelect) unitSelect.value = mat.unit || 'g';
+    if (window.selectRawMaterialUnit) window.selectRawMaterialUnit(mat.unit || 'g');
     if (stockInput) stockInput.value = mat.stock ?? 0;
     if (minAlertInput) minAlertInput.value = mat.minAlert ?? 0;
     if (costInput) costInput.value = mat.costPerUnit ?? 0;
@@ -267,6 +268,7 @@ function openRawMaterialModal(materialId) {
     if (title) title.textContent = "إضافة مادة خام جديدة";
     if (idInput) idInput.value = '';
     if (unitSelect) unitSelect.value = 'g';
+    if (window.selectRawMaterialUnit) window.selectRawMaterialUnit('g');
     if (stockInput) stockInput.value = '';
     if (minAlertInput) minAlertInput.value = '1000';
     if (costInput) costInput.value = '';
