@@ -62,6 +62,7 @@ function handleCatalogSearch(val) {
 
 function setCatalogCategoryFilter(cat) {
   currentCatalogCategoryFilter = cat;
+  window.currentCatalogCategoryFilter = cat;
   renderCatalog();
 }
 
@@ -70,6 +71,45 @@ window.quickAddCategoryPrompt = function() {
     window.openCategoryModal(null);
   }
 };
+
+function renderCatalogCategoryActionsBar() {
+  const bar = document.getElementById('catalog-category-actions-bar');
+  if (!bar) return;
+
+  if (!currentCatalogCategoryFilter || currentCatalogCategoryFilter === 'all') {
+    bar.style.display = 'none';
+    bar.innerHTML = '';
+    return;
+  }
+
+  const c = currentCatalogCategoryFilter;
+  const cats = Store.getCategories();
+  const prods = Store.getProducts();
+  const count = prods.filter(p => p && p.category === c).length;
+  const countLabel = count === 0 ? '0 صنف' : (count === 1 ? 'صنف واحد' : (count === 2 ? 'صنفان' : (count >= 3 && count <= 10 ? `${count} أصناف` : `${count} صنف`)));
+
+  bar.style.display = 'block';
+  bar.innerHTML = `
+    <div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-sm); padding:9px 13px; display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; animation:fadeIn 0.15s ease-out;">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="width:8px; height:8px; border-radius:50%; background:var(--primary); display:inline-block;"></span>
+        <span style="font-size:12px; color:var(--text-muted); font-weight:700;">القسم الحالي:</span>
+        <strong style="font-size:13.5px; color:var(--text-main); font-weight:900;">${Store.escapeHtml(c)}</strong>
+        <span style="font-size:11px; background:var(--primary-subtle); color:var(--primary); padding:2px 8px; border-radius:10px; font-weight:800;" class="font-num">${countLabel}</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+        <button type="button" class="btn btn-ghost btn-sm" onclick="openCategoryEditModalByName('${Store.escapeHtml(c)}')" style="font-size:11.5px; font-weight:800; padding:5px 10px; border:1px solid var(--border); border-radius:var(--radius-sm); display:inline-flex; align-items:center; gap:5px; background:var(--surface);" title="تعديل اسم القسم">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          <span>تعديل اسم القسم</span>
+        </button>
+        <button type="button" class="btn btn-sm" onclick="deleteCategoryFast('${Store.escapeHtml(c)}')" style="background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; font-size:11.5px; font-weight:800; padding:5px 10px; border-radius:var(--radius-sm); display:inline-flex; align-items:center; gap:5px; cursor:pointer;" title="حذف هذا القسم">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+          <span>حذف القسم</span>
+        </button>
+      </div>
+    </div>
+  `;
+}
 
 function renderCatalogCategoryRail() {
   const rail = document.getElementById('catalog-category-rail');
@@ -97,6 +137,7 @@ function renderCatalogCategoryRail() {
   });
 
   rail.innerHTML = html;
+  renderCatalogCategoryActionsBar();
 }
 
 function renderCatalog() {
@@ -877,3 +918,4 @@ window.closeProductModal = closeProductModal;
 window.addSizeRow = addSizeRow;
 window.addAddonRow = addAddonRow;
 window.saveProductForm = saveProductForm;
+window.renderCatalogCategoryActionsBar = renderCatalogCategoryActionsBar;

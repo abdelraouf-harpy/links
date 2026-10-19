@@ -95,6 +95,7 @@ window.openCategoryModal = function(index = null) {
   const title = document.getElementById('category-modal-title');
   const subtitle = document.getElementById('category-modal-subtitle');
   const submitBtn = document.getElementById('btn-save-category-modal');
+  const deleteBtn = document.getElementById('btn-delete-category-modal');
   const indexInput = document.getElementById('category-modal-index');
   const nameInput = document.getElementById('category-modal-name-input');
   const errBox = document.getElementById('category-modal-error');
@@ -120,6 +121,14 @@ window.openCategoryModal = function(index = null) {
       if (nameInput) nameInput.value = currentCat;
       if (legacyIdx) legacyIdx.value = idx;
       if (legacyName) legacyName.value = currentCat;
+
+      if (deleteBtn) {
+        deleteBtn.style.display = 'inline-flex';
+        deleteBtn.onclick = () => {
+          closeCategoryModal();
+          deleteCategoryFast(currentCat);
+        };
+      }
     }
   } else {
     if (title) title.textContent = "إضافة قسم جديد";
@@ -129,6 +138,11 @@ window.openCategoryModal = function(index = null) {
     if (nameInput) nameInput.value = '';
     if (legacyIdx) legacyIdx.value = '';
     if (legacyName) legacyName.value = '';
+
+    if (deleteBtn) {
+      deleteBtn.style.display = 'none';
+      deleteBtn.onclick = null;
+    }
   }
 
   if (modal) modal.classList.add('open', 'show');
@@ -284,6 +298,13 @@ window.handleCategoryModalSubmit = async function(event) {
 window.openCategoryEditModal = function(index) {
   window.openCategoryModal(index);
 };
+window.openCategoryEditModalByName = function(catName) {
+  const cats = Store.getCategories();
+  const idx = cats.indexOf(catName);
+  if (idx !== -1) {
+    window.openCategoryModal(idx);
+  }
+};
 window.closeCategoryEditModal = function() {
   window.closeCategoryModal();
 };
@@ -330,9 +351,21 @@ window.deleteCategoryFast = async function(cat) {
     }
     await Store.saveCategories(finalCats);
 
+    // Reset filter if deleting active category
+    if (typeof window.currentCatalogCategoryFilter !== 'undefined' && window.currentCatalogCategoryFilter === cat) {
+      if (typeof window.setCatalogCategoryFilter === 'function') {
+        window.setCatalogCategoryFilter('all');
+      } else {
+        window.currentCatalogCategoryFilter = 'all';
+      }
+    }
+
     renderCategoriesList();
     if (typeof renderCatalog === 'function') {
       renderCatalog();
+    }
+    if (typeof renderManageCategoriesModalList === 'function') {
+      renderManageCategoriesModalList();
     }
     if (typeof renderPOSCategories === 'function') {
       renderPOSCategories();
@@ -347,6 +380,72 @@ window.deleteCategoryFast = async function(cat) {
       showToastNotification("تم حذف القسم بنجاح", "success");
     }
   }
+};
+
+// ═══ LUXURY MANAGE ALL CATEGORIES MODAL CONTROLLER ═══════════
+window.openManageCategoriesModal = function() {
+  const modal = document.getElementById('manage-categories-modal');
+  const backdrop = document.getElementById('manage-categories-modal-backdrop');
+  renderManageCategoriesModalList();
+  if (modal) modal.classList.add('open', 'show');
+  if (backdrop) backdrop.classList.add('open', 'show');
+  pushAdminNavState('admin_manage_categories');
+};
+
+window.closeManageCategoriesModal = function(triggerHistoryBack = true) {
+  const modal = document.getElementById('manage-categories-modal');
+  const backdrop = document.getElementById('manage-categories-modal-backdrop');
+  if (modal) modal.classList.remove('open', 'show');
+  if (backdrop) backdrop.classList.remove('open', 'show');
+  if (triggerHistoryBack && window.history.state && window.history.state.adminNav === 'admin_manage_categories') {
+    try { history.back(); } catch(e) {}
+  }
+};
+
+window.renderManageCategoriesModalList = function() {
+  const container = document.getElementById('manage-categories-modal-list');
+  if (!container) return;
+
+  const cats = Store.getCategories();
+  const prods = Store.getProducts();
+
+  if (cats.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center; padding:32px 16px; color:var(--text-muted); font-size:12.5px;">
+        لا توجد أي أقسام مضافة حالياً.
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = cats.map((cat, idx) => {
+    const count = prods.filter(p => p && p.category === cat).length;
+    const countLabel = count === 0 ? '0 صنف' : (count === 1 ? 'صنف واحد' : (count === 2 ? 'صنفان' : (count >= 3 && count <= 10 ? `${count} أصناف` : `${count} صنف`)));
+
+    return `
+      <div style="display:flex; justify-content:space-between; align-items:center; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 14px; gap:8px;">
+        <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+          <span style="width:32px; height:32px; border-radius:8px; background:var(--primary-subtle); color:var(--primary); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          </span>
+          <div style="min-width:0;">
+            <div style="font-weight:900; font-size:13.5px; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${Store.escapeHtml(cat)}</div>
+            <div style="font-size:11px; color:var(--text-muted); font-weight:700;">${countLabel}</div>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+          <button type="button" class="btn btn-ghost btn-sm" onclick="closeManageCategoriesModal(); openCategoryModal(${idx});" style="font-size:11.5px; font-weight:800; padding:6px 10px; border:1px solid var(--border); border-radius:6px; display:inline-flex; align-items:center; gap:4px; background:var(--surface);" title="تعديل اسم القسم">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            <span>تعديل</span>
+          </button>
+          <button type="button" class="btn btn-sm" onclick="deleteCategoryFast('${Store.escapeHtml(cat)}')" style="background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; font-size:11.5px; font-weight:800; padding:6px 10px; border-radius:6px; display:inline-flex; align-items:center; gap:4px; cursor:pointer;" title="حذف القسم">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+            <span>حذف</span>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
 };
 
 window.setupCategoryManagement = setupCategoryManagement;

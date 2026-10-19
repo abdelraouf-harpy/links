@@ -2,7 +2,7 @@
 // HarpyOrder — Order Tracking, Direct Submission & Live Stepper
 // ═══════════════════════════════════════════════════════════
 
-var uploadedReceiptUrl = null;
+var uploadedReceiptUrl = window.uploadedReceiptUrl || null;
 var roundCurrency = (val) => {
   const n = Number(val || 0);
   return Math.sign(n) * (Math.round(Math.abs(n) * 100 + 1e-6) / 100);
@@ -115,19 +115,29 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
 
   // ── Mandatory Receipt Validation for Digital Wallet Payments ──
   if (isWallet) {
-    if (!uploadedReceiptUrl && elements.receiptInput?.files?.length > 0) {
+    if (!window.uploadedReceiptUrl && elements.receiptInput?.files?.length > 0) {
       const file = elements.receiptInput.files[0];
       if (file) {
-        showToastNotification("جاري تجهيز صورة الإيصال، يرجى الانتظار", "info");
+        showToastNotification("جاري رفع وتأمين صورة الإيصال...", "info");
         try {
-          uploadedReceiptUrl = await Store.compressImage(file, 900, 900, 0.78);
+          const uploadedUrl = await Store.uploadImage(file);
+          if (uploadedUrl) {
+            window.uploadedReceiptUrl = uploadedUrl;
+            uploadedReceiptUrl = uploadedUrl;
+          }
         } catch (e) {
           console.warn("[Checkout] Receipt upload fallback:", e);
+          try {
+            const compressed = await Store.compressImage(file, 900, 900, 0.78);
+            window.uploadedReceiptUrl = compressed;
+            uploadedReceiptUrl = compressed;
+          } catch(e2) {}
         }
       }
     }
 
-    if (!uploadedReceiptUrl) {
+    const currentReceipt = window.uploadedReceiptUrl || uploadedReceiptUrl;
+    if (!currentReceipt) {
       showToastNotification("يرجى إرفاق صورة إيصال التحويل لتأكيد الطلب عبر فودافون كاش / إنستاباي", "warning");
       const dropzone = document.querySelector('.receipt-luxury-dropzone') || elements.dropzonePrompt;
       if (dropzone) {
@@ -191,7 +201,7 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
     deliveryZone: deliveryZone,
     finalTotal,
     paymentMethod: selectedPaymentMethod,
-    receiptUrl: uploadedReceiptUrl || null,
+    receiptUrl: window.uploadedReceiptUrl || uploadedReceiptUrl || null,
     status: 'pending',
     createdAt: new Date().toISOString(),
     timestamp: Date.now()
@@ -281,11 +291,12 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
     }
     message += `*المبلغ الإجمالي المطلوب:* ${finalTotal.toFixed(2)} ${currency}\n`;
     message += `*طريقة الدفع:* ${paymentText}\n`;
-    if (isWallet && uploadedReceiptUrl) {
-      if (uploadedReceiptUrl.startsWith('http')) {
-        message += `*رابط إيصال التحويل:* ${uploadedReceiptUrl}\n`;
+    const activeReceipt = window.uploadedReceiptUrl || uploadedReceiptUrl;
+    if (isWallet && activeReceipt) {
+      if (activeReceipt.startsWith('http')) {
+        message += `*رابط إيصال التحويل:* ${activeReceipt}\n`;
       } else {
-        message += `*إيصال التحويل:* تم إرفاق صورة الإيصال ومحفوظة في لوحة إدارة المطعم (طلب رقم ${orderId})\n`;
+        message += `*إيصال التحويل:* تم إرفاق صورة الإيصال ومحفوظة بلوحة إدارة المطعم (طلب رقم ${orderId})\n`;
       }
     }
 

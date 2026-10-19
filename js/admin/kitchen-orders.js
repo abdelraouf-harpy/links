@@ -449,12 +449,17 @@ window.openReceiptModal = function(urlOrOrderId) {
   let url = urlOrOrderId;
   if (url && !url.startsWith('http') && !url.startsWith('data:')) {
     const orders = Store.getOrders();
-    const order = orders.find(o => (o.orderId === urlOrOrderId || o.id === urlOrOrderId || o._fbKey === urlOrOrderId));
+    const cleanTarget = String(urlOrOrderId || '').replace(/[^a-zA-Z0-9_-]/g, '');
+    const order = orders.find(o => {
+      if (!o) return false;
+      const oClean = String(o.orderId || o.id || o._fbKey || '').replace(/[^a-zA-Z0-9_-]/g, '');
+      return o.orderId === urlOrOrderId || o.id === urlOrOrderId || o._fbKey === urlOrOrderId || (cleanTarget && oClean === cleanTarget);
+    });
     if (order && order.receiptUrl) {
       url = order.receiptUrl;
     }
   }
-  if (!url) return;
+  if (!url || (!url.startsWith('http') && !url.startsWith('data:'))) return;
   currentReceiptImageUrl = url;
   isReceiptZoomed = false;
 
@@ -1670,7 +1675,7 @@ window.renderInvoicesArchive = function(orders = null) {
     const custPhone = esc(o.customer?.phone || 'بدون هاتف');
     const custAddress = esc(o.customer?.address || 'استلام من المطعم');
     const deliveryZone = esc(o.deliveryZone || 'السعر الموحد');
-    const safeReceiptUrl = (o.receiptUrl && typeof o.receiptUrl === 'string' && o.receiptUrl.startsWith('http')) ? esc(o.receiptUrl) : '';
+    const safeReceiptUrl = (o.receiptUrl && typeof o.receiptUrl === 'string' && (o.receiptUrl.startsWith('http') || o.receiptUrl.startsWith('data:image/'))) ? esc(o.receiptUrl) : '';
     const waUrl = phoneRaw ? `https://wa.me/${phoneRaw.startsWith('0') ? '2' + phoneRaw : phoneRaw}?text=${encodeURIComponent(`مرحباً أستاذ ${o.customer?.name || ''}، بخصوص فاتورتك رقم ${safeOrderId} من المطعم`)}` : '#';
     const telUrl = phoneRaw ? `tel:${phoneRaw}` : '#';
     const isWalletPayment = o.paymentMethod === 'wallet';

@@ -12,6 +12,8 @@ var currentCheckoutStep = 1;
 var selectedPaymentMethod = 'cod';
 var currentFulfillmentType = 'delivery';
 window.currentFulfillmentType = 'delivery';
+var uploadedReceiptUrl = window.uploadedReceiptUrl || null;
+window.uploadedReceiptUrl = window.uploadedReceiptUrl || null;
 
 window.setFulfillmentType = function(type) {
   currentFulfillmentType = type;
@@ -758,6 +760,7 @@ function setupEventListeners() {
       const file = e.target.files[0];
       if (!file) return;
 
+      // 1. Instant local preview
       const reader = new FileReader();
       reader.onload = (ev) => {
         if (elements.receiptPreview) elements.receiptPreview.src = ev.target.result;
@@ -767,46 +770,68 @@ function setupEventListeners() {
       reader.readAsDataURL(file);
 
       if (elements.receiptStatus) {
-        elements.receiptStatus.textContent = "جاري معالجة الإيصال";
+        elements.receiptStatus.textContent = "جاري رفع الإيصال وتأمينه...";
         elements.receiptStatus.className = "upload-status-chip loading";
         elements.receiptStatus.style.display = "inline-block";
       }
 
       try {
-        const compressed = await Store.compressImage(file, 900, 900, 0.78);
-        if (compressed) {
-          uploadedReceiptUrl = compressed;
-          if (elements.receiptPreview) elements.receiptPreview.src = compressed;
+        // 2. High-speed cloud upload (Cloudinary / ImgBB) with permanent HTTPS URL
+        const uploadedUrl = await Store.uploadImage(file);
+        if (uploadedUrl) {
+          window.uploadedReceiptUrl = uploadedUrl;
+          uploadedReceiptUrl = uploadedUrl;
+          if (elements.receiptPreview) elements.receiptPreview.src = uploadedUrl;
           if (elements.receiptPreviewWrap) elements.receiptPreviewWrap.style.display = 'block';
           if (elements.dropzonePrompt) elements.dropzonePrompt.style.display = 'none';
 
           if (elements.receiptStatus) {
-            elements.receiptStatus.textContent = "تم تجهيز الإيصال بنجاح";
+            elements.receiptStatus.textContent = "تم تجهيز ورفع الإيصال بنجاح ✓";
             elements.receiptStatus.className = "upload-status-chip success";
           }
         } else {
-          throw new Error("فشل ضغط الصورة");
+          throw new Error("فشل رفع الصورة للسحابة");
         }
       } catch (err) {
-        console.warn("[Receipt] Fast canvas compression fallback:", err);
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          uploadedReceiptUrl = ev.target.result;
-          if (elements.receiptPreview) elements.receiptPreview.src = uploadedReceiptUrl;
-          if (elements.receiptPreviewWrap) elements.receiptPreviewWrap.style.display = 'block';
-          if (elements.dropzonePrompt) elements.dropzonePrompt.style.display = 'none';
-          if (elements.receiptStatus) {
-            elements.receiptStatus.textContent = "تم تجهيز الإيصال بنجاح";
-            elements.receiptStatus.className = "upload-status-chip success";
+        console.warn("[Receipt] Cloud upload fallback to local canvas compression:", err);
+        try {
+          const compressed = await Store.compressImage(file, 900, 900, 0.78);
+          if (compressed) {
+            window.uploadedReceiptUrl = compressed;
+            uploadedReceiptUrl = compressed;
+            if (elements.receiptPreview) elements.receiptPreview.src = compressed;
+            if (elements.receiptPreviewWrap) elements.receiptPreviewWrap.style.display = 'block';
+            if (elements.dropzonePrompt) elements.dropzonePrompt.style.display = 'none';
+
+            if (elements.receiptStatus) {
+              elements.receiptStatus.textContent = "تم تجهيز الإيصال بنجاح ✓";
+              elements.receiptStatus.className = "upload-status-chip success";
+            }
+          } else {
+            throw new Error("فشل ضغط الصورة");
           }
-        };
-        reader.onerror = () => {
-          if (elements.receiptStatus) {
-            elements.receiptStatus.textContent = "تعذر قراءة الصورة، يرجى المحاولة ثانية";
-            elements.receiptStatus.className = "upload-status-chip error";
-          }
-        };
-        reader.readAsDataURL(file);
+        } catch (compErr) {
+          console.warn("[Receipt] Canvas fallback error:", compErr);
+          const r2 = new FileReader();
+          r2.onload = (ev) => {
+            window.uploadedReceiptUrl = ev.target.result;
+            uploadedReceiptUrl = ev.target.result;
+            if (elements.receiptPreview) elements.receiptPreview.src = ev.target.result;
+            if (elements.receiptPreviewWrap) elements.receiptPreviewWrap.style.display = 'block';
+            if (elements.dropzonePrompt) elements.dropzonePrompt.style.display = 'none';
+            if (elements.receiptStatus) {
+              elements.receiptStatus.textContent = "تم تجهيز الإيصال بنجاح ✓";
+              elements.receiptStatus.className = "upload-status-chip success";
+            }
+          };
+          r2.onerror = () => {
+            if (elements.receiptStatus) {
+              elements.receiptStatus.textContent = "تعذر قراءة الصورة، يرجى المحاولة ثانية";
+              elements.receiptStatus.className = "upload-status-chip error";
+            }
+          };
+          r2.readAsDataURL(file);
+        }
       }
     });
   }
@@ -814,6 +839,7 @@ function setupEventListeners() {
   if (elements.btnRemoveReceipt) {
     elements.btnRemoveReceipt.addEventListener('click', (e) => {
       e.stopPropagation();
+      window.uploadedReceiptUrl = null;
       uploadedReceiptUrl = null;
       if (elements.receiptInput) elements.receiptInput.value = '';
       if (elements.receiptPreview) elements.receiptPreview.src = '';
