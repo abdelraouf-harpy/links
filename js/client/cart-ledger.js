@@ -25,48 +25,36 @@ window.setFulfillmentType = function(type) {
   });
 
   const badge = document.getElementById('fulfillment-badge-indicator');
-  const badge2 = document.getElementById('step2-badge-indicator');
   const groupAddress = document.getElementById('group-cust-address');
   const groupTable = document.getElementById('group-table-number');
   const takeawayBanner = document.getElementById('fulfillment-takeaway-banner');
-  const dineinBanner = document.getElementById('fulfillment-dinein-banner');
-  const deliveryBanner = document.getElementById('cart-saved-profile-banner');
+  const customerInfoLabel = document.getElementById('customer-info-section-label');
   const addressInp = document.getElementById('cust-address');
 
   if (type === 'delivery') {
     if (badge) badge.textContent = 'توصيل دليفري';
-    if (badge2) badge2.textContent = 'توصيل دليفري';
-    if (deliveryBanner) deliveryBanner.style.display = 'flex';
+    if (customerInfoLabel) customerInfoLabel.textContent = 'بيانات التوصيل والتواصل:';
     if (takeawayBanner) takeawayBanner.style.display = 'none';
-    if (dineinBanner) dineinBanner.style.display = 'none';
     if (groupAddress) groupAddress.style.display = 'block';
     if (groupTable) groupTable.style.display = 'none';
     if (addressInp) addressInp.required = true;
   } else if (type === 'takeaway') {
     if (badge) badge.textContent = 'استلام من الفرع';
-    if (badge2) badge2.textContent = 'استلام من الفرع';
-    if (deliveryBanner) deliveryBanner.style.display = 'none';
+    if (customerInfoLabel) customerInfoLabel.textContent = 'بيانات المستلم والتواصل:';
     if (takeawayBanner) takeawayBanner.style.display = 'flex';
-    if (dineinBanner) dineinBanner.style.display = 'none';
     if (groupAddress) groupAddress.style.display = 'none';
     if (groupTable) groupTable.style.display = 'none';
     if (addressInp) addressInp.required = false;
   } else if (type === 'dinein') {
-    if (badge) badge.textContent = 'داخل المطعم (صالة)';
-    if (badge2) badge2.textContent = 'داخل المطعم (صالة)';
-    if (deliveryBanner) deliveryBanner.style.display = 'none';
+    if (badge) badge.textContent = 'في المطعم (صالة)';
+    if (customerInfoLabel) customerInfoLabel.textContent = 'بيانات الطاولة والطلب:';
     if (takeawayBanner) takeawayBanner.style.display = 'none';
-    if (dineinBanner) dineinBanner.style.display = 'flex';
     if (groupAddress) groupAddress.style.display = 'none';
     if (groupTable) groupTable.style.display = 'block';
     if (addressInp) addressInp.required = false;
   }
 
-  if (typeof window.updateCartSavedProfileBanner === 'function') {
-    window.updateCartSavedProfileBanner();
-  }
   if (typeof updateLedgerUI === 'function') updateLedgerUI();
-  if (typeof updateFooterButtonLabel === 'function') updateFooterButtonLabel();
 };
 
 window.syncTableNumber = function(val) {
@@ -340,11 +328,10 @@ function updateLedgerUI() {
 
   const totalDiscounts = roundCurrency(spendTierDiscountAmount + couponDiscountAmount + walletDiscountAmount);
   
-  // Smart Delivery Calculation: Only reveal and calculate at Step 3 (Payment stage) and only if Delivery
-  const isPaymentStep = (currentCheckoutStep === 3);
+  // Delivery Calculation: Live calculation when Delivery is selected
   const isDelivery = (window.currentFulfillmentType === 'delivery');
   const deliveryInfo = isDelivery ? detectDeliveryZone(elements.custAddress?.value || '', settings) : { fee: 0, zoneName: (window.currentFulfillmentType === 'dinein' ? 'صالة' : 'استلام') };
-  const deliveryFee = (cart.length > 0 && isPaymentStep && isDelivery) ? roundCurrency(deliveryInfo.fee) : 0;
+  const deliveryFee = (cart.length > 0 && isDelivery) ? roundCurrency(deliveryInfo.fee) : 0;
   const finalTotal = roundCurrency(Math.max(0, subtotal - totalDiscounts) + deliveryFee);
 
   // Sync Fixed Bottom Navigation Bar & Desktop Navigation Cart Badges
@@ -401,9 +388,11 @@ function updateLedgerUI() {
   }
 
   if (elements.deliveryFeeRow) {
-    if (isPaymentStep && deliveryFee > 0 && cart.length > 0) {
+    if (cart.length > 0 && isDelivery) {
       elements.deliveryFeeRow.style.display = 'flex';
-      if (elements.deliveryFeeVal) elements.deliveryFeeVal.textContent = `+${deliveryFee.toFixed(2)} ${currency}`;
+      if (elements.deliveryFeeVal) {
+        elements.deliveryFeeVal.textContent = deliveryFee > 0 ? `+${deliveryFee.toFixed(2)} ${currency}` : `مجاني`;
+      }
     } else {
       elements.deliveryFeeRow.style.display = 'none';
     }
@@ -523,76 +512,33 @@ window.closeCartDrawer = function(triggerHistoryBack = true) {
 window.goToCheckoutStep = function(stepNumber, pushHistory = true) {
   if (stepNumber > 1 && checkOrderingPaused()) return;
   const prevStep = currentCheckoutStep;
-  currentCheckoutStep = stepNumber;
+  currentCheckoutStep = stepNumber || 1;
 
-  if (pushHistory && stepNumber > prevStep) {
-    pushNavState('cart_step_' + stepNumber, { step: stepNumber });
-  }
-
-  elements.checkoutSteps.forEach(step => {
-    const sNum = parseInt(step.dataset.step);
-    step.style.display = sNum === stepNumber ? 'block' : 'none';
-  });
-
-  elements.stepNavBtns.forEach(btn => {
-    const sNum = parseInt(btn.dataset.step);
-    btn.classList.remove('active', 'completed');
-    if (sNum === stepNumber) {
-      btn.classList.add('active');
-    } else if (sNum < stepNumber) {
-      btn.classList.add('completed');
-    }
-  });
-
-  // Dynamic drawer footer button label according to current step
-  function updateFooterButtonLabel() {
-    if (!elements.btnConfirmOrderDirect) return;
+  if (elements.btnConfirmOrderDirect) {
     const labelSpan = elements.btnConfirmOrderDirect.querySelector('span');
-    if (!labelSpan) return;
-    const profile = (typeof window.getCustomerProfile === 'function') ? window.getCustomerProfile() : null;
-    const fType = window.currentFulfillmentType || 'delivery';
-    const name = (elements.custName?.value || profile?.name || '').trim();
-    const phone = (elements.custPhone?.value || profile?.phone || '').trim();
-    const address = (elements.custAddress?.value || profile?.address || '').trim();
-    const hasDeliveryDetails = name && phone && address;
-    const hasTakeawayDetails = name && phone;
-
-    if (currentCheckoutStep === 1) {
-      if (fType === 'delivery') {
-        labelSpan.textContent = hasDeliveryDetails ? "متابعة للدفع (بياناتك جاهزة) ←" : "متابعة لعنوان التوصيل ←";
-      } else if (fType === 'takeaway') {
-        labelSpan.textContent = hasTakeawayDetails ? "متابعة للدفع (استلام من الفرع) ←" : "متابعة لبيانات الاستلام ←";
-      } else {
-        labelSpan.textContent = "متابعة للدفع (طلب صالة) ←";
-      }
-      if (elements.btnSendWhatsapp) elements.btnSendWhatsapp.style.display = 'none';
-    } else if (currentCheckoutStep === 2) {
-      labelSpan.textContent = "متابعة لاختيار طريقة الدفع ←";
-      if (elements.btnSendWhatsapp) elements.btnSendWhatsapp.style.display = 'none';
-    } else {
-      labelSpan.textContent = "تأكيد وإرسال الطلب مباشرة";
-      if (elements.btnSendWhatsapp) elements.btnSendWhatsapp.style.display = 'flex';
-    }
+    if (labelSpan) labelSpan.textContent = "تأكيد وإرسال الطلب مباشرة";
   }
-  window.updateFooterButtonLabel = updateFooterButtonLabel;
-  updateFooterButtonLabel();
+  if (elements.btnSendWhatsapp) {
+    elements.btnSendWhatsapp.style.display = 'flex';
+  }
 
   if (elements.cartDrawer) {
-    elements.cartDrawer.scrollTop = 0;
+    if (stepNumber === 2) {
+      const custSection = document.getElementById('cart-flow-customer');
+      if (custSection) custSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else if (stepNumber === 3) {
+      const paySection = document.getElementById('cart-flow-payment');
+      if (paySection) paySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      elements.cartDrawer.scrollTop = 0;
+    }
   }
 
-  if (stepNumber === 1) {
-    if (typeof window.updateCartSavedProfileBanner === 'function') {
-      window.updateCartSavedProfileBanner();
-    }
-  } else if (stepNumber === 2) {
-    const profile = (typeof window.getCustomerProfile === 'function') ? window.getCustomerProfile() : null;
-    if (profile) {
-      if (elements.custName && !elements.custName.value && profile.name) elements.custName.value = profile.name;
-      if (elements.custPhone && !elements.custPhone.value && profile.phone) elements.custPhone.value = profile.phone;
-      if (elements.custAddress && !elements.custAddress.value && profile.address) elements.custAddress.value = profile.address;
-    }
-    updateDeliveryFeedbackUI();
+  const profile = (typeof window.getCustomerProfile === 'function') ? window.getCustomerProfile() : null;
+  if (profile) {
+    if (elements.custName && !elements.custName.value && profile.name) elements.custName.value = profile.name;
+    if (elements.custPhone && !elements.custPhone.value && profile.phone) elements.custPhone.value = profile.phone;
+    if (elements.custAddress && !elements.custAddress.value && profile.address) elements.custAddress.value = profile.address;
   }
 
   updateLedgerUI();

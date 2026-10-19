@@ -27,124 +27,69 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
     return;
   }
 
-  // If user is on Step 1: Check if returning customer already has complete saved profile
-  if (currentCheckoutStep === 1) {
-    const fType = window.currentFulfillmentType || 'delivery';
-    const profile = (typeof window.getCustomerProfile === 'function') ? window.getCustomerProfile() : null;
-    const name = (elements.custName?.value || profile?.name || '').trim();
-    const phone = (elements.custPhone?.value || profile?.phone || '').trim();
-    const address = (elements.custAddress?.value || profile?.address || '').trim();
-    const tableNum = (document.getElementById('cust-table-number-step1')?.value || document.getElementById('cust-table-number')?.value || '').trim();
-
-    // Validate phone: Egyptian mobile (01x) or international (+20x / 20x) — digits only, 10-15 digits
-    const phoneDigits = phone.replace(/[\s\-\+]/g, '');
-    const isPhoneValid = /^(01[0-9]{9})$/.test(phoneDigits) || /^(20[0-9]{10}|[0-9]{10,15})$/.test(phoneDigits);
-
-    if (fType === 'dinein') {
-      if (!tableNum) {
-        showToastNotification("يرجى إدخال رقم الطاولة في الصالة للمتابعة", "warning");
-        const t1 = document.getElementById('cust-table-number-step1') || document.getElementById('cust-table-number');
-        if (t1) {
-          t1.focus();
-          t1.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-        return;
-      }
-      if (document.getElementById('cust-table-number')) document.getElementById('cust-table-number').value = tableNum;
-      if (document.getElementById('cust-table-number-step1')) document.getElementById('cust-table-number-step1').value = tableNum;
-      if (name.length >= 2 && isPhoneValid) {
-        if (elements.custName && !elements.custName.value) elements.custName.value = name;
-        if (elements.custPhone && !elements.custPhone.value) elements.custPhone.value = phone;
-        goToCheckoutStep(3);
-        showToastNotification(`مرحباً ${name}، تم تجهيز الطلب لطاولة رقم ${tableNum} ✓`, "info");
-        return;
-      } else {
-        goToCheckoutStep(2);
-        if (elements.custName) elements.custName.focus();
-        return;
-      }
-    } else if (fType === 'takeaway') {
-      if (name.length >= 2 && isPhoneValid) {
-        if (elements.custName && !elements.custName.value) elements.custName.value = name;
-        if (elements.custPhone && !elements.custPhone.value) elements.custPhone.value = phone;
-        goToCheckoutStep(3);
-        showToastNotification(`مرحباً ${name}، تم تجهيز الطلب للاستلام من الفرع (تيك أواي) ✓`, "info");
-        return;
-      } else {
-        goToCheckoutStep(2);
-        if (elements.custName) elements.custName.focus();
-        return;
-      }
-    } else {
-      // delivery
-      if (name.length >= 2 && isPhoneValid && address.length >= 5) {
-        if (elements.custName && !elements.custName.value) elements.custName.value = name;
-        if (elements.custPhone && !elements.custPhone.value) elements.custPhone.value = phone;
-        if (elements.custAddress && !elements.custAddress.value) elements.custAddress.value = address;
-        goToCheckoutStep(3);
-        showToastNotification(`مرحباً ${name}، تم استخدام بياناتك المحفوظة للتوصيل السريع ✓`, "info");
-        return;
-      } else {
-        goToCheckoutStep(2);
-        if (elements.custName) elements.custName.focus();
-        return;
-      }
-    }
-  }
-
   const fType = window.currentFulfillmentType || 'delivery';
-  const tableNum = (document.getElementById('cust-table-number-step1')?.value || document.getElementById('cust-table-number')?.value || '').trim();
+  const tableNum = (document.getElementById('cust-table-number')?.value || '').trim();
   const name = (elements.custName?.value || '').trim();
   const phone = (elements.custPhone?.value || '').trim();
   const address = (elements.custAddress?.value || '').trim();
   const notes = (elements.custNotes?.value || '').trim();
 
-  // If user is on Step 2, validate and advance to Step 3
-  if (currentCheckoutStep === 2) {
-    if (typeof validateDeliveryStep === 'function') {
-      if (!validateDeliveryStep()) return;
-    } else {
-      if (!name || name.length < 2) {
-        showToastNotification("يرجى كتابة الاسم لتسهيل التواصل ومتابعة الطلب", "warning");
-        if (elements.custName) elements.custName.focus();
-        return;
-      }
-      if (!phone) {
-        showToastNotification("يرجى كتابة رقم الهاتف للتواصل بخصوص الطلب", "warning");
-        if (elements.custPhone) elements.custPhone.focus();
-        return;
-      }
-      if (fType === 'delivery' && (!address || address.length < 5)) {
-        showToastNotification("يرجى كتابة عنوان التوصيل بالتفصيل لضمان سرعة الوصول", "warning");
-        if (elements.custAddress) elements.custAddress.focus();
-        return;
-      }
-      if (fType === 'dinein' && !tableNum) {
-        showToastNotification("يرجى إدخال رقم الطاولة لخدمتك داخل المطعم", "warning");
-        const tInput = document.getElementById('cust-table-number');
-        if (tInput) tInput.focus();
-        return;
-      }
+  // 1. Validate Table Number for Dine-In
+  if (fType === 'dinein' && !tableNum) {
+    showToastNotification("يرجى إدخال رقم الطاولة في الصالة للمتابعة", "warning");
+    const tInput = document.getElementById('cust-table-number');
+    if (tInput) {
+      tInput.focus();
+      tInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-    goToCheckoutStep(3);
     return;
   }
 
-  // If user is on Step 3, ensure fields are complete before sending
-  if (!name || !phone) {
-    showToastNotification("يرجى إكمال بيانات التوصيل للمتابعة", "warning");
-    goToCheckoutStep(2);
+  // 2. Validate Name
+  if (!name || name.length < 2) {
+    showToastNotification("يرجى كتابة الاسم لتسهيل التواصل ومتابعة الطلب", "warning");
+    if (elements.custName) {
+      elements.custName.focus();
+      elements.custName.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
     return;
   }
+
+  // 3. Validate Phone
+  if (!phone) {
+    showToastNotification("يرجى كتابة رقم الهاتف للتواصل بخصوص الطلب", "warning");
+    if (elements.custPhone) {
+      elements.custPhone.focus();
+      elements.custPhone.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    return;
+  }
+
+  const phoneDigits = phone.replace(/[\s\-\+]/g, '');
+  const egyptianMobile = /^(01[0-9]{9})$/.test(phoneDigits);
+  const internationalMobile = /^(20[0-9]{10}|[0-9]{10,15})$/.test(phoneDigits);
+  if (!egyptianMobile && !internationalMobile) {
+    showToastNotification("يرجى التأكد من صحة رقم الهاتف للتواصل (مثال: 01012345678)", "warning");
+    if (elements.custPhone) {
+      elements.custPhone.focus();
+      elements.custPhone.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    return;
+  }
+
+  // 4. Validate Detailed Address for Delivery
   if (fType === 'delivery' && (!address || address.length < 5)) {
     showToastNotification("يرجى كتابة عنوان التوصيل بالتفصيل لضمان سرعة الوصول", "warning");
-    goToCheckoutStep(2);
+    if (elements.custAddress) {
+      elements.custAddress.focus();
+      elements.custAddress.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
     return;
   }
-  if (fType === 'dinein' && !tableNum) {
-    showToastNotification("يرجى كتابة رقم الطاولة لخدمتك داخل المطعم", "warning");
-    goToCheckoutStep(2);
-    return;
+
+  // Automatically remember customer profile for instant future orders
+  if (typeof window.saveCustomerProfile === 'function') {
+    window.saveCustomerProfile(name, phone, address);
   }
 
   const settings = Store.getSettings();

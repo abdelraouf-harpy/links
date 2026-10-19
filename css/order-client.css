@@ -1289,9 +1289,9 @@
 }
 @media (max-width: 991px) {
   .cart-drawer {
-    bottom: 0;
-    height: 100%;
-    height: 100dvh;
+    bottom: 64px !important;
+    height: calc(100% - 64px) !important;
+    height: calc(100dvh - 64px) !important;
     border-right: none;
   }
 }
@@ -4389,8 +4389,6 @@ body.harpy-account-locked {
 
 body.preview-open .bottom-nav-bar,
 body.customizer-open .bottom-nav-bar,
-body.cart-drawer-open .bottom-nav-bar,
-body:has(#cart-drawer.open) .bottom-nav-bar,
 body:has(#preview-modal.open) .bottom-nav-bar,
 body:has(#customizer-modal.open) .bottom-nav-bar {
   transform: translateY(115%) !important;
