@@ -27,8 +27,28 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
     return;
   }
 
-  // If user is on Step 1, advance to Step 2
+  // If user is on Step 1: Check if returning customer already has complete saved profile
   if (currentCheckoutStep === 1) {
+    const fType = window.currentFulfillmentType || 'delivery';
+    const profile = (typeof window.getCustomerProfile === 'function') ? window.getCustomerProfile() : null;
+    const name = (elements.custName?.value || profile?.name || '').trim();
+    const phone = (elements.custPhone?.value || profile?.phone || '').trim();
+    const address = (elements.custAddress?.value || profile?.address || '').trim();
+
+    // Validate phone: Egyptian mobile (01x) or international (+20x / 20x) — digits only, 10-15 digits
+    const phoneDigits = phone.replace(/[\s\-\+]/g, '');
+    const isPhoneValid = /^(01[0-9]{9})$/.test(phoneDigits) || /^(20[0-9]{10}|[0-9]{10,15})$/.test(phoneDigits);
+
+    // If returning customer already has complete valid delivery info, jump directly to Step 3 (Payment & Confirmation)
+    if (name.length >= 2 && isPhoneValid && (fType !== 'delivery' || address.length >= 5)) {
+      if (elements.custName && !elements.custName.value) elements.custName.value = name;
+      if (elements.custPhone && !elements.custPhone.value) elements.custPhone.value = phone;
+      if (elements.custAddress && !elements.custAddress.value && address) elements.custAddress.value = address;
+      goToCheckoutStep(3);
+      showToastNotification(`مرحباً ${name}، تم استخدام بياناتك المحفوظة للتوصيل السريع ✓ (يمكنك تعديلها بأي وقت)`, "info");
+      return;
+    }
+
     goToCheckoutStep(2);
     if (elements.custName) elements.custName.focus();
     return;
@@ -233,6 +253,9 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
   Store.saveLastOrder(orderData);
   if (typeof Store.addOrderToHistory === 'function') {
     Store.addOrderToHistory(orderData);
+  }
+  if (typeof window.saveCustomerProfile === 'function') {
+    window.saveCustomerProfile(name, phone, address, notes);
   }
 
   if (isDelivered) {

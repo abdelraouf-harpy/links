@@ -1156,37 +1156,69 @@ function getCustomerProfile() {
     const raw = localStorage.getItem('harpy_customer_profile');
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (parsed && parsed.name && parsed.phone) return parsed;
+      if (parsed && (parsed.name || parsed.phone || parsed.address)) return parsed;
     }
   } catch(e) {}
   // Legacy fallback: check past order fields
   try {
-    const legacyName = localStorage.getItem('harpy_last_order_customer_name');
-    const legacyPhone = localStorage.getItem('harpy_last_order_customer_phone');
-    if (legacyName && legacyPhone) {
-      const p = { name: legacyName.trim(), phone: legacyPhone.trim(), updatedAt: Date.now() };
+    const legacyName = localStorage.getItem('harpy_last_order_customer_name') || '';
+    const legacyPhone = localStorage.getItem('harpy_last_order_customer_phone') || '';
+    const legacyAddress = localStorage.getItem('harpy_last_order_customer_address') || '';
+    if (legacyName || legacyPhone || legacyAddress) {
+      const p = { name: legacyName.trim(), phone: legacyPhone.trim(), address: legacyAddress.trim(), updatedAt: Date.now() };
       localStorage.setItem('harpy_customer_profile', JSON.stringify(p));
       return p;
+    }
+  } catch(e) {}
+  // Also check Store.getLastOrder() if available
+  try {
+    if (typeof Store !== 'undefined' && Store.getLastOrder) {
+      const last = Store.getLastOrder();
+      if (last && last.customer && (last.customer.name || last.customer.phone || last.customer.address)) {
+        const p = {
+          name: (last.customer.name || '').trim(),
+          phone: (last.customer.phone || '').trim(),
+          address: (last.customer.address || '').trim(),
+          updatedAt: Date.now()
+        };
+        localStorage.setItem('harpy_customer_profile', JSON.stringify(p));
+        return p;
+      }
     }
   } catch(e) {}
   return null;
 }
 
-function saveCustomerProfile(name, phone) {
-  if (!name || !phone) return false;
-  const cleanName = name.trim();
-  const cleanPhone = phone.trim();
-  const profile = { name: cleanName, phone: cleanPhone, updatedAt: Date.now() };
+function saveCustomerProfile(name, phone, address = '', notes = '') {
+  if (!name && !phone && !address) return false;
+  const current = getCustomerProfile() || {};
+  const cleanName = (name !== undefined && name !== null ? String(name) : (current.name || '')).trim();
+  const cleanPhone = (phone !== undefined && phone !== null ? String(phone) : (current.phone || '')).trim();
+  const cleanAddress = (address !== undefined && address !== null ? String(address) : (current.address || '')).trim();
+  const cleanNotes = (notes !== undefined && notes !== null ? String(notes) : (current.notes || '')).trim();
+
+  const profile = {
+    name: cleanName,
+    phone: cleanPhone,
+    address: cleanAddress,
+    notes: cleanNotes,
+    updatedAt: Date.now()
+  };
+
   try {
     localStorage.setItem('harpy_customer_profile', JSON.stringify(profile));
-    localStorage.setItem('harpy_last_order_customer_name', cleanName);
-    localStorage.setItem('harpy_last_order_customer_phone', cleanPhone);
+    if (cleanName) localStorage.setItem('harpy_last_order_customer_name', cleanName);
+    if (cleanPhone) localStorage.setItem('harpy_last_order_customer_phone', cleanPhone);
+    if (cleanAddress) localStorage.setItem('harpy_last_order_customer_address', cleanAddress);
   } catch(e) {}
 
-  if (elements.custName) elements.custName.value = cleanName;
-  if (elements.custPhone) elements.custPhone.value = cleanPhone;
+  if (elements.custName && cleanName) elements.custName.value = cleanName;
+  if (elements.custPhone && cleanPhone) elements.custPhone.value = cleanPhone;
+  if (elements.custAddress && cleanAddress) elements.custAddress.value = cleanAddress;
 
   updateAccountDrawerProfileUI();
+  if (typeof renderCleanProfileUI === 'function') renderCleanProfileUI();
+  if (typeof window.updateCartSavedProfileBanner === 'function') window.updateCartSavedProfileBanner();
   return true;
 }
 
@@ -1194,9 +1226,11 @@ function checkCustomerOnboarding() {
   const profile = getCustomerProfile();
   if (profile) {
     // Already has profile, pre-fill checkout inputs
-    if (elements.custName && !elements.custName.value) elements.custName.value = profile.name;
-    if (elements.custPhone && !elements.custPhone.value) elements.custPhone.value = profile.phone;
+    if (elements.custName && !elements.custName.value && profile.name) elements.custName.value = profile.name;
+    if (elements.custPhone && !elements.custPhone.value && profile.phone) elements.custPhone.value = profile.phone;
+    if (elements.custAddress && !elements.custAddress.value && profile.address) elements.custAddress.value = profile.address;
     updateAccountDrawerProfileUI();
+    if (typeof renderCleanProfileUI === 'function') renderCleanProfileUI();
   }
 }
 
@@ -1329,9 +1363,22 @@ function updateAccountDrawerProfileUI() {
   // Pre-fill edit inputs if form is rendered
   const editName = document.getElementById('edit-profile-name');
   const editPhone = document.getElementById('edit-profile-phone');
+  const editAddress = document.getElementById('edit-profile-address');
+  const addrEl = document.getElementById('account-display-address');
   if (profile) {
-    if (editName && !editName.value) editName.value = profile.name;
-    if (editPhone && !editPhone.value) editPhone.value = profile.phone;
+    if (editName && !editName.value) editName.value = profile.name || '';
+    if (editPhone && !editPhone.value) editPhone.value = profile.phone || '';
+    if (editAddress && !editAddress.value) editAddress.value = profile.address || '';
+    if (addrEl) {
+      if (profile.address) {
+        addrEl.textContent = '📍 ' + profile.address;
+        addrEl.style.display = 'block';
+      } else {
+        addrEl.style.display = 'none';
+      }
+    }
+  } else if (addrEl) {
+    addrEl.style.display = 'none';
   }
 }
 
@@ -1345,9 +1392,11 @@ function toggleEditProfileForm(show) {
     const profile = getCustomerProfile();
     const editName = document.getElementById('edit-profile-name');
     const editPhone = document.getElementById('edit-profile-phone');
+    const editAddress = document.getElementById('edit-profile-address');
     if (profile) {
-      if (editName) editName.value = profile.name;
-      if (editPhone) editPhone.value = profile.phone;
+      if (editName) editName.value = profile.name || '';
+      if (editPhone) editPhone.value = profile.phone || '';
+      if (editAddress) editAddress.value = profile.address || '';
     }
     if (editName) editName.focus();
   }
@@ -1360,10 +1409,13 @@ function handleAccountEditSubmit(e) {
   }
   const cleanNameInput = document.getElementById('edit-profile-name-clean');
   const cleanPhoneInput = document.getElementById('edit-profile-phone-clean');
+  const cleanAddressInput = document.getElementById('edit-profile-address-clean');
   const editName = cleanNameInput || document.getElementById('edit-profile-name');
   const editPhone = cleanPhoneInput || document.getElementById('edit-profile-phone');
+  const editAddress = cleanAddressInput || document.getElementById('edit-profile-address');
   const name = editName ? editName.value.trim() : '';
   const phone = editPhone ? editPhone.value.trim() : '';
+  const address = editAddress ? editAddress.value.trim() : '';
 
   if (!name || name.length < 2) {
     showToastNotification("يرجى إدخال اسم صحيح (حرفين على الأقل)", "error");
@@ -1374,7 +1426,7 @@ function handleAccountEditSubmit(e) {
     return;
   }
 
-  saveCustomerProfile(name, phone);
+  saveCustomerProfile(name, phone, address);
   toggleEditProfileForm(false);
   toggleCleanProfileEdit(false);
   renderCleanProfileUI();
@@ -1383,6 +1435,7 @@ function handleAccountEditSubmit(e) {
   // Auto-fill checkout fields if available
   if (elements.custName) elements.custName.value = name;
   if (elements.custPhone) elements.custPhone.value = phone;
+  if (elements.custAddress && address) elements.custAddress.value = address;
 
   showToastNotification("تم حفظ وتحديث بياناتك بنجاح", "success");
 }
@@ -1395,6 +1448,9 @@ function renderCleanProfileUI() {
   const phoneEl = document.getElementById('clean-profile-phone');
   const avatarChar = document.getElementById('clean-avatar-char');
   const waLink = document.getElementById('clean-account-wa-link');
+  const addrPill = document.getElementById('clean-profile-address');
+  const addrText = document.getElementById('clean-profile-address-text');
+  const addrStatusText = document.getElementById('clean-address-status-text');
 
   const defaultUserSvg = `<svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px; height:22px;"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
 
@@ -1404,8 +1460,17 @@ function renderCleanProfileUI() {
     if (avatarChar) avatarChar.textContent = profile.name.trim().charAt(0) || 'ع';
   } else {
     if (nameEl) nameEl.textContent = 'عميلنا العزيز';
-    if (phoneEl) phoneEl.textContent = 'انقر على تعديل لحفظ اسمك ورقمك';
+    if (phoneEl) phoneEl.textContent = 'انقر على تعديل لحفظ اسمك ورقمك وعنوانك';
     if (avatarChar) avatarChar.innerHTML = defaultUserSvg;
+  }
+
+  if (profile && profile.address) {
+    if (addrPill) addrPill.style.display = 'inline-flex';
+    if (addrText) addrText.textContent = profile.address;
+    if (addrStatusText) addrStatusText.textContent = profile.address;
+  } else {
+    if (addrPill) addrPill.style.display = 'none';
+    if (addrStatusText) addrStatusText.textContent = 'لم تسجل عنواناً بعد — انقر للإضافة وتوفير الوقت في الطلبات';
   }
 
   // Update theme row info
@@ -1442,9 +1507,11 @@ function toggleCleanProfileEdit(show) {
     const profile = getCustomerProfile();
     const editName = document.getElementById('edit-profile-name-clean');
     const editPhone = document.getElementById('edit-profile-phone-clean');
+    const editAddress = document.getElementById('edit-profile-address-clean');
     if (profile) {
-      if (editName) editName.value = profile.name;
-      if (editPhone) editPhone.value = profile.phone;
+      if (editName) editName.value = profile.name || '';
+      if (editPhone) editPhone.value = profile.phone || '';
+      if (editAddress) editAddress.value = profile.address || '';
     }
     if (editName) editName.focus();
   }

@@ -449,8 +449,12 @@ window.openCartDrawer = function() {
   // Pre-fill profile if available
   const profile = (typeof window.getCustomerProfile === 'function') ? window.getCustomerProfile() : null;
   if (profile) {
-    if (elements.custName && !elements.custName.value) elements.custName.value = profile.name;
-    if (elements.custPhone && !elements.custPhone.value) elements.custPhone.value = profile.phone;
+    if (elements.custName && !elements.custName.value && profile.name) elements.custName.value = profile.name;
+    if (elements.custPhone && !elements.custPhone.value && profile.phone) elements.custPhone.value = profile.phone;
+    if (elements.custAddress && !elements.custAddress.value && profile.address) elements.custAddress.value = profile.address;
+  }
+  if (typeof window.updateCartSavedProfileBanner === 'function') {
+    window.updateCartSavedProfileBanner();
   }
 
   pushNavState('cart_step_1', { step: 1 });
@@ -513,7 +517,10 @@ window.goToCheckoutStep = function(stepNumber, pushHistory = true) {
     const labelSpan = elements.btnConfirmOrderDirect.querySelector('span');
     if (labelSpan) {
       if (stepNumber === 1) {
-        labelSpan.textContent = "متابعة لبيانات التوصيل ←";
+        const profile = (typeof window.getCustomerProfile === 'function') ? window.getCustomerProfile() : null;
+        const fType = window.currentFulfillmentType || 'delivery';
+        const hasSavedDetails = profile && profile.name && profile.phone && (fType !== 'delivery' || profile.address);
+        labelSpan.textContent = hasSavedDetails ? "متابعة للدفع (بياناتك جاهزة) ←" : "متابعة لبيانات التوصيل ←";
       } else if (stepNumber === 2) {
         labelSpan.textContent = "متابعة لاختيار طريقة الدفع ←";
       } else {
@@ -526,11 +533,16 @@ window.goToCheckoutStep = function(stepNumber, pushHistory = true) {
     elements.cartDrawer.scrollTop = 0;
   }
 
-  if (stepNumber === 2) {
+  if (stepNumber === 1) {
+    if (typeof window.updateCartSavedProfileBanner === 'function') {
+      window.updateCartSavedProfileBanner();
+    }
+  } else if (stepNumber === 2) {
     const profile = (typeof window.getCustomerProfile === 'function') ? window.getCustomerProfile() : null;
     if (profile) {
-      if (elements.custName && !elements.custName.value) elements.custName.value = profile.name;
-      if (elements.custPhone && !elements.custPhone.value) elements.custPhone.value = profile.phone;
+      if (elements.custName && !elements.custName.value && profile.name) elements.custName.value = profile.name;
+      if (elements.custPhone && !elements.custPhone.value && profile.phone) elements.custPhone.value = profile.phone;
+      if (elements.custAddress && !elements.custAddress.value && profile.address) elements.custAddress.value = profile.address;
     }
     updateDeliveryFeedbackUI();
   }
@@ -645,7 +657,7 @@ function setupEventListeners() {
 
     // Automatically persist or update customer profile
     if (typeof window.saveCustomerProfile === 'function') {
-      window.saveCustomerProfile(name, phone);
+      window.saveCustomerProfile(name, phone, address);
     }
 
     return true;
@@ -940,6 +952,27 @@ function setupEventListeners() {
   });
 }
 
+
+window.updateCartSavedProfileBanner = function() {
+  const banner = document.getElementById('cart-saved-profile-banner');
+  const textEl = document.getElementById('cart-saved-profile-text');
+  if (!banner || !textEl) return;
+
+  const profile = (typeof window.getCustomerProfile === 'function') ? window.getCustomerProfile() : null;
+  const name = (elements.custName?.value || profile?.name || '').trim();
+  const phone = (elements.custPhone?.value || profile?.phone || '').trim();
+  const address = (elements.custAddress?.value || profile?.address || '').trim();
+
+  if (name && (address || phone)) {
+    let summary = `<strong>${esc(name)}</strong>`;
+    if (phone) summary += ` (${esc(phone)})`;
+    if (address) summary += ` — 📍 ${esc(address)}`;
+    textEl.innerHTML = summary;
+    banner.style.display = 'flex';
+  } else {
+    banner.style.display = 'none';
+  }
+};
 
 window.renderLastOrderRecall = renderLastOrderRecall;
 window.handleReorderClick = handleReorderClick;

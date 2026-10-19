@@ -1192,6 +1192,10 @@
         <div class="clean-profile-info">
           <h2 class="clean-profile-name" id="clean-profile-name">عميلنا العزيز</h2>
           <p class="clean-profile-phone font-num" id="clean-profile-phone">لم تسجل رقم هاتفك بعد</p>
+          <div class="clean-profile-address-pill font-num" id="clean-profile-address" style="display:none; margin-top:4px; font-size:11.5px; color:var(--text-muted); align-items:center; gap:5px;">
+            <svg class="icon icon-xs" viewBox="0 0 24 24" style="width:13px; height:13px; color:var(--primary);"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span id="clean-profile-address-text"></span>
+          </div>
         </div>
         <button type="button" class="btn-clean-edit" id="btn-clean-edit-profile" onclick="window.toggleCleanProfileEdit && window.toggleCleanProfileEdit()" title="تعديل بياناتي">
           <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
@@ -1206,8 +1210,12 @@
           <input type="text" id="edit-profile-name-clean" class="clean-field-input" required placeholder="اسمك">
         </div>
         <div class="clean-field-group">
-          <label class="clean-field-label" for="edit-profile-phone-clean">رقم الموبايل:</label>
+          <label class="clean-field-label" for="edit-profile-phone-clean">رقم الموبايل للتواصل:</label>
           <input type="tel" id="edit-profile-phone-clean" class="clean-field-input font-num" required placeholder="01012345678">
+        </div>
+        <div class="clean-field-group">
+          <label class="clean-field-label" for="edit-profile-address-clean">عنوان التوصيل المعتاد (يمكن تعديله في أي وقت):</label>
+          <textarea id="edit-profile-address-clean" class="clean-field-input" rows="2" placeholder="المنطقة، الشارع، رقم العمارة والشقة"></textarea>
         </div>
         <div class="clean-form-actions">
           <button type="submit" class="btn btn-primary btn-sm">حفظ التعديلات</button>
@@ -1217,6 +1225,18 @@
 
       <!-- Minimalist Settings List (Clean Divider Rows) -->
       <div class="clean-settings-list">
+        <!-- Saved Delivery Address Quick Row -->
+        <div class="clean-setting-row" onclick="window.toggleCleanProfileEdit && window.toggleCleanProfileEdit(true)">
+          <div class="row-leading">
+            <span class="row-icon"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span>
+            <div class="row-text">
+              <div class="row-title">عنوان التوصيل المعتاد</div>
+              <div class="row-sub" id="clean-address-status-text">لم تسجل عنوانك بعد — انقر للإضافة وتوفير الوقت</div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-ghost btn-sm" style="font-size:11px; font-weight:800; padding:4px 10px; border:1px solid var(--border); border-radius:6px;">تعديل</button>
+        </div>
+
         <!-- 1. Theme Toggle -->
         <div class="clean-setting-row" onclick="window.toggleTheme && window.toggleTheme()">
           <div class="row-leading">
@@ -1343,6 +1363,22 @@
             <span id="promo-applied-text">تم تطبيق كود الخصم</span>
             <button type="button" id="btn-remove-promo" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:12px; font-weight:700;">إلغاء الكود</button>
           </div>
+        </div>
+
+        <!-- Saved Delivery Profile Quick Banner in Step 1 -->
+        <div id="cart-saved-profile-banner" style="display:none; margin-top:12px; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 12px; align-items:center; justify-content:space-between; gap:8px;">
+          <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+            <span style="width:28px; height:28px; border-radius:6px; background:var(--primary-subtle); color:var(--primary); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            </span>
+            <div style="min-width:0;">
+              <div style="font-size:10.5px; color:var(--text-muted); font-weight:700;">بيانات التوصيل المحفوظة:</div>
+              <div id="cart-saved-profile-text" style="font-size:12px; font-weight:800; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="goToCheckoutStep(2)" style="font-size:11px; font-weight:800; padding:4px 8px; border:1px solid var(--border); border-radius:6px; white-space:nowrap; flex-shrink:0;">
+            تغيير
+          </button>
         </div>
       </div>
 
@@ -1954,6 +1990,7 @@
           <div class="profile-text-wrap">
             <div class="profile-name" id="account-display-name">عميلنا العزيز</div>
             <div class="profile-phone font-num" id="account-display-phone">لم يتم تسجيل الهاتف</div>
+            <div class="profile-address" id="account-display-address" style="display:none; font-size:11px; color:var(--text-muted); margin-top:3px; line-height:1.3;"></div>
           </div>
           <button type="button" class="btn-edit-profile" id="btn-edit-profile" onclick="window.toggleEditProfileForm && window.toggleEditProfileForm()" title="تعديل بيانات الحساب">
             <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
@@ -1968,8 +2005,12 @@
             <input type="text" id="edit-profile-name" class="input-luxury-field" required>
           </div>
           <div class="input-luxury-group">
-            <label class="input-luxury-label" for="edit-profile-phone">رقم الموبايل:</label>
+            <label class="input-luxury-label" for="edit-profile-phone">رقم الموبايل للتواصل:</label>
             <input type="tel" id="edit-profile-phone" class="input-luxury-field font-num" required>
+          </div>
+          <div class="input-luxury-group">
+            <label class="input-luxury-label" for="edit-profile-address">عنوان التوصيل المعتاد:</label>
+            <textarea id="edit-profile-address" class="input-luxury-textarea" rows="2" placeholder="المنطقة، الشارع، رقم العمارة والشقة"></textarea>
           </div>
           <div style="display:flex; gap:8px;">
             <button type="submit" class="btn btn-primary btn-sm" style="flex:1;">حفظ البيانات</button>
@@ -2157,16 +2198,16 @@
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=96.0"></script>
-  <script src="js/core/sound-effects.js?v=96.0"></script>
-  <script src="js/store.js?v=96.0"></script>
-  <script src="js/client/client-core.js?v=96.0"></script>
-  <script src="js/client/menu-view.js?v=96.0"></script>
-  <script src="js/client/stories-viewer.js?v=96.0"></script>
-  <script src="js/client/customizer-modal.js?v=96.0"></script>
-  <script src="js/client/cart-ledger.js?v=96.0"></script>
-  <script src="js/client/order-tracking.js?v=96.0"></script>
-  <script src="js/app.js?v=96.0"></script>
-  <script src="js/pwa.js?v=96.0"></script>
+  <script src="js/core/demo-seed-data.js?v=97.0"></script>
+  <script src="js/core/sound-effects.js?v=97.0"></script>
+  <script src="js/store.js?v=97.0"></script>
+  <script src="js/client/client-core.js?v=97.0"></script>
+  <script src="js/client/menu-view.js?v=97.0"></script>
+  <script src="js/client/stories-viewer.js?v=97.0"></script>
+  <script src="js/client/customizer-modal.js?v=97.0"></script>
+  <script src="js/client/cart-ledger.js?v=97.0"></script>
+  <script src="js/client/order-tracking.js?v=97.0"></script>
+  <script src="js/app.js?v=97.0"></script>
+  <script src="js/pwa.js?v=97.0"></script>
 </body>
 </html>
