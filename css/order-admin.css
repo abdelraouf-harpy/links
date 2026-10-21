@@ -500,7 +500,7 @@
   background: var(--surface);
   border: 1px solid var(--border-strong);
   border-radius: 24px 24px 0 0;
-  padding: 16px 18px 24px 18px;
+  padding: 16px 18px max(24px, env(safe-area-inset-bottom, 24px)) 18px;
   z-index: 99995;
   box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.6);
   transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
@@ -1742,7 +1742,7 @@ html.admin-unlocked #login-modal-backdrop {
 .pos-mobile-cart-bar {
   display: none;
   position: fixed;
-  bottom: 18px;
+  bottom: max(18px, env(safe-area-inset-bottom, 18px));
   left: 16px;
   right: 16px;
   background: linear-gradient(135deg, #ea580c, #c2410c);
@@ -2820,7 +2820,10 @@ html.admin-unlocked #login-modal-backdrop {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
-  padding: 10px 0;
+  padding-top: max(10px, env(safe-area-inset-top, 10px));
+  padding-bottom: 10px;
+  padding-left: max(0px, env(safe-area-inset-left, 0px));
+  padding-right: max(0px, env(safe-area-inset-right, 0px));
   transition: all 0.25s ease;
 }
 [data-theme="dark"] .admin-modern-header {
@@ -2968,7 +2971,10 @@ html.admin-unlocked #login-modal-backdrop {
 
 /* Drawer Header */
 .admin-drawer-header {
-  padding: 18px 20px;
+  padding-top: max(18px, env(safe-area-inset-top, 18px));
+  padding-bottom: 18px;
+  padding-left: max(20px, env(safe-area-inset-left, 20px));
+  padding-right: max(20px, env(safe-area-inset-right, 20px));
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -3116,7 +3122,10 @@ html.admin-unlocked #login-modal-backdrop {
 
 /* Drawer Footer */
 .admin-drawer-footer {
-  padding: 14px 16px;
+  padding-top: 14px;
+  padding-bottom: max(14px, env(safe-area-inset-bottom, 14px));
+  padding-left: max(16px, env(safe-area-inset-left, 16px));
+  padding-right: max(16px, env(safe-area-inset-right, 16px));
   border-top: 1px solid var(--border);
   background: var(--surface-raised);
   display: flex;
@@ -3157,7 +3166,10 @@ html.admin-unlocked #login-modal-backdrop {
 /* Responsive adjustments across Mobile & Tablet */
 @media (max-width: 768px) {
   .admin-modern-header {
-    padding: 8px 0;
+    padding-top: max(8px, env(safe-area-inset-top, 8px));
+    padding-bottom: 8px;
+    padding-left: max(0px, env(safe-area-inset-left, 0px));
+    padding-right: max(0px, env(safe-area-inset-right, 0px));
   }
   .admin-modern-header .brand-logo {
     width: 38px;
