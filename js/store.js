@@ -1575,6 +1575,17 @@ const Store = {
         order.status = newStatus;
         order.updatedAt = nowIso;
         order.timestampUpdated = nowTs;
+        if (newStatus === 'delivered' || newStatus === 'completed') {
+          if (!order.deliveredAt) order.deliveredAt = nowIso;
+          try {
+            const curShift = (typeof this.getCurrentShift === 'function') ? this.getCurrentShift() : null;
+            if (curShift && curShift.shiftNumber && !order.shiftNumber) {
+              order.shiftNumber = curShift.shiftNumber;
+            }
+          } catch(e) {}
+        } else if (newStatus === 'preparing' || newStatus === 'pending') {
+          delete order.deliveredAt;
+        }
         if (order._fbKey) targetFbKey = order._fbKey;
         this.saveOrders(cached);
         if (newStatus === 'preparing' || newStatus === 'out_for_delivery' || newStatus === 'delivered' || newStatus === 'completed') {
@@ -2543,6 +2554,7 @@ const Store = {
       name: (mat.name || '').trim(),
       unit: mat.unit || 'g', // g, kg, ml, L, pcs
       stock: stockVal,
+      maxStock: Math.max(stockVal, alertVal * 2),
       minAlert: alertVal,
       costPerUnit: costVal,
       updatedAt: new Date().toISOString()
@@ -2555,7 +2567,10 @@ const Store = {
     const mats = this.getRawMaterials().map(m => {
       if (m.id !== id) return m;
       const copy = { ...m, ...updatedMat };
-      if ('stock' in updatedMat) copy.stock = parseFloat(String(updatedMat.stock).replace(/,/g, '')) || 0;
+      if ('stock' in updatedMat) {
+        copy.stock = parseFloat(String(updatedMat.stock).replace(/,/g, '')) || 0;
+        copy.maxStock = Math.max(parseFloat(copy.maxStock) || 0, copy.stock);
+      }
       if ('minAlert' in updatedMat) copy.minAlert = parseFloat(String(updatedMat.minAlert).replace(/,/g, '')) || 0;
       if ('costPerUnit' in updatedMat) copy.costPerUnit = parseFloat(String(updatedMat.costPerUnit).replace(/,/g, '')) || 0;
       copy.updatedAt = new Date().toISOString();
@@ -2576,6 +2591,7 @@ const Store = {
     const target = mats.find(m => m.id === id);
     if (!target) return { success: false, message: 'المادة الخام غير موجودة' };
     target.stock = (parseFloat(String(target.stock).replace(/,/g, '')) || 0) + qty;
+    target.maxStock = Math.max(parseFloat(target.maxStock) || 0, target.stock);
     target.updatedAt = new Date().toISOString();
     if (note) target.lastRestockNote = note;
     return await this.saveRawMaterials(mats);
@@ -2735,6 +2751,236 @@ const Store = {
       return true;
     }
     return false;
+  },
+
+  // ── Smart Recipe & Order Costing Engine ──────────────────────
+  calculateProductRecipeCost(productOrRecipe) {
+    if (!productOrRecipe) return { baseCost: 0, sizesCost: {}, addonsCost: {} };
+    const recipe = productOrRecipe.recipe || productOrRecipe;
+    const mats = this.getRawMaterials() || [];
+    const matMap = new Map(mats.map(m => [String(m.id), m]));
+
+    const getItemCost = (matId, amount) => {
+      if (!matId) return 0;
+      const targetId = String(matId);
+      const mat = matMap.get(targetId) || mats.find(m => String(m.id) === targetId || String(m.name || '').trim().toLowerCase() === targetId.toLowerCase());
+      if (!mat) return 0;
+      const amt = parseFloat(String(amount).replace(/,/g, '').trim()) || 0;
+      const unitCost = parseFloat(String(mat.costPerUnit).replace(/,/g, '').trim()) || 0;
+      return amt * unitCost;
+    };
+
+    let baseCost = 0;
+    const baseList = Array.isArray(recipe.base) ? recipe.base : (recipe.base && typeof recipe.base === 'object' ? Object.values(recipe.base) : []);
+    baseList.forEach(r => {
+      if (r) baseCost += getItemCost(r.materialId || r.matId || r.id, r.amount);
+    });
+
+    const sizesCost = {};
+    if (recipe.sizes && typeof recipe.sizes === 'object') {
+      Object.keys(recipe.sizes).forEach(sizeName => {
+        const items = recipe.sizes[sizeName];
+        const list = Array.isArray(items) ? items : (items && typeof items === 'object' ? Object.values(items) : []);
+        let extraCost = 0;
+        list.forEach(r => {
+          if (r) extraCost += getItemCost(r.materialId || r.matId || r.id, r.amount);
+        });
+        sizesCost[sizeName] = Math.round((baseCost + extraCost) * 100) / 100;
+      });
+    }
+
+    const addonsCost = {};
+    if (recipe.addons && typeof recipe.addons === 'object') {
+      Object.keys(recipe.addons).forEach(addonName => {
+        const items = recipe.addons[addonName];
+        const list = Array.isArray(items) ? items : (items && typeof items === 'object' ? Object.values(items) : []);
+        let addonCost = 0;
+        list.forEach(r => {
+          if (r) addonCost += getItemCost(r.materialId || r.matId || r.id, r.amount);
+        });
+        addonsCost[addonName] = Math.round(addonCost * 100) / 100;
+      });
+    }
+
+    return {
+      baseCost: Math.round(baseCost * 100) / 100,
+      sizesCost,
+      addonsCost
+    };
+  },
+
+  calculateOrderCogs(order) {
+    if (!order || !order.items || !Array.isArray(order.items) || order.items.length === 0) return 0;
+    const allProducts = this.getProducts() || [];
+    const prodMap = new Map(allProducts.map(p => [String(p.id), p]));
+    const mats = this.getRawMaterials() || [];
+    const matMap = new Map(mats.map(m => [String(m.id), m]));
+
+    const getItemCost = (matId, amount) => {
+      if (!matId) return 0;
+      const targetId = String(matId);
+      const mat = matMap.get(targetId) || mats.find(m => String(m.id) === targetId || String(m.name || '').trim().toLowerCase() === targetId.toLowerCase());
+      if (!mat) return 0;
+      const amt = parseFloat(String(amount).replace(/,/g, '').trim()) || 0;
+      const unitCost = parseFloat(String(mat.costPerUnit).replace(/,/g, '').trim()) || 0;
+      return amt * unitCost;
+    };
+
+    let totalOrderCogs = 0;
+
+    order.items.forEach(item => {
+      const qty = parseInt(item.qty || item.quantity || 1, 10);
+      if (qty <= 0) return;
+
+      let prodId = String(item.productId || item.prodId || item.id || '');
+      if (prodId.startsWith('c_')) {
+        const parts = prodId.split('_');
+        if (parts.length >= 3) {
+          const potentialId = parts.slice(1, -1).join('_');
+          if (prodMap.has(potentialId)) prodId = potentialId;
+        }
+      }
+      const itemName = String(item.name || '').trim().toLowerCase();
+      const prod = prodMap.get(prodId) || allProducts.find(p => String(p.id) === prodId || String(p.name || '').trim().toLowerCase() === itemName || itemName.includes(String(p.name || '').trim().toLowerCase()) || String(p.name || '').trim().toLowerCase().includes(itemName));
+      if (!prod || !prod.recipe) return;
+
+      const recipe = prod.recipe;
+      let unitCogs = 0;
+
+      // 1. Base recipe items
+      const baseList = Array.isArray(recipe.base) ? recipe.base : (recipe.base && typeof recipe.base === 'object' ? Object.values(recipe.base) : []);
+      baseList.forEach(r => {
+        if (r) unitCogs += getItemCost(r.materialId || r.matId || r.id, r.amount);
+      });
+
+      // 2. Selected Size
+      let selectedSizeName = '';
+      if (item.selectedSize) {
+        selectedSizeName = typeof item.selectedSize === 'object' ? (item.selectedSize.name || '') : String(item.selectedSize);
+      } else if (item.size) {
+        selectedSizeName = typeof item.size === 'object' ? (item.size.name || '') : String(item.size);
+      }
+      selectedSizeName = selectedSizeName.trim().toLowerCase();
+
+      if (selectedSizeName && recipe.sizes && typeof recipe.sizes === 'object') {
+        const sizeKey = Object.keys(recipe.sizes).find(k => k.trim().toLowerCase() === selectedSizeName);
+        if (sizeKey) {
+          const rawSizeItems = recipe.sizes[sizeKey];
+          const sizeList = Array.isArray(rawSizeItems) ? rawSizeItems : (rawSizeItems && typeof rawSizeItems === 'object' ? Object.values(rawSizeItems) : []);
+          sizeList.forEach(r => {
+            if (r) unitCogs += getItemCost(r.materialId || r.matId || r.id, r.amount);
+          });
+        }
+      }
+
+      // 3. Selected Addons
+      const selectedAddons = item.selectedAddons || item.addons || [];
+      if (Array.isArray(selectedAddons) && recipe.addons && typeof recipe.addons === 'object') {
+        selectedAddons.forEach(addon => {
+          const addonName = (typeof addon === 'string' ? addon : (addon.name || '')).trim().toLowerCase();
+          if (!addonName) return;
+          const addonKey = Object.keys(recipe.addons).find(k => k.trim().toLowerCase() === addonName);
+          if (addonKey) {
+            const rawAddonItems = recipe.addons[addonKey];
+            const addonList = Array.isArray(rawAddonItems) ? rawAddonItems : (rawAddonItems && typeof rawAddonItems === 'object' ? Object.values(rawAddonItems) : []);
+            addonList.forEach(r => {
+              if (r) unitCogs += getItemCost(r.materialId || r.matId || r.id, r.amount);
+            });
+          }
+        });
+      }
+
+      totalOrderCogs += (unitCogs * qty);
+    });
+
+    return Math.round(totalOrderCogs * 100) / 100;
+  },
+
+  // ── Smart Shift Management Engine (الورديات المرنة) ──────────
+  getCurrentShift() {
+    const slug = this.getRestaurantSlug();
+    try {
+      const raw = localStorage.getItem(`harpy_${slug}_current_shift`);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.status === 'open') {
+          return parsed;
+        }
+      }
+    } catch(e) {}
+
+    // Initialize first shift if none open
+    const orders = this.getOrders() || [];
+    let earliestTime = new Date().toISOString();
+    if (orders.length > 0) {
+      const timestamps = orders.map(o => new Date(o.createdAt || o.timestamp || o.date || Date.now()).getTime()).filter(t => !isNaN(t) && t > 0);
+      if (timestamps.length > 0) {
+        const minT = Math.min(...timestamps);
+        earliestTime = new Date(minT).toISOString();
+      }
+    }
+
+    const firstShift = {
+      id: 'shift_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+      shiftNumber: 1,
+      openedAt: earliestTime,
+      status: 'open',
+      createdAt: new Date().toISOString()
+    };
+    try {
+      localStorage.setItem(`harpy_${slug}_current_shift`, JSON.stringify(firstShift));
+    } catch(e) {}
+    return firstShift;
+  },
+
+  getShiftsHistory() {
+    const slug = this.getRestaurantSlug();
+    try {
+      const raw = localStorage.getItem(`harpy_${slug}_shifts_history`);
+      if (raw) {
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr)) return arr;
+      }
+    } catch(e) {}
+    return [];
+  },
+
+  async closeCurrentShift(closingData = {}) {
+    const slug = this.getRestaurantSlug();
+    const current = this.getCurrentShift();
+    const nowIso = new Date().toISOString();
+
+    const closedShift = {
+      ...current,
+      ...closingData,
+      status: 'closed',
+      closedAt: nowIso
+    };
+
+    // Save to history
+    const history = this.getShiftsHistory();
+    history.unshift(closedShift);
+    this.safeSetItem(`harpy_${slug}_shifts_history`, JSON.stringify(history));
+
+    // Create next open shift
+    const nextNumber = (parseInt(current.shiftNumber, 10) || 1) + 1;
+    const nextShift = {
+      id: 'shift_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+      shiftNumber: nextNumber,
+      openedAt: nowIso,
+      status: 'open',
+      createdAt: nowIso
+    };
+    this.safeSetItem(`harpy_${slug}_current_shift`, JSON.stringify(nextShift));
+
+    // Push to cloud optimistic
+    try {
+      this.pushToCloud('shifts/current', nextShift);
+      this.pushToCloud(`shifts/history/${closedShift.id}`, closedShift);
+    } catch(e) {}
+
+    window.dispatchEvent(new CustomEvent('store_shift_updated', { detail: { closedShift, nextShift } }));
+    return { success: true, closedShift, nextShift };
   },
 
   getCart() {

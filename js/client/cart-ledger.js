@@ -1075,8 +1075,8 @@ window.updateCartSavedProfileCard = function() {
     if (card) {
       if (titleEl) titleEl.textContent = `${name} (${phone})`;
       if (descEl) {
-        if (fType === 'delivery') descEl.textContent = `📍 ${address}`;
-        else if (fType === 'takeaway') descEl.textContent = `🛍️ استلام من فرع المطعم`;
+        if (fType === 'delivery') descEl.textContent = `${address}`;
+        else if (fType === 'takeaway') descEl.textContent = `استلام من فرع المطعم (تيك أواي)`;
         else if (fType === 'dinein') descEl.textContent = `🍽️ طلب صالة — طاولة: ${tableNum}`;
       }
       card.style.display = 'flex';

@@ -1,6 +1,9 @@
 
 // ── Luxury Admin Side Drawer Controller ─────────────────────
 window.openAdminDrawer = function() {
+  if (typeof updateHeaderShiftCockpit === 'function') {
+    try { updateHeaderShiftCockpit(); } catch(e) {}
+  }
   const drawer = document.getElementById('admin-drawer');
   const backdrop = document.getElementById('admin-drawer-backdrop');
   if (drawer) drawer.classList.add('open');
@@ -21,6 +24,9 @@ window.toggleAdminDrawer = function() {
   if (drawer && drawer.classList.contains('open')) {
     window.closeAdminDrawer();
   } else {
+    if (typeof updateHeaderShiftCockpit === 'function') {
+      try { updateHeaderShiftCockpit(); } catch(e) {}
+    }
     window.openAdminDrawer();
   }
 };
@@ -440,7 +446,7 @@ window.switchTab = function(targetTabId, updateHash = true) {
   const TAB_TITLES = {
     'tab-orders': 'طلبات المطبخ والتجهيز',
     'tab-pos': 'كاشير الصالة والسفري (POS)',
-    'tab-archive': 'أرشيف الفواتير المسلّمة',
+    'tab-archive': 'أرشيف الفواتير والورديات',
     'tab-products': 'إدارة المنيو والأصناف',
     'tab-inventory': 'المخزون والمواد الخام',
     'tab-stories': 'قصص وعروض اليوم',

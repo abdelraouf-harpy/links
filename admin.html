@@ -43,7 +43,7 @@
 
   <link rel="stylesheet" href="css/order-tokens.css?v=95.1">
   <link rel="stylesheet" href="css/order-client.css?v=95.1">
-  <link rel="stylesheet" href="css/order-admin.css?v=95.1">
+  <link rel="stylesheet" href="css/order-admin.css?v=117.0">
   <script>
     // Instant zero-delay theme toggle available immediately on page paint
     window.handleThemeToggle = function() {
@@ -354,7 +354,21 @@
     </div>
 
     <!-- Drawer Navigation Tabs List -->
-    <nav class="admin-drawer-nav" id="admin-drawer-nav">
+        <!-- Shift Status Card in Drawer -->
+    <div id="drawer-shift-widget" style="margin:12px 14px 6px; padding:10px 14px; background:var(--surface-raised); border:1px solid var(--border); border-radius:12px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="width:8px; height:8px; border-radius:50%; background:#22c55e; display:inline-block; box-shadow:0 0 6px rgba(34,197,94,0.6);"></span>
+        <div>
+          <div id="drawer-shift-num" style="font-size:12.5px; font-weight:800; color:var(--text-main);">الوردية #1 (نشطة)</div>
+          <div id="drawer-shift-rev" style="font-size:11px; color:var(--text-muted); margin-top:1px;">مبيعات: 0 ج.م</div>
+        </div>
+      </div>
+      <button type="button" class="btn btn-primary btn-sm" onclick="openShiftCloseModal(); closeAdminDrawer();" style="font-size:11px; font-weight:800; padding:4px 12px; border-radius:18px; cursor:pointer;" title="تقفيل الوردية الحالية">
+        تقفيل
+      </button>
+    </div>
+
+<nav class="admin-drawer-nav" id="admin-drawer-nav">
       <div class="drawer-nav-group-title">إدارة العمليات والتشغيل</div>
 
       <button type="button" class="admin-tab-btn active" data-tab="tab-orders">
@@ -370,7 +384,7 @@
 
       <button type="button" class="admin-tab-btn" data-tab="tab-archive">
         <svg class="icon icon-sm" viewBox="0 0 24 24"><rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/></svg>
-        <span class="tab-label">أرشيف الفواتير المسلّمة</span>
+        <span class="tab-label">أرشيف الفواتير والورديات</span>
         <span id="archive-badge-count" class="tab-badge" style="display:none;">0</span>
       </button>
 
@@ -466,7 +480,7 @@
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
               <span>إدارة الأقسام</span>
             </button>
-            <button id="btn-open-add-product" class="btn btn-primary" style="font-weight:800; font-size:12.5px; padding:8px 18px; border-radius:var(--radius-sm); display:inline-flex; align-items:center; gap:6px;">
+            <button id="btn-open-add-product" class="btn btn-primary" onclick="openProductModal(null)" style="font-weight:800; font-size:12.5px; padding:8px 18px; border-radius:var(--radius-sm); display:inline-flex; align-items:center; gap:6px;">
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
               <span>إضافة صنف جديد</span>
             </button>
@@ -488,50 +502,43 @@
     <!-- ═══ TAB: RAW MATERIALS & INVENTORY ═════════════════════ -->
     <div id="tab-inventory" class="tab-pane" style="display:none;">
       <div class="admin-card">
-        <!-- Inventory Summary Stats -->
-        <div class="inventory-stats-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:12px; margin-bottom:18px;">
-          <div style="background:var(--surface); border:1px solid var(--border); padding:14px; border-radius:var(--radius-sm); text-align:center;">
-            <div style="font-size:11px; color:var(--text-muted); font-weight:700;">إجمالي المواد الخام</div>
-            <div id="inv-stat-total" class="font-num" style="font-size:22px; font-weight:900; color:var(--text-main); margin-top:3px;">0</div>
-          </div>
-          <div style="background:var(--surface); border:1px solid var(--border); padding:14px; border-radius:var(--radius-sm); text-align:center;">
-            <div style="font-size:11px; color:var(--text-muted); font-weight:700; display:flex; align-items:center; justify-content:center; gap:5px;">
-              <span style="width:7px; height:7px; border-radius:50%; background:#f59e0b; display:inline-block;"></span>
-              <span>قارب على النفاد</span>
-            </div>
-            <div id="inv-stat-low" class="font-num" style="font-size:22px; font-weight:900; color:#f59e0b; margin-top:3px;">0</div>
-          </div>
-          <div style="background:var(--surface); border:1px solid var(--border); padding:14px; border-radius:var(--radius-sm); text-align:center;">
-            <div style="font-size:11px; color:var(--text-muted); font-weight:700; display:flex; align-items:center; justify-content:center; gap:5px;">
-              <span style="width:7px; height:7px; border-radius:50%; background:#16a34a; display:inline-block;"></span>
-              <span>متوفر بأمان</span>
-            </div>
-            <div id="inv-stat-safe" class="font-num" style="font-size:22px; font-weight:900; color:#16a34a; margin-top:3px;">0</div>
-          </div>
-          <div style="background:var(--surface); border:1px solid var(--border); padding:14px; border-radius:var(--radius-sm); text-align:center;">
-            <div style="font-size:11px; color:var(--text-muted); font-weight:700;">إجمالي قيمة المخزون</div>
-            <div id="inv-stat-value" class="font-num" style="font-size:22px; font-weight:900; color:var(--primary); margin-top:3px;">0 ج.م</div>
-          </div>
-        </div>
-
-        <!-- Search & Filter Controls -->
-        <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap;">
-          <div style="flex:1; min-width:240px; position:relative;">
+        <!-- Modern Streamlined Inventory Toolbar -->
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap;">
+          <!-- Search Input -->
+          <div style="flex:1; min-width:220px; position:relative;">
             <input type="text" id="inventory-search-input" class="form-input" placeholder="بحث باسم المادة الخام..." style="padding-inline-start:34px;">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           </div>
 
-          <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
-            <button type="button" class="btn btn-sm btn-filter-inventory active" data-inventory-filter="all" onclick="filterInventory('all')">عرض الكل</button>
-            <button type="button" class="btn btn-sm btn-filter-inventory" data-inventory-filter="low" onclick="filterInventory('low')">قارب على النفاد</button>
-            <button type="button" class="btn btn-sm btn-filter-inventory" data-inventory-filter="safe" onclick="filterInventory('safe')">متوفر</button>
-            <button type="button" id="btn-open-add-raw-material" class="btn btn-primary btn-sm" style="font-weight:800; padding:6px 14px; border-radius:8px; display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
+          <!-- Total Valuation Badge + Add Button -->
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div style="background:var(--surface); border:1px solid var(--border); padding:6px 12px; border-radius:var(--radius-xs); display:inline-flex; align-items:center; gap:6px;">
+              <span style="font-size:11px; color:var(--text-muted); font-weight:700;">قيمة المخزون:</span>
+              <span id="inv-stat-value" class="font-num" style="font-size:13.5px; font-weight:900; color:var(--primary);"><span dir="ltr">0</span> <span style="font-size:11px; font-weight:700; opacity:0.85;">ج.م</span></span>
+            </div>
+            <button type="button" id="btn-open-add-raw-material" class="btn btn-primary btn-sm" onclick="openRawMaterialModal(null)" style="font-weight:800; padding:7px 16px; border-radius:var(--radius-xs); display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
               <span>إضافة مادة خام</span>
             </button>
           </div>
         </div>
 
+        <!-- Filter Pills with Live Badges (Clean & Zero Duplication) -->
+        <div style="display:flex; gap:6px; align-items:center; margin-bottom:18px; overflow-x:auto; padding-bottom:2px;">
+          <button type="button" class="btn btn-sm btn-filter-inventory active" data-inventory-filter="all" onclick="filterInventory('all')" style="display:inline-flex; align-items:center; gap:6px;">
+            <span>عرض الكل</span>
+            <span id="inv-filter-badge-all" class="font-num" style="background:rgba(255,255,255,0.18); font-size:11px; padding:1px 6px; border-radius:10px;">0</span>
+          </button>
+          <button type="button" class="btn btn-sm btn-filter-inventory" data-inventory-filter="safe" onclick="filterInventory('safe')" style="display:inline-flex; align-items:center; gap:6px;">
+            <span>متوفر بأمان</span>
+            <span id="inv-filter-badge-safe" class="font-num" style="background:rgba(34,197,94,0.18); color:#16a34a; font-size:11px; padding:1px 6px; border-radius:10px;">0</span>
+          </button>
+          <button type="button" class="btn btn-sm btn-filter-inventory" data-inventory-filter="low" onclick="filterInventory('low')" style="display:inline-flex; align-items:center; gap:6px;">
+            <span>قارب على النفاد</span>
+            <span id="inv-filter-badge-low" class="font-num" style="background:rgba(245,158,11,0.18); color:#d97706; font-size:11px; padding:1px 6px; border-radius:10px;">0</span>
+          </button>
+        </div>
+
         <!-- Inventory Cards Grid -->
         <div id="inventory-grid-container" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(290px, 1fr)); gap:14px;"></div>
       </div>
@@ -717,48 +724,40 @@
         </div>
       </div>
     </div>
-
     <!-- ═══ TAB 2: LIVE KITCHEN & ACTIVE ORDERS ═════════════════ -->
     <div id="tab-orders" class="tab-pane">
+
+      <!-- Luxury Centered Wake-Lock Toggle (Outside the Frame) -->
+      <div style="display:flex; justify-content:center; align-items:center; margin-bottom:18px;">
+        <button type="button" id="btn-toggle-wake-lock" class="btn-wake-lock-toggle" onclick="toggleKitchenWakeLock()" title="إبقاء الشاشة مضاءة أثناء العمل في المطبخ" aria-label="إبقاء الشاشة مضاءة">
+          <svg class="wake-lock-icon" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="M2 12h4"/><path d="m4.93 19.07 2.83-2.83"/><path d="M12 18v4"/><path d="m19.07 19.07-2.83-2.83"/><path d="M18 12h4"/><path d="m19.07 4.93-2.83 2.83"/>
+          </svg>
+          <span id="wake-lock-label" style="letter-spacing:0.3px;">إبقاء الشاشة مضاءة</span>
+          <span id="wake-lock-status-dot" class="wake-lock-dot"></span>
+        </button>
+      </div>
+
+      <!-- Main Kitchen Orders Card Frame -->
       <div class="admin-card">
-                <div style="display:flex; justify-content:flex-end; align-items:center; margin-bottom:14px; gap:12px; flex-wrap:wrap;">
-          <button type="button" id="btn-toggle-wake-lock" class="btn-wake-lock-toggle" onclick="toggleKitchenWakeLock()" title="منع إطفاء الشاشة أثناء العمل في المطبخ">
-            <span class="wake-lock-bulb"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 2v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="M2 12h4"/><path d="m4.93 19.07 2.83-2.83"/><path d="M12 18v4"/><path d="m19.07 19.07-2.83-2.83"/><path d="M18 12h4"/><path d="m19.07 4.93-2.83 2.83"/></svg></span>
-            <span id="wake-lock-label">إبقاء الشاشة مضاءة</span>
-            <span id="wake-lock-status-dot" class="wake-lock-dot"></span>
+        <!-- Centered Unified Kitchen Filter Pills -->
+        <div class="kitchen-filters-row" style="display:flex; justify-content:center; gap:8px; margin-bottom:20px; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; padding-bottom:4px;">
+          <button type="button" class="btn btn-sm btn-filter-kitchen active" data-kitchen-filter="all" onclick="filterKitchenOrders('all')">
+            <span>جميع النشطة</span>
+            <span id="count-filter-all" class="font-num kitchen-filter-badge">0</span>
           </button>
-          <span id="orders-live-status" style="font-size:12px; color:var(--accent-wa); font-weight:700; display:flex; align-items:center; gap:6px;">
-            <span style="width:8px; height:8px; border-radius:50%; background:var(--accent-wa); display:inline-block;"></span>
-            متصل بالمطبخ لحظياً
-          </span>
-        </div>
-
-        <!-- Kitchen Active Summary Stats -->
-        <div class="kitchen-stats-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:10px; margin-bottom:16px;">
-          <div class="kitchen-stat-card" style="background:var(--surface); border:1px solid var(--border); padding:12px; border-radius:var(--radius-sm); text-align:center;">
-            <div style="font-size:11px; color:var(--text-muted); font-weight:700;">إجمالي الطلبات النشطة</div>
-            <div id="stat-active-orders" class="font-num" style="font-size:20px; font-weight:900; color:var(--text-main); margin-top:3px;">0</div>
-          </div>
-          <div class="kitchen-stat-card" style="background:var(--surface); border:1px solid var(--border); padding:12px; border-radius:var(--radius-sm); text-align:center;">
-            <div style="font-size:11px; color:var(--text-muted); font-weight:700;">1. استلام الطلب</div>
-            <div id="stat-pending-orders" class="font-num" style="font-size:20px; font-weight:900; color:#f59e0b; margin-top:3px;">0</div>
-          </div>
-          <div class="kitchen-stat-card" style="background:var(--surface); border:1px solid var(--border); padding:12px; border-radius:var(--radius-sm); text-align:center;">
-            <div style="font-size:11px; color:var(--text-muted); font-weight:700;">2. المطبخ يجهز</div>
-            <div id="stat-preparing-orders" class="font-num" style="font-size:20px; font-weight:900; color:#3b82f6; margin-top:3px;">0</div>
-          </div>
-          <div class="kitchen-stat-card" style="background:var(--surface); border:1px solid var(--border); padding:12px; border-radius:var(--radius-sm); text-align:center;">
-            <div style="font-size:11px; color:var(--text-muted); font-weight:700;">3. في الطريق / جاهز</div>
-            <div id="stat-delivery-orders" class="font-num" style="font-size:20px; font-weight:900; color:#a855f7; margin-top:3px;">0</div>
-          </div>
-        </div>
-
-        <!-- Kitchen Status Filter Chips -->
-        <div class="kitchen-filters-row" style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
-          <button type="button" class="btn btn-sm btn-filter-kitchen active" data-kitchen-filter="all" onclick="filterKitchenOrders('all')">جميع النشطة (<span id="count-filter-all">0</span>)</button>
-          <button type="button" class="btn btn-sm btn-filter-kitchen" data-kitchen-filter="pending" onclick="filterKitchenOrders('pending')">1. استلام الطلب (<span id="count-filter-pending">0</span>)</button>
-          <button type="button" class="btn btn-sm btn-filter-kitchen" data-kitchen-filter="preparing" onclick="filterKitchenOrders('preparing')">2. المطبخ يجهز (<span id="count-filter-preparing">0</span>)</button>
-          <button type="button" class="btn btn-sm btn-filter-kitchen" data-kitchen-filter="out_for_delivery" onclick="filterKitchenOrders('out_for_delivery')">3. في الطريق / جاهز (<span id="count-filter-delivery">0</span>)</button>
+          <button type="button" class="btn btn-sm btn-filter-kitchen" data-kitchen-filter="pending" onclick="filterKitchenOrders('pending')">
+            <span>استلام الطلب</span>
+            <span id="count-filter-pending" class="font-num kitchen-filter-badge">0</span>
+          </button>
+          <button type="button" class="btn btn-sm btn-filter-kitchen" data-kitchen-filter="preparing" onclick="filterKitchenOrders('preparing')">
+            <span>المطبخ يجهز</span>
+            <span id="count-filter-preparing" class="font-num kitchen-filter-badge">0</span>
+          </button>
+          <button type="button" class="btn btn-sm btn-filter-kitchen" data-kitchen-filter="out_for_delivery" onclick="filterKitchenOrders('out_for_delivery')">
+            <span>في الطريق / جاهز</span>
+            <span id="count-filter-delivery" class="font-num kitchen-filter-badge">0</span>
+          </button>
         </div>
 
         <!-- Active Orders List Container -->
@@ -766,78 +765,160 @@
       </div>
     </div>
 
-    <!-- ═══ TAB 3: INVOICES ARCHIVE ══════════════════════════ -->
+    <!-- ═══ TAB 3: INVOICES & SHIFTS ARCHIVE ══════════════════ -->
     <div id="tab-archive" class="tab-pane" style="display:none;">
       <div class="admin-card">
         
-
-        <!-- Archive Date Range Panel -->
-        <div class="archive-date-panel" style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px 16px; margin-bottom:18px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-            <div style="display:flex; align-items:center; gap:8px;">
-              <svg class="icon icon-sm" viewBox="0 0 24 24" style="color:var(--primary); width:18px; height:18px;"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
-              <span style="font-size:13px; font-weight:800; color:var(--text-main);">فترة الفواتير:</span>
-              <span id="archive-date-range-label" style="font-size:11.5px; font-weight:800; color:var(--primary); background:var(--primary-subtle); padding:2px 10px; border-radius:12px;">اليوم</span>
-            </div>
-            <div class="archive-date-presets" style="display:flex; gap:6px; flex-wrap:wrap;">
-              <button type="button" class="btn btn-sm btn-date-preset active" data-preset="today" onclick="setArchiveDatePreset('today')">اليوم</button>
-              <button type="button" class="btn btn-sm btn-date-preset" data-preset="yesterday" onclick="setArchiveDatePreset('yesterday')">أمس</button>
-              <button type="button" class="btn btn-sm btn-date-preset" data-preset="week" onclick="setArchiveDatePreset('week')">آخر 7 أيام</button>
-              <button type="button" class="btn btn-sm btn-date-preset" data-preset="month" onclick="setArchiveDatePreset('month')">هذا الشهر</button>
-              <button type="button" class="btn btn-sm btn-date-preset" data-preset="custom" onclick="toggleArchiveCustomDates()">فترة مخصصة</button>
-              <button type="button" class="btn btn-sm btn-date-preset" data-preset="all" onclick="setArchiveDatePreset('all')">كل الأوقات</button>
-            </div>
-          </div>
-
-          <!-- Expandable Custom Date Range Selector -->
-          <div id="archive-custom-date-box" style="display:none; padding-top:12px; border-top:1px dashed var(--border); margin-top:12px;">
-            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-              <div style="display:flex; align-items:center; gap:6px;">
-                <label for="archive-custom-start" style="font-size:12px; font-weight:700; color:var(--text-muted);">من تاريخ:</label>
-                <input type="date" id="archive-custom-start" class="form-input" style="padding:6px 10px; font-size:12.5px; width:auto; border-radius:8px;">
-              </div>
-              <div style="display:flex; align-items:center; gap:6px;">
-                <label for="archive-custom-end" style="font-size:12px; font-weight:700; color:var(--text-muted);">إلى تاريخ:</label>
-                <input type="date" id="archive-custom-end" class="form-input" style="padding:6px 10px; font-size:12.5px; width:auto; border-radius:8px;">
-              </div>
-              <button type="button" class="btn btn-primary btn-sm" onclick="applyCustomArchiveDateRange()" style="padding:7px 16px; font-weight:800; border-radius:8px;">بحث وتطبيق الفترة</button>
-            </div>
+        <!-- Zen Top Sub-Tab Switcher: Invoices vs Closed Shifts -->
+        <div style="display:flex; justify-content:center; margin-bottom:20px;">
+          <div style="display:inline-flex; background:var(--surface); border:1px solid var(--border); border-radius:30px; padding:4px; gap:4px;">
+            <button type="button" id="subtab-btn-invoices" class="btn btn-sm btn-archive-pill active" onclick="switchArchiveSubtab('invoices')" style="font-weight:800; padding:6px 20px; border-radius:24px; border:none; background:var(--primary); color:#fff; cursor:pointer;">
+              الفواتير المسلّمة
+            </button>
+            <button type="button" id="subtab-btn-shifts" class="btn btn-sm btn-archive-pill" onclick="switchArchiveSubtab('shifts')" style="font-weight:800; padding:6px 20px; border-radius:24px; border:none; background:transparent; color:var(--text-muted); cursor:pointer;">
+              سجل الورديات المقفلة
+            </button>
           </div>
         </div>
 
-        <!-- Archive Summary Stats -->
-        <div class="archive-stats-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:12px; margin-bottom:20px;">
-          <div style="background:var(--surface); border:1px solid var(--border); padding:14px; border-radius:var(--radius-sm); text-align:center;">
-            <div style="font-size:11px; color:var(--text-muted); font-weight:700;">الفواتير المسلّمة</div>
-            <div id="stat-archived-orders" class="font-num" style="font-size:22px; font-weight:900; color:#16a34a; margin-top:4px;">0</div>
+        <!-- ══════════════════════════════════════════════════
+             SUBTAB 1: INVOICES ARCHIVE VIEW (Clean & Zen)
+             ══════════════════════════════════════════════════ -->
+        <div id="archive-subtab-invoices-view">
+          
+          <!-- Sleek Single-Row Financial Pulse Strip -->
+          <div style="display:flex; justify-content:space-around; align-items:center; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px 16px; margin-bottom:16px;">
+            <div style="text-align:center;">
+              <div style="font-size:11px; color:var(--text-muted); font-weight:700;">المبيعات</div>
+              <div id="stat-archived-revenue" class="font-num" style="font-size:18px; font-weight:900; color:var(--primary); margin-top:2px;">0 ج.م</div>
+            </div>
+            <div style="width:1px; height:24px; background:var(--border);"></div>
+            <div style="text-align:center;">
+              <div style="font-size:11px; color:var(--text-muted); font-weight:700;">صافي الربح</div>
+              <div id="stat-archived-profit" class="font-num" style="font-size:18px; font-weight:900; color:#16a34a; margin-top:2px;">0 ج.م</div>
+            </div>
+            <div style="width:1px; height:24px; background:var(--border);"></div>
+            <div style="text-align:center;">
+              <div style="font-size:11px; color:var(--text-muted); font-weight:700;">تكلفة الخامات</div>
+              <div id="stat-archived-cogs" class="font-num" style="font-size:18px; font-weight:900; color:#ef4444; margin-top:2px;">0 ج.م</div>
+            </div>
+            <div style="width:1px; height:24px; background:var(--border);"></div>
+            <div style="text-align:center;">
+              <div style="font-size:11px; color:var(--text-muted); font-weight:700;">الفواتير</div>
+              <div id="stat-archived-orders" class="font-num" style="font-size:18px; font-weight:900; color:var(--text-main); margin-top:2px;">0</div>
+            </div>
           </div>
-          <div style="background:var(--surface); border:1px solid var(--border); padding:14px; border-radius:var(--radius-sm); text-align:center;">
-            <div style="font-size:11px; color:var(--text-muted); font-weight:700;">إجمالي المبيعات المحصّلة</div>
-            <div id="stat-archived-revenue" class="font-num" style="font-size:22px; font-weight:900; color:var(--primary); margin-top:4px;">0 ج.م</div>
-          </div>
-          <div style="background:var(--surface); border:1px solid var(--border); padding:14px; border-radius:var(--radius-sm); text-align:center;">
-            <div style="font-size:11px; color:var(--text-muted); font-weight:700;">طلبات ملغاة</div>
-            <div id="stat-cancelled-orders" class="font-num" style="font-size:22px; font-weight:900; color:var(--danger, #ef4444); margin-top:4px;">0</div>
-          </div>
-        </div>
 
-        <!-- Archive Search & Filter Bar -->
-        <div style="display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap; align-items:center;">
-          <div style="flex:1; min-width:240px; position:relative;">
-            <input type="text" id="archive-search-input" class="form-input" placeholder="بحث برقم الفاتورة، اسم العميل، أو رقم الهاتف" oninput="handleArchiveSearch(this.value)">
+          <!-- Compact Period Selector & Search Bar -->
+          <div style="display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap; align-items:center;">
+            <!-- Custom Period Selector Dropdown -->
+            <div id="archive-period-dropdown-wrap" class="archive-period-dropdown-wrap">
+              <button type="button" id="btn-archive-period-picker" class="archive-period-trigger" onclick="toggleArchivePeriodDropdown(event)" aria-haspopup="true" aria-expanded="false">
+                <span id="archive-period-current-label">الوردية الحالية</span>
+                <svg id="archive-period-chevron" class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+
+              <!-- Hidden native select for fallback/backward compatibility -->
+              <select id="archive-period-select" style="display:none;" onchange="setArchiveDatePreset(this.value)">
+                <option value="shift" selected>الوردية الحالية</option>
+                <option value="today">اليوم</option>
+                <option value="yesterday">أمس</option>
+                <option value="week">آخر 7 أيام</option>
+                <option value="month">شهر</option>
+                <option value="all">كل الأوقات</option>
+              </select>
+
+              <!-- Luxury Custom Dropdown Menu -->
+              <div id="archive-period-dropdown-menu" class="archive-period-menu">
+                <button type="button" class="archive-period-item active" data-preset="shift" onclick="selectArchivePeriod('shift', 'الوردية الحالية')">
+                  <span>الوردية الحالية</span>
+                  <svg class="period-check-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </button>
+                <button type="button" class="archive-period-item" data-preset="today" onclick="selectArchivePeriod('today', 'اليوم')">
+                  <span>اليوم</span>
+                  <svg class="period-check-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </button>
+                <button type="button" class="archive-period-item" data-preset="yesterday" onclick="selectArchivePeriod('yesterday', 'أمس')">
+                  <span>أمس</span>
+                  <svg class="period-check-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </button>
+                <button type="button" class="archive-period-item" data-preset="week" onclick="selectArchivePeriod('week', 'آخر 7 أيام')">
+                  <span>آخر 7 أيام</span>
+                  <svg class="period-check-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </button>
+                <button type="button" class="archive-period-item" data-preset="month" onclick="selectArchivePeriod('month', 'شهر')">
+                  <span>شهر</span>
+                  <svg class="period-check-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </button>
+                <button type="button" class="archive-period-item" data-preset="all" onclick="selectArchivePeriod('all', 'كل الأوقات')">
+                  <span>كل الأوقات</span>
+                  <svg class="period-check-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </button>
+              </div>
+            </div>
+            <div style="flex:1; min-width:220px; position:relative;">
+              <input type="text" id="archive-search-input" class="form-input" placeholder="بحث برقم الفاتورة أو اسم العميل..." style="font-size:12.5px; padding:7px 12px; border-radius:8px;" oninput="handleArchiveSearch(this.value)">
+            </div>
+            <span id="archive-date-range-label" style="display:none;">الوردية الحالية</span>
           </div>
-          <div class="archive-filters-row" style="display:flex; gap:6px; flex-wrap:wrap;">
+
+          <!-- Quick Order Fulfillment Filters (Pills) -->
+          <div class="archive-filters-row" style="display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;">
             <button type="button" class="btn btn-sm btn-filter-archive active" data-archive-filter="delivered" onclick="filterArchiveOrders('delivered')">مسلّمة</button>
             <button type="button" class="btn btn-sm btn-filter-archive" data-archive-filter="dine_in" onclick="filterArchiveOrders('dine_in')">صالة</button>
             <button type="button" class="btn btn-sm btn-filter-archive" data-archive-filter="takeaway" onclick="filterArchiveOrders('takeaway')">سفري</button>
             <button type="button" class="btn btn-sm btn-filter-archive" data-archive-filter="delivery" onclick="filterArchiveOrders('delivery')">ديليفري</button>
             <button type="button" class="btn btn-sm btn-filter-archive" data-archive-filter="cancelled" onclick="filterArchiveOrders('cancelled')">ملغاة</button>
-            <button type="button" class="btn btn-sm btn-filter-archive" data-archive-filter="all" onclick="filterArchiveOrders('all')">عرض الكل</button>
+            <button type="button" class="btn btn-sm btn-filter-archive" data-archive-filter="all" onclick="filterArchiveOrders('all')">الكل</button>
           </div>
+
+          <!-- Invoices Cards List -->
+          <div id="admin-archive-container" style="display:flex; flex-direction:column; gap:12px;"></div>
         </div>
 
-        <!-- Archive Orders List Container -->
-        <div id="admin-archive-container" style="display:flex; flex-direction:column; gap:12px;"></div>
+        <!-- ══════════════════════════════════════════════════
+             SUBTAB 2: CLOSED SHIFTS ARCHIVE VIEW (Clean & Zen)
+             ══════════════════════════════════════════════════ -->
+        <div id="archive-subtab-shifts-view" style="display:none;">
+          <!-- Current Active Shift Banner -->
+          <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 18px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="width:10px; height:10px; border-radius:50%; background:#22c55e; display:inline-block; box-shadow:0 0 8px rgba(34,197,94,0.6);"></span>
+              <div>
+                <div id="archive-current-shift-title" style="font-size:14px; font-weight:800; color:var(--text-main);">الوردية الحالية (#1) — جارية الآن</div>
+                <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">
+                  المبيعات الحية: <strong id="archive-current-shift-rev" class="font-num" style="color:var(--primary);">0 ج.م</strong>
+                </div>
+              </div>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" onclick="openShiftCloseModal()" style="font-weight:800; font-size:12px; padding:7px 16px; border-radius:20px;">
+              تقفيل الوردية الحالية
+            </button>
+          </div>
+          <!-- Shifts Financial Summary Strip -->
+          <div style="display:flex; justify-content:space-around; align-items:center; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px 16px; margin-bottom:18px;">
+            <div style="text-align:center;">
+              <div style="font-size:11px; color:var(--text-muted); font-weight:700;">الورديات المقفلة</div>
+              <div id="stat-closed-shifts-count" class="font-num" style="font-size:18px; font-weight:900; color:var(--text-main); margin-top:2px;">0</div>
+            </div>
+            <div style="width:1px; height:24px; background:var(--border);"></div>
+            <div style="text-align:center;">
+              <div style="font-size:11px; color:var(--text-muted); font-weight:700;">إجمالي مبيعاتها</div>
+              <div id="stat-closed-shifts-revenue" class="font-num" style="font-size:18px; font-weight:900; color:var(--primary); margin-top:2px;">0 ج.م</div>
+            </div>
+            <div style="width:1px; height:24px; background:var(--border);"></div>
+            <div style="text-align:center;">
+              <div style="font-size:11px; color:var(--text-muted); font-weight:700;">إجمالي الأرباح</div>
+              <div id="stat-closed-shifts-profit" class="font-num" style="font-size:18px; font-weight:900; color:#16a34a; margin-top:2px;">0 ج.م</div>
+            </div>
+          </div>
+
+          <!-- Shifts Cards List -->
+          <div id="admin-shifts-archive-container" style="display:flex; flex-direction:column; gap:12px;"></div>
+        </div>
+
       </div>
     </div>
 
@@ -873,7 +954,7 @@
     <div id="tab-stories" class="tab-pane" style="display:none;">
       <div class="admin-card">
                 <div style="display:flex; justify-content:flex-end; align-items:center; margin-bottom:16px;">
-          <button id="btn-open-add-story" class="btn btn-primary">
+          <button id="btn-open-add-story" class="btn btn-primary" onclick="openStoryModal(null)">
             إضافة قصة أو عرض جديد
           </button>
         </div>
@@ -1462,6 +1543,35 @@
           <button type="button" class="btn btn-ghost btn-sm" onclick="addRecipeBaseRow()" style="border:1px solid var(--border); font-weight:700;">إضافة مكوّن</button>
         </div>
         
+        <!-- Live Recipe Financial Profitability Bar -->
+        <div id="recipe-profitability-bar" style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:10px 14px; margin-bottom:14px;">
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(100px, 1fr)); gap:10px; align-items:center;">
+            <div>
+              <div style="font-size:11px; color:var(--text-muted); font-weight:700;">تكلفة المقادير</div>
+              <div id="recipe-live-cost" class="font-num" style="font-size:15px; font-weight:900; color:var(--text-main); margin-top:2px;">0.00 ج.م</div>
+            </div>
+            <div>
+              <div style="font-size:11px; color:var(--text-muted); font-weight:700;">سعر البيع</div>
+              <div id="recipe-live-price" class="font-num" style="font-size:15px; font-weight:900; color:var(--text-main); margin-top:2px;">0.00 ج.م</div>
+            </div>
+            <div>
+              <div style="font-size:11px; color:var(--text-muted); font-weight:700;">صافي المكسب</div>
+              <div id="recipe-live-profit" class="font-num" style="font-size:15px; font-weight:900; color:#16a34a; margin-top:2px;">0.00 ج.م</div>
+            </div>
+            <div style="text-align:left;">
+              <div style="font-size:11px; color:var(--text-muted); font-weight:700; margin-bottom:3px;">هامش الربح</div>
+              <span id="recipe-live-margin-badge" style="font-size:11px; font-weight:800; padding:3px 8px; border-radius:6px; background:rgba(34,197,94,0.15); color:#16a34a; display:inline-block;">0%</span>
+            </div>
+          </div>
+          <!-- Quick Smart Pricing Suggester -->
+          <div id="recipe-smart-pricing-row" style="display:none; align-items:center; gap:6px; border-top:1px dashed var(--border); margin-top:8px; padding-top:8px; flex-wrap:wrap;">
+            <span style="font-size:11px; color:var(--text-muted); font-weight:700;">اقتراح سعر بيع:</span>
+            <button type="button" class="btn btn-ghost btn-sm font-num" onclick="applySuggestedPrice(50)" style="padding:2px 8px; font-size:11px; border:1px solid var(--border); border-radius:6px;">ربح 50%</button>
+            <button type="button" class="btn btn-ghost btn-sm font-num" onclick="applySuggestedPrice(60)" style="padding:2px 8px; font-size:11px; border:1px solid var(--border); border-radius:6px;">ربح 60%</button>
+            <button type="button" class="btn btn-ghost btn-sm font-num" onclick="applySuggestedPrice(70)" style="padding:2px 8px; font-size:11px; border:1px solid var(--border); border-radius:6px;">ربح 70%</button>
+          </div>
+        </div>
+
         <!-- Base ingredients consumption -->
         <div style="font-size:11.5px; font-weight:800; color:var(--primary); margin-bottom:6px;">• المقادير الأساسية للصنف:</div>
         <div id="prod-recipe-base-list" style="display:flex; flex-direction:column; gap:8px; margin-bottom:12px;"></div>
@@ -2035,6 +2145,153 @@
        PREMIUM CUSTOM OPTION PICKER (BOTTOM SHEET / MODAL)
        Replaces all native OS picker dialogs with luxury branded UI
        ═══════════════════════════════════════════════════════════ -->
+  
+  <!-- Daily Fast-Track Stock Audit Modal -->
+  <div class="modal-backdrop" id="stock-audit-backdrop" onclick="closeStockAuditModal()"></div>
+  <div class="modal-box" id="stock-audit-modal" style="max-width:640px; max-height:92vh; overflow-y:auto; text-align:right;">
+    <div class="modal-sticky-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid var(--border); padding-bottom:10px;">
+      <div>
+        <h3 style="font-size:1.05rem; font-weight:900; color:var(--text-main); display:flex; align-items:center; gap:8px;">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--primary)" stroke-width="2.2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><path d="m9 14 2 2 4-4"/></svg>
+          الجرد اليومي السريع للمطبخ
+        </h3>
+        <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">أدخل ما وجدته على الميزان لمقارنته فورياً برصيد السيستم واعتماد الفارق</div>
+      </div>
+      <button type="button" class="btn-close" onclick="closeStockAuditModal()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+    </div>
+
+    <!-- Quick Search -->
+    <div style="margin-bottom:12px; position:relative;">
+      <input type="text" id="stock-audit-search" class="form-input" placeholder="تصفية المواد بالاسم..." style="font-size:12.5px; padding:7px 12px; padding-inline-start:34px;" oninput="filterStockAuditItems(this.value)">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" style="position:absolute; right:11px; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+    </div>
+
+    <!-- Items List Container -->
+    <div id="stock-audit-list" style="display:flex; flex-direction:column; gap:10px; max-height:48vh; overflow-y:auto; padding-inline-end:4px; margin-bottom:14px;"></div>
+
+    <!-- Live Variance Summary -->
+    <div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:10px; padding:12px 14px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+      <div>
+        <div style="font-size:11px; color:var(--text-muted); font-weight:700;">ملخص فروقات الجرد المسجلة:</div>
+        <div id="stock-audit-variance-summary" class="font-num" style="font-size:14px; font-weight:900; color:var(--text-main); margin-top:3px;">لم يتم تسجيل فروقات حتى الآن</div>
+      </div>
+      <div style="font-size:11px; color:var(--text-muted);">المواد التي تترك فارغة يبقى رصيدها كما هو دون تعديل</div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div style="display:flex; gap:10px;">
+      <button type="button" class="btn btn-primary" onclick="confirmStockAuditSubmit()" style="flex:1; padding:11px; font-weight:800; display:inline-flex; align-items:center; justify-content:center; gap:6px;">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>اعتماد الجرد وتسوية المخزون فورياً</span>
+      </button>
+      <button type="button" class="btn btn-ghost" onclick="closeStockAuditModal()" style="border:1px solid var(--border); font-weight:700; padding:11px 18px;">إلغاء</button>
+    </div>
+  </div>
+
+  <!-- Daily Shift Close & Profit Modal (Z-Report) -->
+  <div class="modal-backdrop" id="shift-close-backdrop" onclick="closeShiftCloseModal()"></div>
+  <div class="modal-box" id="shift-close-modal" style="max-width:560px; max-height:92vh; overflow-y:auto; text-align:right;">
+    <div class="modal-sticky-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid var(--border); padding-bottom:10px;">
+      <div>
+        <h3 style="font-size:1.05rem; font-weight:900; color:var(--text-main); display:flex; align-items:center; gap:8px;">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--primary)" stroke-width="2.2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+          <span id="shift-close-number-badge">تقفيل الوردية الحالية</span>
+        </h3>
+        <div id="shift-close-period-label" style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">-</div>
+      </div>
+      <button type="button" class="btn-close" onclick="closeShiftCloseModal()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+    </div>
+
+    <!-- Financial P&L Highlight Box (كسبت كام) -->
+    <div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:12px; padding:14px; margin-bottom:16px;">
+      <div style="font-size:12px; font-weight:800; color:var(--primary); margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <span>نبض الأرباح (كسبت كام بعد استهلاك الخامات):</span>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; text-align:center;">
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:10px 8px;">
+          <div style="font-size:10.5px; color:var(--text-muted); font-weight:700;">مبيعات اليوم</div>
+          <div id="shift-close-revenue" class="font-num" style="font-size:16px; font-weight:900; color:var(--text-main); margin-top:2px;">0 ج.م</div>
+        </div>
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:10px 8px;">
+          <div style="font-size:10.5px; color:var(--text-muted); font-weight:700;">تكلفة الخامات (المطبخ)</div>
+          <div id="shift-close-cogs" class="font-num" style="font-size:16px; font-weight:900; color:#ef4444; margin-top:2px;">0 ج.م</div>
+        </div>
+        <div style="background:var(--surface); border:1px solid rgba(34,197,94,0.3); border-radius:8px; padding:10px 8px;">
+          <div style="font-size:10.5px; color:#16a34a; font-weight:800;">صافي الربح التقديري</div>
+          <div id="shift-close-net-profit" class="font-num" style="font-size:16px; font-weight:900; color:#16a34a; margin-top:2px;">+0 ج.م</div>
+        </div>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; font-size:11px; color:var(--text-muted); padding-top:8px; border-top:1px dashed var(--border);">
+        <span>هامش ربح الوردية: <strong id="shift-close-margin-pct" style="color:var(--text-main);" class="font-num">0%</strong></span>
+        <span>الطلبات المنفذة: <strong id="shift-close-order-count" style="color:var(--text-main);" class="font-num">0 طلب</strong></span>
+      </div>
+    </div>
+
+    <!-- Cash Drawer & Electronic Payments Breakdown -->
+    <div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:12px; padding:14px; margin-bottom:16px;">
+      <div style="font-size:12px; font-weight:800; color:var(--text-main); margin-bottom:10px;">توزيع الخزينة وطرق الدفع:</div>
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:var(--surface); border:1px solid var(--border); border-radius:8px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="display:inline-flex; align-items:center; color:var(--text-muted);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><line x1="6" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="18" y2="12"/></svg></span>
+            <span style="font-size:12px; font-weight:800; color:var(--text-main);">كاش الدرج المتوقع:</span>
+          </div>
+          <span id="shift-close-cash-val" class="font-num" style="font-size:15px; font-weight:900; color:var(--text-main);">0 ج.م</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:var(--surface); border:1px solid var(--border); border-radius:8px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="display:inline-flex; align-items:center; color:var(--text-muted);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg></span>
+            <span style="font-size:12px; font-weight:800; color:var(--text-main);">تحويلات (إنستاباي / محفظة):</span>
+          </div>
+          <span id="shift-close-online-val" class="font-num" style="font-size:15px; font-weight:900; color:var(--text-main);">0 ج.م</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:var(--surface); border:1px solid var(--border); border-radius:8px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="display:inline-flex; align-items:center; color:var(--text-muted);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></span>
+            <span style="font-size:12px; font-weight:800; color:var(--text-main);">فيزا / نقاط بيع POS:</span>
+          </div>
+          <span id="shift-close-card-val" class="font-num" style="font-size:15px; font-weight:900; color:var(--text-main);">0 ج.م</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Drawer Count Reconciliation Check -->
+    <div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:12px; padding:14px; margin-bottom:16px;">
+      <div style="font-size:12px; font-weight:800; color:var(--text-main); margin-bottom:6px;">مطابقة الكاش الفعلي بالدرج (اختياري):</div>
+      <div style="font-size:11px; color:var(--text-muted); margin-bottom:10px;">عدّ الفلوس اللي في الدرج واكتبها هنا لاكتشاف أي عجز أو زيادة في الكاش:</div>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <input type="number" id="shift-close-actual-cash-input" class="form-input font-num" placeholder="أدخل مبلغ الكاش الموجود بالدرج" style="flex:1;" oninput="checkShiftCashDiscrepancy(this.value)">
+      </div>
+      <div id="shift-close-cash-diff-badge" style="display:none; margin-top:8px; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:800;"></div>
+    </div>
+
+    <!-- Actions -->
+    <div style="display:flex; gap:10px;">
+      <button type="button" class="btn btn-primary" onclick="confirmCloseAndStartNewShift()" style="flex:1; padding:11px; font-weight:800; display:inline-flex; align-items:center; justify-content:center; gap:6px;">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        <span id="shift-close-action-label">إنهاء الوردية وبدء وردية جديدة فوراً</span>
+      </button>
+      <button type="button" class="btn btn-ghost" onclick="printShiftCloseReport()" style="border:1px solid var(--border); font-weight:700; padding:11px 14px; display:inline-flex; align-items:center; gap:5px;" title="طباعة الإيصال">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        <span>طباعة</span>
+      </button>
+      <button type="button" class="btn btn-ghost" onclick="closeShiftCloseModal()" style="border:1px solid var(--border); font-weight:700; padding:11px 16px;">إلغاء</button>
+    </div>
+
+    <!-- Shifts History Accordion -->
+    <div style="border-top:1px dashed var(--border); margin-top:14px; padding-top:12px;">
+      <button type="button" class="btn btn-ghost btn-sm" onclick="toggleShiftsHistoryList()" style="width:100%; border:1px solid var(--border); font-weight:800; font-size:12px; display:flex; justify-content:space-between; align-items:center; padding:8px 12px; border-radius:8px;">
+        <span style="display:flex; align-items:center; gap:6px;">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>
+          <span>سجل تقفيل الورديات السابقة</span>
+        </span>
+        <span id="shifts-history-toggle-icon" style="font-size:11px; color:var(--text-muted);">عرض السجل ▼</span>
+      </button>
+      <div id="shifts-history-container" style="display:none; margin-top:10px; max-height:220px; overflow-y:auto; flex-direction:column; gap:8px;"></div>
+    </div>
+  </div>
+
   <div id="custom-picker-sheet" class="custom-picker-sheet" onclick="if(event.target===this || event.target.classList.contains('custom-picker-backdrop')) closeOptionPickerSheet()">
     <div class="custom-picker-backdrop"></div>
     <div class="custom-picker-panel">
@@ -2061,20 +2318,20 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=98.0"></script>
-  <script src="js/core/sound-effects.js?v=98.0"></script>
-  <script src="js/store.js?v=98.0"></script>
-  <script src="js/admin/admin-core.js?v=98.0"></script>
-  <script src="js/admin/admin-auth.js?v=98.0"></script>
-  <script src="js/admin/kitchen-orders.js?v=98.0"></script>
-  <script src="js/admin/inventory-manager.js?v=98.0"></script>
-  <script src="js/admin/catalog-manager.js?v=98.0"></script>
-  <script src="js/admin/category-manager.js?v=98.0"></script>
-  <script src="js/admin/stories-manager.js?v=98.0"></script>
-  <script src="js/admin/backup-restore.js?v=98.0"></script>
-  <script src="js/admin/settings-manager.js?v=98.0"></script>
-  <script src="js/admin/pos-terminal.js?v=98.0"></script>
-  <script src="js/admin.js?v=98.0"></script>
-  <script src="js/pwa.js?v=98.0"></script>
+  <script src="js/core/demo-seed-data.js?v=117.0"></script>
+  <script src="js/core/sound-effects.js?v=117.0"></script>
+  <script src="js/store.js?v=117.0"></script>
+  <script src="js/admin/admin-core.js?v=117.0"></script>
+  <script src="js/admin/admin-auth.js?v=117.0"></script>
+  <script src="js/admin/kitchen-orders.js?v=117.0"></script>
+  <script src="js/admin/inventory-manager.js?v=117.0"></script>
+  <script src="js/admin/catalog-manager.js?v=117.0"></script>
+  <script src="js/admin/category-manager.js?v=117.0"></script>
+  <script src="js/admin/stories-manager.js?v=117.0"></script>
+  <script src="js/admin/backup-restore.js?v=117.0"></script>
+  <script src="js/admin/settings-manager.js?v=117.0"></script>
+  <script src="js/admin/pos-terminal.js?v=117.0"></script>
+  <script src="js/admin.js?v=117.0"></script>
+  <script src="js/pwa.js?v=117.0"></script>
 </body>
 </html>

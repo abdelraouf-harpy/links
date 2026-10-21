@@ -103,16 +103,20 @@ function renderInventory() {
   });
 
   // Update summary stats in DOM
-  const totalEl = document.getElementById('inv-stat-total');
-  const lowEl = document.getElementById('inv-stat-low');
-  const safeEl = document.getElementById('inv-stat-safe');
   const valEl = document.getElementById('inv-stat-value');
   const drawerBadge = document.getElementById('inventory-low-stock-badge');
 
-  if (totalEl) totalEl.textContent = materials.length;
-  if (lowEl) lowEl.textContent = lowCount;
-  if (safeEl) safeEl.textContent = safeCount;
-  if (valEl) valEl.textContent = `${totalValue.toFixed(0)} ${currency}`;
+  if (valEl) {
+    valEl.innerHTML = `<span dir="ltr">${Number(totalValue.toFixed(0)).toLocaleString('en-US')}</span> <span style="font-size:11px; font-weight:700; opacity:0.85;">${currency}</span>`;
+  }
+
+  // Update filter pill live count badges
+  const bAll = document.getElementById('inv-filter-badge-all');
+  const bSafe = document.getElementById('inv-filter-badge-safe');
+  const bLow = document.getElementById('inv-filter-badge-low');
+  if (bAll) bAll.textContent = materials.length;
+  if (bSafe) bSafe.textContent = safeCount;
+  if (bLow) bLow.textContent = lowCount;
 
   // Update drawer badge
   if (drawerBadge) {
@@ -183,9 +187,9 @@ function renderInventory() {
       statusBadge = `<span style="background:rgba(245,158,11,0.15); color:#d97706; font-size:11px; font-weight:800; padding:2px 8px; border-radius:6px; display:inline-flex; align-items:center; gap:4px;"><span style="width:6px; height:6px; border-radius:50%; background:#f59e0b;"></span>قارب على النفاد</span>`;
     }
 
-    // Gauge calculation
-    const benchmark = Math.max(minAlert * 2, stock, 1);
-    const pct = Math.min(100, Math.max(0, (stock / benchmark) * 100));
+    // Gauge calculation: realistic stock gauge
+    const maxCap = Math.max(parseFloat(m.maxStock) || 0, (minAlert * 3), stock, 1);
+    const pct = isOut ? 0 : Math.min(100, Math.max(4, (stock / maxCap) * 100));
     const barColor = isOut ? '#ef4444' : (isLow ? '#f59e0b' : '#22c55e');
 
     return `
@@ -209,25 +213,25 @@ function renderInventory() {
             <div style="width:100%; height:6px; background:var(--border); border-radius:3px; overflow:hidden;">
               <div style="width:${pct}%; height:100%; background:${barColor}; border-radius:3px; transition:width 0.3s ease;"></div>
             </div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px; font-size:10px; color:var(--text-muted);">
-              <span>حد التنبيه: ${minAlert.toLocaleString('en-US')} ${UNIT_LABELS[m.unit] || m.unit}</span>
-              ${cost > 0 ? `<span>التكلفة: ${cost} ${currency}/${UNIT_LABELS[m.unit] || m.unit}</span>` : ''}
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px; font-size:10.5px; color:var(--text-muted);">
+              <span>حد التنبيه: <strong class="font-num">${minAlert.toLocaleString('en-US')}</strong> ${UNIT_LABELS[m.unit] || m.unit}</span>
+              ${cost > 0 ? `<span>التكلفة: <strong class="font-num">${cost}</strong> ${currency}/${UNIT_LABELS[m.unit] || m.unit}</span>` : `<span style="color:var(--text-muted); opacity:0.65; font-style:italic;">التكلفة: غير محددة</span>`}
             </div>
           </div>
         </div>
 
         <!-- Action Buttons -->
         <div style="display:flex; gap:6px; align-items:center; border-top:1px solid var(--border); padding-top:10px; margin-top:6px;">
-          <button type="button" class="btn btn-sm btn-primary" onclick="openRestockModal('${m.id}')" style="flex:1; font-weight:800; font-size:12px; padding:6px 10px; display:inline-flex; align-items:center; justify-content:center; gap:5px;">
+          <button type="button" class="btn btn-sm btn-primary" onclick="openRestockModal('${m.id}')" style="flex:1; height:32px; font-weight:800; font-size:12px; padding:0 12px; display:inline-flex; align-items:center; justify-content:center; gap:5px; border-radius:var(--radius-xs);">
             <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             <span>وارد جديد</span>
           </button>
-          <button type="button" class="btn btn-sm btn-ghost" onclick="openRawMaterialModal('${m.id}')" title="تعديل المادة الخام" style="border:1px solid var(--border); padding:6px 10px; font-size:12px; font-weight:700;">
-            <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+          <button type="button" class="btn btn-sm btn-ghost" onclick="openRawMaterialModal('${m.id}')" title="تعديل المادة الخام" style="height:32px; border:1px solid var(--border); padding:0 12px; font-size:12px; font-weight:700; display:inline-flex; align-items:center; gap:5px; border-radius:var(--radius-xs);">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
             <span>تعديل</span>
           </button>
-          <button type="button" class="btn btn-sm btn-ghost" onclick="deleteRawMaterialFast('${m.id}')" title="حذف المادة الخام" style="color:var(--danger); border:1px solid rgba(239,68,68,0.25); padding:6px 8px; border-radius:6px;">
-            <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+          <button type="button" class="btn btn-sm btn-ghost" onclick="deleteRawMaterialFast('${m.id}')" title="حذف المادة الخام" aria-label="حذف المادة الخام" style="width:32px; height:32px; min-width:32px; padding:0; display:inline-flex; align-items:center; justify-content:center; color:var(--danger); border:1px solid rgba(239,68,68,0.3); border-radius:var(--radius-xs);">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
           </button>
         </div>
       </div>
@@ -410,6 +414,248 @@ async function deleteRawMaterialFast(materialId) {
   }
 }
 
+// ═══════════════════════════════════════════════════════════
+// Fast-Track Daily Stock Audit (الجرد اليومي السريع للمطبخ)
+// ═══════════════════════════════════════════════════════════
+
+let currentStockAuditSearch = '';
+
+function openStockAuditModal() {
+  const modal = document.getElementById('stock-audit-modal');
+  const backdrop = document.getElementById('stock-audit-backdrop');
+  const searchInput = document.getElementById('stock-audit-search');
+  if (searchInput) searchInput.value = '';
+  currentStockAuditSearch = '';
+
+  renderStockAuditList();
+
+  if (modal) modal.classList.add('open', 'show');
+  if (backdrop) backdrop.classList.add('open', 'show');
+  if (searchInput) setTimeout(() => searchInput.focus(), 100);
+}
+
+function closeStockAuditModal() {
+  const modal = document.getElementById('stock-audit-modal');
+  const backdrop = document.getElementById('stock-audit-backdrop');
+  if (modal) modal.classList.remove('open', 'show');
+  if (backdrop) backdrop.classList.remove('open', 'show');
+}
+
+function filterStockAuditItems(query) {
+  currentStockAuditSearch = (query || '').trim().toLowerCase();
+  renderStockAuditList();
+}
+
+function renderStockAuditList() {
+  const listContainer = document.getElementById('stock-audit-list');
+  if (!listContainer) return;
+
+  const materials = (Store.getRawMaterials ? Store.getRawMaterials() : []) || [];
+  const currency = (Store.getSettings ? Store.getSettings().currency : 'ج.م') || 'ج.م';
+
+  const filtered = materials.filter(m => {
+    if (!currentStockAuditSearch) return true;
+    return (m.name || '').toLowerCase().includes(currentStockAuditSearch);
+  });
+
+  if (filtered.length === 0) {
+    listContainer.innerHTML = `
+      <div style="text-align:center; padding:24px 10px; color:var(--text-muted); font-size:12.5px;">
+        لا توجد مواد خام تطابق البحث
+      </div>
+    `;
+    updateStockAuditSummary();
+    return;
+  }
+
+  listContainer.innerHTML = filtered.map(m => {
+    const stock = parseFloat(m.stock) || 0;
+    const unitLabel = UNIT_LABELS[m.unit] || m.unit;
+    const cost = parseFloat(m.costPerUnit) || 0;
+
+    return `
+      <div class="stock-audit-row" data-mat-id="${m.id}" data-system-stock="${stock}" data-unit-cost="${cost}" data-unit="${m.unit}" style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:10px 12px; display:flex; flex-direction:column; gap:8px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+          <div>
+            <span style="font-size:13.5px; font-weight:900; color:var(--text-main);">${Store.escapeHtml(m.name)}</span>
+            <span style="font-size:11px; color:var(--text-muted); margin-inline-start:4px;">(${unitLabel})</span>
+          </div>
+          <div style="font-size:11.5px; color:var(--text-muted);">
+            رصيد السيستم: <strong class="font-num" style="color:var(--text-main); font-weight:800;">${stock.toLocaleString('en-US')} ${unitLabel}</strong>
+          </div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+          <div style="flex:1; min-width:140px; position:relative; display:flex; align-items:center;">
+            <input type="number" step="any" min="0" class="form-input font-num stock-audit-actual-input" placeholder="اكتب الموجود على الميزان" style="padding:6px 10px; font-size:13px; font-weight:800;" data-mat-id="${m.id}" oninput="handleStockAuditRowChange('${m.id}')">
+            <span style="position:absolute; left:10px; font-size:11px; font-weight:800; color:var(--text-muted); pointer-events:none;">${unitLabel}</span>
+          </div>
+          <div id="stock-audit-diff-${m.id}" class="stock-audit-diff-badge" style="min-width:120px; text-align:center; font-size:11.5px; font-weight:800; padding:5px 10px; border-radius:6px; background:var(--surface-raised); border:1px solid var(--border); color:var(--text-muted);">
+            بانتظار الإدخال
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  updateStockAuditSummary();
+}
+
+function handleStockAuditRowChange(matId) {
+  const row = document.querySelector(`.stock-audit-row[data-mat-id="${matId}"]`);
+  if (!row) return;
+
+  const diffBadge = document.getElementById(`stock-audit-diff-${matId}`);
+  const input = row.querySelector('.stock-audit-actual-input');
+  const systemStock = parseFloat(row.getAttribute('data-system-stock')) || 0;
+  const unitCost = parseFloat(row.getAttribute('data-unit-cost')) || 0;
+  const unit = row.getAttribute('data-unit') || '';
+  const unitLabel = UNIT_LABELS[unit] || unit;
+  const currency = (Store.getSettings ? Store.getSettings().currency : 'ج.م') || 'ج.م';
+
+  const rawVal = input ? input.value.trim() : '';
+  if (rawVal === '') {
+    if (diffBadge) {
+      diffBadge.style.background = 'var(--surface-raised)';
+      diffBadge.style.borderColor = 'var(--border)';
+      diffBadge.style.color = 'var(--text-muted)';
+      diffBadge.textContent = 'بانتظار الإدخال';
+    }
+    updateStockAuditSummary();
+    return;
+  }
+
+  const actualStock = parseFloat(rawVal) || 0;
+  const diff = Math.round((actualStock - systemStock) * 1000) / 1000;
+  const moneyDiff = Math.round(diff * unitCost * 10) / 10;
+
+  if (diff === 0) {
+    diffBadge.style.background = 'rgba(34,197,94,0.15)';
+    diffBadge.style.borderColor = 'rgba(34,197,94,0.3)';
+    diffBadge.style.color = '#16a34a';
+    diffBadge.textContent = 'مطابق تماماً ✓';
+  } else if (diff < 0) {
+    diffBadge.style.background = 'rgba(239,68,68,0.15)';
+    diffBadge.style.borderColor = 'rgba(239,68,68,0.3)';
+    diffBadge.style.color = '#ef4444';
+    const moneyStr = unitCost > 0 ? ` (${moneyDiff} ${currency})` : '';
+    diffBadge.textContent = `عجز: ${diff} ${unitLabel}${moneyStr}`;
+  } else {
+    diffBadge.style.background = 'rgba(59,130,246,0.15)';
+    diffBadge.style.borderColor = 'rgba(59,130,246,0.3)';
+    diffBadge.style.color = '#3b82f6';
+    const moneyStr = unitCost > 0 ? ` (+${moneyDiff} ${currency})` : '';
+    diffBadge.textContent = `زيادة: +${diff} ${unitLabel}${moneyStr}`;
+  }
+
+  updateStockAuditSummary();
+}
+
+function updateStockAuditSummary() {
+  const summaryEl = document.getElementById('stock-audit-variance-summary');
+  if (!summaryEl) return;
+
+  const rows = document.querySelectorAll('.stock-audit-row');
+  let filledCount = 0;
+  let netMoneyDiff = 0;
+  let deficitCount = 0;
+  let surplusCount = 0;
+  const currency = (Store.getSettings ? Store.getSettings().currency : 'ج.م') || 'ج.م';
+
+  rows.forEach(row => {
+    const input = row.querySelector('.stock-audit-actual-input');
+    const rawVal = input ? input.value.trim() : '';
+    if (rawVal !== '') {
+      filledCount++;
+      const systemStock = parseFloat(row.getAttribute('data-system-stock')) || 0;
+      const unitCost = parseFloat(row.getAttribute('data-unit-cost')) || 0;
+      const actualStock = parseFloat(rawVal) || 0;
+      const diff = actualStock - systemStock;
+      const moneyDiff = diff * unitCost;
+      netMoneyDiff += moneyDiff;
+      if (diff < 0) deficitCount++;
+      else if (diff > 0) surplusCount++;
+    }
+  });
+
+  if (filledCount === 0) {
+    summaryEl.textContent = 'لم يتم تسجيل فروقات حتى الآن';
+    summaryEl.style.color = 'var(--text-main)';
+    return;
+  }
+
+  if (netMoneyDiff === 0 && deficitCount === 0 && surplusCount === 0) {
+    summaryEl.textContent = `تم جرد ${filledCount} مادة: جميع الكميات مطابقة 100% ✓`;
+    summaryEl.style.color = '#16a34a';
+  } else if (netMoneyDiff < 0) {
+    summaryEl.textContent = `تم جرد ${filledCount} مادة: إجمالي عجز المخزون ${netMoneyDiff.toFixed(1)} ${currency} (${deficitCount} أصناف عجز)`;
+    summaryEl.style.color = '#ef4444';
+  } else {
+    summaryEl.textContent = `تم جرد ${filledCount} مادة: إجمالي زيادة المخزون +${netMoneyDiff.toFixed(1)} ${currency}`;
+    summaryEl.style.color = '#3b82f6';
+  }
+}
+
+async function confirmStockAuditSubmit() {
+  const materials = (Store.getRawMaterials ? Store.getRawMaterials() : []) || [];
+  const rows = document.querySelectorAll('.stock-audit-row');
+
+  const updates = [];
+  rows.forEach(row => {
+    const matId = row.getAttribute('data-mat-id');
+    const input = row.querySelector('.stock-audit-actual-input');
+    const rawVal = input ? input.value.trim() : '';
+    if (rawVal !== '') {
+      const actualVal = parseFloat(rawVal) || 0;
+      updates.push({ id: matId, newStock: actualVal });
+    }
+  });
+
+  if (updates.length === 0) {
+    if (typeof showToastNotification === 'function') {
+      showToastNotification("يرجى إدخال كمية جرد فعلية لمادة واحدة على الأقل قبل الاعتماد", "info");
+    }
+    return;
+  }
+
+  const confirmed = await showCustomConfirm({
+    title: "اعتماد الجرد وتسوية المخزون",
+    message: `سيتم اعتماد وتحديث رصيد <strong>${updates.length} مادة خام</strong> بالكميات الفعلية المسجلة الآن في السيستم فورياً. هل تريد المتابعة؟`,
+    confirmText: "تأكيد واعتماد الجرد",
+    cancelText: "مراجعة",
+    isDanger: false
+  });
+
+  if (!confirmed) return;
+
+  const updateMap = new Map(updates.map(u => [u.id, u.newStock]));
+  const updatedMaterials = materials.map(m => {
+    if (updateMap.has(m.id)) {
+      return {
+        ...m,
+        stock: updateMap.get(m.id),
+        lastAuditDate: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+    }
+    return m;
+  });
+
+  try {
+    await Store.saveRawMaterials(updatedMaterials);
+    if (typeof showToastNotification === 'function') {
+      showToastNotification(`تم اعتماد الجرد وتسوية رصيد ${updates.length} مادة خام بنجاح!`, "success");
+    }
+    closeStockAuditModal();
+    renderInventory();
+  } catch (err) {
+    console.error("[Inventory Audit] Error:", err);
+    if (typeof showToastNotification === 'function') {
+      showToastNotification("حدث خطأ أثناء حفظ الجرد: " + (err.message || 'فشل الاتصال'), "error");
+    }
+  }
+}
+
 window.initInventoryManagement = initInventoryManagement;
 window.renderInventory = renderInventory;
 window.filterInventory = filterInventory;
@@ -420,3 +666,8 @@ window.openRestockModal = openRestockModal;
 window.closeRestockModal = closeRestockModal;
 window.submitRestockForm = submitRestockForm;
 window.deleteRawMaterialFast = deleteRawMaterialFast;
+window.openStockAuditModal = openStockAuditModal;
+window.closeStockAuditModal = closeStockAuditModal;
+window.filterStockAuditItems = filterStockAuditItems;
+window.handleStockAuditRowChange = handleStockAuditRowChange;
+window.confirmStockAuditSubmit = confirmStockAuditSubmit;

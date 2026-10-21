@@ -1379,7 +1379,7 @@ function updateAccountDrawerProfileUI() {
     if (editAddress && !editAddress.value) editAddress.value = profile.address || '';
     if (addrEl) {
       if (profile.address) {
-        addrEl.textContent = '📍 ' + profile.address;
+        addrEl.textContent = profile.address;
         addrEl.style.display = 'block';
       } else {
         addrEl.style.display = 'none';

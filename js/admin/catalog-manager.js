@@ -51,8 +51,18 @@ function setupProductManagement() {
     });
   }
 
+  const prodPriceInput = document.getElementById('prod-price');
+  if (prodPriceInput) {
+    prodPriceInput.addEventListener('input', () => {
+      if (typeof updateRecipeProfitCockpit === 'function') updateRecipeProfitCockpit();
+    });
+  }
+
   window.addEventListener('store_products_updated', () => renderCatalog());
   window.addEventListener('store_categories_updated', () => renderCatalog());
+  window.addEventListener('store_raw_materials_updated', () => {
+    if (typeof updateRecipeProfitCockpit === 'function') updateRecipeProfitCockpit();
+  });
 }
 
 function handleCatalogSearch(val) {
@@ -379,9 +389,118 @@ window.openRecipeMaterialPicker = function(triggerBtn) {
       }
       if (nameDisplay) nameDisplay.textContent = chosen.label;
       if (unitLabel) unitLabel.textContent = chosen.badge || '';
+      if (typeof updateRecipeProfitCockpit === 'function') updateRecipeProfitCockpit();
     }
   });
 };
+
+function updateRecipeProfitCockpit() {
+  const costEl = document.getElementById('recipe-live-cost');
+  const priceEl = document.getElementById('recipe-live-price');
+  const profitEl = document.getElementById('recipe-live-profit');
+  const badgeEl = document.getElementById('recipe-live-margin-badge');
+  const pricingRow = document.getElementById('recipe-smart-pricing-row');
+
+  if (!costEl || !priceEl || !profitEl || !badgeEl) return;
+
+  const mats = (Store.getRawMaterials ? Store.getRawMaterials() : []) || [];
+  const matMap = new Map(mats.map(m => [String(m.id), m]));
+  const currency = (Store.getSettings ? Store.getSettings().currency : 'ج.م') || 'ج.م';
+
+  let totalCost = 0;
+  document.querySelectorAll('#prod-recipe-base-list .recipe-base-row').forEach(row => {
+    const matId = row.querySelector('.recipe-mat-select')?.value;
+    const amt = parseFloat(row.querySelector('.recipe-amount-input')?.value) || 0;
+    if (matId && amt > 0) {
+      const mat = matMap.get(String(matId));
+      const unitCost = parseFloat(mat?.costPerUnit) || 0;
+      totalCost += (amt * unitCost);
+    }
+  });
+
+  const priceVal = parseFloat(document.getElementById('prod-price')?.value) || 0;
+  const netProfit = priceVal - totalCost;
+  const marginPct = priceVal > 0 ? Math.round((netProfit / priceVal) * 100) : 0;
+
+  costEl.textContent = `${totalCost.toFixed(2)} ${currency}`;
+  priceEl.textContent = `${priceVal.toFixed(2)} ${currency}`;
+
+  if (priceVal > 0 || totalCost > 0) {
+    if (netProfit >= 0) {
+      profitEl.textContent = `+${netProfit.toFixed(2)} ${currency}`;
+      profitEl.style.color = '#16a34a';
+    } else {
+      profitEl.textContent = `${netProfit.toFixed(2)} ${currency}`;
+      profitEl.style.color = 'var(--danger, #ef4444)';
+    }
+
+    if (netProfit < 0) {
+      badgeEl.style.background = 'rgba(239,68,68,0.15)';
+      badgeEl.style.color = '#ef4444';
+      badgeEl.textContent = `${marginPct}% (خسارة)`;
+    } else if (marginPct < 30) {
+      badgeEl.style.background = 'rgba(245,158,11,0.15)';
+      badgeEl.style.color = '#d97706';
+      badgeEl.textContent = `${marginPct}% (منخفض)`;
+    } else if (marginPct >= 50) {
+      badgeEl.style.background = 'rgba(22,163,74,0.15)';
+      badgeEl.style.color = '#16a34a';
+      badgeEl.textContent = `${marginPct}% (ممتاز)`;
+    } else {
+      badgeEl.style.background = 'rgba(22,163,74,0.15)';
+      badgeEl.style.color = '#16a34a';
+      badgeEl.textContent = `${marginPct}% (متزن)`;
+    }
+  } else {
+    profitEl.textContent = `0.00 ${currency}`;
+    profitEl.style.color = 'var(--text-main)';
+    badgeEl.style.background = 'rgba(22,163,74,0.15)';
+    badgeEl.style.color = '#16a34a';
+    badgeEl.textContent = `0%`;
+  }
+
+  if (pricingRow) {
+    pricingRow.style.display = totalCost > 0 ? 'flex' : 'none';
+  }
+}
+
+window.applySuggestedPrice = function(targetMarginPct) {
+  const mats = (Store.getRawMaterials ? Store.getRawMaterials() : []) || [];
+  const matMap = new Map(mats.map(m => [String(m.id), m]));
+
+  let totalCost = 0;
+  document.querySelectorAll('#prod-recipe-base-list .recipe-base-row').forEach(row => {
+    const matId = row.querySelector('.recipe-mat-select')?.value;
+    const amt = parseFloat(row.querySelector('.recipe-amount-input')?.value) || 0;
+    if (matId && amt > 0) {
+      const mat = matMap.get(String(matId));
+      const unitCost = parseFloat(mat?.costPerUnit) || 0;
+      totalCost += (amt * unitCost);
+    }
+  });
+
+  if (totalCost <= 0) {
+    if (typeof showToastNotification === 'function') {
+      showToastNotification("يرجى تحديد مكونات وكميات الوجبة أولاً لاحتساب التكلفة", "info");
+    }
+    return;
+  }
+  const marginRatio = (targetMarginPct || 50) / 100;
+  if (marginRatio >= 1) return;
+  
+  let suggested = totalCost / (1 - marginRatio);
+  suggested = Math.ceil(suggested);
+  if (suggested > 20 && (suggested % 5 === 1 || suggested % 5 === 4)) {
+    suggested = Math.round(suggested / 5) * 5;
+  }
+
+  const priceInput = document.getElementById('prod-price');
+  if (priceInput) {
+    priceInput.value = suggested;
+    updateRecipeProfitCockpit();
+  }
+};
+window.updateRecipeProfitCockpit = updateRecipeProfitCockpit;
 
 function getRawMaterialSelectOptions(selectedId = '') {
   const mats = (Store.getRawMaterials ? Store.getRawMaterials() : []) || [];
@@ -414,12 +533,20 @@ window.addRecipeBaseRow = function(materialId = '', amount = '') {
       <input type="number" class="form-input font-num recipe-amount-input" placeholder="المقدار" value="${amount}" step="any" min="0" style="padding:6px 8px; font-size:12px; flex:1;">
       <span class="recipe-unit-label text-muted" style="font-size:11px; font-weight:700; min-width:26px;">${initialUnit}</span>
     </div>
-    <button type="button" class="btn btn-ghost btn-sm" style="color:var(--danger); padding:4px 8px;" onclick="this.parentElement.remove()">
+    <button type="button" class="btn btn-ghost btn-sm" style="color:var(--danger); padding:4px 8px;" onclick="this.parentElement.remove(); if(typeof updateRecipeProfitCockpit==='function') updateRecipeProfitCockpit();">
       <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </button>
   `;
 
+  const amtInput = div.querySelector('.recipe-amount-input');
+  if (amtInput) {
+    amtInput.addEventListener('input', () => {
+      if (typeof updateRecipeProfitCockpit === 'function') updateRecipeProfitCockpit();
+    });
+  }
+
   list.appendChild(div);
+  if (typeof updateRecipeProfitCockpit === 'function') updateRecipeProfitCockpit();
 };
 
 function syncRecipeSizesUI(savedSizesRecipe = null) {
@@ -698,6 +825,10 @@ function openProductModal(productId) {
 
     syncRecipeSizesUI(null);
     syncRecipeAddonsUI(null);
+  }
+
+  if (typeof updateRecipeProfitCockpit === 'function') {
+    updateRecipeProfitCockpit();
   }
 
   if (adminElements.productModal) adminElements.productModal.classList.add('open');
