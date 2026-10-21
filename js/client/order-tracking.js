@@ -36,6 +36,7 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
 
   // 1. Validate Table Number for Dine-In
   if (fType === 'dinein' && !tableNum) {
+    if (typeof window.toggleCustomerProfileEdit === 'function') window.toggleCustomerProfileEdit(true);
     showToastNotification("يرجى إدخال رقم الطاولة في الصالة للمتابعة", "warning");
     const tInput = document.getElementById('cust-table-number');
     if (tInput) {
@@ -47,6 +48,7 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
 
   // 2. Validate Name
   if (!name || name.length < 2) {
+    if (typeof window.toggleCustomerProfileEdit === 'function') window.toggleCustomerProfileEdit(true);
     showToastNotification("يرجى كتابة الاسم لتسهيل التواصل ومتابعة الطلب", "warning");
     if (elements.custName) {
       elements.custName.focus();
@@ -57,6 +59,7 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
 
   // 3. Validate Phone
   if (!phone) {
+    if (typeof window.toggleCustomerProfileEdit === 'function') window.toggleCustomerProfileEdit(true);
     showToastNotification("يرجى كتابة رقم الهاتف للتواصل بخصوص الطلب", "warning");
     if (elements.custPhone) {
       elements.custPhone.focus();
@@ -69,6 +72,7 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
   const egyptianMobile = /^(01[0-9]{9})$/.test(phoneDigits);
   const internationalMobile = /^(20[0-9]{10}|[0-9]{10,15})$/.test(phoneDigits);
   if (!egyptianMobile && !internationalMobile) {
+    if (typeof window.toggleCustomerProfileEdit === 'function') window.toggleCustomerProfileEdit(true);
     showToastNotification("يرجى التأكد من صحة رقم الهاتف للتواصل (مثال: 01012345678)", "warning");
     if (elements.custPhone) {
       elements.custPhone.focus();
@@ -79,6 +83,7 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
 
   // 4. Validate Detailed Address for Delivery
   if (fType === 'delivery' && (!address || address.length < 5)) {
+    if (typeof window.toggleCustomerProfileEdit === 'function') window.toggleCustomerProfileEdit(true);
     showToastNotification("يرجى كتابة عنوان التوصيل بالتفصيل لضمان سرعة الوصول", "warning");
     if (elements.custAddress) {
       elements.custAddress.focus();
@@ -211,11 +216,11 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
   };
 
   // 1. Show transient loading state on submit buttons
-  const submitBtns = document.querySelectorAll('#btn-confirm-order, #btn-confirm-order-whatsapp, .btn-confirm-checkout');
+  const submitBtns = document.querySelectorAll('#btn-confirm-order, #btn-confirm-order-whatsapp, .btn-confirm-checkout, #btn-confirm-order-direct');
   submitBtns.forEach(b => {
     b.dataset.origText = b.innerHTML;
     b.disabled = true;
-    b.innerHTML = 'جارٍ تأكيد الطلب';
+    b.innerHTML = 'جارٍ تأكيد وإرسال الطلب...';
   });
 
   // 2. Await verified cloud push

@@ -54,6 +54,10 @@ window.setFulfillmentType = function(type) {
     if (addressInp) addressInp.required = false;
   }
 
+  if (typeof window.updateCartSavedProfileCard === 'function') {
+    window.updateCartSavedProfileCard();
+  }
+
   if (typeof updateLedgerUI === 'function') updateLedgerUI();
 };
 
@@ -351,6 +355,11 @@ function updateLedgerUI() {
   if (elements.cartTotalPrice) {
     elements.cartTotalPrice.innerHTML = `${finalTotal.toFixed(2)} <span>${currency}</span>`;
   }
+  const step1Total = roundCurrency(Math.max(0, subtotal - spendTierDiscountAmount - couponDiscountAmount));
+  const cartTotalPriceS1 = document.getElementById('cart-total-price-s1');
+  if (cartTotalPriceS1) {
+    cartTotalPriceS1.innerHTML = `${step1Total.toFixed(2)} <span>${currency}</span>`;
+  }
 
   if (elements.cartOriginalStrikethrough) {
     if (totalDiscounts > 0 && subtotal > 0) {
@@ -360,10 +369,25 @@ function updateLedgerUI() {
       elements.cartOriginalStrikethrough.style.display = 'none';
     }
   }
+  const cartOriginalStrikethroughS1 = document.getElementById('cart-original-strikethrough-s1');
+  if (cartOriginalStrikethroughS1) {
+    if (totalDiscounts > 0 && subtotal > 0) {
+      cartOriginalStrikethroughS1.style.display = 'inline-block';
+      cartOriginalStrikethroughS1.textContent = `${subtotal.toFixed(2)} ${currency}`;
+    } else {
+      cartOriginalStrikethroughS1.style.display = 'none';
+    }
+  }
 
   if (elements.subtotalSummaryRow) {
     elements.subtotalSummaryRow.style.display = (totalDiscounts > 0 && subtotal > 0) ? 'flex' : 'none';
     if (elements.subtotalValDisplay) elements.subtotalValDisplay.textContent = `${subtotal.toFixed(2)} ${currency}`;
+  }
+  const subtotalSummaryRowS1 = document.getElementById('subtotal-summary-row-s1');
+  const subtotalValDisplayS1 = document.getElementById('subtotal-val-display-s1');
+  if (subtotalSummaryRowS1) {
+    subtotalSummaryRowS1.style.display = (totalDiscounts > 0 && subtotal > 0) ? 'flex' : 'none';
+    if (subtotalValDisplayS1) subtotalValDisplayS1.textContent = `${subtotal.toFixed(2)} ${currency}`;
   }
 
   if (elements.spendTierDiscountRow) {
@@ -376,6 +400,12 @@ function updateLedgerUI() {
     elements.promoDiscountRow.style.display = couponDiscountAmount > 0 ? 'flex' : 'none';
     if (elements.promoNameBadge && appliedCoupon) elements.promoNameBadge.textContent = appliedCoupon.code;
     if (elements.promoDiscountVal) elements.promoDiscountVal.textContent = `-${couponDiscountAmount.toFixed(2)} ${currency}`;
+  }
+  const promoDiscountRowS1 = document.getElementById('promo-discount-row-s1');
+  const promoDiscountValS1 = document.getElementById('promo-discount-val-s1');
+  if (promoDiscountRowS1) {
+    promoDiscountRowS1.style.display = couponDiscountAmount > 0 ? 'flex' : 'none';
+    if (promoDiscountValS1) promoDiscountValS1.textContent = `-${couponDiscountAmount.toFixed(2)} ${currency}`;
   }
 
   if (elements.walletDiscountRow) {
@@ -402,6 +432,37 @@ function updateLedgerUI() {
     elements.walletAmountReminder.textContent = `${finalTotal.toFixed(2)} ${currency}`;
   }
 
+  // Handle Empty State vs Step View Visibility
+  const emptyView = document.getElementById('cart-empty-view');
+  const step1View = document.getElementById('drawer-step-1');
+  const step2View = document.getElementById('drawer-step-2');
+  const titleText = document.getElementById('cart-drawer-title-text');
+  const countBadge = document.getElementById('cart-drawer-items-count-badge');
+
+  if (cart.length === 0) {
+    if (emptyView) emptyView.style.display = 'flex';
+    if (step1View) step1View.style.display = 'none';
+    if (step2View) step2View.style.display = 'none';
+    if (titleText) titleText.textContent = "سلة الطلبات";
+    if (countBadge) countBadge.style.display = 'none';
+  } else {
+    if (emptyView) emptyView.style.display = 'none';
+    if (currentCheckoutStep === 2) {
+      if (step1View) step1View.style.display = 'none';
+      if (step2View) step2View.style.display = 'flex';
+      if (titleText) titleText.textContent = "الاستلام والدفع";
+      if (countBadge) countBadge.style.display = 'none';
+    } else {
+      if (step1View) step1View.style.display = 'flex';
+      if (step2View) step2View.style.display = 'none';
+      if (titleText) titleText.textContent = "سلة الطلبات";
+      if (countBadge) {
+        countBadge.textContent = totalItemsCount;
+        countBadge.style.display = 'inline-block';
+      }
+    }
+  }
+
   renderSmartPairing(cart, prods, currency);
   renderCartDrawerItems();
 }
@@ -413,13 +474,7 @@ function renderCartDrawerItems() {
   const currency = s.currency || "ج.م";
 
   if (cart.length === 0) {
-    elements.cartDrawerItems.innerHTML = `
-      <div style="text-align:center; padding:36px 12px; color:var(--text-faint);">
-        <svg class="icon" style="width:40px; height:40px; margin-bottom:8px; opacity:0.4;" viewBox="0 0 24 24"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
-        <div style="font-size:13.5px; font-weight:700; color:var(--text-muted);">السلة فارغة حالياً</div>
-        <p style="font-size:11.5px; margin-top:2px;">اختر بعض الأطباق الشهية من المنيو للبدء</p>
-      </div>
-    `;
+    elements.cartDrawerItems.innerHTML = '';
     return;
   }
 
@@ -474,8 +529,8 @@ window.openCartDrawer = function() {
     if (elements.custPhone && !elements.custPhone.value && profile.phone) elements.custPhone.value = profile.phone;
     if (elements.custAddress && !elements.custAddress.value && profile.address) elements.custAddress.value = profile.address;
   }
-  if (typeof window.updateCartSavedProfileBanner === 'function') {
-    window.updateCartSavedProfileBanner();
+  if (typeof window.updateCartSavedProfileCard === 'function') {
+    window.updateCartSavedProfileCard();
   }
 
   pushNavState('cart_step_1', { step: 1 });
@@ -509,40 +564,70 @@ window.closeCartDrawer = function(triggerHistoryBack = true) {
   }
 };
 
+window.scrollToMenu = function() {
+  const target = document.getElementById('categories-container') || document.querySelector('.category-strip') || document.querySelector('.menu-grid');
+  if (target) {
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else {
+    window.scrollTo({ top: 250, behavior: 'smooth' });
+  }
+};
+
 window.goToCheckoutStep = function(stepNumber, pushHistory = true) {
-  if (stepNumber > 1 && checkOrderingPaused()) return;
-  const prevStep = currentCheckoutStep;
-  currentCheckoutStep = stepNumber || 1;
+  const cart = Store.getCart();
+  const emptyView = document.getElementById('cart-empty-view');
+  const step1View = document.getElementById('drawer-step-1');
+  const step2View = document.getElementById('drawer-step-2');
+  const titleText = document.getElementById('cart-drawer-title-text');
+  const countBadge = document.getElementById('cart-drawer-items-count-badge');
 
-  if (elements.btnConfirmOrderDirect) {
-    const labelSpan = elements.btnConfirmOrderDirect.querySelector('span');
-    if (labelSpan) labelSpan.textContent = "تأكيد وإرسال الطلب مباشرة";
-  }
-  if (elements.btnSendWhatsapp) {
-    elements.btnSendWhatsapp.style.display = 'flex';
+  if (cart.length === 0) {
+    currentCheckoutStep = 1;
+    if (emptyView) emptyView.style.display = 'flex';
+    if (step1View) step1View.style.display = 'none';
+    if (step2View) step2View.style.display = 'none';
+    if (titleText) titleText.textContent = "سلة الطلبات";
+    if (countBadge) countBadge.style.display = 'none';
+    return;
   }
 
-  if (elements.cartDrawer) {
-    if (stepNumber === 2) {
-      const custSection = document.getElementById('cart-flow-customer');
-      if (custSection) custSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    } else if (stepNumber === 3) {
-      const paySection = document.getElementById('cart-flow-payment');
-      if (paySection) paySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    } else {
-      elements.cartDrawer.scrollTop = 0;
+  if (emptyView) emptyView.style.display = 'none';
+
+  if (stepNumber === 2) {
+    if (checkOrderingPaused()) return;
+    currentCheckoutStep = 2;
+    if (step1View) step1View.style.display = 'none';
+    if (step2View) {
+      step2View.style.display = 'flex';
+      const body2 = step2View.querySelector('.drawer-body');
+      if (body2) body2.scrollTop = 0;
     }
-  }
+    if (titleText) titleText.textContent = "الاستلام والدفع";
+    if (countBadge) countBadge.style.display = 'none';
 
-  const profile = (typeof window.getCustomerProfile === 'function') ? window.getCustomerProfile() : null;
-  if (profile) {
-    if (elements.custName && !elements.custName.value && profile.name) elements.custName.value = profile.name;
-    if (elements.custPhone && !elements.custPhone.value && profile.phone) elements.custPhone.value = profile.phone;
-    if (elements.custAddress && !elements.custAddress.value && profile.address) elements.custAddress.value = profile.address;
+    if (typeof window.updateCartSavedProfileCard === 'function') {
+      window.updateCartSavedProfileCard();
+    }
+    if (pushHistory) pushNavState('cart_step_2', { step: 2 });
+  } else {
+    currentCheckoutStep = 1;
+    if (step2View) step2View.style.display = 'none';
+    if (step1View) {
+      step1View.style.display = 'flex';
+      const body1 = step1View.querySelector('.drawer-body');
+      if (body1) body1.scrollTop = 0;
+    }
+    const totalQty = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
+    if (titleText) titleText.textContent = "سلة الطلبات";
+    if (countBadge) {
+      countBadge.textContent = totalQty;
+      countBadge.style.display = 'inline-block';
+    }
+    if (pushHistory) pushNavState('cart_step_1', { step: 1 });
   }
 
   updateLedgerUI();
-}
+};
 
 function setPaymentOption(opt) {
   selectedPaymentMethod = opt;
@@ -877,13 +962,10 @@ function setupEventListeners() {
     });
   }
 
-  if (elements.btnSendWhatsApp) {
-    elements.btnSendWhatsApp.addEventListener('click', () => {
-      if (typeof window.handleDirectOrderSubmit === 'function') {
-        window.handleDirectOrderSubmit(true);
-      } else if (typeof handleDirectOrderSubmit === 'function') {
-        handleDirectOrderSubmit(true);
-      }
+  const btnProceedPayment = document.getElementById('btn-proceed-to-payment');
+  if (btnProceedPayment) {
+    btnProceedPayment.addEventListener('click', () => {
+      window.goToCheckoutStep(2);
     });
   }
 
@@ -958,42 +1040,85 @@ function setupEventListeners() {
 }
 
 
-window.updateCartSavedProfileBanner = function() {
-  const banner = document.getElementById('cart-saved-profile-banner');
-  const textEl = document.getElementById('cart-saved-profile-text');
-  const editBtn = document.getElementById('cart-saved-profile-edit-btn');
+window.updateCartSavedProfileCard = function() {
+  const card = document.getElementById('cart-saved-profile-card');
+  const editWrap = document.getElementById('cart-profile-edit-wrap');
+  const titleEl = document.getElementById('saved-profile-title');
+  const descEl = document.getElementById('saved-profile-desc');
+  const collapseBtn = document.getElementById('btn-collapse-profile-edit');
   const fType = window.currentFulfillmentType || 'delivery';
-  if (!banner || !textEl) return;
-
-  if (fType !== 'delivery') {
-    banner.style.display = 'none';
-    return;
-  }
 
   const profile = (typeof window.getCustomerProfile === 'function') ? window.getCustomerProfile() : null;
   const name = (elements.custName?.value || profile?.name || '').trim();
   const phone = (elements.custPhone?.value || profile?.phone || '').trim();
   const address = (elements.custAddress?.value || profile?.address || '').trim();
+  const tableNum = (document.getElementById('cust-table-number')?.value || '').trim();
 
-  if (address) {
-    let summary = '';
-    if (name) summary += `<strong>${esc(name)}</strong>`;
-    if (phone) summary += ` (${esc(phone)})`;
-    summary += ` — 📍 ${esc(address)}`;
-    textEl.innerHTML = summary;
-    if (editBtn) editBtn.textContent = 'تعديل';
-    banner.style.display = 'flex';
-  } else if (name || phone) {
-    let summary = `<strong>${esc(name || 'عميلنا العزيز')}</strong>`;
-    if (phone) summary += ` (${esc(phone)})`;
-    summary += ` — <span style="color:var(--primary);">لم تسجل عنوان التوصيل بعد</span>`;
-    textEl.innerHTML = summary;
-    if (editBtn) editBtn.textContent = 'إضافة عنوان';
-    banner.style.display = 'flex';
+  // Populate inputs if currently empty
+  if (elements.custName && !elements.custName.value && name) elements.custName.value = name;
+  if (elements.custPhone && !elements.custPhone.value && phone) elements.custPhone.value = phone;
+  if (elements.custAddress && !elements.custAddress.value && address) elements.custAddress.value = address;
+
+  // Determine if all required info for current mode is present
+  let isComplete = false;
+  if (fType === 'delivery') {
+    isComplete = (name.length >= 2 && phone.length >= 10 && address.length >= 5);
+  } else if (fType === 'takeaway') {
+    isComplete = (name.length >= 2 && phone.length >= 10);
+  } else if (fType === 'dinein') {
+    isComplete = (name.length >= 2 && phone.length >= 10 && tableNum.length >= 1);
+  }
+
+  const isManuallyOpened = editWrap && editWrap.dataset.manuallyOpened === 'true';
+
+  if (isComplete && !isManuallyOpened) {
+    if (card) {
+      if (titleEl) titleEl.textContent = `${name} (${phone})`;
+      if (descEl) {
+        if (fType === 'delivery') descEl.textContent = `📍 ${address}`;
+        else if (fType === 'takeaway') descEl.textContent = `🛍️ استلام من فرع المطعم`;
+        else if (fType === 'dinein') descEl.textContent = `🍽️ طلب صالة — طاولة: ${tableNum}`;
+      }
+      card.style.display = 'flex';
+    }
+    if (editWrap) editWrap.style.display = 'none';
   } else {
-    textEl.innerHTML = `<span style="color:var(--text-muted);">انقر لإضافة عنوان التوصيل وبياناتك</span>`;
-    if (editBtn) editBtn.textContent = 'إضافة بيانات';
-    banner.style.display = 'flex';
+    if (card) card.style.display = 'none';
+    if (editWrap) {
+      editWrap.style.display = 'flex';
+      if (collapseBtn) {
+        collapseBtn.style.display = (name.length >= 2 && phone.length >= 10) ? 'inline-block' : 'none';
+      }
+    }
+  }
+};
+
+window.toggleCustomerProfileEdit = function(openEdit) {
+  const card = document.getElementById('cart-saved-profile-card');
+  const editWrap = document.getElementById('cart-profile-edit-wrap');
+  const collapseBtn = document.getElementById('btn-collapse-profile-edit');
+  if (!card || !editWrap) return;
+
+  if (openEdit) {
+    editWrap.dataset.manuallyOpened = 'true';
+    card.style.display = 'none';
+    editWrap.style.display = 'flex';
+    if (collapseBtn) collapseBtn.style.display = 'inline-block';
+    if (elements.custName && !elements.custName.value) elements.custName.focus();
+    else if (elements.custAddress && !elements.custAddress.value && window.currentFulfillmentType === 'delivery') elements.custAddress.focus();
+  } else {
+    delete editWrap.dataset.manuallyOpened;
+    const name = (elements.custName?.value || '').trim();
+    const phone = (elements.custPhone?.value || '').trim();
+    const address = (elements.custAddress?.value || '').trim();
+    const notes = (elements.custNotes?.value || '').trim();
+    if (name || phone || address) {
+      if (typeof window.saveCustomerProfile === 'function') {
+        window.saveCustomerProfile(name, phone, address, notes);
+      }
+    }
+    window.updateCartSavedProfileCard();
+    if (typeof updateLedgerUI === 'function') updateLedgerUI();
   }
 };
 
