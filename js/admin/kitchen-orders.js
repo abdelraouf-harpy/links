@@ -1702,16 +1702,23 @@ window.renderInvoicesArchive = function(orders = null) {
   });
   const netProfit = deliveredRevenue - deliveredCogs;
 
+  const formatArchiveVal = (num, hasSign = false) => {
+    const val = Number(num) || 0;
+    const formatted = Math.abs(val).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    const sign = hasSign ? (val >= 0 ? '+' : '-') : (val < 0 ? '-' : '');
+    return `<span class="val-num" dir="ltr">${sign}${formatted}</span> <span class="val-cur">${currency}</span>`;
+  };
+
   // Update Archive Header Statistics for Selected Date Range
-  if (adminElements.statArchivedOrders) adminElements.statArchivedOrders.textContent = deliveredOrders.length;
-  if (adminElements.statArchivedRevenue) adminElements.statArchivedRevenue.textContent = `${deliveredRevenue.toFixed(0)} ${currency}`;
-  if (adminElements.statCancelledOrders) adminElements.statCancelledOrders.textContent = cancelledOrders.length;
+  if (adminElements.statArchivedOrders) adminElements.statArchivedOrders.textContent = deliveredOrders.length.toLocaleString('en-US');
+  if (adminElements.statArchivedRevenue) adminElements.statArchivedRevenue.innerHTML = formatArchiveVal(deliveredRevenue);
+  if (adminElements.statCancelledOrders) adminElements.statCancelledOrders.textContent = cancelledOrders.length.toLocaleString('en-US');
 
   const statCogsEl = document.getElementById('stat-archived-cogs');
   const statProfitEl = document.getElementById('stat-archived-profit');
-  if (statCogsEl) statCogsEl.textContent = `${deliveredCogs.toFixed(0)} ${currency}`;
+  if (statCogsEl) statCogsEl.innerHTML = formatArchiveVal(deliveredCogs);
   if (statProfitEl) {
-    statProfitEl.textContent = `${netProfit >= 0 ? '+' : ''}${netProfit.toFixed(0)} ${currency}`;
+    statProfitEl.innerHTML = formatArchiveVal(netProfit, true);
     statProfitEl.style.color = netProfit >= 0 ? '#16a34a' : 'var(--danger, #ef4444)';
   }
 
@@ -2762,9 +2769,19 @@ window.renderClosedShiftsArchive = function() {
     totalProfit += parseFloat(s.netProfit) || 0;
   });
 
-  if (countEl) countEl.textContent = history.length;
-  if (revEl) revEl.textContent = `${totalRev.toFixed(0)} ${currency}`;
-  if (profitEl) profitEl.textContent = `${totalProfit >= 0 ? '+' : ''}${totalProfit.toFixed(0)} ${currency}`;
+  const formatShiftVal = (num, hasSign = false) => {
+    const val = Number(num) || 0;
+    const formatted = Math.abs(val).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    const sign = hasSign ? (val >= 0 ? '+' : '-') : (val < 0 ? '-' : '');
+    return `<span class="val-num" dir="ltr">${sign}${formatted}</span> <span class="val-cur">${currency}</span>`;
+  };
+
+  if (countEl) countEl.textContent = history.length.toLocaleString('en-US');
+  if (revEl) revEl.innerHTML = formatShiftVal(totalRev);
+  if (profitEl) {
+    profitEl.innerHTML = formatShiftVal(totalProfit, true);
+    profitEl.style.color = totalProfit >= 0 ? '#16a34a' : 'var(--danger, #ef4444)';
+  }
 
   if (history.length === 0) {
     container.innerHTML = `
@@ -2927,6 +2944,9 @@ function updateHeaderShiftCockpit() {
   if (drawerShiftRev) drawerShiftRev.textContent = `مبيعات: ${totalRev.toFixed(0)} ${currency}`;
 
   if (archiveShiftTitle) archiveShiftTitle.textContent = `الوردية الحالية (#${curShift.shiftNumber || 1}) — جارية الآن`;
-  if (archiveShiftRev) archiveShiftRev.textContent = `${totalRev.toFixed(0)} ${currency}`;
+  if (archiveShiftRev) {
+    const formatted = Math.abs(totalRev).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    archiveShiftRev.innerHTML = `<span class="val-num" dir="ltr">${formatted}</span> <span class="val-cur">${currency}</span>`;
+  }
 }
 window.updateHeaderShiftCockpit = updateHeaderShiftCockpit;

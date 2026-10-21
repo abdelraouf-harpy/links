@@ -2683,13 +2683,17 @@ html.admin-unlocked #login-modal-backdrop {
   .archive-date-presets {
     display: flex !important;
     flex-wrap: nowrap !important;
+    justify-content: flex-start !important;
     overflow-x: auto !important;
     overflow-y: hidden !important;
     gap: 6px !important;
-    padding-bottom: 6px !important;
+    padding: 4px 6px 8px !important;
     margin-bottom: 12px !important;
     -webkit-overflow-scrolling: touch !important;
     scrollbar-width: none !important;
+    scroll-padding: 0 6px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
   .kitchen-filters-row::-webkit-scrollbar,
   .archive-filters-row::-webkit-scrollbar,
@@ -3777,4 +3781,281 @@ html.admin-unlocked #login-modal-backdrop {
 .btn-filter-kitchen.active .kitchen-filter-badge {
   background: rgba(255, 255, 255, 0.25);
   color: #ffffff;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   HARPY PRO: KITCHEN & ARCHIVE MOBILE HARMONY ENGINE (v118.0)
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Kitchen Orders Filter Pills Row ──────────────────────── */
+.kitchen-filters-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 6px 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.kitchen-filters-row::-webkit-scrollbar {
+  display: none;
+}
+.kitchen-filters-row .btn-filter-kitchen {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* ── Archive Sub-Tabs Switcher (Pill Style) ───────────────── */
+.archive-subtabs-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  width: 100%;
+}
+.archive-subtabs-pill {
+  display: flex;
+  width: 100%;
+  max-width: 360px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 30px;
+  padding: 4px;
+  gap: 4px;
+  box-sizing: border-box;
+}
+.btn-archive-pill {
+  flex: 1;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 800;
+  border-radius: 24px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  background: transparent;
+  color: var(--text-muted);
+}
+.btn-archive-pill.active {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 2px 8px var(--primary-glow, rgba(234, 88, 12, 0.3));
+}
+
+/* ── Responsive Financial Pulse Strips (Archive & Shifts) ─── */
+.archive-stats-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+}
+.archive-stats-strip-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+.archive-stat-cell {
+  text-align: center;
+  background: var(--surface-raised, rgba(255, 255, 255, 0.03));
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-width: 0;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+.archive-stat-cell .stat-lbl {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.archive-stat-cell .stat-val {
+  font-size: 17px;
+  font-weight: 900;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+  line-height: 1.25;
+}
+.archive-stat-cell .stat-val .val-num {
+  direction: ltr;
+  unicode-bidi: isolate;
+  display: inline-block;
+}
+.archive-stat-cell .stat-val .val-cur {
+  font-size: 11.5px;
+  font-weight: 700;
+  opacity: 0.85;
+}
+.archive-stat-cell .stat-val-rev {
+  color: var(--primary);
+}
+.archive-stat-cell .stat-val-profit {
+  color: #16a34a;
+}
+.archive-stat-cell .stat-val-cogs {
+  color: #ef4444;
+}
+.archive-stat-cell .stat-val-count {
+  color: var(--text-main);
+}
+
+/* ── Archive Controls (Period Dropdown & Search Input) ───── */
+.archive-controls-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+.archive-search-wrap {
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+}
+.archive-search-wrap .form-input {
+  font-size: 12.5px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── Archive Filter Pills Row ────────────────────────────── */
+.archive-filters-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  width: 100%;
+  box-sizing: border-box;
+}
+.archive-filters-row .btn-filter-archive {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* ── Archive Active Shift Banner ──────────────────────────── */
+.archive-active-shift-banner {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  box-sizing: border-box;
+}
+
+/* ── Mobile Responsive Overrides for Kitchen & Archive (<= 640px) ── */
+@media (max-width: 640px) {
+  .kitchen-filters-row {
+    justify-content: flex-start !important;
+    gap: 6px !important;
+    margin-bottom: 14px !important;
+    padding: 4px 6px 8px !important;
+    scroll-padding: 0 6px !important;
+  }
+  .archive-subtabs-wrap {
+    margin-bottom: 14px;
+  }
+  .archive-subtabs-pill {
+    max-width: 100%;
+  }
+  .btn-archive-pill {
+    padding: 8px 8px;
+    font-size: 12.5px;
+  }
+  .archive-stats-strip {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    padding: 10px !important;
+    margin-bottom: 14px !important;
+  }
+  .archive-stats-strip-3 {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 6px !important;
+    padding: 10px 6px !important;
+  }
+  .archive-stat-cell {
+    padding: 8px 6px !important;
+    border-radius: 8px !important;
+  }
+  .archive-stat-cell .stat-lbl {
+    font-size: 11px !important;
+    margin-bottom: 3px !important;
+  }
+  .archive-stat-cell .stat-val {
+    font-size: 15px !important;
+  }
+  .archive-stats-strip-3 .archive-stat-cell .stat-lbl {
+    font-size: 10px !important;
+  }
+  .archive-stats-strip-3 .archive-stat-cell .stat-val {
+    font-size: 13.5px !important;
+  }
+  .archive-stat-cell .stat-val .val-cur {
+    font-size: 10.5px !important;
+  }
+  .archive-controls-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+  }
+  .archive-period-dropdown-wrap {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  .archive-search-wrap {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  .archive-filters-row {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 2px 4px 8px !important;
+    margin-bottom: 12px !important;
+    justify-content: flex-start !important;
+    scroll-padding: 0 4px !important;
+  }
+  .archive-filters-row::-webkit-scrollbar {
+    display: none !important;
+  }
+  .archive-active-shift-banner {
+    padding: 12px 14px !important;
+  }
+  .archive-active-shift-banner button {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 8px 14px !important;
+  }
 }

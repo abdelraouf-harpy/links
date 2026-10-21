@@ -43,7 +43,7 @@
 
   <link rel="stylesheet" href="css/order-tokens.css?v=95.1">
   <link rel="stylesheet" href="css/order-client.css?v=95.1">
-  <link rel="stylesheet" href="css/order-admin.css?v=117.0">
+  <link rel="stylesheet" href="css/order-admin.css?v=118.0">
   <script>
     // Instant zero-delay theme toggle available immediately on page paint
     window.handleThemeToggle = function() {
@@ -741,7 +741,7 @@
       <!-- Main Kitchen Orders Card Frame -->
       <div class="admin-card">
         <!-- Centered Unified Kitchen Filter Pills -->
-        <div class="kitchen-filters-row" style="display:flex; justify-content:center; gap:8px; margin-bottom:20px; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; padding-bottom:4px;">
+        <div class="kitchen-filters-row">
           <button type="button" class="btn btn-sm btn-filter-kitchen active" data-kitchen-filter="all" onclick="filterKitchenOrders('all')">
             <span>جميع النشطة</span>
             <span id="count-filter-all" class="font-num kitchen-filter-badge">0</span>
@@ -770,12 +770,12 @@
       <div class="admin-card">
         
         <!-- Zen Top Sub-Tab Switcher: Invoices vs Closed Shifts -->
-        <div style="display:flex; justify-content:center; margin-bottom:20px;">
-          <div style="display:inline-flex; background:var(--surface); border:1px solid var(--border); border-radius:30px; padding:4px; gap:4px;">
-            <button type="button" id="subtab-btn-invoices" class="btn btn-sm btn-archive-pill active" onclick="switchArchiveSubtab('invoices')" style="font-weight:800; padding:6px 20px; border-radius:24px; border:none; background:var(--primary); color:#fff; cursor:pointer;">
+        <div class="archive-subtabs-wrap">
+          <div class="archive-subtabs-pill">
+            <button type="button" id="subtab-btn-invoices" class="btn btn-sm btn-archive-pill active" onclick="switchArchiveSubtab('invoices')">
               الفواتير المسلّمة
             </button>
-            <button type="button" id="subtab-btn-shifts" class="btn btn-sm btn-archive-pill" onclick="switchArchiveSubtab('shifts')" style="font-weight:800; padding:6px 20px; border-radius:24px; border:none; background:transparent; color:var(--text-muted); cursor:pointer;">
+            <button type="button" id="subtab-btn-shifts" class="btn btn-sm btn-archive-pill" onclick="switchArchiveSubtab('shifts')">
               سجل الورديات المقفلة
             </button>
           </div>
@@ -786,31 +786,28 @@
              ══════════════════════════════════════════════════ -->
         <div id="archive-subtab-invoices-view">
           
-          <!-- Sleek Single-Row Financial Pulse Strip -->
-          <div style="display:flex; justify-content:space-around; align-items:center; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px 16px; margin-bottom:16px;">
-            <div style="text-align:center;">
-              <div style="font-size:11px; color:var(--text-muted); font-weight:700;">المبيعات</div>
-              <div id="stat-archived-revenue" class="font-num" style="font-size:18px; font-weight:900; color:var(--primary); margin-top:2px;">0 ج.م</div>
+          <!-- Responsive Luxury Financial Pulse Strip (2x2 on Mobile, 4-col on Desktop) -->
+          <div class="archive-stats-strip">
+            <div class="archive-stat-cell">
+              <div class="stat-lbl">المبيعات</div>
+              <div id="stat-archived-revenue" class="font-num stat-val stat-val-rev"><span class="val-num" dir="ltr">0</span> <span class="val-cur">ج.م</span></div>
             </div>
-            <div style="width:1px; height:24px; background:var(--border);"></div>
-            <div style="text-align:center;">
-              <div style="font-size:11px; color:var(--text-muted); font-weight:700;">صافي الربح</div>
-              <div id="stat-archived-profit" class="font-num" style="font-size:18px; font-weight:900; color:#16a34a; margin-top:2px;">0 ج.م</div>
+            <div class="archive-stat-cell">
+              <div class="stat-lbl">صافي الربح</div>
+              <div id="stat-archived-profit" class="font-num stat-val stat-val-profit"><span class="val-num" dir="ltr">+0</span> <span class="val-cur">ج.م</span></div>
             </div>
-            <div style="width:1px; height:24px; background:var(--border);"></div>
-            <div style="text-align:center;">
-              <div style="font-size:11px; color:var(--text-muted); font-weight:700;">تكلفة الخامات</div>
-              <div id="stat-archived-cogs" class="font-num" style="font-size:18px; font-weight:900; color:#ef4444; margin-top:2px;">0 ج.م</div>
+            <div class="archive-stat-cell">
+              <div class="stat-lbl">تكلفة الخامات</div>
+              <div id="stat-archived-cogs" class="font-num stat-val stat-val-cogs"><span class="val-num" dir="ltr">0</span> <span class="val-cur">ج.م</span></div>
             </div>
-            <div style="width:1px; height:24px; background:var(--border);"></div>
-            <div style="text-align:center;">
-              <div style="font-size:11px; color:var(--text-muted); font-weight:700;">الفواتير</div>
-              <div id="stat-archived-orders" class="font-num" style="font-size:18px; font-weight:900; color:var(--text-main); margin-top:2px;">0</div>
+            <div class="archive-stat-cell">
+              <div class="stat-lbl">الفواتير المسلّمة</div>
+              <div id="stat-archived-orders" class="font-num stat-val stat-val-count">0</div>
             </div>
           </div>
 
           <!-- Compact Period Selector & Search Bar -->
-          <div style="display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap; align-items:center;">
+          <div class="archive-controls-row">
             <!-- Custom Period Selector Dropdown -->
             <div id="archive-period-dropdown-wrap" class="archive-period-dropdown-wrap">
               <button type="button" id="btn-archive-period-picker" class="archive-period-trigger" onclick="toggleArchivePeriodDropdown(event)" aria-haspopup="true" aria-expanded="false">
@@ -858,14 +855,14 @@
                 </button>
               </div>
             </div>
-            <div style="flex:1; min-width:220px; position:relative;">
-              <input type="text" id="archive-search-input" class="form-input" placeholder="بحث برقم الفاتورة أو اسم العميل..." style="font-size:12.5px; padding:7px 12px; border-radius:8px;" oninput="handleArchiveSearch(this.value)">
+            <div class="archive-search-wrap">
+              <input type="text" id="archive-search-input" class="form-input" placeholder="بحث برقم الفاتورة أو اسم العميل..." oninput="handleArchiveSearch(this.value)">
             </div>
             <span id="archive-date-range-label" style="display:none;">الوردية الحالية</span>
           </div>
 
           <!-- Quick Order Fulfillment Filters (Pills) -->
-          <div class="archive-filters-row" style="display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;">
+          <div class="archive-filters-row">
             <button type="button" class="btn btn-sm btn-filter-archive active" data-archive-filter="delivered" onclick="filterArchiveOrders('delivered')">مسلّمة</button>
             <button type="button" class="btn btn-sm btn-filter-archive" data-archive-filter="dine_in" onclick="filterArchiveOrders('dine_in')">صالة</button>
             <button type="button" class="btn btn-sm btn-filter-archive" data-archive-filter="takeaway" onclick="filterArchiveOrders('takeaway')">سفري</button>
@@ -883,13 +880,13 @@
              ══════════════════════════════════════════════════ -->
         <div id="archive-subtab-shifts-view" style="display:none;">
           <!-- Current Active Shift Banner -->
-          <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 18px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+          <div class="archive-active-shift-banner">
             <div style="display:flex; align-items:center; gap:10px;">
               <span style="width:10px; height:10px; border-radius:50%; background:#22c55e; display:inline-block; box-shadow:0 0 8px rgba(34,197,94,0.6);"></span>
               <div>
                 <div id="archive-current-shift-title" style="font-size:14px; font-weight:800; color:var(--text-main);">الوردية الحالية (#1) — جارية الآن</div>
                 <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">
-                  المبيعات الحية: <strong id="archive-current-shift-rev" class="font-num" style="color:var(--primary);">0 ج.م</strong>
+                  المبيعات الحية: <strong id="archive-current-shift-rev" class="font-num stat-val stat-val-rev"><span class="val-num" dir="ltr">0</span> <span class="val-cur">ج.م</span></strong>
                 </div>
               </div>
             </div>
@@ -898,20 +895,18 @@
             </button>
           </div>
           <!-- Shifts Financial Summary Strip -->
-          <div style="display:flex; justify-content:space-around; align-items:center; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px 16px; margin-bottom:18px;">
-            <div style="text-align:center;">
-              <div style="font-size:11px; color:var(--text-muted); font-weight:700;">الورديات المقفلة</div>
-              <div id="stat-closed-shifts-count" class="font-num" style="font-size:18px; font-weight:900; color:var(--text-main); margin-top:2px;">0</div>
+          <div class="archive-stats-strip archive-stats-strip-3">
+            <div class="archive-stat-cell">
+              <div class="stat-lbl">الورديات المقفلة</div>
+              <div id="stat-closed-shifts-count" class="font-num stat-val stat-val-count">0</div>
             </div>
-            <div style="width:1px; height:24px; background:var(--border);"></div>
-            <div style="text-align:center;">
-              <div style="font-size:11px; color:var(--text-muted); font-weight:700;">إجمالي مبيعاتها</div>
-              <div id="stat-closed-shifts-revenue" class="font-num" style="font-size:18px; font-weight:900; color:var(--primary); margin-top:2px;">0 ج.م</div>
+            <div class="archive-stat-cell">
+              <div class="stat-lbl">إجمالي مبيعاتها</div>
+              <div id="stat-closed-shifts-revenue" class="font-num stat-val stat-val-rev"><span class="val-num" dir="ltr">0</span> <span class="val-cur">ج.م</span></div>
             </div>
-            <div style="width:1px; height:24px; background:var(--border);"></div>
-            <div style="text-align:center;">
-              <div style="font-size:11px; color:var(--text-muted); font-weight:700;">إجمالي الأرباح</div>
-              <div id="stat-closed-shifts-profit" class="font-num" style="font-size:18px; font-weight:900; color:#16a34a; margin-top:2px;">0 ج.م</div>
+            <div class="archive-stat-cell">
+              <div class="stat-lbl">إجمالي الأرباح</div>
+              <div id="stat-closed-shifts-profit" class="font-num stat-val stat-val-profit"><span class="val-num" dir="ltr">+0</span> <span class="val-cur">ج.م</span></div>
             </div>
           </div>
 
@@ -2318,20 +2313,20 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=117.0"></script>
-  <script src="js/core/sound-effects.js?v=117.0"></script>
-  <script src="js/store.js?v=117.0"></script>
-  <script src="js/admin/admin-core.js?v=117.0"></script>
-  <script src="js/admin/admin-auth.js?v=117.0"></script>
-  <script src="js/admin/kitchen-orders.js?v=117.0"></script>
-  <script src="js/admin/inventory-manager.js?v=117.0"></script>
-  <script src="js/admin/catalog-manager.js?v=117.0"></script>
-  <script src="js/admin/category-manager.js?v=117.0"></script>
-  <script src="js/admin/stories-manager.js?v=117.0"></script>
-  <script src="js/admin/backup-restore.js?v=117.0"></script>
-  <script src="js/admin/settings-manager.js?v=117.0"></script>
-  <script src="js/admin/pos-terminal.js?v=117.0"></script>
-  <script src="js/admin.js?v=117.0"></script>
-  <script src="js/pwa.js?v=117.0"></script>
+  <script src="js/core/demo-seed-data.js?v=118.0"></script>
+  <script src="js/core/sound-effects.js?v=118.0"></script>
+  <script src="js/store.js?v=118.0"></script>
+  <script src="js/admin/admin-core.js?v=118.0"></script>
+  <script src="js/admin/admin-auth.js?v=118.0"></script>
+  <script src="js/admin/kitchen-orders.js?v=118.0"></script>
+  <script src="js/admin/inventory-manager.js?v=118.0"></script>
+  <script src="js/admin/catalog-manager.js?v=118.0"></script>
+  <script src="js/admin/category-manager.js?v=118.0"></script>
+  <script src="js/admin/stories-manager.js?v=118.0"></script>
+  <script src="js/admin/backup-restore.js?v=118.0"></script>
+  <script src="js/admin/settings-manager.js?v=118.0"></script>
+  <script src="js/admin/pos-terminal.js?v=118.0"></script>
+  <script src="js/admin.js?v=118.0"></script>
+  <script src="js/pwa.js?v=118.0"></script>
 </body>
 </html>
