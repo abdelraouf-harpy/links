@@ -47,8 +47,8 @@
   <link rel="preconnect" href="https://i.ibb.co" crossorigin>
   <link rel="dns-prefetch" href="https://i.ibb.co">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/order-tokens.css?v=102.0">
-  <link rel="stylesheet" href="css/order-client.css?v=102.0">
+  <link rel="stylesheet" href="css/order-tokens.css?v=103.0">
+  <link rel="stylesheet" href="css/order-client.css?v=103.0">
   <style id="harpy-critical-layout">
     /* ═══════════════════════════════════════════════════════════
        CRITICAL DEFENSIVE INLINE SHIELD (Prevents SW Cache Mismatches)
@@ -1225,18 +1225,6 @@
 
       <!-- Minimalist Settings List (Clean Divider Rows) -->
       <div class="clean-settings-list">
-        <!-- Saved Delivery Address Quick Row -->
-        <div class="clean-setting-row" onclick="window.toggleCleanProfileEdit && window.toggleCleanProfileEdit(true)">
-          <div class="row-leading">
-            <span class="row-icon"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span>
-            <div class="row-text">
-              <div class="row-title">عنوان التوصيل المعتاد</div>
-              <div class="row-sub" id="clean-address-status-text">لم تسجل عنوانك بعد — انقر للإضافة وتوفير الوقت</div>
-            </div>
-          </div>
-          <button type="button" class="btn btn-ghost btn-sm" style="font-size:11px; font-weight:800; padding:4px 10px; border:1px solid var(--border); border-radius:6px;">تعديل</button>
-        </div>
-
         <!-- 1. Theme Toggle -->
         <div class="clean-setting-row" onclick="window.toggleTheme && window.toggleTheme()">
           <div class="row-leading">
@@ -1357,29 +1345,27 @@
           <div id="pairing-items-list" class="pairing-scroll-track"></div>
         </div>
 
-        <!-- 4. كود الخصم والقسيمة (جاهز للكتابة مباشرة) -->
-        <div id="promo-box-wrap" class="promo-box-wrap" style="margin-top:10px;">
-          <div id="promo-input-container" class="promo-direct-row">
-            <div class="promo-input-wrapper">
-              <svg class="icon icon-xs promo-leading-icon" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-              <input type="text" id="promo-code-input" class="promo-direct-input font-num" placeholder="كود الخصم (مثال: PROMO10)">
+        <!-- 4. إضافات الطلب (كود الخصم وملاحظات الشيف بتنسيق موحد وأنيق) -->
+        <div class="cart-order-extras-card" style="margin-top:12px;">
+          <!-- Coupon Code -->
+          <div id="promo-box-wrap" class="promo-box-wrap">
+            <div id="promo-input-container" class="extras-input-bar">
+              <svg class="icon icon-xs" viewBox="0 0 24 24" style="color:var(--primary); flex-shrink:0; margin-left:8px;"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+              <input type="text" id="promo-code-input" class="extras-input-field font-num" placeholder="كود الخصم (مثال: PROMO10)">
+              <button type="button" id="btn-apply-promo" class="extras-btn-apply">تطبيق</button>
             </div>
-            <button type="button" id="btn-apply-promo" class="btn-apply-promo-direct">تطبيق</button>
+            <div id="promo-applied-badge" style="display:none; background:var(--accent-wa-subtle); border:1px solid rgba(22,163,74,0.3); border-radius:8px; padding:6px 12px; font-size:12px; font-weight:700; color:var(--accent-wa); justify-content:space-between; align-items:center; margin-top:6px;">
+              <span id="promo-applied-text">تم تطبيق كود الخصم</span>
+              <button type="button" id="btn-remove-promo" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:12px; font-weight:800;">إلغاء</button>
+            </div>
           </div>
-          <div id="promo-applied-badge" style="display:none; background:var(--accent-wa-subtle); border:1px solid rgba(22,163,74,0.3); border-radius:8px; padding:8px 12px; font-size:12px; font-weight:700; color:var(--accent-wa); justify-content:space-between; align-items:center; margin-top:6px;">
-            <span id="promo-applied-text">تم تطبيق كود الخصم</span>
-            <button type="button" id="btn-remove-promo" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:12px; font-weight:800;">إلغاء الكود</button>
-          </div>
-        </div>
 
-        <!-- 5. ملاحظات خاصة على الطلب (اختياري) -->
-        <div class="input-luxury-group" id="group-cust-notes" style="margin-top:10px; margin-bottom:2px;">
-          <label class="input-luxury-label" for="cust-notes" style="font-size:11.5px; font-weight:700; color:var(--text-muted); margin-bottom:4px; display:flex; align-items:center; gap:5px;">
-            <svg class="icon icon-xs" viewBox="0 0 24 24" style="color:var(--primary);"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-            <span>ملاحظات خاصة للشيف (اختياري)</span>
-          </label>
-          <div class="input-icon-wrapper">
-            <input type="text" id="cust-notes" class="input-luxury-field" placeholder="أي تفاصيل خاصة للشيف أو تعليمات إضافية" style="padding-right:12px; padding-left:12px; font-size:12px; min-height:36px; border-radius:8px;">
+          <!-- Chef Notes -->
+          <div id="group-cust-notes" class="chef-notes-wrap">
+            <div class="extras-input-bar">
+              <svg class="icon icon-xs" viewBox="0 0 24 24" style="color:var(--text-muted); flex-shrink:0; margin-left:8px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              <input type="text" id="cust-notes" class="extras-input-field" placeholder="ملاحظات خاصة للشيف (اختياري)...">
+            </div>
           </div>
         </div>
       </div>
@@ -2222,16 +2208,16 @@
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=102.0"></script>
-  <script src="js/core/sound-effects.js?v=102.0"></script>
-  <script src="js/store.js?v=102.0"></script>
-  <script src="js/client/client-core.js?v=102.0"></script>
-  <script src="js/client/menu-view.js?v=102.0"></script>
-  <script src="js/client/stories-viewer.js?v=102.0"></script>
-  <script src="js/client/customizer-modal.js?v=102.0"></script>
-  <script src="js/client/cart-ledger.js?v=102.0"></script>
-  <script src="js/client/order-tracking.js?v=102.0"></script>
-  <script src="js/app.js?v=102.0"></script>
-  <script src="js/pwa.js?v=102.0"></script>
+  <script src="js/core/demo-seed-data.js?v=103.0"></script>
+  <script src="js/core/sound-effects.js?v=103.0"></script>
+  <script src="js/store.js?v=103.0"></script>
+  <script src="js/client/client-core.js?v=103.0"></script>
+  <script src="js/client/menu-view.js?v=103.0"></script>
+  <script src="js/client/stories-viewer.js?v=103.0"></script>
+  <script src="js/client/customizer-modal.js?v=103.0"></script>
+  <script src="js/client/cart-ledger.js?v=103.0"></script>
+  <script src="js/client/order-tracking.js?v=103.0"></script>
+  <script src="js/app.js?v=103.0"></script>
+  <script src="js/pwa.js?v=103.0"></script>
 </body>
 </html>

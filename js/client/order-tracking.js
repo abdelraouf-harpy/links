@@ -146,12 +146,22 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
 
     const currentReceipt = window.uploadedReceiptUrl || uploadedReceiptUrl;
     if (!currentReceipt) {
-      showToastNotification("يرجى إرفاق صورة إيصال التحويل لتأكيد الطلب عبر فودافون كاش / إنستاباي", "warning");
+      showToastNotification("يرجى إرفاق إيصال التحويل لتأكيد الطلب", "warning");
       const dropzone = document.querySelector('.receipt-luxury-dropzone') || elements.dropzonePrompt;
       if (dropzone) {
         dropzone.classList.add('dropzone-highlight-required');
         dropzone.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        setTimeout(() => dropzone.classList.remove('dropzone-highlight-required'), 3000);
+        const existingAlert = document.getElementById('receipt-required-alert');
+        if (existingAlert) existingAlert.remove();
+        const errBanner = document.createElement('div');
+        errBanner.id = 'receipt-required-alert';
+        errBanner.style.cssText = 'color:#ef4444; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; gap:5px; margin-top:8px; animation:shakeDropzone 0.4s ease;';
+        errBanner.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>مطلوب إرفاق صورة إيصال التحويل</span>`;
+        dropzone.appendChild(errBanner);
+        setTimeout(() => {
+          dropzone.classList.remove('dropzone-highlight-required');
+          if (errBanner && errBanner.parentNode) errBanner.remove();
+        }, 3500);
       }
       return;
     }
