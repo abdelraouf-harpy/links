@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Harpy Order — SaaS Marketing & Portfolio Stylesheet (v5.1 Optimized)
+   Harpy Order — SaaS Marketing & Portfolio Stylesheet (v5.2 Refined)
    Brand Colors:
      Background: #F4F1EC (Warm Off-White)
      Muted Accent: #F0DCCB (Soft Orange Beige)
@@ -37,7 +37,7 @@
   --shadow-sm: 0 2px 8px rgba(15, 26, 46, 0.04);
   --shadow-md: 0 8px 24px rgba(15, 26, 46, 0.07);
   --shadow-lg: 0 16px 40px rgba(15, 26, 46, 0.1);
-  --shadow-hero: 0 24px 60px -12px rgba(15, 26, 46, 0.18), 0 12px 24px -8px rgba(15, 26, 46, 0.1);
+  --shadow-hero: 0 32px 72px -16px rgba(15, 26, 46, 0.18), 0 16px 32px -8px rgba(15, 26, 46, 0.08);
 
   --radius-xs: 6px;
   --radius-sm: 10px;
@@ -299,16 +299,16 @@ img {
 .ho-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   text-decoration: none;
   flex-shrink: 0;
 }
 
 .ho-logo-img {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   object-fit: contain;
-  border-radius: 10px;
+  border-radius: 8px;
 }
 
 .ho-logo-text {
@@ -384,7 +384,8 @@ img {
   .ho-nav-menu {
     position: fixed;
     top: var(--header-height);
-    right: -100%;
+    right: 0;
+    left: auto;
     width: 280px;
     height: calc(100vh - var(--header-height));
     background-color: #FFFFFF;
@@ -393,12 +394,17 @@ img {
     padding: 32px 24px;
     gap: 20px;
     box-shadow: -8px 0 30px rgba(0, 0, 0, 0.08);
-    transition: right 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateX(105%);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.28s;
+    visibility: hidden;
+    pointer-events: none;
     z-index: 99;
   }
 
   .ho-nav-menu.open {
-    right: 0;
+    transform: translateX(0);
+    visibility: visible;
+    pointer-events: auto;
   }
 
   .ho-mobile-toggle {
@@ -419,11 +425,11 @@ img {
 
 @media (max-width: 380px) {
   .ho-logo-img {
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
   }
   .ho-logo-text {
-    font-size: 1.12rem;
+    font-size: 1.15rem;
   }
 }
 
@@ -432,9 +438,9 @@ img {
    ========================================================================== */
 .ho-hero {
   padding-top: 52px;
-  padding-bottom: 84px;
+  padding-bottom: 72px;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   width: 100%;
 }
 
@@ -506,12 +512,13 @@ img {
   }
 }
 
-/* Hero Visual Composition: Cashier Desktop + Overlapping Customer Phone */
+/* Hero Visual Stage: Balanced Proportions & Grounded Baseline */
 .ho-hero-visual {
   position: relative;
   max-width: 1100px;
   margin: 0 auto;
   width: 100%;
+  padding-bottom: 24px;
 }
 
 /* Desktop Cashier Mockup Frame */
@@ -528,7 +535,7 @@ img {
 .ho-mockup-desktop-bar {
   background: #F8F6F2;
   border-bottom: 1px solid var(--border-light);
-  padding: 10px 16px;
+  padding: 11px 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -559,6 +566,7 @@ img {
   position: relative;
   width: 100%;
   background: #FFFFFF;
+  line-height: 0;
 }
 
 .ho-mockup-desktop-screen img {
@@ -567,17 +575,17 @@ img {
   display: block;
 }
 
-/* Overlapping Mobile Phone Mockup */
+/* Overlapping Mobile Phone Mockup (Sleek Proportions & Grounded) */
 .ho-mockup-phone {
   position: absolute;
-  bottom: -32px;
-  left: 32px;
-  width: 270px;
+  bottom: 0px;
+  left: -20px;
+  width: 250px;
   background: #0F1A2E;
   padding: 8px;
   border-radius: 38px;
-  box-shadow: 0 20px 50px rgba(15, 26, 46, 0.28), 0 8px 20px rgba(15, 26, 46, 0.15);
-  border: 3px solid #23334E;
+  box-shadow: 0 24px 60px rgba(15, 26, 46, 0.35), 0 8px 24px rgba(15, 26, 46, 0.18);
+  border: 3.5px solid #23334E;
   z-index: 10;
   transition: transform 0.3s ease;
 }
@@ -587,18 +595,19 @@ img {
 }
 
 .ho-mockup-phone-notch {
-  width: 80px;
-  height: 16px;
+  width: 76px;
+  height: 15px;
   background: #0F1A2E;
   border-radius: var(--radius-pill);
   margin: 0 auto 6px;
 }
 
 .ho-mockup-phone-screen {
-  border-radius: 30px;
+  border-radius: 28px;
   overflow: hidden;
   background: #FFFFFF;
   position: relative;
+  line-height: 0;
 }
 
 .ho-mockup-phone-screen img {
@@ -607,16 +616,16 @@ img {
   display: block;
 }
 
-/* Connecting Visual Sync Line (Phone Add Button -> Cashier Screen) */
+/* Connecting Visual Sync Line (Pill Indicator) */
 .ho-hero-sync-pill {
   position: absolute;
-  top: 14%;
-  left: 260px;
+  top: -20px;
+  left: 24px;
   background: #FFFFFF;
   border: 1px solid var(--primary-border);
   border-radius: var(--radius-pill);
-  padding: 8px 16px;
-  box-shadow: var(--shadow-md);
+  padding: 8px 18px;
+  box-shadow: 0 8px 24px rgba(15, 26, 46, 0.08);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -640,11 +649,21 @@ img {
   50% { transform: translateY(-4px); }
 }
 
+@media (max-width: 1180px) {
+  .ho-mockup-phone {
+    left: 10px;
+    width: 220px;
+  }
+  .ho-hero-sync-pill {
+    left: 20px;
+  }
+}
+
 @media (max-width: 992px) {
   .ho-mockup-phone {
-    width: 210px;
-    bottom: -20px;
-    left: 14px;
+    width: 190px;
+    bottom: -10px;
+    left: 10px;
   }
   .ho-hero-sync-pill {
     display: none;
@@ -1208,12 +1227,12 @@ img {
 .ho-footer-brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
 .ho-footer-brand img {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   object-fit: contain;
   border-radius: 10px;
 }
@@ -1279,46 +1298,157 @@ img {
 }
 
 /* ==========================================================================
-   FLOATING WHATSAPP PILL BUTTON
+   LUXURY FLOATING WHATSAPP CHAT BADGE (PRO REDESIGN)
    ========================================================================== */
-.ho-floating-wa {
+.ho-luxury-wa {
   position: fixed;
-  bottom: 22px;
-  left: 22px;
+  bottom: 28px;
+  left: 28px;
   z-index: 1000;
   display: inline-flex;
   align-items: center;
-  gap: 9px;
-  background-color: #25D366;
-  color: #FFFFFF;
-  padding: 11px 18px;
+  gap: 12px;
+  background-color: #FFFFFF;
+  padding: 9px 16px 9px 10px;
   border-radius: var(--radius-pill);
-  box-shadow: 0 6px 22px rgba(37, 211, 102, 0.4);
-  font-family: var(--font-arabic);
-  font-size: 0.94rem;
-  font-weight: 800;
+  border: 1px solid rgba(15, 26, 46, 0.1);
+  box-shadow: 0 16px 36px rgba(15, 26, 46, 0.12), 0 4px 12px rgba(37, 211, 102, 0.2);
   text-decoration: none;
-  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  transition: transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.24s ease, border-color 0.24s ease;
+  cursor: pointer;
 }
 
-.ho-floating-wa:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 10px 28px rgba(37, 211, 102, 0.5);
+.ho-luxury-wa:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 20px 44px rgba(15, 26, 46, 0.16), 0 6px 18px rgba(37, 211, 102, 0.3);
+  border-color: rgba(37, 211, 102, 0.4);
+}
+
+.ho-wa-avatar-box {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ho-wa-icon-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #25D366 0%, #1EBE5D 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35);
+  position: relative;
+  z-index: 2;
 }
 
-.ho-floating-wa svg {
-  width: 20px;
-  height: 20px;
-  fill: currentColor;
+.ho-wa-icon-svg {
+  width: 23px;
+  height: 23px;
+  fill: #FFFFFF;
 }
 
-@media (max-width: 480px) {
-  .ho-floating-wa {
-    bottom: 16px;
-    left: 16px;
-    padding: 9px 14px;
-    font-size: 0.84rem;
+.ho-wa-ping {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: rgba(37, 211, 102, 0.35);
+  animation: hoWaPingAnimation 2.4s infinite cubic-bezier(0, 0, 0.2, 1);
+  z-index: 1;
+}
+
+.ho-wa-dot {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background-color: #22c55e;
+  border: 2px solid #FFFFFF;
+}
+
+.ho-wa-info {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+  line-height: 1.25;
+}
+
+.ho-wa-title {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.01em;
+}
+
+.ho-wa-subtitle {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #16a34a;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+.ho-wa-subtitle::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #16a34a;
+  display: inline-block;
+}
+
+@keyframes hoWaPingAnimation {
+  0% { transform: scale(1); opacity: 0.7; }
+  75%, 100% { transform: scale(1.4); opacity: 0; }
+}
+
+@media (max-width: 640px) {
+  .ho-luxury-wa {
+    bottom: 18px;
+    left: 18px;
+    padding: 6px 12px 6px 6px;
+    gap: 8px;
+  }
+  .ho-wa-avatar-box {
+    width: 38px;
+    height: 38px;
+  }
+  .ho-wa-icon-circle {
+    width: 36px;
+    height: 36px;
+  }
+  .ho-wa-icon-svg {
+    width: 19px;
+    height: 19px;
+  }
+  .ho-wa-title {
+    font-size: 0.85rem;
+  }
+  .ho-wa-subtitle {
+    font-size: 0.72rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .ho-luxury-wa {
+    padding: 6px;
+    border-radius: 50%;
+  }
+  .ho-wa-info {
+    display: none;
   }
 }
 
