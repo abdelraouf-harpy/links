@@ -313,6 +313,12 @@
           <span class="preview-btn-label">معاينة المنيو</span>
         </a>
 
+        <!-- Install Admin App Button (Native One-Click PWA Trigger) -->
+        <button id="btn-admin-install-app" class="btn btn-primary btn-sm btn-admin-install-header" onclick="window.triggerPWAInstall()" style="display:none;" title="تثبيت لوحة الإدارة كتطبيق مستقل">
+          <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span id="btn-admin-install-text">تثبيت التطبيق</span>
+        </button>
+
         <!-- Day/Night Toggle -->
         <button id="theme-toggle-btn" class="btn btn-ghost btn-sm btn-theme-toggle" onclick="handleThemeToggle()" title="تبديل الإضاءة (نهاري / ليلي)" aria-label="تبديل الإضاءة">
           <svg id="theme-icon-dark" class="icon icon-sm icon-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
@@ -424,6 +430,10 @@
 
     <!-- Drawer Footer Actions -->
     <div class="admin-drawer-footer">
+      <button type="button" id="btn-admin-drawer-install" class="btn-drawer-action btn-drawer-install" onclick="window.triggerPWAInstall()" style="display:none; color:var(--primary); font-weight:800;" title="تثبيت لوحة الإدارة كتطبيق">
+        <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span>تثبيت لوحة الإدارة على الهاتف</span>
+      </button>
       <a href="./menu/" class="btn-drawer-action" target="_blank" rel="noopener noreferrer">
         <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
         <span>معاينة المنيو للزبائن</span>
@@ -2366,6 +2376,6 @@
   <script src="js/admin/pos-terminal.js?v=119.0"></script>
   <script src="js/admin/admin-push.js?v=120.0"></script>
   <script src="js/admin.js?v=120.0"></script>
-  <script src="js/pwa.js?v=120.0"></script>
+  <script src="js/pwa.js?v=121.0"></script>
 </body>
 </html>

@@ -2973,6 +2973,28 @@ html.admin-unlocked #login-modal-backdrop {
   box-shadow: 0 3px 12px var(--primary-glow);
   transition: all 0.2s ease;
 }
+.btn-admin-install-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: 0.84rem;
+  font-weight: 800;
+  border-radius: 10px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 3px 12px rgba(234,88,12,0.35);
+  transition: all 0.2s ease;
+}
+.btn-admin-install-header:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+}
+.btn-admin-install-header:active {
+  transform: translateY(0);
+}
 .btn-drawer-toggle:hover {
   transform: translateY(-1px);
   filter: brightness(1.08);
@@ -3253,6 +3275,11 @@ html.admin-unlocked #login-modal-backdrop {
   }
   .btn-header-preview {
     display: none !important;
+  }
+  .btn-admin-install-header {
+    padding: 6px 10px;
+    font-size: 11px;
+    gap: 4px;
   }
   .btn-drawer-toggle .drawer-btn-label {
     display: none;

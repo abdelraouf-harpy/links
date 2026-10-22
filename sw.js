@@ -6,7 +6,7 @@ try {
 }
 
 // Order PWA Service Worker — Native App Shell & Offline Engine
-const CACHE_NAME = 'order-pwa-v120.0';
+const CACHE_NAME = 'order-pwa-v121.0';
 const IMAGE_CACHE_NAME = 'order-images-v2';
 const ASSETS_TO_CACHE = [
   './',

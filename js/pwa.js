@@ -121,16 +121,23 @@
       }
 
       // Dynamic manifest resolution with authentic standardized identity
+      const finalAppName = isAdmin 
+        ? (storeName ? `${storeName} | إدارة` : 'صــاج | إدارة') 
+        : (storeName ? `${storeName} | منيو` : 'Order');
+      const finalShortName = isAdmin
+        ? (storeName ? `إدارة ${storeName}` : 'إدارة صــاج')
+        : (storeName ? storeName : 'Order');
+
       const manifestObj = {
         id: isAdmin ? '/admin/' : '/menu/',
-        name: appName,
-        short_name: appName,
-        description: isAdmin ? `Order Admin — Dashboard & Kitchen` : `Order — Smart Digital Menu`,
+        name: finalAppName,
+        short_name: finalShortName,
+        description: isAdmin ? `${storeName || 'المطعم'} — لوحة الإدارة وتجهيز الطلبات` : `${storeName || 'المطعم'} — المنيو الذكي وطلب الأوردر`,
         start_url: isAdmin ? `./admin/?m=${slug}` : `./menu/?m=${slug}`,
         scope: isAdmin ? `./admin/` : `./menu/`,
         display: "standalone",
-        background_color: "#120e0c",
-        theme_color: "#ea580c",
+        background_color: "#070B13",
+        theme_color: "#FF6A00",
         orientation: "portrait",
         icons: [
           {
@@ -388,26 +395,7 @@
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
                          window.navigator.standalone === true ||
                          document.referrer.includes('android-app://');
-    if (isStandalone) {
-      try {
-        localStorage.setItem(storageKey, 'true');
-        localStorage.setItem('pwa_installed_' + appName, 'true');
-        if (isAdmin) {
-          localStorage.setItem('harpy_admin_active_slug', slug);
-        } else {
-          localStorage.setItem('harpy_customer_installed_slug', slug);
-        }
-      } catch (e) {}
-      return true;
-    }
-
-    try {
-      if (localStorage.getItem(storageKey) === 'true' || localStorage.getItem('pwa_installed_' + appName) === 'true') {
-        return true;
-      }
-    } catch (e) {}
-
-    return false;
+    return !!isStandalone;
   }
 
   function saveStoredIdentity(targetSlug, data) {
@@ -420,8 +408,6 @@
 
   function markAppAsInstalled() {
     try {
-      localStorage.setItem(storageKey, 'true');
-      localStorage.setItem('pwa_installed_' + appName, 'true');
       if (isAdmin) {
         localStorage.setItem('harpy_admin_active_slug', slug);
       } else {
@@ -439,8 +425,23 @@
   // ── 5. Register Service Worker with Clean Update Engine ───────
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      const swUrl = './sw.js?v=120.0';
-      navigator.serviceWorker.register(swUrl)
+      // 1. Purge unmatching / legacy root SW registrations
+      try {
+        navigator.serviceWorker.getRegistrations().then(regs => {
+          regs.forEach(reg => {
+            const s = reg.scope || '';
+            const expectedScope = isAdmin ? '/admin/' : '/menu/';
+            if (!s.includes(expectedScope)) {
+              reg.unregister().then(() => console.log('[PWA] Purged unmatching SW scope:', s));
+            }
+          });
+        }).catch(() => {});
+      } catch (e) {}
+
+      // 2. Register strictly-scoped SW
+      const swUrl = './sw.js?v=121.0';
+      const targetScope = isAdmin ? './admin/' : './menu/';
+      navigator.serviceWorker.register(swUrl, { scope: targetScope })
         .then(reg => {
           window.__swRegistration = reg;
           try { reg.update(); } catch(e) {}
@@ -501,26 +502,36 @@
     const valid = hasValidBranding();
 
     const adminBtn = document.getElementById('btn-admin-install-app');
+    const adminDrawerBtn = document.getElementById('btn-admin-drawer-install');
     const menuBtn = document.getElementById('btn-menu-install-app');
+    const menuDrawerItem = document.getElementById('account-install-item');
     const banner = document.getElementById('order-pwa-banner');
 
     if (installed || !valid) {
       if (adminBtn) adminBtn.style.display = 'none';
+      if (adminDrawerBtn) adminDrawerBtn.style.display = 'none';
       if (menuBtn) menuBtn.style.display = 'none';
+      if (menuDrawerItem) menuDrawerItem.style.display = 'none';
       if (banner) banner.remove();
       return;
     }
 
-    // App is NOT installed AND Branding IS Valid:
+    // App is NOT in standalone - Show install buttons
     if (adminBtn && isAdmin) {
       adminBtn.style.display = 'inline-flex';
       const btnText = document.getElementById('btn-admin-install-text');
-      if (btnText) btnText.textContent = 'تثبيت تطبيق Admin';
+      if (btnText) btnText.textContent = 'تثبيت التطبيق';
+    }
+    if (adminDrawerBtn && isAdmin) {
+      adminDrawerBtn.style.display = 'flex';
     }
     if (menuBtn && !isAdmin) {
       menuBtn.style.display = 'inline-flex';
       const btnText = document.getElementById('btn-menu-install-text');
-      if (btnText) btnText.textContent = 'تثبيت تطبيق Order';
+      if (btnText) btnText.textContent = 'تثبيت التطبيق';
+    }
+    if (menuDrawerItem && !isAdmin) {
+      menuDrawerItem.style.display = 'flex';
     }
 
     renderInstallBanner();
@@ -680,14 +691,14 @@
       return;
     }
 
-    // 3. Standalone mode or already installed check
+    // 3. Standalone mode check
     if (isAppInstalled()) {
-      showToast(`${appDisplayName} مثبت بالفعل كـ Application على جهازك!`);
+      showToast(`${appDisplayName} مفتوح بالفعل داخل التطبيق!`);
       return;
     }
 
-    // 4. Fallback for in-app browsers (Facebook, Instagram, etc.)
-    showToast(`لتثبيت التطبيق: اضغط على قائمة المتصفح (⋮) واختر "تثبيت التطبيق" أو "إضافة إلى الشاشة الرئيسية ".`);
+    // 4. Fallback if beforeinstallprompt is not supported or hasn't fired
+    showToast(`لتثبيت التطبيق: اضغط على قائمة المتصفح (⋮) واختر "تثبيت التطبيق" أو "إضافة إلى الشاشة الرئيسية".`);
   };
 
   function showToast(msg) {
@@ -714,10 +725,12 @@
 
   // Auto-init on DOM ready
   async function initInstallState() {
-    if ('getInstalledRelatedApps' in navigator) {
+    if ('getInstalledRelatedApps' in navigator && isAppInstalled()) {
       try {
         const apps = await navigator.getInstalledRelatedApps();
-        if (apps && apps.length > 0) {
+        const expectedId = isAdmin ? '/admin/' : '/menu/';
+        const match = apps && apps.some(a => a.id === expectedId || (a.url && a.url.includes(expectedId)));
+        if (match) {
           markAppAsInstalled();
           updateInstallUI();
           return;
