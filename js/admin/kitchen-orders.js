@@ -296,11 +296,11 @@ function updateWakeLockUI(isActive) {
 
   if (isActive) {
     btn.classList.add('active');
-    if (label) label.textContent = 'الشاشة مضاءة دائماً';
+    if (label) label.textContent = 'الشاشة مضاءة';
     if (dot) dot.style.background = '';
   } else {
     btn.classList.remove('active');
-    if (label) label.textContent = 'إبقاء الشاشة مضاءة';
+    if (label) label.textContent = 'إبقاء الشاشة';
     if (dot) dot.style.background = '';
   }
 }

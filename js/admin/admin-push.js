@@ -214,11 +214,11 @@
     if (btnKitchen) {
       if (isGranted) {
         btnKitchen.classList.add('active');
-        if (labelKitchen) labelKitchen.textContent = 'إشعارات الموبايل مفعلة';
+        if (labelKitchen) labelKitchen.textContent = 'الإشعارات مفعلة';
         btnKitchen.setAttribute('title', 'إشعارات الطلبات مفعلة على هذا الهاتف');
       } else {
         btnKitchen.classList.remove('active');
-        if (labelKitchen) labelKitchen.textContent = 'تفعيل إشعارات الموبايل';
+        if (labelKitchen) labelKitchen.textContent = 'إشعارات الطلبات';
         btnKitchen.setAttribute('title', 'اضغط لتفعيل إشعارات الطلبات الفورية على هذا الهاتف');
       }
     }

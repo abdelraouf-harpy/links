@@ -45,7 +45,7 @@
 
   <link rel="stylesheet" href="css/order-tokens.css?v=95.1">
   <link rel="stylesheet" href="css/order-client.css?v=95.1">
-  <link rel="stylesheet" href="css/order-admin.css?v=119.0">
+  <link rel="stylesheet" href="css/order-admin.css?v=120.0">
 
   <!-- OneSignal Web Push SDK (v16) for Native Mobile Order Alerts -->
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
@@ -728,22 +728,22 @@
     <!-- ═══ TAB 2: LIVE KITCHEN & ACTIVE ORDERS ═════════════════ -->
     <div id="tab-orders" class="tab-pane">
 
-      <!-- Luxury Centered Action Bar (Wake-Lock + Native Push Alerts) -->
-      <div style="display:flex; justify-content:center; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:18px;">
-        <button type="button" id="btn-toggle-wake-lock" class="btn-wake-lock-toggle" onclick="toggleKitchenWakeLock()" title="إبقاء الشاشة مضاءة أثناء العمل في المطبخ" aria-label="إبقاء الشاشة مضاءة">
-          <svg class="wake-lock-icon" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <!-- Luxury Compact Dual Action Bar (Side-by-Side Pill Design) -->
+      <div class="kitchen-quick-toggles-bar">
+        <button type="button" id="btn-toggle-wake-lock" class="btn-quick-toggle btn-wake-lock-toggle" onclick="toggleKitchenWakeLock()" title="إبقاء الشاشة مضاءة أثناء العمل في المطبخ" aria-label="إبقاء الشاشة">
+          <svg class="wake-lock-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 2v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="M2 12h4"/><path d="m4.93 19.07 2.83-2.83"/><path d="M12 18v4"/><path d="m19.07 19.07-2.83-2.83"/><path d="M18 12h4"/><path d="m19.07 4.93-2.83 2.83"/>
           </svg>
-          <span id="wake-lock-label" style="letter-spacing:0.3px;">إبقاء الشاشة مضاءة</span>
+          <span id="wake-lock-label">إبقاء الشاشة</span>
           <span id="wake-lock-status-dot" class="wake-lock-dot"></span>
         </button>
 
-        <button type="button" id="btn-toggle-push-notif" class="btn-push-toggle" onclick="toggleOneSignalPush()" title="تفعيل إشعارات الطلبات الفورية على هذا الهاتف" aria-label="إشعارات الطلبات على الموبايل">
-          <svg class="push-icon" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <button type="button" id="btn-toggle-push-notif" class="btn-quick-toggle btn-push-toggle" onclick="toggleOneSignalPush()" title="تفعيل إشعارات الطلبات الفورية على هذا الهاتف" aria-label="إشعارات الطلبات">
+          <svg class="push-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
             <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
           </svg>
-          <span id="push-notif-label" style="letter-spacing:0.3px;">إشعارات الموبايل</span>
+          <span id="push-notif-label">إشعارات الطلبات</span>
           <span id="push-notif-status-dot" class="push-dot"></span>
         </button>
       </div>
@@ -2364,8 +2364,8 @@
   <script src="js/admin/backup-restore.js?v=119.0"></script>
   <script src="js/admin/settings-manager.js?v=119.0"></script>
   <script src="js/admin/pos-terminal.js?v=119.0"></script>
-  <script src="js/admin/admin-push.js?v=119.0"></script>
-  <script src="js/admin.js?v=119.0"></script>
-  <script src="js/pwa.js?v=119.0"></script>
+  <script src="js/admin/admin-push.js?v=120.0"></script>
+  <script src="js/admin.js?v=120.0"></script>
+  <script src="js/pwa.js?v=120.0"></script>
 </body>
 </html>

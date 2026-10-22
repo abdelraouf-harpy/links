@@ -122,7 +122,7 @@
 
       // Dynamic manifest resolution with authentic standardized identity
       const manifestObj = {
-        id: isAdmin ? `./admin/` : `./menu/`,
+        id: isAdmin ? '/admin/' : '/menu/',
         name: appName,
         short_name: appName,
         description: isAdmin ? `Order Admin — Dashboard & Kitchen` : `Order — Smart Digital Menu`,
@@ -439,7 +439,7 @@
   // ── 5. Register Service Worker with Clean Update Engine ───────
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      const swUrl = './sw.js?v=119.0';
+      const swUrl = './sw.js?v=120.0';
       navigator.serviceWorker.register(swUrl)
         .then(reg => {
           window.__swRegistration = reg;
