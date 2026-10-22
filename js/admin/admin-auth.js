@@ -480,6 +480,12 @@ function renderRestaurantHub() {
     previewBtn.target = '_blank';
     previewBtn.rel = 'noopener noreferrer';
   }
+  const drawerPreviewBtn = document.getElementById('btn-drawer-preview');
+  if (drawerPreviewBtn) {
+    drawerPreviewBtn.href = isFile ? `./menu/?m=${slug}` : targetUrl;
+    drawerPreviewBtn.target = '_blank';
+    drawerPreviewBtn.rel = 'noopener noreferrer';
+  }
   const openStoreBtn = document.getElementById('btn-open-store-link');
   if (openStoreBtn) {
     openStoreBtn.href = isFile ? `./menu/?m=${slug}` : targetUrl;

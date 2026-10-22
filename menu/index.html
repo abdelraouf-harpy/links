@@ -541,10 +541,10 @@
         // Path-based tenant resolution: e.g. harpymenu.com/saj or harpymenu.com/order/saj
         if (!slug && window.location && window.location.pathname && window.location.protocol.startsWith('http')) {
           try {
-            const pathParts = window.location.pathname.split('/').filter(function(p) { return p && !p.endsWith('.html') && p !== 'admin' && p !== 'order' && p.length > 1 && !/^[a-zA-Z]:$/.test(p); });
+            const pathParts = window.location.pathname.split('/').filter(function(p) { return p && !p.endsWith('.html') && p !== 'admin' && p !== 'order' && p !== 'menu' && p.length > 1 && !/^[a-zA-Z]:$/.test(p); });
             if (pathParts.length > 0) {
               const firstPart = pathParts[0].toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
-              const reserved = ['css', 'js', 'assets', 'api', 'admin', 'manifest', 'sw', 'favicon', 'icons', 'products', 'portfolio', 'order', 'links', 'github', 'io', 'c', 'd', 'e', 'users', 'desktop'];
+              const reserved = ['css', 'js', 'assets', 'api', 'admin', 'menu', 'manifest', 'sw', 'favicon', 'icons', 'products', 'portfolio', 'order', 'links', 'github', 'io', 'c', 'd', 'e', 'users', 'desktop'];
               if (firstPart && firstPart.length > 1 && reserved.indexOf(firstPart) === -1) {
                 slug = firstPart;
               }
