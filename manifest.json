@@ -1,10 +1,10 @@
 {
-  "id": "/menu/",
+  "id": "/order/",
   "name": "Order",
   "short_name": "Order",
   "description": "Order — Smart Digital Menu",
-  "start_url": "./menu/",
-  "scope": "./menu/",
+  "start_url": "./order/",
+  "scope": "./order/",
   "display": "standalone",
   "background_color": "#070B13",
   "theme_color": "#FF6A00",

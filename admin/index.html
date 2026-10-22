@@ -151,14 +151,14 @@
           var drawerPreviewBtn = document.getElementById('btn-drawer-preview');
           var openStoreBtn = document.getElementById('btn-open-store-link');
           var shareLink = document.getElementById('tenant-share-link');
-          var orderUrl = './menu/?m=' + encodeURIComponent(slug);
+          var orderUrl = './order/?m=' + encodeURIComponent(slug);
 
           if (previewBtn) {
             previewBtn.href = orderUrl;
             previewBtn.setAttribute('rel', 'noopener noreferrer');
             previewBtn.addEventListener('click', function(e) {
               var cur = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : slug;
-              var dest = './menu/?m=' + encodeURIComponent(cur);
+              var dest = './order/?m=' + encodeURIComponent(cur);
               this.href = dest;
               var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
               if (isStandalone) {
@@ -172,7 +172,7 @@
             drawerPreviewBtn.setAttribute('rel', 'noopener noreferrer');
             drawerPreviewBtn.addEventListener('click', function(e) {
               var cur = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : slug;
-              var dest = './menu/?m=' + encodeURIComponent(cur);
+              var dest = './order/?m=' + encodeURIComponent(cur);
               this.href = dest;
               var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
               if (isStandalone) {
@@ -186,7 +186,7 @@
             openStoreBtn.setAttribute('rel', 'noopener noreferrer');
             openStoreBtn.addEventListener('click', function(e) {
               var cur = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : slug;
-              var dest = './menu/?m=' + encodeURIComponent(cur);
+              var dest = './order/?m=' + encodeURIComponent(cur);
               this.href = dest;
               var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
               if (isStandalone) {
@@ -321,7 +321,7 @@
       <!-- Left: Theme Toggle + Side Drawer Trigger -->
       <div class="header-actions admin-header-actions">
         <!-- Live Menu Preview -->
-        <a href="./menu/" class="btn btn-ghost btn-sm btn-header-preview" target="_blank" rel="noopener noreferrer" id="btn-live-preview" title="معاينة المنيو الحي">
+        <a href="./order/" class="btn btn-ghost btn-sm btn-header-preview" target="_blank" rel="noopener noreferrer" id="btn-live-preview" title="معاينة المنيو الحي">
           <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
           <span class="preview-btn-label">معاينة المنيو</span>
         </a>
@@ -447,7 +447,7 @@
         <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         <span>تثبيت لوحة الإدارة على الهاتف</span>
       </button>
-      <a href="./menu/" id="btn-drawer-preview" class="btn-drawer-action" target="_blank" rel="noopener noreferrer">
+      <a href="./order/" id="btn-drawer-preview" class="btn-drawer-action" target="_blank" rel="noopener noreferrer">
         <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
         <span>معاينة المنيو للزبائن</span>
       </a>
@@ -761,7 +761,7 @@
           <span id="wake-lock-status-dot" class="wake-lock-dot"></span>
         </button>
 
-        <button type="button" id="btn-toggle-push-notif" class="btn-quick-toggle btn-push-toggle" onclick="toggleOneSignalPush()" title="تفعيل إشعارات الطلبات الفورية على هذا الهاتف" aria-label="إشعارات الطلبات">
+        <button type="button" id="btn-toggle-push-notif" class="btn-quick-toggle btn-push-toggle" onclick="toggleKitchenNotifications()" title="تفعيل إشعارات الطلبات الفورية على هذا الهاتف" aria-label="إشعارات الطلبات">
           <svg class="push-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
             <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
@@ -1476,7 +1476,7 @@
             </p>
 
             <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-              <button type="button" id="btn-push-settings-toggle" class="btn btn-primary btn-sm" onclick="toggleOneSignalPush()" style="font-weight:800; padding:9px 18px; border-radius:var(--radius-sm); display:inline-flex; align-items:center; gap:6px;">
+              <button type="button" id="btn-push-settings-toggle" class="btn btn-primary btn-sm" onclick="toggleKitchenNotifications()" style="font-weight:800; padding:9px 18px; border-radius:var(--radius-sm); display:inline-flex; align-items:center; gap:6px;">
                 <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
                 <span>تفعيل الإشعارات على هذا الهاتف</span>
               </button>

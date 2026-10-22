@@ -1,5 +1,5 @@
 // Order PWA Service Worker — Native App Shell & Offline Engine
-const CACHE_NAME = 'order-pwa-v123.0';
+const CACHE_NAME = 'order-pwa-v124.0';
 const IMAGE_CACHE_NAME = 'order-images-v2';
 const ASSETS_TO_CACHE = [
   './',
@@ -9,7 +9,8 @@ const ASSETS_TO_CACHE = [
   './admin.html',
   './admin/',
   './admin/index.html',
-  './order.html',
+  './order/',
+  './order/index.html',
   './menu/',
   './menu/index.html',
   './manifest.json',
@@ -188,12 +189,12 @@ self.addEventListener('fetch', (event) => {
         const iconType = 'image/png';
 
         const synthesized = {
-          id: isAdm ? `/admin/?m=${mSlug}` : `/menu/?m=${mSlug}`,
+          id: isAdm ? `/admin/?m=${mSlug}` : `/order/?m=${mSlug}`,
           name: finalName,
           short_name: finalShortName,
           description: isAdm ? `Order Admin — Dashboard & Kitchen` : `Order — Smart Digital Menu`,
-          start_url: isAdm ? `./admin/?m=${mSlug}` : `./menu/?m=${mSlug}`,
-          scope: isAdm ? `./admin/` : `./menu/`,
+          start_url: isAdm ? `./admin/?m=${mSlug}` : `./order/?m=${mSlug}`,
+          scope: isAdm ? `./admin/` : `./order/`,
           display: 'standalone',
           background_color: '#070B13',
           theme_color: '#FF6A00',
@@ -275,10 +276,11 @@ self.addEventListener('fetch', (event) => {
                 .then(r => r || caches.match('./admin.html', { ignoreSearch: true }))
                 .then(r => r || networkResponse);
             }
-            if (reqUrlLower.includes('menu') || reqUrlLower.includes('/order') || reqUrlLower.includes('order.html') || reqUrlLower.includes('m=')) {
-              return caches.match('./menu/index.html', { ignoreSearch: true })
-                .then(r => r || caches.match('./menu/', { ignoreSearch: true }))
+            if (reqUrlLower.includes('order') || reqUrlLower.includes('menu') || reqUrlLower.includes('m=')) {
+              return caches.match('./order/index.html', { ignoreSearch: true })
+                .then(r => r || caches.match('./order/', { ignoreSearch: true }))
                 .then(r => r || caches.match('./order.html', { ignoreSearch: true }))
+                .then(r => r || caches.match('./menu/index.html', { ignoreSearch: true }))
                 .then(r => r || networkResponse);
             }
             return caches.match('./index.html', { ignoreSearch: true }).then(r => r || networkResponse);

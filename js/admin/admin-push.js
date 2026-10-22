@@ -12,15 +12,18 @@
 
     const quickBtn = document.getElementById('btn-toggle-push-notif');
     const settingsBtn = document.getElementById('btn-push-settings-toggle');
-    const statusDot = document.getElementById('push-status-dot');
+    const statusDot = document.getElementById('push-notif-status-dot') || document.getElementById('push-status-dot');
+    const labelEl = document.getElementById('push-notif-label');
 
     if (quickBtn) {
       if (isGranted) {
         quickBtn.classList.add('active');
         quickBtn.setAttribute('title', 'إشعارات الطلبات مفعلة');
+        if (labelEl) labelEl.textContent = 'الإشعارات مفعلة';
       } else {
         quickBtn.classList.remove('active');
         quickBtn.setAttribute('title', isDenied ? 'تم حظر الإشعارات من إعدادات المتصفح' : 'اضغط لتفعيل إشعارات الطلبات');
+        if (labelEl) labelEl.textContent = 'إشعارات الطلبات';
       }
     }
 

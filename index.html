@@ -31,9 +31,9 @@
         s = s.toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
         if (!s) s = 'saj';
 
-        window.location.replace('./menu/?m=' + encodeURIComponent(s) + window.location.hash);
+        window.location.replace('./order/?m=' + encodeURIComponent(s) + window.location.hash);
       } catch(e) {
-        window.location.replace('./menu/?m=saj');
+        window.location.replace('./order/?m=saj');
       }
     })();
   </script>

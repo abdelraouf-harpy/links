@@ -1,10 +1,10 @@
 {
-  "id": "/menu/?m=saj",
+  "id": "/order/?m=saj",
   "name": "Order",
   "short_name": "Order",
   "description": "صــاج — Smart Digital Menu",
-  "start_url": "./menu/?m=saj",
-  "scope": "./menu/",
+  "start_url": "./order/?m=saj",
+  "scope": "./order/",
   "display": "standalone",
   "background_color": "#070B13",
   "theme_color": "#FF6A00",

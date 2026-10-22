@@ -1,10 +1,10 @@
 {
-  "id": "/menu/?m=sloo",
+  "id": "/order/?m=sloo",
   "name": "Order",
   "short_name": "Order",
   "description": "sloo — Smart Digital Menu",
-  "start_url": "./menu/?m=sloo",
-  "scope": "./menu/",
+  "start_url": "./order/?m=sloo",
+  "scope": "./order/",
   "display": "standalone",
   "background_color": "#070B13",
   "theme_color": "#FF6A00",

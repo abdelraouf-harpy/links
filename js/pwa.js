@@ -129,12 +129,12 @@
         : (storeName ? storeName : 'Order');
 
       const manifestObj = {
-        id: isAdmin ? (`/admin/?m=${slug}`) : (`/menu/?m=${slug}`),
+        id: isAdmin ? (`/admin/?m=${slug}`) : (`/order/?m=${slug}`),
         name: finalAppName,
         short_name: finalShortName,
         description: isAdmin ? `${storeName || 'المطعم'} — لوحة الإدارة وتجهيز الطلبات` : `${storeName || 'المطعم'} — المنيو الذكي وطلب الأوردر`,
-        start_url: isAdmin ? `./admin/?m=${slug}` : `./menu/?m=${slug}`,
-        scope: isAdmin ? `./admin/` : `./menu/`,
+        start_url: isAdmin ? `./admin/?m=${slug}` : `./order/?m=${slug}`,
+        scope: isAdmin ? `./admin/` : `./order/`,
         display: "standalone",
         background_color: "#070B13",
         theme_color: "#FF6A00",
@@ -426,8 +426,8 @@
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       // Register strictly-scoped SW for each app independently (No cross-purging)
-      const swUrl = './sw.js?v=123.0';
-      const targetScope = isAdmin ? './admin/' : './menu/';
+      const swUrl = './sw.js?v=124.0';
+      const targetScope = isAdmin ? './admin/' : './order/';
       navigator.serviceWorker.register(swUrl, { scope: targetScope })
         .then(reg => {
           window.__swRegistration = reg;
