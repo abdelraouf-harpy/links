@@ -1,10 +1,10 @@
 {
-  "id": "harpy-order-app-v38",
+  "id": "./menu/",
   "name": "Order",
   "short_name": "Order",
   "description": "Order — Smart Digital Menu",
-  "start_url": "./order.html",
-  "scope": "./",
+  "start_url": "./menu/",
+  "scope": "./menu/",
   "display": "standalone",
   "background_color": "#070B13",
   "theme_color": "#FF6A00",

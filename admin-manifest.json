@@ -1,10 +1,10 @@
 {
-  "id": "harpy-admin-app-v38",
+  "id": "./admin/",
   "name": "Admin",
   "short_name": "Admin",
   "description": "Order Admin — Dashboard & Kitchen",
-  "start_url": "./admin.html",
-  "scope": "./admin.html",
+  "start_url": "./admin/",
+  "scope": "./admin/",
   "display": "standalone",
   "background_color": "#070B13",
   "theme_color": "#FF6A00",

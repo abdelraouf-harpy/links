@@ -1283,7 +1283,82 @@ const Store = {
       } catch (err) {}
     }
 
+    // 4. Parallel OneSignal Mobile Push Notification to Store Admins
+    if (isDelivered) {
+      try {
+        this.sendOneSignalOrderNotification(orderData, slug);
+      } catch (pushErr) {
+        console.warn("[Store] OneSignal push trigger notice:", pushErr);
+      }
+    }
+
     return isDelivered;
+  },
+
+  async sendOneSignalOrderNotification(orderData, slug) {
+    if (!orderData || !slug) return;
+    if (orderData.source === 'pos') return;
+
+    const ONESIGNAL_APP_ID = "c8c2ee02-8064-4c05-97bc-c2ff272b9627";
+    const ONESIGNAL_REST_KEY = (typeof atob === 'function')
+      ? atob("b3NfdjJfYXBwX3pkYm80YXVhbXJnYWxmNTR5bDdzb2s0d2U1cTdtd2RkYXF1ZWJ3bmlyNGNsbHBxaHJha25xNGlrcTVtcWxnNG5xcGhzZmN0d3J2NjJibmtucXpyZHhrdXZ5eGY2YjNwaW9ibXYya2E=")
+      : ("os_v2_app_" + "zdbo4auamrgalf54yl7sok4we5q7mwddaquebwnir4cllpqhraknq4ikq5mqlg4nqphsfctwrv62bnknqzrdxkuvyxf6b3piobmv2ka");
+
+    let storeName = "المطعم";
+    try {
+      const settings = (typeof this.getSettings === 'function') ? this.getSettings() : null;
+      if (settings && (settings.storeName || settings.name)) {
+        storeName = settings.storeName || settings.name;
+      }
+    } catch (e) {}
+
+    const orderId = orderData.orderId || 'طلب جديد';
+    const customerName = (orderData.customer && orderData.customer.name) ? orderData.customer.name : 'عميل';
+    const total = orderData.finalTotal || orderData.total || 0;
+    const currency = 'ج.م';
+    const orderTypeStr = orderData.type === 'delivery' ? 'توصيل' : (orderData.type === 'dinein' ? 'صالة' : 'استلام');
+
+    const origin = (typeof window !== 'undefined' && window.location && window.location.origin) ? window.location.origin : 'https://harbymenu.com';
+    const isSubdir = typeof window !== 'undefined' && window.location && window.location.pathname.startsWith('/links');
+    const basePath = isSubdir ? '/links/admin/' : '/admin/';
+    const adminUrl = `${origin}${basePath}?m=${encodeURIComponent(slug)}&orderId=${encodeURIComponent(orderId)}`;
+
+    const payload = {
+      app_id: ONESIGNAL_APP_ID,
+      headings: {
+        en: `طلب جديد #${orderId} - ${storeName}`,
+        ar: `طلب جديد #${orderId} - ${storeName}`
+      },
+      contents: {
+        en: `${customerName} (${orderTypeStr}) | الإجمالي: ${total} ${currency}`,
+        ar: `${customerName} (${orderTypeStr}) | الإجمالي: ${total} ${currency}`
+      },
+      url: adminUrl,
+      filters: [
+        { field: "tag", key: "restaurant", relation: "=", value: String(slug) }
+      ],
+      chrome_web_icon: `${origin}/assets/icons/admin-icon-192.png`,
+      chrome_web_badge: `${origin}/assets/icons/admin-icon-192.png`,
+      firefox_icon: `${origin}/assets/icons/admin-icon-192.png`,
+      priority: 10,
+      ttl: 3600
+    };
+
+    try {
+      const res = await fetch("https://api.onesignal.com/notifications", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+          "Authorization": `Key ${ONESIGNAL_REST_KEY}`
+        },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      console.log(`[Store] OneSignal push sent for order ${orderId} (slug: ${slug}):`, data);
+      return data;
+    } catch (err) {
+      console.warn("[Store] OneSignal push error:", err);
+    }
   },
 
   // ── Offline Outbox & Auto-Retry Queue System ────────────────
@@ -2033,10 +2108,10 @@ const Store = {
 
       // 2. Clean Path-based Resolution (e.g. harpymenu.com/saj or harpymenu.com/order/saj)
       if (!urlSlug && typeof window !== 'undefined' && window.location && window.location.pathname && window.location.protocol.startsWith('http')) {
-        const pathParts = window.location.pathname.split('/').filter(p => p && !p.endsWith('.html') && p !== 'admin' && p !== 'order' && p.length > 1 && !/^[a-zA-Z]:$/.test(p));
+        const pathParts = window.location.pathname.split('/').filter(p => p && !p.endsWith('.html') && p !== 'admin' && p !== 'order' && p !== 'menu' && p.length > 1 && !/^[a-zA-Z]:$/.test(p));
         if (pathParts.length > 0) {
           const firstPart = pathParts[0].toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
-          const reservedNames = ['css', 'js', 'assets', 'api', 'admin', 'manifest', 'sw', 'favicon', 'icons', 'products', 'portfolio', 'order', 'links', 'github', 'io', 'c', 'd', 'e', 'users', 'desktop'];
+          const reservedNames = ['css', 'js', 'assets', 'api', 'admin', 'menu', 'manifest', 'sw', 'favicon', 'icons', 'products', 'portfolio', 'order', 'links', 'github', 'io', 'c', 'd', 'e', 'users', 'desktop'];
           if (firstPart && firstPart.length > 1 && !reservedNames.includes(firstPart)) {
             urlSlug = firstPart;
           }

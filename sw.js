@@ -1,5 +1,12 @@
+// OneSignal Push Notification Integration for Mobile Background Delivery
+try {
+  importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
+} catch (e) {
+  console.warn("[SW] OneSignal SDK import failed or offline:", e);
+}
+
 // Order PWA Service Worker — Native App Shell & Offline Engine
-const CACHE_NAME = 'order-pwa-v118.0';
+const CACHE_NAME = 'order-pwa-v119.0';
 const IMAGE_CACHE_NAME = 'order-images-v2';
 const ASSETS_TO_CACHE = [
   './',
@@ -7,6 +14,11 @@ const ASSETS_TO_CACHE = [
   './order.html',
   './portfolio.html',
   './admin.html',
+  './admin/',
+  './admin/index.html',
+  './order.html',
+  './menu/',
+  './menu/index.html',
   './manifest.json',
   './admin-manifest.json',
   './assets/icons/order-icon-512.png',
@@ -34,6 +46,7 @@ const ASSETS_TO_CACHE = [
   './js/admin/backup-restore.js?v=103.0',
   './js/admin/settings-manager.js?v=103.0',
   './js/admin/pos-terminal.js?v=103.0',
+  './js/admin/admin-push.js?v=119.0',
   './js/client/client-core.js?v=103.0',
   './js/client/menu-view.js?v=103.0',
   './js/client/stories-viewer.js?v=103.0',
@@ -182,12 +195,12 @@ self.addEventListener('fetch', (event) => {
         const iconType = 'image/png';
 
         const synthesized = {
-          id: `harpy-${isAdm ? 'admin' : 'order'}-${mSlug}-v38`,
+          id: isAdm ? `./admin/` : `./menu/`,
           name: finalName,
           short_name: finalShortName,
           description: isAdm ? `Order Admin — Dashboard & Kitchen` : `Order — Smart Digital Menu`,
-          start_url: isAdm ? `./admin.html?m=${mSlug}` : `./order.html?m=${mSlug}`,
-          scope: isAdm ? `./admin.html` : `./`,
+          start_url: isAdm ? `./admin/?m=${mSlug}` : `./menu/?m=${mSlug}`,
+          scope: isAdm ? `./admin/` : `./menu/`,
           display: 'standalone',
           background_color: '#070B13',
           theme_color: '#FF6A00',
@@ -264,13 +277,15 @@ self.addEventListener('fetch', (event) => {
           if (accept.includes('text/html') || event.request.mode === 'navigate') {
             const reqUrlLower = event.request.url.toLowerCase();
             if (reqUrlLower.includes('admin')) {
-              return caches.match('./admin.html', { ignoreSearch: true })
-                .then(r => r || caches.match('admin.html', { ignoreSearch: true }))
+              return caches.match('./admin/index.html', { ignoreSearch: true })
+                .then(r => r || caches.match('./admin/', { ignoreSearch: true }))
+                .then(r => r || caches.match('./admin.html', { ignoreSearch: true }))
                 .then(r => r || networkResponse);
             }
-            if (reqUrlLower.includes('/order') || reqUrlLower.includes('order.html') || reqUrlLower.includes('m=')) {
-              return caches.match('./order.html', { ignoreSearch: true })
-                .then(r => r || caches.match('order.html', { ignoreSearch: true }))
+            if (reqUrlLower.includes('menu') || reqUrlLower.includes('/order') || reqUrlLower.includes('order.html') || reqUrlLower.includes('m=')) {
+              return caches.match('./menu/index.html', { ignoreSearch: true })
+                .then(r => r || caches.match('./menu/', { ignoreSearch: true }))
+                .then(r => r || caches.match('./order.html', { ignoreSearch: true }))
                 .then(r => r || networkResponse);
             }
             return caches.match('./index.html', { ignoreSearch: true }).then(r => r || networkResponse);
@@ -284,16 +299,39 @@ self.addEventListener('fetch', (event) => {
           if (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html')) {
             const reqUrlLower = event.request.url.toLowerCase();
             if (reqUrlLower.includes('admin')) {
-              return caches.match('./admin.html', { ignoreSearch: true })
-                .then(r => r || caches.match('admin.html', { ignoreSearch: true }));
+              return caches.match('./admin/index.html', { ignoreSearch: true })
+                .then(r => r || caches.match('./admin/', { ignoreSearch: true }))
+                .then(r => r || caches.match('./admin.html', { ignoreSearch: true }));
             }
-            if (reqUrlLower.includes('/order') || reqUrlLower.includes('order.html') || reqUrlLower.includes('m=')) {
-              return caches.match('./order.html', { ignoreSearch: true })
-                .then(r => r || caches.match('order.html', { ignoreSearch: true }));
+            if (reqUrlLower.includes('menu') || reqUrlLower.includes('/order') || reqUrlLower.includes('order.html') || reqUrlLower.includes('m=')) {
+              return caches.match('./menu/index.html', { ignoreSearch: true })
+                .then(r => r || caches.match('./menu/', { ignoreSearch: true }))
+                .then(r => r || caches.match('./order.html', { ignoreSearch: true }));
             }
             return caches.match('./index.html', { ignoreSearch: true });
           }
         });
       })
+  );
+});
+
+// Local Notification Click Navigation
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const targetUrl = (event.notification.data && event.notification.data.url) ? event.notification.data.url : './admin.html';
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+      for (let client of windowClients) {
+        if (client.url.includes('admin') && 'focus' in client) {
+          if ('navigate' in client && targetUrl) {
+            client.navigate(targetUrl);
+          }
+          return client.focus();
+        }
+      }
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(targetUrl);
+      }
+    })
   );
 });

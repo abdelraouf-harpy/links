@@ -1052,6 +1052,81 @@ html.admin-unlocked #login-modal-backdrop {
   }
 }
 
+/* ── Mobile Push Notifications Toggle Button ── */
+.btn-push-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 8px 22px;
+  font-size: 13px;
+  font-weight: 800;
+  font-family: inherit;
+  border-radius: 30px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.btn-push-toggle:hover {
+  border-color: var(--border-strong);
+  color: var(--text-main);
+  background: var(--surface-raised);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+}
+.btn-push-toggle svg.push-icon {
+  width: 17px;
+  height: 17px;
+  color: var(--text-muted);
+  transition: all 0.28s ease;
+  flex-shrink: 0;
+}
+.btn-push-toggle .push-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.15);
+  transition: all 0.28s ease;
+  flex-shrink: 0;
+}
+.btn-push-toggle.active {
+  border-color: #10b981 !important;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(5, 150, 105, 0.08)) !important;
+  color: #10b981 !important;
+  font-weight: 900 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.45), 0 4px 15px rgba(16, 185, 129, 0.2) !important;
+  animation: pushRadiantGlow 2.4s infinite ease-in-out;
+}
+.btn-push-toggle.active svg.push-icon {
+  color: #10b981 !important;
+  stroke: #10b981 !important;
+  filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.9));
+  transform: scale(1.12);
+}
+.btn-push-toggle.active .push-dot {
+  background: #10b981 !important;
+  box-shadow: 0 0 8px #10b981, 0 0 16px rgba(16, 185, 129, 0.6) !important;
+}
+
+@keyframes pushRadiantGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.35), 0 4px 14px rgba(16, 185, 129, 0.18);
+    border-color: #10b981;
+  }
+  50% {
+    box-shadow: 0 0 32px rgba(16, 185, 129, 0.6), 0 0 45px rgba(16, 185, 129, 0.3);
+    border-color: #34d399;
+  }
+}
+
 /* ═══════════════════════════════════════════════════════════════════
    POS DINE-IN & TAKEAWAY CASHIER ENGINE STYLES
 ═══════════════════════════════════════════════════════════════════ */

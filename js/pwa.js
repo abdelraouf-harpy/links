@@ -122,12 +122,12 @@
 
       // Dynamic manifest resolution with authentic standardized identity
       const manifestObj = {
-        id: `harpy-${isAdmin ? 'admin' : 'order'}-${slug}-v38`,
+        id: isAdmin ? `./admin/` : `./menu/`,
         name: appName,
         short_name: appName,
         description: isAdmin ? `Order Admin — Dashboard & Kitchen` : `Order — Smart Digital Menu`,
-        start_url: isAdmin ? `./admin.html?m=${slug}` : `./order.html?m=${slug}`,
-        scope: isAdmin ? `./admin.html` : `./`,
+        start_url: isAdmin ? `./admin/?m=${slug}` : `./menu/?m=${slug}`,
+        scope: isAdmin ? `./admin/` : `./menu/`,
         display: "standalone",
         background_color: "#120e0c",
         theme_color: "#ea580c",
@@ -439,7 +439,7 @@
   // ── 5. Register Service Worker with Clean Update Engine ───────
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      const swUrl = './sw.js?v=118.0';
+      const swUrl = './sw.js?v=119.0';
       navigator.serviceWorker.register(swUrl)
         .then(reg => {
           window.__swRegistration = reg;

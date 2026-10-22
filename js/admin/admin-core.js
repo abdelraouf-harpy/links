@@ -565,13 +565,17 @@ function setupTabNavigation() {
     }
   });
 
-  // Determine initial tab from Hash, or LocalStorage, or Default
+  // Determine initial tab from URL param, Hash, or LocalStorage, or Default
+  const urlParams = new URLSearchParams(window.location.search);
+  const targetOrderId = urlParams.get('orderId');
   const hash = (window.location.hash || '').replace('#', '').trim();
   const slug = Store.getRestaurantSlug();
   const savedTab = localStorage.getItem(`harpy_${slug}_admin_active_tab`);
 
-  let initialTab = 'tab-orders';
-  if (hash && document.getElementById('tab-' + hash)) {
+  let initialTab = targetOrderId ? 'tab-orders' : 'tab-orders';
+  if (targetOrderId) {
+    initialTab = 'tab-orders';
+  } else if (hash && document.getElementById('tab-' + hash)) {
     initialTab = 'tab-' + hash;
   } else if (savedTab && document.getElementById(savedTab)) {
     initialTab = savedTab;
@@ -579,6 +583,15 @@ function setupTabNavigation() {
 
   // Switch to initial tab immediately
   window.switchTab(initialTab, false);
+
+  // If opened directly from an order notification, automatically open that order's modal
+  if (targetOrderId) {
+    setTimeout(() => {
+      if (typeof window.openOrderInvoiceModal === 'function') {
+        window.openOrderInvoiceModal(targetOrderId);
+      }
+    }, 500);
+  }
 
   // Synchronize URL hash with initialTab without stripping pathname or search params
   try {

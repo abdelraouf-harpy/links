@@ -40,20 +40,36 @@ function playKitchenOrderChime() {
 }
 
 function showAdminOrderNotification(newOrder) {
-  if ('Notification' in window) {
-    if (Notification.permission === 'granted') {
-      const title = `طلب جديد ${newOrder.orderId}`;
-      const options = {
-        body: `العميل: ${newOrder.customer?.name || 'عميل'} | المبلغ: ${newOrder.finalTotal} ج.م`,
-        icon: './manifest.json',
-        tag: newOrder.orderId
-      };
-      try {
-        new Notification(title, options);
-      } catch (e) {}
-    } else if (Notification.permission !== 'denied') {
-      Notification.requestPermission();
+  if (typeof window.showAdminOrderNotification === 'function' && window.showAdminOrderNotification !== showAdminOrderNotification) {
+    return window.showAdminOrderNotification(newOrder);
+  }
+  if (!('Notification' in window)) return;
+  if (Notification.permission !== 'granted') return;
+
+  const title = `طلب جديد #${newOrder.orderId || ''}`;
+  const options = {
+    body: `العميل: ${newOrder.customer?.name || 'عميل'} | المبلغ: ${newOrder.finalTotal || ''} ج.م`,
+    icon: './assets/icons/admin-icon-192.png',
+    badge: './assets/icons/admin-icon-192.png',
+    tag: String(newOrder.orderId || Date.now()),
+    renotify: true,
+    vibrate: [300, 150, 300, 150, 450],
+    data: {
+      url: window.location.href,
+      orderId: newOrder.orderId
     }
+  };
+
+  if ('serviceWorker' in navigator && navigator.serviceWorker.ready) {
+    navigator.serviceWorker.ready.then(reg => {
+      reg.showNotification(title, options).catch(() => {
+        try { new Notification(title, options); } catch(e) {}
+      });
+    }).catch(() => {
+      try { new Notification(title, options); } catch(e) {}
+    });
+  } else {
+    try { new Notification(title, options); } catch(e) {}
   }
 }
 
