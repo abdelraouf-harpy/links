@@ -125,7 +125,7 @@
 
         // If asking for portfolio explicitly (/portfolio, /portfolio.html)
         if (segments.indexOf('portfolio') !== -1 || path.indexOf('/portfolio') !== -1) {
-          window.location.replace(repoPrefix + '/portfolio.html' + search + hash);
+          window.location.replace(repoPrefix + '/' + search + hash);
           return;
         }
 
