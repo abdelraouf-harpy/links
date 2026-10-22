@@ -129,7 +129,7 @@
         : (storeName ? storeName : 'Order');
 
       const manifestObj = {
-        id: isAdmin ? '/admin/' : '/menu/',
+        id: isAdmin ? (`/admin/?m=${slug}`) : (`/menu/?m=${slug}`),
         name: finalAppName,
         short_name: finalShortName,
         description: isAdmin ? `${storeName || 'المطعم'} — لوحة الإدارة وتجهيز الطلبات` : `${storeName || 'المطعم'} — المنيو الذكي وطلب الأوردر`,
@@ -425,21 +425,8 @@
   // ── 5. Register Service Worker with Clean Update Engine ───────
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      // 1. Purge unmatching / legacy root SW registrations
-      try {
-        navigator.serviceWorker.getRegistrations().then(regs => {
-          regs.forEach(reg => {
-            const s = reg.scope || '';
-            const expectedScope = isAdmin ? '/admin/' : '/menu/';
-            if (!s.includes(expectedScope)) {
-              reg.unregister().then(() => console.log('[PWA] Purged unmatching SW scope:', s));
-            }
-          });
-        }).catch(() => {});
-      } catch (e) {}
-
-      // 2. Register strictly-scoped SW
-      const swUrl = './sw.js?v=121.0';
+      // Register strictly-scoped SW for each app independently (No cross-purging)
+      const swUrl = './sw.js?v=122.0';
       const targetScope = isAdmin ? './admin/' : './menu/';
       navigator.serviceWorker.register(swUrl, { scope: targetScope })
         .then(reg => {

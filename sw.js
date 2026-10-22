@@ -6,7 +6,7 @@ try {
 }
 
 // Order PWA Service Worker — Native App Shell & Offline Engine
-const CACHE_NAME = 'order-pwa-v121.0';
+const CACHE_NAME = 'order-pwa-v122.0';
 const IMAGE_CACHE_NAME = 'order-images-v2';
 const ASSETS_TO_CACHE = [
   './',
@@ -195,7 +195,7 @@ self.addEventListener('fetch', (event) => {
         const iconType = 'image/png';
 
         const synthesized = {
-          id: isAdm ? '/admin/' : '/menu/',
+          id: isAdm ? `/admin/?m=${mSlug}` : `/menu/?m=${mSlug}`,
           name: finalName,
           short_name: finalShortName,
           description: isAdm ? `Order Admin — Dashboard & Kitchen` : `Order — Smart Digital Menu`,
