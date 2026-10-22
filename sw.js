@@ -1,5 +1,5 @@
 // Order PWA Service Worker — Native App Shell & Offline Engine
-const CACHE_NAME = 'order-pwa-v103.0';
+const CACHE_NAME = 'order-pwa-v118.0';
 const IMAGE_CACHE_NAME = 'order-images-v2';
 const ASSETS_TO_CACHE = [
   './',
@@ -9,6 +9,10 @@ const ASSETS_TO_CACHE = [
   './admin.html',
   './manifest.json',
   './admin-manifest.json',
+  './assets/icons/order-icon-512.png',
+  './assets/icons/order-icon-192.png',
+  './assets/icons/admin-icon-512.png',
+  './assets/icons/admin-icon-192.png',
   './assets/portfolio/logo.png',
   './assets/portfolio/facebook_profile_logo.png',
   './assets/portfolio/01_Logo_and_Branding/order_logo_vector.svg',
@@ -173,8 +177,9 @@ self.addEventListener('fetch', (event) => {
 
         const finalName = isAdm ? `${storeName} | إدارة` : storeName;
         const finalShortName = isAdm ? `إدارة ${storeName}` : storeName;
-        const iconUrl = isAdm ? 'https://iili.io/n3rYXyu.png' : 'https://iili.io/n3HVHX4.jpg';
-        const iconType = isAdm ? 'image/png' : 'image/jpeg';
+        const iconUrl = isAdm ? './assets/icons/admin-icon-512.png' : './assets/icons/order-icon-512.png';
+        const icon192 = isAdm ? './assets/icons/admin-icon-192.png' : './assets/icons/order-icon-192.png';
+        const iconType = 'image/png';
 
         const synthesized = {
           id: `harpy-${isAdm ? 'admin' : 'order'}-${mSlug}-v38`,
@@ -189,7 +194,7 @@ self.addEventListener('fetch', (event) => {
           orientation: 'portrait',
           icons: [
             { src: iconUrl, sizes: '512x512', type: iconType, purpose: 'any' },
-            { src: iconUrl, sizes: '192x192', type: iconType, purpose: 'any' },
+            { src: icon192, sizes: '192x192', type: iconType, purpose: 'any' },
             { src: iconUrl, sizes: '512x512', type: iconType, purpose: 'maskable' }
           ]
         };

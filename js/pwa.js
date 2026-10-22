@@ -46,8 +46,10 @@
     }
   } catch(e) {}
 
-  const MENU_ICON_URL = 'https://iili.io/n3HVHX4.jpg';
-  const ADMIN_ICON_URL = 'https://iili.io/n3rYXyu.png';
+  const MENU_ICON_URL = './assets/icons/order-icon-512.png';
+  const ADMIN_ICON_URL = './assets/icons/admin-icon-512.png';
+  const MENU_ICON_192 = './assets/icons/order-icon-192.png';
+  const ADMIN_ICON_192 = './assets/icons/admin-icon-192.png';
   const fallbackIcon = isAdmin ? ADMIN_ICON_URL : MENU_ICON_URL;
 
   let appName = isAdmin ? 'Admin' : 'Order';
@@ -134,19 +136,19 @@
           {
             src: appIcon,
             sizes: "512x512",
-            type: isAdmin ? "image/png" : "image/jpeg",
+            type: "image/png",
             purpose: "any"
           },
           {
-            src: appIcon,
+            src: isAdmin ? ADMIN_ICON_192 : MENU_ICON_192,
             sizes: "192x192",
-            type: isAdmin ? "image/png" : "image/jpeg",
+            type: "image/png",
             purpose: "any"
           },
           {
             src: appIcon,
             sizes: "512x512",
-            type: isAdmin ? "image/png" : "image/jpeg",
+            type: "image/png",
             purpose: "maskable"
           }
         ]
@@ -437,7 +439,7 @@
   // ── 5. Register Service Worker with Clean Update Engine ───────
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      const swUrl = './sw.js?v=103.0';
+      const swUrl = './sw.js?v=118.0';
       navigator.serviceWorker.register(swUrl)
         .then(reg => {
           window.__swRegistration = reg;
