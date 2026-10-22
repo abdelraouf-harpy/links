@@ -1,12 +1,5 @@
-// OneSignal Push Notification Integration for Mobile Background Delivery
-try {
-  importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
-} catch (e) {
-  console.warn("[SW] OneSignal SDK import failed or offline:", e);
-}
-
 // Order PWA Service Worker — Native App Shell & Offline Engine
-const CACHE_NAME = 'order-pwa-v122.0';
+const CACHE_NAME = 'order-pwa-v123.0';
 const IMAGE_CACHE_NAME = 'order-images-v2';
 const ASSETS_TO_CACHE = [
   './',
