@@ -18,33 +18,56 @@ document.addEventListener('DOMContentLoaded', function() {
     }, { passive: true });
   }
 
-  // 2. Mobile Menu Navigation Toggle
-  const mobileToggle = document.querySelector('.ho-mobile-toggle');
-  const navMenu = document.querySelector('.ho-nav-menu');
-  if (mobileToggle && navMenu) {
+  // 2. Mobile Drawer Navigation System (Opens from Left smoothly)
+  const mobileToggle = document.getElementById('hoMobileToggle');
+  const drawer = document.getElementById('hoMobileDrawer');
+  const backdrop = document.getElementById('hoDrawerBackdrop');
+  const drawerClose = document.getElementById('hoDrawerClose');
+
+  function openDrawer() {
+    if (drawer) drawer.classList.add('open');
+    if (backdrop) backdrop.classList.add('open');
+    document.body.classList.add('menu-open');
+    if (mobileToggle) mobileToggle.setAttribute('aria-expanded', 'true');
+  }
+
+  function closeDrawer() {
+    if (drawer) drawer.classList.remove('open');
+    if (backdrop) backdrop.classList.remove('open');
+    document.body.classList.remove('menu-open');
+    if (mobileToggle) mobileToggle.setAttribute('aria-expanded', 'false');
+  }
+
+  if (mobileToggle) {
     mobileToggle.addEventListener('click', function(e) {
       e.stopPropagation();
-      navMenu.classList.toggle('open');
-      const expanded = navMenu.classList.contains('open');
-      mobileToggle.setAttribute('aria-expanded', expanded);
-    });
-
-    // Close menu when clicking any nav link
-    document.querySelectorAll('.ho-nav-link').forEach(function(link) {
-      link.addEventListener('click', function() {
-        navMenu.classList.remove('open');
-        mobileToggle.setAttribute('aria-expanded', 'false');
-      });
-    });
-
-    // Close menu when clicking outside
-    document.addEventListener('click', function(e) {
-      if (navMenu.classList.contains('open') && !navMenu.contains(e.target) && !mobileToggle.contains(e.target)) {
-        navMenu.classList.remove('open');
-        mobileToggle.setAttribute('aria-expanded', 'false');
+      if (drawer && drawer.classList.contains('open')) {
+        closeDrawer();
+      } else {
+        openDrawer();
       }
     });
   }
+
+  if (drawerClose) {
+    drawerClose.addEventListener('click', closeDrawer);
+  }
+
+  if (backdrop) {
+    backdrop.addEventListener('click', closeDrawer);
+  }
+
+  // Close drawer on link click
+  document.querySelectorAll('.ho-drawer-link').forEach(function(link) {
+    link.addEventListener('click', closeDrawer);
+  });
+
+  // Close drawer on Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && drawer && drawer.classList.contains('open')) {
+      closeDrawer();
+    }
+  });
 
   // 3. Interactive Product Showcase Tabs & Screenshots
   const tabBtns = document.querySelectorAll('.ho-tab-btn');

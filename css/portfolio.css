@@ -58,12 +58,24 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+/* Prevent accidental text selection / copy highlighting on mobile touch */
+button, a, .ho-btn, .ho-tab-btn, .ho-theme-toggle-btn, .ho-mobile-toggle,
+.ho-badge, .ho-workflow-card, .ho-feature-card, .ho-start-step,
+.ho-pricing-card, .ho-luxury-wa, .ho-nav-link, .ho-drawer-link,
+.ho-mockup-phone, .ho-mockup-desktop, .ho-hero-visual {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
   overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 body {
@@ -369,42 +381,151 @@ img {
   flex-shrink: 0;
 }
 
-/* Mobile Menu Toggle Button */
+/* Mobile Menu Toggle Button (Placed on Left in Header Actions) */
 .ho-mobile-toggle {
   display: none;
-  background: transparent;
+  background-color: var(--bg-surface);
   border: 1px solid var(--border-medium);
   border-radius: var(--radius-sm);
   padding: 8px 10px;
   cursor: pointer;
   color: var(--text-main);
+  transition: all 0.2s ease;
+  line-height: 0;
+}
+
+.ho-mobile-toggle:hover,
+.ho-mobile-toggle:active {
+  background-color: #FFFFFF;
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* Luxury Mobile Drawer Backdrop */
+.ho-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 26, 46, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.28s ease;
+  z-index: 1040;
+}
+
+.ho-drawer-backdrop.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Luxury Mobile Drawer (Opens from LEFT where the toggle button is) */
+.ho-mobile-drawer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: auto;
+  width: 320px;
+  max-width: 86vw;
+  height: 100vh;
+  height: 100dvh;
+  background-color: #FFFFFF;
+  box-shadow: 14px 0 44px rgba(15, 26, 46, 0.16);
+  transform: translateX(-105%);
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px 20px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ho-mobile-drawer.open {
+  transform: translateX(0);
+}
+
+body.menu-open {
+  overflow: hidden !important;
+  touch-action: none;
+}
+
+.ho-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.ho-drawer-close {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--border-light);
+  background-color: var(--bg-surface);
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 0;
+}
+
+.ho-drawer-close:hover,
+.ho-drawer-close:active {
+  background-color: var(--primary-light);
+  color: var(--primary);
+  border-color: var(--primary-border);
+}
+
+.ho-drawer-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px 0;
+  flex: 1;
+}
+
+.ho-drawer-link {
+  display: flex;
+  align-items: center;
+  padding: 13px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+  text-decoration: none;
+  transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.ho-drawer-link:hover,
+.ho-drawer-link:active {
+  background-color: var(--bg-surface);
+  color: var(--primary);
+  transform: translateX(-4px);
+}
+
+.ho-drawer-footer {
+  padding-top: 18px;
+  border-top: 1px solid var(--border-light);
+}
+
+.ho-drawer-sub {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 8px;
+  font-family: var(--font-nums);
+  font-weight: 600;
 }
 
 @media (max-width: 992px) {
-  .ho-nav-menu {
-    position: fixed;
-    top: var(--header-height);
-    right: 0;
-    left: auto;
-    width: 280px;
-    height: calc(100vh - var(--header-height));
-    background-color: #FFFFFF;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 32px 24px;
-    gap: 20px;
-    box-shadow: -8px 0 30px rgba(0, 0, 0, 0.08);
-    transform: translateX(105%);
-    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.28s;
-    visibility: hidden;
-    pointer-events: none;
-    z-index: 99;
-  }
-
-  .ho-nav-menu.open {
-    transform: translateX(0);
-    visibility: visible;
-    pointer-events: auto;
+  .ho-nav-desktop {
+    display: none;
   }
 
   .ho-mobile-toggle {
@@ -413,12 +534,7 @@ img {
     justify-content: center;
   }
 
-  .ho-nav-link {
-    font-size: 1.1rem;
-    width: 100%;
-  }
-
-  .ho-header-actions .ho-btn {
+  .ho-header-actions .ho-header-cta-btn {
     display: none;
   }
 }
@@ -671,13 +787,47 @@ img {
 }
 
 @media (max-width: 640px) {
+  .ho-hero {
+    padding-top: 32px;
+    padding-bottom: 48px;
+  }
+  .ho-hero-content {
+    margin-bottom: 28px;
+  }
+  .ho-hero-title {
+    font-size: 1.95rem;
+    line-height: 1.25;
+    margin-bottom: 12px;
+  }
+  .ho-hero-sub {
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+  .ho-hero-cta {
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+  .ho-hero-cta .ho-btn {
+    width: 100%;
+    padding: 13px 20px;
+  }
+  .ho-hero-visual {
+    padding-bottom: 0;
+  }
+  .ho-mockup-desktop {
+    border-radius: var(--radius-md);
+    box-shadow: 0 14px 34px rgba(15, 26, 46, 0.12);
+  }
   .ho-mockup-phone {
     position: relative;
     bottom: auto;
     left: auto;
-    width: 220px;
-    max-width: 85%;
-    margin: -24px auto 0;
+    width: 210px;
+    max-width: 82%;
+    margin: -36px auto 0;
+    box-shadow: 0 16px 36px rgba(15, 26, 46, 0.28);
   }
 }
 
@@ -812,8 +962,24 @@ img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: top center;
+  object-position: center 30%;
   transition: transform 0.4s ease;
+}
+
+.ho-feature-card-crop.ho-crop-menu img {
+  object-position: top center;
+}
+.ho-feature-card-crop.ho-crop-pos img {
+  object-position: center 25%;
+}
+.ho-feature-card-crop.ho-crop-kitchen img {
+  object-position: center 48%;
+}
+.ho-feature-card-crop.ho-crop-inventory img {
+  object-position: center 52%;
+}
+.ho-feature-card-crop.ho-crop-dark img {
+  object-position: center 38%;
 }
 
 .ho-feature-card:hover .ho-feature-card-crop img {
@@ -918,6 +1084,14 @@ img {
   font-weight: 800;
 }
 
+.tab-desktop {
+  display: inline;
+}
+
+.tab-mobile {
+  display: none;
+}
+
 /* Light / Dark Mode Screen Toggle */
 .ho-theme-toggle-wrap {
   display: flex;
@@ -993,6 +1167,70 @@ img {
 
 .ho-showcase-pane.pane-mobile img {
   border-radius: 32px;
+}
+
+@media (max-width: 640px) {
+  .tab-desktop {
+    display: none;
+  }
+  .tab-mobile {
+    display: inline;
+  }
+  .ho-showcase {
+    padding: 56px 0;
+  }
+  .ho-showcase-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .ho-showcase-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    padding: 4px;
+    gap: 4px;
+    width: 100%;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+  }
+  .ho-tab-btn {
+    padding: 9px 2px;
+    font-size: 0.76rem;
+    font-weight: 800;
+    text-align: center;
+    white-space: nowrap;
+    border-radius: var(--radius-xs);
+  }
+  .ho-theme-toggle-wrap {
+    width: 100%;
+  }
+  .ho-theme-toggle-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
+  .ho-showcase-frame {
+    min-height: auto;
+    border-radius: var(--radius-md);
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+  }
+  .ho-showcase-pane.active {
+    background-color: #FFFFFF;
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+  }
+  .ho-showcase-pane.pane-mobile {
+    max-width: 250px;
+    margin: 14px auto;
+    border-radius: 36px;
+    padding: 8px;
+  }
 }
 
 @keyframes hoFadeIn {
