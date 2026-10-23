@@ -367,7 +367,7 @@ async function saveSettingsFromForm() {
     if (typeof window.showInstallNowModal === 'function') {
       window.showInstallNowModal({
         name: 'Admin',
-        logo: 'https://iili.io/n3rYXyu.png',
+        logo: './assets/icons/admin-icon-512.png',
         isAdmin: true
       });
     }

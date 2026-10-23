@@ -1,6 +1,6 @@
 // Order PWA Service Worker — Native App Shell & Offline Engine
-const CACHE_NAME = 'order-pwa-v124.0';
-const IMAGE_CACHE_NAME = 'order-images-v2';
+const CACHE_NAME = 'order-pwa-v125.0';
+const IMAGE_CACHE_NAME = 'order-images-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -15,6 +15,11 @@ const ASSETS_TO_CACHE = [
   './menu/index.html',
   './manifest.json',
   './admin-manifest.json',
+  './favicon.ico',
+  './assets/brand/favicon.png',
+  './assets/brand/apple-touch-icon.png',
+  './assets/brand/harpy_order_emblem_transparent.png',
+  './assets/brand/harpy_order_logo.png',
   './assets/icons/order-icon-512.png',
   './assets/icons/order-icon-192.png',
   './assets/icons/admin-icon-512.png',

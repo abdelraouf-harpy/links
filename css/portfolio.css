@@ -366,7 +366,14 @@ img {
   line-height: 1.1;
 }
 
-.ho-logo-text span {
+.ho-logo-text .ho-brand-accent {
+  color: var(--primary);
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.ho-logo-text .ho-logo-sub,
+.ho-logo-text > span:not(.ho-brand-accent) {
   font-size: 0.72rem;
   font-weight: 700;
   color: var(--text-muted);

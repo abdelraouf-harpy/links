@@ -1318,7 +1318,7 @@ const Store = {
     const currency = 'ج.م';
     const orderTypeStr = orderData.type === 'delivery' ? 'توصيل' : (orderData.type === 'dinein' ? 'صالة' : 'استلام');
 
-    const origin = (typeof window !== 'undefined' && window.location && window.location.origin) ? window.location.origin : 'https://harbymenu.com';
+    const origin = (typeof window !== 'undefined' && window.location && window.location.origin) ? window.location.origin : 'https://harpymenu.com';
     const isSubdir = typeof window !== 'undefined' && window.location && window.location.pathname.startsWith('/links');
     const basePath = isSubdir ? '/links/admin/' : '/admin/';
     const adminUrl = `${origin}${basePath}?m=${encodeURIComponent(slug)}&orderId=${encodeURIComponent(orderId)}`;
