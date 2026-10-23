@@ -723,3 +723,64 @@ body::-webkit-scrollbar {
   pointer-events: auto;
   transform: translate(-50%, -50%) scale(1);
 }
+
+/* ── Harpy Order System Platform Badge (Footer Watermark) ── */
+.ho-system-footer-badge {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px 16px 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ho-system-badge-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background: var(--surface-card, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ho-system-badge-link:hover,
+.ho-system-badge-link:active {
+  background: rgba(234, 88, 12, 0.12);
+  border-color: rgba(234, 88, 12, 0.35);
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.2);
+}
+
+.ho-badge-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: block;
+}
+
+.ho-badge-text {
+  font-family: 'Plus Jakarta Sans', 'Cairo', -apple-system, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text-main, #faf6f0);
+  line-height: 1;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+}
+
+.ho-badge-accent {
+  color: var(--primary, #ea580c);
+  font-weight: 900;
+}
+
