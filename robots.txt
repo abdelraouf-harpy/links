@@ -1,0 +1,24 @@
+User-agent: *
+Allow: /
+Allow: /assets/
+Allow: /css/
+Allow: /js/
+
+# Disallow internal operational apps, demo query parameters, and duplicate pages
+Disallow: /admin/
+Disallow: /order/
+Disallow: /menu/
+Disallow: /docs/
+Disallow: /scratch/
+Disallow: /backups/
+Disallow: /*?m=*
+Disallow: /*?r=*
+Disallow: /*?store=*
+Disallow: /*?restaurant=*
+Disallow: /*?slug=*
+Disallow: /admin.html
+Disallow: /order.html
+Disallow: /portfolio.html
+Disallow: /404.html
+
+Sitemap: https://harpymenu.com/sitemap.xml

@@ -19,29 +19,33 @@
   </script>
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Harpy Order — نظام إدارة مطاعم سحابي متكامل</title>
-  <meta name="description" content="نظام Harpy Order لإدارة المطاعم السحابية: منيو رقمي سريع بالـ QR، شاشة مطبخ حية، كاشير نقاط بيع POS، وإدارة المخزون والمواد الخام في منصة واحدة متكاملة.">
+  <title>Harpy Order — نظام إدارة المطاعم والكاشير والمنيو السحابي</title>
+  <meta name="description" content="نظام Harpy Order المتكامل لإدارة المطاعم: منيو إلكتروني ذكي بالـ QR، نقاط البيع والكاشير POS، شاشات المطبخ الحية KDS، وإدارة المخزون والورديات سحابياً بدون عمولة.">
+  <meta name="keywords" content="Harpy Order, هاربي اوردر, نظام إدارة المطاعم, منيو إلكتروني, كاشير مطاعم, نقاط البيع POS, شاشة المطبخ KDS, برنامج مطاعم سحابي, منيو باركود QR, إدارة المخزون للمطاعم">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="author" content="Harpy Order">
   <link rel="canonical" href="https://harpymenu.com/">
 
   <!-- Open Graph / WhatsApp / Facebook Preview -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Harpy Order">
   <meta property="og:title" content="Harpy Order — مطعمك كله.. في نظام واحد">
-  <meta property="og:description" content="طلبات أونلاين، كاشير، ومخزون — كل حاجة متصلة في منصة سحابية واحدة مصممة لأصحاب المطاعم.">
+  <meta property="og:description" content="نظام إدارة مطاعم سحابي متكامل يربط المنيو الرقمي، شاشات المطبخ، نقاط البيع والكاشير، وإدارة المخزون والمواد الخام في منصة موحدة.">
   <meta property="og:image" content="https://harpymenu.com/assets/brand/og_banner.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:url" content="https://harpymenu.com/">
+  <meta property="og:locale" content="ar_AR">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Harpy Order — مطعمك كله.. في نظام واحد">
-  <meta name="twitter:description" content="طلبات أونلاين، كاشير، ومخزون — كل حاجة متصلة في نظام واحد.">
+  <meta name="twitter:description" content="نظام سحابي متكامل لإدارة المطاعم، نقاط البيع والكاشير، شاشات المطبخ، والمخزون.">
   <meta name="twitter:image" content="https://harpymenu.com/assets/brand/og_banner.png">
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="assets/brand/harpy_order_logo.png">
-  <link rel="apple-touch-icon" href="assets/brand/harpy_order_logo.png">
+  <!-- Favicon & Touch Icons -->
+  <link rel="icon" type="image/png" href="assets/brand/favicon.png">
+  <link rel="apple-touch-icon" href="assets/brand/favicon.png">
   <meta name="theme-color" content="#F4F1EC">
 
   <!-- Preconnect Fonts -->
@@ -50,23 +54,62 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
 
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="css/portfolio.css?v=6.1">
+  <link rel="stylesheet" href="css/portfolio.css?v=7.0">
 
-  <!-- Schema.org JSON-LD -->
+  <!-- Schema.org JSON-LD (Search Engine Authority Knowledge Graph) -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "Harpy Order",
-    "operatingSystem": "Web, iOS, Android, Windows, macOS",
-    "applicationCategory": "BusinessApplication",
-    "description": "نظام إدارة مطاعم سحابي متكامل يربط المنيو الرقمي، شاشات المطبخ، نقاط البيع والكاشير، والمخزون في منصة موحدة.",
-    "url": "https://harpymenu.com/",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "EGP"
-    }
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://harpymenu.com/#organization",
+        "name": "Harpy Order",
+        "url": "https://harpymenu.com/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://harpymenu.com/assets/brand/harpy_order_logo.png",
+          "width": 1024,
+          "height": 1024
+        },
+        "sameAs": [
+          "https://www.facebook.com/share/1G5XfnP2Lv/"
+        ],
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "telephone": "+201113453475",
+          "contactType": "sales",
+          "availableLanguage": ["Arabic", "English"]
+        }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://harpymenu.com/#website",
+        "url": "https://harpymenu.com/",
+        "name": "Harpy Order",
+        "description": "نظام إدارة المطاعم والكاشير والمنيو السحابي",
+        "publisher": {
+          "@id": "https://harpymenu.com/#organization"
+        },
+        "inLanguage": "ar"
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://harpymenu.com/#software",
+        "name": "Harpy Order",
+        "operatingSystem": "Web, iOS, Android, Windows, macOS",
+        "applicationCategory": "BusinessApplication",
+        "description": "نظام إدارة مطاعم سحابي متكامل يربط المنيو الرقمي، شاشات المطبخ، نقاط البيع والكاشير، والمخزون في منصة موحدة.",
+        "url": "https://harpymenu.com/",
+        "image": "https://harpymenu.com/assets/brand/og_banner.png",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "EGP",
+          "availability": "https://schema.org/InStock"
+        }
+      }
+    ]
   }
   </script>
 </head>
@@ -78,7 +121,7 @@
   <header class="ho-header">
     <div class="ho-container ho-header-inner">
       <a href="./" class="ho-logo" title="Harpy Order">
-        <img src="assets/brand/harpy_order_logo_transparent.png" alt="شعار Harpy Order" class="ho-logo-img" width="44" height="44">
+        <img src="assets/brand/harpy_order_emblem_transparent.png" alt="شعار Harpy Order" class="ho-logo-img" width="44" height="44">
         <div class="ho-logo-text">
           Harpy Order
           <span>نظام إدارة المطاعم</span>
@@ -118,7 +161,7 @@
   <aside class="ho-mobile-drawer" id="hoMobileDrawer" aria-label="قائمة الموبايل">
     <div class="ho-drawer-header">
       <div class="ho-logo">
-        <img src="assets/brand/harpy_order_logo_transparent.png" alt="شعار Harpy Order" class="ho-logo-img" width="38" height="38">
+        <img src="assets/brand/harpy_order_emblem_transparent.png" alt="شعار Harpy Order" class="ho-logo-img" width="38" height="38">
         <div class="ho-logo-text" style="font-size:1.15rem;">
           Harpy Order
           <span>نظام إدارة المطاعم</span>
@@ -611,10 +654,10 @@
     <div class="ho-container">
       <div class="ho-footer-top">
         <div class="ho-footer-brand">
-          <img src="assets/brand/harpy_order_logo_transparent.png" alt="Harpy Order" width="48" height="48">
-          <div>
-            <h4>Harpy Order</h4>
-            <p style="font-size:0.88rem; color:#A0AEC0; margin:0;">نظام إدارة مطاعم سحابي</p>
+          <img src="assets/brand/harpy_order_emblem_transparent.png" alt="شعار Harpy Order" class="ho-footer-logo-img" width="54" height="54">
+          <div class="ho-footer-brand-text">
+            <h4>Harpy <span style="color:var(--primary);">Order</span></h4>
+            <p>نظام التشغيل السحابي لإدارة المطاعم</p>
           </div>
         </div>
 

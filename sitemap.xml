@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://harpymenu.com/</loc>
+    <lastmod>2026-10-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://harpymenu.com/assets/brand/og_banner.png</image:loc>
+      <image:title>Harpy Order — نظام إدارة مطاعم سحابي متكامل</image:title>
+      <image:caption>منيو رقمي سريع بالـ QR، نقاط البيع والكاشير POS، شاشة المطبخ الحية KDS، وإدارة المخزون</image:caption>
+    </image:image>
+  </url>
+</urlset>
