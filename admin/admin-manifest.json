@@ -6,8 +6,8 @@
   "start_url": "./admin/",
   "scope": "./admin/",
   "display": "standalone",
-  "background_color": "#0C1C36",
-  "theme_color": "#0C1C36",
+  "background_color": "#F7F7F7",
+  "theme_color": "#F7F7F7",
   "orientation": "portrait",
   "icons": [
     {
