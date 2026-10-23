@@ -1340,6 +1340,68 @@ body.menu-open {
   }
 }
 
+@media (max-width: 640px) {
+  .ho-pricing {
+    padding: 56px 0;
+  }
+  .ho-pricing-card {
+    padding: 30px 18px;
+    border-radius: var(--radius-lg);
+    gap: 24px;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  .ho-pricing-bg-pattern {
+    display: none !important;
+  }
+  .ho-pricing-content {
+    min-width: 0;
+    width: 100%;
+  }
+  .ho-pricing-title {
+    font-size: 1.62rem;
+    line-height: 1.35;
+    margin-bottom: 12px;
+  }
+  .ho-pricing-desc {
+    font-size: 0.96rem;
+    line-height: 1.65;
+    margin-bottom: 20px;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+  .ho-pricing-checklist {
+    gap: 10px;
+  }
+  .ho-pricing-checklist li {
+    font-size: 0.92rem;
+    gap: 10px;
+    line-height: 1.45;
+  }
+  .ho-pricing-action-box {
+    padding: 24px 18px;
+    border-radius: var(--radius-md);
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .ho-pricing-action-box h4 {
+    font-size: 1.25rem;
+    margin-bottom: 8px;
+  }
+  .ho-pricing-action-box p {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    margin-bottom: 18px;
+  }
+  .ho-pricing-action-box .ho-btn {
+    width: 100% !important;
+    padding: 13px 16px !important;
+    font-size: 0.98rem !important;
+    box-sizing: border-box !important;
+  }
+}
+
 /* ==========================================================================
    7. HOW TO START (3 SIMPLE STEPS)
    ========================================================================== */
@@ -1402,6 +1464,16 @@ body.menu-open {
   }
 }
 
+@media (max-width: 640px) {
+  .ho-start {
+    padding: 56px 0;
+  }
+  .ho-start-step {
+    padding: 24px 18px;
+    border-radius: var(--radius-md);
+  }
+}
+
 /* Final Call To Action Banner */
 .ho-final-cta {
   background-color: var(--bg-subtle);
@@ -1430,12 +1502,31 @@ body.menu-open {
 @media (max-width: 640px) {
   .ho-final-cta {
     padding: 32px 18px;
+    border-radius: var(--radius-lg);
+    width: 100%;
+    box-sizing: border-box;
   }
   .ho-final-cta h3 {
-    font-size: 1.7rem;
+    font-size: 1.6rem;
+    line-height: 1.35;
+    margin-bottom: 10px;
   }
   .ho-final-cta p {
-    font-size: 1rem;
+    font-size: 0.96rem;
+    line-height: 1.6;
+    margin-bottom: 22px;
+  }
+  .ho-final-cta .ho-btn {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 14px 16px !important;
+    font-size: 1rem !important;
+    white-space: normal !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
   }
 }
 
@@ -1520,18 +1611,32 @@ body.menu-open {
 }
 
 @media (max-width: 640px) {
+  .ho-footer {
+    padding: 44px 0 96px; /* Extra bottom clearance so WhatsApp FAB never obstructs footer text */
+  }
   .ho-footer-top {
     flex-direction: column;
     align-items: flex-start;
     gap: 20px;
+    padding-bottom: 24px;
+    margin-bottom: 22px;
   }
   .ho-footer-social {
     width: 100%;
+    gap: 10px;
+  }
+  .ho-social-link {
+    flex: 1 1 auto;
+    justify-content: center;
+    padding: 10px 14px;
+    font-size: 0.88rem;
   }
   .ho-footer-bottom {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
+    font-size: 0.84rem;
+    line-height: 1.6;
   }
 }
 
@@ -1655,38 +1760,76 @@ body.menu-open {
 
 @media (max-width: 640px) {
   .ho-luxury-wa {
-    bottom: 18px;
-    left: 18px;
-    padding: 6px 12px 6px 6px;
-    gap: 8px;
+    bottom: 22px;
+    left: 20px;
+    width: 56px;
+    height: 56px;
+    padding: 0;
+    gap: 0;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #25D366 0%, #1EBE5D 100%);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 24px rgba(37, 211, 102, 0.45), 0 3px 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+  }
+  .ho-luxury-wa:hover {
+    transform: scale(1.06);
+    box-shadow: 0 10px 28px rgba(37, 211, 102, 0.55), 0 4px 12px rgba(0, 0, 0, 0.25);
+  }
+  .ho-luxury-wa:active {
+    transform: scale(0.94);
   }
   .ho-wa-avatar-box {
-    width: 38px;
-    height: 38px;
-  }
-  .ho-wa-icon-circle {
-    width: 36px;
-    height: 36px;
-  }
-  .ho-wa-icon-svg {
-    width: 19px;
-    height: 19px;
-  }
-  .ho-wa-title {
-    font-size: 0.85rem;
-  }
-  .ho-wa-subtitle {
-    font-size: 0.72rem;
-  }
-}
-
-@media (max-width: 380px) {
-  .ho-luxury-wa {
-    padding: 6px;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
     border-radius: 50%;
   }
+  .ho-wa-icon-circle {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    box-shadow: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+  }
+  .ho-wa-icon-svg {
+    width: 29px;
+    height: 29px;
+    fill: #FFFFFF;
+  }
+  .ho-wa-ping {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: rgba(37, 211, 102, 0.4);
+    z-index: 1;
+  }
+  .ho-wa-dot {
+    top: 1px;
+    right: 1px;
+    bottom: auto;
+    left: auto;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background-color: #22c55e;
+    border: 2px solid #FFFFFF;
+    z-index: 3;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
   .ho-wa-info {
-    display: none;
+    display: none !important;
   }
 }
 
