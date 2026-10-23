@@ -6,7 +6,7 @@
   "start_url": "./admin/?m=king",
   "scope": "./admin/",
   "display": "standalone",
-  "background_color": "#070B13",
+  "background_color": "#120E0C",
   "theme_color": "#FF6A00",
   "orientation": "portrait",
   "icons": [
