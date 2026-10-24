@@ -1,8 +1,16 @@
 // Order PWA Service Worker — Native App Shell & Offline Engine
-const CACHE_NAME = 'order-pwa-v129.0';
+// OneSignal Web Push SDK Integration
+try {
+  importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
+} catch (e) {
+  console.warn("[SW] OneSignal worker import notice:", e);
+}
+
+const CACHE_NAME = 'order-pwa-v130.0';
 const IMAGE_CACHE_NAME = 'order-images-v6';
 const ASSETS_TO_CACHE = [
   './',
+  './OneSignalSDKWorker.js',
   './index.html',
   './order.html',
   './portfolio.html',

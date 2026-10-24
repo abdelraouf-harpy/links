@@ -1348,9 +1348,9 @@ const Store = {
       filters: [
         { field: "tag", key: "restaurant", relation: "=", value: String(slug) }
       ],
-      chrome_web_icon: `${origin}/assets/icons/admin-icon-192.png`,
-      chrome_web_badge: `${origin}/assets/icons/admin-icon-192.png`,
-      firefox_icon: `${origin}/assets/icons/admin-icon-192.png`,
+      chrome_web_icon: `${origin}${isSubdir ? '/links' : ''}/assets/icons/admin-icon-192.png`,
+      chrome_web_badge: `${origin}${isSubdir ? '/links' : ''}/assets/icons/admin-icon-192.png`,
+      firefox_icon: `${origin}${isSubdir ? '/links' : ''}/assets/icons/admin-icon-192.png`,
       priority: 10,
       ttl: 3600
     };
