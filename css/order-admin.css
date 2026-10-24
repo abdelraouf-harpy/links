@@ -4112,3 +4112,13 @@ html.admin-unlocked #login-modal-backdrop {
     padding: 8px 14px !important;
   }
 }
+
+/* Admin Main Flex Layout for Bottom Pinned Footer Badge */
+#admin-main-container {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: calc(100vh - 90px) !important;
+}
+.tab-pane.active {
+  flex: 1 0 auto !important;
+}
