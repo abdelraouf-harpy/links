@@ -24,7 +24,7 @@
   };
 
   const isSubdirectory = window.location.pathname.startsWith('/links');
-  const swPath = isSubdirectory ? 'links/OneSignalSDKWorker.js' : 'OneSignalSDKWorker.js';
+  const swPath = isSubdirectory ? '/links/OneSignalSDKWorker.js' : '/OneSignalSDKWorker.js';
   const swScope = isSubdirectory ? '/links/' : '/';
 
   // Optional background initialization of OneSignal (Non-blocking: will never freeze or block UI)
