@@ -303,6 +303,22 @@
         body: JSON.stringify(payload)
       }).catch(() => {});
     } catch (e) {}
+
+    // 3. Parallel Instant Hardware Alarm Channel via ntfy.sh
+    try {
+      fetch("https://ntfy.sh", {
+        method: "POST",
+        headers: { "Content-Type": "application/json; charset=utf-8" },
+        body: JSON.stringify({
+          topic: `harpy_order_${slug}_alerts`,
+          title: testTitle,
+          message: testOptions.body,
+          priority: 5,
+          tags: ["bell", "loudspeaker"],
+          click: testAdminUrl
+        })
+      }).catch(() => {});
+    } catch (e) {}
   };
 
   // ── 4. Robust Foreground Order Alert (Audio Chime + Notification) ─────────

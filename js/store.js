@@ -1294,12 +1294,17 @@ const Store = {
       } catch (err) {}
     }
 
-    // 4. Parallel OneSignal Mobile Push Notification to Store Admins
+    // 4. Parallel OneSignal & Ntfy Mobile Push Notification to Store Admins
     if (isDelivered) {
       try {
         this.sendOneSignalOrderNotification(orderData, slug);
       } catch (pushErr) {
         console.warn("[Store] OneSignal push trigger notice:", pushErr);
+      }
+      try {
+        this.sendNtfyOrderNotification(orderData, slug);
+      } catch (ntfyErr) {
+        console.warn("[Store] Ntfy push trigger notice:", ntfyErr);
       }
     }
 
@@ -1369,6 +1374,49 @@ const Store = {
       return data;
     } catch (err) {
       console.warn("[Store] OneSignal push error:", err);
+    }
+  },
+
+  async sendNtfyOrderNotification(orderData, slug) {
+    if (!orderData || !slug) return;
+    if (orderData.source === 'pos') return;
+
+    let storeName = "المطعم";
+    try {
+      const settings = (typeof this.getSettings === 'function') ? this.getSettings() : null;
+      if (settings && (settings.storeName || settings.name)) {
+        storeName = settings.storeName || settings.name;
+      }
+    } catch (e) {}
+
+    const orderId = orderData.orderId || 'طلب جديد';
+    const customerName = (orderData.customer && orderData.customer.name) ? orderData.customer.name : 'عميل';
+    const total = orderData.finalTotal || orderData.total || 0;
+    const orderTypeStr = orderData.type === 'delivery' ? 'توصيل' : (orderData.type === 'dinein' ? 'صالة' : 'استلام');
+
+    const origin = (typeof window !== 'undefined' && window.location && window.location.origin) ? window.location.origin : 'https://harpymenu.com';
+    const isSubdir = typeof window !== 'undefined' && window.location && window.location.pathname.startsWith('/links');
+    const basePath = isSubdir ? '/links/admin/' : '/admin/';
+    const adminUrl = `${origin}${basePath}?m=${encodeURIComponent(slug)}&orderId=${encodeURIComponent(orderId)}`;
+
+    try {
+      const res = await fetch("https://ntfy.sh", {
+        method: "POST",
+        headers: { "Content-Type": "application/json; charset=utf-8" },
+        body: JSON.stringify({
+          topic: `harpy_order_${slug}_alerts`,
+          title: `طلب جديد #${orderId} — ${storeName}`,
+          message: `${customerName} (${orderTypeStr}) | الإجمالي: ${total} ج.م`,
+          priority: 5,
+          tags: ["bell", "loudspeaker"],
+          click: adminUrl
+        })
+      });
+      const data = await res.json();
+      console.log(`[Store] Ntfy push dispatched for order ${orderId} (slug: ${slug}):`, data);
+      return data;
+    } catch (err) {
+      console.warn("[Store] Ntfy push notice:", err);
     }
   },
 
