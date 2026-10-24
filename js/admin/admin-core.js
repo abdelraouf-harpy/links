@@ -530,7 +530,9 @@ window.switchTab = function(targetTabId, updateHash = true) {
       if (typeof renderStoriesList === 'function') renderStoriesList();
     } else if (targetTabId === 'tab-settings') {
       if (typeof loadSettingsIntoForm === 'function') loadSettingsIntoForm();
+      if (typeof updatePushNotifUI === 'function') updatePushNotifUI();
     }
+    if (typeof updatePushNotifUI === 'function') updatePushNotifUI();
   } catch(err) {
     console.error("[switchTab] Error rendering " + targetTabId + ":", err);
   }
