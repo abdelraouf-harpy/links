@@ -139,7 +139,7 @@ const DEFAULT_PRODUCTS = [
     "id": "prod-super-burger-triple",
     "image": "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=800&q=80",
     "isChefMood": true,
-    "isFeatured": true,
+    "isFeatured": false,
     "isPopular": true,
     "name": "سوبر برجر الثلاثي",
     "originalPrice": 250,

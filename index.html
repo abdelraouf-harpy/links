@@ -131,7 +131,6 @@
       <!-- Desktop Navigation -->
       <nav class="ho-nav-desktop" aria-label="التنقل الرئيسي">
         <ul class="ho-nav-menu">
-          <li><a href="./order/?m=demo" class="ho-nav-link" target="_blank" rel="noopener"><span class="ho-nav-demo-badge">لايف</span> تجربة الديمو</a></li>
           <li><a href="#customer-menu" class="ho-nav-link">منيو العميل</a></li>
           <li><a href="#features" class="ho-nav-link">المميزات</a></li>
           <li><a href="#workflow" class="ho-nav-link">كيف يعمل</a></li>
@@ -178,7 +177,10 @@
     </div>
 
     <nav class="ho-drawer-nav">
-      <a href="./order/?m=demo" class="ho-drawer-link" target="_blank" rel="noopener" style="color:var(--primary); font-weight:800; background:rgba(255,106,0,0.06); border-radius:var(--radius-sm); padding:10px 14px;">🚀 تجربة المنيو الحي (Live Demo)</a>
+      <a href="./order/?m=demo" class="ho-drawer-link" target="_blank" rel="noopener" style="color:var(--primary); font-weight:800; background:rgba(255,106,0,0.06); border-radius:var(--radius-sm); padding:10px 14px; display:flex; align-items:center; gap:8px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/></svg>
+        <span>تجربة المنيو التجريبي (Live Demo)</span>
+      </a>
       <a href="#customer-menu" class="ho-drawer-link">منيو العميل التفاعلي</a>
       <a href="#features" class="ho-drawer-link">المميزات والقدرات</a>
       <a href="#workflow" class="ho-drawer-link">كيف يعمل النظام</a>
@@ -351,9 +353,9 @@
           <span class="ho-badge-dot"></span>
           <span>منيو رقمي فائق السلاسة والجاذبية</span>
         </div>
-        <h2 class="ho-section-title">منيو إلكتروني ذكي يحوّل التصفح إلى طلبات مدفوعة</h2>
+        <h2 class="ho-section-title">منيو إلكتروني ذكي يحوّل التصفح إلى طلبات مباشرة بالداشبورد</h2>
         <p class="ho-section-desc">
-          صُممت تجربة العميل بعناية فائقة لتكون أسرع وأشيك طريقة لطلب الطعام: بدون تنزيل تطبيقات، مع ستوريز تفاعلية، وتخصيص دقيق للوجبات، وبون طلب مباشر على واتساب وتتبع حي.
+          صُممت تجربة العميل بعناية فائقة لتكون أسرع وأشيك طريقة لطلب الطعام: بدون تنزيل تطبيقات، مع ستوريز تفاعلية، وتخصيص دقيق للوجبات، واستقبال فوري للطلب على شاشة المطبخ والكاشير وتتبع حي.
         </p>
       </div>
 
@@ -362,36 +364,39 @@
         <div class="ho-customer-mockup-col">
           <div class="ho-customer-phone-wrap">
             <div class="ho-customer-phone-frame">
-              <div class="ho-customer-phone-speaker"></div>
               <picture>
                 <source srcset="assets/brand/screenshots/customer_menu_light.webp" type="image/webp">
                 <img src="assets/brand/screenshots/customer_menu_light.png" alt="منيو العميل التفاعلي - مطعم سوبر برجر التجريبي" width="412" height="915" loading="lazy">
               </picture>
             </div>
             
-            <!-- Floating interactive highlight badge 1 -->
+            <!-- Floating interactive highlight badge 1 (No emojis - Pure SVG) -->
             <div class="ho-float-pill ho-float-pill-top">
-              <div class="ho-float-icon">🔥</div>
+              <div class="ho-float-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF6A00" stroke-width="2.2" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="#FF6A00" fill-opacity="0.2"/></svg>
+              </div>
               <div>
                 <strong>ستوريز تفاعلية</strong>
                 <span>عروض حصرية بأسلوب إنستجرام</span>
               </div>
             </div>
 
-            <!-- Floating interactive highlight badge 2 -->
+            <!-- Floating interactive highlight badge 2 (No emojis - Pure SVG) -->
             <div class="ho-float-pill ho-float-pill-bottom">
-              <div class="ho-float-icon">⚡</div>
+              <div class="ho-float-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+              </div>
               <div>
-                <strong>طلب واتساب بلحظة</strong>
-                <span>بون رقمي متكامل مع اللوكيشن</span>
+                <strong>ربط سحابي لحظي</strong>
+                <span>الطلب ينزل في المطبخ والكاشير فوراً</span>
               </div>
             </div>
           </div>
 
           <div class="ho-customer-cta-box">
             <a href="./order/?m=demo" target="_blank" rel="noopener" class="ho-btn ho-btn-demo ho-btn-lg" style="width:100%; justify-content:center;">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/></svg>
-              <span>افتح المنيو التجريبي لايف ↗</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="currentColor"/></svg>
+              <span>افتح المنيو التجريبي لايف</span>
             </a>
             <span class="ho-customer-cta-note">يعمل مباشرة على الموبايل والكمبيوتر بدون أي تسجيل</span>
           </div>
@@ -402,7 +407,7 @@
           <!-- Pillar 1 -->
           <div class="ho-exp-card">
             <div class="ho-exp-card-icon">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="currentColor"/></svg>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="currentColor"/></svg>
             </div>
             <div class="ho-exp-card-body">
               <h3 class="ho-exp-card-title">ستوريز تفاعلية وأقسام سريعة</h3>
@@ -415,7 +420,7 @@
           <!-- Pillar 2 -->
           <div class="ho-exp-card">
             <div class="ho-exp-card-icon">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 20v-6M6 20V10M18 20V4"/></svg>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 20v-6M6 20V10M18 20V4"/></svg>
             </div>
             <div class="ho-exp-card-body">
               <h3 class="ho-exp-card-title">مودال تخصيص الوجبات (الأحجام والإضافات)</h3>
@@ -428,25 +433,25 @@
           <!-- Pillar 3 -->
           <div class="ho-exp-card">
             <div class="ho-exp-card-icon">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             </div>
             <div class="ho-exp-card-body">
-              <h3 class="ho-exp-card-title">بحث لحظي ذكي وقائمة المفضلة</h3>
+              <h3 class="ho-exp-card-title">عرض شبكي ذكي (صنفين جنب بعض) وبحث فوري</h3>
               <p class="ho-exp-card-desc">
-                الزبون يصل لطلبته في ثوانٍ بمجرد كتابة أول حرفين، مع إمكانية حفظ الوجبات المفضلة للطلب السريع في كل مرة يزور فيها مطعمك.
+                تصميم مريح للعين يعرض أصناف المنيو بنظام الشبكة المتوازنة (صنفين في كل سطر)، مع وصول فوري لأي وجبة بمجرد كتابة أول حرفين وخاصية حفظ المفضلة.
               </p>
             </div>
           </div>
 
-          <!-- Pillar 4 -->
+          <!-- Pillar 4: Direct Dashboard Sync (Zero-WhatsApp Dependency) -->
           <div class="ho-exp-card">
-            <div class="ho-exp-card-icon">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+            <div class="ho-exp-card-icon" style="background:rgba(16,185,129,0.1); color:#10B981;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
             </div>
             <div class="ho-exp-card-body">
-              <h3 class="ho-exp-card-title">طلب واتساب منسق وتتبع مباشر للطلب</h3>
+              <h3 class="ho-exp-card-title">استقبال لحظي بالداشبورد والكاشير (بدون وسيط)</h3>
               <p class="ho-exp-card-desc">
-                يصل الأوردر إلى واتساب المطعم في بون منسق بدقة مع تفاصيل العميل، نوع الاستلام، والموقع، مع رابط مباشر لتتبع مراحل تجهيز الطلب لحظة بلحظة.
+                الطلب يذهب مباشرة في جزء من الثانية إلى شاشة المطبخ (KDS) ونقاط البيع (POS) برنين صوتي مميز، مع خصم تلقائي لكميات المخزون وتحديث فوري لمراحل التحضير للزبون.
               </p>
             </div>
           </div>

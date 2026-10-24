@@ -382,8 +382,9 @@ img {
 .ho-nav-menu {
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: clamp(14px, 1.8vw, 24px);
   list-style: none;
+  white-space: nowrap;
 }
 
 .ho-nav-link {
@@ -563,7 +564,16 @@ body.menu-open {
   font-weight: 600;
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1200px) {
+  .ho-nav-menu {
+    gap: 16px;
+  }
+  .ho-nav-link {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 1024px) {
   .ho-nav-desktop {
     display: none;
   }
@@ -2075,15 +2085,7 @@ body.menu-open {
 }
 
 .ho-customer-phone-speaker {
-  position: absolute;
-  top: 18px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 72px;
-  height: 18px;
-  background: #000000;
-  border-radius: 12px;
-  z-index: 5;
+  display: none !important;
 }
 
 .ho-float-pill {
@@ -2244,16 +2246,16 @@ body.menu-open {
 }
 
 /* Responsive Overrides */
+@media (max-width: 1199px) {
+  .ho-float-pill {
+    display: none !important;
+  }
+}
+
 @media (max-width: 991px) {
   .ho-customer-exp-grid {
     grid-template-columns: 1fr;
     gap: 40px;
-  }
-  .ho-float-pill-top {
-    right: -10px;
-  }
-  .ho-float-pill-bottom {
-    left: -10px;
   }
   .ho-showcase-demo-bar {
     flex-direction: column;
@@ -2269,9 +2271,6 @@ body.menu-open {
 }
 
 @media (max-width: 480px) {
-  .ho-float-pill {
-    display: none;
-  }
   .ho-showcase-demo-actions a {
     width: 100%;
     justify-content: center;
