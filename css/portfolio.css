@@ -1980,6 +1980,304 @@ body.menu-open {
   }
 }
 
+/* ==========================================================================
+   Harpy Order — Customer Experience Spotlight & Interactive Live Demo Styles
+   ========================================================================== */
+
+.ho-btn-demo {
+  background: linear-gradient(135deg, #FF6A00 0%, #EA580C 100%);
+  color: #FFFFFF !important;
+  border: 1px solid #EA580C;
+  box-shadow: 0 4px 16px rgba(255, 106, 0, 0.32);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ho-btn-demo:hover {
+  background: linear-gradient(135deg, #E85E00 0%, #D9480F 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(255, 106, 0, 0.44);
+}
+.ho-btn-demo:active {
+  transform: translateY(0);
+}
+
+.ho-nav-demo-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 106, 0, 0.12);
+  color: var(--primary);
+  border: 1px solid rgba(255, 106, 0, 0.25);
+  margin-left: 6px;
+  line-height: 1.3;
+}
+
+.ho-header-demo-btn {
+  background-color: rgba(255, 106, 0, 0.08);
+  color: var(--primary);
+  border: 1px solid rgba(255, 106, 0, 0.22);
+  font-weight: 700;
+}
+.ho-header-demo-btn:hover {
+  background-color: var(--primary);
+  color: #FFFFFF;
+  border-color: var(--primary);
+}
+
+/* 3.5 Customer Experience Spotlight Section */
+.ho-customer-exp {
+  padding: 88px 0;
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--border-light);
+  position: relative;
+  overflow: hidden;
+}
+
+.ho-customer-exp-grid {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 56px;
+  align-items: center;
+  margin-top: 48px;
+}
+
+.ho-customer-mockup-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ho-customer-phone-wrap {
+  position: relative;
+  max-width: 320px;
+  width: 100%;
+  margin: 0 auto;
+  filter: drop-shadow(0 24px 48px rgba(15, 26, 46, 0.16));
+}
+
+.ho-customer-phone-frame {
+  background: #0B111D;
+  border-radius: 40px;
+  padding: 10px;
+  border: 3px solid #2B374E;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.12);
+  position: relative;
+  overflow: hidden;
+}
+
+.ho-customer-phone-frame picture,
+.ho-customer-phone-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 32px;
+}
+
+.ho-customer-phone-speaker {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 72px;
+  height: 18px;
+  background: #000000;
+  border-radius: 12px;
+  z-index: 5;
+}
+
+.ho-float-pill {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(15, 26, 46, 0.08);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  z-index: 10;
+  font-size: 0.85rem;
+  color: var(--text-main);
+  animation: ho-float-bob 4s ease-in-out infinite;
+  white-space: nowrap;
+}
+.ho-float-pill strong {
+  display: block;
+  font-size: 0.88rem;
+  color: var(--text-main);
+}
+.ho-float-pill span {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.ho-float-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.ho-float-pill-top {
+  top: 72px;
+  right: -32px;
+}
+
+.ho-float-pill-bottom {
+  bottom: 110px;
+  left: -32px;
+  animation-delay: 2s;
+}
+
+@keyframes ho-float-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.ho-customer-cta-box {
+  width: 100%;
+  max-width: 320px;
+  margin-top: 24px;
+  text-align: center;
+}
+.ho-customer-cta-note {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.ho-customer-features-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ho-exp-card {
+  display: flex;
+  gap: 20px;
+  padding: 22px 24px;
+  background: var(--bg-surface-raised);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+.ho-exp-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(255, 106, 0, 0.35);
+  background-color: #FFFFFF;
+}
+
+.ho-exp-card-icon {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  background: rgba(255, 106, 0, 0.1);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ho-exp-card-body {
+  flex: 1;
+}
+.ho-exp-card-title {
+  font-size: 1.12rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 6px;
+}
+.ho-exp-card-desc {
+  font-size: 0.94rem;
+  color: var(--text-muted);
+  line-height: 1.65;
+}
+
+/* Showcase Interactive Demo Bar */
+.ho-showcase-demo-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 24px;
+  padding: 16px 24px;
+  background: #FFFFFF;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.ho-showcase-demo-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.ho-demo-pulse {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  animation: ho-pulse-glow 2s infinite;
+}
+
+@keyframes ho-pulse-glow {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.ho-showcase-demo-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Responsive Overrides */
+@media (max-width: 991px) {
+  .ho-customer-exp-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .ho-float-pill-top {
+    right: -10px;
+  }
+  .ho-float-pill-bottom {
+    left: -10px;
+  }
+  .ho-showcase-demo-bar {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+  .ho-showcase-demo-info {
+    justify-content: center;
+  }
+  .ho-showcase-demo-actions {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .ho-float-pill {
+    display: none;
+  }
+  .ho-showcase-demo-actions a {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 /* Reduced Motion Respect */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

@@ -2341,43 +2341,170 @@ const DEFAULT_STORIES = [
   {
     id: "st-1",
     title: "الأكثر طلباً",
-    tagline: "عرض خاص ومميز",
+    tagline: "سوبر برجر الأسطوري",
     badge: "الأكثر طلباً",
-    image: "assets/portfolio/order_restaurant_showcase.jpg",
+    image: "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=800&q=80",
     desc: "برجر بقري صافي مع الجبنة الذائبة والصوص السري"
   },
   {
     id: "st-2",
     title: "جديدنا",
-    tagline: "طازج ومقرمش",
+    tagline: "كريب كرسبي ذهبي",
     badge: "جديدنا",
-    image: "assets/portfolio/order_restaurant_showcase.jpg",
+    image: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=800&q=80",
     desc: "أشهى أنواع الكريب المحشو بقطع الفراخ المقرمشة والجبن"
   },
   {
     id: "st-3",
     title: "كومبو الأسبوع",
-    tagline: "مقرمش وساخن",
+    tagline: "فرايز بوكس المقرمش",
     badge: "سناكس",
-    image: "assets/portfolio/order_restaurant_showcase.jpg",
-    desc: "بطاطس ذهبية متبلة بأشهى البهارات"
+    image: "https://images.unsplash.com/photo-1561758033-d89a9ad46330?auto=format&fit=crop&w=800&q=80",
+    desc: "بطاطس ذهبية متبلة بصوص الشيدر والبهارات السرية"
   },
   {
     id: "st-4",
     title: "عروض حصرية",
-    tagline: "على أصوله",
-    badge: "طعم أصيل",
-    image: "assets/portfolio/order_restaurant_showcase.jpg",
-    desc: "شاورما دجاج متبلة بالثومية والخيار المخلل"
+    tagline: "ساندوتشات راب مكس",
+    badge: "عروض توفير",
+    image: "https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?auto=format&fit=crop&w=800&q=80",
+    desc: "مكس الجبابرة ساندوتش برجر مشوي مع كرسبي فرايد تشيكن"
   }
 ];
 
+const DEFAULT_ORDERS = [
+  {
+    orderId: "#101",
+    status: "pending",
+    orderType: "takeaway",
+    customer: {
+      name: "أحمد عادل",
+      phone: "01012345678",
+      notes: "بدون مخلل في الساندوتش، وزيادة صوص شيدر لو سمحت."
+    },
+    items: [
+      {
+        id: "prod-super-burger-triple",
+        name: "سوبر برجر الثلاثي",
+        price: 220,
+        qty: 2,
+        selectedAddons: [
+          { name: "باكيت بطاطس صوص شيدر", price: 25 },
+          { name: "بيف بيكون مقرمش", price: 15 }
+        ]
+      },
+      {
+        id: "prod-can-coke",
+        name: "كانز كوكاكولا",
+        price: 20,
+        qty: 2
+      }
+    ],
+    subtotal: 520,
+    discountAmount: 0,
+    deliveryFee: 0,
+    finalTotal: 520,
+    paymentMethod: "cash",
+    timestamp: Date.now() - 3 * 60 * 1000,
+    createdAt: new Date(Date.now() - 3 * 60 * 1000).toISOString()
+  },
+  {
+    orderId: "#102",
+    status: "preparing",
+    orderType: "dine_in",
+    customer: {
+      name: "طاولة رقم 4 (صالة)",
+      phone: "01123456789",
+      table: "طاولة 4"
+    },
+    items: [
+      {
+        id: "prod-mix-burger-double",
+        name: "مكس برجر دبل",
+        price: 160,
+        qty: 1,
+        selectedAddons: [
+          { name: "موتزريلا ستيك (2 قطعة)", price: 25 }
+        ]
+      },
+      {
+        id: "prod-crepe-crispy",
+        name: "كريب كرسبي سبايسي",
+        price: 130,
+        qty: 1
+      }
+    ],
+    subtotal: 315,
+    discountAmount: 0,
+    deliveryFee: 0,
+    finalTotal: 315,
+    paymentMethod: "card",
+    timestamp: Date.now() - 11 * 60 * 1000,
+    createdAt: new Date(Date.now() - 11 * 60 * 1000).toISOString()
+  },
+  {
+    orderId: "#103",
+    status: "delivering",
+    orderType: "delivery",
+    customer: {
+      name: "محمود حسن",
+      phone: "01234567890",
+      address: "المعادي، شارع 9، عمارة 24، الدور الثالث",
+      notes: "رن الجرس مرتين، الدفع إنستاباي تم تحويله."
+    },
+    items: [
+      {
+        id: "prod-fried-chicken",
+        name: "وجبة فرايد تشيكن كرسبي",
+        price: 180,
+        qty: 2
+      },
+      {
+        id: "prod-fries-box",
+        name: "فرايز بوكس سوبر",
+        price: 65,
+        qty: 1
+      }
+    ],
+    subtotal: 425,
+    deliveryFee: 20,
+    finalTotal: 445,
+    paymentMethod: "wallet",
+    timestamp: Date.now() - 25 * 60 * 1000,
+    createdAt: new Date(Date.now() - 25 * 60 * 1000).toISOString()
+  },
+  {
+    orderId: "#104",
+    status: "completed",
+    orderType: "takeaway",
+    customer: {
+      name: "سارة إبراهيم",
+      phone: "01098765432"
+    },
+    items: [
+      {
+        id: "prod-super-burger-triple",
+        name: "سوبر برجر الثلاثي",
+        price: 220,
+        qty: 1
+      }
+    ],
+    subtotal: 220,
+    discountAmount: 20,
+    deliveryFee: 0,
+    finalTotal: 200,
+    paymentMethod: "cash",
+    timestamp: Date.now() - 48 * 60 * 1000,
+    createdAt: new Date(Date.now() - 48 * 60 * 1000).toISOString()
+  }
+];
 
   const HARPY_DEMO_SEED = {
     DEFAULT_SETTINGS,
     DEFAULT_CATEGORIES,
     DEFAULT_PRODUCTS,
-    DEFAULT_STORIES
+    DEFAULT_STORIES,
+    DEFAULT_ORDERS
   };
 
   if (typeof window !== 'undefined') {
@@ -2386,6 +2513,7 @@ const DEFAULT_STORIES = [
     window.DEFAULT_CATEGORIES = DEFAULT_CATEGORIES;
     window.DEFAULT_PRODUCTS = DEFAULT_PRODUCTS;
     window.DEFAULT_STORIES = DEFAULT_STORIES;
+    window.DEFAULT_ORDERS = DEFAULT_ORDERS;
   }
 
   if (typeof module !== 'undefined' && module.exports) {

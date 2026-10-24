@@ -226,12 +226,14 @@ const DEFAULT_CATEGORIES = (typeof window !== 'undefined' && window.HARPY_DEMO_S
 const DEFAULT_PRODUCTS = (typeof window !== 'undefined' && window.HARPY_DEMO_SEED && window.HARPY_DEMO_SEED.DEFAULT_PRODUCTS) || [];
 const DEFAULT_STORIES = (typeof window !== 'undefined' && window.HARPY_DEMO_SEED && window.HARPY_DEMO_SEED.DEFAULT_STORIES) || [];
 const DEFAULT_RAW_MATERIALS = [
-  { id: 'mat_flour', name: 'دقيق فاخر', unit: 'g', stock: 25000, minAlert: 5000, costPerUnit: 0.03, updatedAt: new Date().toISOString() },
-  { id: 'mat_mozzarella', name: 'جبنة موتزاريلا طبيعي', unit: 'g', stock: 15000, minAlert: 3000, costPerUnit: 0.25, updatedAt: new Date().toISOString() },
-  { id: 'mat_sauce', name: 'صوص طماطم إيطالي', unit: 'g', stock: 10000, minAlert: 2000, costPerUnit: 0.08, updatedAt: new Date().toISOString() },
-  { id: 'mat_beef', name: 'لحم بقري مفروم بلدي', unit: 'g', stock: 8000, minAlert: 2000, costPerUnit: 0.35, updatedAt: new Date().toISOString() },
-  { id: 'mat_box_large', name: 'كرتونة بيتزا لارج', unit: 'pcs', stock: 120, minAlert: 30, costPerUnit: 4.5, updatedAt: new Date().toISOString() },
-  { id: 'mat_can_coke', name: 'كانز كوكاكولا 330مل', unit: 'pcs', stock: 80, minAlert: 24, costPerUnit: 12, updatedAt: new Date().toISOString() }
+  { id: 'mat_beef', name: 'لحم بقري مفروم بلدي', unit: 'g', stock: 18500, minAlert: 3000, costPerUnit: 0.35, updatedAt: new Date().toISOString() },
+  { id: 'mat_chicken', name: 'صدور فراخ تندر مقرمشة', unit: 'g', stock: 14200, minAlert: 2500, costPerUnit: 0.22, updatedAt: new Date().toISOString() },
+  { id: 'mat_cheddar', name: 'صوص جبنة شيدر سائل', unit: 'ml', stock: 8500, minAlert: 1500, costPerUnit: 0.12, updatedAt: new Date().toISOString() },
+  { id: 'mat_buns', name: 'خبز برجر سمسم فاخر', unit: 'pcs', stock: 120, minAlert: 30, costPerUnit: 3.5, updatedAt: new Date().toISOString() },
+  { id: 'mat_crepe', name: 'عجينة كريب طازجة', unit: 'pcs', stock: 85, minAlert: 20, costPerUnit: 4.0, updatedAt: new Date().toISOString() },
+  { id: 'mat_fries', name: 'بطاطس فارم فريتس مجمدة', unit: 'g', stock: 28000, minAlert: 5000, costPerUnit: 0.05, updatedAt: new Date().toISOString() },
+  { id: 'mat_sauce_special', name: 'صوص سوبر برجر السري', unit: 'ml', stock: 6200, minAlert: 1000, costPerUnit: 0.15, updatedAt: new Date().toISOString() },
+  { id: 'mat_can_coke', name: 'كانز كوكاكولا 330مل', unit: 'pcs', stock: 75, minAlert: 24, costPerUnit: 12, updatedAt: new Date().toISOString() }
 ];
 const Store = {
   // ── High-Speed In-Memory State Cache ───────────────────────
@@ -618,6 +620,7 @@ const Store = {
 
   isAdminAuthenticated(slug) {
     const activeSlug = slug || this.getRestaurantSlug();
+    if (activeSlug === 'demo') return true;
     const localSession = localStorage.getItem(`harpy_admin_auth_${activeSlug}`);
     if (localSession) {
       try {
@@ -637,6 +640,9 @@ const Store = {
 
   getCurrentUser() {
     const slug = this.getRestaurantSlug();
+    if (slug === 'demo') {
+      return { email: 'demo@harpymenu.com', uid: 'demo-guest', displayName: 'زائر تجريبي (Demo)', role: 'admin' };
+    }
     const sessionStr = sessionStorage.getItem(`harpy_auth_${slug}`);
     if (sessionStr) {
       try {
@@ -1210,6 +1216,11 @@ const Store = {
         return normalized;
       }
     } catch(e) {}
+    if (slug === 'demo') {
+      const demoOrders = (typeof window !== 'undefined' && window.HARPY_DEMO_SEED && window.HARPY_DEMO_SEED.DEFAULT_ORDERS) || (typeof DEFAULT_ORDERS !== 'undefined' ? DEFAULT_ORDERS : []);
+      this._memoryCache.orders = demoOrders;
+      return demoOrders;
+    }
     this._memoryCache.orders = [];
     return [];
   },

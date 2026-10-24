@@ -165,6 +165,7 @@ function setupAuth() {
     try {
       if (typeof db === 'undefined' || !db) return;
       const slug = Store.getRestaurantSlug();
+      if (!slug || slug === 'demo') return;
       const localAuth = (typeof Store.safeGetItem === 'function') 
         ? Store.safeGetItem(`harpy_admin_auth_${slug}`) 
         : localStorage.getItem(`harpy_admin_auth_${slug}`);
