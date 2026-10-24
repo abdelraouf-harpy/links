@@ -27,7 +27,7 @@
   const swPath = isSubdirectory ? '/links/OneSignalSDKWorker.js' : '/OneSignalSDKWorker.js';
   const swScope = isSubdirectory ? '/links/' : '/';
 
-  // Optional background initialization of OneSignal (Non-blocking: will never freeze or block UI)
+  // Full native OneSignal v16 Background Push Engine
   window.OneSignalDeferred = window.OneSignalDeferred || [];
   window.OneSignalDeferred.push(async function(OneSignal) {
     try {
@@ -39,14 +39,33 @@
           serviceWorkerParam: { scope: swScope },
           notifyButton: { enable: false }
         });
+        
+        // Auto-subscribe & register hardware push token if permission is already granted
         if (window.Notification && Notification.permission === 'granted') {
-          await syncAdminStoreTags();
+          await ensureOneSignalHardwareSubscribed(OneSignal);
         }
       }
     } catch (err) {
-      console.warn("[Push Engine] Optional OneSignal notice:", err.message);
+      console.warn("[Push Engine] OneSignal initialization notice:", err.message);
     }
   });
+
+  async function ensureOneSignalHardwareSubscribed(osInstance) {
+    try {
+      const os = osInstance || window.OneSignal;
+      if (!os || !os.User) return;
+      if (os.User.PushSubscription) {
+        if (!os.User.PushSubscription.optedIn) {
+          console.log("[Push Engine] Registering device token with Google FCM via OneSignal optIn...");
+          await os.User.PushSubscription.optIn();
+        }
+      }
+      await syncAdminStoreTags();
+      window.updatePushNotifUI();
+    } catch (e) {
+      console.warn("[Push Engine] PushSubscription optIn notice:", e);
+    }
+  }
 
   async function syncAdminStoreTags() {
     try {
@@ -174,6 +193,9 @@
 
     if (Notification.permission === 'granted') {
       window.updatePushNotifUI();
+      if (typeof ensureOneSignalHardwareSubscribed === 'function') {
+        await ensureOneSignalHardwareSubscribed();
+      }
       if (typeof showToastNotification === 'function') {
         showToastNotification('إشعارات الطلبات مفعلة وتعمل بنجاح على هذا الهاتف!', 'success');
       }
@@ -192,10 +214,10 @@
         }
         if (typeof playKitchenOrderChime === 'function') playKitchenOrderChime();
 
-        // Optional OneSignal sync in background
+        // Hardware push registration with Google FCM via OneSignal optIn
         try {
-          if (window.OneSignal && window.OneSignal.User) {
-            await syncAdminStoreTags();
+          if (typeof ensureOneSignalHardwareSubscribed === 'function') {
+            await ensureOneSignalHardwareSubscribed();
           }
         } catch (e) {}
       } else if (res === 'denied') {

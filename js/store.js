@@ -1350,9 +1350,7 @@ const Store = {
         ar: `${customerName} (${orderTypeStr}) | الإجمالي: ${total} ${currency}`
       },
       url: adminUrl,
-      filters: [
-        { field: "tag", key: "restaurant", relation: "=", value: String(slug) }
-      ],
+      included_segments: ["Total Subscriptions"],
       chrome_web_icon: `${origin}${isSubdir ? '/links' : ''}/assets/icons/admin-icon-192.png`,
       chrome_web_badge: `${origin}${isSubdir ? '/links' : ''}/assets/icons/admin-icon-192.png`,
       firefox_icon: `${origin}${isSubdir ? '/links' : ''}/assets/icons/admin-icon-192.png`,
