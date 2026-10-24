@@ -1465,35 +1465,7 @@
             </div>
           </div>
 
-          <!-- ── CARD 8: NATIVE MOBILE PUSH NOTIFICATIONS ───────────── -->
-          <div class="admin-settings-card" style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:20px; margin-bottom:20px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:6px;">
-              <div style="font-size:15px; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:8px;">
-                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-                <span>8. إشعارات الطلبات الفورية على الموبايل (Native App Alerts)</span>
-              </div>
-              <span id="push-settings-status-badge" style="font-size:11px; font-weight:800; padding:4px 10px; border-radius:20px; background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.35);">
-                غير مفعلة بعد
-              </span>
-            </div>
-            <p id="push-settings-desc" style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">
-              فعل الإشعارات على هذا الهاتف لتسمع صوت رنين واهتزاز فور ورود أي طلب جديد، كأنك تستخدم تطبيقاً مستقلاً تماماً حتى لو كان الموبايل مغلقاً في جيبك.
-            </p>
-
-            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-              <button type="button" id="btn-push-settings-toggle" class="btn btn-primary btn-sm" onclick="toggleKitchenNotifications()" style="font-weight:800; padding:9px 18px; border-radius:var(--radius-sm); display:inline-flex; align-items:center; gap:6px;">
-                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-                <span>تفعيل الإشعارات على هذا الهاتف</span>
-              </button>
-
-              <button type="button" id="btn-push-settings-test" class="btn btn-ghost btn-sm" onclick="sendTestPushNotification()" style="border:1px solid var(--border); font-weight:800; padding:9px 18px; border-radius:var(--radius-sm); display:none; align-items:center; gap:6px;">
-                <svg class="icon icon-sm" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                <span>إرسال إشعار تجريبي لهذا الهاتف</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- ── CARD 9: SAVE ALL BUTTON ─────────────────────────── -->
+          <!-- ── CARD 8: SAVE ALL BUTTON ─────────────────────────── -->
           <div style="display:flex; justify-content:flex-start; align-items:center; margin-top:10px;">
             <button type="submit" class="btn btn-primary" style="padding:13px 36px; font-size:1rem; font-weight:900; border-radius:var(--radius-sm); box-shadow:0 4px 16px rgba(234,88,12,0.35); display:inline-flex; align-items:center; gap:8px;">
               <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
