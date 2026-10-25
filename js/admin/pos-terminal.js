@@ -69,17 +69,24 @@ window.handlePOSSearch = function(query) {
 window.renderPOSTables = function() {
   const container = document.getElementById('pos-tables-strip');
   const label = document.getElementById('pos-selected-table-label');
-  if (label) label.textContent = `طاولة ${posTableNumber}`;
+  const tables = (typeof Store !== 'undefined' && typeof Store.getTables === 'function')
+    ? Store.getTables()
+    : Array.from({ length: 12 }, (_, i) => ({ id: String(i + 1), name: `طاولة ${i + 1}` }));
+
+  // Find active table display name
+  const currentTbl = tables.find(t => String(t.id) === String(posTableNumber)) || tables[0] || { id: '1', name: 'طاولة 1' };
+  if (label) label.textContent = currentTbl.name;
   if (!container) return;
 
   let html = '';
-  for (let i = 1; i <= 12; i++) {
+  tables.forEach(tbl => {
+    const isAct = String(posTableNumber) === String(tbl.id);
     html += `
-      <button type="button" class="pos-table-pill ${posTableNumber === i ? 'active' : ''}" onclick="setPOSTable(${i})">
-        طاولة ${i}
+      <button type="button" class="pos-table-pill ${isAct ? 'active' : ''}" onclick="setPOSTable('${tbl.id}')">
+        ${tbl.name}
       </button>
     `;
-  }
+  });
   container.innerHTML = html;
 };
 
@@ -663,16 +670,32 @@ window.submitPOSOrder = async function(printReceipt = true) {
     orderId: orderId,
     source: 'pos',
     orderType: posOrderType, // 'dine_in' | 'takeaway'
-    tableNumber: posOrderType === 'dine_in' ? posTableNumber : null,
+    tableNumber: (function() {
+      if (posOrderType !== 'dine_in') return null;
+      const allTbls = (typeof Store !== 'undefined' && Store.getTables) ? Store.getTables() : [];
+      const tObj = allTbls.find(t => String(t.id) === String(posTableNumber));
+      return tObj ? tObj.name : `طاولة ${posTableNumber}`;
+    })(),
     status: 'preparing', // Direct to Kitchen Active Prep
     createdAt: now.toISOString(),
     timestamp: now.getTime(),
     paymentMethod: posPayMethod,
     isPaid: true,
     customer: {
-      name: posOrderType === 'dine_in' ? `طاولة ${posTableNumber}` : (takeawayName || 'زبون سفري'),
+      name: (function() {
+        if (posOrderType !== 'dine_in') return (takeawayName || 'زبون سفري');
+        const allTbls = (typeof Store !== 'undefined' && Store.getTables) ? Store.getTables() : [];
+        const tObj = allTbls.find(t => String(t.id) === String(posTableNumber));
+        return tObj ? tObj.name : `طاولة ${posTableNumber}`;
+      })(),
       phone: 'داخلي',
-      address: posOrderType === 'dine_in' ? `داخل المطعم - طاولة ${posTableNumber}` : 'استلام من الكاشير (سفري)',
+      address: (function() {
+        if (posOrderType !== 'dine_in') return 'استلام من الكاشير (سفري)';
+        const allTbls = (typeof Store !== 'undefined' && Store.getTables) ? Store.getTables() : [];
+        const tObj = allTbls.find(t => String(t.id) === String(posTableNumber));
+        const tName = tObj ? tObj.name : `طاولة ${posTableNumber}`;
+        return `داخل المطعم - ${tName}`;
+      })(),
       notes: note
     },
     items: JSON.parse(JSON.stringify(posCart)),

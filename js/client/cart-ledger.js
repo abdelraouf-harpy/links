@@ -52,6 +52,27 @@ window.setFulfillmentType = function(type) {
     if (groupAddress) groupAddress.style.display = 'none';
     if (groupTable) groupTable.style.display = 'block';
     if (addressInp) addressInp.required = false;
+
+    // Check if table is auto-detected from QR
+    const lockedTbl = sessionStorage.getItem('harpy_dinein_table') || window.__harpyDineInTable;
+    if (lockedTbl) {
+      const step1Inp = document.getElementById('cust-table-number-step1');
+      const hiddenInp = document.getElementById('cust-table-number');
+      if (step1Inp) {
+        step1Inp.value = lockedTbl;
+        step1Inp.readOnly = true;
+        step1Inp.style.backgroundColor = 'var(--primary-subtle)';
+        step1Inp.style.color = 'var(--primary)';
+        step1Inp.style.fontWeight = '900';
+        step1Inp.style.borderColor = 'var(--primary-glow)';
+      }
+      if (hiddenInp) hiddenInp.value = lockedTbl;
+      const step1Label = document.querySelector('label[for="cust-table-number-step1"]');
+      if (step1Label && !step1Label.dataset.locked) {
+        step1Label.dataset.locked = "true";
+        step1Label.innerHTML = `رقم الطاولة <span style="color:var(--primary); font-size:11px; font-weight:800;">(محددة تلقائياً عبر الباركود: ${lockedTbl})</span>`;
+      }
+    }
   }
 
   if (typeof window.updateCartSavedProfileCard === 'function') {

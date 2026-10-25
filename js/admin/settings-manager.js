@@ -67,6 +67,29 @@ function setupSettingsForm() {
     });
   }
 
+  // Setup Tables Management
+  const btnAddTable = document.getElementById('btn-add-new-table');
+  if (btnAddTable) {
+    btnAddTable.addEventListener('click', addAdminTable);
+  }
+  const inputNewTable = document.getElementById('new-table-name-input');
+  if (inputNewTable) {
+    inputNewTable.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addAdminTable();
+      }
+    });
+  }
+  const btnDownloadQR = document.getElementById('btn-download-table-qr');
+  if (btnDownloadQR) {
+    btnDownloadQR.addEventListener('click', downloadTableQRPNG);
+  }
+  const btnCopyLink = document.getElementById('btn-copy-table-link');
+  if (btnCopyLink) {
+    btnCopyLink.addEventListener('click', copyTableLink);
+  }
+
   if (adminElements.btnAddDeliveryZone) {
     adminElements.btnAddDeliveryZone.addEventListener('click', async () => {
       const name = (adminElements.newZoneName?.value || '').trim();
@@ -208,6 +231,7 @@ function loadSettingsIntoForm() {
 
   renderPromoCodesList(s.promoCodes || []);
   updateThemePresetCardsUI(s.themePreset);
+  renderAdminTablesList();
 }
 
 function renderDeliveryZonesList(zones = []) {
@@ -388,3 +412,279 @@ window.saveSettingsFromForm = saveSettingsFromForm;
 window.updateThemePresetCardsUI = updateThemePresetCardsUI;
 window.renderDeliveryZonesList = renderDeliveryZonesList;
 window.renderPromoCodesList = renderPromoCodesList;
+
+
+// ═══════════════════════════════════════════════════════════
+// Dine-in Tables & Stand QR Generation Studio
+// ═══════════════════════════════════════════════════════════
+let currentActiveQRTable = null;
+
+function renderAdminTablesList() {
+  const container = document.getElementById('admin-tables-list');
+  const countBadge = document.getElementById('tables-count-badge');
+  if (!container) return;
+
+  const tables = (typeof Store !== 'undefined' && Store.getTables) ? Store.getTables() : [];
+  if (countBadge) {
+    countBadge.textContent = `${tables.length} طاولات مسجلة`;
+  }
+
+  if (!tables || tables.length === 0) {
+    container.innerHTML = `
+      <div style="grid-column:1/-1; text-align:center; padding:24px; color:var(--text-muted); background:var(--surface); border-radius:var(--radius-xs); border:1px dashed var(--border);">
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" style="margin:0 auto 8px; display:block; opacity:0.6;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+        <div style="font-size:12.5px; font-weight:700;">لا توجد طاولات مضافة حالياً</div>
+        <div style="font-size:11px; margin-top:4px;">أضف أول طاولة لصالتك بالاسم أو الرقم لتوليد كود الـ QR الخاص بها فوراً</div>
+      </div>
+    `;
+    return;
+  }
+
+  let html = '';
+  tables.forEach((tbl, idx) => {
+    const displayName = (tbl.name || `طاولة ${idx + 1}`).trim();
+    html += `
+      <div class="admin-table-card" style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:12px 14px; display:flex; flex-direction:column; justify-content:space-between; gap:10px; transition:border-color 0.2s;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div style="width:32px; height:32px; border-radius:8px; background:var(--primary-subtle); color:var(--primary); display:flex; align-items:center; justify-content:center; font-weight:900; font-size:12.5px; flex-shrink:0;">
+              ${idx + 1}
+            </div>
+            <div>
+              <div style="font-size:13px; font-weight:800; color:var(--text-main);">${escapeHtml(displayName)}</div>
+              <div style="font-size:10.5px; color:var(--text-muted);">المعرّف: #${tbl.id}</div>
+            </div>
+          </div>
+          <button type="button" class="btn-icon" onclick="deleteAdminTable('${tbl.id}')" title="حذف الطاولة" style="color:var(--danger, #ef4444); padding:4px; border-radius:6px; background:transparent; border:none; cursor:pointer;">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          </button>
+        </div>
+
+        <div style="display:flex; gap:6px;">
+          <button type="button" class="btn btn-secondary" onclick="openTableQRModal('${tbl.id}', '${escapeHtml(displayName)}')" style="flex:1; padding:6px 10px; font-size:11.5px; font-weight:800; display:inline-flex; align-items:center; justify-content:center; gap:5px; border-radius:6px;">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            <span>كود QR الطاولة</span>
+          </button>
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+async function addAdminTable() {
+  const inp = document.getElementById('new-table-name-input');
+  const rawName = (inp?.value || '').trim();
+  const tables = (typeof Store !== 'undefined' && Store.getTables) ? Store.getTables() : [];
+  
+  const nextNum = tables.length + 1;
+  const name = rawName || `طاولة ${nextNum}`;
+  const newId = String(Date.now().toString(36) + Math.random().toString(36).substr(2, 4));
+
+  tables.push({
+    id: newId,
+    number: nextNum,
+    name: name,
+    createdAt: Date.now()
+  });
+
+  await Store.saveTables(tables);
+  if (inp) inp.value = '';
+  renderAdminTablesList();
+  if (typeof window.renderPOSTables === 'function') {
+    window.renderPOSTables();
+  }
+  showToastNotification(`تمت إضافة "${name}" بنجاح!`, "success");
+}
+
+async function deleteAdminTable(tableId) {
+  let tables = (typeof Store !== 'undefined' && Store.getTables) ? Store.getTables() : [];
+  const tbl = tables.find(t => String(t.id) === String(tableId));
+  const tName = tbl ? tbl.name : 'الطاولة';
+
+  if (!confirm(`هل أنت متأكد من حذف ${tName}؟ لن يتمكن الزبائن من مسح كود الـ QR الخاص بها.`)) {
+    return;
+  }
+
+  tables = tables.filter(t => String(t.id) !== String(tableId));
+  await Store.saveTables(tables);
+  renderAdminTablesList();
+  if (typeof window.renderPOSTables === 'function') {
+    window.renderPOSTables();
+  }
+  showToastNotification(`تم حذف ${tName}`, "info");
+}
+
+function getTableDirectUrl(tableId) {
+  const slug = Store.getRestaurantSlug();
+  const loc = window.location;
+  let baseOrigin = loc.origin;
+  let path = loc.pathname;
+  if (path.includes('/admin')) {
+    path = path.replace(/\/admin(\/.*)?$/, '/');
+  } else {
+    path = '/';
+  }
+  return `${baseOrigin}${path}?m=${slug}&table=${encodeURIComponent(tableId)}`;
+}
+
+window.openTableQRModal = function(tableId, tableName) {
+  currentActiveQRTable = { id: tableId, name: tableName };
+  const modal = document.getElementById('table-qr-modal');
+  const backdrop = document.getElementById('table-qr-modal-backdrop');
+  const brandEl = document.getElementById('table-qr-brand-name');
+  const badgeEl = document.getElementById('table-qr-badge-label');
+  const holder = document.getElementById('table-qr-canvas-holder');
+  const titleEl = document.getElementById('table-qr-modal-title');
+
+  const settings = Store.getSettings() || {};
+  if (brandEl) brandEl.textContent = settings.storeName || 'Harpy Order';
+  if (badgeEl) badgeEl.textContent = tableName || `طاولة ${tableId}`;
+  if (titleEl) titleEl.textContent = `كود QR — ${tableName}`;
+
+  const tableUrl = getTableDirectUrl(tableId);
+
+  if (holder) {
+    holder.innerHTML = '';
+    if (typeof QRCode !== 'undefined') {
+      try {
+        new QRCode(holder, {
+          text: tableUrl,
+          width: 190,
+          height: 190,
+          colorDark: "#0f172a",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.H
+        });
+      } catch(e) {
+        const encoded = encodeURIComponent(tableUrl);
+        holder.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=190x190&data=${encoded}" alt="QR" width="190" height="190" style="display:block; border-radius:8px;">`;
+      }
+    } else {
+      const encoded = encodeURIComponent(tableUrl);
+      holder.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=190x190&data=${encoded}" alt="QR" width="190" height="190" style="display:block; border-radius:8px;">`;
+    }
+  }
+
+  if (modal) modal.style.display = 'block';
+  if (backdrop) backdrop.style.display = 'block';
+};
+
+window.closeTableQRModal = function() {
+  const modal = document.getElementById('table-qr-modal');
+  const backdrop = document.getElementById('table-qr-modal-backdrop');
+  if (modal) modal.style.display = 'none';
+  if (backdrop) backdrop.style.display = 'none';
+};
+
+window.downloadTableQRPNG = function() {
+  if (!currentActiveQRTable) return;
+  const holder = document.getElementById('table-qr-canvas-holder');
+  const qrCanvas = holder ? holder.querySelector('canvas') : null;
+  const qrImg = holder ? holder.querySelector('img') : null;
+
+  const settings = Store.getSettings() || {};
+  const brandName = settings.storeName || 'Harpy Order';
+  const tableName = currentActiveQRTable.name || `طاولة ${currentActiveQRTable.id}`;
+
+  const cardW = 800;
+  const cardH = 1000;
+  const outCanvas = document.createElement('canvas');
+  outCanvas.width = cardW;
+  outCanvas.height = cardH;
+  const ctx = outCanvas.getContext('2d');
+
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, cardW, cardH);
+
+  ctx.strokeStyle = '#f1f5f9';
+  ctx.lineWidth = 12;
+  ctx.strokeRect(20, 20, cardW - 40, cardH - 40);
+
+  ctx.fillStyle = '#0f172a';
+  ctx.font = 'bold 44px Cairo, Arial, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(brandName, cardW / 2, 130);
+
+  ctx.fillStyle = '#64748b';
+  ctx.font = '500 24px Cairo, Arial, sans-serif';
+  ctx.fillText('منيو رقمي وطلب مباشر من الطاولة', cardW / 2, 180);
+
+  const qrSize = 480;
+  const qrX = (cardW - qrSize) / 2;
+  const qrY = 240;
+
+  if (qrCanvas) {
+    ctx.drawImage(qrCanvas, qrX, qrY, qrSize, qrSize);
+    finalizeDownload();
+  } else if (qrImg) {
+    if (qrImg.complete) {
+      ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
+      finalizeDownload();
+    } else {
+      qrImg.onload = () => {
+        ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
+        finalizeDownload();
+      };
+    }
+  }
+
+  function finalizeDownload() {
+    const pillY = 780;
+    ctx.fillStyle = '#fff7ed';
+    ctx.strokeStyle = '#fed7aa';
+    ctx.lineWidth = 4;
+    const pillW = 340;
+    const pillH = 72;
+    const pillX = (cardW - pillW) / 2;
+    
+    ctx.beginPath();
+    if (typeof ctx.roundRect === 'function') {
+      ctx.roundRect(pillX, pillY, pillW, pillH, 36);
+    } else {
+      ctx.rect(pillX, pillY, pillW, pillH);
+    }
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#ea580c';
+    ctx.font = 'bold 36px Cairo, Arial, sans-serif';
+    ctx.fillText(tableName, cardW / 2, pillY + 49);
+
+    ctx.fillStyle = '#475569';
+    ctx.font = 'bold 22px Cairo, Arial, sans-serif';
+    ctx.fillText('امسح الكود بكاميرا الموبايل واطلب بدون انتظار ويتر', cardW / 2, 905);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '600 18px Cairo, Arial, sans-serif';
+    ctx.fillText('Powered by Harpy Order — harpymenu.com', cardW / 2, 955);
+
+    const cleanFileName = `QR_${brandName.replace(/\s+/g, '_')}_${tableName.replace(/\s+/g, '_')}.png`;
+    const link = document.createElement('a');
+    link.download = cleanFileName;
+    link.href = outCanvas.toDataURL('image/png');
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    showToastNotification(`تم تحميل كود ${tableName} بنجاح!`, 'success');
+  }
+};
+
+window.copyTableLink = function() {
+  if (!currentActiveQRTable) return;
+  const url = getTableDirectUrl(currentActiveQRTable.id);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(() => {
+      showToastNotification('تم نسخ رابط الطاولة المباشر!', 'success');
+    }).catch(() => {
+      prompt('رابط الطاولة:', url);
+    });
+  } else {
+    prompt('رابط الطاولة:', url);
+  }
+};
+
+window.renderAdminTablesList = renderAdminTablesList;
+window.addAdminTable = addAdminTable;
+window.deleteAdminTable = deleteAdminTable;

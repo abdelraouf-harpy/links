@@ -244,6 +244,23 @@ async function initApp() {
   initViewMode();
   renderCleanProfileUI();
 
+  // Dynamic Dine-in Table Auto-Detection from QR Code
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tableParam = (urlParams.get('table') || urlParams.get('t') || sessionStorage.getItem('harpy_dinein_table') || '').trim();
+    if (tableParam) {
+      sessionStorage.setItem('harpy_dinein_table', tableParam);
+      window.__harpyDineInTable = tableParam;
+      window.__harpyInStoreDineIn = true;
+      if (typeof window.setFulfillmentType === 'function') {
+        window.setFulfillmentType('dinein');
+      }
+      if (typeof window.syncTableNumber === 'function') {
+        window.syncTableNumber(tableParam);
+      }
+    }
+  } catch(e) {}
+
   const slug = Store.getRestaurantSlug();
   const isDemo = (slug === 'demo');
   if (isDemo) {

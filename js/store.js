@@ -2352,6 +2352,27 @@ const Store = {
     return { success: true, localSaved: true };
   },
 
+  getTables() {
+    const settings = this.getSettings() || {};
+    if (Array.isArray(settings.tables) && settings.tables.length > 0) {
+      return settings.tables;
+    }
+    const count = parseInt(settings.tablesCount, 10) || 12;
+    return Array.from({ length: count }, (_, i) => ({
+      id: String(i + 1),
+      number: i + 1,
+      name: طاولة 
+    }));
+  },
+
+  async saveTables(tablesList) {
+    const settings = this.getSettings() || {};
+    settings.tables = tablesList;
+    settings.tablesCount = tablesList.length;
+    await this.saveSettings(settings);
+    return settings.tables;
+  },
+
   applyTheme() {
     const s = this.getSettings();
     const mode = this.getThemeMode();
