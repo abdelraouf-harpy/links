@@ -443,11 +443,15 @@ let currentActiveQRTable = null;
 function renderAdminTablesList() {
   const container = document.getElementById('admin-tables-list');
   const countBadge = document.getElementById('tables-count-badge');
+  const btnClearAll = document.getElementById('btn-clear-all-tables');
   if (!container) return;
 
   const tables = (typeof Store !== 'undefined' && Store.getTables) ? Store.getTables() : [];
   if (countBadge) {
     countBadge.textContent = `${tables.length} طاولات مسجلة`;
+  }
+  if (btnClearAll) {
+    btnClearAll.style.display = (tables && tables.length > 0) ? 'inline-flex' : 'none';
   }
 
   if (!tables || tables.length === 0) {
@@ -707,6 +711,21 @@ window.copyTableLink = function() {
   }
 };
 
+window.clearAllAdminTables = async function() {
+  const tables = (typeof Store !== 'undefined' && Store.getTables) ? Store.getTables() : [];
+  if (!tables || tables.length === 0) return;
+  if (!confirm(`هل أنت متأكد من حذف كافة الطاولات (${tables.length} طاولة) من الصالة؟`)) {
+    return;
+  }
+  await Store.saveTables([]);
+  renderAdminTablesList();
+  if (typeof window.renderPOSTables === 'function') {
+    window.renderPOSTables();
+  }
+  showToastNotification("تم مسح كافة الطاولات بنجاح", "info");
+};
+
+window.clearAllAdminTables = clearAllAdminTables;
 window.renderAdminTablesList = renderAdminTablesList;
 window.addAdminTable = addAdminTable;
 window.deleteAdminTable = deleteAdminTable;

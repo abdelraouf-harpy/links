@@ -71,11 +71,17 @@ window.renderPOSTables = function() {
   const label = document.getElementById('pos-selected-table-label');
   const tables = (typeof Store !== 'undefined' && typeof Store.getTables === 'function')
     ? Store.getTables()
-    : Array.from({ length: 12 }, (_, i) => ({ id: String(i + 1), name: `طاولة ${i + 1}` }));
+    : [];
+
+  if (!tables || tables.length === 0) {
+    if (label) label.textContent = 'لا توجد طاولات';
+    if (container) container.innerHTML = '<span style="font-size:11px; color:var(--text-muted); padding:4px 8px;">لا توجد طاولات مضافة في الصالة بعد</span>';
+    return;
+  }
 
   // Find active table display name
-  const currentTbl = tables.find(t => String(t.id) === String(posTableNumber)) || tables[0] || { id: '1', name: 'طاولة 1' };
-  if (label) label.textContent = currentTbl.name;
+  const currentTbl = tables.find(t => String(t.id) === String(posTableNumber)) || tables[0];
+  if (label && currentTbl) label.textContent = currentTbl.name;
   if (!container) return;
 
   let html = '';

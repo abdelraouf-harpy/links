@@ -2354,15 +2354,10 @@ const Store = {
 
   getTables() {
     const settings = this.getSettings() || {};
-    if (Array.isArray(settings.tables) && settings.tables.length > 0) {
+    if (Array.isArray(settings.tables)) {
       return settings.tables;
     }
-    const count = parseInt(settings.tablesCount, 10) || 12;
-    return Array.from({ length: count }, (_, i) => ({
-      id: String(i + 1),
-      number: i + 1,
-      name: 'طاولة ' + (i + 1)
-    }));
+    return [];
   },
 
   async saveTables(tablesList) {
