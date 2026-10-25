@@ -735,70 +735,10 @@ window.deleteAdminTable = deleteAdminTable;
 // Multi-Branch Network Management Studio
 // ═══════════════════════════════════════════════════════════
 function updateAdminBranchDrawerSwitcher() {
-  const widget = document.getElementById('drawer-branches-widget');
-  const container = document.getElementById('drawer-branches-list');
-  const countBadge = document.getElementById('drawer-branches-count');
-  if (!widget || !container) return;
-
-  const branches = (typeof Store !== 'undefined' && Store.getBranches) ? Store.getBranches() : [];
-  const currentSlug = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : '';
-
-  // Requirement: Do NOT show widget if only 1 branch / no other branches!
-  if (!branches || branches.length <= 1) {
-    widget.style.display = 'none';
-    return;
+  if (typeof window.updateAdminBranchDrawerSwitcher === 'function') {
+    window.updateAdminBranchDrawerSwitcher();
   }
-
-  widget.style.display = 'block';
-
-  if (countBadge) {
-    countBadge.textContent = `${branches.length} فروع`;
-  }
-
-  let html = '';
-  branches.forEach(b => {
-    const isCurrent = (b.slug === currentSlug);
-    const bName = safeEscape(b.name || b.slug);
-
-    if (isCurrent) {
-      html += `
-        <div style="background:var(--primary-subtle); border:1px solid var(--primary); border-radius:8px; padding:7px 10px; display:flex; justify-content:space-between; align-items:center;">
-          <div style="display:flex; align-items:center; gap:6px;">
-            <span style="width:7px; height:7px; border-radius:50%; background:var(--primary); display:inline-block; flex-shrink:0;"></span>
-            <span style="font-size:12px; font-weight:900; color:var(--text-main);">${bName}</span>
-          </div>
-          <span style="font-size:10px; color:var(--primary); font-weight:800; background:rgba(255,255,255,0.1); padding:1px 6px; border-radius:4px;">أنت هنا</span>
-        </div>
-      `;
-    } else {
-      html += `
-        <button type="button" class="btn btn-ghost" onclick="switchAdminBranch('${b.slug}')" style="width:100%; border:1px solid var(--border); border-radius:8px; padding:7px 10px; display:flex; justify-content:space-between; align-items:center; text-align:right; font-size:12px; font-weight:800; color:var(--text-body); background:var(--surface); cursor:pointer;">
-          <div style="display:flex; align-items:center; gap:6px;">
-            <span style="width:7px; height:7px; border-radius:50%; background:var(--text-muted); opacity:0.5; display:inline-block; flex-shrink:0;"></span>
-            <span>${bName}</span>
-          </div>
-          <span style="font-size:10.5px; color:var(--primary); font-weight:700;">انتقال ←</span>
-        </button>
-      `;
-    }
-  });
-
-  container.innerHTML = html;
 }
-
-window.navigateToBranchSettings = function() {
-  if (typeof closeAdminDrawer === 'function') closeAdminDrawer();
-  const tabBtn = document.querySelector('[data-tab="tab-settings"]');
-  if (tabBtn) tabBtn.click();
-  setTimeout(() => {
-    const card = document.getElementById('card-branches-management');
-    if (card) {
-      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      card.style.outline = '2px solid var(--primary)';
-      setTimeout(() => { card.style.outline = 'none'; }, 2000);
-    }
-  }, 250);
-};
 
 function updateAdminBranchHeaderSwitcher() {
   updateAdminBranchDrawerSwitcher();
@@ -822,44 +762,6 @@ window.toggleBranchPassVisibility = function() {
     inp.type = 'password';
     if (icon) icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
   }
-};
-
-window.switchAdminBranch = function(branchSlug) {
-  const currentSlug = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : '';
-  if (currentSlug === branchSlug) {
-    const dropdown = document.getElementById('admin-branch-dropdown');
-    if (dropdown) dropdown.style.display = 'none';
-    return;
-  }
-
-  // Seamless Multi-Branch Admin Handover:
-  // Propagate active authorized admin session so the target branch opens fully unlocked without prompts
-  try {
-    const curAuth = localStorage.getItem(`harpy_admin_auth_${currentSlug}`) || sessionStorage.getItem(`harpy_auth_${currentSlug}`);
-    if (curAuth) {
-      const sess = JSON.parse(curAuth);
-      sess.slug = branchSlug;
-      localStorage.setItem(`harpy_admin_auth_${branchSlug}`, JSON.stringify(sess));
-      sessionStorage.setItem(`harpy_auth_${branchSlug}`, JSON.stringify(sess));
-    }
-    localStorage.setItem('harpy_admin_active_slug', branchSlug);
-    sessionStorage.setItem('harpy_branch_authorized_switch', branchSlug);
-  } catch(e) {}
-
-  showToastNotification(`جاري الانتقال إلى لوحة تحكم ${branchSlug}...`, "info");
-
-  setTimeout(() => {
-    const loc = window.location;
-    let pathname = loc.pathname;
-    if (!pathname.endsWith('.html') && !pathname.endsWith('/')) {
-      pathname += '/';
-    }
-    if (!pathname.includes('admin')) {
-      pathname = pathname.replace(/\/?$/, '/admin/');
-    }
-    const adminUrl = `${loc.origin}${pathname}?m=${encodeURIComponent(branchSlug)}`;
-    window.location.href = adminUrl;
-  }, 300);
 };
 
 function renderAdminBranchesList() {
@@ -1023,6 +925,7 @@ async function deleteAdminBranch(branchId) {
   branches = branches.filter(b => b.id !== branchId && b.slug !== branchId);
   await Store.saveBranches(branches);
   renderAdminBranchesList();
+  updateAdminBranchDrawerSwitcher();
   updateAdminBranchHeaderSwitcher();
   showToastNotification(`تم حذف ${target.name}`, "info");
 }

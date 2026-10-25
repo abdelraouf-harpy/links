@@ -784,6 +784,98 @@ window.initAdmin = initAdmin;
   });
 
 
+window.switchAdminBranch = function(branchSlug) {
+  if (!branchSlug) return;
+  const currentSlug = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : '';
+  if (currentSlug === branchSlug) {
+    if (typeof closeAdminDrawer === 'function') closeAdminDrawer();
+    return;
+  }
+
+  // 1. Snapshot current branch network before navigating
+  const branches = (typeof Store !== 'undefined' && Store.getBranches) ? Store.getBranches() : [];
+
+  // Guarantee both current slug and target slug are inside the network
+  if (currentSlug && !branches.some(b => b.slug === currentSlug)) {
+    branches.unshift({
+      id: currentSlug,
+      slug: currentSlug,
+      name: (Store.getSettings()?.storeName) || currentSlug,
+      isMain: true
+    });
+  }
+  if (!branches.some(b => b.slug === branchSlug)) {
+    branches.push({
+      id: branchSlug,
+      slug: branchSlug,
+      name: branchSlug
+    });
+  }
+
+  // 2. Persist network universally across localStorage & sessionStorage
+  try {
+    const netJson = JSON.stringify(branches);
+    localStorage.setItem('harpy_admin_branch_network', netJson);
+    sessionStorage.setItem('harpy_admin_branch_network', netJson);
+    localStorage.setItem('harpy_previous_branch_slug', currentSlug);
+
+    // Inject branches directly into target branch's settings cache in localStorage
+    const targetKey = `harpy_${branchSlug}_settings`;
+    const targetRaw = localStorage.getItem(targetKey);
+    const targetSettings = targetRaw ? JSON.parse(targetRaw) : {};
+    targetSettings.branches = branches;
+    localStorage.setItem(targetKey, JSON.stringify(targetSettings));
+
+    // Also update current branch's cached settings
+    if (currentSlug) {
+      const curKey = `harpy_${currentSlug}_settings`;
+      const curRaw = localStorage.getItem(curKey);
+      const curSettings = curRaw ? JSON.parse(curRaw) : {};
+      curSettings.branches = branches;
+      localStorage.setItem(curKey, JSON.stringify(curSettings));
+    }
+
+    // Propagate admin session credentials to target branch so it opens unlocked
+    const curAuth = localStorage.getItem(`harpy_admin_auth_${currentSlug}`) || sessionStorage.getItem(`harpy_auth_${currentSlug}`);
+    if (curAuth) {
+      const sess = JSON.parse(curAuth);
+      sess.slug = branchSlug;
+      localStorage.setItem(`harpy_admin_auth_${branchSlug}`, JSON.stringify(sess));
+      sessionStorage.setItem(`harpy_auth_${branchSlug}`, JSON.stringify(sess));
+    }
+    localStorage.setItem('harpy_admin_active_slug', branchSlug);
+    sessionStorage.setItem('harpy_branch_authorized_switch', branchSlug);
+  } catch(e) {}
+
+  // 3. Background cloud sync to Firebase RTDB for target and current branch
+  try {
+    if (typeof db !== 'undefined' && db && Array.isArray(branches)) {
+      db.ref(`restaurants/${branchSlug}/settings/branches`).set(branches).catch(() => {});
+      if (currentSlug) {
+        db.ref(`restaurants/${currentSlug}/settings/branches`).set(branches).catch(() => {});
+      }
+    }
+  } catch(e) {}
+
+  if (typeof showToastNotification === 'function') {
+    showToastNotification(`جاري الانتقال إلى لوحة تحكم ${branchSlug}...`, "info");
+  }
+
+  // 4. Clean navigation to target admin URL
+  setTimeout(() => {
+    const loc = window.location;
+    let pathname = loc.pathname;
+    if (!pathname.endsWith('.html') && !pathname.endsWith('/')) {
+      pathname += '/';
+    }
+    if (!pathname.includes('admin')) {
+      pathname = pathname.replace(/\/?$/, '/admin/');
+    }
+    const adminUrl = `${loc.origin}${pathname}?m=${encodeURIComponent(branchSlug)}`;
+    window.location.href = adminUrl;
+  }, 250);
+};
+
 window.updateAdminBranchDrawerSwitcher = function() {
   const widget = document.getElementById('drawer-branches-widget');
   const container = document.getElementById('drawer-branches-list');
@@ -814,7 +906,7 @@ window.updateAdminBranchDrawerSwitcher = function() {
   let html = '';
   branches.forEach(b => {
     const isCurrent = (b.slug === currentSlug);
-    const bName = safeEscape(b.name || b.slug);
+    const bName = safeEscape(b.name || (b.slug === 'demo' ? 'الفرع التجريبي (ديمو)' : b.slug));
 
     if (isCurrent) {
       html += `
@@ -855,4 +947,11 @@ window.navigateToBranchSettings = function() {
     }
   }, 250);
 };
+
+// Automatic realtime sync listener for drawer branch widget
+window.addEventListener('store_settings_updated', () => {
+  if (typeof window.updateAdminBranchDrawerSwitcher === 'function') {
+    try { window.updateAdminBranchDrawerSwitcher(); } catch(e) {}
+  }
+});
 

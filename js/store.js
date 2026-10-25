@@ -635,6 +635,13 @@ const Store = {
         if (session && session.authenticated === true && (!session.slug || session.slug === activeSlug)) return true;
       } catch(e) {}
     }
+    // Seamless branch network switch handover: authorized switch on this device
+    try {
+      const authSwitch = sessionStorage.getItem('harpy_branch_authorized_switch');
+      if (authSwitch === activeSlug) {
+        return true;
+      }
+    } catch(e) {}
     return false;
   },
 
@@ -692,6 +699,18 @@ const Store = {
         if (!mergedSettings.whatsappNumber && data.settings.phone) {
           mergedSettings.whatsappNumber = data.settings.phone;
         }
+
+        // Defensive: Preserve multi-branch network if incoming snapshot omitted branches
+        if (!mergedSettings.branches && this._memoryCache.settings && Array.isArray(this._memoryCache.settings.branches) && this._memoryCache.settings.branches.length > 0) {
+          mergedSettings.branches = this._memoryCache.settings.branches;
+        }
+        if (mergedSettings.branches && Array.isArray(mergedSettings.branches) && mergedSettings.branches.length > 1) {
+          try {
+            localStorage.setItem('harpy_admin_branch_network', JSON.stringify(mergedSettings.branches));
+            sessionStorage.setItem('harpy_admin_branch_network', JSON.stringify(mergedSettings.branches));
+          } catch(e) {}
+        }
+
         this._memoryCache.settings = mergedSettings;
         this.safeSetItem(this.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(mergedSettings));
         this.applyTheme();
@@ -2371,41 +2390,135 @@ const Store = {
   getBranches() {
     const settings = this.getSettings() || {};
     let branches = (Array.isArray(settings.branches) && settings.branches.length > 0) ? [...settings.branches] : [];
+    const currentSlug = this.getRestaurantSlug();
 
-    // Check device/session multi-branch network registry to ensure cross-branch switcher continuity
+    // Helper: Safely add or merge a branch candidate into the collection
+    const addOrMergeBranch = (nb) => {
+      if (!nb) return;
+      const bSlug = (nb.slug || nb.id || '').toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
+      if (!bSlug) return;
+      const existing = branches.find(b => (b.slug || b.id || '').toLowerCase().trim() === bSlug);
+      if (!existing) {
+        branches.push({
+          id: bSlug,
+          slug: bSlug,
+          name: nb.name || (bSlug === 'demo' ? 'الفرع التجريبي' : bSlug),
+          phone: nb.phone || '',
+          address: nb.address || '',
+          isMain: !!nb.isMain,
+          createdAt: nb.createdAt || Date.now()
+        });
+      } else {
+        if ((!existing.name || existing.name === existing.slug) && nb.name && nb.name !== bSlug) {
+          existing.name = nb.name;
+        }
+        if (!existing.phone && nb.phone) existing.phone = nb.phone;
+        if (!existing.address && nb.address) existing.address = nb.address;
+      }
+    };
+
+    // 1. Check multi-branch network registry in localStorage & sessionStorage
     try {
-      const netRaw = localStorage.getItem('harpy_admin_branch_network');
+      const netRaw = localStorage.getItem('harpy_admin_branch_network') || sessionStorage.getItem('harpy_admin_branch_network');
       if (netRaw) {
         const netList = JSON.parse(netRaw);
-        if (Array.isArray(netList) && netList.length > 0) {
-          if (branches.length === 0) {
-            branches = netList;
-          } else {
-            // Merge any missing branches from the network registry
-            netList.forEach(nb => {
-              if (nb && nb.slug && !branches.some(b => b.slug === nb.slug)) {
-                branches.push(nb);
+        if (Array.isArray(netList)) {
+          netList.forEach(nb => addOrMergeBranch(nb));
+        }
+      }
+    } catch(e) {}
+
+    // 2. Deep scan across localStorage for other restaurants and auth sessions on this device
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (!key) continue;
+
+        // Check if another restaurant's settings has branches list
+        if (key.startsWith('harpy_') && key.endsWith('_settings')) {
+          try {
+            const rawVal = localStorage.getItem(key);
+            if (rawVal) {
+              const parsed = JSON.parse(rawVal);
+              if (parsed) {
+                if (Array.isArray(parsed.branches) && parsed.branches.length > 0) {
+                  parsed.branches.forEach(nb => addOrMergeBranch(nb));
+                }
+                const otherSlug = key.slice(6, -9).trim().toLowerCase();
+                if (otherSlug && (parsed.storeName || parsed.branches)) {
+                  addOrMergeBranch({
+                    id: otherSlug,
+                    slug: otherSlug,
+                    name: parsed.storeName || otherSlug
+                  });
+                }
               }
+            }
+          } catch(e) {}
+        }
+
+        // Check if an authenticated admin session exists for another restaurant on this device
+        if (key.startsWith('harpy_admin_auth_')) {
+          const authSlug = key.replace('harpy_admin_auth_', '').trim().toLowerCase();
+          if (authSlug) {
+            let rName = authSlug;
+            try {
+              const rRaw = localStorage.getItem(`harpy_${authSlug}_settings`);
+              if (rRaw) {
+                const rSet = JSON.parse(rRaw);
+                if (rSet && (rSet.storeName || rSet.name)) rName = rSet.storeName || rSet.name;
+              }
+            } catch(e) {}
+            addOrMergeBranch({
+              id: authSlug,
+              slug: authSlug,
+              name: rName
             });
           }
         }
       }
     } catch(e) {}
 
-    if (branches.length > 0) {
-      return branches;
+    // 3. Check previous branch handover slug
+    try {
+      const prevSlug = localStorage.getItem('harpy_previous_branch_slug');
+      if (prevSlug) {
+        addOrMergeBranch({ id: prevSlug, slug: prevSlug, name: prevSlug });
+      }
+    } catch(e) {}
+
+    // 4. Ensure current restaurant itself is in branches with up-to-date name
+    const currentName = settings.storeName || (currentSlug === 'demo' ? 'الفرع التجريبي (ديمو)' : currentSlug);
+    const curIndex = branches.findIndex(b => (b.slug || b.id || '').toLowerCase().trim() === currentSlug);
+    if (curIndex === -1) {
+      branches.unshift({
+        id: currentSlug,
+        slug: currentSlug,
+        name: currentName,
+        phone: settings.whatsappNumber || '',
+        address: settings.address || '',
+        isMain: (branches.length === 0)
+      });
+    } else {
+      if (settings.storeName && (!branches[curIndex].name || branches[curIndex].name === currentSlug)) {
+        branches[curIndex].name = settings.storeName;
+      }
     }
 
-    const currentSlug = this.getRestaurantSlug();
-    const storeName = settings.storeName || 'الفرع الرئيسي';
-    return [{
-      id: currentSlug,
-      slug: currentSlug,
-      name: storeName,
-      phone: settings.whatsappNumber || '',
-      address: settings.address || '',
-      isMain: true
-    }];
+    // 5. Universal Persistence: If 2+ branches exist, sync back universally so all branches stay linked!
+    if (branches.length > 1) {
+      try {
+        const netJson = JSON.stringify(branches);
+        localStorage.setItem('harpy_admin_branch_network', netJson);
+        sessionStorage.setItem('harpy_admin_branch_network', netJson);
+        if (!settings.branches || settings.branches.length < branches.length) {
+          settings.branches = branches;
+          localStorage.setItem(this.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(settings));
+        }
+      } catch(e) {}
+    }
+
+    return branches;
   },
 
   async saveBranches(branchesList) {
