@@ -290,7 +290,8 @@ function setupAuth() {
       // Verify tenant ownership concurrently in background without blocking orders stream
       Store.verifyTenantOwnership(slug, user.uid).then(async (authCheck) => {
         const mismatchConfirmed = (authCheck && typeof authCheck === 'object') ? authCheck.mismatchConfirmed : false;
-        if (mismatchConfirmed) {
+        const isNetworkBranch = (typeof Store !== 'undefined' && Store.isBranchInNetwork) ? Store.isBranchInNetwork(slug) : false;
+        if (mismatchConfirmed && !isNetworkBranch) {
           console.warn(`[Admin] Active Firebase user (${user.email}) does not own ${slug}. Logging out mismatched session.`);
           await Store.logoutAdmin();
           lockDashboard();

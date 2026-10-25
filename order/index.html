@@ -51,8 +51,8 @@
   <link rel="preconnect" href="https://i.ibb.co" crossorigin>
   <link rel="dns-prefetch" href="https://i.ibb.co">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/order-tokens.css?v=119.0">
-  <link rel="stylesheet" href="css/order-client.css?v=119.0">
+  <link rel="stylesheet" href="css/order-tokens.css?v=122.0">
+  <link rel="stylesheet" href="css/order-client.css?v=122.0">
   <style id="harpy-critical-layout">
     /* ═══════════════════════════════════════════════════════════
        CRITICAL DEFENSIVE INLINE SHIELD (Prevents SW Cache Mismatches)
@@ -807,6 +807,13 @@
           <span class="status-pulse-dot"></span>
           <span id="hero-status-text">مفتوح الآن</span>
         </span>
+
+        <!-- Dynamic Branch / Dine-In Table Indicator Pill -->
+        <button type="button" id="header-branch-pill" class="menu-meta-pill pill-dark" onclick="window.openBranchPickerFromHeader && window.openBranchPickerFromHeader()" style="display:none; cursor:pointer; font-weight:800; font-size:11px; align-items:center; gap:5px; border:1px solid var(--border); background:var(--surface);" title="الفرع النشط">
+          <span id="header-branch-pill-icon">📍</span>
+          <span id="header-branch-pill-text">الفرع</span>
+          <span id="header-branch-pill-arrow" style="font-size:9px; opacity:0.75;">▼</span>
+        </button>
       </div>
     </header>
 
@@ -2258,6 +2265,11 @@
   <!-- Multi-Branch Picker Modal -->
   <div class="modal-backdrop" id="branch-picker-backdrop" style="display:none; z-index:99998;" onclick="window.closeBranchPickerModal && window.closeBranchPickerModal()"></div>
   <div class="modal-box" id="branch-picker-modal" style="display:none; max-width:440px; text-align:center; padding:24px 20px; z-index:99999; border-radius:20px; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:90%; background:var(--surface-raised); border:1px solid var(--border-strong); box-shadow:0 20px 40px rgba(0,0,0,0.25);">
+    <div style="display:flex; justify-content:flex-end; margin-bottom:-10px;">
+      <button type="button" class="btn-close" onclick="window.closeBranchPickerModal && window.closeBranchPickerModal()" style="background:transparent; border:none; cursor:pointer; color:var(--text-muted); padding:4px;" title="إغلاق">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
     <div style="width:52px; height:52px; border-radius:50%; background:var(--primary-subtle); color:var(--primary); display:flex; align-items:center; justify-content:center; margin:0 auto 12px;">
       <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
     </div>
@@ -2273,16 +2285,16 @@
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=119.0"></script>
-  <script src="js/core/sound-effects.js?v=119.0"></script>
-  <script src="js/store.js?v=119.0"></script>
-  <script src="js/client/client-core.js?v=119.0"></script>
-  <script src="js/client/menu-view.js?v=119.0"></script>
-  <script src="js/client/stories-viewer.js?v=119.0"></script>
-  <script src="js/client/customizer-modal.js?v=119.0"></script>
-  <script src="js/client/cart-ledger.js?v=119.0"></script>
-  <script src="js/client/order-tracking.js?v=119.0"></script>
-  <script src="js/app.js?v=120.0"></script>
-  <script src="js/pwa.js?v=121.0"></script>
+  <script src="js/core/demo-seed-data.js?v=122.0"></script>
+  <script src="js/core/sound-effects.js?v=122.0"></script>
+  <script src="js/store.js?v=122.0"></script>
+  <script src="js/client/client-core.js?v=122.0"></script>
+  <script src="js/client/menu-view.js?v=122.0"></script>
+  <script src="js/client/stories-viewer.js?v=122.0"></script>
+  <script src="js/client/customizer-modal.js?v=122.0"></script>
+  <script src="js/client/cart-ledger.js?v=122.0"></script>
+  <script src="js/client/order-tracking.js?v=122.0"></script>
+  <script src="js/app.js?v=122.0"></script>
+  <script src="js/pwa.js?v=122.0"></script>
 </body>
 </html>

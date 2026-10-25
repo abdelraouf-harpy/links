@@ -3,16 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <script>
-    // Strict Multi-Tenant Query Router: Forward customers with ?m= directly to their restaurant menu
+    // Strict Multi-Tenant Query Router: Forward customers with ?m= directly to their restaurant menu preserving all query params (table, branch, etc.)
     (function() {
       try {
         var p = new URLSearchParams(window.location.search);
         var s = p.get('m') || p.get('r') || p.get('restaurant') || p.get('store') || p.get('slug');
         if (s) {
-          s = s.toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
-          if (s) {
-            window.location.replace('./order/?m=' + encodeURIComponent(s) + window.location.hash);
-          }
+          window.location.replace('./order/' + window.location.search + window.location.hash);
         }
       } catch(e) {}
     })();

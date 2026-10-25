@@ -2214,9 +2214,90 @@ window.handleNavTabClick = handleNavTabClick;
 
 
 // ═══════════════════════════════════════════════════════════
-// Multi-Branch Storefront Selection Engine
+// Multi-Branch & Dine-In Table Storefront Engine
 // ═══════════════════════════════════════════════════════════
+
+function updateHeaderBranchPill() {
+  const pill = document.getElementById('header-branch-pill');
+  const text = document.getElementById('header-branch-pill-text');
+  const icon = document.getElementById('header-branch-pill-icon');
+  const arrow = document.getElementById('header-branch-pill-arrow');
+  if (!pill) return;
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const dineInTable = (urlParams.get('table') || urlParams.get('t') || sessionStorage.getItem('harpy_dinein_table') || window.__harpyDineInTable || '').trim();
+
+  if (dineInTable) {
+    pill.style.display = 'inline-flex';
+    pill.style.border = '1px solid var(--primary)';
+    pill.style.background = 'var(--primary-subtle)';
+    pill.style.color = 'var(--primary)';
+    pill.style.cursor = 'default';
+    if (icon) icon.textContent = '🍽️';
+    if (text) text.textContent = `طاولة ${dineInTable} (صالة)`;
+    if (arrow) arrow.style.display = 'none';
+    return;
+  }
+
+  const branches = (typeof Store !== 'undefined' && Store.getBranches) ? Store.getBranches() : [];
+  if (branches.length > 1) {
+    pill.style.display = 'inline-flex';
+    pill.style.cursor = 'pointer';
+    pill.style.border = '1px solid var(--border)';
+    pill.style.background = 'var(--surface)';
+    pill.style.color = 'var(--text-main)';
+    if (arrow) arrow.style.display = 'inline';
+    if (icon) icon.textContent = '📍';
+    const curSlug = Store.getRestaurantSlug();
+    const curB = branches.find(b => b.slug === curSlug);
+    if (text) text.textContent = curB ? curB.name : 'اختر الفرع';
+  } else {
+    pill.style.display = 'none';
+  }
+}
+
+window.openBranchPickerFromHeader = function() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const isDineIn = urlParams.has('table') || urlParams.has('t') || sessionStorage.getItem('harpy_dinein_table');
+  if (isDineIn) return; // Don't switch branch if seated at in-store table
+
+  const modal = document.getElementById('branch-picker-modal');
+  const backdrop = document.getElementById('branch-picker-backdrop');
+  const list = document.getElementById('branch-picker-list');
+  if (!modal || !list) return;
+
+  const branches = (typeof Store !== 'undefined' && Store.getBranches) ? Store.getBranches() : [];
+  if (branches.length <= 1) return;
+
+  const currentSlug = Store.getRestaurantSlug();
+  list.innerHTML = branches.map(b => {
+    const isCurrent = (b.slug === currentSlug);
+    return `
+      <button type="button" class="btn ${isCurrent ? 'btn-primary' : 'btn-secondary'}" onclick="selectStoreBranch('${b.slug}')" style="width:100%; padding:14px; text-align:right; display:flex; justify-content:space-between; align-items:center; border-radius:12px; cursor:pointer;">
+        <div>
+          <div style="font-weight:900; font-size:13.5px; color:${isCurrent ? '#ffffff' : 'var(--text-main)'};">${b.name}</div>
+          <div style="font-size:11px; opacity:0.8; margin-top:2px; color:${isCurrent ? '#ffffff' : 'var(--text-muted)'};">${b.address || 'خدمة صالة وتيك أواي ودليفري'}</div>
+        </div>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      </button>
+    `;
+  }).join('');
+
+  modal.style.display = 'block';
+  if (backdrop) backdrop.style.display = 'block';
+};
+
+window.closeBranchPickerModal = function() {
+  sessionStorage.setItem('harpy_branch_picked', 'dismissed');
+  const modal = document.getElementById('branch-picker-modal');
+  const backdrop = document.getElementById('branch-picker-backdrop');
+  if (modal) modal.style.display = 'none';
+  if (backdrop) backdrop.style.display = 'none';
+};
+
 window.checkMultiBranchSelection = function() {
+  updateHeaderBranchPill();
+
   const urlParams = new URLSearchParams(window.location.search);
   const isDineIn = urlParams.has('table') || urlParams.has('t') || sessionStorage.getItem('harpy_dinein_table');
   if (isDineIn) return; // In-Store Dine-in Exception: seated at a table, NEVER prompt!
@@ -2256,9 +2337,9 @@ window.selectStoreBranch = function(slug) {
   if (curSlug !== slug) {
     window.location.href = `?m=${encodeURIComponent(slug)}`;
   } else {
-    const modal = document.getElementById('branch-picker-modal');
-    const backdrop = document.getElementById('branch-picker-backdrop');
-    if (modal) modal.style.display = 'none';
-    if (backdrop) backdrop.style.display = 'none';
+    window.closeBranchPickerModal();
+    updateHeaderBranchPill();
   }
 };
+
+window.updateHeaderBranchPill = updateHeaderBranchPill;

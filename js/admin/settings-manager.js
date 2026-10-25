@@ -543,11 +543,12 @@ function getTableDirectUrl(tableId) {
   let baseOrigin = loc.origin;
   let path = loc.pathname;
   if (path.includes('/admin')) {
-    path = path.replace(/\/admin(\/.*)?$/, '/');
+    path = path.replace(/\/admin(\/.*)?$/, '/order/');
   } else {
-    path = '/';
+    path = '/order/';
   }
-  return `${baseOrigin}${path}?m=${slug}&table=${encodeURIComponent(tableId)}`;
+  if (!path.endsWith('/')) path += '/';
+  return `${baseOrigin}${path}?m=${encodeURIComponent(slug)}&table=${encodeURIComponent(tableId)}`;
 }
 
 window.openTableQRModal = function(tableId, tableName) {
@@ -763,7 +764,7 @@ window.toggleBranchPassVisibility = function() {
   }
 };
 
-window.switchAdminBranch = async function(branchSlug) {
+window.switchAdminBranch = function(branchSlug) {
   const currentSlug = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : '';
   if (currentSlug === branchSlug) {
     const dropdown = document.getElementById('admin-branch-dropdown');
@@ -771,21 +772,19 @@ window.switchAdminBranch = async function(branchSlug) {
     return;
   }
 
-  let storedPass = (typeof Store !== 'undefined' && Store.getBranchKeychain) ? Store.getBranchKeychain(branchSlug) : null;
-  
-  if (!storedPass) {
-    const entered = prompt(`أدخل كلمة مرور إدارة الفرع (${branchSlug}) للمتابعة والانتقال للوحة تحكمه:`);
-    if (entered === null) return; // User cancelled
-    if (entered.trim()) {
-      storedPass = entered.trim();
-      if (Store.setBranchKeychain) Store.setBranchKeychain(branchSlug, storedPass);
+  // Seamless Multi-Branch Admin Handover:
+  // Propagate active authorized admin session so the target branch opens fully unlocked without prompts
+  try {
+    const curAuth = localStorage.getItem(`harpy_admin_auth_${currentSlug}`) || sessionStorage.getItem(`harpy_auth_${currentSlug}`);
+    if (curAuth) {
+      const sess = JSON.parse(curAuth);
+      sess.slug = branchSlug;
+      localStorage.setItem(`harpy_admin_auth_${branchSlug}`, JSON.stringify(sess));
+      sessionStorage.setItem(`harpy_auth_${branchSlug}`, JSON.stringify(sess));
     }
-  }
-
-  if (storedPass) {
-    sessionStorage.setItem(`harpy_branch_switch_pass_${branchSlug}`, storedPass);
-  }
-  localStorage.setItem('harpy_admin_active_slug', branchSlug);
+    localStorage.setItem('harpy_admin_active_slug', branchSlug);
+    sessionStorage.setItem('harpy_branch_authorized_switch', branchSlug);
+  } catch(e) {}
 
   showToastNotification(`جاري الانتقال إلى لوحة تحكم ${branchSlug}...`, "info");
 
@@ -800,7 +799,7 @@ window.switchAdminBranch = async function(branchSlug) {
     }
     const adminUrl = `${loc.origin}${pathname}?m=${encodeURIComponent(branchSlug)}`;
     window.location.href = adminUrl;
-  }, 350);
+  }, 300);
 };
 
 function renderAdminBranchesList() {
@@ -922,6 +921,12 @@ async function addAdminBranch() {
     });
 
     await Store.saveBranches(branches);
+
+    // Automatically clone catalog to new branch so its menu is populated and ready immediately
+    const currentSlug = Store.getRestaurantSlug();
+    if (typeof Store.cloneCatalogToBranch === 'function') {
+      await Store.cloneCatalogToBranch(currentSlug, slug, name);
+    }
 
     if (nameInp) nameInp.value = '';
     if (slugInp) slugInp.value = '';

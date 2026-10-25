@@ -2375,9 +2375,32 @@ const Store = {
 
   getBranches() {
     const settings = this.getSettings() || {};
-    if (Array.isArray(settings.branches) && settings.branches.length > 0) {
-      return settings.branches;
+    let branches = (Array.isArray(settings.branches) && settings.branches.length > 0) ? [...settings.branches] : [];
+
+    // Check device/session multi-branch network registry to ensure cross-branch switcher continuity
+    try {
+      const netRaw = localStorage.getItem('harpy_admin_branch_network');
+      if (netRaw) {
+        const netList = JSON.parse(netRaw);
+        if (Array.isArray(netList) && netList.length > 0) {
+          if (branches.length === 0) {
+            branches = netList;
+          } else {
+            // Merge any missing branches from the network registry
+            netList.forEach(nb => {
+              if (nb && nb.slug && !branches.some(b => b.slug === nb.slug)) {
+                branches.push(nb);
+              }
+            });
+          }
+        }
+      }
+    } catch(e) {}
+
+    if (branches.length > 0) {
+      return branches;
     }
+
     const currentSlug = this.getRestaurantSlug();
     const storeName = settings.storeName || 'الفرع الرئيسي';
     return [{
@@ -2394,7 +2417,67 @@ const Store = {
     const settings = this.getSettings() || {};
     settings.branches = branchesList;
     await this.saveSettings(settings);
+
+    // Persist to global network registry so switching to any branch keeps the entire network intact
+    try {
+      localStorage.setItem('harpy_admin_branch_network', JSON.stringify(branchesList));
+    } catch(e) {}
+
+    // Cloud sync to Firebase RTDB for all linked branches
+    if (typeof db !== 'undefined' && db && Array.isArray(branchesList)) {
+      branchesList.forEach(b => {
+        if (b && b.slug) {
+          db.ref(`restaurants/${b.slug}/settings/branches`).set(branchesList).catch(() => {});
+        }
+      });
+    }
+
     return settings.branches;
+  },
+
+  isBranchInNetwork(branchSlug) {
+    if (!branchSlug) return false;
+    const branches = this.getBranches();
+    return branches.some(b => b.slug === branchSlug || b.id === branchSlug);
+  },
+
+  async cloneCatalogToBranch(sourceSlug, targetSlug, targetName) {
+    if (!sourceSlug || !targetSlug || sourceSlug === targetSlug) return;
+    try {
+      const srcSettings = this.getSettings(sourceSlug) || {};
+      const srcCats = this.getCategories(sourceSlug) || [];
+      const srcProds = this.getProducts(sourceSlug) || [];
+
+      // Check if target already has products
+      const existingProds = this.getProducts(targetSlug);
+      if (Array.isArray(existingProds) && existingProds.length > 0) return;
+
+      const newSettings = { ...srcSettings };
+      if (targetName) newSettings.storeName = targetName;
+      newSettings.branches = this.getBranches();
+
+      // Save target branch data locally
+      try {
+        localStorage.setItem(`harpy_${targetSlug}_settings`, JSON.stringify(newSettings));
+        localStorage.setItem(`harpy_${targetSlug}_categories`, JSON.stringify(srcCats));
+        localStorage.setItem(`harpy_${targetSlug}_products`, JSON.stringify(srcProds));
+      } catch(e) {}
+
+      // Save to Firebase RTDB if available
+      if (typeof db !== 'undefined' && db) {
+        try {
+          await Promise.all([
+            db.ref(`restaurants/${targetSlug}/settings`).set(newSettings),
+            db.ref(`restaurants/${targetSlug}/categories`).set(srcCats),
+            db.ref(`restaurants/${targetSlug}/products`).set(srcProds)
+          ]);
+        } catch(cErr) {
+          console.warn("[Store] Cloud catalog clone warning:", cErr);
+        }
+      }
+    } catch(err) {
+      console.warn("[Store] cloneCatalogToBranch warning:", err);
+    }
   },
 
   setBranchKeychain(slug, password) {
