@@ -1,3 +1,9 @@
+
+function safeEscape(str) {
+  if (typeof window.escapeHtml === 'function') return window.escapeHtml(str);
+  if (typeof Store !== 'undefined' && typeof Store.escapeHtml === 'function') return Store.escapeHtml(str);
+  return String(str || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]);
+}
 // ═══════════════════════════════════════════════════════════
 // HarpyOrder — Settings, Identity, Theme Presets & Delivery Zones
 // ═══════════════════════════════════════════════════════════
@@ -66,6 +72,19 @@ function setupSettingsForm() {
       showToastNotification("تمت إضافة كود الخصم بنجاح!", "success");
     });
   }
+
+  // Setup Multi-Branch Management
+  const btnAddBranch = document.getElementById('btn-add-new-branch');
+  if (btnAddBranch) {
+    btnAddBranch.addEventListener('click', addAdminBranch);
+  }
+  document.addEventListener('click', (e) => {
+    const wrap = document.getElementById('admin-branch-switcher-wrap');
+    const dropdown = document.getElementById('admin-branch-dropdown');
+    if (wrap && dropdown && !wrap.contains(e.target)) {
+      dropdown.style.display = 'none';
+    }
+  });
 
   // Setup Tables Management
   const btnAddTable = document.getElementById('btn-add-new-table');
@@ -232,6 +251,8 @@ function loadSettingsIntoForm() {
   renderPromoCodesList(s.promoCodes || []);
   updateThemePresetCardsUI(s.themePreset);
   renderAdminTablesList();
+  renderAdminBranchesList();
+  updateAdminBranchHeaderSwitcher();
 }
 
 function renderDeliveryZonesList(zones = []) {
@@ -451,7 +472,7 @@ function renderAdminTablesList() {
               ${idx + 1}
             </div>
             <div>
-              <div style="font-size:13px; font-weight:800; color:var(--text-main);">${escapeHtml(displayName)}</div>
+              <div style="font-size:13px; font-weight:800; color:var(--text-main);">${safeEscape(displayName)}</div>
               <div style="font-size:10.5px; color:var(--text-muted);">المعرّف: #${tbl.id}</div>
             </div>
           </div>
@@ -461,7 +482,7 @@ function renderAdminTablesList() {
         </div>
 
         <div style="display:flex; gap:6px;">
-          <button type="button" class="btn btn-secondary" onclick="openTableQRModal('${tbl.id}', '${escapeHtml(displayName)}')" style="flex:1; padding:6px 10px; font-size:11.5px; font-weight:800; display:inline-flex; align-items:center; justify-content:center; gap:5px; border-radius:6px;">
+          <button type="button" class="btn btn-secondary" onclick="openTableQRModal('${tbl.id}', '${safeEscape(displayName)}')" style="flex:1; padding:6px 10px; font-size:11.5px; font-weight:800; display:inline-flex; align-items:center; justify-content:center; gap:5px; border-radius:6px;">
             <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
             <span>كود QR الطاولة</span>
           </button>
@@ -688,3 +709,185 @@ window.copyTableLink = function() {
 window.renderAdminTablesList = renderAdminTablesList;
 window.addAdminTable = addAdminTable;
 window.deleteAdminTable = deleteAdminTable;
+
+
+// ═══════════════════════════════════════════════════════════
+// Multi-Branch Network Management Studio
+// ═══════════════════════════════════════════════════════════
+function updateAdminBranchHeaderSwitcher() {
+  const wrap = document.getElementById('admin-branch-switcher-wrap');
+  const label = document.getElementById('admin-current-branch-name');
+  const dropdown = document.getElementById('admin-branch-dropdown');
+  if (!wrap || !dropdown) return;
+
+  const branches = (typeof Store !== 'undefined' && Store.getBranches) ? Store.getBranches() : [];
+  const currentSlug = Store.getRestaurantSlug();
+
+  // If 2+ branches configured, reveal the header switcher!
+  if (branches.length > 1) {
+    wrap.style.display = 'inline-block';
+    const activeB = branches.find(b => b.slug === currentSlug) || branches[0];
+    if (label) label.textContent = activeB ? activeB.name : 'الفرع';
+
+    dropdown.innerHTML = branches.map(b => {
+      const isCur = (b.slug === currentSlug);
+      return `
+        <button type="button" class="btn ${isCur ? 'btn-primary' : 'btn-ghost'}" onclick="switchAdminBranch('${b.slug}')" style="width:100%; text-align:right; padding:8px 10px; font-size:12px; font-weight:800; display:flex; justify-content:space-between; align-items:center; border-radius:6px;">
+          <span>${safeEscape(b.name)}</span>
+          ${isCur ? '<span style="font-size:10px; background:rgba(255,255,255,0.25); padding:1px 6px; border-radius:4px;">الحالي</span>' : ''}
+        </button>
+      `;
+    }).join('');
+  } else {
+    wrap.style.display = 'none';
+  }
+}
+
+window.toggleAdminBranchMenu = function() {
+  const dropdown = document.getElementById('admin-branch-dropdown');
+  if (!dropdown) return;
+  const isShown = dropdown.style.display === 'flex' || dropdown.style.display === 'block';
+  dropdown.style.display = isShown ? 'none' : 'flex';
+};
+
+window.switchAdminBranch = function(branchSlug) {
+  const currentSlug = Store.getRestaurantSlug();
+  if (currentSlug === branchSlug) {
+    const dropdown = document.getElementById('admin-branch-dropdown');
+    if (dropdown) dropdown.style.display = 'none';
+    return;
+  }
+  showToastNotification(`جاري الانتقال إلى ${branchSlug}...`, "info");
+  setTimeout(() => {
+    window.location.href = `?m=${encodeURIComponent(branchSlug)}`;
+  }, 350);
+};
+
+function renderAdminBranchesList() {
+  const container = document.getElementById('admin-branches-list');
+  const countBadge = document.getElementById('branches-count-badge');
+  if (!container) return;
+
+  const branches = (typeof Store !== 'undefined' && Store.getBranches) ? Store.getBranches() : [];
+  if (countBadge) {
+    countBadge.textContent = `${branches.length} فروع مسجلة`;
+  }
+
+  const currentSlug = Store.getRestaurantSlug();
+
+  let html = '';
+  branches.forEach((b, idx) => {
+    const isCurrent = (b.slug === currentSlug);
+    html += `
+      <div class="admin-branch-card" style="background:var(--surface); border:1px solid ${isCurrent ? 'var(--primary-glow)' : 'var(--border)'}; border-radius:var(--radius-xs); padding:14px; display:flex; flex-direction:column; justify-content:space-between; gap:10px;">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:8px;">
+          <div>
+            <div style="font-size:14px; font-weight:900; color:var(--text-main); display:flex; align-items:center; gap:6px;">
+              <span>${safeEscape(b.name)}</span>
+              ${isCurrent ? '<span style="font-size:10px; background:var(--primary-subtle); color:var(--primary); padding:1px 6px; border-radius:4px; font-weight:900;">أنت هنا</span>' : ''}
+            </div>
+            <div style="font-size:11px; color:var(--text-muted); margin-top:3px; font-family:monospace;">الرابط: ?m=${safeEscape(b.slug)}</div>
+            ${b.address ? `<div style="font-size:11px; color:var(--text-body); margin-top:3px;">📍 ${safeEscape(b.address)}</div>` : ''}
+            ${b.phone ? `<div style="font-size:11px; color:var(--text-body); margin-top:2px;">📞 ${safeEscape(b.phone)}</div>` : ''}
+          </div>
+          ${!isCurrent ? `
+            <button type="button" class="btn-icon" onclick="deleteAdminBranch('${b.id || b.slug}')" title="حذف الفرع" style="color:var(--danger, #ef4444); padding:4px; border-radius:6px; background:transparent; border:none; cursor:pointer;">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            </button>
+          ` : ''}
+        </div>
+
+        <div style="display:flex; gap:6px; margin-top:4px;">
+          ${!isCurrent ? `
+            <button type="button" class="btn btn-primary" onclick="switchAdminBranch('${b.slug}')" style="flex:1; padding:7px 10px; font-size:11.5px; font-weight:800; display:inline-flex; align-items:center; justify-content:center; gap:5px; border-radius:6px;">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+              <span>إدارة هذا الفرع</span>
+            </button>
+          ` : `
+            <div style="flex:1; text-align:center; padding:6px; font-size:11px; font-weight:800; color:var(--primary); background:var(--primary-subtle); border-radius:6px;">
+              ✓ الفرع النشط حالياً في لوحة التحكم
+            </div>
+          `}
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+async function addAdminBranch() {
+  const nameInp = document.getElementById('new-branch-name-input');
+  const slugInp = document.getElementById('new-branch-slug-input');
+  const phoneInp = document.getElementById('new-branch-phone-input');
+  const addrInp = document.getElementById('new-branch-address-input');
+
+  const name = (nameInp?.value || '').trim();
+  let slug = (slugInp?.value || '').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+  const phone = (phoneInp?.value || '').trim();
+  const address = (addrInp?.value || '').trim();
+
+  if (!name) {
+    showToastNotification("يرجى كتابة اسم الفرع (مثال: فرع مدينة نصر)", "error");
+    if (nameInp) nameInp.focus();
+    return;
+  }
+
+  if (!slug) {
+    slug = name.toLowerCase().replace(/[^a-z0-9]/g, '') || `branch-${Date.now().toString(36)}`;
+  }
+
+  const branches = (typeof Store !== 'undefined' && Store.getBranches) ? Store.getBranches() : [];
+
+  if (branches.some(b => b.slug === slug)) {
+    showToastNotification("معرّف الفرع (Slug) موجود بالفعل، يرجى اختيار معرّف مختلف", "error");
+    if (slugInp) slugInp.focus();
+    return;
+  }
+
+  branches.push({
+    id: slug,
+    slug: slug,
+    name: name,
+    phone: phone,
+    address: address,
+    createdAt: Date.now()
+  });
+
+  await Store.saveBranches(branches);
+
+  if (nameInp) nameInp.value = '';
+  if (slugInp) slugInp.value = '';
+  if (phoneInp) phoneInp.value = '';
+  if (addrInp) addrInp.value = '';
+
+  renderAdminBranchesList();
+  updateAdminBranchHeaderSwitcher();
+  showToastNotification(`تمت إضافة "${name}" إلى شبكة الفروع بنجاح!`, "success");
+}
+
+async function deleteAdminBranch(branchId) {
+  let branches = (typeof Store !== 'undefined' && Store.getBranches) ? Store.getBranches() : [];
+  const target = branches.find(b => (b.id === branchId || b.slug === branchId));
+  if (!target) return;
+
+  if (branches.length <= 1) {
+    showToastNotification("لا يمكن حذف الفرع الوحيد للمطعم", "warning");
+    return;
+  }
+
+  if (!confirm(`هل أنت متأكد من حذف ${target.name} من شبكة الفروع؟`)) {
+    return;
+  }
+
+  branches = branches.filter(b => b.id !== branchId && b.slug !== branchId);
+  await Store.saveBranches(branches);
+  renderAdminBranchesList();
+  updateAdminBranchHeaderSwitcher();
+  showToastNotification(`تم حذف ${target.name}`, "info");
+}
+
+window.renderAdminBranchesList = renderAdminBranchesList;
+window.addAdminBranch = addAdminBranch;
+window.deleteAdminBranch = deleteAdminBranch;
+window.updateAdminBranchHeaderSwitcher = updateAdminBranchHeaderSwitcher;

@@ -2361,7 +2361,7 @@ const Store = {
     return Array.from({ length: count }, (_, i) => ({
       id: String(i + 1),
       number: i + 1,
-      name: طاولة 
+      name: 'طاولة ' + (i + 1)
     }));
   },
 
@@ -2371,6 +2371,30 @@ const Store = {
     settings.tablesCount = tablesList.length;
     await this.saveSettings(settings);
     return settings.tables;
+  },
+
+  getBranches() {
+    const settings = this.getSettings() || {};
+    if (Array.isArray(settings.branches) && settings.branches.length > 0) {
+      return settings.branches;
+    }
+    const currentSlug = this.getRestaurantSlug();
+    const storeName = settings.storeName || 'الفرع الرئيسي';
+    return [{
+      id: currentSlug,
+      slug: currentSlug,
+      name: storeName,
+      phone: settings.whatsappNumber || '',
+      address: settings.address || '',
+      isMain: true
+    }];
+  },
+
+  async saveBranches(branchesList) {
+    const settings = this.getSettings() || {};
+    settings.branches = branchesList;
+    await this.saveSettings(settings);
+    return settings.branches;
   },
 
   applyTheme() {

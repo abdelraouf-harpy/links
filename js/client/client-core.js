@@ -342,6 +342,9 @@ async function initApp() {
   }
   updateAccountDrawerProfileUI();
   checkCustomerOnboarding();
+  if (typeof window.checkMultiBranchSelection === 'function') {
+    window.checkMultiBranchSelection();
+  }
 
   // 2b. Store status is already rendered in renderStoreInfo() without blocking browsing
 
@@ -2208,3 +2211,54 @@ window.closeQrModal = closeQrModal;
 window.shareMenuLink = shareMenuLink;
 window.copyMenuLink = copyMenuLink;
 window.handleNavTabClick = handleNavTabClick;
+
+
+// ═══════════════════════════════════════════════════════════
+// Multi-Branch Storefront Selection Engine
+// ═══════════════════════════════════════════════════════════
+window.checkMultiBranchSelection = function() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const isDineIn = urlParams.has('table') || urlParams.has('t') || sessionStorage.getItem('harpy_dinein_table');
+  if (isDineIn) return; // In-Store Dine-in Exception: seated at a table, NEVER prompt!
+
+  const settings = (typeof Store !== 'undefined' && Store.getSettings) ? Store.getSettings() : {};
+  const branches = (Array.isArray(settings.branches) && settings.branches.length > 1) ? settings.branches : [];
+  if (branches.length <= 1) return; // Single-branch restaurant: NEVER prompt!
+
+  if (sessionStorage.getItem('harpy_branch_picked')) return;
+
+  const modal = document.getElementById('branch-picker-modal');
+  const backdrop = document.getElementById('branch-picker-backdrop');
+  const list = document.getElementById('branch-picker-list');
+  if (!modal || !list) return;
+
+  const currentSlug = Store.getRestaurantSlug();
+  list.innerHTML = branches.map(b => {
+    const isCurrent = (b.slug === currentSlug);
+    return `
+      <button type="button" class="btn ${isCurrent ? 'btn-primary' : 'btn-secondary'}" onclick="selectStoreBranch('${b.slug}')" style="width:100%; padding:14px; text-align:right; display:flex; justify-content:space-between; align-items:center; border-radius:12px; cursor:pointer;">
+        <div>
+          <div style="font-weight:900; font-size:13.5px; color:${isCurrent ? '#ffffff' : 'var(--text-main)'};">${b.name}</div>
+          <div style="font-size:11px; opacity:0.8; margin-top:2px; color:${isCurrent ? '#ffffff' : 'var(--text-muted)'};">${b.address || 'خدمة صالة وتيك أواي ودليفري'}</div>
+        </div>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      </button>
+    `;
+  }).join('');
+
+  modal.style.display = 'block';
+  if (backdrop) backdrop.style.display = 'block';
+};
+
+window.selectStoreBranch = function(slug) {
+  sessionStorage.setItem('harpy_branch_picked', slug);
+  const curSlug = Store.getRestaurantSlug();
+  if (curSlug !== slug) {
+    window.location.href = `?m=${encodeURIComponent(slug)}`;
+  } else {
+    const modal = document.getElementById('branch-picker-modal');
+    const backdrop = document.getElementById('branch-picker-backdrop');
+    if (modal) modal.style.display = 'none';
+    if (backdrop) backdrop.style.display = 'none';
+  }
+};
