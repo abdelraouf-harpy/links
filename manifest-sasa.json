@@ -1,0 +1,32 @@
+{
+  "id": "/order/?m=sasa",
+  "name": "Order",
+  "short_name": "Order",
+  "description": "مطعم sasa — Smart Digital Menu",
+  "start_url": "./order/?m=sasa",
+  "scope": "./order/",
+  "display": "standalone",
+  "background_color": "#070B13",
+  "theme_color": "#FF6A00",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./assets/icons/order-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/icons/order-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/icons/order-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
