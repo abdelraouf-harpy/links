@@ -761,6 +761,7 @@ function loadAllDashboardData() {
   try { if (typeof initPOS === 'function') initPOS(); } catch(e) { console.error("[loadAllDashboardData] initPOS:", e); }
   try { if (typeof loadSettingsIntoForm === 'function') loadSettingsIntoForm(); } catch(e) { console.error("[loadAllDashboardData] loadSettingsIntoForm:", e); }
   try { if (typeof checkOnboardingSetup === 'function') checkOnboardingSetup(); } catch(e) { console.error("[loadAllDashboardData] checkOnboardingSetup:", e); }
+  try { if (typeof updateAdminBranchDrawerSwitcher === 'function') updateAdminBranchDrawerSwitcher(); } catch(e) {}
 
   try {
     const currentSettings = Store.getSettings();

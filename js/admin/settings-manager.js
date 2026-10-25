@@ -734,33 +734,65 @@ window.deleteAdminTable = deleteAdminTable;
 // ═══════════════════════════════════════════════════════════
 // Multi-Branch Network Management Studio
 // ═══════════════════════════════════════════════════════════
-function updateAdminBranchHeaderSwitcher() {
-  const wrap = document.getElementById('admin-branch-switcher-wrap');
-  const label = document.getElementById('admin-current-branch-name');
-  const dropdown = document.getElementById('admin-branch-dropdown');
-  if (!wrap || !dropdown) return;
+function updateAdminBranchDrawerSwitcher() {
+  const container = document.getElementById('drawer-branches-list');
+  const countBadge = document.getElementById('drawer-branches-count');
+  if (!container) return;
 
   const branches = (typeof Store !== 'undefined' && Store.getBranches) ? Store.getBranches() : [];
-  const currentSlug = Store.getRestaurantSlug();
+  const currentSlug = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : '';
 
-  // If 2+ branches configured, reveal the header switcher!
-  if (branches.length > 1) {
-    wrap.style.display = 'inline-block';
-    const activeB = branches.find(b => b.slug === currentSlug) || branches[0];
-    if (label) label.textContent = activeB ? activeB.name : 'الفرع';
+  if (countBadge) {
+    countBadge.textContent = `${branches.length} فروع`;
+  }
 
-    dropdown.innerHTML = branches.map(b => {
-      const isCur = (b.slug === currentSlug);
-      return `
-        <button type="button" class="btn ${isCur ? 'btn-primary' : 'btn-ghost'}" onclick="switchAdminBranch('${b.slug}')" style="width:100%; text-align:right; padding:8px 10px; font-size:12px; font-weight:800; display:flex; justify-content:space-between; align-items:center; border-radius:6px;">
-          <span>${safeEscape(b.name)}</span>
-          ${isCur ? '<span style="font-size:10px; background:rgba(255,255,255,0.25); padding:1px 6px; border-radius:4px;">الحالي</span>' : ''}
+  let html = '';
+  branches.forEach(b => {
+    const isCurrent = (b.slug === currentSlug);
+    const bName = safeEscape(b.name || b.slug);
+
+    if (isCurrent) {
+      html += `
+        <div style="background:var(--primary-subtle); border:1px solid var(--primary); border-radius:8px; padding:7px 10px; display:flex; justify-content:space-between; align-items:center;">
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span style="width:7px; height:7px; border-radius:50%; background:var(--primary); display:inline-block; flex-shrink:0;"></span>
+            <span style="font-size:12px; font-weight:900; color:var(--text-main);">${bName}</span>
+          </div>
+          <span style="font-size:10px; color:var(--primary); font-weight:800; background:rgba(255,255,255,0.1); padding:1px 6px; border-radius:4px;">أنت هنا</span>
+        </div>
+      `;
+    } else {
+      html += `
+        <button type="button" class="btn btn-ghost" onclick="switchAdminBranch('${b.slug}')" style="width:100%; border:1px solid var(--border); border-radius:8px; padding:7px 10px; display:flex; justify-content:space-between; align-items:center; text-align:right; font-size:12px; font-weight:800; color:var(--text-body); background:var(--surface); cursor:pointer;">
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span style="width:7px; height:7px; border-radius:50%; background:var(--text-muted); opacity:0.5; display:inline-block; flex-shrink:0;"></span>
+            <span>${bName}</span>
+          </div>
+          <span style="font-size:10.5px; color:var(--primary); font-weight:700;">انتقال ←</span>
         </button>
       `;
-    }).join('');
-  } else {
-    wrap.style.display = 'none';
-  }
+    }
+  });
+
+  container.innerHTML = html;
+}
+
+window.navigateToBranchSettings = function() {
+  if (typeof closeAdminDrawer === 'function') closeAdminDrawer();
+  const tabBtn = document.querySelector('[data-tab="tab-settings"]');
+  if (tabBtn) tabBtn.click();
+  setTimeout(() => {
+    const card = document.getElementById('card-branches-management');
+    if (card) {
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      card.style.outline = '2px solid var(--primary)';
+      setTimeout(() => { card.style.outline = 'none'; }, 2000);
+    }
+  }, 250);
+};
+
+function updateAdminBranchHeaderSwitcher() {
+  updateAdminBranchDrawerSwitcher();
 }
 
 window.toggleAdminBranchMenu = function() {
@@ -990,3 +1022,5 @@ window.renderAdminBranchesList = renderAdminBranchesList;
 window.addAdminBranch = addAdminBranch;
 window.deleteAdminBranch = deleteAdminBranch;
 window.updateAdminBranchHeaderSwitcher = updateAdminBranchHeaderSwitcher;
+
+window.updateAdminBranchDrawerSwitcher = updateAdminBranchDrawerSwitcher;
