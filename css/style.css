@@ -1,8 +1,0 @@
-/* ══════════════════════════════════════════════════════════════════ */
-/* HarpyOrder — Master Modular CSS Orchestrator                       */
-/* Decoupled into domain-driven modular stylesheets                   */
-/* ══════════════════════════════════════════════════════════════════ */
-
-@import url("order-tokens.css?v=41.0");
-@import url("order-client.css?v=41.0");
-@import url("order-admin.css?v=41.0");
