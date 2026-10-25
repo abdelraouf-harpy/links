@@ -735,12 +735,21 @@ window.deleteAdminTable = deleteAdminTable;
 // Multi-Branch Network Management Studio
 // ═══════════════════════════════════════════════════════════
 function updateAdminBranchDrawerSwitcher() {
+  const widget = document.getElementById('drawer-branches-widget');
   const container = document.getElementById('drawer-branches-list');
   const countBadge = document.getElementById('drawer-branches-count');
-  if (!container) return;
+  if (!widget || !container) return;
 
   const branches = (typeof Store !== 'undefined' && Store.getBranches) ? Store.getBranches() : [];
   const currentSlug = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : '';
+
+  // Requirement: Do NOT show widget if only 1 branch / no other branches!
+  if (!branches || branches.length <= 1) {
+    widget.style.display = 'none';
+    return;
+  }
+
+  widget.style.display = 'block';
 
   if (countBadge) {
     countBadge.textContent = `${branches.length} فروع`;

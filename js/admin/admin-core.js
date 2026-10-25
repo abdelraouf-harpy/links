@@ -4,6 +4,9 @@ window.openAdminDrawer = function() {
   if (typeof updateHeaderShiftCockpit === 'function') {
     try { updateHeaderShiftCockpit(); } catch(e) {}
   }
+  if (typeof updateAdminBranchDrawerSwitcher === 'function') {
+    try { updateAdminBranchDrawerSwitcher(); } catch(e) {}
+  }
   const drawer = document.getElementById('admin-drawer');
   const backdrop = document.getElementById('admin-drawer-backdrop');
   if (drawer) drawer.classList.add('open');
@@ -779,3 +782,77 @@ window.initAdmin = initAdmin;
       window.closeAdminDrawer();
     }
   });
+
+
+window.updateAdminBranchDrawerSwitcher = function() {
+  const widget = document.getElementById('drawer-branches-widget');
+  const container = document.getElementById('drawer-branches-list');
+  const countBadge = document.getElementById('drawer-branches-count');
+  if (!widget || !container) return;
+
+  const branches = (typeof Store !== 'undefined' && Store.getBranches) ? Store.getBranches() : [];
+  const currentSlug = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : '';
+
+  // Requirement: Do NOT show the branches widget if user has only 1 restaurant / no other branches!
+  if (!branches || branches.length <= 1) {
+    widget.style.display = 'none';
+    return;
+  }
+
+  // 2+ restaurants exist: Show the open list!
+  widget.style.display = 'block';
+
+  if (countBadge) {
+    countBadge.textContent = `${branches.length} فروع متصلة`;
+  }
+
+  const safeEscape = (str) => {
+    if (!str) return '';
+    return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+  };
+
+  let html = '';
+  branches.forEach(b => {
+    const isCurrent = (b.slug === currentSlug);
+    const bName = safeEscape(b.name || b.slug);
+
+    if (isCurrent) {
+      html += `
+        <div style="background:var(--primary-subtle); border:1px solid var(--primary); border-radius:8px; padding:8px 10px; display:flex; justify-content:space-between; align-items:center;">
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span style="width:7px; height:7px; border-radius:50%; background:var(--primary); display:inline-block; flex-shrink:0;"></span>
+            <span style="font-size:12.5px; font-weight:900; color:var(--text-main);">${bName}</span>
+          </div>
+          <span style="font-size:10px; color:var(--primary); font-weight:800; background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px;">✓ أنت هنا</span>
+        </div>
+      `;
+    } else {
+      html += `
+        <button type="button" class="btn btn-ghost" onclick="switchAdminBranch('${b.slug}')" style="width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 10px; display:flex; justify-content:space-between; align-items:center; text-align:right; font-size:12px; font-weight:800; color:var(--text-body); background:var(--surface); cursor:pointer; transition:all 0.2s;">
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span style="width:7px; height:7px; border-radius:50%; background:var(--text-muted); opacity:0.5; display:inline-block; flex-shrink:0;"></span>
+            <span>${bName}</span>
+          </div>
+          <span style="font-size:11px; color:var(--primary); font-weight:700;">انتقال لهذا الفرع ←</span>
+        </button>
+      `;
+    }
+  });
+
+  container.innerHTML = html;
+};
+
+window.navigateToBranchSettings = function() {
+  if (typeof closeAdminDrawer === 'function') closeAdminDrawer();
+  const tabBtn = document.querySelector('[data-tab="tab-settings"]');
+  if (tabBtn) tabBtn.click();
+  setTimeout(() => {
+    const card = document.getElementById('card-branches-management');
+    if (card) {
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      card.style.outline = '2px solid var(--primary)';
+      setTimeout(() => { card.style.outline = 'none'; }, 2000);
+    }
+  }, 250);
+};
+

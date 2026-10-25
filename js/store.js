@@ -2413,9 +2413,22 @@ const Store = {
     settings.branches = branchesList;
     await this.saveSettings(settings);
 
-    // Persist to global network registry so switching to any branch keeps the entire network intact
+    // Persist to global network registry and all individual branch settings caches
     try {
       localStorage.setItem('harpy_admin_branch_network', JSON.stringify(branchesList));
+      if (Array.isArray(branchesList)) {
+        branchesList.forEach(b => {
+          if (b && b.slug) {
+            try {
+              const bKey = `harpy_${b.slug}_settings`;
+              const bRaw = localStorage.getItem(bKey);
+              const bSettings = bRaw ? JSON.parse(bRaw) : {};
+              bSettings.branches = branchesList;
+              localStorage.setItem(bKey, JSON.stringify(bSettings));
+            } catch(e) {}
+          }
+        });
+      }
     } catch(e) {}
 
     // Cloud sync to Firebase RTDB for all linked branches
