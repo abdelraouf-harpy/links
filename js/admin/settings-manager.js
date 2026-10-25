@@ -750,16 +750,56 @@ window.toggleAdminBranchMenu = function() {
   dropdown.style.display = isShown ? 'none' : 'flex';
 };
 
-window.switchAdminBranch = function(branchSlug) {
-  const currentSlug = Store.getRestaurantSlug();
+window.toggleBranchPassVisibility = function() {
+  const inp = document.getElementById('new-branch-password-input');
+  const icon = document.getElementById('branch-pass-icon');
+  if (!inp) return;
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    if (icon) icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+  } else {
+    inp.type = 'password';
+    if (icon) icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+  }
+};
+
+window.switchAdminBranch = async function(branchSlug) {
+  const currentSlug = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : '';
   if (currentSlug === branchSlug) {
     const dropdown = document.getElementById('admin-branch-dropdown');
     if (dropdown) dropdown.style.display = 'none';
     return;
   }
-  showToastNotification(`جاري الانتقال إلى ${branchSlug}...`, "info");
+
+  let storedPass = (typeof Store !== 'undefined' && Store.getBranchKeychain) ? Store.getBranchKeychain(branchSlug) : null;
+  
+  if (!storedPass) {
+    const entered = prompt(`أدخل كلمة مرور إدارة الفرع (${branchSlug}) للمتابعة والانتقال للوحة تحكمه:`);
+    if (entered === null) return; // User cancelled
+    if (entered.trim()) {
+      storedPass = entered.trim();
+      if (Store.setBranchKeychain) Store.setBranchKeychain(branchSlug, storedPass);
+    }
+  }
+
+  if (storedPass) {
+    sessionStorage.setItem(`harpy_branch_switch_pass_${branchSlug}`, storedPass);
+  }
+  localStorage.setItem('harpy_admin_active_slug', branchSlug);
+
+  showToastNotification(`جاري الانتقال إلى لوحة تحكم ${branchSlug}...`, "info");
+
   setTimeout(() => {
-    window.location.href = `?m=${encodeURIComponent(branchSlug)}`;
+    const loc = window.location;
+    let pathname = loc.pathname;
+    if (!pathname.endsWith('.html') && !pathname.endsWith('/')) {
+      pathname += '/';
+    }
+    if (!pathname.includes('admin')) {
+      pathname = pathname.replace(/\/?$/, '/admin/');
+    }
+    const adminUrl = `${loc.origin}${pathname}?m=${encodeURIComponent(branchSlug)}`;
+    window.location.href = adminUrl;
   }, 350);
 };
 
@@ -819,16 +859,20 @@ function renderAdminBranchesList() {
 async function addAdminBranch() {
   const nameInp = document.getElementById('new-branch-name-input');
   const slugInp = document.getElementById('new-branch-slug-input');
+  const passInp = document.getElementById('new-branch-password-input');
   const phoneInp = document.getElementById('new-branch-phone-input');
   const addrInp = document.getElementById('new-branch-address-input');
+  const addBtn = document.getElementById('btn-add-new-branch');
+  const btnText = document.getElementById('btn-add-branch-text');
 
   const name = (nameInp?.value || '').trim();
   let slug = (slugInp?.value || '').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+  const password = (passInp?.value || '').trim();
   const phone = (phoneInp?.value || '').trim();
   const address = (addrInp?.value || '').trim();
 
   if (!name) {
-    showToastNotification("يرجى كتابة اسم الفرع (مثال: فرع مدينة نصر)", "error");
+    showToastNotification("يرجى كتابة اسم الفرع (مثال: فرع سوبر برجر)", "error");
     if (nameInp) nameInp.focus();
     return;
   }
@@ -837,33 +881,64 @@ async function addAdminBranch() {
     slug = name.toLowerCase().replace(/[^a-z0-9]/g, '') || `branch-${Date.now().toString(36)}`;
   }
 
+  if (!password) {
+    showToastNotification("يرجى إدخال كلمة مرور أمان الفرع للتحقق من ملكيتك له", "error");
+    if (passInp) passInp.focus();
+    return;
+  }
+
   const branches = (typeof Store !== 'undefined' && Store.getBranches) ? Store.getBranches() : [];
 
   if (branches.some(b => b.slug === slug)) {
-    showToastNotification("معرّف الفرع (Slug) موجود بالفعل، يرجى اختيار معرّف مختلف", "error");
+    showToastNotification("معرّف الفرع (Slug) موجود بالفعل في شبكة الفروع", "error");
     if (slugInp) slugInp.focus();
     return;
   }
 
-  branches.push({
-    id: slug,
-    slug: slug,
-    name: name,
-    phone: phone,
-    address: address,
-    createdAt: Date.now()
-  });
+  if (addBtn) addBtn.disabled = true;
+  if (btnText) btnText.textContent = "جاري التحقق الأمني...";
 
-  await Store.saveBranches(branches);
+  try {
+    const authCheck = (Store.verifyBranchCredentials) 
+      ? await Store.verifyBranchCredentials(slug, password)
+      : { success: true };
 
-  if (nameInp) nameInp.value = '';
-  if (slugInp) slugInp.value = '';
-  if (phoneInp) phoneInp.value = '';
-  if (addrInp) addrInp.value = '';
+    if (!authCheck.success) {
+      showToastNotification("❌ كلمة مرور أمان الفرع غير صحيحة! لا يمكنك إضافة هذا الفرع دون التحقق من ملكيته.", "error");
+      if (passInp) {
+        passInp.focus();
+        passInp.select();
+      }
+      return;
+    }
 
-  renderAdminBranchesList();
-  updateAdminBranchHeaderSwitcher();
-  showToastNotification(`تمت إضافة "${name}" إلى شبكة الفروع بنجاح!`, "success");
+    branches.push({
+      id: slug,
+      slug: slug,
+      name: name,
+      phone: phone,
+      address: address,
+      createdAt: Date.now()
+    });
+
+    await Store.saveBranches(branches);
+
+    if (nameInp) nameInp.value = '';
+    if (slugInp) slugInp.value = '';
+    if (passInp) passInp.value = '';
+    if (phoneInp) phoneInp.value = '';
+    if (addrInp) addrInp.value = '';
+
+    renderAdminBranchesList();
+    updateAdminBranchHeaderSwitcher();
+    showToastNotification(`✅ تم التحقق من ملكية فرع "${name}" وإضافته بنجاح إلى شبكة فروعك!`, "success");
+  } catch (err) {
+    console.error("[Add Branch Error]", err);
+    showToastNotification("حدث خطأ أثناء إضافة الفرع: " + (err.message || "يرجى المحاولة مجدداً"), "error");
+  } finally {
+    if (addBtn) addBtn.disabled = false;
+    if (btnText) btnText.textContent = "التحقق وإضافة الفرع";
+  }
 }
 
 async function deleteAdminBranch(branchId) {

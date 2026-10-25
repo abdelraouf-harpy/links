@@ -1525,33 +1525,53 @@
               سجّل فروع مطعمك المختلفة لتتيح للزبائن في الديلفري اختيار أقرب فرع، ولتتمكن من التبديل بين فروعك في لوحة التحكم بضغطة زر واحدة.
             </p>
 
-            <!-- Quick Add Branch Bar -->
-            <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:14px; margin-bottom:14px;">
-              <div style="font-weight:800; font-size:12.5px; color:var(--text-main); margin-bottom:10px;">
-                إضافة فرع جديد للسلسلة
+            <!-- Quick Add Branch Bar with Security Auth -->
+            <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:16px; margin-bottom:14px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+                <div style="font-weight:800; font-size:13px; color:var(--text-main); display:flex; align-items:center; gap:6px;">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  <span>ربط فرع جديد بشبكة فروعك</span>
+                </div>
+                <span style="font-size:11px; color:var(--primary); font-weight:700; background:var(--primary-subtle); padding:2px 8px; border-radius:4px; display:inline-flex; align-items:center; gap:4px;">
+                  🔒 التحقق الأمني إلزامي لمنع ربط أي مطعم غير مصرح به
+                </span>
               </div>
-              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px; margin-bottom:10px;">
+              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px; margin-bottom:12px;">
                 <div class="form-group" style="margin-bottom:0;">
-                  <label class="form-label" style="font-size:11px;">اسم الفرع</label>
-                  <input type="text" id="new-branch-name-input" class="form-input" placeholder="مثال: فرع المعادي">
+                  <label class="form-label" style="font-size:11px;">اسم الفرع <span style="color:var(--danger, #ef4444);">*</span></label>
+                  <input type="text" id="new-branch-name-input" class="form-input" placeholder="مثال: فرع سوبر برجر">
                 </div>
                 <div class="form-group" style="margin-bottom:0;">
-                  <label class="form-label" style="font-size:11px;">معرّف الفرع (Slug بالإنجليزية)</label>
-                  <input type="text" id="new-branch-slug-input" class="form-input font-num" placeholder="مثال: saj-maadi">
+                  <label class="form-label" style="font-size:11px;">معرّف الفرع (Slug بالإنجليزية) <span style="color:var(--danger, #ef4444);">*</span></label>
+                  <input type="text" id="new-branch-slug-input" class="form-input font-num" placeholder="مثال: super-burger">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label" style="font-size:11px;">كلمة مرور أمان الفرع (PIN/Password) <span style="color:var(--danger, #ef4444);">*</span></label>
+                  <div style="position:relative;">
+                    <input type="password" id="new-branch-password-input" class="form-input font-num" placeholder="كلمة مرور لوحة تحكم الفرع" autocomplete="new-password" style="padding-left:36px;">
+                    <button type="button" onclick="toggleBranchPassVisibility()" style="position:absolute; left:8px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; padding:2px;" title="إظهار/إخفاء">
+                      <svg id="branch-pass-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                  </div>
                 </div>
                 <div class="form-group" style="margin-bottom:0;">
                   <label class="form-label" style="font-size:11px;">واتساب الفرع (اختياري)</label>
                   <input type="text" id="new-branch-phone-input" class="form-input font-num" placeholder="مثال: 01012345678">
                 </div>
                 <div class="form-group" style="margin-bottom:0;">
-                  <label class="form-label" style="font-size:11px;">العنوان / المنطقة</label>
+                  <label class="form-label" style="font-size:11px;">العنوان / المنطقة (اختياري)</label>
                   <input type="text" id="new-branch-address-input" class="form-input" placeholder="مثال: شارع النصر، المعادي">
                 </div>
               </div>
-              <button type="button" id="btn-add-new-branch" class="btn btn-primary" style="padding:10px 20px; font-weight:800; display:inline-flex; align-items:center; gap:6px;">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                <span>إضافة الفرع</span>
-              </button>
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                <button type="button" id="btn-add-new-branch" class="btn btn-primary" style="padding:10px 22px; font-weight:800; display:inline-flex; align-items:center; gap:6px;">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                  <span id="btn-add-branch-text">التحقق وإضافة الفرع</span>
+                </button>
+                <div style="font-size:11px; color:var(--text-muted);">
+                  💡 يتم التحقق فورياً من كلمة مرور الفرع لحماية الخصوصية ومنع ربط أي مطعم دون إذن مالكه.
+                </div>
+              </div>
             </div>
 
             <!-- Dynamic Branches Grid -->

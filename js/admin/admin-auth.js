@@ -231,14 +231,34 @@ function setupAuth() {
     return false;
   };
 
+  // Check for seamless branch switch pass or cached keychain credential
+  const checkBranchAutoHandover = async () => {
+    const switchPass = sessionStorage.getItem(`harpy_branch_switch_pass_${slug}`) || 
+                       ((typeof Store !== 'undefined' && Store.getBranchKeychain) ? Store.getBranchKeychain(slug) : null);
+    if (switchPass && !Store.isAdminAuthenticated(slug)) {
+      try {
+        sessionStorage.removeItem(`harpy_branch_switch_pass_${slug}`);
+        await Store.loginAdmin(slug, switchPass);
+        unlockDashboard();
+        return true;
+      } catch(e) {
+        console.warn("[AdminAuth] Branch handover login fallback:", e);
+      }
+    }
+    return false;
+  };
+
   // Check active session on load
   if (Store.isAdminAuthenticated(slug)) {
     unlockDashboard();
   } else {
-    checkUrlAutoAuth().then(autoSuccess => {
-      if (!autoSuccess && !isAuthenticated) {
-        lockDashboard();
-      }
+    checkBranchAutoHandover().then(handoverSuccess => {
+      if (handoverSuccess) return;
+      checkUrlAutoAuth().then(autoSuccess => {
+        if (!autoSuccess && !isAuthenticated) {
+          lockDashboard();
+        }
+      });
     });
   }
 
@@ -319,6 +339,9 @@ function setupAuth() {
 
     try {
       await Store.loginAdmin(identifier || slug, password);
+      if (typeof Store.setBranchKeychain === 'function') {
+        Store.setBranchKeychain(identifier || slug, password);
+      }
       unlockDashboard();
     } catch (err) {
       console.warn("[Admin] Login failed:", err);

@@ -2397,6 +2397,107 @@ const Store = {
     return settings.branches;
   },
 
+  setBranchKeychain(slug, password) {
+    if (!slug || !password) return;
+    try {
+      const key = 'harpy_branch_keychain';
+      let keychain = {};
+      const raw = localStorage.getItem(key);
+      if (raw) keychain = JSON.parse(raw);
+      keychain[slug.toLowerCase().trim()] = btoa(unescape(encodeURIComponent(password.trim())));
+      localStorage.setItem(key, JSON.stringify(keychain));
+    } catch(e) {}
+  },
+
+  getBranchKeychain(slug) {
+    if (!slug) return null;
+    try {
+      const key = 'harpy_branch_keychain';
+      const raw = localStorage.getItem(key);
+      if (!raw) return null;
+      const keychain = JSON.parse(raw);
+      const clean = slug.toLowerCase().trim();
+      if (keychain && keychain[clean]) {
+        return decodeURIComponent(escape(atob(keychain[clean])));
+      }
+    } catch(e) {}
+    return null;
+  },
+
+  async verifyBranchCredentials(targetSlug, password) {
+    const cleanSlug = (targetSlug || '').toLowerCase().trim();
+    const cleanPass = (password || '').trim();
+    if (!cleanSlug || !cleanPass) {
+      return { success: false, reason: "missing-data" };
+    }
+
+    // 1. Try Firebase Auth with isolated secondary app instance to preserve current admin session
+    if (typeof firebase !== 'undefined' && firebase.initializeApp && firebase.auth) {
+      let tempApp = null;
+      try {
+        const tempName = 'BranchVerifier_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
+        const options = firebase.app().options;
+        tempApp = firebase.initializeApp(options, tempName);
+        const tempAuth = tempApp.auth();
+
+        const candidateEmails = [
+          `${cleanSlug}@harpymenu.com`,
+          `${cleanSlug}@${cleanSlug}.com`
+        ];
+
+        let authSuccess = false;
+        let verifiedUid = null;
+
+        for (const email of candidateEmails) {
+          try {
+            const userCred = await tempAuth.signInWithEmailAndPassword(email, cleanPass);
+            if (userCred && userCred.user) {
+              authSuccess = true;
+              verifiedUid = userCred.user.uid;
+              break;
+            }
+          } catch(err) {
+            if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-login-credentials' || err.code === 'auth/invalid-credential') {
+              try { await tempApp.delete(); } catch(delErr) {}
+              return { success: false, reason: "invalid-password" };
+            }
+          }
+        }
+
+        if (tempApp) {
+          try { await tempApp.delete(); } catch(delErr) {}
+          tempApp = null;
+        }
+
+        if (authSuccess) {
+          this.setBranchKeychain(cleanSlug, cleanPass);
+          return { success: true, verifiedUid: verifiedUid };
+        }
+      } catch(e) {
+        console.warn("[Store] Secondary Firebase Auth verification warning:", e);
+      } finally {
+        if (tempApp) {
+          try { await tempApp.delete(); } catch(delErr) {}
+        }
+      }
+    }
+
+    // 2. Check RTDB meta if available
+    if (typeof db !== 'undefined' && db) {
+      try {
+        const snap = await db.ref(`restaurants/${cleanSlug}/meta`).once('value');
+        if (snap.exists()) {
+          // Restaurant already exists in cloud but auth failed -> unauthorized attempt
+          return { success: false, reason: "invalid-password" };
+        }
+      } catch(e) {}
+    }
+
+    // 3. New sub-branch registration or offline demo
+    this.setBranchKeychain(cleanSlug, cleanPass);
+    return { success: true, isNew: true };
+  },
+
   applyTheme() {
     const s = this.getSettings();
     const mode = this.getThemeMode();
