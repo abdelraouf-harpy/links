@@ -835,6 +835,12 @@ window.switchAdminBranch = function(branchSlug) {
       localStorage.setItem(curKey, JSON.stringify(curSettings));
     }
 
+    // Propagate handover credential from keychain for 1-click seamless unlock
+    const branchPass = (typeof Store !== 'undefined' && Store.getBranchKeychain) ? Store.getBranchKeychain(branchSlug) : null;
+    if (branchPass) {
+      sessionStorage.setItem(`harpy_branch_switch_pass_${branchSlug}`, branchPass);
+    }
+
     // Propagate admin session credentials to target branch so it opens unlocked
     const curAuth = localStorage.getItem(`harpy_admin_auth_${currentSlug}`) || sessionStorage.getItem(`harpy_auth_${currentSlug}`);
     if (curAuth) {

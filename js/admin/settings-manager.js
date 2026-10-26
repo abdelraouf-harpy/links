@@ -252,7 +252,9 @@ function loadSettingsIntoForm() {
   updateThemePresetCardsUI(s.themePreset);
   renderAdminTablesList();
   renderAdminBranchesList();
-  updateAdminBranchHeaderSwitcher();
+  if (typeof window.updateAdminBranchDrawerSwitcher === 'function') {
+    try { window.updateAdminBranchDrawerSwitcher(); } catch(e) {}
+  }
 }
 
 function renderDeliveryZonesList(zones = []) {
@@ -394,28 +396,23 @@ async function saveSettingsFromForm() {
     delete updated.adminPin;
     delete updated.imgbbApiKey;
 
-    const res = await Store.saveSettings(updated);
-    if (res && res.success) {
-      showToastNotification("تم حفظ وتحديث كافة الإعدادات بنجاح!", "success");
-    } else {
-      showToastNotification("تم حفظ وتحديث الإعدادات بنجاح!", "success");
-    }
-    loadSettingsIntoForm();
-    checkOnboardingSetup();
-    renderRestaurantHub();
-    if (typeof window.updateDynamicManifest === 'function') {
-      window.updateDynamicManifest(updated);
-    }
-    if (typeof window.updatePwaBranding === 'function') {
-      window.updatePwaBranding(updated);
-    }
-    if (typeof window.showInstallNowModal === 'function') {
-      window.showInstallNowModal({
-        name: 'Admin',
-        logo: './assets/icons/admin-icon-512.png',
-        isAdmin: true
-      });
-    }
+    await Store.saveSettings(updated);
+    showToastNotification("تم حفظ وتحديث كافة الإعدادات بنجاح!", "success");
+
+    try { loadSettingsIntoForm(); } catch(e) { console.warn("[Admin] loadSettingsIntoForm post-save error:", e); }
+    try { if (typeof checkOnboardingSetup === 'function') checkOnboardingSetup(); } catch(e) { console.warn(e); }
+    try { if (typeof renderRestaurantHub === 'function') renderRestaurantHub(); } catch(e) { console.warn(e); }
+    try { if (typeof window.updateDynamicManifest === 'function') window.updateDynamicManifest(updated); } catch(e) { console.warn(e); }
+    try { if (typeof window.updatePwaBranding === 'function') window.updatePwaBranding(updated); } catch(e) { console.warn(e); }
+    try {
+      if (typeof window.showInstallNowModal === 'function') {
+        window.showInstallNowModal({
+          name: 'Admin',
+          logo: './assets/icons/admin-icon-512.png',
+          isAdmin: true
+        });
+      }
+    } catch(e) {}
   } catch (err) {
     console.error("[Admin] Settings save error:", err);
     showToastNotification("حدث خطأ أثناء الحفظ: " + (err.message || 'فشل الاتصال'), "error");
@@ -734,14 +731,10 @@ window.deleteAdminTable = deleteAdminTable;
 // ═══════════════════════════════════════════════════════════
 // Multi-Branch Network Management Studio
 // ═══════════════════════════════════════════════════════════
-function updateAdminBranchDrawerSwitcher() {
+function safeRefreshDrawerBranches() {
   if (typeof window.updateAdminBranchDrawerSwitcher === 'function') {
-    window.updateAdminBranchDrawerSwitcher();
+    try { window.updateAdminBranchDrawerSwitcher(); } catch(e) {}
   }
-}
-
-function updateAdminBranchHeaderSwitcher() {
-  updateAdminBranchDrawerSwitcher();
 }
 
 window.toggleAdminBranchMenu = function() {
@@ -883,8 +876,7 @@ async function addAdminBranch() {
     if (passInp) passInp.value = '';
 
     renderAdminBranchesList();
-    updateAdminBranchDrawerSwitcher();
-    updateAdminBranchHeaderSwitcher();
+    safeRefreshDrawerBranches();
     showToastNotification(`✅ تم التحقق من ملكية فرع "${name}" وإضافته بنجاح إلى شبكة فروعك!`, "success");
   } catch (err) {
     console.error("[Add Branch Error]", err);
@@ -910,7 +902,8 @@ async function deleteAdminBranch(branchId) {
   }
 
   branches = branches.filter(b => b.id !== branchId && b.slug !== branchId);
-  await Store.saveBranches(branches);
+  const saveList = branches.length <= 1 ? [] : branches;
+  await Store.saveBranches(saveList);
 
   // Also decouple the link on the deleted branch side
   try {
@@ -922,49 +915,66 @@ async function deleteAdminBranch(branchId) {
       bSet.branches = [];
       localStorage.setItem(bKey, JSON.stringify(bSet));
     }
+    localStorage.removeItem(`harpy_branches_${targetSlug}`);
     if (typeof db !== 'undefined' && db && targetSlug) {
       db.ref(`restaurants/${targetSlug}/settings/branches`).set([]).catch(() => {});
     }
   } catch(e) {}
 
   renderAdminBranchesList();
-  updateAdminBranchDrawerSwitcher();
-  updateAdminBranchHeaderSwitcher();
+  safeRefreshDrawerBranches();
   showToastNotification(`تم حذف وإلغاء ربط فرع "${target.name}" بنجاح`, "info");
 }
 
 async function clearAllAdminBranches() {
   const currentSlug = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : '';
   const currentSettings = (typeof Store !== 'undefined' && Store.getSettings) ? Store.getSettings() : {};
-  const currentName = currentSettings.storeName || (currentSlug === 'demo' ? 'الفرع التجريبي (ديمو)' : currentSlug);
 
-  if (!confirm("هل أنت متأكد من تصفير شبكة الفروع وإلغاء ربط جميع الفروع؟ سيتم الاحتفاظ بالمطعم الحالي فقط كفرع مستقل.")) {
+  if (!confirm("هل أنت متأكد من تصفير شبكة الفروع وإلغاء ربط جميع الفروع؟ سيتم فصل جميع المطاعم والاحتفاظ بهذا المطعم فقط كفرع مستقل.")) {
     return;
   }
 
-  const cleanList = [{
-    id: currentSlug,
-    slug: currentSlug,
-    name: currentName,
-    isMain: true
-  }];
+  const oldBranches = (typeof Store !== 'undefined' && Store.getBranches) ? Store.getBranches() : [];
 
-  await Store.saveBranches(cleanList);
+  currentSettings.branches = [];
+  await Store.saveSettings(currentSettings);
+
   try {
     sessionStorage.removeItem('harpy_verified_branches');
-    localStorage.removeItem(`harpy_branches_${currentSlug}`);
+    sessionStorage.removeItem('harpy_branch_authorized_switch');
     localStorage.removeItem('harpy_admin_branch_network');
+    localStorage.removeItem(`harpy_branches_${currentSlug}`);
+
+    if (typeof db !== 'undefined' && db) {
+      db.ref(`restaurants/${currentSlug}/settings/branches`).set([]).catch(() => {});
+    }
+
+    oldBranches.forEach(b => {
+      if (b && b.slug && b.slug !== currentSlug) {
+        try {
+          localStorage.removeItem(`harpy_branches_${b.slug}`);
+          const bKey = `harpy_${b.slug}_settings`;
+          const bRaw = localStorage.getItem(bKey);
+          if (bRaw) {
+            const bSet = JSON.parse(bRaw);
+            bSet.branches = [];
+            localStorage.setItem(bKey, JSON.stringify(bSet));
+          }
+          if (typeof db !== 'undefined' && db) {
+            db.ref(`restaurants/${b.slug}/settings/branches`).set([]).catch(() => {});
+          }
+        } catch(e) {}
+      }
+    });
   } catch(e) {}
 
   renderAdminBranchesList();
-  updateAdminBranchDrawerSwitcher();
-  updateAdminBranchHeaderSwitcher();
-  showToastNotification("تم تصفير شبكة الفروع بنجاح", "info");
+  safeRefreshDrawerBranches();
+  showToastNotification("تم تصفير شبكة الفروع وفصل جميع المطاعم بنجاح", "info");
 }
 
 window.renderAdminBranchesList = renderAdminBranchesList;
 window.addAdminBranch = addAdminBranch;
 window.deleteAdminBranch = deleteAdminBranch;
 window.clearAllAdminBranches = clearAllAdminBranches;
-window.updateAdminBranchHeaderSwitcher = updateAdminBranchHeaderSwitcher;
-window.updateAdminBranchDrawerSwitcher = updateAdminBranchDrawerSwitcher;
+window.safeRefreshDrawerBranches = safeRefreshDrawerBranches;

@@ -700,12 +700,20 @@ const Store = {
           mergedSettings.whatsappNumber = data.settings.phone;
         }
 
-        // Defensive: Protect against stale/polluted cloud branch snapshots (> 5 branches is dirty scan dump)
-        if (data.settings && data.settings.branches && Array.isArray(data.settings.branches) && data.settings.branches.length > 5) {
-          delete mergedSettings.branches;
+        // Strict: Validate cloud branch snapshots (reject dirty dumps > 5 branches)
+        if (data.settings && data.settings.branches && Array.isArray(data.settings.branches)) {
+          if (data.settings.branches.length > 5) {
+            delete mergedSettings.branches;
+          } else {
+            mergedSettings.branches = data.settings.branches;
+          }
         }
-        if (!mergedSettings.branches && this._memoryCache.settings && Array.isArray(this._memoryCache.settings.branches) && this._memoryCache.settings.branches.length > 0 && this._memoryCache.settings.branches.length <= 5) {
-          mergedSettings.branches = this._memoryCache.settings.branches;
+        // Preserve active local branches if cloud snapshot did not specify branches
+        if (!mergedSettings.branches) {
+          const curSettings = this.getSettings();
+          if (curSettings && Array.isArray(curSettings.branches) && curSettings.branches.length > 1) {
+            mergedSettings.branches = curSettings.branches;
+          }
         }
 
         this._memoryCache.settings = mergedSettings;
@@ -2241,16 +2249,8 @@ const Store = {
   },
 
   registerRestaurant(slug, customName = null) {
-    let list = this.getAllRestaurants();
-    const existing = list.find(r => r.slug === slug);
-    if (!existing) {
-      const name = customName || `مطعم ${slug}`;
-      list.push({ slug, name });
-      this.safeSetItem('harpy_restaurants_list', JSON.stringify(list));
-    } else if (customName && existing.name !== customName) {
-      existing.name = customName;
-      this.safeSetItem('harpy_restaurants_list', JSON.stringify(list));
-    }
+    // No-op: Strict branch isolation. Never auto-accumulate restaurants into shared list.
+    return;
   },
 
   getAllRestaurants() {
@@ -2351,9 +2351,7 @@ const Store = {
     this.saveLocks.settings = true;
     this.safeSetItem(this.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(settings));
     this.lastSaveTimestamps.settings = Date.now();
-    if (settings.storeName) {
-      this.registerRestaurant(this.getRestaurantSlug(), settings.storeName);
-    }
+    // Strict isolation: No automatic restaurant registration in shared list
     this.applyTheme();
     window.dispatchEvent(new Event('store_settings_updated'));
 
@@ -2389,31 +2387,48 @@ const Store = {
     const currentSlug = this.getRestaurantSlug();
     const currentName = settings.storeName || (currentSlug === 'demo' ? 'الفرع التجريبي (ديمو)' : currentSlug);
 
-    // Self-healing: Purge any old contaminated branch caches from prior scan runs
+    // Strict Clean-Slate Migration v139: Decouple any ghost/stale linked branches so restaurants start 100% clean
     try {
-      if (typeof window !== 'undefined' && localStorage.getItem('harpy_branch_purged_v137') !== 'true') {
+      if (typeof window !== 'undefined' && localStorage.getItem('harpy_branch_reset_v139') !== 'true') {
         localStorage.removeItem('harpy_admin_branch_network');
         sessionStorage.removeItem('harpy_admin_branch_network');
         sessionStorage.removeItem('harpy_verified_branches');
-        if (Array.isArray(settings.branches) && settings.branches.length > 2) {
+        sessionStorage.removeItem('harpy_branch_authorized_switch');
+        localStorage.removeItem('harpy_restaurants_list');
+
+        // Clear all cached per-tenant branch keys
+        for (let i = localStorage.length - 1; i >= 0; i--) {
+          const k = localStorage.key(i);
+          if (k && k.startsWith('harpy_branches_')) {
+            localStorage.removeItem(k);
+          }
+        }
+
+        // Wipe settings.branches on current tenant to ensure a clean slate
+        if (settings && Array.isArray(settings.branches) && settings.branches.length > 0) {
           settings.branches = [];
           this.safeSetItem(this.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(settings));
+          if (typeof db !== 'undefined' && db) {
+            db.ref(`restaurants/${currentSlug}/settings/branches`).set([]).catch(() => {});
+          }
         }
-        localStorage.setItem('harpy_branch_purged_v137', 'true');
+        localStorage.setItem('harpy_branch_reset_v139', 'true');
       }
     } catch(e) {}
 
     // Strict: Only include branches explicitly configured in settings or verified switch session
     let sourceList = [];
-    if (Array.isArray(settings.branches) && settings.branches.length > 0) {
+    if (Array.isArray(settings.branches) && settings.branches.length > 1) {
       sourceList = settings.branches;
-    } else {
+    } else if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('harpy_branch_authorized_switch') === currentSlug) {
       try {
-        const netRaw = sessionStorage.getItem('harpy_verified_branches') || localStorage.getItem(`harpy_branches_${currentSlug}`);
+        const netRaw = sessionStorage.getItem('harpy_verified_branches');
         if (netRaw) {
           const parsed = JSON.parse(netRaw);
-          if (Array.isArray(parsed) && parsed.some(b => b.slug === currentSlug)) {
+          if (Array.isArray(parsed) && parsed.length > 1 && parsed.some(b => b.slug === currentSlug)) {
             sourceList = parsed;
+            settings.branches = parsed;
+            this.safeSetItem(this.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(settings));
           }
         }
       } catch(e) {}
@@ -2473,36 +2488,45 @@ const Store = {
     }
 
     const settings = this.getSettings() || {};
-    settings.branches = cleanList;
+    settings.branches = (cleanList.length > 1) ? cleanList : [];
     await this.saveSettings(settings);
 
-    // Save verified network for linked branches only
+    // Save verified network for linked branches
     try {
-      const netJson = JSON.stringify(cleanList);
-      sessionStorage.setItem('harpy_verified_branches', netJson);
-      cleanList.forEach(b => {
-        if (b && b.slug) {
-          try {
-            localStorage.setItem(`harpy_branches_${b.slug}`, netJson);
-            const bKey = `harpy_${b.slug}_settings`;
-            const bRaw = localStorage.getItem(bKey);
-            if (bRaw) {
-              const bSettings = JSON.parse(bRaw);
-              bSettings.branches = cleanList;
-              localStorage.setItem(bKey, JSON.stringify(bSettings));
-            }
-          } catch(e) {}
-        }
-      });
+      if (cleanList.length > 1) {
+        const netJson = JSON.stringify(cleanList);
+        sessionStorage.setItem('harpy_verified_branches', netJson);
+        cleanList.forEach(b => {
+          if (b && b.slug) {
+            try {
+              localStorage.setItem(`harpy_branches_${b.slug}`, netJson);
+              const bKey = `harpy_${b.slug}_settings`;
+              const bRaw = localStorage.getItem(bKey);
+              if (bRaw) {
+                const bSettings = JSON.parse(bRaw);
+                bSettings.branches = cleanList;
+                localStorage.setItem(bKey, JSON.stringify(bSettings));
+              }
+            } catch(e) {}
+          }
+        });
+      } else {
+        sessionStorage.removeItem('harpy_verified_branches');
+        localStorage.removeItem(`harpy_branches_${currentSlug}`);
+      }
     } catch(e) {}
 
     // Cloud sync to Firebase RTDB for linked branches
-    if (typeof db !== 'undefined' && db && Array.isArray(cleanList)) {
-      cleanList.forEach(b => {
-        if (b && b.slug) {
-          db.ref(`restaurants/${b.slug}/settings/branches`).set(cleanList).catch(() => {});
-        }
-      });
+    if (typeof db !== 'undefined' && db) {
+      if (cleanList.length > 1) {
+        cleanList.forEach(b => {
+          if (b && b.slug) {
+            db.ref(`restaurants/${b.slug}/settings/branches`).set(cleanList).catch(() => {});
+          }
+        });
+      } else {
+        db.ref(`restaurants/${currentSlug}/settings/branches`).set([]).catch(() => {});
+      }
     }
 
     return cleanList;
