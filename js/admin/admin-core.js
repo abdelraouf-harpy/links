@@ -786,9 +786,11 @@ window.initAdmin = initAdmin;
 
 window.switchAdminBranch = function(branchSlug) {
   if (!branchSlug) return;
+  if (typeof closeAdminDrawer === 'function') {
+    try { closeAdminDrawer(); } catch(e) {}
+  }
   const currentSlug = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : '';
   if (currentSlug === branchSlug) {
-    if (typeof closeAdminDrawer === 'function') closeAdminDrawer();
     return;
   }
 
@@ -882,10 +884,23 @@ window.switchAdminBranch = function(branchSlug) {
   }, 250);
 };
 
+window.toggleDrawerBranchesAccordion = function(forceState) {
+  const collapseEl = document.getElementById('drawer-branches-collapse');
+  const chevronEl = document.getElementById('drawer-branches-chevron');
+  if (!collapseEl) return;
+  const isCurrentlyOpen = (collapseEl.style.display === 'block');
+  const shouldOpen = (forceState !== undefined) ? forceState : !isCurrentlyOpen;
+  collapseEl.style.display = shouldOpen ? 'block' : 'none';
+  if (chevronEl) {
+    chevronEl.style.transform = shouldOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+  }
+};
+
 window.updateAdminBranchDrawerSwitcher = function() {
   const widget = document.getElementById('drawer-branches-widget');
   const container = document.getElementById('drawer-branches-list');
   const countBadge = document.getElementById('drawer-branches-count');
+  const currentLabel = document.getElementById('drawer-branches-current-label');
   if (!widget || !container) return;
 
   const branches = (typeof Store !== 'undefined' && Store.getBranches) ? Store.getBranches() : [];
@@ -897,17 +912,27 @@ window.updateAdminBranchDrawerSwitcher = function() {
     return;
   }
 
-  // 2+ restaurants exist: Show the open list!
+  // 2+ restaurants exist: Show the compact widget!
   widget.style.display = 'block';
-
-  if (countBadge) {
-    countBadge.textContent = `${branches.length} فروع متصلة`;
-  }
 
   const safeEscape = (str) => {
     if (!str) return '';
     return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
   };
+
+  // Find active restaurant name
+  const currentBranchObj = branches.find(b => b.slug === currentSlug);
+  const activeName = (currentBranchObj && currentBranchObj.name) 
+    ? currentBranchObj.name 
+    : ((Store.getSettings && Store.getSettings()?.storeName) || currentSlug);
+
+  if (currentLabel) {
+    currentLabel.textContent = `الفرع الحالي: ${safeEscape(activeName)}`;
+  }
+
+  if (countBadge) {
+    countBadge.textContent = `${branches.length} فروع`;
+  }
 
   let html = '';
   branches.forEach(b => {
@@ -919,9 +944,9 @@ window.updateAdminBranchDrawerSwitcher = function() {
         <div style="background:var(--primary-subtle); border:1px solid var(--primary); border-radius:8px; padding:8px 10px; display:flex; justify-content:space-between; align-items:center;">
           <div style="display:flex; align-items:center; gap:6px;">
             <span style="width:7px; height:7px; border-radius:50%; background:var(--primary); display:inline-block; flex-shrink:0;"></span>
-            <span style="font-size:12.5px; font-weight:900; color:var(--text-main);">${bName}</span>
+            <span style="font-size:12px; font-weight:900; color:var(--text-main);">${bName}</span>
           </div>
-          <span style="font-size:10px; color:var(--primary); font-weight:800; background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px;">✓ أنت هنا</span>
+          <span style="font-size:10px; color:var(--primary); font-weight:800; background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px;">✓ نشط الآن</span>
         </div>
       `;
     } else {

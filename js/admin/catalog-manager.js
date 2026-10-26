@@ -108,11 +108,11 @@ function renderCatalogCategoryActionsBar() {
         <span style="font-size:11px; background:var(--primary-subtle); color:var(--primary); padding:2px 8px; border-radius:10px; font-weight:800;" class="font-num">${countLabel}</span>
       </div>
       <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-        <button type="button" class="btn btn-ghost btn-sm" onclick="openCategoryEditModalByName('${Store.escapeHtml(c)}')" style="font-size:11.5px; font-weight:800; padding:5px 10px; border:1px solid var(--border); border-radius:var(--radius-sm); display:inline-flex; align-items:center; gap:5px; background:var(--surface);" title="تعديل اسم القسم">
+        <button type="button" class="btn btn-ghost btn-sm" onclick="openCategoryEditModalByName(decodeURIComponent('${encodeURIComponent(c)}'))" style="font-size:11.5px; font-weight:800; padding:5px 10px; border:1px solid var(--border); border-radius:var(--radius-sm); display:inline-flex; align-items:center; gap:5px; background:var(--surface);" title="تعديل اسم القسم">
           <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
           <span>تعديل اسم القسم</span>
         </button>
-        <button type="button" class="btn btn-danger btn-sm" onclick="deleteCategoryFast('${Store.escapeHtml(c)}')" style="font-size:11.5px; font-weight:800; padding:5px 10px; border-radius:var(--radius-sm); display:inline-flex; align-items:center; gap:5px; cursor:pointer;" title="حذف هذا القسم">
+        <button type="button" class="btn btn-danger btn-sm" onclick="deleteCategoryFast(decodeURIComponent('${encodeURIComponent(c)}'))" style="font-size:11.5px; font-weight:800; padding:5px 10px; border-radius:var(--radius-sm); display:inline-flex; align-items:center; gap:5px; cursor:pointer;" title="حذف هذا القسم">
           <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
           <span>حذف القسم</span>
         </button>
@@ -139,7 +139,7 @@ function renderCatalogCategoryRail() {
     const count = prods.filter(p => p && p.category === c).length;
     const isActive = currentCatalogCategoryFilter === c;
     html += `
-      <button type="button" class="btn btn-sm btn-cat-chip ${isActive ? 'active' : ''}" onclick="setCatalogCategoryFilter('${Store.escapeHtml(c)}')" style="border-radius:999px; padding:6px 14px; font-weight:800; font-size:12px; white-space:nowrap; border:1px solid var(--border); background:${isActive ? 'var(--primary)' : 'var(--surface)'}; color:${isActive ? '#fff' : 'var(--text-main)'}; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+      <button type="button" class="btn btn-sm btn-cat-chip ${isActive ? 'active' : ''}" onclick="setCatalogCategoryFilter(decodeURIComponent('${encodeURIComponent(c)}'))" style="border-radius:999px; padding:6px 14px; font-weight:800; font-size:12px; white-space:nowrap; border:1px solid var(--border); background:${isActive ? 'var(--primary)' : 'var(--surface)'}; color:${isActive ? '#fff' : 'var(--text-main)'}; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
         <span>${Store.escapeHtml(c)}</span>
         <span style="font-size:10px; background:${isActive ? 'rgba(255,255,255,0.25)' : 'var(--surface-raised)'}; padding:1px 6px; border-radius:10px;">${count}</span>
       </button>
@@ -594,7 +594,7 @@ function syncRecipeSizesUI(savedSizesRecipe = null) {
     block.innerHTML = `
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
         <span style="font-size:11.5px; font-weight:800; color:var(--text-main);">حجم: <strong>${Store.escapeHtml(name)}</strong></span>
-        <button type="button" class="btn btn-ghost btn-sm" onclick="addRecipeSizeRow('${Store.escapeHtml(name)}')" style="font-size:11px; padding:2px 8px; border:1px solid var(--border);">إضافة مكوّن</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="addRecipeSizeRow(decodeURIComponent('${encodeURIComponent(name)}'))" style="font-size:11px; padding:2px 8px; border:1px solid var(--border);">إضافة مكوّن</button>
       </div>
       <div class="recipe-size-items-wrap" id="recipe-size-wrap-${encodeURIComponent(name)}" style="display:flex; flex-direction:column; gap:6px;"></div>
     `;
@@ -680,7 +680,7 @@ function syncRecipeAddonsUI(savedAddonsRecipe = null) {
     block.innerHTML = `
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
         <span style="font-size:11.5px; font-weight:800; color:var(--text-main);">إضافة: <strong>${Store.escapeHtml(name)}</strong></span>
-        <button type="button" class="btn btn-ghost btn-sm" onclick="addRecipeAddonRow('${Store.escapeHtml(name)}')" style="font-size:11px; padding:2px 8px; border:1px solid var(--border);">إضافة مكوّن</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="addRecipeAddonRow(decodeURIComponent('${encodeURIComponent(name)}'))" style="font-size:11px; padding:2px 8px; border:1px solid var(--border);">إضافة مكوّن</button>
       </div>
       <div class="recipe-addon-items-wrap" id="recipe-addon-wrap-${encodeURIComponent(name)}" style="display:flex; flex-direction:column; gap:6px;"></div>
     `;

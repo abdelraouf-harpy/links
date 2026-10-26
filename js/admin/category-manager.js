@@ -438,7 +438,7 @@ window.renderManageCategoriesModalList = function() {
             <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
             <span>تعديل</span>
           </button>
-          <button type="button" class="btn btn-danger btn-sm" onclick="deleteCategoryFast('${Store.escapeHtml(cat)}')" style="font-size:11.5px; font-weight:800; padding:6px 10px; border-radius:6px; display:inline-flex; align-items:center; gap:4px; cursor:pointer;" title="حذف القسم">
+          <button type="button" class="btn btn-danger btn-sm" onclick="deleteCategoryFastByIndex(${idx})" style="font-size:11.5px; font-weight:800; padding:6px 10px; border-radius:6px; display:inline-flex; align-items:center; gap:4px; cursor:pointer;" title="حذف القسم">
             <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
             <span>حذف</span>
           </button>

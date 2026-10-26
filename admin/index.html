@@ -50,7 +50,7 @@
 
   <link rel="stylesheet" href="css/order-tokens.css?v=118.0">
   <link rel="stylesheet" href="css/order-client.css?v=118.0">
-  <link rel="stylesheet" href="css/order-admin.css?v=142.0">
+  <link rel="stylesheet" href="css/order-admin.css?v=143.0">
 
   <script>
     // Instant zero-delay theme toggle available immediately on page paint
@@ -380,39 +380,36 @@
       </button>
     </div>
 
-    <!-- Dedicated Multi-Branch Switcher in Drawer -->
-    <div id="drawer-branches-widget" style="display:none; margin:10px 14px 6px; padding:12px; background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:12px;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-        <span style="font-size:11.5px; font-weight:800; color:var(--text-muted); display:flex; align-items:center; gap:5px;">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" style="color:var(--primary);"><path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/></svg>
-          <span>فروع المطاعم المتصلة</span>
-        </span>
-        <span id="drawer-branches-count" style="font-size:10px; background:var(--primary-subtle); color:var(--primary); font-weight:800; padding:1px 6px; border-radius:10px;">1 فرع</span>
-      </div>
-      <div id="drawer-branches-list" style="display:flex; flex-direction:column; gap:6px;">
-        <!-- Injected dynamically via JS -->
-      </div>
-      <div style="margin-top:8px; padding-top:8px; border-top:1px dashed var(--border); display:flex; justify-content:flex-end;">
-        <button type="button" onclick="navigateToBranchSettings()" style="background:transparent; border:none; color:var(--primary); font-size:11px; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:4px; padding:0;">
-          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          <span>إدارة أو ربط فرع جديد</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Drawer Navigation Tabs List -->
-        <!-- Shift Status Card in Drawer -->
-    <div id="drawer-shift-widget" style="margin:12px 14px 6px; padding:10px 14px; background:var(--surface-raised); border:1px solid var(--border); border-radius:12px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
-      <div style="display:flex; align-items:center; gap:8px;">
-        <span style="width:8px; height:8px; border-radius:50%; background:#22c55e; display:inline-block; box-shadow:0 0 6px rgba(34,197,94,0.6);"></span>
-        <div>
-          <div id="drawer-shift-num" style="font-size:12.5px; font-weight:800; color:var(--text-main);">الوردية #1 (نشطة)</div>
-          <div id="drawer-shift-rev" style="font-size:11px; color:var(--text-muted); margin-top:1px;">مبيعات: 0 ج.م</div>
+    <!-- Dedicated Multi-Branch Switcher in Drawer (Compact Collapsible) -->
+    <div id="drawer-branches-widget" style="display:none; margin:10px 14px 6px; background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:12px; overflow:hidden; transition:all 0.2s ease;">
+      <button type="button" id="drawer-branches-toggle-btn" onclick="toggleDrawerBranchesAccordion()" style="width:100%; padding:10px 12px; background:transparent; border:none; display:flex; justify-content:space-between; align-items:center; cursor:pointer; text-align:right; font-family:inherit;">
+        <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+          <div style="width:28px; height:28px; border-radius:8px; background:var(--primary-subtle); color:var(--primary); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/></svg>
+          </div>
+          <div style="min-width:0; overflow:hidden;">
+            <div style="font-size:12px; font-weight:900; color:var(--text-main); line-height:1.2;">فروع المطاعم المتصلة</div>
+            <div id="drawer-branches-current-label" style="font-size:10.5px; color:var(--text-muted); line-height:1.2; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">الفرع الحالي: ...</div>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+          <span id="drawer-branches-count" style="font-size:10px; background:var(--primary-subtle); color:var(--primary); font-weight:800; padding:2px 7px; border-radius:10px;">1 فرع</span>
+          <span id="drawer-branches-arrow-btn" style="width:24px; height:24px; border-radius:6px; display:flex; align-items:center; justify-content:center; background:var(--surface); border:1px solid var(--border); color:var(--text-muted); transition:transform 0.2s ease;">
+            <svg id="drawer-branches-chevron" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </span>
+        </div>
+      </button>
+      <div id="drawer-branches-collapse" style="display:none; padding:4px 12px 12px; border-top:1px solid var(--border);">
+        <div id="drawer-branches-list" style="display:flex; flex-direction:column; gap:6px; margin-top:6px;">
+          <!-- Injected dynamically via JS -->
+        </div>
+        <div style="margin-top:8px; padding-top:8px; border-top:1px dashed var(--border); display:flex; justify-content:flex-end;">
+          <button type="button" onclick="navigateToBranchSettings()" style="background:transparent; border:none; color:var(--primary); font-size:11px; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:4px; padding:0; font-family:inherit;">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span>إدارة أو ربط فرع جديد</span>
+          </button>
         </div>
       </div>
-      <button type="button" class="btn btn-primary btn-sm" onclick="openShiftCloseModal(); closeAdminDrawer();" style="font-size:11px; font-weight:800; padding:4px 12px; border-radius:18px; cursor:pointer;" title="تقفيل الوردية الحالية">
-        تقفيل
-      </button>
     </div>
 
 <nav class="admin-drawer-nav" id="admin-drawer-nav">
@@ -2229,7 +2226,7 @@
           <h2 class="inv-header-title" id="invModalStoreName">فاتورة مبيعات</h2>
           <p class="inv-header-subtitle" id="invModalSubtitle">معاينة ومراجعة بيانات الطلب قبل الطباعة</p>
         </div>
-        <button type="button" class="inv-close-btn" onclick="closeInvModal()" title="إغلاق">&times;</button>
+        <button type="button" class="inv-close-btn" onclick="closeInvModal()" title="إغلاق"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
       <div class="inv-body" id="invModalBody">
         <!-- Rendered dynamically via openOrderInvoiceModal() -->
@@ -2515,22 +2512,22 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=142.0"></script>
-  <script src="js/core/sound-effects.js?v=142.0"></script>
-  <script src="js/store.js?v=142.0"></script>
-  <script src="js/admin/admin-core.js?v=142.0"></script>
-  <script src="js/admin/admin-auth.js?v=142.0"></script>
-  <script src="js/admin/kitchen-orders.js?v=142.0"></script>
-  <script src="js/admin/inventory-manager.js?v=142.0"></script>
-  <script src="js/admin/catalog-manager.js?v=142.0"></script>
-  <script src="js/admin/category-manager.js?v=142.0"></script>
-  <script src="js/admin/stories-manager.js?v=142.0"></script>
-  <script src="js/admin/backup-restore.js?v=142.0"></script>
-  <script src="js/core/qrcode.min.js?v=142.0"></script>
-  <script src="js/admin/settings-manager.js?v=142.0"></script>
-  <script src="js/admin/pos-terminal.js?v=142.0"></script>
-  <script src="js/admin/admin-push.js?v=142.0"></script>
-  <script src="js/admin.js?v=142.0"></script>
-  <script src="js/pwa.js?v=142.0"></script>
+  <script src="js/core/demo-seed-data.js?v=143.0"></script>
+  <script src="js/core/sound-effects.js?v=143.0"></script>
+  <script src="js/store.js?v=143.0"></script>
+  <script src="js/admin/admin-core.js?v=143.0"></script>
+  <script src="js/admin/admin-auth.js?v=143.0"></script>
+  <script src="js/admin/kitchen-orders.js?v=143.0"></script>
+  <script src="js/admin/inventory-manager.js?v=143.0"></script>
+  <script src="js/admin/catalog-manager.js?v=143.0"></script>
+  <script src="js/admin/category-manager.js?v=143.0"></script>
+  <script src="js/admin/stories-manager.js?v=143.0"></script>
+  <script src="js/admin/backup-restore.js?v=143.0"></script>
+  <script src="js/core/qrcode.min.js?v=143.0"></script>
+  <script src="js/admin/settings-manager.js?v=143.0"></script>
+  <script src="js/admin/pos-terminal.js?v=143.0"></script>
+  <script src="js/admin/admin-push.js?v=143.0"></script>
+  <script src="js/admin.js?v=143.0"></script>
+  <script src="js/pwa.js?v=143.0"></script>
 </body>
 </html>
