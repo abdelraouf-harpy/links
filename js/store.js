@@ -700,15 +700,12 @@ const Store = {
           mergedSettings.whatsappNumber = data.settings.phone;
         }
 
-        // Defensive: Preserve multi-branch network if incoming snapshot omitted branches
-        if (!mergedSettings.branches && this._memoryCache.settings && Array.isArray(this._memoryCache.settings.branches) && this._memoryCache.settings.branches.length > 0) {
-          mergedSettings.branches = this._memoryCache.settings.branches;
+        // Defensive: Protect against stale/polluted cloud branch snapshots (> 5 branches is dirty scan dump)
+        if (data.settings && data.settings.branches && Array.isArray(data.settings.branches) && data.settings.branches.length > 5) {
+          delete mergedSettings.branches;
         }
-        if (mergedSettings.branches && Array.isArray(mergedSettings.branches) && mergedSettings.branches.length > 1) {
-          try {
-            localStorage.setItem('harpy_admin_branch_network', JSON.stringify(mergedSettings.branches));
-            sessionStorage.setItem('harpy_admin_branch_network', JSON.stringify(mergedSettings.branches));
-          } catch(e) {}
+        if (!mergedSettings.branches && this._memoryCache.settings && Array.isArray(this._memoryCache.settings.branches) && this._memoryCache.settings.branches.length > 0 && this._memoryCache.settings.branches.length <= 5) {
+          mergedSettings.branches = this._memoryCache.settings.branches;
         }
 
         this._memoryCache.settings = mergedSettings;
@@ -2584,36 +2581,65 @@ const Store = {
   },
 
   async verifyBranchCredentials(targetSlug, password) {
-    const cleanSlug = (targetSlug || '').toLowerCase().trim();
+    const cleanSlug = (targetSlug || '').toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
     const cleanPass = (password || '').trim();
     if (!cleanSlug || !cleanPass) {
       return { success: false, reason: "missing-data" };
     }
 
-    // 1. Try Firebase Auth with isolated secondary app instance to preserve current admin session
+    let restaurantExistsInCloud = false;
+
+    // 1. Check meta.adminPassword in Firebase RTDB
+    if (typeof db !== 'undefined' && db) {
+      try {
+        const snap = await db.ref(`restaurants/${cleanSlug}/meta`).once('value');
+        if (snap.exists()) {
+          restaurantExistsInCloud = true;
+          const meta = snap.val() || {};
+          const realPwd = (meta.adminPassword || '').trim();
+          if (realPwd && cleanPass === realPwd) {
+            this.setBranchKeychain(cleanSlug, cleanPass);
+            return { success: true, verifiedUid: meta.ownerUid || null };
+          }
+        }
+      } catch(e) {}
+    }
+
+    // 2. Check local cached meta
+    try {
+      const localMetaRaw = localStorage.getItem(`harpy_${cleanSlug}_meta`);
+      if (localMetaRaw) {
+        const localMeta = JSON.parse(localMetaRaw);
+        if (localMeta && localMeta.adminPassword && localMeta.adminPassword.trim() === cleanPass) {
+          this.setBranchKeychain(cleanSlug, cleanPass);
+          return { success: true };
+        }
+      }
+    } catch(e) {}
+
+    // 3. Check Firebase Auth with candidate emails
     if (typeof firebase !== 'undefined' && firebase.initializeApp && firebase.auth) {
       let tempApp = null;
       try {
-        const tempName = 'BranchVerifier_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
+        const tempName = 'BranchVerifier_' + Date.now();
         const options = firebase.app().options;
         tempApp = firebase.initializeApp(options, tempName);
         const tempAuth = tempApp.auth();
 
-        const candidateEmails = [
-          `${cleanSlug}@harpymenu.com`,
-          `${cleanSlug}@${cleanSlug}.com`
-        ];
-
-        let authSuccess = false;
-        let verifiedUid = null;
+        let targetEmail = `${cleanSlug}@${cleanSlug}.com`;
+        const authRaw = localStorage.getItem(`harpy_admin_auth_${cleanSlug}`);
+        if (authRaw) {
+          try { targetEmail = JSON.parse(authRaw).email || targetEmail; } catch(e) {}
+        }
+        const candidateEmails = [targetEmail, `${cleanSlug}@harpymenu.com`];
 
         for (const email of candidateEmails) {
           try {
             const userCred = await tempAuth.signInWithEmailAndPassword(email, cleanPass);
             if (userCred && userCred.user) {
-              authSuccess = true;
-              verifiedUid = userCred.user.uid;
-              break;
+              this.setBranchKeychain(cleanSlug, cleanPass);
+              try { await tempApp.delete(); } catch(delErr) {}
+              return { success: true, verifiedUid: userCred.user.uid };
             }
           } catch(err) {
             if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-login-credentials' || err.code === 'auth/invalid-credential') {
@@ -2622,18 +2648,7 @@ const Store = {
             }
           }
         }
-
-        if (tempApp) {
-          try { await tempApp.delete(); } catch(delErr) {}
-          tempApp = null;
-        }
-
-        if (authSuccess) {
-          this.setBranchKeychain(cleanSlug, cleanPass);
-          return { success: true, verifiedUid: verifiedUid };
-        }
       } catch(e) {
-        console.warn("[Store] Secondary Firebase Auth verification warning:", e);
       } finally {
         if (tempApp) {
           try { await tempApp.delete(); } catch(delErr) {}
@@ -2641,18 +2656,12 @@ const Store = {
       }
     }
 
-    // 2. Check RTDB meta if available
-    if (typeof db !== 'undefined' && db) {
-      try {
-        const snap = await db.ref(`restaurants/${cleanSlug}/meta`).once('value');
-        if (snap.exists()) {
-          // Restaurant already exists in cloud but auth failed -> unauthorized attempt
-          return { success: false, reason: "invalid-password" };
-        }
-      } catch(e) {}
+    // 4. If restaurant exists in cloud but password failed: reject unauthorized access
+    if (restaurantExistsInCloud) {
+      return { success: false, reason: "invalid-password" };
     }
 
-    // 3. New sub-branch registration or offline demo
+    // 5. New sub-branch registration or local offline demo: allow
     this.setBranchKeychain(cleanSlug, cleanPass);
     return { success: true, isNew: true };
   },

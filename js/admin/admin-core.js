@@ -861,18 +861,18 @@ window.switchAdminBranch = function(branchSlug) {
     showToastNotification(`جاري الانتقال إلى لوحة تحكم ${branchSlug}...`, "info");
   }
 
-  // 4. Clean navigation to target admin URL
+  // 4. Clean navigation to target admin URL using URL object
   setTimeout(() => {
-    const loc = window.location;
-    let pathname = loc.pathname;
-    if (!pathname.endsWith('.html') && !pathname.endsWith('/')) {
-      pathname += '/';
+    try {
+      const targetUrl = new URL(window.location.href);
+      targetUrl.searchParams.set('m', branchSlug);
+      targetUrl.searchParams.delete('restaurant');
+      targetUrl.searchParams.delete('store');
+      targetUrl.searchParams.delete('slug');
+      window.location.href = targetUrl.toString();
+    } catch(e) {
+      window.location.href = `?m=${encodeURIComponent(branchSlug)}`;
     }
-    if (!pathname.includes('admin')) {
-      pathname = pathname.replace(/\/?$/, '/admin/');
-    }
-    const adminUrl = `${loc.origin}${pathname}?m=${encodeURIComponent(branchSlug)}`;
-    window.location.href = adminUrl;
   }, 250);
 };
 

@@ -878,12 +878,6 @@ async function addAdminBranch() {
 
     await Store.saveBranches(branches);
 
-    // Automatically clone catalog to new branch so its menu is populated and ready immediately
-    const currentSlug = Store.getRestaurantSlug();
-    if (typeof Store.cloneCatalogToBranch === 'function') {
-      await Store.cloneCatalogToBranch(currentSlug, slug, name);
-    }
-
     if (nameInp) nameInp.value = '';
     if (slugInp) slugInp.value = '';
     if (passInp) passInp.value = '';
@@ -917,10 +911,26 @@ async function deleteAdminBranch(branchId) {
 
   branches = branches.filter(b => b.id !== branchId && b.slug !== branchId);
   await Store.saveBranches(branches);
+
+  // Also decouple the link on the deleted branch side
+  try {
+    const targetSlug = target.slug || target.id;
+    const bKey = `harpy_${targetSlug}_settings`;
+    const bRaw = localStorage.getItem(bKey);
+    if (bRaw) {
+      const bSet = JSON.parse(bRaw);
+      bSet.branches = [];
+      localStorage.setItem(bKey, JSON.stringify(bSet));
+    }
+    if (typeof db !== 'undefined' && db && targetSlug) {
+      db.ref(`restaurants/${targetSlug}/settings/branches`).set([]).catch(() => {});
+    }
+  } catch(e) {}
+
   renderAdminBranchesList();
   updateAdminBranchDrawerSwitcher();
   updateAdminBranchHeaderSwitcher();
-  showToastNotification(`تم حذف ${target.name}`, "info");
+  showToastNotification(`تم حذف وإلغاء ربط فرع "${target.name}" بنجاح`, "info");
 }
 
 async function clearAllAdminBranches() {
