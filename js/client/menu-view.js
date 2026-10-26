@@ -65,16 +65,18 @@ function getCategoryEmoji(catName) {
 function renderDiscoveryRibbon() {
   if (!elements.discoveryContainer) return;
   const favorites = Store.getFavorites();
+  const labelAll = (typeof t === 'function' ? t('cat_all', 'جميع الأصناف') : 'جميع الأصناف');
+  const labelFav = (typeof t === 'function' ? t('cat_fav', 'المفضلة') : 'المفضلة');
 
   const discoveryTags = [
     { 
       id: 'all', 
-      label: `<svg class="icon icon-sm" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg><span>جميع الأصناف</span>`, 
+      label: `<svg class="icon icon-sm" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg><span>${labelAll}</span>`, 
       count: null 
     },
     { 
       id: 'fav', 
-      label: `<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg><span>المفضلة</span> <span class="chip-count font-num">${favorites.length}</span>`, 
+      label: `<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg><span>${labelFav}</span> <span class="chip-count font-num">${favorites.length}</span>`, 
       count: favorites.length 
     }
   ];
@@ -128,7 +130,8 @@ function renderCategories() {
     return;
   }
 
-  const currentSig = JSON.stringify(categories);
+  const curLang = (typeof I18n !== 'undefined') ? I18n.getLanguage() : 'ar';
+  const currentSig = curLang + '_' + JSON.stringify(categories);
 
   // Only re-build DOM if the list of categories actually changed!
   if (lastRenderedCategoriesSignature !== currentSig) {
@@ -138,17 +141,17 @@ function renderCategories() {
     const isFavActive = (activeDiscoveryFilter === 'fav');
 
     let html = `
-      <button class="cat-card-pill cat-pill ${isAllActive ? 'active' : ''}" data-cat="all" onclick="handleCategoryFilter('all')" title="الكل">
+      <button class="cat-card-pill cat-pill ${isAllActive ? 'active' : ''}" data-cat="all" onclick="handleCategoryFilter('all')" title="${(typeof t === "function" ? t("cat_all", "الكل") : "الكل")}">
         <div class="cat-card-icon">${getCategorySvgIcon('all')}</div>
-        <span class="cat-card-label">الكل</span>
+        <span class="cat-card-label">${(typeof t === "function" ? t("cat_all", "الكل") : "الكل")}</span>
       </button>
     `;
 
     if (favCount > 0) {
       html += `
-        <button class="cat-card-pill cat-pill ${isFavActive ? 'active' : ''}" data-cat="fav" onclick="handleCategoryFilter('fav')" title="الأصناف المفضلة">
+        <button class="cat-card-pill cat-pill ${isFavActive ? 'active' : ''}" data-cat="fav" onclick="handleCategoryFilter('fav')" title="${(typeof t === "function" ? t("cat_fav", "المفضلة") : "المفضلة")}">
           <div class="cat-card-icon">${getCategorySvgIcon('fav')}</div>
-          <span class="cat-card-label">المفضلة (${favCount})</span>
+          <span class="cat-card-label">${(typeof t === "function" ? t("cat_fav", "المفضلة") : "المفضلة")} (${favCount})</span>
         </button>
       `;
     }
@@ -158,9 +161,9 @@ function renderCategories() {
       const cleanLabel = (cat || '').replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1FA00}-\u{1FAFF}\u{FE00}-\u{FE0F}]/gu, '').trim() || cat;
       const iconSvg = getCategorySvgIcon(cat);
       return `
-        <button class="cat-card-pill cat-pill ${isSelected ? 'active' : ''}" data-cat="${encodeURIComponent(cat)}" onclick="handleCategoryFilter(decodeURIComponent(this.dataset.cat))" title="${cleanLabel}">
+        <button class="cat-card-pill cat-pill ${isSelected ? 'active' : ''}" data-cat="${encodeURIComponent(cat)}" onclick="handleCategoryFilter(decodeURIComponent(this.dataset.cat))" title="${(typeof window.tr === "function" ? window.tr(cleanLabel) : cleanLabel)}">
           <div class="cat-card-icon">${iconSvg}</div>
-          <span class="cat-card-label">${cleanLabel}</span>
+          <span class="cat-card-label">${(typeof window.tr === "function" ? window.tr(cleanLabel) : cleanLabel)}</span>
         </button>
       `;
     }).join('');
@@ -283,7 +286,8 @@ function renderProducts(forceRebuild = false) {
   }
 
   // Fast content signature to detect real product data changes
-  const currentSig = allProds.map(p => `${p.id}_${p.price}_${p.originalPrice || 0}_${p.name}_${p.category}_${p.isFeatured ? 1 : 0}_${p.badge || ''}_${(p.sizes || []).length}_${(p.addons || []).length}`).join('|');
+  const curLang = (typeof I18n !== 'undefined') ? I18n.getLanguage() : 'ar';
+  const currentSig = curLang + '_' + allProds.map(p => `${p.id}_${p.price}_${p.originalPrice || 0}_${p.name}_${p.category}_${p.isFeatured ? 1 : 0}_${p.badge || ''}_${(p.sizes || []).length}_${(p.addons || []).length}`).join('|');
 
   const existingCards = elements.productsContainer.querySelectorAll('.food-item-card');
   const needsFullBuild = forceRebuild || existingCards.length === 0 || currentSig !== lastRenderedProductsSignature || allProds.length !== existingCards.length;
@@ -483,7 +487,7 @@ function renderHeroShowcase(p, currency) {
             </button>
             ${hasOptions ? `
               <button class="btn-quick-add" onclick="event.stopPropagation(); openCustomizer('${p.id}')">
-                <span>تخصيص +</span>
+                <span>${(typeof t === "function" ? t("btn_customize", "تخصيص +") : "تخصيص +")}</span>
               </button>
             ` : renderCardActionButton(p, qty)}
           </div>
@@ -523,17 +527,17 @@ function renderProductCard(p, currency, index = 0) {
           <div style="display:flex; align-items:center; gap:6px;">
             <span class="item-prep-time">
               <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              <span>${p.prepTime || '15 دقيقة'}</span>
+              <span>${(p.prepTime ? p.prepTime.replace(/دقيقة|دقائق/g, (typeof t === "function" ? t("mins", "mins") : "mins")) : ("15 " + (typeof t === "function" ? t("mins", "mins") : "mins")))}</span>
             </span>
-            <span style="font-size:11.5px; color:var(--text-muted);">• ${p.category}</span>
+            <span style="font-size:11.5px; color:var(--text-muted);">• ${(typeof window.tr === "function" ? window.tr(p.category) : p.category)}</span>
           </div>
           <button class="btn-fav-inline ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); handleToggleFav('${p.id}')" title="إضافة للمفضلة">
             <svg class="icon icon-sm" viewBox="0 0 24 24" style="fill: ${isFav ? 'currentColor' : 'none'};"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
           </button>
         </div>
 
-        <h3 class="food-item-title">${p.name}</h3>
-        <p class="food-item-desc">${p.desc || p.description || ''}</p>
+        <h3 class="food-item-title">${(typeof window.tr === "function" ? window.tr(p.name) : p.name)}</h3>
+        <p class="food-item-desc">${(typeof window.tr === "function" ? window.tr(p.desc || p.description || "") : (p.desc || p.description || ""))}</p>
 
         <div class="food-item-footer">
           <div class="food-item-price font-num">
@@ -543,7 +547,7 @@ function renderProductCard(p, currency, index = 0) {
           <div>
             ${hasOptions ? `
               <button class="btn-quick-add" onclick="event.stopPropagation(); openCustomizer('${p.id}')">
-                <span>تخصيص +</span>
+                <span>${(typeof t === "function" ? t("btn_customize", "تخصيص +") : "تخصيص +")}</span>
               </button>
             ` : renderCardActionButton(p, qty)}
           </div>
@@ -568,7 +572,7 @@ function renderCardActionButton(product, qty) {
     return `
       <button class="btn-quick-add" onclick="event.stopPropagation(); handleQuickAddItem('${product.id}', this)">
         <svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        <span>إضافة</span>
+        <span>${(typeof t === "function" ? t("btn_add", "إضافة") : "إضافة")}</span>
       </button>
     `;
   }
@@ -787,3 +791,9 @@ window.renderCardActionButton = renderCardActionButton;
 window.findMatchingCartItem = findMatchingCartItem;
 window.updatePreviewModalActions = updatePreviewModalActions;
 window.closeQuickPreview = closeQuickPreview;
+
+window.invalidateCategorySignature = function() { lastRenderedCategoriesSignature = ''; };
+window.invalidateProductSignature = function() { lastRenderedProductsSignature = ''; };
+window.renderCategories = renderCategories;
+window.renderProducts = renderProducts;
+window.renderDiscoveryRibbon = renderDiscoveryRibbon;

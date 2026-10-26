@@ -98,7 +98,7 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
   }
 
   const settings = Store.getSettings();
-  const currency = settings.currency || "ج.م";
+  const currency = (typeof window.t === 'function' ? window.t('currency', settings.currency || "ج.م") : (settings.currency || "ج.م"));
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
   if (settings.minOrder > 0 && subtotal < settings.minOrder) {
@@ -518,7 +518,7 @@ function openLiveOrderTracker(orderOrId, initialData = null) {
   }
 
   const settings = Store.getSettings();
-  const currency = settings.currency || "ج.م";
+  const currency = (typeof window.t === 'function' ? window.t('currency', settings.currency || "ج.م") : (settings.currency || "ج.م"));
 
   if (elements.trackOrderId) elements.trackOrderId.textContent = orderId;
   if (elements.trackOrderEta) elements.trackOrderEta.textContent = settings.deliveryTime || "30-45 دقيقة";
@@ -548,7 +548,7 @@ function renderTrackerOrderData(order, currency) {
   if (elements.trackerItemsList && order.items) {
     elements.trackerItemsList.innerHTML = order.items.map(it => `
       <div style="display:flex; justify-content:space-between; font-size:11.5px; padding:2px 0;">
-        <span><b style="color:var(--primary);">${it.qty}x</b> ${it.name} ${it.selectedSize ? `[${it.selectedSize.name}]` : ''}</span>
+        <span><b style="color:var(--primary);">${it.qty}x</b> ${typeof window.tr === 'function' ? window.tr(it.name) : it.name} ${it.selectedSize ? `[${typeof window.tr === 'function' ? window.tr(it.selectedSize.name) : it.selectedSize.name}]` : ''}</span>
         <span class="font-num" style="font-weight:700;">${((it.price || 0) * it.qty).toFixed(2)} ${currency}</span>
       </div>
     `).join('');

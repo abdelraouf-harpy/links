@@ -1327,7 +1327,7 @@ window.selectOnboardLanguage = function(langCode) {
     modal.setAttribute('dir', langConfig.dir);
   }
 
-  I18n.setLanguage(langCode, false);
+  I18n.setLanguage(langCode, true);
 };
 
 function closeCustomerOnboardModal(skipped = false, updateHistory = true) {
@@ -1417,8 +1417,8 @@ window.openLanguagePickerModal = function() {
 window.closeLanguagePickerModal = function(updateHistory = true) {
   const backdrop = document.getElementById('lang-picker-backdrop');
   const modal = document.getElementById('lang-picker-modal');
-  if (backdrop) backdrop.classList.remove('active');
-  if (modal) modal.classList.remove('open');
+  if (backdrop) backdrop.classList.remove('active', 'open', 'show');
+  if (modal) modal.classList.remove('open', 'show');
   if (updateHistory && history.state && history.state.harpyNav === 'lang_picker_modal') {
     history.back();
   }
@@ -1606,8 +1606,8 @@ function renderCleanProfileUI() {
     if (phoneEl) phoneEl.textContent = profile.phone;
     if (avatarChar) avatarChar.textContent = profile.name.trim().charAt(0) || 'ع';
   } else {
-    if (nameEl) nameEl.textContent = 'عميلنا العزيز';
-    if (phoneEl) phoneEl.textContent = 'انقر على تعديل لحفظ اسمك ورقمك وعنوانك';
+    if (nameEl) nameEl.textContent = (typeof window.t === 'function' ? window.t('val_guest_user', 'عميلنا العزيز') : 'عميلنا العزيز');
+    if (phoneEl) phoneEl.textContent = (typeof window.t === 'function' ? window.t('val_guest_hint', 'انقر على تعديل لحفظ اسمك ورقمك وعنوانك') : 'انقر على تعديل لحفظ اسمك ورقمك وعنوانك');
     if (avatarChar) avatarChar.innerHTML = defaultUserSvg;
   }
 
@@ -1617,7 +1617,7 @@ function renderCleanProfileUI() {
     if (addrStatusText) addrStatusText.textContent = profile.address;
   } else {
     if (addrPill) addrPill.style.display = 'none';
-    if (addrStatusText) addrStatusText.textContent = 'لم تسجل عنواناً بعد — انقر للإضافة وتوفير الوقت في الطلبات';
+    if (addrStatusText) addrStatusText.textContent = (typeof window.t === 'function' ? window.t('val_no_address', 'لم تسجل عنواناً بعد — انقر للإضافة وتوفير الوقت في الطلبات') : 'لم تسجل عنواناً بعد — انقر للإضافة وتوفير الوقت في الطلبات');
   }
 
   // Update theme row info
@@ -1635,6 +1635,14 @@ function renderCleanProfileUI() {
   const soundToggleBtn = document.getElementById('clean-sound-toggle-btn');
   if (soundToggleLabel) soundToggleLabel.textContent = soundEnabled ? 'صوت مفعل' : 'صوت صامت';
   if (soundToggleBtn) soundToggleBtn.classList.toggle('active', soundEnabled);
+
+  // Update language row status
+  const curLang = (typeof I18n !== 'undefined') ? I18n.getLanguage() : 'ar';
+  const cleanLangSub = document.getElementById('clean-language-status-text');
+  if (cleanLangSub && typeof I18n !== 'undefined' && I18n.supportedLanguages[curLang]) {
+    const l = I18n.supportedLanguages[curLang];
+    cleanLangSub.textContent = `${l.flag} ${l.name} (${l.englishName})`;
+  }
 
   // WhatsApp link
   const settings = (typeof Store !== 'undefined' && Store.getSettings) ? Store.getSettings() : {};
@@ -1746,11 +1754,11 @@ function renderOrdersView() {
         if (m) tbl = m[1];
       }
       if (rawF === 'dinein' || rawF === 'dine_in' || addrLower.includes('صالة') || addrLower.includes('طاولة')) {
-        typePill.textContent = `داخل المطعم (طاولة ${tbl || '1'})`;
+        typePill.textContent = `${typeof window.t === 'function' ? window.t('fulfillment_dinein', 'في الصالة') : 'في الصالة'} (${tbl ? (typeof window.t === 'function' ? window.t('field_table', 'طاولة') : 'طاولة') + ' ' + tbl : '1'})`;
       } else if (rawF === 'takeaway' || addrLower.includes('استلام') || addrLower.includes('تيك أواي') || addrLower.includes('سفري')) {
-        typePill.textContent = 'استلام من الفرع (تيك أواي)';
+        typePill.textContent = (typeof window.t === 'function' ? window.t('fulfillment_takeaway', 'استلام من الفرع') : 'استلام من الفرع');
       } else {
-        typePill.textContent = 'توصيل دليفري';
+        typePill.textContent = (typeof window.t === 'function' ? window.t('fulfillment_delivery', 'توصيل دليفري') : 'توصيل دليفري');
       }
     }
 
@@ -1762,7 +1770,7 @@ function renderOrdersView() {
     if (itemsList && lastOrder.items) {
       itemsList.innerHTML = lastOrder.items.map(it => `
         <div style="display:flex; justify-content:space-between; align-items:center; font-size:12.5px; padding:4px 0; border-bottom:1px dashed var(--border-subtle, rgba(0,0,0,0.06));">
-          <span><b style="color:var(--primary); font-weight:800;">${esc(it.qty)}x</b> ${esc(it.name)} ${it.selectedSize ? `[${esc(it.selectedSize.name)}]` : ''}</span>
+          <span><b style="color:var(--primary); font-weight:800;">${esc(it.qty)}x</b> ${esc(typeof window.tr === 'function' ? window.tr(it.name) : it.name)} ${it.selectedSize ? `[${esc(typeof window.tr === 'function' ? window.tr(it.selectedSize.name) : it.selectedSize.name)}]` : ''}</span>
           <span class="font-num" style="font-weight:700;">${((it.price || 0) * it.qty).toFixed(2)} ${currency}</span>
         </div>
       `).join('');
@@ -1798,29 +1806,29 @@ function renderOrdersView() {
         const cleanId = String(rawId).replace(/[^a-zA-Z0-9#\-_]/g, '');
         const safeOrderId = cleanId || '#ORD';
         const dateStr = order.createdAt ? new Date(order.createdAt).toLocaleDateString('ar-EG', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'طلب سابق';
-        const itemsSummary = (order.items || []).map(i => `${esc(i.qty)}x ${esc(i.name)}`).join('، ');
-        let fulfillmentBadge = 'دليفري';
-        if (order.fulfillmentType === 'takeaway') fulfillmentBadge = 'تيك أواي';
-        else if (order.fulfillmentType === 'dinein') fulfillmentBadge = `صالة (طاولة ${esc(order.tableNumber || '-')})`;
+        const itemsSummary = (order.items || []).map(i => `${esc(i.qty)}x ${esc(typeof window.tr === 'function' ? window.tr(i.name) : i.name)}`).join('، ');
+        let fulfillmentBadge = (typeof window.t === 'function' ? window.t('fulfillment_delivery', 'دليفري') : 'دليفري');
+        if (order.fulfillmentType === 'takeaway') fulfillmentBadge = (typeof window.t === 'function' ? window.t('fulfillment_takeaway', 'تيك أواي') : 'تيك أواي');
+        else if (order.fulfillmentType === 'dinein') fulfillmentBadge = `${typeof window.t === 'function' ? window.t('fulfillment_dinein', 'صالة') : 'صالة'} (${esc(order.tableNumber || '-')})`;
 
         const st = order.status || 'pending';
-        let stBadge = 'قيد المراجعة';
+        let stBadge = (typeof window.t === 'function' ? window.t('order_status_pending', 'قيد المراجعة') : 'قيد المراجعة');
         let stColor = 'var(--primary)';
         let stBg = 'var(--primary-subtle, rgba(234,88,12,0.12))';
         if (st === 'preparing') {
-          stBadge = 'جاري التجهيز';
+          stBadge = (typeof window.t === 'function' ? window.t('order_status_preparing', 'جاري التجهيز') : 'جاري التجهيز');
           stColor = '#d97706';
           stBg = 'rgba(217, 119, 6, 0.12)';
         } else if (st === 'out_for_delivery') {
-          stBadge = (order.fulfillmentType === 'takeaway' || order.orderType === 'takeaway') ? 'جاهز للاستلام' : 'في الطريق';
+          stBadge = (order.fulfillmentType === 'takeaway' || order.orderType === 'takeaway') ? (typeof window.t === 'function' ? window.t('order_status_ready', 'جاهز للاستلام') : 'جاهز للاستلام') : (typeof window.t === 'function' ? window.t('order_status_out', 'في الطريق') : 'في الطريق');
           stColor = '#2563eb';
           stBg = 'rgba(37, 99, 235, 0.12)';
         } else if (st === 'delivered') {
-          stBadge = 'تم التسليم';
+          stBadge = (typeof window.t === 'function' ? window.t('order_status_delivered', 'تم التسليم') : 'تم التسليم');
           stColor = '#16a34a';
           stBg = 'rgba(22, 163, 74, 0.12)';
         } else if (st === 'cancelled') {
-          stBadge = 'ملغي';
+          stBadge = (typeof window.t === 'function' ? window.t('order_status_cancelled', 'ملغي') : 'ملغي');
           stColor = '#dc2626';
           stBg = 'rgba(220, 38, 38, 0.12)';
         }
@@ -1844,7 +1852,7 @@ function renderOrdersView() {
             <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-subtle, rgba(0,0,0,0.05)); padding-top:8px;">
               <span class="font-num" style="font-weight:800; font-size:13px; color:var(--text-main);">${(parseFloat(order.finalTotal) || 0).toFixed(2)} ${currency}</span>
               <button type="button" class="btn btn-primary btn-sm" onclick="window.reorderPreviousOrder && window.reorderPreviousOrder('${cleanId}')" style="font-size:11.5px; padding:5px 12px; border-radius:8px;">
-                <span>إعادة الطلب</span>
+                <span>${typeof window.t === 'function' ? window.t('btn_reorder', 'إعادة الطلب') : 'إعادة الطلب'}</span>
               </button>
             </div>
           </div>
@@ -2020,10 +2028,10 @@ function updateOrdersStepperUI(status = 'pending', order = null) {
 
   // 1. Stage names tailored to fulfillment
   if (isDineIn) {
-    if (step1Name) step1Name.textContent = 'تسجيل الطلب';
-    if (step2Name) step2Name.textContent = 'قيد الطهي';
-    if (step3Name) step3Name.textContent = 'تقديم للطاولة';
-    if (step4Name) step4Name.textContent = 'بالهناء والشفاء';
+    if (step1Name) step1Name.textContent = (typeof window.t === 'function' ? window.t('step_dinein_1', 'تسجيل الطلب') : 'تسجيل الطلب');
+    if (step2Name) step2Name.textContent = (typeof window.t === 'function' ? window.t('step_dinein_2', 'قيد الطهي') : 'قيد الطهي');
+    if (step3Name) step3Name.textContent = (typeof window.t === 'function' ? window.t('step_dinein_3', 'تقديم للطاولة') : 'تقديم للطاولة');
+    if (step4Name) step4Name.textContent = (typeof window.t === 'function' ? window.t('step_dinein_4', 'بالهناء والشفاء') : 'بالهناء والشفاء');
 
     if (etaTitle) etaTitle.textContent = 'خدمة الصالة والمائدة';
     if (etaEl) etaEl.textContent = `طاولة رقم (${tableNumber || '1'})`;
@@ -2033,10 +2041,10 @@ function updateOrdersStepperUI(status = 'pending', order = null) {
       locText.innerHTML = `مكان الخدمة: <strong>طاولة رقم ${tableNumber || '1'} داخل صالة المطعم</strong>`;
     }
   } else if (isTakeaway) {
-    if (step1Name) step1Name.textContent = 'استلام الطلب';
-    if (step2Name) step2Name.textContent = 'تجهيز وتعليب';
-    if (step3Name) step3Name.textContent = 'جاهز بالفرع';
-    if (step4Name) step4Name.textContent = 'تم الاستلام';
+    if (step1Name) step1Name.textContent = (typeof window.t === 'function' ? window.t('step_takeaway_1', 'استلام الطلب') : 'استلام الطلب');
+    if (step2Name) step2Name.textContent = (typeof window.t === 'function' ? window.t('step_takeaway_2', 'تجهيز وتعليب') : 'تجهيز وتعليب');
+    if (step3Name) step3Name.textContent = (typeof window.t === 'function' ? window.t('step_takeaway_3', 'جاهز بالفرع') : 'جاهز بالفرع');
+    if (step4Name) step4Name.textContent = (typeof window.t === 'function' ? window.t('step_takeaway_4', 'تم الاستلام') : 'تم الاستلام');
 
     if (etaTitle) etaTitle.textContent = 'وقت التجهيز للاستلام';
     if (etaEl) etaEl.textContent = '15 - 20 دقيقة';
@@ -2047,10 +2055,10 @@ function updateOrdersStepperUI(status = 'pending', order = null) {
     }
   } else {
     // Delivery
-    if (step1Name) step1Name.textContent = 'استلام الطلب';
-    if (step2Name) step2Name.textContent = 'في المطبخ';
-    if (step3Name) step3Name.textContent = 'مع الكابتن';
-    if (step4Name) step4Name.textContent = 'تم التوصيل';
+    if (step1Name) step1Name.textContent = (typeof window.t === 'function' ? window.t('order_stepper_step1', 'استلام الطلب') : 'استلام الطلب');
+    if (step2Name) step2Name.textContent = (typeof window.t === 'function' ? window.t('order_stepper_step2', 'في المطبخ') : 'في المطبخ');
+    if (step3Name) step3Name.textContent = (typeof window.t === 'function' ? window.t('order_stepper_step3', 'مع الكابتن') : 'مع الكابتن');
+    if (step4Name) step4Name.textContent = (typeof window.t === 'function' ? window.t('order_stepper_step4', 'تم التوصيل') : 'تم التوصيل');
 
     if (etaTitle) etaTitle.textContent = 'الوقت التقديري للوصول';
     if (etaEl) etaEl.textContent = settings.deliveryTime || '25 - 35 دقيقة';
@@ -2286,6 +2294,82 @@ function handleNavTabClick(tabId) {
     renderCleanProfileUI();
   }
 }
+
+
+window.rerenderAllCustomerViews = function() {
+  const lang = (typeof I18n !== 'undefined') ? I18n.getLanguage() : 'ar';
+  
+  // 1. Re-apply DOM translations to all static data-i18n tags
+  if (typeof I18n !== 'undefined' && I18n.applyDOMTranslations) {
+    I18n.applyDOMTranslations(lang);
+  }
+
+  // 2. Translate bottom nav labels
+  const navHome = document.querySelector('#nav-tab-home .nav-tab-label');
+  const navMenu = document.querySelector('#nav-tab-menu .nav-tab-label');
+  const navSearch = document.querySelector('#nav-tab-search .nav-tab-label');
+  const navCart = document.querySelector('#nav-tab-cart .nav-tab-label');
+  const navOrders = document.querySelector('#nav-tab-orders .nav-tab-label');
+  const navAccount = document.querySelector('#nav-tab-account .nav-tab-label');
+  if (navHome) navHome.textContent = (typeof t === 'function') ? t('nav_menu', 'الرئيسية') : 'الرئيسية';
+  if (navMenu) navMenu.textContent = (typeof t === 'function') ? t('nav_menu', 'المنيو') : 'المنيو';
+  if (navSearch) navSearch.textContent = (typeof t === 'function') ? t('nav_search', 'البحث') : 'البحث';
+  if (navCart) navCart.textContent = (typeof t === 'function') ? t('nav_cart', 'السلة') : 'السلة';
+  if (navOrders) navOrders.textContent = (typeof t === 'function') ? t('nav_orders', 'طلباتي') : 'طلباتي';
+  if (navAccount) navAccount.textContent = (typeof t === 'function') ? t('nav_account', 'حسابي') : 'حسابي';
+
+  // 3. Translate search bar placeholder
+  const searchInput = document.getElementById('search-input');
+  if (searchInput && typeof t === 'function') searchInput.placeholder = t('search_placeholder', 'ابحث عن وجبتك المفضلة...');
+
+  // 4. Update language indicator in #view-account and drawer
+  const cleanLangSub = document.getElementById('clean-language-status-text');
+  if (cleanLangSub && typeof I18n !== 'undefined' && I18n.supportedLanguages[lang]) {
+    const l = I18n.supportedLanguages[lang];
+    cleanLangSub.textContent = `${l.flag} ${l.name} (${l.englishName})`;
+  }
+  const accountLangSub = document.getElementById('account-language-sub');
+  if (accountLangSub && typeof I18n !== 'undefined' && I18n.supportedLanguages[lang]) {
+    const l = I18n.supportedLanguages[lang];
+    accountLangSub.textContent = `${l.flag} ${l.name} (${l.englishName})`;
+  }
+
+  // 5. Invalidate category cache signature & re-render categories
+  try {
+    if (typeof window.invalidateCategorySignature === 'function') window.invalidateCategorySignature();
+    if (typeof window.renderDiscoveryRibbon === 'function') window.renderDiscoveryRibbon();
+    if (typeof window.renderCategories === 'function') window.renderCategories();
+  } catch(e) {}
+
+  // 6. Invalidate products signature & re-render products
+  try {
+    if (typeof window.invalidateProductSignature === 'function') window.invalidateProductSignature();
+    if (typeof window.renderProducts === 'function') window.renderProducts(true);
+  } catch(e) {}
+
+  // 7. Store info & announcements
+  try {
+    if (typeof renderStoreInfo === 'function') renderStoreInfo();
+    if (typeof renderAnnouncement === 'function') renderAnnouncement();
+  } catch(e) {}
+
+  // 8. Cart drawer & Ledger UI
+  try {
+    if (typeof updateLedgerUI === 'function') updateLedgerUI();
+    if (typeof renderCartDrawerItems === 'function') renderCartDrawerItems();
+  } catch(e) {}
+
+  // 9. Orders view & Stepper
+  try {
+    if (typeof renderOrdersView === 'function') renderOrdersView();
+  } catch(e) {}
+
+  // 10. Profile UI
+  try {
+    if (typeof renderCleanProfileUI === 'function') renderCleanProfileUI();
+    if (typeof updateAccountDrawerProfileUI === 'function') updateAccountDrawerProfileUI();
+  } catch(e) {}
+};
 
 window.pushNavState = pushNavState;
 window.handlePopStateNavigation = handlePopStateNavigation;

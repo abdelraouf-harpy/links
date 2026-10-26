@@ -32,22 +32,22 @@ window.setFulfillmentType = function(type) {
   const addressInp = document.getElementById('cust-address');
 
   if (type === 'delivery') {
-    if (badge) badge.textContent = 'توصيل دليفري';
-    if (customerInfoLabel) customerInfoLabel.textContent = 'بيانات التوصيل والتواصل:';
+    if (badge) badge.textContent = typeof window.t === 'function' ? window.t('fulfillment_delivery', 'توصيل دليفري') : 'توصيل دليفري';
+    if (customerInfoLabel) customerInfoLabel.textContent = typeof window.t === 'function' ? window.t('cust_info_heading', 'بيانات التوصيل والتواصل:') : 'بيانات التوصيل والتواصل:';
     if (takeawayBanner) takeawayBanner.style.display = 'none';
     if (groupAddress) groupAddress.style.display = 'block';
     if (groupTable) groupTable.style.display = 'none';
     if (addressInp) addressInp.required = true;
   } else if (type === 'takeaway') {
-    if (badge) badge.textContent = 'استلام من الفرع';
-    if (customerInfoLabel) customerInfoLabel.textContent = 'بيانات المستلم والتواصل:';
+    if (badge) badge.textContent = typeof window.t === 'function' ? window.t('fulfillment_takeaway', 'استلام من الفرع') : 'استلام من الفرع';
+    if (customerInfoLabel) customerInfoLabel.textContent = typeof window.t === 'function' ? window.t('cust_info_heading', 'بيانات المستلم والتواصل:') : 'بيانات المستلم والتواصل:';
     if (takeawayBanner) takeawayBanner.style.display = 'flex';
     if (groupAddress) groupAddress.style.display = 'none';
     if (groupTable) groupTable.style.display = 'none';
     if (addressInp) addressInp.required = false;
   } else if (type === 'dinein') {
-    if (badge) badge.textContent = 'في المطعم (صالة)';
-    if (customerInfoLabel) customerInfoLabel.textContent = 'بيانات الطاولة والطلب:';
+    if (badge) badge.textContent = typeof window.t === 'function' ? window.t('fulfillment_dinein', 'في الصالة') : 'في الصالة';
+    if (customerInfoLabel) customerInfoLabel.textContent = typeof window.t === 'function' ? window.t('cust_info_heading', 'بيانات الطاولة والطلب:') : 'بيانات الطاولة والطلب:';
     if (takeawayBanner) takeawayBanner.style.display = 'none';
     if (groupAddress) groupAddress.style.display = 'none';
     if (groupTable) groupTable.style.display = 'block';
@@ -276,7 +276,7 @@ function updateDeliveryFeedbackUI() {
 function updateLedgerUI() {
   const cart = Store.getCart();
   const settings = Store.getSettings();
-  const currency = settings.currency || "ج.م";
+  const currency = (typeof window.t === 'function' ? window.t('currency', settings.currency || "ج.م") : (settings.currency || "ج.م"));
   const prods = Store.getProducts();
 
   const totalItemsCount = cart.reduce((sum, item) => sum + item.qty, 0);
@@ -296,7 +296,7 @@ function updateLedgerUI() {
       if (elements.spendTierCard) {
         elements.spendTierCard.style.display = 'block';
         if (elements.spendTierMsg) elements.spendTierMsg.textContent = `مبروك! حصلت على خصم ${tierValue}${isPercent ? '%' : ' ' + currency} على طلبك`;
-        if (elements.spendTierPercent) elements.spendTierPercent.textContent = `${tierValue}${isPercent ? '%' : ' ج.م'} خصم`;
+        if (elements.spendTierPercent) elements.spendTierPercent.textContent = `${tierValue}${isPercent ? '%' : ' ' + currency} خصم`;
         if (elements.spendTierFill) elements.spendTierFill.style.width = '100%';
       }
     } else {
@@ -413,7 +413,7 @@ function updateLedgerUI() {
 
   if (elements.spendTierDiscountRow) {
     elements.spendTierDiscountRow.style.display = spendTierDiscountAmount > 0 ? 'flex' : 'none';
-    if (elements.spendTierBadge) elements.spendTierBadge.textContent = `${settings.spendTierDiscountValue}${settings.spendTierDiscountType === 'fixed' ? ' ج.م' : '%'}`;
+    if (elements.spendTierBadge) elements.spendTierBadge.textContent = `${settings.spendTierDiscountValue}${settings.spendTierDiscountType === 'fixed' ? ' ' + currency : '%'}`;
     if (elements.spendTierDiscountVal) elements.spendTierDiscountVal.textContent = `-${spendTierDiscountAmount.toFixed(2)} ${currency}`;
   }
 
@@ -433,7 +433,7 @@ function updateLedgerUI() {
     elements.walletDiscountRow.style.display = (isWallet && walletDiscountAmount > 0) ? 'flex' : 'none';
     if (elements.walletDiscountBadge) {
       const val = settings.walletDiscountValue !== undefined ? settings.walletDiscountValue : 10;
-      elements.walletDiscountBadge.textContent = `${val}${settings.walletDiscountType === 'fixed' ? ' ج.م' : '%'}`;
+      elements.walletDiscountBadge.textContent = `${val}${settings.walletDiscountType === 'fixed' ? ' ' + currency : '%'}`;
     }
     if (elements.walletDiscountVal) elements.walletDiscountVal.textContent = `-${walletDiscountAmount.toFixed(2)} ${currency}`;
   }
@@ -442,7 +442,7 @@ function updateLedgerUI() {
     if (cart.length > 0 && isDelivery) {
       elements.deliveryFeeRow.style.display = 'flex';
       if (elements.deliveryFeeVal) {
-        elements.deliveryFeeVal.textContent = deliveryFee > 0 ? `+${deliveryFee.toFixed(2)} ${currency}` : `مجاني`;
+        elements.deliveryFeeVal.textContent = deliveryFee > 0 ? `+${deliveryFee.toFixed(2)} ${currency}` : (typeof window.t === 'function' ? window.t('val_free', 'مجاني') : 'مجاني');
       }
     } else {
       elements.deliveryFeeRow.style.display = 'none';
@@ -464,19 +464,19 @@ function updateLedgerUI() {
     if (emptyView) emptyView.style.display = 'flex';
     if (step1View) step1View.style.display = 'none';
     if (step2View) step2View.style.display = 'none';
-    if (titleText) titleText.textContent = "سلة الطلبات";
+    if (titleText) titleText.textContent = (typeof window.t === 'function' ? window.t('cart_title', "سلة الطلبات") : "سلة الطلبات");
     if (countBadge) countBadge.style.display = 'none';
   } else {
     if (emptyView) emptyView.style.display = 'none';
     if (currentCheckoutStep === 2) {
       if (step1View) step1View.style.display = 'none';
       if (step2View) step2View.style.display = 'flex';
-      if (titleText) titleText.textContent = "الاستلام والدفع";
+      if (titleText) titleText.textContent = (typeof window.t === 'function' ? window.t('fulfillment_title', "الاستلام والدفع") : "الاستلام والدفع");
       if (countBadge) countBadge.style.display = 'none';
     } else {
       if (step1View) step1View.style.display = 'flex';
       if (step2View) step2View.style.display = 'none';
-      if (titleText) titleText.textContent = "سلة الطلبات";
+      if (titleText) titleText.textContent = (typeof window.t === 'function' ? window.t('cart_title', "سلة الطلبات") : "سلة الطلبات");
       if (countBadge) {
         countBadge.textContent = totalItemsCount;
         countBadge.style.display = 'inline-block';
@@ -492,7 +492,7 @@ function renderCartDrawerItems() {
   if (!elements.cartDrawerItems) return;
   const cart = Store.getCart();
   const s = Store.getSettings();
-  const currency = s.currency || "ج.م";
+  const currency = (typeof window.t === 'function' ? window.t('currency', s.currency || "ج.م") : (s.currency || "ج.م"));
 
   if (cart.length === 0) {
     elements.cartDrawerItems.innerHTML = '';
@@ -503,12 +503,13 @@ function renderCartDrawerItems() {
     const rawId = item.id || '';
     const cleanId = String(rawId).replace(/[^a-zA-Z0-9#\-_]/g, '');
     const safeImage = (item.image && typeof item.image === 'string' && (item.image.startsWith('http') || item.image.startsWith('data:') || item.image.startsWith('/') || item.image.startsWith('./'))) ? esc(item.image) : '';
-    const safeName = esc(item.name || '');
-    const sizeText = item.selectedSize ? `<span style="display:inline-block; background:var(--surface-hover); color:var(--text-muted); font-size:10.5px; padding:1px 6px; border-radius:4px; margin-top:2px;">${esc(item.selectedSize.name)}</span>` : '';
+    const safeName = esc(typeof window.tr === 'function' ? window.tr(item.name || '') : (item.name || ''));
+    const sizeText = item.selectedSize ? `<span style="display:inline-block; background:var(--surface-hover); color:var(--text-muted); font-size:10.5px; padding:1px 6px; border-radius:4px; margin-top:2px;">${esc(typeof window.tr === 'function' ? window.tr(item.selectedSize.name) : item.selectedSize.name)}</span>` : '';
     const addonsText = item.selectedAddons && item.selectedAddons.length > 0 
-      ? `<div style="font-size:10px; color:var(--primary); margin-top:2px;">+ ${item.selectedAddons.map(a => esc(a.name)).join('، ')}</div>` 
+      ? `<div style="font-size:10px; color:var(--primary); margin-top:2px;">+ ${item.selectedAddons.map(a => esc(typeof window.tr === 'function' ? window.tr(a.name) : a.name)).join('، ')}</div>` 
       : '';
-    const notesText = item.notes ? `<div style="font-size:10px; color:var(--text-faint); font-style:italic;">ملاحظة: ${esc(item.notes)}</div>` : '';
+    const notesLabel = (typeof window.t === 'function' ? window.t('lbl_notes', 'ملاحظة') : 'ملاحظة');
+    const notesText = item.notes ? `<div style="font-size:10px; color:var(--text-faint); font-style:italic;">${notesLabel}: ${esc(item.notes)}</div>` : '';
 
     return `
       <div class="cart-ledger-item">
@@ -623,7 +624,7 @@ window.goToCheckoutStep = function(stepNumber, pushHistory = true) {
       const body2 = step2View.querySelector('.drawer-body');
       if (body2) body2.scrollTop = 0;
     }
-    if (titleText) titleText.textContent = "الاستلام والدفع";
+    if (titleText) titleText.textContent = (typeof window.t === 'function' ? window.t('fulfillment_title', "الاستلام والدفع") : "الاستلام والدفع");
     if (countBadge) countBadge.style.display = 'none';
 
     if (typeof window.updateCartSavedProfileCard === 'function') {
@@ -1097,8 +1098,8 @@ window.updateCartSavedProfileCard = function() {
       if (titleEl) titleEl.textContent = `${name} (${phone})`;
       if (descEl) {
         if (fType === 'delivery') descEl.textContent = `${address}`;
-        else if (fType === 'takeaway') descEl.textContent = `استلام من فرع المطعم (تيك أواي)`;
-        else if (fType === 'dinein') descEl.textContent = `🍽️ طلب صالة — طاولة: ${tableNum}`;
+        else if (fType === 'takeaway') descEl.textContent = (typeof window.t === 'function' ? window.t('ful_takeaway_desc', 'استلام من كاونتر المطعم (بدون دليفري)') : 'استلام من كاونتر المطعم (بدون دليفري)');
+        else if (fType === 'dinein') descEl.textContent = `🍽️ ${(typeof window.t === 'function' ? window.t('fulfillment_dinein', 'طلب صالة') : 'طلب صالة')} — ${(typeof window.t === 'function' ? window.t('field_table', 'طاولة') : 'طاولة')}: ${tableNum}`;
       }
       card.style.display = 'flex';
     }
