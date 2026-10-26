@@ -557,6 +557,7 @@ const Store = {
           this.safeSetItem(`harpy_admin_auth_${slug}`, JSON.stringify(session));
           sessionStorage.setItem(`harpy_auth_${slug}`, JSON.stringify(session));
           this.safeSetItem('harpy_admin_active_slug', slug);
+          if (this.setBranchKeychain) this.setBranchKeychain(slug, cleanPassword);
           return userCred;
         } catch (authErr) {
           console.warn(`[Store] Firebase Auth attempt for ${email}:`, authErr.code || authErr.message);

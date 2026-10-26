@@ -341,7 +341,8 @@ function setupAuth() {
     try {
       await Store.loginAdmin(identifier || slug, password);
       if (typeof Store.setBranchKeychain === 'function') {
-        Store.setBranchKeychain(identifier || slug, password);
+        Store.setBranchKeychain(slug, password);
+        if (identifier) Store.setBranchKeychain(identifier, password);
       }
       unlockDashboard();
     } catch (err) {
@@ -572,32 +573,107 @@ function checkOnboardingSetup() {
 
 window.verifyAdminCredentials = async function(enteredPassword, slug) {
   if (!enteredPassword) return false;
-  slug = slug || (typeof Store !== 'undefined' ? Store.getRestaurantSlug() : 'saj');
-  
-  // 1. Verify against meta.adminPassword in Firebase RTDB
+  const cleanPass = enteredPassword.trim();
+  slug = (slug || (typeof Store !== 'undefined' ? Store.getRestaurantSlug() : 'saj')).toLowerCase().trim();
+
+  // 1. Instant Keychain Check (If admin authenticated on this device/session with this password)
+  if (typeof Store !== 'undefined' && Store.getBranchKeychain) {
+    const savedPass = Store.getBranchKeychain(slug);
+    if (savedPass && savedPass === cleanPass) {
+      return true;
+    }
+  }
+
+  // 2. Check local cached meta or Firebase RTDB meta.adminPassword
+  if (typeof Store !== 'undefined' && Store.safeGetItem) {
+    try {
+      const localMeta = JSON.parse(Store.safeGetItem(`harpy_${slug}_meta`) || '{}');
+      if (localMeta && localMeta.adminPassword && localMeta.adminPassword.trim() === cleanPass) {
+        if (Store.setBranchKeychain) Store.setBranchKeychain(slug, cleanPass);
+        return true;
+      }
+    } catch(e) {}
+  }
   if (typeof db !== 'undefined' && db) {
     try {
       const snap = await db.ref(`restaurants/${slug}/meta`).once('value');
       const meta = snap.val() || {};
       const realPwd = (meta.adminPassword || '').trim();
-      if (realPwd && enteredPassword === realPwd) {
+      if (realPwd && cleanPass === realPwd) {
         try { localStorage.setItem(`harpy_${slug}_meta`, JSON.stringify(meta)); } catch(e) {}
+        if (typeof Store !== 'undefined' && Store.setBranchKeychain) Store.setBranchKeychain(slug, cleanPass);
         return true;
       }
     } catch (e) {}
   }
 
-  // 2. If not verified yet, verify via Firebase Auth
-  if (typeof auth !== 'undefined' && auth) {
+  // 3. Delegate to Store.verifyBranchCredentials (handles isolated tempApp and candidate emails)
+  if (typeof Store !== 'undefined' && Store.verifyBranchCredentials) {
     try {
-      const sessionStr = localStorage.getItem(`harpy_admin_auth_${slug}`) || sessionStorage.getItem(`harpy_auth_${slug}`);
-      let email = `${slug}@${slug}.com`;
-      if (sessionStr) {
-        try { email = JSON.parse(sessionStr).email || email; } catch(e) {}
+      const res = await Store.verifyBranchCredentials(slug, cleanPass);
+      if (res && res.success) {
+        return true;
       }
-      await auth.signInWithEmailAndPassword(email, enteredPassword);
-      return true;
-    } catch (authErr) {}
+    } catch (err) {}
+  }
+
+  // 4. Candidate emails check via isolated Firebase Auth
+  const candidateEmails = [];
+  if (typeof auth !== 'undefined' && auth && auth.currentUser && auth.currentUser.email) {
+    candidateEmails.push(auth.currentUser.email);
+  }
+  const sessionStr = localStorage.getItem(`harpy_admin_auth_${slug}`) || sessionStorage.getItem(`harpy_auth_${slug}`);
+  if (sessionStr) {
+    try {
+      const parsed = JSON.parse(sessionStr);
+      if (parsed.email) candidateEmails.push(parsed.email);
+    } catch(e) {}
+  }
+  candidateEmails.push(`${slug}@harpymenu.com`);
+  candidateEmails.push(`${slug}@${slug}.com`);
+
+  if (typeof firebase !== 'undefined' && firebase.initializeApp && firebase.auth) {
+    let tempApp = null;
+    try {
+      const tempName = 'AdminVerifier_' + Date.now();
+      const cfg = {
+        apiKey: firebase.app().options.apiKey,
+        authDomain: firebase.app().options.authDomain,
+        projectId: firebase.app().options.projectId,
+        databaseURL: firebase.app().options.databaseURL
+      };
+      tempApp = firebase.initializeApp(cfg, tempName);
+      const tempAuth = tempApp.auth();
+
+      for (const email of candidateEmails) {
+        try {
+          const userCred = await tempAuth.signInWithEmailAndPassword(email, cleanPass);
+          if (userCred && userCred.user) {
+            if (typeof Store !== 'undefined' && Store.setBranchKeychain) {
+              Store.setBranchKeychain(slug, cleanPass);
+            }
+            try { await tempApp.delete(); } catch(delErr) {}
+            return true;
+          }
+        } catch(authErr) {}
+      }
+      try { await tempApp.delete(); } catch(delErr) {}
+    } catch(e) {
+      if (tempApp) { try { await tempApp.delete(); } catch(delErr) {} }
+    }
+  }
+
+  // 5. Fallback if auth is ready on main instance
+  if (typeof auth !== 'undefined' && auth) {
+    for (const email of candidateEmails) {
+      try {
+        await auth.signInWithEmailAndPassword(email, cleanPass);
+        if (typeof Store !== 'undefined' && Store.setBranchKeychain) {
+          Store.setBranchKeychain(slug, cleanPass);
+        }
+        return true;
+      } catch(e) {}
+    }
   }
 
   return false;
