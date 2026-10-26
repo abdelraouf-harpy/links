@@ -777,7 +777,7 @@ function renderAdminBranchesList() {
   const currentSlug = Store.getRestaurantSlug();
 
   let html = '';
-  branches.forEach((b, idx) => {
+  branches.forEach((b) => {
     const isCurrent = (b.slug === currentSlug);
     html += `
       <div class="admin-branch-card" style="background:var(--surface); border:1px solid ${isCurrent ? 'var(--primary-glow)' : 'var(--border)'}; border-radius:var(--radius-xs); padding:14px; display:flex; flex-direction:column; justify-content:space-between; gap:10px;">
@@ -787,12 +787,10 @@ function renderAdminBranchesList() {
               <span>${safeEscape(b.name)}</span>
               ${isCurrent ? '<span style="font-size:10px; background:var(--primary-subtle); color:var(--primary); padding:1px 6px; border-radius:4px; font-weight:900;">أنت هنا</span>' : ''}
             </div>
-            <div style="font-size:11px; color:var(--text-muted); margin-top:3px; font-family:monospace;">الرابط: ?m=${safeEscape(b.slug)}</div>
-            ${b.address ? `<div style="font-size:11px; color:var(--text-body); margin-top:3px;">📍 ${safeEscape(b.address)}</div>` : ''}
-            ${b.phone ? `<div style="font-size:11px; color:var(--text-body); margin-top:2px;">📞 ${safeEscape(b.phone)}</div>` : ''}
+            <div style="font-size:11px; color:var(--text-muted); margin-top:3px; font-family:monospace;">المعرّف: ?m=${safeEscape(b.slug)}</div>
           </div>
           ${!isCurrent ? `
-            <button type="button" class="btn-icon" onclick="deleteAdminBranch('${b.id || b.slug}')" title="حذف الفرع" style="color:var(--danger, #ef4444); padding:4px; border-radius:6px; background:transparent; border:none; cursor:pointer;">
+            <button type="button" class="btn-icon" onclick="deleteAdminBranch('${b.id || b.slug}')" title="حذف وإلغاء ربط هذا الفرع" style="color:var(--danger, #ef4444); padding:4px; border-radius:6px; background:transparent; border:none; cursor:pointer;">
               <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
             </button>
           ` : ''}
@@ -821,16 +819,12 @@ async function addAdminBranch() {
   const nameInp = document.getElementById('new-branch-name-input');
   const slugInp = document.getElementById('new-branch-slug-input');
   const passInp = document.getElementById('new-branch-password-input');
-  const phoneInp = document.getElementById('new-branch-phone-input');
-  const addrInp = document.getElementById('new-branch-address-input');
   const addBtn = document.getElementById('btn-add-new-branch');
   const btnText = document.getElementById('btn-add-branch-text');
 
   const name = (nameInp?.value || '').trim();
   let slug = (slugInp?.value || '').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
   const password = (passInp?.value || '').trim();
-  const phone = (phoneInp?.value || '').trim();
-  const address = (addrInp?.value || '').trim();
 
   if (!name) {
     showToastNotification("يرجى كتابة اسم الفرع (مثال: فرع سوبر برجر)", "error");
@@ -839,7 +833,9 @@ async function addAdminBranch() {
   }
 
   if (!slug) {
-    slug = name.toLowerCase().replace(/[^a-z0-9]/g, '') || `branch-${Date.now().toString(36)}`;
+    showToastNotification("يرجى كتابة معرّف الفرع (مثال: super-burger)", "error");
+    if (slugInp) slugInp.focus();
+    return;
   }
 
   if (!password) {
@@ -851,7 +847,7 @@ async function addAdminBranch() {
   const branches = (typeof Store !== 'undefined' && Store.getBranches) ? Store.getBranches() : [];
 
   if (branches.some(b => b.slug === slug)) {
-    showToastNotification("معرّف الفرع (Slug) موجود بالفعل في شبكة الفروع", "error");
+    showToastNotification("معرّف الفرع موجود بالفعل في شبكة الفروع", "error");
     if (slugInp) slugInp.focus();
     return;
   }
@@ -877,8 +873,6 @@ async function addAdminBranch() {
       id: slug,
       slug: slug,
       name: name,
-      phone: phone,
-      address: address,
       createdAt: Date.now()
     });
 
@@ -893,10 +887,9 @@ async function addAdminBranch() {
     if (nameInp) nameInp.value = '';
     if (slugInp) slugInp.value = '';
     if (passInp) passInp.value = '';
-    if (phoneInp) phoneInp.value = '';
-    if (addrInp) addrInp.value = '';
 
     renderAdminBranchesList();
+    updateAdminBranchDrawerSwitcher();
     updateAdminBranchHeaderSwitcher();
     showToastNotification(`✅ تم التحقق من ملكية فرع "${name}" وإضافته بنجاح إلى شبكة فروعك!`, "success");
   } catch (err) {
@@ -930,9 +923,38 @@ async function deleteAdminBranch(branchId) {
   showToastNotification(`تم حذف ${target.name}`, "info");
 }
 
+async function clearAllAdminBranches() {
+  const currentSlug = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : '';
+  const currentSettings = (typeof Store !== 'undefined' && Store.getSettings) ? Store.getSettings() : {};
+  const currentName = currentSettings.storeName || (currentSlug === 'demo' ? 'الفرع التجريبي (ديمو)' : currentSlug);
+
+  if (!confirm("هل أنت متأكد من تصفير شبكة الفروع وإلغاء ربط جميع الفروع؟ سيتم الاحتفاظ بالمطعم الحالي فقط كفرع مستقل.")) {
+    return;
+  }
+
+  const cleanList = [{
+    id: currentSlug,
+    slug: currentSlug,
+    name: currentName,
+    isMain: true
+  }];
+
+  await Store.saveBranches(cleanList);
+  try {
+    sessionStorage.removeItem('harpy_verified_branches');
+    localStorage.removeItem(`harpy_branches_${currentSlug}`);
+    localStorage.removeItem('harpy_admin_branch_network');
+  } catch(e) {}
+
+  renderAdminBranchesList();
+  updateAdminBranchDrawerSwitcher();
+  updateAdminBranchHeaderSwitcher();
+  showToastNotification("تم تصفير شبكة الفروع بنجاح", "info");
+}
+
 window.renderAdminBranchesList = renderAdminBranchesList;
 window.addAdminBranch = addAdminBranch;
 window.deleteAdminBranch = deleteAdminBranch;
+window.clearAllAdminBranches = clearAllAdminBranches;
 window.updateAdminBranchHeaderSwitcher = updateAdminBranchHeaderSwitcher;
-
 window.updateAdminBranchDrawerSwitcher = updateAdminBranchDrawerSwitcher;

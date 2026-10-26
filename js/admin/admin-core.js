@@ -815,9 +815,9 @@ window.switchAdminBranch = function(branchSlug) {
   // 2. Persist network universally across localStorage & sessionStorage
   try {
     const netJson = JSON.stringify(branches);
-    localStorage.setItem('harpy_admin_branch_network', netJson);
-    sessionStorage.setItem('harpy_admin_branch_network', netJson);
-    localStorage.setItem('harpy_previous_branch_slug', currentSlug);
+    sessionStorage.setItem('harpy_verified_branches', netJson);
+    localStorage.setItem(`harpy_branches_${branchSlug}`, netJson);
+    if (currentSlug) localStorage.setItem(`harpy_branches_${currentSlug}`, netJson);
 
     // Inject branches directly into target branch's settings cache in localStorage
     const targetKey = `harpy_${branchSlug}_settings`;
