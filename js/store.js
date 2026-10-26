@@ -2360,7 +2360,11 @@ const Store = {
     let parsed = { ...defaults };
     if (raw) {
       try {
-        parsed = { ...defaults, ...JSON.parse(raw) };
+        const rawObj = JSON.parse(raw);
+        parsed = { ...defaults, ...rawObj };
+        if (rawObj.showAnnouncement === false) {
+          parsed.showAnnouncement = false;
+        }
       } catch(e) {}
     }
 
@@ -2422,13 +2426,15 @@ const Store = {
     this.applyTheme();
     window.dispatchEvent(new Event('store_settings_updated'));
 
-    // Ultra-Fast Optimistic Flow: Push to cloud in background without blocking UI
-    this.pushToCloud('settings', settings).then(cloudSuccess => {
+    // Ultra-Fast Reliable Flow: Await cloud push so external tabs & previews immediately reflect updates
+    try {
+      await this.pushToCloud('settings', settings);
       this.lastSaveTimestamps.settings = Date.now();
+    } catch(err) {
+      console.warn('[Store] pushToCloud settings warning:', err);
+    } finally {
       this.saveLocks.settings = false;
-    }).catch(err => {
-      this.saveLocks.settings = false;
-    });
+    }
 
     return { success: true, localSaved: true };
   },

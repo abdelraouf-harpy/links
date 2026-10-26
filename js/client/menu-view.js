@@ -265,7 +265,7 @@ function renderProducts(forceRebuild = false) {
 
   const allProds = Store.getProducts().filter(p => p.visible !== false);
   const settings = Store.getSettings();
-  const currency = settings.currency || "ج.م";
+  const currency = (typeof window.t === 'function' ? window.t('currency', settings.currency || "ج.م") : (settings.currency || "ج.م"));
   const favorites = Store.getFavorites();
   const cart = Store.getCart();
   const searchQuery = (elements.searchInput && elements.searchInput.value || '').trim().toLowerCase();

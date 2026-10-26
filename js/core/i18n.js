@@ -15,6 +15,116 @@
   };
 
   const COMMON_TERMS = {
+    "الـبـيـتزا": { "en": "Pizza", "fr": "Pizza", "ru": "Пицца", "it": "Pizza" },
+    "البيتزا": { "en": "Pizza", "fr": "Pizza", "ru": "Пицца", "it": "Pizza" },
+    "الكريبات": { "en": "Crepes", "fr": "Crêpes", "ru": "Крепы", "it": "Crepes" },
+    "كريبات": { "en": "Crepes", "fr": "Crêpes", "ru": "Крепы", "it": "Crepes" },
+    "الكريبات اللذيذه": { "en": "Delicious Crepes", "fr": "Crêpes Délicieuses", "ru": "Вкусные крепы", "it": "Crepes Deliziose" },
+    "الساندوتشات": { "en": "Sandwiches", "fr": "Sandwichs", "ru": "Сэндвичи", "it": "Panini" },
+    "السندوتشات": { "en": "Sandwiches", "fr": "Sandwichs", "ru": "Сэндвичи", "it": "Panini" },
+    "الحواوشي": { "en": "Hawawshi", "fr": "Hawawshi", "ru": "Хававши", "it": "Hawawshi" },
+    "حواوشي": { "en": "Hawawshi", "fr": "Hawawshi", "ru": "Хававши", "it": "Hawawshi" },
+    "الريزو": { "en": "Rizo Bowls", "fr": "Bols Rizo", "ru": "Боулы Ризо", "it": "Ciotole Rizo" },
+    "ريزو": { "en": "Rizo Bowls", "fr": "Bols Rizo", "ru": "Боулы Ризо", "it": "Ciotole Rizo" },
+    "السوري": { "en": "Syrian Wraps", "fr": "Wraps Syriens", "ru": "Сирийские блюда", "it": "Wrap Siriani" },
+    "سوري": { "en": "Syrian Wrap", "fr": "Wrap Syrien", "ru": "Сирийский рап", "it": "Wrap Siriano" },
+    "الإضافات": { "en": "Extras & Sides", "fr": "Suppléments", "ru": "Добавки и гарниры", "it": "Contorni ed Extra" },
+    "الاضافات": { "en": "Extras & Sides", "fr": "Suppléments", "ru": "Добавки и гарниры", "it": "Contorni ed Extra" },
+    "مشويات وطواجن ملوكية": { "en": "Royal Grills & Casseroles", "fr": "Grillades & Plats Royaux", "ru": "Королевский гриль и таджины", "it": "Grigliate e Casseruole Reali" },
+    "برجر وسندوتشات فاخرة": { "en": "Gourmet Burgers & Sandwiches", "fr": "Burgers & Sandwichs Gourmets", "ru": "Бургеры и премиум сэндвичи", "it": "Burger e Panini Gourmet" },
+    "بيتزا إيطالية على الحطب": { "en": "Wood-Fired Italian Pizza", "fr": "Pizza Italienne au Feu de Bois", "ru": "Итальянская пицца на дровах", "it": "Pizza Italiana al Forno a Legna" },
+    "مقبلات وصوصات كينج": { "en": "King Sides & Sauces", "fr": "Accompagnements & Sauces King", "ru": "Закуски и соусы Кинг", "it": "Contorni e Salse King" },
+    "حلويات وعصائر فريش": { "en": "Fresh Desserts & Juices", "fr": "Desserts & Jus Frais", "ru": "Десерты и свежие соки", "it": "Dolci e Succhi Freschi" },
+    "سـوبر كرانشي": { "en": "Super Crunchy", "fr": "Super Croustillant", "ru": "Супер Кранчи", "it": "Super Croccante" },
+    "سوبر كرانشي": { "en": "Super Crunchy", "fr": "Super Croustillant", "ru": "Супер Кранчи", "it": "Super Croccante" },
+    "مارجريتا": { "en": "Margherita Pizza", "fr": "Pizza Margherita", "ru": "Пицца Маргарита", "it": "Pizza Margherita" },
+    "تشيكن رانش": { "en": "Chicken Ranch Pizza", "fr": "Pizza Poulet Ranch", "ru": "Пицца Чикен Ранч", "it": "Pizza Pollo Ranch" },
+    "تشيكن باربيكيو": { "en": "Chicken BBQ Pizza", "fr": "Pizza Poulet BBQ", "ru": "Пицца Чикен Барбекю", "it": "Pizza Pollo BBQ" },
+    "لحمه مفرومه": { "en": "Minced Meat Pizza", "fr": "Pizza Viande Hachée", "ru": "Пицца с мясным фаршем", "it": "Pizza con Carne Macinata" },
+    "لحمة مفرومة": { "en": "Minced Meat Pizza", "fr": "Pizza Viande Hachée", "ru": "Пицца с мясным фаршем", "it": "Pizza con Carne Macinata" },
+    "سجق": { "en": "Oriental Sausage", "fr": "Saucisse Orientale", "ru": "Восточные колбаски", "it": "Salsiccia Orientale" },
+    "هوت دوج": { "en": "Hot Dog", "fr": "Hot-Dog", "ru": "Хот-дог", "it": "Hot Dog" },
+    "ميكس جبن": { "en": "Mix Cheese", "fr": "Mélange de Fromages", "ru": "Сырный микс", "it": "Formaggi Misti" },
+    "مكس جبن": { "en": "Mix Cheese", "fr": "Mélange de Fromages", "ru": "Сырный микс", "it": "Formaggi Misti" },
+    "مكس لحوم": { "en": "Meat Lovers Mix", "fr": "Mélange de Viandes", "ru": "Мясное ассорти", "it": "Misto Carne" },
+    "ميكس لحوم": { "en": "Meat Lovers Mix", "fr": "Mélange de Viandes", "ru": "Мясное ассорти", "it": "Misto Carne" },
+    "ببرونى": { "en": "Pepperoni Pizza", "fr": "Pizza Pepperoni", "ru": "Пицца Пепперони", "it": "Pizza Pepperoni" },
+    "ببروني": { "en": "Pepperoni Pizza", "fr": "Pizza Pepperoni", "ru": "Пицца Пепперони", "it": "Pizza Pepperoni" },
+    "خضار": { "en": "Vegetarian Pizza", "fr": "Pizza Végétarienne", "ru": "Вегетарианская пицца", "it": "Pizza Vegetariana" },
+    "كريب شاورما": { "en": "Shawarma Crepe", "fr": "Crêpe Chawarma", "ru": "Креп с шаурмой", "it": "Crepe Shawarma" },
+    "كريب استربس": { "en": "Strips Crepe", "fr": "Crêpe Tenders", "ru": "Креп со стрипсами", "it": "Crepe Strips" },
+    "كريب شيش": { "en": "Shish Tawook Crepe", "fr": "Crêpe Chich Taouk", "ru": "Креп с шиш-тауком", "it": "Crepe Shish Taouk" },
+    "كريب كفته": { "en": "Kofta Crepe", "fr": "Crêpe Kofta", "ru": "Креп с люля-кебабом", "it": "Crepe Kofta" },
+    "كريب كفتة": { "en": "Kofta Crepe", "fr": "Crêpe Kofta", "ru": "Креп с люля-кебабом", "it": "Crepe Kofta" },
+    "كريب مكس فراخ": { "en": "Chicken Mix Crepe", "fr": "Crêpe Poulet Mixte", "ru": "Креп куриный микс", "it": "Crepe Misto Pollo" },
+    "كريب سجق": { "en": "Sausage Crepe", "fr": "Crêpe Saucisse", "ru": "Креп с колбасками", "it": "Crepe Salsiccia" },
+    "كريب سوسيس": { "en": "Hot Dog Crepe", "fr": "Crêpe Saucisse Hot-dog", "ru": "Креп с сосисками", "it": "Crepe Wurstel" },
+    "كريب ميكس جبن": { "en": "Four Cheese Crepe", "fr": "Crêpe Quatre Fromages", "ru": "Креп сырный микс", "it": "Crepe Ai Formaggi" },
+    "كريب سوبر صاج": { "en": "Super Saj Crepe", "fr": "Crêpe Super Saj", "ru": "Креп Супер Садж", "it": "Crepe Super Saj" },
+    "كفته": { "en": "Grilled Kofta", "fr": "Kofta Grillée", "ru": "Люля-кебаб на гриле", "it": "Kofta Grigliata" },
+    "كفتة": { "en": "Grilled Kofta", "fr": "Kofta Grillée", "ru": "Люля-кебаб на гриле", "it": "Kofta Grigliata" },
+    "شيش": { "en": "Shish Tawook", "fr": "Chich Taouk", "ru": "Шиш-таук", "it": "Shish Taouk" },
+    "كبده رده": { "en": "Bran Fried Liver", "fr": "Foie Pané au Son", "ru": "Печень в отрубях", "it": "Fegato con Crusca" },
+    "كبدة ردة": { "en": "Bran Fried Liver", "fr": "Foie Pané au Son", "ru": "Печень в отрубях", "it": "Fegato con Crusca" },
+    "كبده اسكندراني": { "en": "Alexandrian Liver", "fr": "Foie Alexandrin", "ru": "Печень по-александрийски", "it": "Fegato all'Alessandrina" },
+    "كبدة اسكندراني": { "en": "Alexandrian Liver", "fr": "Foie Alexandrin", "ru": "Печень по-александрийски", "it": "Fegato all'Alessandrina" },
+    "سجق اسكندراني": { "en": "Alexandrian Sausage", "fr": "Saucisse Alexandrine", "ru": "Колбаски по-александрийски", "it": "Salsiccia all'Alessandrina" },
+    "استربس": { "en": "Chicken Strips", "fr": "Tenders de Poulet", "ru": "Куриные стрипсы", "it": "Strips di Pollo" },
+    "تشيكن تشيز": { "en": "Chicken Cheese Sandwich", "fr": "Sandwich Poulet Fromage", "ru": "Чикен Чиз сэндвич", "it": "Panino Pollo e Formaggio" },
+    "ستيك برجر سنجل": { "en": "Single Steak Burger", "fr": "Steak Burger Simple", "ru": "Стейк Бургер одинарный", "it": "Single Steak Burger" },
+    "ستيك برجر دبل": { "en": "Double Steak Burger", "fr": "Steak Burger Double", "ru": "Стейк Бургер двойной", "it": "Double Steak Burger" },
+    "حواوشي لحمه": { "en": "Beef Hawawshi", "fr": "Hawawshi à la Viande", "ru": "Хававши с мясом", "it": "Hawawshi di Carne" },
+    "حواوشي لحمة": { "en": "Beef Hawawshi", "fr": "Hawawshi à la Viande", "ru": "Хававши с мясом", "it": "Hawawshi di Carne" },
+    "حواوشي موتزاريلا": { "en": "Mozzarella Hawawshi", "fr": "Hawawshi Mozzarella", "ru": "Хававши с моцареллой", "it": "Hawawshi con Mozzarella" },
+    "حواوشي ميكس جبن": { "en": "Mix Cheese Hawawshi", "fr": "Hawawshi Fromages Mixtes", "ru": "Хававши с сырным миксом", "it": "Hawawshi Formaggi Misti" },
+    "ريزو شاورما": { "en": "Shawarma Rizo Bowl", "fr": "Bol Rizo Chawarma", "ru": "Ризо боул с шаурмой", "it": "Rizo Bowl Shawarma" },
+    "ريزو تشيكن": { "en": "Chicken Rizo Bowl", "fr": "Bol Rizo Poulet", "ru": "Ризо боул с курицей", "it": "Rizo Bowl Pollo" },
+    "ريزو بيف": { "en": "Beef Rizo Bowl", "fr": "Bol Rizo Bœuf", "ru": "Ризо боул с говядиной", "it": "Rizo Bowl Manzo" },
+    "سوري شاورما": { "en": "Syrian Shawarma Wrap", "fr": "Wrap Chawarma Syrien", "ru": "Сирийский рап с шаурмой", "it": "Wrap Shawarma Siriano" },
+    "سوري كفته": { "en": "Syrian Kofta Wrap", "fr": "Wrap Kofta Syrien", "ru": "Сирийский рап с люля", "it": "Wrap Kofta Siriano" },
+    "سوري كفتة": { "en": "Syrian Kofta Wrap", "fr": "Wrap Kofta Syrien", "ru": "Сирийский рап с люля", "it": "Wrap Kofta Siriano" },
+    "سوري بانية بلدي": { "en": "Syrian Pane Wrap", "fr": "Wrap Pané Syrien", "ru": "Сирийский рап с панированным филе", "it": "Wrap Panato Siriano" },
+    "سوري بانيه بلدي": { "en": "Syrian Pane Wrap", "fr": "Wrap Pané Syrien", "ru": "Сирийский рап с панированным филе", "it": "Wrap Panato Siriano" },
+    "سوري شيش": { "en": "Syrian Shish Wrap", "fr": "Wrap Chich Syrien", "ru": "Сирийский рап с шиш-тауком", "it": "Wrap Shish Siriano" },
+    "سوري بطاطس": { "en": "Syrian Fries Wrap", "fr": "Wrap Frites Syrien", "ru": "Сирийский рап с картофелем", "it": "Wrap Patatine Siriano" },
+    "بطاطس صغير": { "en": "Small French Fries", "fr": "Petite Portion de Frites", "ru": "Маленький картофель фри", "it": "Patatine Fritte Piccole" },
+    "بطاطس كبير": { "en": "Large French Fries", "fr": "Grande Portion de Frites", "ru": "Большой картофель фри", "it": "Patatine Fritte Grandi" },
+    "حشو اطراف بيتزا": { "en": "Stuffed Crust Edge", "fr": "Croûte Farcie", "ru": "Сырный бортик", "it": "Bordo Ripieno" },
+    "تشيكن فرايز": { "en": "Chicken Fries", "fr": "Frites au Poulet", "ru": "Куриные палочки фри", "it": "Chicken Fries" },
+    "برجر فرايز": { "en": "Burger Fries Box", "fr": "Frites Burger", "ru": "Картофель фри с бургером", "it": "Burger Fries" },
+    "تشيز فرايز صوص": { "en": "Cheese Fries with Sauce", "fr": "Frites Sauce Fromage", "ru": "Картофель фри с сырным соусом", "it": "Patatine al Formaggio" },
+    "برجر إضافي": { "en": "Extra Burger Patty", "fr": "Steak Haché Supplémentaire", "ru": "Дополнительная котлета", "it": "Patty Burger Extra" },
+    "برجر اضافي": { "en": "Extra Burger Patty", "fr": "Steak Haché Supplémentaire", "ru": "Дополнительная котлета", "it": "Patty Burger Extra" },
+    "فراخ استربس (إضافة)": { "en": "Extra Chicken Strips", "fr": "Tenders Supplémentaires", "ru": "Дополнительные стрипсы", "it": "Strips di Pollo Extra" },
+    "فراخ استربس": { "en": "Chicken Strips", "fr": "Tenders de Poulet", "ru": "Куриные стрипсы", "it": "Strips di Pollo" },
+    "بيف مدخن": { "en": "Smoked Beef", "fr": "Bœuf Fumé", "ru": "Копченая говядина", "it": "Manzo Affumicato" },
+    "أرز ريزو": { "en": "Rizo Rice", "fr": "Riz Rizo", "ru": "Рис Ризо", "it": "Riso Rizo" },
+    "ارز ريزو": { "en": "Rizo Rice", "fr": "Riz Rizo", "ru": "Рис Ризо", "it": "Riso Rizo" },
+    "عيش فرنساوي": { "en": "French Baguette Bread", "fr": "Pain Baguette Française", "ru": "Французский багет", "it": "Baguette Francese" },
+    "عيش بلدي": { "en": "Baladi Pita Bread", "fr": "Pain Pita Baladi", "ru": "Традиционная лепешка", "it": "Pane Pita Baladi" },
+    "وجبه عربي": { "en": "Arabic Meal", "fr": "Menu Arabe", "ru": "Арабский обед", "it": "Pasto Arabo" },
+    "وجبة عربي": { "en": "Arabic Meal", "fr": "Menu Arabe", "ru": "Арабский обед", "it": "Pasto Arabo" },
+    "وجبه فرايد تشكن": { "en": "Fried Chicken Meal", "fr": "Menu Poulet Frit", "ru": "Обед с жареной курицей", "it": "Pasto Pollo Fritto" },
+    "وجبة فرايد تشيكن": { "en": "Fried Chicken Meal", "fr": "Menu Poulet Frit", "ru": "Обед с жареной курицей", "it": "Pasto Pollo Fritto" },
+    "وجبه مسحب": { "en": "Musahab Chicken Meal", "fr": "Menu Poulet Musahab", "ru": "Обед Мусахаб", "it": "Pasto Pollo Musahab" },
+    "وجبة مسحب": { "en": "Musahab Chicken Meal", "fr": "Menu Poulet Musahab", "ru": "Обед Мусахаб", "it": "Pasto Pollo Musahab" },
+    "سموكيد برجر": { "en": "Smoked Burger", "fr": "Burger Fumé", "ru": "Копченый бургер", "it": "Burger Affumicato" },
+    "خصم 15% على جميع الوجبات لفترة محدودة": { "en": "15% off all meals for a limited time", "fr": "15% de réduction sur tous les repas pour une durée limitée", "ru": "Скидка 15% на все блюда на ограниченное время", "it": "15% di sconto su tutti i piatti per un periodo limitato" },
+    "صوص رانش فاخر": { "en": "Ranch Sauce", "fr": "Sauce Ranch", "ru": "Соус Ранч", "it": "Salsa Ranch" },
+    "صوص فاير حار وسبايسي": { "en": "Fire Spicy Sauce", "fr": "Sauce Épicée Fire", "ru": "Огненно-острый соус", "it": "Salsa Piccante Fire" },
+    "صوص باربيكيو مدخن": { "en": "Smoky BBQ Sauce", "fr": "Sauce BBQ Fumée", "ru": "Копченый соус барбекю", "it": "Salsa BBQ Affumicata" },
+    "صوص البيج تيستي الشهير": { "en": "Famous Big Tasty Sauce", "fr": "Célèbre Sauce Big Tasty", "ru": "Знаменитый соус Биг Тейсти", "it": "Famosa Salsa Big Tasty" },
+    "صوص ثاوزند آيلاند (ألف جزيرة)": { "en": "Thousand Island Sauce", "fr": "Sauce Thousand Island", "ru": "Соус Тысяча островов", "it": "Salsa Thousand Island" },
+    "مايونيز كريمي": { "en": "Creamy Mayonnaise", "fr": "Mayonnaise Crémeuse", "ru": "Сливочный майонез", "it": "Maionese Cremosa" },
+    "كاتشب طماطم": { "en": "Tomato Ketchup", "fr": "Ketchup de Tomates", "ru": "Томатный кетчуп", "it": "Ketchup di Pomodoro" },
+    "تومية سورية كلاسيك": { "en": "Classic Syrian Garlic Sauce", "fr": "Crème d'Ail Syrienne Classique", "ru": "Классический чесночный соус", "it": "Salsa all'Aglio Siriana" },
+    "تومية سبايسي حارة": { "en": "Spicy Syrian Garlic Sauce", "fr": "Crème d'Ail Épicée", "ru": "Острый чесночный соус", "it": "Salsa all'Aglio Piccante" },
+    "سلطة كول سلو منعشة": { "en": "Fresh Coleslaw Salad", "fr": "Salade Coleslaw Fraîche", "ru": "Свежий салат коулслоу", "it": "Insalata Coleslaw Fresca" },
+    "بيبسي كانز بارد": { "en": "Chilled Pepsi Can", "fr": "Canette Pepsi Fraîche", "ru": "Холодная банка Пепси", "it": "Lattina Pepsi Fredda" },
+    "ماكسي كولا": { "en": "Maxi Cola", "fr": "Maxi Cola", "ru": "Макси Кола", "it": "Maxi Cola" },
+    "في كولا (V-Cola)": { "en": "V-Cola", "fr": "V-Cola", "ru": "V-Кола", "it": "V-Cola" },
+    "ستينج باور إنيرجي": { "en": "Sting Energy Drink", "fr": "Boisson Énergisante Sting", "ru": "Энергетик Sting", "it": "Energy Drink Sting" },
+    "فيوري بارد": { "en": "Chilled Fury", "fr": "Fury Frais", "ru": "Холодный Fury", "it": "Fury Freddo" },
     "كل الأصناف": {
         "en": "All Items",
         "fr": "Tous les plats",
@@ -842,17 +952,17 @@
     },
     "btn_add": {
         "ar": "إضافة",
-        "en": "Add",
-        "fr": "Ajouter",
-        "ru": "Добавить",
-        "it": "Aggiungi"
+        "en": "Add +",
+        "fr": "Ajouter +",
+        "ru": "Добавить +",
+        "it": "Aggiungi +"
     },
     "btn_customize": {
         "ar": "تخصيص +",
-        "en": "Customize +",
-        "fr": "Personnaliser +",
-        "ru": "Настроить +",
-        "it": "Personalizza +"
+        "en": "Custom +",
+        "fr": "Choix +",
+        "ru": "Опции +",
+        "it": "Scelte +"
     },
     "sold_out": {
         "ar": "نفد مؤقتاً",
@@ -1451,6 +1561,23 @@
     }
 };
 
+
+  function normalizeArabicText(str) {
+    if (!str || typeof str !== 'string') return '';
+    return str
+      .replace(/[\u064B-\u065F\u0640]/g, '') // strip tashkeel + tatweel
+      .replace(/[إأآا]/g, 'ا')
+      .replace(/[ةه]/g, 'ه')
+      .replace(/[يى]/g, 'ي')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .toLowerCase();
+  }
+
+  function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\  const I18n = {');
+  }
+
   const I18n = {
     supportedLanguages: SUPPORTED_LANGS,
     dictionary: DICTIONARY,
@@ -1514,22 +1641,81 @@
       if (!text || typeof text !== 'string') return text || '';
       const curLang = this.getLanguage();
       if (curLang === 'ar') return text;
-      
-      const clean = text.trim();
+
+      if (!this._transCache) this._transCache = {};
+      const cacheKey = curLang + ':' + text;
+      if (this._transCache[cacheKey]) return this._transCache[cacheKey];
+
+      // Extract emojis and clean text
+      const emojiMatch = text.match(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1FA00}-\u{1FAFF}\u{FE00}-\u{FE0F}]/gu);
+      const clean = text.replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1FA00}-\u{1FAFF}\u{FE00}-\u{FE0F}]/gu, '').trim();
+
+      if (!clean) return text;
+
+      // 1. Direct exact match
       if (COMMON_TERMS[clean] && COMMON_TERMS[clean][curLang]) {
-        return COMMON_TERMS[clean][curLang];
+        const res = COMMON_TERMS[clean][curLang] + (emojiMatch ? ' ' + emojiMatch.join('') : '');
+        this._transCache[cacheKey] = res;
+        return res;
       }
-      
+
+      // 2. Case-insensitive exact match
       const lower = clean.toLowerCase();
       for (const [k, v] of Object.entries(COMMON_TERMS)) {
-        if (k.toLowerCase() === lower && v[curLang]) return v[curLang];
-      }
-      
-      for (const [k, v] of Object.entries(COMMON_TERMS)) {
-        if (clean.includes(k) && v[curLang]) {
-          return clean.replace(k, v[curLang]);
+        if (k.toLowerCase() === lower && v[curLang]) {
+          const res = v[curLang] + (emojiMatch ? ' ' + emojiMatch.join('') : '');
+          this._transCache[cacheKey] = res;
+          return res;
         }
       }
+
+      // 3. Normalized Arabic match (handles tatweel, diacritics, alef/yeh/teh variants)
+      if (!this._normMap) {
+        this._normMap = new Map();
+        for (const [k, v] of Object.entries(COMMON_TERMS)) {
+          this._normMap.set(normalizeArabicText(k), v);
+        }
+      }
+
+      const cleanNorm = normalizeArabicText(clean);
+      if (this._normMap.has(cleanNorm) && this._normMap.get(cleanNorm)[curLang]) {
+        const res = this._normMap.get(cleanNorm)[curLang] + (emojiMatch ? ' ' + emojiMatch.join('') : '');
+        this._transCache[cacheKey] = res;
+        return res;
+      }
+
+      // 4. Definite article strip ("ال")
+      if (cleanNorm.startsWith('ال') && cleanNorm.length > 3) {
+        const strippedNorm = cleanNorm.slice(2);
+        if (this._normMap.has(strippedNorm) && this._normMap.get(strippedNorm)[curLang]) {
+          const res = this._normMap.get(strippedNorm)[curLang] + (emojiMatch ? ' ' + emojiMatch.join('') : '');
+          this._transCache[cacheKey] = res;
+          return res;
+        }
+      }
+
+      // 5. Compound whole-word phrase match (NEVER substring replacement inside words)
+      if (!this._sortedKeys) {
+        this._sortedKeys = Object.keys(COMMON_TERMS).filter(k => k.includes(' ') && k.length >= 4).sort((a, b) => b.length - a.length);
+      }
+      for (const phrase of this._sortedKeys) {
+        const phraseNorm = normalizeArabicText(phrase);
+        if (cleanNorm.includes(phraseNorm)) {
+          const v = COMMON_TERMS[phrase];
+          if (v && v[curLang]) {
+            const regex = new RegExp('(^|\\s)' + escapeRegExp(phrase) + '(\\s|$)', 'gi');
+            if (regex.test(clean)) {
+              const translated = clean.replace(regex, (m, p1, p2) => (p1 || '') + v[curLang] + (p2 || '')).trim();
+              const res = translated + (emojiMatch ? ' ' + emojiMatch.join('') : '');
+              this._transCache[cacheKey] = res;
+              return res;
+            }
+          }
+        }
+      }
+
+      // Fallback: preserve original text safely
+      this._transCache[cacheKey] = text;
       return text;
     },
 

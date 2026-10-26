@@ -1006,18 +1006,25 @@ function renderAnnouncement() {
 
   if (!promoCard) return;
 
-  // Never force announcement bar on closed status. The live badge 'مغلق الآن' is sufficient,
-  // and customer gets the friendly modal notice only when attempting to place an order.
-  const hasAnnouncement = (settings.showAnnouncement === true) && settings.announcementText && settings.announcementText.trim();
+  const isEnabled = (settings.showAnnouncement === true || settings.showAnnouncement === 'true');
+  const hasText = !!(settings.announcementText && settings.announcementText.trim());
+  const hasAnnouncement = isEnabled && hasText;
+
   if (hasAnnouncement) {
+    promoCard.style.removeProperty('display');
     promoCard.style.display = 'flex';
-    if (promoTitle) promoTitle.textContent = settings.announcementText.trim();
+    if (promoTitle) {
+      const curLang = (typeof I18n !== 'undefined') ? I18n.getLanguage() : 'ar';
+      promoTitle.textContent = (curLang !== 'ar' && typeof tr === 'function') 
+        ? tr(settings.announcementText.trim()) 
+        : settings.announcementText.trim();
+    }
   } else {
-    promoCard.style.display = 'none';
+    promoCard.style.setProperty('display', 'none', 'important');
   }
 
   if (elements.announcementBar) {
-    elements.announcementBar.style.display = 'none';
+    elements.announcementBar.style.setProperty('display', 'none', 'important');
   }
 }
 
@@ -1700,7 +1707,7 @@ function renderOrdersView() {
   const lastOrder = (typeof Store !== 'undefined' && Store.getLastOrder) ? Store.getLastOrder() : null;
   const history = (typeof Store !== 'undefined' && Store.getOrderHistory) ? Store.getOrderHistory() : [];
   const settings = (typeof Store !== 'undefined' && Store.getSettings) ? Store.getSettings() : {};
-  const currency = settings.currency || 'ج.م';
+  const currency = (typeof window.t === 'function' ? window.t('currency', settings.currency || 'ج.م') : (settings.currency || 'ج.م'));
 
   const cardActive = document.getElementById('active-order-tracking-card');
   const secPrevious = document.getElementById('previous-orders-section');
@@ -2311,7 +2318,7 @@ window.rerenderAllCustomerViews = function() {
   const navCart = document.querySelector('#nav-tab-cart .nav-tab-label');
   const navOrders = document.querySelector('#nav-tab-orders .nav-tab-label');
   const navAccount = document.querySelector('#nav-tab-account .nav-tab-label');
-  if (navHome) navHome.textContent = (typeof t === 'function') ? t('nav_menu', 'الرئيسية') : 'الرئيسية';
+  if (navHome) navHome.textContent = (typeof t === 'function') ? t('nav_home', 'الرئيسية') : 'الرئيسية';
   if (navMenu) navMenu.textContent = (typeof t === 'function') ? t('nav_menu', 'المنيو') : 'المنيو';
   if (navSearch) navSearch.textContent = (typeof t === 'function') ? t('nav_search', 'البحث') : 'البحث';
   if (navCart) navCart.textContent = (typeof t === 'function') ? t('nav_cart', 'السلة') : 'السلة';

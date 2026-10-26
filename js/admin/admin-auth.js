@@ -494,27 +494,27 @@ function renderRestaurantHub() {
   const isFile = window.location.protocol === 'file:';
   const cleanPath = window.location.pathname.replace('admin.html', '').replace(/\/admin\/?$/, '').replace(/\/$/, '');
   const targetUrl = isFile
-    ? window.location.href.replace('admin.html', 'menu/').split('?')[0] + `?m=${encodeURIComponent(slug)}`
-    : (window.location.origin + cleanPath + `/menu/?m=${encodeURIComponent(slug)}`);
+    ? window.location.href.replace('admin.html', 'order/').split('?')[0] + `?m=${encodeURIComponent(slug)}`
+    : (window.location.origin + cleanPath + `/order/?m=${encodeURIComponent(slug)}`);
 
   if (shareLink) {
     shareLink.textContent = targetUrl.replace(/^https?:\/\//, '');
     shareLink.href = targetUrl;
   }
   if (previewBtn) {
-    previewBtn.href = isFile ? `./menu/?m=${slug}` : targetUrl;
+    previewBtn.href = isFile ? `../order/?m=${slug}` : targetUrl;
     previewBtn.target = '_blank';
     previewBtn.rel = 'noopener noreferrer';
   }
   const drawerPreviewBtn = document.getElementById('btn-drawer-preview');
   if (drawerPreviewBtn) {
-    drawerPreviewBtn.href = isFile ? `./menu/?m=${slug}` : targetUrl;
+    drawerPreviewBtn.href = isFile ? `../order/?m=${slug}` : targetUrl;
     drawerPreviewBtn.target = '_blank';
     drawerPreviewBtn.rel = 'noopener noreferrer';
   }
   const openStoreBtn = document.getElementById('btn-open-store-link');
   if (openStoreBtn) {
-    openStoreBtn.href = isFile ? `./menu/?m=${slug}` : targetUrl;
+    openStoreBtn.href = isFile ? `../order/?m=${slug}` : targetUrl;
     openStoreBtn.target = '_blank';
     openStoreBtn.rel = 'noopener noreferrer';
   }

@@ -449,7 +449,7 @@ function initBackgroundOrderTracking() {
 
         if (elements.trackerModal && elements.trackerModal.classList.contains('open')) {
           const settings = Store.getSettings();
-          const currency = settings.currency || "ج.م";
+          const currency = (typeof window.t === 'function' ? window.t('currency', settings.currency || "ج.م") : (settings.currency || "ج.م"));
           renderTrackerOrderData(merged, currency);
           updateTrackerStepper(newStatus);
         }
