@@ -231,6 +231,12 @@ function handlePopStateNavigation(event) {
     closeCustomerOnboardModal(true, false);
     return;
   }
+  // 9. Language Picker Modal
+  const langPicker = document.getElementById('lang-picker-modal');
+  if (langPicker && langPicker.classList.contains('open')) {
+    closeLanguagePickerModal(false);
+    return;
+  }
 }
 
 window.addEventListener('popstate', handlePopStateNavigation);
@@ -1217,19 +1223,21 @@ function getCustomerProfile() {
   return null;
 }
 
-function saveCustomerProfile(name, phone, address = '', notes = '') {
+function saveCustomerProfile(name, phone, address = '', notes = '', lang = '') {
   if (!name && !phone && !address) return false;
   const current = getCustomerProfile() || {};
   const cleanName = (name !== undefined && name !== null ? String(name) : (current.name || '')).trim();
   const cleanPhone = (phone !== undefined && phone !== null ? String(phone) : (current.phone || '')).trim();
   const cleanAddress = (address !== undefined && address !== null ? String(address) : (current.address || '')).trim();
   const cleanNotes = (notes !== undefined && notes !== null ? String(notes) : (current.notes || '')).trim();
+  const cleanLang = (lang !== undefined && lang !== null && lang !== '' ? String(lang) : (current.lang || (typeof I18n !== 'undefined' ? I18n.getLanguage() : 'ar'))).trim();
 
   const profile = {
     name: cleanName,
     phone: cleanPhone,
     address: cleanAddress,
     notes: cleanNotes,
+    lang: cleanLang,
     updatedAt: Date.now()
   };
 
@@ -1238,6 +1246,7 @@ function saveCustomerProfile(name, phone, address = '', notes = '') {
     if (cleanName) localStorage.setItem('harpy_last_order_customer_name', cleanName);
     if (cleanPhone) localStorage.setItem('harpy_last_order_customer_phone', cleanPhone);
     if (cleanAddress) localStorage.setItem('harpy_last_order_customer_address', cleanAddress);
+    if (cleanLang) localStorage.setItem('harpy_customer_lang', cleanLang);
   } catch(e) {}
 
   if (elements.custName && cleanName) elements.custName.value = cleanName;
@@ -1253,12 +1262,21 @@ function saveCustomerProfile(name, phone, address = '', notes = '') {
 function checkCustomerOnboarding() {
   const profile = getCustomerProfile();
   if (profile) {
-    // Already has profile, pre-fill checkout inputs
     if (elements.custName && !elements.custName.value && profile.name) elements.custName.value = profile.name;
     if (elements.custPhone && !elements.custPhone.value && profile.phone) elements.custPhone.value = profile.phone;
     if (elements.custAddress && !elements.custAddress.value && profile.address) elements.custAddress.value = profile.address;
+    if (profile.lang && typeof I18n !== 'undefined' && I18n.getLanguage() !== profile.lang) {
+      I18n.setLanguage(profile.lang, false);
+    }
     updateAccountDrawerProfileUI();
     if (typeof renderCleanProfileUI === 'function') renderCleanProfileUI();
+  } else {
+    // First time customer: show onboarding & language selection
+    if (!sessionStorage.getItem('harpy_onboard_skipped')) {
+      setTimeout(() => {
+        openCustomerOnboardModal();
+      }, 700);
+    }
   }
 }
 
@@ -1266,9 +1284,13 @@ function openCustomerOnboardModal() {
   const backdrop = document.getElementById('customer-onboard-backdrop');
   const modal = document.getElementById('customer-onboard-modal');
   if (backdrop && modal) {
-    backdrop.classList.add('active');
-    modal.classList.add('open');
+    backdrop.classList.add('active', 'open', 'show');
+    modal.classList.add('open', 'show');
     pushNavState('onboard_modal');
+    const curLang = (typeof I18n !== 'undefined') ? I18n.getLanguage() : 'ar';
+    if (typeof window.selectOnboardLanguage === 'function') {
+      window.selectOnboardLanguage(curLang);
+    }
     setTimeout(() => {
       const nameInput = document.getElementById('onboard-name');
       if (nameInput) nameInput.focus();
@@ -1276,11 +1298,27 @@ function openCustomerOnboardModal() {
   }
 }
 
+window.selectOnboardLanguage = function(langCode) {
+  if (typeof I18n === 'undefined') return;
+  const langConfig = I18n.supportedLanguages[langCode] || I18n.supportedLanguages.ar;
+
+  document.querySelectorAll('.onboard-lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-lang') === langCode);
+  });
+
+  const modal = document.getElementById('customer-onboard-modal');
+  if (modal) {
+    modal.setAttribute('dir', langConfig.dir);
+  }
+
+  I18n.setLanguage(langCode, false);
+};
+
 function closeCustomerOnboardModal(skipped = false, updateHistory = true) {
   const backdrop = document.getElementById('customer-onboard-backdrop');
   const modal = document.getElementById('customer-onboard-modal');
-  if (backdrop) backdrop.classList.remove('active');
-  if (modal) modal.classList.remove('open');
+  if (backdrop) backdrop.classList.remove('active', 'open', 'show');
+  if (modal) modal.classList.remove('open', 'show');
   if (skipped) {
     sessionStorage.setItem('harpy_onboard_skipped', 'true');
   }
@@ -1296,25 +1334,88 @@ function handleCustomerOnboardSubmit(e) {
   }
   const nameInput = document.getElementById('onboard-name');
   const phoneInput = document.getElementById('onboard-phone');
+  const addressInput = document.getElementById('onboard-address');
   const name = nameInput ? nameInput.value.trim() : '';
   const phone = phoneInput ? phoneInput.value.trim() : '';
+  const address = addressInput ? addressInput.value.trim() : '';
+  const activeBtn = document.querySelector('.onboard-lang-btn.active');
+  const lang = activeBtn ? activeBtn.getAttribute('data-lang') : (typeof I18n !== 'undefined' ? I18n.getLanguage() : 'ar');
 
   if (!name || name.length < 2) {
-    showToastNotification("يرجى كتابة الاسم بشكل صحيح (حرفين على الأقل)", "error");
+    const msg = (typeof t === 'function') ? t('field_name_placeholder') : "يرجى كتابة الاسم بشكل صحيح";
+    showToastNotification(msg, "error");
     if (nameInput) nameInput.focus();
     return;
   }
   if (!phone || phone.length < 8) {
-    showToastNotification("يرجى كتابة رقم هاتف صحيح", "error");
+    const msg = (typeof t === 'function') ? t('field_phone_placeholder') : "يرجى كتابة رقم هاتف صحيح";
+    showToastNotification(msg, "error");
     if (phoneInput) phoneInput.focus();
     return;
   }
 
-  saveCustomerProfile(name, phone);
+  saveCustomerProfile(name, phone, address, '', lang);
+  if (typeof I18n !== 'undefined') {
+    I18n.setLanguage(lang, true);
+  }
   closeCustomerOnboardModal(false, false);
-  showToastNotification(`أهلاً بك يا ${name}! تم حفظ بياناتك بنجاح`, "success");
+  const toastText = (typeof t === 'function') ? t('toast_profile_saved') : "تم حفظ بياناتك بنجاح";
+  showToastNotification(`${toastText} (${name})`, "success");
   if (typeof SoundFX !== 'undefined' && SoundFX.playPop) SoundFX.playPop();
 }
+
+window.openLanguagePickerModal = function() {
+  const backdrop = document.getElementById('lang-picker-backdrop');
+  const modal = document.getElementById('lang-picker-modal');
+  const list = document.getElementById('lang-picker-options-list');
+  if (!backdrop || !modal) return;
+
+  const curLang = (typeof I18n !== 'undefined') ? I18n.getLanguage() : 'ar';
+  const langs = (typeof I18n !== 'undefined') ? I18n.supportedLanguages : {};
+
+  if (list) {
+    list.innerHTML = Object.values(langs).map(l => {
+      const isSelected = (l.code === curLang);
+      return `
+        <button type="button" onclick="selectLanguageOption('${l.code}')" style="width:100%; border:1.5px solid ${isSelected ? 'var(--primary)' : 'var(--border)'}; background:${isSelected ? 'var(--primary-subtle)' : 'var(--surface)'}; border-radius:12px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; text-align:${l.dir === 'rtl' ? 'right' : 'left'}; font-family:inherit; transition:all 0.18s ease;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:22px; line-height:1;">${l.flag}</span>
+            <div style="text-align:${l.dir === 'rtl' ? 'right' : 'left'};">
+              <div style="font-size:14px; font-weight:900; color:var(--text-main); line-height:1.2;">${l.name}</div>
+              <div style="font-size:11px; color:var(--text-muted); line-height:1.2; margin-top:2px;">${l.englishName}</div>
+            </div>
+          </div>
+          ${isSelected ? `<span style="font-size:11px; font-weight:800; color:var(--primary); background:rgba(234,88,12,0.12); padding:3px 8px; border-radius:6px;">✓ النشطة</span>` : ''}
+        </button>
+      `;
+    }).join('');
+  }
+
+  backdrop.classList.add('active', 'open', 'show');
+  modal.classList.add('open', 'show');
+  pushNavState('lang_picker_modal');
+};
+
+window.closeLanguagePickerModal = function(updateHistory = true) {
+  const backdrop = document.getElementById('lang-picker-backdrop');
+  const modal = document.getElementById('lang-picker-modal');
+  if (backdrop) backdrop.classList.remove('active');
+  if (modal) modal.classList.remove('open');
+  if (updateHistory && history.state && history.state.harpyNav === 'lang_picker_modal') {
+    history.back();
+  }
+};
+
+window.selectLanguageOption = function(langCode) {
+  if (typeof I18n !== 'undefined') {
+    I18n.setLanguage(langCode, true);
+  }
+  closeLanguagePickerModal(false);
+  const langName = (I18n && I18n.supportedLanguages[langCode]) ? I18n.supportedLanguages[langCode].name : langCode;
+  const msg = (typeof t === 'function') ? t('toast_lang_changed') : "تم تغيير لغة التطبيق بنجاح";
+  showToastNotification(`${msg} (${langName})`, "success");
+  if (typeof SoundFX !== 'undefined' && SoundFX.playPop) SoundFX.playPop();
+};
 
 // ── MY ACCOUNT DRAWER ─────────────────────────────────────
 

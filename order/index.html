@@ -51,8 +51,8 @@
   <link rel="preconnect" href="https://i.ibb.co" crossorigin>
   <link rel="dns-prefetch" href="https://i.ibb.co">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/order-tokens.css?v=143.0">
-  <link rel="stylesheet" href="css/order-client.css?v=143.0">
+  <link rel="stylesheet" href="css/order-tokens.css?v=144.0">
+  <link rel="stylesheet" href="css/order-client.css?v=144.0">
   <style id="harpy-critical-layout">
     /* ═══════════════════════════════════════════════════════════
        CRITICAL DEFENSIVE INLINE SHIELD (Prevents SW Cache Mismatches)
@@ -2003,34 +2003,71 @@
       <div class="onboard-avatar-circle">
         <svg class="icon" viewBox="0 0 24 24" style="width:28px; height:28px; stroke-width:2;"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       </div>
-      <h3 class="onboard-title" id="onboard-title">أهلاً بك في مطعمنا!</h3>
-      <p class="onboard-subtitle">سجّل اسمك ورقم هاتفك مرة واحدة لتسريع تأكيد طلباتك القادمة:</p>
+
+      <!-- Language Selector Bar with Flags -->
+      <div class="onboard-lang-row">
+        <div style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:8px;" data-i18n="onboard_lang_select">لغة المنيو والتطبيق:</div>
+        <div class="onboard-lang-pills" id="onboard-lang-pills">
+          <button type="button" class="onboard-lang-btn active" data-lang="ar" onclick="selectOnboardLanguage('ar')">
+            <span class="flag">🇪🇬</span>
+            <span>العربية</span>
+          </button>
+          <button type="button" class="onboard-lang-btn" data-lang="en" onclick="selectOnboardLanguage('en')">
+            <span class="flag">🇬🇧</span>
+            <span>English</span>
+          </button>
+          <button type="button" class="onboard-lang-btn" data-lang="fr" onclick="selectOnboardLanguage('fr')">
+            <span class="flag">🇫🇷</span>
+            <span>Français</span>
+          </button>
+          <button type="button" class="onboard-lang-btn" data-lang="ru" onclick="selectOnboardLanguage('ru')">
+            <span class="flag">🇷🇺</span>
+            <span>Русский</span>
+          </button>
+          <button type="button" class="onboard-lang-btn" data-lang="it" onclick="selectOnboardLanguage('it')">
+            <span class="flag">🇮🇹</span>
+            <span>Italiano</span>
+          </button>
+        </div>
+      </div>
+
+      <h3 class="onboard-title" id="onboard-title" data-i18n="onboard_title">أهلاً بك في مطعمنا!</h3>
+      <p class="onboard-subtitle" id="onboard-subtitle" data-i18n="onboard_subtitle">اختر لغتك المفضلة وسجّل بياناتك مرة واحدة لتسريع تأكيد طلباتك:</p>
     </div>
     <form id="customer-onboard-form" onsubmit="window.handleCustomerOnboardSubmit && window.handleCustomerOnboardSubmit(event)">
       <div class="input-luxury-group">
-        <label class="input-luxury-label" for="onboard-name">الاسم بالكامل</label>
+        <label class="input-luxury-label" id="onboard-name-label" for="onboard-name" data-i18n="field_name">الاسم بالكامل</label>
         <div class="input-icon-wrapper">
           <span class="input-leading-icon">
             <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           </span>
-          <input type="text" id="onboard-name" class="input-luxury-field" placeholder="اكتب اسمك الكريم" required autocomplete="name">
+          <input type="text" id="onboard-name" class="input-luxury-field" placeholder="اكتب اسمك الكريم" data-i18n-placeholder="field_name_placeholder" required autocomplete="name">
         </div>
       </div>
       <div class="input-luxury-group">
-        <label class="input-luxury-label" for="onboard-phone">رقم الموبايل للتواصل</label>
+        <label class="input-luxury-label" id="onboard-phone-label" for="onboard-phone" data-i18n="field_phone">رقم الموبايل للتواصل</label>
         <div class="input-icon-wrapper">
           <span class="input-leading-icon">
             <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
           </span>
-          <input type="tel" id="onboard-phone" class="input-luxury-field font-num" placeholder="01012345678" required autocomplete="tel">
+          <input type="tel" id="onboard-phone" class="input-luxury-field font-num" placeholder="01012345678" data-i18n-placeholder="field_phone_placeholder" required autocomplete="tel">
+        </div>
+      </div>
+      <div class="input-luxury-group">
+        <label class="input-luxury-label" id="onboard-address-label" for="onboard-address" data-i18n="field_address">عنوان التوصيل المعتاد</label>
+        <div class="input-icon-wrapper">
+          <span class="input-leading-icon">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </span>
+          <input type="text" id="onboard-address" class="input-luxury-field" placeholder="المنطقة، الشارع، رقم العمارة والشقة" data-i18n-placeholder="field_address_placeholder" autocomplete="street-address">
         </div>
       </div>
       <div class="onboard-actions">
         <button type="submit" class="btn btn-primary onboard-btn-save">
-          <span>حفظ ومتابعة المنيو</span>
+          <span data-i18n="onboard_save_btn">حفظ ومتابعة المنيو</span>
         </button>
         <button type="button" class="btn-ghost onboard-btn-skip" onclick="window.closeCustomerOnboardModal && window.closeCustomerOnboardModal(true)">
-          <span>تخطي الآن وتصفح القائمة</span>
+          <span data-i18n="onboard_skip_btn">تخطي الآن وتصفح القائمة</span>
         </button>
       </div>
     </form>
@@ -2142,8 +2179,20 @@
             <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
           </div>
           <div class="account-menu-text">
-            <div class="menu-item-title">المؤثرات الصوتية</div>
+            <div class="menu-item-title" data-i18n="menu_sound">المؤثرات الصوتية</div>
             <div class="menu-item-sub" id="account-sound-state">مفعلة</div>
+          </div>
+          <svg class="icon icon-sm menu-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+
+        <!-- 6. Language Switcher -->
+        <div class="account-menu-item" onclick="if(window.openLanguagePickerModal) window.openLanguagePickerModal();">
+          <div class="account-menu-icon" style="background:rgba(14,165,233,0.12); color:#0ea5e9;">
+            <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <div class="account-menu-text">
+            <div class="menu-item-title" data-i18n="menu_language">لغة المنيو / Language</div>
+            <div class="menu-item-sub" id="account-language-sub">🇪🇬 العربية (Arabic)</div>
           </div>
           <svg class="icon icon-sm menu-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
@@ -2294,19 +2343,39 @@
     </div>
   </div>
 
+  <!-- Multi-Language Picker Modal -->
+  <div class="modal-backdrop" id="lang-picker-backdrop" style="z-index:10006;" onclick="window.closeLanguagePickerModal && window.closeLanguagePickerModal()"></div>
+  <div class="modal-box lang-picker-modal" id="lang-picker-modal" style="max-width:400px; text-align:center; padding:22px 18px; z-index:10007; border-radius:20px; width:90%;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border);">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="width:32px; height:32px; border-radius:50%; background:rgba(14,165,233,0.12); color:#0ea5e9; display:flex; align-items:center; justify-content:center;">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </span>
+        <span style="font-size:14px; font-weight:900; color:var(--text-main);" data-i18n="menu_language">لغة المنيو / Language</span>
+      </div>
+      <button type="button" class="btn-close" onclick="window.closeLanguagePickerModal && window.closeLanguagePickerModal()" style="background:transparent; border:none; cursor:pointer; color:var(--text-muted); padding:4px;">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    <div id="lang-picker-options-list" style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
+      <!-- Populated dynamically via JS -->
+    </div>
+  </div>
+
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=143.0"></script>
-  <script src="js/core/sound-effects.js?v=143.0"></script>
-  <script src="js/store.js?v=143.0"></script>
-  <script src="js/client/client-core.js?v=143.0"></script>
-  <script src="js/client/menu-view.js?v=143.0"></script>
-  <script src="js/client/stories-viewer.js?v=143.0"></script>
-  <script src="js/client/customizer-modal.js?v=143.0"></script>
-  <script src="js/client/cart-ledger.js?v=143.0"></script>
-  <script src="js/client/order-tracking.js?v=143.0"></script>
-  <script src="js/app.js?v=143.0"></script>
-  <script src="js/pwa.js?v=143.0"></script>
+  <script src="js/core/demo-seed-data.js?v=144.0"></script>
+  <script src="js/core/sound-effects.js?v=144.0"></script>
+  <script src="js/core/i18n.js?v=144.0"></script>
+  <script src="js/store.js?v=144.0"></script>
+  <script src="js/client/client-core.js?v=144.0"></script>
+  <script src="js/client/menu-view.js?v=144.0"></script>
+  <script src="js/client/stories-viewer.js?v=144.0"></script>
+  <script src="js/client/customizer-modal.js?v=144.0"></script>
+  <script src="js/client/cart-ledger.js?v=144.0"></script>
+  <script src="js/client/order-tracking.js?v=144.0"></script>
+  <script src="js/app.js?v=144.0"></script>
+  <script src="js/pwa.js?v=144.0"></script>
 </body>
 </html>

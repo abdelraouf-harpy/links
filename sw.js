@@ -6,7 +6,7 @@ try {
   console.warn("[SW] OneSignal worker import notice:", e);
 }
 
-const CACHE_NAME = 'order-pwa-v143.0';
+const CACHE_NAME = 'order-pwa-v144.0';
 const IMAGE_CACHE_NAME = 'order-images-v6';
 const ASSETS_TO_CACHE = [
   './',
@@ -41,6 +41,7 @@ const ASSETS_TO_CACHE = [
   './css/portfolio.css?v=2.0',
   './js/core/demo-seed-data.js?v=103.0',
   './js/core/sound-effects.js?v=103.0',
+  './js/core/i18n.js?v=103.0',
   './js/store.js?v=103.0',
   './js/admin/admin-core.js?v=103.0',
   './js/admin/admin-auth.js?v=103.0',

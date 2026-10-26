@@ -6778,5 +6778,185 @@ body:has(#customizer-modal.open) .bottom-nav-bar {
   }
 }
 
+/* ═══════════════════════════════════════════════════════════
+   HARPY PRO: MULTILINGUAL (I18N) & LANGUAGE PICKER UI
+   ═══════════════════════════════════════════════════════════ */
+
+/* Onboarding language selector pills */
+.onboard-lang-row {
+  margin-bottom: 14px;
+}
+.onboard-lang-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+.onboard-lang-btn {
+  flex: 1 1 calc(33.333% - 6px);
+  min-width: 80px;
+  background: var(--surface-raised, #f8fafc);
+  border: 1.5px solid var(--border, #e2e8f0);
+  border-radius: 10px;
+  padding: 8px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-main, #1e293b);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+.onboard-lang-btn:hover {
+  border-color: var(--primary, #ea580c);
+  transform: translateY(-1px);
+}
+.onboard-lang-btn .flag {
+  font-size: 16px;
+  line-height: 1;
+}
+.onboard-lang-btn.active {
+  background: rgba(234, 88, 12, 0.1);
+  border-color: var(--primary, #ea580c);
+  color: var(--primary, #ea580c);
+  font-weight: 800;
+  box-shadow: 0 2px 8px rgba(234, 88, 12, 0.15);
+}
+
+/* Dedicated Language Picker Modal (from My Account Drawer) */
+#lang-picker-backdrop {
+  z-index: 1280;
+}
+.lang-picker-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.92);
+  width: calc(100% - 36px);
+  max-width: 380px;
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--border-strong, rgba(0,0,0,0.1));
+  border-radius: 22px;
+  padding: 20px;
+  z-index: 1290;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+  box-sizing: border-box;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.lang-picker-modal.open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translate(-50%, -50%) scale(1);
+}
+.lang-picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--border, #e2e8f0);
+}
+.lang-picker-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-main, #1e293b);
+}
+.lang-picker-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HARPY PRO: LTR DIRECTIONAL OVERRIDES (EN, FR, RU, IT)
+   ═══════════════════════════════════════════════════════════ */
+html[dir="ltr"],
+html[dir="ltr"] body {
+  direction: ltr;
+  text-align: left;
+}
+html[dir="ltr"] .customer-onboard-modal,
+.customer-onboard-modal[dir="ltr"] {
+  direction: ltr;
+  text-align: left;
+}
+html[dir="ltr"] .input-leading-icon,
+.customer-onboard-modal[dir="ltr"] .input-leading-icon {
+  right: auto;
+  left: 14px;
+}
+html[dir="ltr"] .input-luxury-field,
+.customer-onboard-modal[dir="ltr"] .input-luxury-field {
+  padding-right: 14px;
+  padding-left: 42px;
+  text-align: left;
+}
+html[dir="ltr"] .input-luxury-textarea,
+.customer-onboard-modal[dir="ltr"] .input-luxury-textarea {
+  padding-right: 14px;
+  padding-left: 42px;
+  text-align: left;
+}
+html[dir="ltr"] .menu-arrow {
+  transform: rotate(180deg);
+}
+html[dir="ltr"] .my-account-drawer {
+  direction: ltr;
+  text-align: left;
+}
+html[dir="ltr"] .cart-drawer {
+  direction: ltr;
+  text-align: left;
+}
+html[dir="ltr"] .account-drawer-header,
+html[dir="ltr"] .drawer-header {
+  direction: ltr;
+}
+html[dir="ltr"] .account-menu-item {
+  direction: ltr;
+  text-align: left;
+}
+html[dir="ltr"] .account-menu-info {
+  text-align: left;
+}
+html[dir="ltr"] .profile-text-wrap {
+  text-align: left;
+}
+html[dir="ltr"] .profile-card-top {
+  direction: ltr;
+}
+html[dir="ltr"] .btn-edit-profile {
+  margin-left: auto;
+  margin-right: 0;
+}
+html[dir="ltr"] .onboard-header {
+  text-align: center;
+}
+html[dir="ltr"] .category-strip,
+html[dir="ltr"] .stories-strip-section {
+  direction: ltr;
+}
+html[dir="ltr"] .food-item-content {
+  text-align: left;
+}
+html[dir="ltr"] .cart-item-info {
+  text-align: left;
+}
+html[dir="ltr"] .order-details-grid {
+  text-align: left;
+}
+
+
 
 
