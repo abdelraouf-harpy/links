@@ -231,7 +231,7 @@
   updatePwaBranding();
 
   // ── 2. Clean Update Engine ("متظهرش تاني طالما مفيش تحديث وطالما الشخص حدّث") ───
-  const CURRENT_PWA_BUILD = 'v40.5';
+  const CURRENT_PWA_BUILD = 'v145.0';
 
   function isUpdateAlreadyHandled() {
     try {
@@ -346,6 +346,14 @@
 
       // 2. Command Service Worker to activate immediately and clear old caches
       if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('message', (event) => {
+      if (event.data && event.data.type === 'SW_CLAIMED') {
+        try {
+          console.log('[PWA] New version activated, refreshing...');
+          window.location.reload();
+        } catch(e) {}
+      }
+    });
         try {
           if (navigator.serviceWorker.controller) {
             navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
@@ -426,7 +434,7 @@
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       // Register strictly-scoped SW for each app independently (No cross-purging)
-      const swUrl = './sw.js?v=124.0';
+      const swUrl = './sw.js?v=145.0';
       const targetScope = isAdmin ? './admin/' : './order/';
       navigator.serviceWorker.register(swUrl, { scope: targetScope })
         .then(reg => {

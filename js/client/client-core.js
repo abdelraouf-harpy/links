@@ -1270,13 +1270,20 @@ function checkCustomerOnboarding() {
     }
     updateAccountDrawerProfileUI();
     if (typeof renderCleanProfileUI === 'function') renderCleanProfileUI();
-  } else {
-    // First time customer: show onboarding & language selection
-    if (!sessionStorage.getItem('harpy_onboard_skipped')) {
-      setTimeout(() => {
-        openCustomerOnboardModal();
-      }, 700);
-    }
+  }
+
+  // Check if visitor has completed or skipped Language & Profile Onboarding
+  const hasOnboarded = localStorage.getItem('harpy_customer_lang_onboarded');
+  const hasSkipped = sessionStorage.getItem('harpy_onboard_skipped');
+
+  // Also check URL flag to force open for testing: ?onboard or ?lang
+  const urlParams = new URLSearchParams(window.location.search);
+  const forceOpen = urlParams.has('onboard') || urlParams.has('lang');
+
+  if ((!hasOnboarded && !hasSkipped) || forceOpen) {
+    setTimeout(() => {
+      openCustomerOnboardModal();
+    }, 450);
   }
 }
 
@@ -1291,9 +1298,18 @@ function openCustomerOnboardModal() {
     if (typeof window.selectOnboardLanguage === 'function') {
       window.selectOnboardLanguage(curLang);
     }
+
+    // Pre-populate input fields if profile already exists
+    const profile = getCustomerProfile();
+    const nameInput = document.getElementById('onboard-name');
+    const phoneInput = document.getElementById('onboard-phone');
+    const addressInput = document.getElementById('onboard-address');
+    if (nameInput && profile && profile.name && !nameInput.value) nameInput.value = profile.name;
+    if (phoneInput && profile && profile.phone && !phoneInput.value) phoneInput.value = profile.phone;
+    if (addressInput && profile && profile.address && !addressInput.value) addressInput.value = profile.address;
+
     setTimeout(() => {
-      const nameInput = document.getElementById('onboard-name');
-      if (nameInput) nameInput.focus();
+      if (nameInput && !nameInput.value) nameInput.focus();
     }, 300);
   }
 }
@@ -1321,6 +1337,7 @@ function closeCustomerOnboardModal(skipped = false, updateHistory = true) {
   if (modal) modal.classList.remove('open', 'show');
   if (skipped) {
     sessionStorage.setItem('harpy_onboard_skipped', 'true');
+    localStorage.setItem('harpy_customer_lang_onboarded', 'true');
   }
   if (updateHistory && history.state && history.state.harpyNav === 'onboard_modal') {
     history.back();
@@ -1355,6 +1372,7 @@ function handleCustomerOnboardSubmit(e) {
   }
 
   saveCustomerProfile(name, phone, address, '', lang);
+  localStorage.setItem('harpy_customer_lang_onboarded', 'true');
   if (typeof I18n !== 'undefined') {
     I18n.setLanguage(lang, true);
   }
