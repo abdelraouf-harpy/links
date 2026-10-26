@@ -287,6 +287,19 @@ window.deleteDeliveryZoneFast = async function(index) {
   const settings = Store.getSettings();
   settings.deliverySettings = settings.deliverySettings || { defaultFee: 15, customZones: [] };
   settings.deliverySettings.customZones = settings.deliverySettings.customZones || [];
+  const targetZone = settings.deliverySettings.customZones[index];
+  const zName = targetZone ? targetZone.name : 'النطاق';
+
+  if (typeof showCustomConfirm === 'function') {
+    const confirmed = await showCustomConfirm({
+      title: "حذف نطاق التوصيل",
+      message: `هل أنت متأكد من حذف نطاق التوصيل "${zName}"؟`,
+      confirmText: "حذف النطاق",
+      isDanger: true
+    });
+    if (!confirmed) return;
+  }
+
   settings.deliverySettings.customZones.splice(index, 1);
   await Store.saveSettings(settings);
   renderDeliveryZonesList(settings.deliverySettings.customZones);
@@ -306,10 +319,23 @@ function renderPromoCodesList(promos) {
 
 window.deletePromoFast = async function(index) {
   const settings = Store.getSettings();
+  const targetPromo = settings.promoCodes ? settings.promoCodes[index] : null;
+  const pCode = targetPromo ? targetPromo.code : 'كود الخصم';
+
+  if (typeof showCustomConfirm === 'function') {
+    const confirmed = await showCustomConfirm({
+      title: "حذف كود الخصم",
+      message: `هل أنت متأكد من حذف كود الخصم "${pCode}"؟`,
+      confirmText: "حذف الكود",
+      isDanger: true
+    });
+    if (!confirmed) return;
+  }
+
   settings.promoCodes.splice(index, 1);
   await Store.saveSettings(settings);
   renderPromoCodesList(settings.promoCodes);
-  showToastNotification("تم حذف كود الخصم", "success");
+  showToastNotification("تم حذف كود الخصم بنجاح", "success");
 };
 
 async function saveSettingsFromForm() {
@@ -525,8 +551,14 @@ async function deleteAdminTable(tableId) {
   const tbl = tables.find(t => String(t.id) === String(tableId));
   const tName = tbl ? tbl.name : 'الطاولة';
 
-  if (!confirm(`هل أنت متأكد من حذف ${tName}؟ لن يتمكن الزبائن من مسح كود الـ QR الخاص بها.`)) {
-    return;
+  if (typeof showCustomConfirm === 'function') {
+    const confirmed = await showCustomConfirm({
+      title: "حذف طاولة",
+      message: `هل أنت متأكد من حذف "${tName}" من الصالة؟ لن يتمكن الزبائن من مسح كود الـ QR الخاص بها.`,
+      confirmText: "حذف الطاولة",
+      isDanger: true
+    });
+    if (!confirmed) return;
   }
 
   tables = tables.filter(t => String(t.id) !== String(tableId));
@@ -590,15 +622,33 @@ window.openTableQRModal = function(tableId, tableName) {
     }
   }
 
-  if (modal) modal.style.display = 'block';
-  if (backdrop) backdrop.style.display = 'block';
+  if (modal) {
+    modal.classList.add('open', 'show');
+    modal.style.display = 'block';
+  }
+  if (backdrop) {
+    backdrop.classList.add('open', 'show');
+    backdrop.style.display = 'block';
+  }
 };
 
 window.closeTableQRModal = function() {
   const modal = document.getElementById('table-qr-modal');
   const backdrop = document.getElementById('table-qr-modal-backdrop');
-  if (modal) modal.style.display = 'none';
-  if (backdrop) backdrop.style.display = 'none';
+  if (modal) {
+    modal.classList.remove('open', 'show');
+    modal.style.display = 'none';
+  }
+  if (backdrop) {
+    backdrop.classList.remove('open', 'show');
+    backdrop.style.display = 'none';
+  }
+};
+
+window.previewTableInNewTab = function() {
+  if (!currentActiveQRTable) return;
+  const url = getTableDirectUrl(currentActiveQRTable.id);
+  window.open(url, '_blank');
 };
 
 window.downloadTableQRPNG = function() {
@@ -697,22 +747,48 @@ window.downloadTableQRPNG = function() {
 window.copyTableLink = function() {
   if (!currentActiveQRTable) return;
   const url = getTableDirectUrl(currentActiveQRTable.id);
+  
+  function fallbackCopy(text) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      ta.style.top = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      showToastNotification('تم نسخ رابط الطاولة المباشر بنجاح!', 'success');
+    } catch(e) {
+      showToastNotification('تم إنشاء الرابط: ' + text, 'info');
+    }
+  }
+
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(url).then(() => {
-      showToastNotification('تم نسخ رابط الطاولة المباشر!', 'success');
+      showToastNotification('تم نسخ رابط الطاولة المباشر بنجاح!', 'success');
     }).catch(() => {
-      prompt('رابط الطاولة:', url);
+      fallbackCopy(url);
     });
   } else {
-    prompt('رابط الطاولة:', url);
+    fallbackCopy(url);
   }
 };
 
 window.clearAllAdminTables = async function() {
   const tables = (typeof Store !== 'undefined' && Store.getTables) ? Store.getTables() : [];
   if (!tables || tables.length === 0) return;
-  if (!confirm(`هل أنت متأكد من حذف كافة الطاولات (${tables.length} طاولة) من الصالة؟`)) {
-    return;
+
+  if (typeof showCustomConfirm === 'function') {
+    const confirmed = await showCustomConfirm({
+      title: "حذف كافة الطاولات",
+      message: `هل أنت متأكد من حذف كافة الطاولات (${tables.length} طاولة) من الصالة نهائياً؟`,
+      confirmText: "مسح كافة الطاولات",
+      isDanger: true
+    });
+    if (!confirmed) return;
   }
   await Store.saveTables([]);
   renderAdminTablesList();
@@ -897,8 +973,14 @@ async function deleteAdminBranch(branchId) {
     return;
   }
 
-  if (!confirm(`هل أنت متأكد من حذف ${target.name} من شبكة الفروع؟`)) {
-    return;
+  if (typeof showCustomConfirm === 'function') {
+    const confirmed = await showCustomConfirm({
+      title: "إلغاء ربط الفرع",
+      message: `هل أنت متأكد من حذف فرع "${target.name}" وإلغاء ربطه من شبكة الفروع؟`,
+      confirmText: "إلغاء الربط",
+      isDanger: true
+    });
+    if (!confirmed) return;
   }
 
   branches = branches.filter(b => b.id !== branchId && b.slug !== branchId);
@@ -930,8 +1012,14 @@ async function clearAllAdminBranches() {
   const currentSlug = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : '';
   const currentSettings = (typeof Store !== 'undefined' && Store.getSettings) ? Store.getSettings() : {};
 
-  if (!confirm("هل أنت متأكد من تصفير شبكة الفروع وإلغاء ربط جميع الفروع؟ سيتم فصل جميع المطاعم والاحتفاظ بهذا المطعم فقط كفرع مستقل.")) {
-    return;
+  if (typeof showCustomConfirm === 'function') {
+    const confirmed = await showCustomConfirm({
+      title: "تصفير شبكة الفروع",
+      message: "هل أنت متأكد من تصفير شبكة الفروع وإلغاء ربط جميع الفروع؟ سيتم فصل جميع المطاعم والاحتفاظ بهذا المطعم فقط كفرع مستقل.",
+      confirmText: "تصفير وفصل الفروع",
+      isDanger: true
+    });
+    if (!confirmed) return;
   }
 
   const oldBranches = (typeof Store !== 'undefined' && Store.getBranches) ? Store.getBranches() : [];

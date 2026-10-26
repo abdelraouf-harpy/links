@@ -2222,38 +2222,77 @@ function updateHeaderBranchPill() {
   const text = document.getElementById('header-branch-pill-text');
   const icon = document.getElementById('header-branch-pill-icon');
   const arrow = document.getElementById('header-branch-pill-arrow');
-  if (!pill) return;
+  const accountBranchItem = document.getElementById('account-branch-item');
+  const accountBranchSub = document.getElementById('account-branch-name-sub');
 
   const urlParams = new URLSearchParams(window.location.search);
   const dineInTable = (urlParams.get('table') || urlParams.get('t') || sessionStorage.getItem('harpy_dinein_table') || window.__harpyDineInTable || '').trim();
 
   if (dineInTable) {
-    pill.style.display = 'inline-flex';
-    pill.style.border = '1px solid var(--primary)';
-    pill.style.background = 'var(--primary-subtle)';
-    pill.style.color = 'var(--primary)';
-    pill.style.cursor = 'default';
-    if (icon) icon.textContent = '🍽️';
-    if (text) text.textContent = `طاولة ${dineInTable} (صالة)`;
-    if (arrow) arrow.style.display = 'none';
+    if (pill) {
+      pill.style.display = 'inline-flex';
+      pill.style.border = '1px solid var(--primary)';
+      pill.style.background = 'var(--primary-subtle)';
+      pill.style.color = 'var(--primary)';
+      pill.style.cursor = 'default';
+      if (icon) icon.textContent = '🍽️';
+      if (text) text.textContent = `طاولة ${dineInTable} (صالة)`;
+      if (arrow) arrow.style.display = 'none';
+    }
+    if (accountBranchItem) accountBranchItem.style.display = 'none';
     return;
   }
 
   const branches = (typeof Store !== 'undefined' && Store.getBranches) ? Store.getBranches() : [];
   if (branches.length > 1) {
-    pill.style.display = 'inline-flex';
-    pill.style.cursor = 'pointer';
-    pill.style.border = '1px solid var(--border)';
-    pill.style.background = 'var(--surface)';
-    pill.style.color = 'var(--text-main)';
-    if (arrow) arrow.style.display = 'inline';
-    if (icon) icon.textContent = '📍';
     const curSlug = Store.getRestaurantSlug();
     const curB = branches.find(b => b.slug === curSlug);
-    if (text) text.textContent = curB ? curB.name : 'اختر الفرع';
+    const branchName = curB ? curB.name : 'اختر الفرع';
+
+    if (pill) {
+      pill.style.display = 'inline-flex';
+      pill.style.cursor = 'pointer';
+      pill.style.border = '1px solid var(--border)';
+      pill.style.background = 'var(--surface)';
+      pill.style.color = 'var(--text-main)';
+      if (arrow) arrow.style.display = 'inline';
+      if (icon) icon.textContent = '📍';
+      if (text) text.textContent = branchName;
+    }
+
+    if (accountBranchItem) {
+      accountBranchItem.style.display = 'flex';
+      if (accountBranchSub) accountBranchSub.textContent = `الفرع الحالي: ${branchName}`;
+    }
   } else {
-    pill.style.display = 'none';
+    if (pill) pill.style.display = 'none';
+    if (accountBranchItem) accountBranchItem.style.display = 'none';
   }
+}
+
+function renderCustomerBranchCards(branches, currentSlug) {
+  const safeStr = (s) => (s || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+  return branches.map(b => {
+    const isCurrent = (b.slug === currentSlug);
+    const bName = safeStr(b.name || b.slug);
+    const bAddr = safeStr(b.address || 'خدمة صالة وتيك أواي وتوصيل منزلي');
+    return `
+      <div class="branch-picker-item ${isCurrent ? 'active' : ''}" onclick="selectStoreBranch('${safeStr(b.slug)}')">
+        <div class="branch-picker-info">
+          <div class="branch-picker-icon-box">
+            ${isCurrent ? '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>' : '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>'}
+          </div>
+          <div>
+            <div class="branch-picker-name">${bName}</div>
+            <div class="branch-picker-address">${bAddr}</div>
+          </div>
+        </div>
+        <div class="branch-picker-pill">
+          ${isCurrent ? 'الفرع الحالي' : 'طلب من هنا ←'}
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
 window.openBranchPickerFromHeader = function() {
@@ -2270,29 +2309,28 @@ window.openBranchPickerFromHeader = function() {
   if (branches.length <= 1) return;
 
   const currentSlug = Store.getRestaurantSlug();
-  list.innerHTML = branches.map(b => {
-    const isCurrent = (b.slug === currentSlug);
-    return `
-      <button type="button" class="btn ${isCurrent ? 'btn-primary' : 'btn-secondary'}" onclick="selectStoreBranch('${b.slug}')" style="width:100%; padding:14px; text-align:right; display:flex; justify-content:space-between; align-items:center; border-radius:12px; cursor:pointer;">
-        <div>
-          <div style="font-weight:900; font-size:13.5px; color:${isCurrent ? '#ffffff' : 'var(--text-main)'};">${b.name}</div>
-          <div style="font-size:11px; opacity:0.8; margin-top:2px; color:${isCurrent ? '#ffffff' : 'var(--text-muted)'};">${b.address || 'خدمة صالة وتيك أواي ودليفري'}</div>
-        </div>
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
-      </button>
-    `;
-  }).join('');
+  list.innerHTML = renderCustomerBranchCards(branches, currentSlug);
 
+  modal.classList.add('open', 'show');
   modal.style.display = 'block';
-  if (backdrop) backdrop.style.display = 'block';
+  if (backdrop) {
+    backdrop.classList.add('open', 'show');
+    backdrop.style.display = 'block';
+  }
 };
 
 window.closeBranchPickerModal = function() {
   sessionStorage.setItem('harpy_branch_picked', 'dismissed');
   const modal = document.getElementById('branch-picker-modal');
   const backdrop = document.getElementById('branch-picker-backdrop');
-  if (modal) modal.style.display = 'none';
-  if (backdrop) backdrop.style.display = 'none';
+  if (modal) {
+    modal.classList.remove('open', 'show');
+    modal.style.display = 'none';
+  }
+  if (backdrop) {
+    backdrop.classList.remove('open', 'show');
+    backdrop.style.display = 'none';
+  }
 };
 
 window.checkMultiBranchSelection = function() {
@@ -2314,21 +2352,14 @@ window.checkMultiBranchSelection = function() {
   if (!modal || !list) return;
 
   const currentSlug = Store.getRestaurantSlug();
-  list.innerHTML = branches.map(b => {
-    const isCurrent = (b.slug === currentSlug);
-    return `
-      <button type="button" class="btn ${isCurrent ? 'btn-primary' : 'btn-secondary'}" onclick="selectStoreBranch('${b.slug}')" style="width:100%; padding:14px; text-align:right; display:flex; justify-content:space-between; align-items:center; border-radius:12px; cursor:pointer;">
-        <div>
-          <div style="font-weight:900; font-size:13.5px; color:${isCurrent ? '#ffffff' : 'var(--text-main)'};">${b.name}</div>
-          <div style="font-size:11px; opacity:0.8; margin-top:2px; color:${isCurrent ? '#ffffff' : 'var(--text-muted)'};">${b.address || 'خدمة صالة وتيك أواي ودليفري'}</div>
-        </div>
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
-      </button>
-    `;
-  }).join('');
+  list.innerHTML = renderCustomerBranchCards(branches, currentSlug);
 
+  modal.classList.add('open', 'show');
   modal.style.display = 'block';
-  if (backdrop) backdrop.style.display = 'block';
+  if (backdrop) {
+    backdrop.classList.add('open', 'show');
+    backdrop.style.display = 'block';
+  }
 };
 
 window.selectStoreBranch = function(slug) {

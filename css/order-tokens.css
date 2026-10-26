@@ -612,6 +612,17 @@ body::-webkit-scrollbar {
 .btn-primary:hover {
   background: var(--primary-hover);
 }
+.btn-secondary {
+  background: var(--surface-raised);
+  border: 1px solid var(--border-strong);
+  color: var(--text-main);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+.btn-secondary:hover {
+  background: var(--surface);
+  border-color: var(--primary);
+  color: var(--primary);
+}
 .btn-ghost {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -812,4 +823,84 @@ body::-webkit-scrollbar {
   font-weight: 800 !important;
   text-decoration: none !important;
   margin-left: 2px !important;
+}
+
+/* ── Customer Multi-Branch Picker Cards ── */
+.branch-picker-item {
+  width: 100%;
+  padding: 13px 16px;
+  background: var(--surface-raised);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  text-align: right;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+.branch-picker-item:hover {
+  background: var(--surface);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.branch-picker-item.active {
+  border-color: var(--primary);
+  background: var(--primary-subtle);
+  box-shadow: 0 0 0 1px var(--primary-glow);
+}
+.branch-picker-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.branch-picker-icon-box {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+  color: var(--primary);
+}
+.branch-picker-item.active .branch-picker-icon-box {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+.branch-picker-name {
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--text-main);
+}
+.branch-picker-address {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 3px;
+  line-height: 1.3;
+}
+.branch-picker-pill {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 20px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.branch-picker-item.active .branch-picker-pill {
+  background: var(--primary);
+  color: #fff;
+}
+.branch-picker-item:not(.active) .branch-picker-pill {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
 }

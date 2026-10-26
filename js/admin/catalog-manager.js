@@ -112,7 +112,7 @@ function renderCatalogCategoryActionsBar() {
           <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
           <span>تعديل اسم القسم</span>
         </button>
-        <button type="button" class="btn btn-sm" onclick="deleteCategoryFast('${Store.escapeHtml(c)}')" style="background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; font-size:11.5px; font-weight:800; padding:5px 10px; border-radius:var(--radius-sm); display:inline-flex; align-items:center; gap:5px; cursor:pointer;" title="حذف هذا القسم">
+        <button type="button" class="btn btn-danger btn-sm" onclick="deleteCategoryFast('${Store.escapeHtml(c)}')" style="font-size:11.5px; font-weight:800; padding:5px 10px; border-radius:var(--radius-sm); display:inline-flex; align-items:center; gap:5px; cursor:pointer;" title="حذف هذا القسم">
           <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
           <span>حذف القسم</span>
         </button>

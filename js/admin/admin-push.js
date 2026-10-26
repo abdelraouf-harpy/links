@@ -176,7 +176,7 @@
       if (typeof showToastNotification === 'function') {
         showToastNotification('متصفحك لا يدعم الإشعارات المباشرة', 'error');
       } else {
-        alert('متصفحك لا يدعم الإشعارات المباشرة');
+        if(typeof showToastNotification==='function') showToastNotification('متصفحك لا يدعم الإشعارات المباشرة', 'error');
       }
       return;
     }
@@ -186,7 +186,7 @@
       if (typeof showToastNotification === 'function') {
         showToastNotification('الإشعارات محظورة في متصفحك. اضغط على رمز القفل 🔒 بجانب الرابط وفعل الإشعارات.', 'error');
       } else {
-        alert('الإشعارات محظورة في متصفحك. يرجى تفعيلها من إعدادات الموقع أو رمز القفل بجانب الرابط.');
+        if(typeof showToastNotification==='function') showToastNotification('الإشعارات محظورة في متصفحك. يرجى تفعيلها من إعدادات الموقع أو رمز القفل بجانب الرابط.', 'error');
       }
       return;
     }

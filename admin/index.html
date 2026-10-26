@@ -50,7 +50,7 @@
 
   <link rel="stylesheet" href="css/order-tokens.css?v=118.0">
   <link rel="stylesheet" href="css/order-client.css?v=118.0">
-  <link rel="stylesheet" href="css/order-admin.css?v=139.0">
+  <link rel="stylesheet" href="css/order-admin.css?v=140.0">
 
   <script>
     // Instant zero-delay theme toggle available immediately on page paint
@@ -1611,8 +1611,8 @@
   </main>
 
   <!-- Table QR Stand Modal -->
-  <div class="modal-backdrop" id="table-qr-modal-backdrop" style="display:none;" onclick="closeTableQRModal()"></div>
-  <div class="modal-box" id="table-qr-modal" style="display:none; max-width:440px; text-align:center; padding:24px 20px;">
+  <div class="modal-backdrop" id="table-qr-modal-backdrop" onclick="closeTableQRModal()"></div>
+  <div class="modal-box" id="table-qr-modal" style="max-width:440px; text-align:center; padding:24px 20px;">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
       <h3 id="table-qr-modal-title" style="margin:0; font-size:1.1rem; font-weight:900; color:var(--text-main);">كود QR طاولة</h3>
       <button type="button" class="btn-close" onclick="closeTableQRModal()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
@@ -1626,13 +1626,17 @@
     </div>
 
     <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-      <button type="button" id="btn-download-table-qr" class="btn btn-primary" style="flex:1; min-width:140px; padding:10px 16px; font-weight:800; display:inline-flex; align-items:center; justify-content:center; gap:6px;">
+      <button type="button" id="btn-download-table-qr" class="btn btn-primary" style="flex:1; min-width:130px; padding:10px 14px; font-weight:800; display:inline-flex; align-items:center; justify-content:center; gap:6px;">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-        <span>تحميل الكود PNG</span>
+        <span>تحميل PNG</span>
       </button>
-      <button type="button" id="btn-copy-table-link" class="btn btn-secondary" style="padding:10px 14px; font-weight:800; display:inline-flex; align-items:center; gap:6px;">
+      <button type="button" id="btn-copy-table-link" class="btn btn-secondary" onclick="copyTableLink()" style="padding:10px 14px; font-weight:800; display:inline-flex; align-items:center; gap:6px;">
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
         <span>نسخ الرابط</span>
+      </button>
+      <button type="button" id="btn-preview-table-page" class="btn btn-ghost" onclick="previewTableInNewTab()" style="padding:10px 14px; font-weight:800; display:inline-flex; align-items:center; gap:6px;">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+        <span>معاينة الرابط</span>
       </button>
     </div>
   </div>
@@ -2107,7 +2111,7 @@
         <button type="submit" id="btn-save-category-modal" class="btn btn-primary" style="flex:1; min-width:120px; padding:12px; font-weight:800; font-size:0.92rem;">
           إضافة القسم
         </button>
-        <button type="button" id="btn-delete-category-modal" class="btn" style="display:none; padding:12px 14px; font-weight:800; font-size:0.92rem; background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; border-radius:var(--radius-sm); cursor:pointer;">
+        <button type="button" id="btn-delete-category-modal" class="btn btn-danger" style="display:none; padding:12px 14px; font-weight:800; font-size:0.92rem; border-radius:var(--radius-sm); cursor:pointer;">
           حذف هذا القسم
         </button>
         <button type="button" class="btn btn-ghost" onclick="closeCategoryModal()" style="padding:12px 16px; font-weight:700; font-size:0.92rem; border:1px solid var(--border);">
@@ -2511,22 +2515,22 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=139.0"></script>
-  <script src="js/core/sound-effects.js?v=139.0"></script>
-  <script src="js/store.js?v=139.0"></script>
-  <script src="js/admin/admin-core.js?v=139.0"></script>
-  <script src="js/admin/admin-auth.js?v=139.0"></script>
-  <script src="js/admin/kitchen-orders.js?v=139.0"></script>
-  <script src="js/admin/inventory-manager.js?v=139.0"></script>
-  <script src="js/admin/catalog-manager.js?v=139.0"></script>
-  <script src="js/admin/category-manager.js?v=139.0"></script>
-  <script src="js/admin/stories-manager.js?v=139.0"></script>
-  <script src="js/admin/backup-restore.js?v=139.0"></script>
-  <script src="js/core/qrcode.min.js?v=139.0"></script>
-  <script src="js/admin/settings-manager.js?v=139.0"></script>
-  <script src="js/admin/pos-terminal.js?v=139.0"></script>
-  <script src="js/admin/admin-push.js?v=139.0"></script>
-  <script src="js/admin.js?v=139.0"></script>
-  <script src="js/pwa.js?v=139.0"></script>
+  <script src="js/core/demo-seed-data.js?v=140.0"></script>
+  <script src="js/core/sound-effects.js?v=140.0"></script>
+  <script src="js/store.js?v=140.0"></script>
+  <script src="js/admin/admin-core.js?v=140.0"></script>
+  <script src="js/admin/admin-auth.js?v=140.0"></script>
+  <script src="js/admin/kitchen-orders.js?v=140.0"></script>
+  <script src="js/admin/inventory-manager.js?v=140.0"></script>
+  <script src="js/admin/catalog-manager.js?v=140.0"></script>
+  <script src="js/admin/category-manager.js?v=140.0"></script>
+  <script src="js/admin/stories-manager.js?v=140.0"></script>
+  <script src="js/admin/backup-restore.js?v=140.0"></script>
+  <script src="js/core/qrcode.min.js?v=140.0"></script>
+  <script src="js/admin/settings-manager.js?v=140.0"></script>
+  <script src="js/admin/pos-terminal.js?v=140.0"></script>
+  <script src="js/admin/admin-push.js?v=140.0"></script>
+  <script src="js/admin.js?v=140.0"></script>
+  <script src="js/pwa.js?v=140.0"></script>
 </body>
 </html>
