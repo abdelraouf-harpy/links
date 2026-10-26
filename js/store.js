@@ -700,12 +700,36 @@ const Store = {
           mergedSettings.whatsappNumber = data.settings.phone;
         }
 
-        // Strict: Validate cloud branch snapshots (reject dirty dumps > 5 branches)
+        // Strict: Validate and sanitize cloud branch snapshots (purge ghost/dead slugs)
         if (data.settings && data.settings.branches && Array.isArray(data.settings.branches)) {
-          if (data.settings.branches.length > 5) {
-            delete mergedSettings.branches;
+          const curSlug = this.getRestaurantSlug();
+          const sanitized = data.settings.branches.filter(b => {
+            if (!b) return false;
+            const s = (b.slug || b.id || '').toLowerCase().trim();
+            if (!s) return false;
+            if (s === 'king_harpy_order' || s.endsWith('_harpy_order')) return false;
+            if ((curSlug === 'bazzes' || curSlug === 'king') && s === 'saj') return false;
+            return true;
+          });
+
+          const uniqueList = [];
+          sanitized.forEach(b => {
+            const s = (b.slug || b.id || '').toLowerCase().trim();
+            if (s && !uniqueList.some(u => u.slug === s)) {
+              uniqueList.push(b);
+            }
+          });
+
+          if (uniqueList.length > 1) {
+            mergedSettings.branches = uniqueList;
+            if (uniqueList.length !== data.settings.branches.length && typeof db !== 'undefined' && db && curSlug) {
+              try { db.ref(`restaurants/${curSlug}/settings/branches`).set(uniqueList).catch(() => {}); } catch(e) {}
+            }
           } else {
-            mergedSettings.branches = data.settings.branches;
+            mergedSettings.branches = [];
+            if (data.settings.branches.length > 0 && typeof db !== 'undefined' && db && curSlug) {
+              try { db.ref(`restaurants/${curSlug}/settings/branches`).set([]).catch(() => {}); } catch(e) {}
+            }
           }
         }
         // Preserve active local branches if cloud snapshot did not specify branches
@@ -2434,11 +2458,30 @@ const Store = {
       } catch(e) {}
     }
 
+    // Strict Ghost Purge Migration v140
+    try {
+      if (typeof window !== 'undefined' && localStorage.getItem('harpy_branch_sanitize_v140') !== 'true') {
+        sessionStorage.removeItem('harpy_verified_branches');
+        sessionStorage.removeItem('harpy_branch_authorized_switch');
+        localStorage.removeItem('harpy_admin_branch_network');
+        localStorage.removeItem('harpy_branches_saj');
+        localStorage.removeItem('harpy_branches_king_harpy_order');
+        localStorage.removeItem('harpy_branches_bazzes');
+        localStorage.removeItem('harpy_branches_king');
+        localStorage.setItem('harpy_branch_sanitize_v140', 'true');
+      }
+    } catch(e) {}
+
     const cleanBranches = [];
+    let hadGhostEntries = false;
     sourceList.forEach(b => {
       if (!b) return;
       const slug = (b.slug || b.id || '').toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
       if (!slug) return;
+      if (slug === 'king_harpy_order' || slug.endsWith('_harpy_order') || ((currentSlug === 'bazzes' || currentSlug === 'king') && slug === 'saj')) {
+        hadGhostEntries = true;
+        return;
+      }
       if (!cleanBranches.some(cb => cb.slug === slug)) {
         cleanBranches.push({
           id: slug,
@@ -2448,6 +2491,15 @@ const Store = {
         });
       }
     });
+
+    // Auto-heal: If dirty/ghost entries were stripped, persist clean list to cloud & local storage
+    if (hadGhostEntries && cleanBranches.length > 0) {
+      settings.branches = cleanBranches.length > 1 ? cleanBranches : [];
+      this.safeSetItem(this.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(settings));
+      if (typeof db !== 'undefined' && db && currentSlug) {
+        try { db.ref(`restaurants/${currentSlug}/settings/branches`).set(settings.branches).catch(() => {}); } catch(e) {}
+      }
+    }
 
     // Ensure the current active restaurant is included in branches
     const curIdx = cleanBranches.findIndex(b => b.slug === currentSlug);
@@ -2551,7 +2603,7 @@ const Store = {
 
       const newSettings = { ...srcSettings };
       if (targetName) newSettings.storeName = targetName;
-      newSettings.branches = this.getBranches();
+      newSettings.branches = []; // Start newly cloned branch with 100% clean, isolated branches
 
       // Save target branch data locally
       try {
