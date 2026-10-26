@@ -1606,6 +1606,8 @@ const Store = {
     // 1. WebSocket Realtime Channel (Sub-50ms when active)
     let ordersRef = null;
     let wsCallback = null;
+    let deletedRef = null;
+    let deletedCallback = null;
     let lastWsSnapshotTime = 0;
 
     const setupWsListener = () => {
@@ -1617,6 +1619,9 @@ const Store = {
       }
       if (ordersRef && wsCallback) {
         try { ordersRef.off('value', wsCallback); } catch(e) {}
+      }
+      if (deletedRef && deletedCallback) {
+        try { deletedRef.off('value', deletedCallback); } catch(e) {}
       }
       try {
         ordersRef = db.ref(`restaurants/${slug}/orders`);
@@ -1638,6 +1643,40 @@ const Store = {
           }
         });
         this.activeListeners.orders = { ref: ordersRef, callback: wsCallback };
+
+        // Synchronize cloud tombstones across all connected devices in real time
+        deletedRef = db.ref(`restaurants/${slug}/deletedOrderIds`);
+        deletedCallback = snapshot => {
+          const cloudDeletes = snapshot.val();
+          if (cloudDeletes && typeof cloudDeletes === 'object') {
+            const localSet = this.getDeletedOrderIds(slug);
+            let changed = false;
+            Object.keys(cloudDeletes).forEach(k => {
+              const cleanK = String(k).replace(/[^a-zA-Z0-9_-]/g, '');
+              if (!localSet.has(cleanK)) {
+                localSet.add(cleanK);
+                localSet.add(k);
+                changed = true;
+              }
+            });
+            if (changed) {
+              try {
+                localStorage.setItem(`harpy_${slug}_deleted_order_ids`, JSON.stringify(Array.from(localSet)));
+              } catch(e) {}
+              const cur = this.getOrders();
+              const filtered = cur.filter(o => {
+                if (!o) return false;
+                const cid = String(o.orderId || o.id || o._fbKey || '').replace(/[^a-zA-Z0-9_-]/g, '');
+                return !localSet.has(cid) && !localSet.has(o.orderId) && !localSet.has(o.id) && !localSet.has(o._fbKey);
+              });
+              if (filtered.length !== cur.length) {
+                this.saveOrders(filtered);
+                if (typeof onOrdersUpdate === 'function') onOrdersUpdate(filtered);
+              }
+            }
+          }
+        };
+        deletedRef.on('value', deletedCallback);
       } catch (e) {
         console.warn("[Store] Failed to attach orders WS listener:", e);
       }
@@ -1730,6 +1769,9 @@ const Store = {
       }
       if (ordersRef && wsCallback) {
         try { ordersRef.off('value', wsCallback); } catch(e) {}
+      }
+      if (deletedRef && deletedCallback) {
+        try { deletedRef.off('value', deletedCallback); } catch(e) {}
       }
     };
   },
