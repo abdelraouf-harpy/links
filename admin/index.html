@@ -1085,6 +1085,10 @@
               <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
               <span>فتح المنيو</span>
             </a>
+            <button type="button" id="btn-harpy-qr-sticker" class="btn-harpy-qr-trigger" onclick="openHarpyQRModal('menu')" title="ستيكر كود QR الشيف هاربي للمنيو">
+              <svg class="icon icon-sm" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect></svg>
+              <span>ستيكر الشيف هاربي</span>
+            </button>
           </div>
         </div>
 
@@ -1634,6 +1638,70 @@
       <button type="button" id="btn-preview-table-page" class="btn btn-ghost" onclick="previewTableInNewTab()" style="padding:10px 14px; font-weight:800; display:inline-flex; align-items:center; gap:6px;">
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
         <span>معاينة الرابط</span>
+      </button>
+      <button type="button" id="btn-open-harpy-table-sticker" class="btn-harpy-qr-trigger" onclick="openHarpyQRModal('table', currentActiveQRTable)" style="width:100%; margin-top:4px; justify-content:center; padding:10px 14px; font-size:13px;">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect></svg>
+        <span>ستيكر الشيف هاربي للطاولة</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Chef Harpy Mascot QR Sticker Modal -->
+  <div class="modal-backdrop" id="harpy-qr-modal-backdrop" onclick="closeHarpyQRModal()"></div>
+  <div class="modal-box" id="harpy-qr-modal" style="max-width:520px; text-align:center; padding:22px 20px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="font-size:20px;">🎨</span>
+        <h3 id="harpy-qr-modal-title" style="margin:0; font-size:1.1rem; font-weight:900; color:var(--text-main);">ستيكر الشيف هاربي الذكي</h3>
+      </div>
+      <button type="button" class="btn-close" onclick="closeHarpyQRModal()" aria-label="إغلاق">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+
+    <!-- Mode Selector: Menu vs Dine-in Tables -->
+    <div class="harpy-qr-tabs-wrap" style="display:flex; gap:8px; justify-content:center; margin-bottom:14px; background:var(--surface-raised, #182234); padding:4px; border-radius:12px; border:1px solid var(--border-subtle, rgba(255,255,255,0.08));">
+      <button type="button" id="tab-harpy-menu" class="btn-tab-mode" onclick="switchHarpyQRTarget('menu')" style="flex:1; padding:7px 12px; font-size:12.5px; font-weight:800; border-radius:9px; border:none; cursor:pointer; background:var(--accent, #ea580c); color:#fff; transition:all 0.15s ease;">
+        🍽️ منيو المطعم العام
+      </button>
+      <button type="button" id="tab-harpy-table" class="btn-tab-mode" onclick="switchHarpyQRTarget('table')" style="flex:1; padding:7px 12px; font-size:12.5px; font-weight:800; border-radius:9px; border:none; cursor:pointer; background:transparent; color:var(--text-muted, #94a3b8); transition:all 0.15s ease;">
+        🪑 طاولة محددة
+      </button>
+    </div>
+
+    <!-- Dynamic Table Selector (shown only when table mode is selected) -->
+    <div id="harpy-table-select-row" style="display:none; margin-bottom:14px;">
+      <label style="font-size:12px; font-weight:800; color:var(--text-muted); display:block; margin-bottom:6px; text-align:start;">اختر الطاولة:</label>
+      <select id="harpy-table-select" class="form-input" onchange="onHarpyTableSelectChange()" style="width:100%; font-weight:800; font-size:13px; padding:8px 12px; border-radius:8px;">
+      </select>
+    </div>
+
+    <!-- Live Preview Canvas -->
+    <div id="harpy-qr-preview-wrapper" style="position:relative; background:#0b111e; border:1px solid var(--border-strong, #334155); border-radius:16px; padding:12px; margin-bottom:16px; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:300px;">
+      <div id="harpy-qr-loading" style="display:none; position:absolute; inset:0; background:rgba(11,17,30,0.82); border-radius:16px; z-index:10; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;">
+        <div class="spinner-ring" style="width:36px; height:36px; border:3px solid var(--accent, #ea580c); border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite;"></div>
+        <span style="font-size:12px; font-weight:800; color:#fff;">جاري تجهيز وتوليد الستيكر...</span>
+      </div>
+      <canvas id="harpy-qr-canvas" width="1254" height="1254" style="max-width:100%; max-height:350px; width:auto; height:auto; aspect-ratio:1/1; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.35); display:block;"></canvas>
+      <div id="harpy-qr-hidden-gen" style="display:none;"></div>
+      <div id="harpy-qr-encoded-url" style="font-size:11px; color:var(--text-muted, #94a3b8); margin-top:8px; word-break:break-all; max-width:92%; direction:ltr; text-align:center;"></div>
+    </div>
+
+    <!-- Actions Toolbar -->
+    <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+      <button type="button" id="btn-download-harpy-sticker" class="btn btn-primary" onclick="downloadHarpyQRSticker()" style="flex:1; min-width:140px; padding:10px 16px; font-weight:800; font-size:13px; display:inline-flex; align-items:center; justify-content:center; gap:6px; border-radius:10px; background:linear-gradient(135deg, #ea580c 0%, #f97316 100%); border:none; box-shadow:0 4px 14px rgba(234, 88, 12, 0.35);">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        <span>تحميل عالي الدقة (PNG)</span>
+      </button>
+
+      <button type="button" id="btn-print-harpy-sticker" class="btn btn-secondary" onclick="printHarpyQRSticker()" style="padding:10px 16px; font-weight:800; font-size:13px; display:inline-flex; align-items:center; justify-content:center; gap:6px; border-radius:10px; border:1px solid var(--border-strong, #334155);">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+        <span>طباعة الستيكر</span>
+      </button>
+
+      <button type="button" id="btn-copy-harpy-sticker-url" class="btn btn-ghost" onclick="copyHarpyQRUrl()" style="padding:10px 14px; font-weight:800; font-size:13px; display:inline-flex; align-items:center; justify-content:center; gap:6px; border-radius:10px; border:1px solid var(--border, rgba(255,255,255,0.1));">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        <span>نسخ الرابط</span>
       </button>
     </div>
   </div>

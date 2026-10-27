@@ -386,6 +386,33 @@
   background: var(--surface-hover);
 }
 
+/* ── Chef Harpy QR Sticker Trigger Button ── */
+.btn-harpy-qr-trigger {
+  background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  font-weight: 800;
+  font-size: 12px;
+  border-radius: 10px;
+  padding: 6px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.28);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-decoration: none;
+}
+.btn-harpy-qr-trigger:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(234, 88, 12, 0.42);
+  filter: brightness(1.06);
+}
+.btn-harpy-qr-trigger:active {
+  transform: translateY(0);
+}
+
+
 @media (max-width: 980px) {
   /* In POS cashier mode on mobile, hide the share link bar to maximize screen area for the cashier */
   body.tab-pos-active .multi-tenant-hub-bar {
@@ -2680,8 +2707,12 @@ html.admin-unlocked #login-modal-backdrop {
     align-items: center !important;
     gap: 8px !important;
   }
+  .tenant-actions-right {
+    flex-wrap: wrap !important;
+  }
   .tenant-actions-right .btn-copy-chic,
-  .tenant-actions-right #btn-open-store-link {
+  .tenant-actions-right #btn-open-store-link,
+  .tenant-actions-right #btn-harpy-qr-sticker {
     flex: 1 !important;
     justify-content: center !important;
     padding: 9px 12px !important;

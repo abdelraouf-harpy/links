@@ -1066,3 +1066,487 @@ window.addAdminBranch = addAdminBranch;
 window.deleteAdminBranch = deleteAdminBranch;
 window.clearAllAdminBranches = clearAllAdminBranches;
 window.safeRefreshDrawerBranches = safeRefreshDrawerBranches;
+
+
+// ═══════════════════════════════════════════════════════════
+// Chef Harpy Mascot QR Sticker Generator & Modal
+// ═══════════════════════════════════════════════════════════
+
+let currentHarpyQRMode = 'menu'; // 'menu' | 'table'
+let currentHarpyQRTable = null;  // { id, name }
+let cachedHarpyTemplateImg = null;
+let isHarpyRendering = false;
+
+function drawHarpyRoundedRectPath(ctx, x, y, width, height, radius) {
+  if (typeof ctx.roundRect === 'function') {
+    ctx.beginPath();
+    ctx.roundRect(x, y, width, height, radius);
+    return;
+  }
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  ctx.lineTo(x + radius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
+}
+
+function getHarpyTargetUrl() {
+  if (currentHarpyQRMode === 'table' && currentHarpyQRTable && currentHarpyQRTable.id) {
+    if (typeof getTableDirectUrl === 'function') {
+      return getTableDirectUrl(currentHarpyQRTable.id);
+    }
+  }
+  const shareLink = document.getElementById('tenant-share-link');
+  if (shareLink && shareLink.href && shareLink.href !== '#' && !shareLink.href.endsWith('/#')) {
+    return shareLink.href;
+  }
+  const slug = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : 'demo';
+  const isFile = window.location.protocol === 'file:';
+  if (isFile) {
+    return window.location.href.replace('admin.html', 'order/').split('?')[0] + `?m=${encodeURIComponent(slug)}`;
+  }
+  const cleanPath = window.location.pathname.replace('admin.html', '').replace(/\/admin\/?$/, '').replace(/\/$/, '');
+  return window.location.origin + cleanPath + `/order/?m=${encodeURIComponent(slug)}`;
+}
+
+window.openHarpyQRModal = function(mode, tableData) {
+  currentHarpyQRMode = (mode === 'table') ? 'table' : 'menu';
+  if (tableData) {
+    currentHarpyQRTable = (typeof tableData === 'object') ? tableData : { id: tableData, name: `طاولة ${tableData}` };
+  } else if (currentHarpyQRMode === 'table') {
+    const settings = (typeof Store !== 'undefined' && Store.getSettings) ? Store.getSettings() : {};
+    const tables = settings.dineInTables || [];
+    currentHarpyQRTable = tables.length > 0 ? tables[0] : { id: '1', name: 'طاولة 1' };
+  } else {
+    currentHarpyQRTable = null;
+  }
+
+  // Update mode tabs UI
+  updateHarpyQRTabsUI();
+
+  // Populate tables dropdown
+  populateHarpyTablesDropdown();
+
+  // Show modal & backdrop
+  const modal = document.getElementById('harpy-qr-modal');
+  const backdrop = document.getElementById('harpy-qr-modal-backdrop');
+  if (modal) {
+    modal.classList.add('open', 'show');
+    modal.style.display = 'block';
+  }
+  if (backdrop) {
+    backdrop.classList.add('open', 'show');
+    backdrop.style.display = 'block';
+  }
+
+  // Trigger composite render
+  renderHarpyQRComposite();
+};
+
+window.closeHarpyQRModal = function() {
+  const modal = document.getElementById('harpy-qr-modal');
+  const backdrop = document.getElementById('harpy-qr-modal-backdrop');
+  if (modal) {
+    modal.classList.remove('open', 'show');
+    modal.style.display = 'none';
+  }
+  if (backdrop) {
+    backdrop.classList.remove('open', 'show');
+    backdrop.style.display = 'none';
+  }
+};
+
+window.switchHarpyQRTarget = function(target) {
+  if (target === currentHarpyQRMode) return;
+  currentHarpyQRMode = target;
+  if (target === 'table' && !currentHarpyQRTable) {
+    const settings = (typeof Store !== 'undefined' && Store.getSettings) ? Store.getSettings() : {};
+    const tables = settings.dineInTables || [];
+    currentHarpyQRTable = tables.length > 0 ? tables[0] : { id: '1', name: 'طاولة 1' };
+  }
+  updateHarpyQRTabsUI();
+  populateHarpyTablesDropdown();
+  renderHarpyQRComposite();
+};
+
+function updateHarpyQRTabsUI() {
+  const tabMenu = document.getElementById('tab-harpy-menu');
+  const tabTable = document.getElementById('tab-harpy-table');
+  const tableRow = document.getElementById('harpy-table-select-row');
+
+  if (currentHarpyQRMode === 'menu') {
+    if (tabMenu) {
+      tabMenu.style.background = 'var(--accent, #ea580c)';
+      tabMenu.style.color = '#ffffff';
+    }
+    if (tabTable) {
+      tabTable.style.background = 'transparent';
+      tabTable.style.color = 'var(--text-muted, #94a3b8)';
+    }
+    if (tableRow) tableRow.style.display = 'none';
+  } else {
+    if (tabTable) {
+      tabTable.style.background = 'var(--accent, #ea580c)';
+      tabTable.style.color = '#ffffff';
+    }
+    if (tabMenu) {
+      tabMenu.style.background = 'transparent';
+      tabMenu.style.color = 'var(--text-muted, #94a3b8)';
+    }
+    if (tableRow) tableRow.style.display = 'block';
+  }
+}
+
+function populateHarpyTablesDropdown() {
+  const select = document.getElementById('harpy-table-select');
+  if (!select) return;
+  const settings = (typeof Store !== 'undefined' && Store.getSettings) ? Store.getSettings() : {};
+  const tables = settings.dineInTables || [];
+
+  select.innerHTML = '';
+  if (tables.length === 0) {
+    const opt = document.createElement('option');
+    opt.value = '1';
+    opt.textContent = 'طاولة 1 (افتراضي)';
+    select.appendChild(opt);
+    if (!currentHarpyQRTable) currentHarpyQRTable = { id: '1', name: 'طاولة 1' };
+  } else {
+    tables.forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = String(t.id);
+      opt.textContent = t.name || `طاولة ${t.id}`;
+      select.appendChild(opt);
+    });
+    if (currentHarpyQRTable) {
+      select.value = String(currentHarpyQRTable.id);
+    } else {
+      currentHarpyQRTable = tables[0];
+      select.value = String(tables[0].id);
+    }
+  }
+}
+
+window.onHarpyTableSelectChange = function() {
+  const select = document.getElementById('harpy-table-select');
+  if (!select) return;
+  const tableId = select.value;
+  const tableName = select.options[select.selectedIndex]?.textContent || `طاولة ${tableId}`;
+  currentHarpyQRTable = { id: tableId, name: tableName };
+  renderHarpyQRComposite();
+};
+
+function loadHarpyTemplate() {
+  return new Promise((resolve) => {
+    if (cachedHarpyTemplateImg && cachedHarpyTemplateImg.complete && cachedHarpyTemplateImg.naturalWidth > 0) {
+      return resolve(cachedHarpyTemplateImg);
+    }
+    const candidates = [
+      'assets/brand/chef_harpy_qr_template.png',
+      '../assets/brand/chef_harpy_qr_template.png',
+      '/order/assets/brand/chef_harpy_qr_template.png',
+      './assets/brand/chef_harpy_qr_template.png'
+    ];
+    let idx = 0;
+    function tryNext() {
+      if (idx >= candidates.length) {
+        return resolve(null);
+      }
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        cachedHarpyTemplateImg = img;
+        resolve(img);
+      };
+      img.onerror = () => {
+        idx++;
+        tryNext();
+      };
+      img.src = candidates[idx];
+    }
+    tryNext();
+  });
+}
+
+async function renderHarpyQRComposite() {
+  if (isHarpyRendering) return;
+  isHarpyRendering = true;
+
+  const canvas = document.getElementById('harpy-qr-canvas');
+  if (!canvas) {
+    isHarpyRendering = false;
+    return;
+  }
+  const loadingEl = document.getElementById('harpy-qr-loading');
+  const urlDisplay = document.getElementById('harpy-qr-encoded-url');
+  const hiddenGen = document.getElementById('harpy-qr-hidden-gen');
+
+  if (loadingEl) loadingEl.style.display = 'flex';
+
+  try {
+    const targetUrl = getHarpyTargetUrl();
+    if (urlDisplay) {
+      urlDisplay.textContent = targetUrl;
+    }
+
+    // 1. Generate real working QR Code offscreen
+    if (hiddenGen) hiddenGen.innerHTML = '';
+    const qrContainer = hiddenGen || document.createElement('div');
+    qrContainer.innerHTML = '';
+
+    if (typeof QRCode !== 'undefined') {
+      try {
+        new QRCode(qrContainer, {
+          text: targetUrl,
+          width: 360,
+          height: 360,
+          colorDark: '#0f172a',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.H
+        });
+      } catch (err) {
+        console.warn('QRCode generation fallback:', err);
+      }
+    }
+
+    // Give QRCode a moment to paint to canvas
+    await new Promise(r => setTimeout(r, 60));
+
+    let qrSource = qrContainer.querySelector('canvas');
+    if (!qrSource || qrSource.width === 0) {
+      qrSource = qrContainer.querySelector('img');
+      if (qrSource && !qrSource.complete) {
+        await new Promise(r => { qrSource.onload = r; qrSource.onerror = r; setTimeout(r, 300); });
+      }
+    }
+
+    // 2. Load template image
+    const templateImg = await loadHarpyTemplate();
+
+    // 3. Render onto main canvas (1254 x 1254 native resolution)
+    const canvasW = 1254;
+    const canvasH = 1254;
+    canvas.width = canvasW;
+    canvas.height = canvasH;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvasW, canvasH);
+
+    // Draw base template if loaded
+    if (templateImg) {
+      ctx.drawImage(templateImg, 0, 0, canvasW, canvasH);
+    } else {
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(0, 0, canvasW, canvasH);
+    }
+
+    // Acrylic sign dimensions & placement
+    const cardW = 440;
+    const cardH = 440;
+    const cardX = 205;
+    const cardY = 605;
+    const cardRadius = 20;
+
+    // Acrylic sign white card backing with shadow
+    ctx.save();
+    drawHarpyRoundedRectPath(ctx, cardX, cardY, cardW, cardH, cardRadius);
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.18)';
+    ctx.shadowBlur = 18;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 8;
+    ctx.fill();
+    ctx.restore();
+
+    // Acrylic sign orange accent border
+    ctx.save();
+    drawHarpyRoundedRectPath(ctx, cardX, cardY, cardW, cardH, cardRadius);
+    ctx.strokeStyle = '#ea580c';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+    ctx.restore();
+
+    // Draw real scannable QR Code
+    const qrSize = 360;
+    const qrX = cardX + Math.round((cardW - qrSize) / 2); // 245
+    const qrY = cardY + 14;                                // 619
+
+    if (qrSource) {
+      ctx.drawImage(qrSource, qrX, qrY, qrSize, qrSize);
+    }
+
+    // Draw Bottom Pill Badge on acrylic sign
+    const pillX = cardX + 16;
+    const pillY = cardY + cardH - 52;
+    const pillW = cardW - 32;
+    const pillH = 40;
+    const pillRadius = 10;
+
+    ctx.save();
+    drawHarpyRoundedRectPath(ctx, pillX, pillY, pillW, pillH, pillRadius);
+    ctx.fillStyle = '#fff7ed';
+    ctx.fill();
+    ctx.strokeStyle = '#fed7aa';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.restore();
+
+    // Badge text
+    const settings = (typeof Store !== 'undefined' && Store.getSettings) ? Store.getSettings() : {};
+    const storeName = settings.storeName || 'Harpy Order';
+
+    let badgeText = '';
+    if (currentHarpyQRMode === 'table') {
+      const tblName = currentHarpyQRTable ? (currentHarpyQRTable.name || `طاولة ${currentHarpyQRTable.id}`) : 'طاولة 1';
+      badgeText = `${tblName} • ${storeName}`;
+    } else {
+      badgeText = `${storeName} • امسح لفتح المنيو والطلب`;
+    }
+
+    ctx.fillStyle = '#ea580c';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    // Auto-fit font size to pill width
+    let fontSize = 18;
+    ctx.font = `bold ${fontSize}px Cairo, Arial, sans-serif`;
+    while (ctx.measureText(badgeText).width > (pillW - 24) && fontSize > 11) {
+      fontSize -= 1;
+      ctx.font = `bold ${fontSize}px Cairo, Arial, sans-serif`;
+    }
+    ctx.fillText(badgeText, pillX + pillW / 2, pillY + pillH / 2);
+
+  } catch (err) {
+    console.error('Error rendering Harpy QR Composite:', err);
+  } finally {
+    isHarpyRendering = false;
+    if (loadingEl) loadingEl.style.display = 'none';
+  }
+}
+
+window.downloadHarpyQRSticker = function() {
+  const canvas = document.getElementById('harpy-qr-canvas');
+  if (!canvas) return;
+
+  const settings = (typeof Store !== 'undefined' && Store.getSettings) ? Store.getSettings() : {};
+  const storeName = (settings.storeName || 'restaurant').replace(/[\s\/\\]+/g, '_');
+  const slug = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : 'store';
+
+  let filename = '';
+  if (currentHarpyQRMode === 'table' && currentHarpyQRTable) {
+    const tblName = (currentHarpyQRTable.name || `table_${currentHarpyQRTable.id}`).replace(/[\s\/\\]+/g, '_');
+    filename = `Chef_Harpy_QR_${storeName}_${tblName}.png`;
+  } else {
+    filename = `Chef_Harpy_QR_Menu_${storeName}_${slug}.png`;
+  }
+
+  const link = document.createElement('a');
+  link.download = filename;
+  link.href = canvas.toDataURL('image/png');
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  if (typeof showToastNotification === 'function') {
+    showToastNotification('تم تحميل ستيكر الشيف هاربي عالي الدقة بنجاح!', 'success');
+  }
+};
+
+window.printHarpyQRSticker = function() {
+  const canvas = document.getElementById('harpy-qr-canvas');
+  if (!canvas) return;
+  const dataUrl = canvas.toDataURL('image/png');
+  const printWin = window.open('', '_blank', 'width=840,height=840');
+  if (!printWin) {
+    if (typeof showToastNotification === 'function') {
+      showToastNotification('يرجى السماح بالنوافذ المنبثقة للطباعة', 'error');
+    }
+    return;
+  }
+  printWin.document.open();
+  printWin.document.write(`<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>طباعة ستيكر الشيف هاربي الذكي</title>
+  <style>
+    @page {
+      size: auto;
+      margin: 8mm;
+    }
+    body {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: #ffffff;
+      font-family: 'Cairo', system-ui, sans-serif;
+    }
+    .sticker-card {
+      text-align: center;
+    }
+    .sticker-img {
+      max-width: 92vw;
+      max-height: 90vh;
+      width: auto;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+      border-radius: 12px;
+    }
+    @media print {
+      body { margin: 0; padding: 0; }
+      .sticker-img { max-width: 100%; max-height: 96vh; }
+    }
+  </style>
+</head>
+<body>
+  <div class="sticker-card">
+    <img class="sticker-img" src="${dataUrl}" alt="Chef Harpy QR Sticker" onload="window.focus(); window.print();" />
+  </div>
+</body>
+</html>`);
+  printWin.document.close();
+};
+
+window.copyHarpyQRUrl = function() {
+  const targetUrl = getHarpyTargetUrl();
+  function fallback(text) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      ta.style.top = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      if (typeof showToastNotification === 'function') {
+        showToastNotification('تم نسخ الرابط المباشر بنجاح!', 'success');
+      }
+    } catch(e) {
+      if (typeof showToastNotification === 'function') {
+        showToastNotification('الرابط: ' + text, 'info');
+      }
+    }
+  }
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(targetUrl).then(() => {
+      if (typeof showToastNotification === 'function') {
+        showToastNotification('تم نسخ الرابط المباشر بنجاح!', 'success');
+      }
+    }).catch(() => fallback(targetUrl));
+  } else {
+    fallback(targetUrl);
+  }
+};
+
+window.renderHarpyQRComposite = renderHarpyQRComposite;
