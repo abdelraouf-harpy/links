@@ -2329,7 +2329,7 @@ function downloadClientHarpySticker() {
   const settings = Store.getSettings() || {};
   const storeName = (settings.storeName || 'Restaurant').replace(/[\s\/\\]+/g, '_');
   const link = document.createElement('a');
-  link.download = `Chef_Harpy_QR_${storeName}.png`;
+  link.download = `QR_Menu_${storeName}.png`;
   link.href = canvas.toDataURL('image/png');
   document.body.appendChild(link);
   link.click();

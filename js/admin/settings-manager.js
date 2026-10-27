@@ -1087,9 +1087,9 @@ window.openHarpyQRModal = function(mode, tableData) {
   const titleEl = document.getElementById('harpy-qr-modal-title');
   if (titleEl) {
     if (currentHarpyQRMode === 'table' && currentHarpyQRTable) {
-      titleEl.textContent = `ستيكر الشيف هاربي — ${currentHarpyQRTable.name || 'طاولة ' + currentHarpyQRTable.id}`;
+      titleEl.textContent = `ستيكر كود QR — ${currentHarpyQRTable.name || 'طاولة ' + currentHarpyQRTable.id}`;
     } else {
-      titleEl.textContent = 'ستيكر الشيف هاربي — منيو المطعم';
+      titleEl.textContent = 'ستيكر كود QR — منيو المطعم';
     }
   }
 
@@ -1272,9 +1272,9 @@ window.downloadHarpyQRSticker = function() {
   let filename = '';
   if (currentHarpyQRMode === 'table' && currentHarpyQRTable) {
     const tblName = (currentHarpyQRTable.name || `table_${currentHarpyQRTable.id}`).replace(/[\s\/\\]+/g, '_');
-    filename = `Chef_Harpy_QR_${storeName}_${tblName}.png`;
+    filename = `QR_Sticker_${storeName}_${tblName}.png`;
   } else {
-    filename = `Chef_Harpy_QR_Menu_${storeName}_${slug}.png`;
+    filename = `QR_Sticker_Menu_${storeName}_${slug}.png`;
   }
 
   const link = document.createElement('a');
@@ -1285,7 +1285,7 @@ window.downloadHarpyQRSticker = function() {
   link.remove();
 
   if (typeof showToastNotification === 'function') {
-    showToastNotification('تم تحميل ستيكر الشيف هاربي عالي الدقة بنجاح!', 'success');
+    showToastNotification('تم تحميل ستيكر كود QR عالي الدقة بنجاح!', 'success');
   }
 };
 
@@ -1305,7 +1305,7 @@ window.printHarpyQRSticker = function() {
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>طباعة ستيكر الشيف هاربي الذكي</title>
+  <title>طباعة ستيكر كود QR الذكي</title>
   <style>
     @page {
       size: auto;
@@ -1340,7 +1340,7 @@ window.printHarpyQRSticker = function() {
 </head>
 <body>
   <div class="sticker-card">
-    <img class="sticker-img" src="${dataUrl}" alt="Chef Harpy QR Sticker" onload="window.focus(); window.print();" />
+    <img class="sticker-img" src="${dataUrl}" alt="QR Sticker" onload="window.focus(); window.print();" />
   </div>
 </body>
 </html>`);

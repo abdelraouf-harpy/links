@@ -1744,11 +1744,11 @@
         "it": "Codice QR del Menu"
     },
     "account_qr_sub": {
-        "ar": "عرض ومسح كود المنيو مع الشيف هاربي",
-        "en": "View and scan menu with Chef Harpy",
-        "fr": "Afficher et scanner avec Chef Harpy",
+        "ar": "عرض ومسح كود المنيو المميز",
+        "en": "View and scan restaurant QR code",
+        "fr": "Afficher et scanner le code QR du menu",
         "ru": "Посмотреть и отсканировать меню",
-        "it": "Visualizza e scansiona il menu con Chef Harpy"
+        "it": "Visualizza e scansiona il codice QR del menu"
     },
     "account_share_title": {
         "ar": "مشاركة المنيو مع الأصدقاء",
