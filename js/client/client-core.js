@@ -2271,33 +2271,39 @@ async function renderClientHarpyQR() {
       ctx.fillRect(0, 0, 1254, 1254);
     }
 
-    // Exact inner acrylic sign dimensions (pure white, NO extra borders, NO text!)
-    const cardX = 195;
-    const cardY = 590;
-    const cardW = 488;
-    const cardH = 490;
-    const cardRadius = 24;
+    // Exact inner acrylic sign dimensions and angle:
+    // The acrylic sign held by Chef Harpy is naturally tilted at -7.8 degrees around (428, 818)
+    const cx = 428;
+    const cy = 818;
+    const angleRad = (-7.8 * Math.PI) / 180;
 
     ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(angleRad);
+
+    // In rotated local space, center is (0, 0):
+    const cardW = 460;
+    const cardH = 460;
+    const cardRadius = 24;
+
+    // Fill inner sign with pure white to cover dummy AI QR seamlessly
     if (typeof ctx.roundRect === 'function') {
       ctx.beginPath();
-      ctx.roundRect(cardX, cardY, cardW, cardH, cardRadius);
+      ctx.roundRect(-cardW / 2, -cardH / 2, cardW, cardH, cardRadius);
     } else {
       ctx.beginPath();
-      ctx.rect(cardX, cardY, cardW, cardH);
+      ctx.rect(-cardW / 2, -cardH / 2, cardW, cardH);
     }
     ctx.fillStyle = '#ffffff';
     ctx.fill();
-    ctx.restore();
 
-    // Centered real QR
-    const qrSize = 440;
-    const qrX = cardX + Math.round((cardW - qrSize) / 2);
-    const qrY = cardY + Math.round((cardH - qrSize) / 2);
-
+    // Draw real scannable QR Code centered in the rotated acrylic stand
+    const qrSize = 410;
     if (qrSource) {
-      ctx.drawImage(qrSource, qrX, qrY, qrSize, qrSize);
+      ctx.drawImage(qrSource, -qrSize / 2, -qrSize / 2, qrSize, qrSize);
     }
+
+    ctx.restore();
   } catch(err) {
     console.warn('Error in renderClientHarpyQR:', err);
   } finally {
