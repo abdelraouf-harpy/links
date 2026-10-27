@@ -1410,7 +1410,7 @@ window.openLanguagePickerModal = function() {
               <div style="font-size:11px; color:var(--text-muted); line-height:1.2; margin-top:2px;">${l.englishName}</div>
             </div>
           </div>
-          ${isSelected ? `<span style="font-size:11px; font-weight:800; color:var(--primary); background:rgba(234,88,12,0.12); padding:3px 8px; border-radius:6px;">✓ النشطة</span>` : ''}
+          ${isSelected ? `<span style="font-size:11px; font-weight:800; color:var(--primary); background:rgba(234,88,12,0.12); padding:3px 8px; border-radius:6px;">✓ ${l.code === 'ar' ? 'النشطة' : 'Active'}</span>` : ''}
         </button>
       `;
     }).join('');
@@ -1437,6 +1437,18 @@ window.selectLanguageOption = function(langCode) {
   }
   closeLanguagePickerModal(false);
   const langName = (I18n && I18n.supportedLanguages[langCode]) ? I18n.supportedLanguages[langCode].name : langCode;
+  const msg = (typeof t === 'function') ? t('toast_lang_changed') : "تم تغيير لغة التطبيق بنجاح";
+  showToastNotification(`${msg} (${langName})`, "success");
+  if (typeof SoundFX !== 'undefined' && SoundFX.playPop) SoundFX.playPop();
+};
+
+window.toggleAppLanguage = function() {
+  const cur = (typeof I18n !== 'undefined') ? I18n.getLanguage() : 'ar';
+  const next = (cur === 'ar') ? 'en' : 'ar';
+  if (typeof I18n !== 'undefined') {
+    I18n.setLanguage(next, true);
+  }
+  const langName = (I18n && I18n.supportedLanguages[next]) ? I18n.supportedLanguages[next].name : next;
   const msg = (typeof t === 'function') ? t('toast_lang_changed') : "تم تغيير لغة التطبيق بنجاح";
   showToastNotification(`${msg} (${langName})`, "success");
   if (typeof SoundFX !== 'undefined' && SoundFX.playPop) SoundFX.playPop();
@@ -2334,6 +2346,10 @@ window.rerenderAllCustomerViews = function() {
   if (cleanLangSub && typeof I18n !== 'undefined' && I18n.supportedLanguages[lang]) {
     const l = I18n.supportedLanguages[lang];
     cleanLangSub.textContent = `${l.flag} ${l.name} (${l.englishName})`;
+  }
+  const cleanLangBtn = document.getElementById('clean-language-toggle-btn');
+  if (cleanLangBtn) {
+    cleanLangBtn.innerHTML = (lang === 'ar') ? '<span>English 🇬🇧</span>' : '<span>العربية 🇪🇬</span>';
   }
   const accountLangSub = document.getElementById('account-language-sub');
   if (accountLangSub && typeof I18n !== 'undefined' && I18n.supportedLanguages[lang]) {

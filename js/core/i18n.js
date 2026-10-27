@@ -8,10 +8,7 @@
 
   const SUPPORTED_LANGS = {
     ar: { code: 'ar', name: 'العربية', englishName: 'Arabic', flag: '🇪🇬', dir: 'rtl', fontClass: 'font-ar' },
-    en: { code: 'en', name: 'English', englishName: 'English', flag: '🇬🇧', dir: 'ltr', fontClass: 'font-en' },
-    fr: { code: 'fr', name: 'Français', englishName: 'French', flag: '🇫🇷', dir: 'ltr', fontClass: 'font-fr' },
-    ru: { code: 'ru', name: 'Русский', englishName: 'Russian', flag: '🇷🇺', dir: 'ltr', fontClass: 'font-ru' },
-    it: { code: 'it', name: 'Italiano', englishName: 'Italian', flag: '🇮🇹', dir: 'ltr', fontClass: 'font-it' }
+    en: { code: 'en', name: 'English', englishName: 'English', flag: '🇬🇧', dir: 'ltr', fontClass: 'font-en' }
   };
 
   const COMMON_TERMS = {
@@ -1574,8 +1571,8 @@
       .toLowerCase();
   }
 
-  function escapeRegExp(string) {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\  const I18n = {');
+    function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 
   const I18n = {
@@ -1769,6 +1766,16 @@
       const cleanLangSub = document.getElementById('clean-language-status-text');
       if (cleanLangSub && SUPPORTED_LANGS[lang]) {
         cleanLangSub.textContent = `${SUPPORTED_LANGS[lang].flag} ${SUPPORTED_LANGS[lang].name} (${SUPPORTED_LANGS[lang].englishName})`;
+      }
+
+      // 6. Update clean-language-toggle-btn to show next quick switch option
+      const cleanLangBtn = document.getElementById('clean-language-toggle-btn');
+      if (cleanLangBtn) {
+        if (lang === 'ar') {
+          cleanLangBtn.innerHTML = '<span>English 🇬🇧</span>';
+        } else {
+          cleanLangBtn.innerHTML = '<span>العربية 🇪🇬</span>';
+        }
       }
     },
 
