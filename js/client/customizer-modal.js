@@ -21,10 +21,11 @@ window.openCustomizer = function(productId) {
   customizerSelectedAddons = [];
   customizerQty = 1;
 
-  const currency = Store.getSettings().currency || "ج.م";
+  const s = Store.getSettings ? Store.getSettings() : {};
+  const currency = (typeof window.getCurrency === 'function') ? window.getCurrency(s.currency) : (typeof window.t === 'function' ? window.t('currency', s.currency || "ج.م") : (s.currency || "ج.م"));
 
-  if (elements.customizerTitle) elements.customizerTitle.textContent = p.name;
-  if (elements.customizerDesc) elements.customizerDesc.textContent = p.desc;
+  if (elements.customizerTitle) elements.customizerTitle.textContent = (typeof window.getProductName === 'function' ? window.getProductName(p) : (typeof window.tr === 'function' ? window.tr(p.name) : p.name));
+  if (elements.customizerDesc) elements.customizerDesc.textContent = (typeof window.getProductDesc === 'function' ? window.getProductDesc(p) : (typeof window.tr === 'function' ? window.tr(p.desc || p.description || '') : (p.desc || p.description || '')));
   if (elements.customizerImg) elements.customizerImg.src = p.image;
   if (elements.customizerBasePrice) elements.customizerBasePrice.textContent = `${p.price} ${currency}`;
   if (elements.customizerNotes) elements.customizerNotes.value = '';
@@ -34,13 +35,14 @@ window.openCustomizer = function(productId) {
   if (p.sizes && p.sizes.length > 0) {
     if (elements.customizerSizesSection) elements.customizerSizesSection.style.display = 'block';
     if (elements.customizerSizesList) {
+      const basePriceLabel = (typeof t === 'function' ? t('val_base_price', 'السعر الأساسي') : 'السعر الأساسي');
       elements.customizerSizesList.innerHTML = p.sizes.map((s, idx) => `
         <div class="customizer-option-card ${idx === 0 ? 'selected' : ''}" onclick="selectCustomizerSize('${s.id || s.name || idx}')" data-size-id="${s.id || ''}" data-size-name="${s.name || ''}" data-size-idx="${idx}">
           <div class="option-left-wrap">
             <div class="custom-radio-circle"></div>
-            <span class="option-name">${s.name}</span>
+            <span class="option-name">${(typeof window.getSizeName === 'function' ? window.getSizeName(s) : (typeof window.tr === 'function' ? window.tr(s.name) : s.name))}</span>
           </div>
-          <span class="option-price-extra font-num">${s.price > 0 ? `+${s.price} ${currency}` : 'السعر الأساسي'}</span>
+          <span class="option-price-extra font-num">${s.price > 0 ? `+${s.price} ${currency}` : basePriceLabel}</span>
         </div>
       `).join('');
     }
@@ -56,7 +58,7 @@ window.openCustomizer = function(productId) {
         <div class="customizer-option-card" onclick="toggleCustomizerAddon('${a.id || a.name}')" data-addon-id="${a.id || ''}" data-addon-name="${a.name || ''}">
           <div class="option-left-wrap">
             <div class="custom-check-box"></div>
-            <span class="option-name">${a.name}</span>
+            <span class="option-name">${(typeof window.getAddonName === 'function' ? window.getAddonName(a) : (typeof window.tr === 'function' ? window.tr(a.name) : a.name))}</span>
           </div>
           <span class="option-price-extra font-num">+${a.price} ${currency}</span>
         </div>
@@ -112,7 +114,8 @@ window.toggleCustomizerAddon = function(addonId) {
 
 function calculateCustomizerTotal() {
   if (!customizerProduct) return;
-  const currency = Store.getSettings().currency || "ج.م";
+  const s = Store.getSettings ? Store.getSettings() : {};
+  const currency = (typeof window.getCurrency === 'function') ? window.getCurrency(s.currency) : (typeof window.t === 'function' ? window.t('currency', s.currency || "ج.م") : (s.currency || "ج.م"));
   let unitPrice = customizerProduct.price;
 
   if (customizerSelectedSize && customizerSelectedSize.price) {
@@ -176,12 +179,20 @@ function initCustomizerEvents() {
         id: 'c_' + customizerProduct.id + '_' + Date.now(),
         productId: customizerProduct.id,
         name: customizerProduct.name,
+        name_en: customizerProduct.name_en || (typeof window.tr === 'function' ? window.tr(customizerProduct.name) : ''),
         basePrice: customizerProduct.price,
         price: unitPrice,
         image: customizerProduct.image,
         category: customizerProduct.category,
-        selectedSize: customizerSelectedSize ? { ...customizerSelectedSize } : null,
-        selectedAddons: customizerSelectedAddons.map(a => ({ ...a })),
+        category_en: customizerProduct.category_en || (typeof window.tr === 'function' ? window.tr(customizerProduct.category) : ''),
+        selectedSize: customizerSelectedSize ? { 
+          ...customizerSelectedSize,
+          name_en: customizerSelectedSize.name_en || (typeof window.tr === 'function' ? window.tr(customizerSelectedSize.name) : '')
+        } : null,
+        selectedAddons: customizerSelectedAddons.map(a => ({ 
+          ...a,
+          name_en: a.name_en || (typeof window.tr === 'function' ? window.tr(a.name) : '')
+        })),
         notes: notes,
         qty: customizerQty
       };

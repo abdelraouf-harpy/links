@@ -172,7 +172,7 @@ function renderSmartPairing(cart, prods, currency) {
     <div class="pairing-chip-card" onclick="handleQuickAddItem('${p.id}')">
       <img src="${p.image}" class="pairing-thumb" alt="${p.name}">
       <div>
-        <div class="pairing-title">${p.name}</div>
+        <div class="pairing-title">${esc(typeof window.getProductName === 'function' ? window.getProductName(p) : (typeof window.tr === 'function' ? window.tr(p.name) : p.name))}</div>
         <div class="pairing-price font-num">${p.price} ${currency}</div>
       </div>
       <button class="pairing-btn-add" title="إضافة">+</button>
@@ -276,7 +276,7 @@ function updateDeliveryFeedbackUI() {
 function updateLedgerUI() {
   const cart = Store.getCart();
   const settings = Store.getSettings();
-  const currency = (typeof window.t === 'function' ? window.t('currency', settings.currency || "ج.م") : (settings.currency || "ج.م"));
+  const currency = (typeof window.getCurrency === 'function') ? window.getCurrency(settings.currency) : (typeof window.t === 'function' ? window.t('currency', settings.currency || "ج.م") : (settings.currency || "ج.م"));
   const prods = Store.getProducts();
 
   const totalItemsCount = cart.reduce((sum, item) => sum + item.qty, 0);
@@ -492,7 +492,7 @@ function renderCartDrawerItems() {
   if (!elements.cartDrawerItems) return;
   const cart = Store.getCart();
   const s = Store.getSettings();
-  const currency = (typeof window.t === 'function' ? window.t('currency', s.currency || "ج.م") : (s.currency || "ج.م"));
+  const currency = (typeof window.getCurrency === 'function') ? window.getCurrency(s.currency) : (typeof window.t === 'function' ? window.t('currency', s.currency || "ج.م") : (s.currency || "ج.م"));
 
   if (cart.length === 0) {
     elements.cartDrawerItems.innerHTML = '';
@@ -503,10 +503,11 @@ function renderCartDrawerItems() {
     const rawId = item.id || '';
     const cleanId = String(rawId).replace(/[^a-zA-Z0-9#\-_]/g, '');
     const safeImage = (item.image && typeof item.image === 'string' && (item.image.startsWith('http') || item.image.startsWith('data:') || item.image.startsWith('/') || item.image.startsWith('./'))) ? esc(item.image) : '';
-    const safeName = esc(typeof window.tr === 'function' ? window.tr(item.name || '') : (item.name || ''));
-    const sizeText = item.selectedSize ? `<span style="display:inline-block; background:var(--surface-hover); color:var(--text-muted); font-size:10.5px; padding:1px 6px; border-radius:4px; margin-top:2px;">${esc(typeof window.tr === 'function' ? window.tr(item.selectedSize.name) : item.selectedSize.name)}</span>` : '';
+    const isEn = (typeof I18n !== 'undefined' && I18n.getLanguage() === 'en');
+    const safeName = esc(typeof window.getProductName === 'function' ? window.getProductName(item) : (typeof window.tr === 'function' ? window.tr(item.name || '') : (item.name || '')));
+    const sizeText = item.selectedSize ? `<span style="display:inline-block; background:var(--surface-hover); color:var(--text-muted); font-size:10.5px; padding:1px 6px; border-radius:4px; margin-top:2px;">${esc(typeof window.getSizeName === 'function' ? window.getSizeName(item.selectedSize) : (typeof window.tr === 'function' ? window.tr(item.selectedSize.name) : item.selectedSize.name))}</span>` : '';
     const addonsText = item.selectedAddons && item.selectedAddons.length > 0 
-      ? `<div style="font-size:10px; color:var(--primary); margin-top:2px;">+ ${item.selectedAddons.map(a => esc(typeof window.tr === 'function' ? window.tr(a.name) : a.name)).join('، ')}</div>` 
+      ? `<div style="font-size:10px; color:var(--primary); margin-top:2px;">+ ${item.selectedAddons.map(a => esc(typeof window.getAddonName === 'function' ? window.getAddonName(a) : (typeof window.tr === 'function' ? window.tr(a.name) : a.name))).join(isEn ? ', ' : '، ')}</div>` 
       : '';
     const notesLabel = (typeof window.t === 'function' ? window.t('lbl_notes', 'ملاحظة') : 'ملاحظة');
     const notesText = item.notes ? `<div style="font-size:10px; color:var(--text-faint); font-style:italic;">${notesLabel}: ${esc(item.notes)}</div>` : '';
@@ -608,7 +609,7 @@ window.goToCheckoutStep = function(stepNumber, pushHistory = true) {
     if (emptyView) emptyView.style.display = 'flex';
     if (step1View) step1View.style.display = 'none';
     if (step2View) step2View.style.display = 'none';
-    if (titleText) titleText.textContent = "سلة الطلبات";
+    if (titleText) titleText.textContent = (typeof window.t === 'function' ? window.t('cart_title', "سلة الطلبات") : "سلة الطلبات");
     if (countBadge) countBadge.style.display = 'none';
     return;
   }
@@ -640,7 +641,7 @@ window.goToCheckoutStep = function(stepNumber, pushHistory = true) {
       if (body1) body1.scrollTop = 0;
     }
     const totalQty = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
-    if (titleText) titleText.textContent = "سلة الطلبات";
+    if (titleText) titleText.textContent = (typeof window.t === 'function' ? window.t('cart_title', "سلة الطلبات") : "سلة الطلبات");
     if (countBadge) {
       countBadge.textContent = totalQty;
       countBadge.style.display = 'inline-block';

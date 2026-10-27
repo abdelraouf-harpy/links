@@ -7249,3 +7249,71 @@ html[dir="ltr"] .onboard-header {
 html[dir="ltr"] .order-details-grid {
   text-align: left !important;
 }
+
+
+/* 10. Item Customizer Modal & Dynamic Data LTR Alignments */
+html[dir="ltr"] .food-item-price span {
+  margin-left: 4px !important;
+  margin-right: 0 !important;
+}
+html[dir="ltr"] .products-flow.view-mode-dual .food-item-footer {
+  gap: 4px !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+html[dir="ltr"] .products-flow.view-mode-dual .food-item-price {
+  font-size: 0.86rem !important;
+  white-space: nowrap !important;
+  min-width: 0 !important;
+  flex-shrink: 1 !important;
+}
+html[dir="ltr"] .products-flow.view-mode-dual .btn-quick-add {
+  font-size: 0.68rem !important;
+  padding: 4px 6px !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  max-width: 82px !important;
+}
+html[dir="ltr"] .customizer-modal-content,
+html[dir="ltr"] .customizer-header,
+html[dir="ltr"] .customizer-body,
+html[dir="ltr"] .customizer-footer {
+  direction: ltr !important;
+  text-align: left !important;
+}
+html[dir="ltr"] .customizer-title,
+html[dir="ltr"] .customizer-desc,
+html[dir="ltr"] .customizer-section-title {
+  text-align: left !important;
+}
+html[dir="ltr"] .customizer-option-card {
+  direction: ltr !important;
+}
+html[dir="ltr"] .customizer-option-card .option-price-extra {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+}
+html[dir="ltr"] .customizer-notes-textarea {
+  text-align: left !important;
+  direction: ltr !important;
+}
+html[dir="ltr"] .pairing-chip-card {
+  direction: ltr !important;
+  text-align: left !important;
+}
+html[dir="ltr"] .cart-ledger-details {
+  text-align: left !important;
+}
+html[dir="ltr"] .cart-ledger-name {
+  text-align: left !important;
+}
+html[dir="ltr"] .preview-modal-content,
+html[dir="ltr"] .preview-modal-body {
+  direction: ltr !important;
+  text-align: left !important;
+}
+html[dir="ltr"] .preview-title,
+html[dir="ltr"] .preview-desc {
+  text-align: left !important;
+}

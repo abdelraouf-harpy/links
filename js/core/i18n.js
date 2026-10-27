@@ -12,6 +12,256 @@
   };
 
   const COMMON_TERMS = {
+    "صوص رانش": {"en":"Ranch Sauce","fr":"Sauce Ranch","ru":"Соус Ранч","it":"Salsa Ranch"},
+    "صوص باربيكيو": {"en":"BBQ Sauce","fr":"Sauce BBQ","ru":"Соус барбекю","it":"Salsa BBQ"},
+    "صوص شيدر": {"en":"Cheddar Sauce","fr":"Sauce Cheddar","ru":"Сырный соус","it":"Salsa Cheddar"},
+    "بيبروني": {"en":"Pepperoni","fr":"Pepperoni","ru":"Пепперони","it":"Pepperoni"},
+    "بيتزا بيبروني": {"en":"Pepperoni Pizza","fr":"Pizza Pepperoni","ru":"Пицца Пепперони","it":"Pizza Pepperoni"},
+    "سوري شاورما لحمة": {"en":"Syrian Beef Shawarma Wrap","fr":"Wrap Chawarma Bœuf","ru":"Сирийский рап с мясной шаурмой","it":"Wrap Shawarma di Manzo"},
+    "سوري شاورما لحم": {"en":"Syrian Beef Shawarma Wrap","fr":"Wrap Chawarma Bœuf","ru":"Сирийский рап с мясной шаурмой","it":"Wrap Shawarma di Manzo"},
+    "سوري شاورما فراخ": {"en":"Syrian Chicken Shawarma Wrap","fr":"Wrap Chawarma Poulet","ru":"Сирийский рап с куриной шаурмой","it":"Wrap Shawarma di Pollo"},
+    "سوري شاورما دجاج": {"en":"Syrian Chicken Shawarma Wrap","fr":"Wrap Chawarma Poulet","ru":"Сирийский рап с куриной шаурмой","it":"Wrap Shawarma di Pollo"},
+    "ج.م": {"en":"EGP","fr":"EGP","ru":"EGP","it":"EGP"},
+    "جنيه": {"en":"EGP","fr":"EGP","ru":"EGP","it":"EGP"},
+    "ر.س": {"en":"SAR","fr":"SAR","ru":"SAR","it":"SAR"},
+    "د.إ": {"en":"AED","fr":"AED","ru":"AED","it":"AED"},
+    "صغير": {"en":"Small","fr":"Petit","ru":"Маленький","it":"Piccolo"},
+    "صغيرة": {"en":"Small","fr":"Petite","ru":"Маленькая","it":"Piccola"},
+    "حجم صغير": {"en":"Small Size","fr":"Petite Taille","ru":"Маленький размер","it":"Taglia Piccola"},
+    "وسط": {"en":"Medium","fr":"Moyen","ru":"Средний","it":"Medio"},
+    "متوسط": {"en":"Medium","fr":"Moyen","ru":"Средний","it":"Medio"},
+    "متوسطة": {"en":"Medium","fr":"Moyenne","ru":"Средняя","it":"Media"},
+    "حجم وسط": {"en":"Medium Size","fr":"Taille Moyenne","ru":"Средний размер","it":"Taglia Media"},
+    "كبير": {"en":"Large","fr":"Grand","ru":"Большой","it":"Grande"},
+    "كبيرة": {"en":"Large","fr":"Grande","ru":"Большая","it":"Grande"},
+    "حجم كبير": {"en":"Large Size","fr":"Grande Taille","ru":"Большой размер","it":"Taglia Grande"},
+    "عائلي": {"en":"Family","fr":"Familial","ru":"Семейный","it":"Famiglia"},
+    "عائلية": {"en":"Family","fr":"Familiale","ru":"Семейная","it":"Famiglia"},
+    "حجم عائلي": {"en":"Family Size","fr":"Taille Familiale","ru":"Семейный размер","it":"Formato Famiglia"},
+    "جامبو": {"en":"Jumbo","fr":"Jumbo","ru":"Джамбо","it":"Jumbo"},
+    "حجم جامبو": {"en":"Jumbo Size","fr":"Taille Jumbo","ru":"Размер Джамбо","it":"Taglia Jumbo"},
+    "سوبر": {"en":"Super","fr":"Super","ru":"Супер","it":"Super"},
+    "سنجل": {"en":"Single","fr":"Simple","ru":"Одинарный","it":"Singolo"},
+    "سينجل": {"en":"Single","fr":"Simple","ru":"Одинарный","it":"Singolo"},
+    "دبل": {"en":"Double","fr":"Double","ru":"Двойной","it":"Doppio"},
+    "تربل": {"en":"Triple","fr":"Triple","ru":"Тройной","it":"Triplo"},
+    "تريبل": {"en":"Triple","fr":"Triple","ru":"Тройной","it":"Triplo"},
+    "كواترو": {"en":"Quattro","fr":"Quattro","ru":"Кватро","it":"Quattro"},
+    "كومبو": {"en":"Combo","fr":"Combo","ru":"Комбо","it":"Combo"},
+    "صاروخ": {"en":"Mega Wrap","fr":"Méga Wrap","ru":"Мега рап","it":"Mega Wrap"},
+    "عادي": {"en":"Regular","fr":"Régulier","ru":"Обычный","it":"Regolare"},
+    "سمول": {"en":"Small","fr":"Small","ru":"Смол","it":"Small"},
+    "ميديم": {"en":"Medium","fr":"Medium","ru":"Медиум","it":"Medium"},
+    "لارج": {"en":"Large","fr":"Large","ru":"Лардж","it":"Large"},
+    "كيدز": {"en":"Kids","fr":"Enfants","ru":"Детский","it":"Bambini"},
+    "أطفال": {"en":"Kids","fr":"Enfants","ru":"Детский","it":"Bambini"},
+    "اطفال": {"en":"Kids","fr":"Enfants","ru":"Детский","it":"Bambini"},
+    "قطعة": {"en":"1 Piece","fr":"1 Pièce","ru":"1 кусок","it":"1 Pezzo"},
+    "قطعه": {"en":"1 Piece","fr":"1 Pièce","ru":"1 кусок","it":"1 Pezzo"},
+    "قطعتين": {"en":"2 Pieces","fr":"2 Pièces","ru":"2 куска","it":"2 Pezzi"},
+    "3 قطع": {"en":"3 Pieces","fr":"3 Pièces","ru":"3 куска","it":"3 Pezzi"},
+    "4 قطع": {"en":"4 Pieces","fr":"4 Pièces","ru":"4 куска","it":"4 Pezzi"},
+    "5 قطع": {"en":"5 Pieces","fr":"5 Pièces","ru":"5 кусков","it":"5 Pezzi"},
+    "6 قطع": {"en":"6 Pieces","fr":"6 Pièces","ru":"6 кусков","it":"6 Pezzi"},
+    "8 قطع": {"en":"8 Pieces","fr":"8 Pièces","ru":"8 кусков","it":"8 Pezzi"},
+    "9 قطع": {"en":"9 Pieces","fr":"9 Pièces","ru":"9 кусков","it":"9 Pezzi"},
+    "10 قطع": {"en":"10 Pieces","fr":"10 Pièces","ru":"10 кусков","it":"10 Pezzi"},
+    "12 قطعة": {"en":"12 Pieces","fr":"12 Pièces","ru":"12 кусков","it":"12 Pezzi"},
+    "12 قطعه": {"en":"12 Pieces","fr":"12 Pièces","ru":"12 кусков","it":"12 Pezzi"},
+    "اكسترا جبنة": {"en":"Extra Cheese","fr":"Supplément Fromage","ru":"Экстра сыр","it":"Formaggio Extra"},
+    "إكسترا جبنة": {"en":"Extra Cheese","fr":"Supplément Fromage","ru":"Экстра сыр","it":"Formaggio Extra"},
+    "اضافة جبنة": {"en":"Extra Cheese","fr":"Supplément Fromage","ru":"Экстра сыр","it":"Formaggio Extra"},
+    "إضافة جبنة": {"en":"Extra Cheese","fr":"Supplément Fromage","ru":"Экстра сыр","it":"Formaggio Extra"},
+    "زيادة جبنة": {"en":"Extra Cheese","fr":"Supplément Fromage","ru":"Экстра сыр","it":"Formaggio Extra"},
+    "جبنة موتزاريلا": {"en":"Mozzarella Cheese","fr":"Fromage Mozzarella","ru":"Сыр Моцарелла","it":"Mozzarella"},
+    "جبنة موزاريلا": {"en":"Mozzarella Cheese","fr":"Fromage Mozzarella","ru":"Сыр Моцарелла","it":"Mozzarella"},
+    "موتزاريلا": {"en":"Mozzarella","fr":"Mozzarella","ru":"Моцарелла","it":"Mozzarella"},
+    "موزاريلا": {"en":"Mozzarella","fr":"Mozzarella","ru":"Моцарелла","it":"Mozzarella"},
+    "جبنة شيدر": {"en":"Cheddar Cheese","fr":"Fromage Cheddar","ru":"Сыр Чеддер","it":"Formaggio Cheddar"},
+    "شيدر": {"en":"Cheddar","fr":"Cheddar","ru":"Чеддер","it":"Cheddar"},
+    "جبنة رومي": {"en":"Romi Cheese","fr":"Fromage Roumi","ru":"Сыр Руми","it":"Formaggio Roumi"},
+    "رومي": {"en":"Romi","fr":"Roumi","ru":"Руми","it":"Roumi"},
+    "جبنة كيري": {"en":"Kiri Cheese","fr":"Fromage Kiri","ru":"Сыр Кири","it":"Formaggio Kiri"},
+    "جبنة فيتا": {"en":"Feta Cheese","fr":"Fromage Féta","ru":"Сыр Фета","it":"Formaggio Feta"},
+    "جبنة": {"en":"Cheese","fr":"Fromage","ru":"Сыр","it":"Formaggio"},
+    "جبن": {"en":"Cheese","fr":"Fromage","ru":"Сыр","it":"Formaggio"},
+    "بدون بصل": {"en":"No Onions","fr":"Sans Oignons","ru":"Без лука","it":"Senza Cipolla"},
+    "بدون طماطم": {"en":"No Tomatoes","fr":"Sans Tomates","ru":"Без помидоров","it":"Senza Pomodori"},
+    "بدون مخلل": {"en":"No Pickles","fr":"Sans Cornichons","ru":"Без солений","it":"Senza Cetriolini"},
+    "بدون خيار": {"en":"No Cucumbers","fr":"Sans Concombres","ru":"Без огурцов","it":"Senza Cetrioli"},
+    "بدون مايونيز": {"en":"No Mayo","fr":"Sans Mayo","ru":"Без майонеза","it":"Senza Maionese"},
+    "بدون صوص": {"en":"No Sauce","fr":"Sans Sauce","ru":"Без соуса","it":"Senza Salsa"},
+    "بدون شطة": {"en":"No Chili","fr":"Sans Piment","ru":"Без перца","it":"Senza Peperoncino"},
+    "سبايسي": {"en":"Spicy","fr":"Épicé","ru":"Острый","it":"Piccante"},
+    "حار": {"en":"Spicy","fr":"Piquant","ru":"Острый","it":"Piccante"},
+    "حارة": {"en":"Spicy","fr":"Piquante","ru":"Острая","it":"Piccante"},
+    "بارد": {"en":"Mild","fr":"Doux","ru":"Неострый","it":"Delicato"},
+    "اكسترا صوص": {"en":"Extra Sauce","fr":"Sauce Supplémentaire","ru":"Экстра соус","it":"Salsa Extra"},
+    "إكسترا صوص": {"en":"Extra Sauce","fr":"Sauce Supplémentaire","ru":"Экстра соус","it":"Salsa Extra"},
+    "زيادة صوص": {"en":"Extra Sauce","fr":"Sauce Supplémentaire","ru":"Экстра соус","it":"Salsa Extra"},
+    "بطاطس إضافية": {"en":"Extra Fries","fr":"Frites Supplémentaires","ru":"Экстра картофель фри","it":"Patatine Extra"},
+    "بطاطس اضافية": {"en":"Extra Fries","fr":"Frites Supplémentaires","ru":"Экстра картофель фри","it":"Patatine Extra"},
+    "زيادة بطاطس": {"en":"Extra Fries","fr":"Frites Supplémentaires","ru":"Экстра картофель фри","it":"Patatine Extra"},
+    "عيش إضافي": {"en":"Extra Bread","fr":"Pain Supplémentaire","ru":"Экстра хлеб","it":"Pane Extra"},
+    "عيش اضافي": {"en":"Extra Bread","fr":"Pain Supplémentaire","ru":"Экстра хлеб","it":"Pane Extra"},
+    "زيادة عيش": {"en":"Extra Bread","fr":"Pain Supplémentaire","ru":"Экстра хлеб","it":"Pane Extra"},
+    "هالبينو": {"en":"Jalapeño","fr":"Jalapeño","ru":"Халапеньо","it":"Jalapeño"},
+    "هلابينو": {"en":"Jalapeño","fr":"Jalapeño","ru":"Халапеньо","it":"Jalapeño"},
+    "مشروم": {"en":"Mushroom","fr":"Champignons","ru":"Грибы","it":"Funghi"},
+    "فطر": {"en":"Mushroom","fr":"Champignons","ru":"Грибы","it":"Funghi"},
+    "بيكون": {"en":"Bacon","fr":"Bacon","ru":"Бекон","it":"Bacon"},
+    "بيكون بقري": {"en":"Beef Bacon","fr":"Bacon de Bœuf","ru":"Говяжий бекон","it":"Bacon di Manzo"},
+    "زيتون": {"en":"Olives","fr":"Olives","ru":"Оливки","it":"Olive"},
+    "زيتون أسود": {"en":"Black Olives","fr":"Olives Noires","ru":"Черные оливки","it":"Olive Nere"},
+    "زيتون اخضر": {"en":"Green Olives","fr":"Olives Vertes","ru":"Зеленые оливки","it":"Olive Verdi"},
+    "حشو أطراف": {"en":"Stuffed Crust","fr":"Croûte Farcie","ru":"Сырный бортик","it":"Bordo Ripieno"},
+    "حشو اطراف": {"en":"Stuffed Crust","fr":"Croûte Farcie","ru":"Сырный бортик","it":"Bordo Ripieno"},
+    "أطراف جبنة": {"en":"Cheese Stuffed Crust","fr":"Croûte au Fromage","ru":"Сырный бортик","it":"Bordo al Formaggio"},
+    "اطراف جبنة": {"en":"Cheese Stuffed Crust","fr":"Croûte au Fromage","ru":"Сырный бортик","it":"Bordo al Formaggio"},
+    "أطراف سوسيس": {"en":"Hot Dog Stuffed Crust","fr":"Croûte Saucisse","ru":"Бортик с сосиской","it":"Bordo Wurstel"},
+    "اطراف سوسيس": {"en":"Hot Dog Stuffed Crust","fr":"Croûte Saucisse","ru":"Бортик с сосиской","it":"Bordo Wurstel"},
+    "السعر الأساسي": {"en":"Base Price","fr":"Prix de base","ru":"Базовая цена","it":"Prezzo base"},
+    "شامل الوجبة": {"en":"Included in meal","fr":"Inclus dans le menu","ru":"Включено в блюдо","it":"Incluso nel menu"},
+    "الأكثر مبيعاً": {"en":"Best Seller","fr":"Meilleure Vente","ru":"Хит продаж","it":"Più Venduto"},
+    "الأكثر مبيعا": {"en":"Best Seller","fr":"Meilleure Vente","ru":"Хит продаж","it":"Più Venduto"},
+    "الأكثر طلباً": {"en":"Most Popular","fr":"Le Plus Demandé","ru":"Самое популярное","it":"Più Richiesto"},
+    "الأكثر طلبا": {"en":"Most Popular","fr":"Le Plus Demandé","ru":"Самое популярное","it":"Più Richiesto"},
+    "مميز": {"en":"Featured","fr":"En Vedette","ru":"Рекомендуем","it":"In Evidenza"},
+    "جديد": {"en":"New","fr":"Nouveau","ru":"Новинка","it":"Nuovo"},
+    "عرض خاص": {"en":"Special Offer","fr":"Offre Spéciale","ru":"Спецпредложение","it":"Offerta Speciale"},
+    "خصم خاص": {"en":"Special Discount","fr":"Remise Spéciale","ru":"Специальная скидка","it":"Sconto Speciale"},
+    "توفير": {"en":"Value Deal","fr":"Bon Plan","ru":"Выгодно","it":"Offerta Conveniente"},
+    "سوبر توفير": {"en":"Super Value","fr":"Super Économie","ru":"Супер выгода","it":"Super Risparmio"},
+    "بوكس التوفير": {"en":"Savings Box","fr":"Box Économique","ru":"Эконом бокс","it":"Box Risparmio"},
+    "سوبر بوكس": {"en":"Super Box","fr":"Super Box","ru":"Супер бокс","it":"Super Box"},
+    "اختيار الشيف": {"en":"Chef's Choice","fr":"Choix du Chef","ru":"Выбор шефа","it":"Scelta dello Chef"},
+    "حصري": {"en":"Exclusive","fr":"Exclusif","ru":"Эксклюзив","it":"Esclusivo"},
+    "وجبة عائلية": {"en":"Family Meal","fr":"Menu Familial","ru":"Семейный обед","it":"Menu Famiglia"},
+    "وجبه عائلية": {"en":"Family Meal","fr":"Menu Familial","ru":"Семейный обед","it":"Menu Famiglia"},
+    "وجبة كومبو": {"en":"Combo Meal","fr":"Menu Combo","ru":"Комбо обед","it":"Menu Combo"},
+    "وجبه كومبو": {"en":"Combo Meal","fr":"Menu Combo","ru":"Комбо обед","it":"Menu Combo"},
+    "وجبة توفير": {"en":"Savings Meal","fr":"Menu Éco","ru":"Эконом обед","it":"Menu Risparmio"},
+    "وجبه توفير": {"en":"Savings Meal","fr":"Menu Éco","ru":"Эконом обед","it":"Menu Risparmio"},
+    "وجبة أطفال": {"en":"Kids Meal","fr":"Menu Enfants","ru":"Детский обед","it":"Menu Bambini"},
+    "وجبة كيدز": {"en":"Kids Meal","fr":"Menu Enfants","ru":"Детский обед","it":"Menu Bambini"},
+    "برجر زنجر دبل": {"en":"Double Zinger Burger","fr":"Double Zinger Burger","ru":"Двойной Зингер Бургер","it":"Double Zinger Burger"},
+    "برجر زنجر": {"en":"Zinger Burger","fr":"Zinger Burger","ru":"Зингер Бургер","it":"Zinger Burger"},
+    "سماش برجر": {"en":"Smash Burger","fr":"Smash Burger","ru":"Смэш Бургер","it":"Smash Burger"},
+    "دبل سماش برجر": {"en":"Double Smash Burger","fr":"Double Smash Burger","ru":"Двойной Смэш Бургер","it":"Double Smash Burger"},
+    "كريب شاورما فراخ": {"en":"Chicken Shawarma Crepe","fr":"Crêpe Chawarma Poulet","ru":"Креп с куриной шаурмой","it":"Crepe Shawarma Pollo"},
+    "كريب شاورما دجاج": {"en":"Chicken Shawarma Crepe","fr":"Crêpe Chawarma Poulet","ru":"Креп с куриной шаурмой","it":"Crepe Shawarma Pollo"},
+    "كريب شاورما لحمة": {"en":"Beef Shawarma Crepe","fr":"Crêpe Chawarma Bœuf","ru":"Креп с мясной шаурмой","it":"Crepe Shawarma Manzo"},
+    "كريب شاورما لحم": {"en":"Beef Shawarma Crepe","fr":"Crêpe Chawarma Bœuf","ru":"Креп с мясной шаурмой","it":"Crepe Shawarma Manzo"},
+    "كريب زنجر": {"en":"Spicy Zinger Crepe","fr":"Crêpe Zinger","ru":"Креп Зингер","it":"Crepe Zinger"},
+    "كريب بانيه": {"en":"Pane Crepe","fr":"Crêpe Pané","ru":"Креп с панированным филе","it":"Crepe Panato"},
+    "كريب هوت دوج": {"en":"Hot Dog Crepe","fr":"Crêpe Hot-Dog","ru":"Креп с сосисками","it":"Crepe Hot Dog"},
+    "كريب كوردون بلو": {"en":"Cordon Bleu Crepe","fr":"Crêpe Cordon Bleu","ru":"Креп Кордон Блю","it":"Crepe Cordon Bleu"},
+    "كريب فاهيتا فراخ": {"en":"Chicken Fajita Crepe","fr":"Crêpe Fajita Poulet","ru":"Креп фахита с курицей","it":"Crepe Fajita Pollo"},
+    "كريب فاهيتا لحمة": {"en":"Beef Fajita Crepe","fr":"Crêpe Fajita Bœuf","ru":"Креп фахита с говядиной","it":"Crepe Fajita Manzo"},
+    "كريب نوتيلا": {"en":"Nutella Crepe","fr":"Crêpe Nutella","ru":"Креп с Нутеллой","it":"Crepe Nutella"},
+    "كريب لوتس": {"en":"Lotus Biscoff Crepe","fr":"Crêpe Lotus","ru":"Креп с Лотусом","it":"Crepe Lotus"},
+    "كريب شوكولاتة": {"en":"Chocolate Crepe","fr":"Crêpe au Chocolat","ru":"Шоколадный креп","it":"Crepe al Cioccolato"},
+    "بيتزا فراخ باربيكيو": {"en":"BBQ Chicken Pizza","fr":"Pizza Poulet BBQ","ru":"Пицца Чикен Барбекю","it":"Pizza Pollo BBQ"},
+    "بيتزا سي فود": {"en":"Seafood Pizza","fr":"Pizza Fruits de Mer","ru":"Пицца с морепродуктами","it":"Pizza ai Frutti di Mare"},
+    "بيتزا تونة": {"en":"Tuna Pizza","fr":"Pizza au Thon","ru":"Пицца с тунцом","it":"Pizza al Tonno"},
+    "بيتزا تونه": {"en":"Tuna Pizza","fr":"Pizza au Thon","ru":"Пицца с тунцом","it":"Pizza al Tonno"},
+    "بيتزا بسطرمة": {"en":"Pastrami Pizza","fr":"Pizza Pastrami","ru":"Пицца с пастромой","it":"Pizza Pastrami"},
+    "بيتزا كواترو فورماجيو": {"en":"Quattro Formaggi Pizza","fr":"Pizza Quatre Fromages","ru":"Пицца Четыре сыра","it":"Pizza Quattro Formaggi"},
+    "شاورما صاج": {"en":"Saj Shawarma","fr":"Chawarma Saj","ru":"Шаурма на садже","it":"Shawarma Saj"},
+    "فتة شاورما": {"en":"Shawarma Fattah","fr":"Fattah Chawarma","ru":"Фаттах с шаурмой","it":"Fattah Shawarma"},
+    "فتة شاورما فراخ": {"en":"Chicken Shawarma Fattah","fr":"Fattah Poulet","ru":"Фаттах с курицей","it":"Fattah Pollo"},
+    "فتة شاورما لحمة": {"en":"Beef Shawarma Fattah","fr":"Fattah Bœuf","ru":"Фаттах с говядиной","it":"Fattah Manzo"},
+    "حواوشي اسكندراني": {"en":"Alexandrian Hawawshi","fr":"Hawawshi Alexandrin","ru":"Хававши по-александрийски","it":"Hawawshi all'Alessandrina"},
+    "حواوشي فراخ": {"en":"Chicken Hawawshi","fr":"Hawawshi Poulet","ru":"Хававши с курицей","it":"Hawawshi di Pollo"},
+    "حواوشي بسطرمة": {"en":"Pastrami Hawawshi","fr":"Hawawshi Pastrami","ru":"Хававши с пастромой","it":"Hawawshi Pastrami"},
+    "حواوشي سجق": {"en":"Sausage Hawawshi","fr":"Hawawshi Saucisse","ru":"Хававши с колбасками","it":"Hawawshi con Salsiccia"},
+    "طاجن مكرونة بشاميل": {"en":"Béchamel Pasta Casserole","fr":"Gratin de Pâtes Béchamel","ru":"Паста бешамель в таджине","it":"Pasta al Forno Besciamella"},
+    "مكرونة بشاميل": {"en":"Béchamel Pasta","fr":"Pâtes Béchamel","ru":"Паста бешамель","it":"Pasta Besciamella"},
+    "طاجن نجرسكو": {"en":"Negresco Pasta Casserole","fr":"Gratin Négresco","ru":"Негреско в таджине","it":"Pasta Negresco"},
+    "مكرونة نجرسكو": {"en":"Negresco Pasta","fr":"Pâtes Négresco","ru":"Паста Негреско","it":"Pasta Negresco"},
+    "طاجن سجق": {"en":"Sausage Casserole","fr":"Cassolette de Saucisse","ru":"Колбаски в таджине","it":"Casseruola di Salsiccia"},
+    "طاجن كبدة": {"en":"Liver Casserole","fr":"Cassolette de Foie","ru":"Печень в таджине","it":"Casseruola di Fegato"},
+    "طاجن لحمة": {"en":"Beef Casserole","fr":"Cassolette de Bœuf","ru":"Мясо в таджине","it":"Casseruola di Manzo"},
+    "كباب حلة": {"en":"Kebab Hala Beef Stew","fr":"Ragoût Kebab Hala","ru":"Кебаб хала тушеная говядина","it":"Stufato Kebab Hala"},
+    "كباب وكفتة": {"en":"Kebab & Kofta","fr":"Kebab & Kofta","ru":"Кебаб и люля-кебаб","it":"Kebab e Kofta"},
+    "ميكس جريل": {"en":"Mixed Grill","fr":"Mix Grillade","ru":"Мясное ассорти гриль","it":"Grigliata Mista"},
+    "مكس جريل": {"en":"Mixed Grill","fr":"Mix Grillade","ru":"Мясное ассорти гриль","it":"Grigliata Mista"},
+    "فرخة مشوية": {"en":"Whole Grilled Chicken","fr":"Poulet Grillé Entier","ru":"Целая курица гриль","it":"Pollo Intero Grigliato"},
+    "نصف فرخة": {"en":"Half Grilled Chicken","fr":"Demi-Poulet Grillé","ru":"Половина курицы гриль","it":"Mezzo Pollo Grigliato"},
+    "نص فرخة": {"en":"Half Grilled Chicken","fr":"Demi-Poulet Grillé","ru":"Половина курицы гриль","it":"Mezzo Pollo Grigliato"},
+    "ربع فرخة": {"en":"Quarter Chicken","fr":"Quart de Poulet","ru":"Четверть курицы","it":"Quarto di Pollo"},
+    "صدور دجاج": {"en":"Chicken Breasts","fr":"Blancs de Poulet","ru":"Куриные грудки","it":"Petti di Pollo"},
+    "شيش طاووق": {"en":"Shish Tawook","fr":"Chich Taouk","ru":"Шиш-таук","it":"Shish Taouk"},
+    "فاهيتا دجاج": {"en":"Chicken Fajita","fr":"Fajita Poulet","ru":"Фахита с курицей","it":"Fajita di Pollo"},
+    "فاهيتا لحم": {"en":"Beef Fajita","fr":"Fajita Bœuf","ru":"Фахита с говядиной","it":"Fajita di Manzo"},
+    "كوردون بلو": {"en":"Cordon Bleu","fr":"Cordon Bleu","ru":"Кордон Блю","it":"Cordon Bleu"},
+    "ساندوتش كبدة": {"en":"Liver Sandwich","fr":"Sandwich au Foie","ru":"Сэндвич с печенью","it":"Panino con Fegato"},
+    "ساندوتش سجق": {"en":"Sausage Sandwich","fr":"Sandwich Saucisse","ru":"Сэндвич с колбаской","it":"Panino con Salsiccia"},
+    "ساندوتش جمبري": {"en":"Shrimp Sandwich","fr":"Sandwich Crevettes","ru":"Сэндвич с креветками","it":"Panino con Gamberi"},
+    "بطاطس ويدجز": {"en":"Potato Wedges","fr":"Potatoes","ru":"Картофельные дольки","it":"Patate Spicchi"},
+    "حلقات بصل": {"en":"Onion Rings","fr":"Rondelles d'Oignon","ru":"Луковые кольца","it":"Anelli di Cipolla"},
+    "أصابع موتزاريلا": {"en":"Mozzarella Sticks","fr":"Bâtonnets de Mozzarella","ru":"Сырные палочки моцарелла","it":"Bastoncini di Mozzarella"},
+    "اصابع موتزاريلا": {"en":"Mozzarella Sticks","fr":"Bâtonnets de Mozzarella","ru":"Сырные палочки моцарелла","it":"Bastoncini di Mozzarella"},
+    "تشيكن وينجز": {"en":"Chicken Wings","fr":"Ailes de Poulet","ru":"Куриные крылышки","it":"Alette di Pollo"},
+    "أجنحة دجاج": {"en":"Chicken Wings","fr":"Ailes de Poulet","ru":"Куриные крылышки","it":"Alette di Pollo"},
+    "تومية": {"en":"Garlic Dip (Toum)","fr":"Sauce Toum","ru":"Чесночный соус Тум","it":"Salsa all'Aglio"},
+    "توميه": {"en":"Garlic Dip (Toum)","fr":"Sauce Toum","ru":"Чесночный соус Тум","it":"Salsa all'Aglio"},
+    "طحينة": {"en":"Tahini Dip","fr":"Sauce Tahina","ru":"Соус Тахини","it":"Salsa Tahina"},
+    "طحينه": {"en":"Tahini Dip","fr":"Sauce Tahina","ru":"Соус Тахини","it":"Salsa Tahina"},
+    "سلطة خضراء": {"en":"Green Salad","fr":"Salade Verte","ru":"Зеленый салат","it":"Insalata Verde"},
+    "سلطة سيزر": {"en":"Caesar Salad","fr":"Salade César","ru":"Салат Цезарь","it":"Insalata Caesar"},
+    "سلطة زبادي": {"en":"Yogurt Salad","fr":"Salade de Yaourt","ru":"Йогуртовый салат","it":"Insalata allo Yogurt"},
+    "عصير مانجو": {"en":"Fresh Mango Juice","fr":"Jus de Mangue Frais","ru":"Свежий сок манго","it":"Succo di Mango Fresco"},
+    "عصير فراولة": {"en":"Fresh Strawberry Juice","fr":"Jus de Fraise Frais","ru":"Свежий клубничный сок","it":"Succo di Fragola Fresco"},
+    "عصير برتقال": {"en":"Fresh Orange Juice","fr":"Jus d'Orange Frais","ru":"Свежевыжатый апельсиновый сок","it":"Spremuta d'Arancia"},
+    "عصير جوافة": {"en":"Fresh Guava Juice","fr":"Jus de Goyave","ru":"Сок гуавы","it":"Succo di Guava"},
+    "عصير ليمون نعناع": {"en":"Lemon Mint Juice","fr":"Jus Citron Menthe","ru":"Лимонад с мятой","it":"Limonata con Menta"},
+    "ليمون بالنعناع": {"en":"Lemon with Mint","fr":"Citron à la Menthe","ru":"Лимон с мятой","it":"Limone e Menta"},
+    "موهيتو": {"en":"Mojito","fr":"Mojito","ru":"Мохито","it":"Mojito"},
+    "موهيتو بلوبيري": {"en":"Blueberry Mojito","fr":"Mojito Myrtille","ru":"Черничный мохито","it":"Mojito ai Mirtilli"},
+    "ميلك شيك": {"en":"Milkshake","fr":"Milkshake","ru":"Милкшейк","it":"Milkshake"},
+    "أوريو شيك": {"en":"Oreo Shake","fr":"Oreo Shake","ru":"Орео шейк","it":"Oreo Shake"},
+    "اوريو شيك": {"en":"Oreo Shake","fr":"Oreo Shake","ru":"Орео шейк","it":"Oreo Shake"},
+    "لوتس شيك": {"en":"Lotus Shake","fr":"Lotus Shake","ru":"Лотус шейк","it":"Lotus Shake"},
+    "أم علي": {"en":"Om Ali Dessert","fr":"Dessert Om Ali","ru":"Десерт Умм Али","it":"Dolce Om Ali"},
+    "ام علي": {"en":"Om Ali Dessert","fr":"Dessert Om Ali","ru":"Десерт Умм Али","it":"Dolce Om Ali"},
+    "أرز باللبن": {"en":"Rice Pudding","fr":"Riz au Lait","ru":"Рисовый пудинг","it":"Riso al Latte"},
+    "ارز باللبن": {"en":"Rice Pudding","fr":"Riz au Lait","ru":"Рисовый пудинг","it":"Riso al Latte"},
+    "رز باللبن": {"en":"Rice Pudding","fr":"Riz au Lait","ru":"Рисовый пудинг","it":"Riso al Latte"},
+    "تشيز كيك": {"en":"Cheesecake","fr":"Cheesecake","ru":"Чизкейк","it":"Cheesecake"},
+    "وافل": {"en":"Waffle","fr":"Gaufre","ru":"Вафли","it":"Waffle"},
+    "وافل نوتيلا": {"en":"Nutella Waffle","fr":"Gaufre Nutella","ru":"Вафли с Нутеллой","it":"Waffle con Nutella"},
+    "براونيز": {"en":"Chocolate Brownies","fr":"Brownies au Chocolat","ru":"Шоколадный брауни","it":"Brownie al Cioccolato"},
+    "مياه معدنية": {"en":"Mineral Water","fr":"Eau Minérale","ru":"Минеральная вода","it":"Acqua Minerale"},
+    "مياه": {"en":"Mineral Water","fr":"Eau Minérale","ru":"Минеральная вода","it":"Acqua Minerale"},
+    "كانز": {"en":"Soda Can","fr":"Canette","ru":"Банка газировки","it":"Lattina"},
+    "مع": {"en":"with","fr":"avec","ru":"с","it":"con"},
+    "و": {"en":"and","fr":"et","ru":"и","it":"e"},
+    "أو": {"en":"or","fr":"ou","ru":"или","it":"o"},
+    "او": {"en":"or","fr":"ou","ru":"или","it":"o"},
+    "يقدم مع": {"en":"served with","fr":"servi avec","ru":"подается с","it":"servito con"},
+    "قطع": {"en":"pieces of","fr":"morceaux de","ru":"кусочки","it":"pezzi di"},
+    "شرائح": {"en":"slices of","fr":"tranches de","ru":"ломтики","it":"fette di"},
+    "طازج": {"en":"fresh","fr":"frais","ru":"свежий","it":"fresco"},
+    "طازجة": {"en":"fresh","fr":"fraîche","ru":"свежая","it":"fresca"},
+    "فريش": {"en":"fresh","fr":"frais","ru":"свежий","it":"fresco"},
+    "لذيذ": {"en":"delicious","fr":"délicieux","ru":"вкусный","it":"delizioso"},
+    "لذيذة": {"en":"delicious","fr":"délicieuse","ru":"вкусная","it":"deliziosa"},
+    "شهي": {"en":"delicious","fr":"savoureux","ru":"аппетитный","it":"squisito"},
+    "شهية": {"en":"delicious","fr":"savoureuse","ru":"аппетитная","it":"squisita"},
+    "أرز": {"en":"Rice","fr":"Riz","ru":"Рис","it":"Riso"},
+    "ارز": {"en":"Rice","fr":"Riz","ru":"Рис","it":"Riso"},
+    "رز": {"en":"Rice","fr":"Riz","ru":"Рис","it":"Riso"},
+    "عيش": {"en":"Bread","fr":"Pain","ru":"Хлеб","it":"Pane"},
+    "خبز": {"en":"Bread","fr":"Pain","ru":"Хлеб","it":"Pane"},
+    "بطاطس": {"en":"French Fries","fr":"Frites","ru":"Картофель фри","it":"Patatine fritte"},
+    "فرايز": {"en":"French Fries","fr":"Frites","ru":"Картофель фри","it":"Patatine fritte"},
+    "دجاج": {"en":"Chicken","fr":"Poulet","ru":"Курица","it":"Pollo"},
+    "فراخ": {"en":"Chicken","fr":"Poulet","ru":"Курица","it":"Pollo"},
+    "لحم": {"en":"Beef","fr":"Bœuf","ru":"Говядина","it":"Manzo"},
+    "لحمة": {"en":"Beef","fr":"Bœuf","ru":"Говядина","it":"Manzo"},
+    "لحمه": {"en":"Beef","fr":"Bœuf","ru":"Говядина","it":"Manzo"},
+    "بيف": {"en":"Beef","fr":"Bœuf","ru":"Говядина","it":"Manzo"},
     "الـبـيـتزا": { "en": "Pizza", "fr": "Pizza", "ru": "Пицца", "it": "Pizza" },
     "البيتزا": { "en": "Pizza", "fr": "Pizza", "ru": "Пицца", "it": "Pizza" },
     "الكريبات": { "en": "Crepes", "fr": "Crêpes", "ru": "Крепы", "it": "Crepes" },
@@ -821,6 +1071,18 @@
 };
 
   const DICTIONARY = {
+    "search_results_for": {"ar":"نتائج البحث عن","en":"Search results for"},
+    "sec_featured_items": {"ar":"الأكثر مبيعاً","en":"Best Sellers"},
+    "search_no_results": {"ar":"لا توجد أصناف مطابقة","en":"No matching items found"},
+    "search_try_other": {"ar":"جرب البحث بكلمة أخرى أو تصفح باقي الأقسام","en":"Try searching with other keywords or browse categories"},
+    "badge_featured": {"ar":"مميز","en":"Featured"},
+    "val_base_price": {
+        "ar": "السعر الأساسي",
+        "en": "Base Price",
+        "fr": "Prix de base",
+        "ru": "Базовая цена",
+        "it": "Prezzo base"
+    },
     "currency": {
         "ar": "ج.م",
         "en": "EGP",
@@ -2225,24 +2487,108 @@
         }
       }
 
-      // 5. Compound whole-word phrase match (NEVER substring replacement inside words)
-      if (!this._sortedKeys) {
-        this._sortedKeys = Object.keys(COMMON_TERMS).filter(k => k.includes(' ') && k.length >= 4).sort((a, b) => b.length - a.length);
+      // 5. Intelligent Multi-phrase & Token Replacer
+      if (!this._sortedTermsList) {
+        this._sortedTermsList = Object.keys(COMMON_TERMS)
+          .filter(k => k.trim().length >= 2)
+          .sort((a, b) => b.length - a.length);
       }
-      for (const phrase of this._sortedKeys) {
-        const phraseNorm = normalizeArabicText(phrase);
-        if (cleanNorm.includes(phraseNorm)) {
-          const v = COMMON_TERMS[phrase];
-          if (v && v[curLang]) {
-            const regex = new RegExp('(^|\\s)' + escapeRegExp(phrase) + '(\\s|$)', 'gi');
-            if (regex.test(clean)) {
-              const translated = clean.replace(regex, (m, p1, p2) => (p1 || '') + v[curLang] + (p2 || '')).trim();
-              const res = translated + (emojiMatch ? ' ' + emojiMatch.join('') : '');
-              this._transCache[cacheKey] = res;
-              return res;
-            }
+
+      let remaining = clean;
+      let tokenCounter = 0;
+      const tokenMap = new Map();
+
+      for (const phrase of this._sortedTermsList) {
+        const v = COMMON_TERMS[phrase];
+        if (!v || !v[curLang]) continue;
+
+        const escPhrase = escapeRegExp(phrase);
+        const regex = new RegExp('(^|[\\s+،,/\\-])' + escPhrase + '($|[\\s+،,/\\-])', 'gi');
+        if (regex.test(remaining)) {
+          const placeholder = `__HTOK${tokenCounter++}__`;
+          tokenMap.set(placeholder, v[curLang]);
+          remaining = remaining.replace(regex, (m, p1, p2) => (p1 || '') + placeholder + (p2 || ''));
+        }
+      }
+
+      // Process individual remaining words for common Arabic prefixes: "وال", "بال", "و", "ب", "ال"
+      const words = remaining.split(/\s+/);
+      let anyPrefixMatched = false;
+      const processedWords = words.map(w => {
+        if (w.startsWith('__HTOK') && w.endsWith('__')) return w;
+        const wNorm = normalizeArabicText(w);
+
+        // "وال" (and the)
+        if (wNorm.startsWith('وال') && wNorm.length > 4) {
+          const sub = wNorm.slice(3);
+          if (this._normMap.has(sub) && this._normMap.get(sub)[curLang]) {
+            anyPrefixMatched = true;
+            return 'and ' + this._normMap.get(sub)[curLang];
           }
         }
+
+        // "بال" (with the)
+        if (wNorm.startsWith('بال') && wNorm.length > 4) {
+          const sub = wNorm.slice(3);
+          if (this._normMap.has(sub) && this._normMap.get(sub)[curLang]) {
+            anyPrefixMatched = true;
+            return 'with ' + this._normMap.get(sub)[curLang];
+          }
+        }
+
+        // "و" (and)
+        if (wNorm.startsWith('و') && wNorm.length > 3) {
+          const sub = wNorm.slice(1);
+          if (this._normMap.has(sub) && this._normMap.get(sub)[curLang]) {
+            anyPrefixMatched = true;
+            return 'and ' + this._normMap.get(sub)[curLang];
+          }
+        }
+
+        // "ب" (with)
+        if (wNorm.startsWith('ب') && wNorm.length > 3) {
+          const sub = wNorm.slice(1);
+          if (this._normMap.has(sub) && this._normMap.get(sub)[curLang]) {
+            anyPrefixMatched = true;
+            return 'with ' + this._normMap.get(sub)[curLang];
+          }
+        }
+
+        // "ال" (the)
+        if (wNorm.startsWith('ال') && wNorm.length > 3) {
+          const sub = wNorm.slice(2);
+          if (this._normMap.has(sub) && this._normMap.get(sub)[curLang]) {
+            anyPrefixMatched = true;
+            return this._normMap.get(sub)[curLang];
+          }
+        }
+
+        if (this._normMap.has(wNorm) && this._normMap.get(wNorm)[curLang]) {
+          anyPrefixMatched = true;
+          return this._normMap.get(wNorm)[curLang];
+        }
+
+        return w;
+      });
+
+      if (tokenCounter > 0 || anyPrefixMatched) {
+        remaining = processedWords.join(' ');
+        tokenMap.forEach((enVal, placeholder) => {
+          remaining = remaining.split(placeholder).join(enVal);
+        });
+
+        let res = remaining
+          .replace(/\s*([+،,/\\-])\s*/g, ' $1 ')
+          .replace(/،/g, ', ')
+          .replace(/\s+/g, ' ')
+          .trim();
+
+        res = res.replace(/\bwith\s+with\b/gi, 'with')
+                 .replace(/\band\s+and\b/gi, 'and');
+
+        if (emojiMatch) res += ' ' + emojiMatch.join('');
+        this._transCache[cacheKey] = res;
+        return res;
       }
 
       // Fallback: preserve original text safely
@@ -2339,8 +2685,80 @@
   };
 
   window.I18n = I18n;
-  window.t = function(key, fallback) { return I18n.t(key, fallback); };
+  window.t = function(key, fallback) { 
+    if (key === 'currency') {
+      return window.getCurrency ? window.getCurrency(fallback) : (I18n.getLanguage() === 'en' ? 'EGP' : (fallback || 'ج.م'));
+    }
+    return I18n.t(key, fallback); 
+  };
   window.tr = function(text) { return I18n.translate(text); };
+
+  // ── Universal Restaurant Dynamic Data Helpers ───────────────
+  window.getCurrency = function(rawCurrency, lang) {
+    const l = lang || (typeof I18n !== 'undefined' ? I18n.getLanguage() : 'ar');
+    const cur = rawCurrency || (typeof Store !== 'undefined' && Store.getSettings ? Store.getSettings().currency : '') || 'ج.م';
+    if (l === 'en') {
+      if (cur === 'ج.م' || cur === 'جنيه' || cur.includes('ج') || !cur.trim()) return 'EGP';
+      if (cur === 'ر.س') return 'SAR';
+      if (cur === 'د.إ') return 'AED';
+      if (cur === 'د.ك') return 'KWD';
+      return cur;
+    }
+    return cur;
+  };
+
+  window.getProductName = function(p, lang) {
+    if (!p) return '';
+    const l = lang || (typeof I18n !== 'undefined' ? I18n.getLanguage() : 'ar');
+    if (l === 'ar') return p.name || '';
+    if (p.name_en && p.name_en.trim()) return p.name_en.trim();
+    return p.name ? I18n.translate(p.name) : '';
+  };
+
+  window.getProductDesc = function(p, lang) {
+    if (!p) return '';
+    const l = lang || (typeof I18n !== 'undefined' ? I18n.getLanguage() : 'ar');
+    const rawDesc = p.desc || p.description || '';
+    if (l === 'ar') return rawDesc;
+    if (p.desc_en && p.desc_en.trim()) return p.desc_en.trim();
+    return rawDesc ? I18n.translate(rawDesc) : '';
+  };
+
+  window.getProductCategory = function(p, lang) {
+    if (!p) return '';
+    const l = lang || (typeof I18n !== 'undefined' ? I18n.getLanguage() : 'ar');
+    const rawCat = (typeof p === 'string') ? p : (p.category || '');
+    if (l === 'ar') return rawCat;
+    if (typeof p === 'object' && p.category_en && p.category_en.trim()) return p.category_en.trim();
+    return rawCat ? I18n.translate(rawCat) : '';
+  };
+
+  window.getProductBadge = function(p, lang) {
+    if (!p) return '';
+    const l = lang || (typeof I18n !== 'undefined' ? I18n.getLanguage() : 'ar');
+    const rawBadge = (typeof p === 'string') ? p : (p.badge || '');
+    if (l === 'ar') return rawBadge;
+    if (typeof p === 'object' && p.badge_en && p.badge_en.trim()) return p.badge_en.trim();
+    return rawBadge ? I18n.translate(rawBadge) : '';
+  };
+
+  window.getSizeName = function(s, lang) {
+    if (!s) return '';
+    const l = lang || (typeof I18n !== 'undefined' ? I18n.getLanguage() : 'ar');
+    const rawName = (typeof s === 'string') ? s : (s.name || '');
+    if (l === 'ar') return rawName;
+    if (typeof s === 'object' && s.name_en && s.name_en.trim()) return s.name_en.trim();
+    return rawName ? I18n.translate(rawName) : '';
+  };
+
+  window.getAddonName = function(a, lang) {
+    if (!a) return '';
+    const l = lang || (typeof I18n !== 'undefined' ? I18n.getLanguage() : 'ar');
+    const rawName = (typeof a === 'string') ? a : (a.name || '');
+    if (l === 'ar') return rawName;
+    if (typeof a === 'object' && a.name_en && a.name_en.trim()) return a.name_en.trim();
+    return rawName ? I18n.translate(rawName) : '';
+  };
 
   I18n.init();
 

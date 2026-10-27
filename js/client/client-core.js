@@ -1789,12 +1789,16 @@ function renderOrdersView() {
     // Items list
     const itemsList = document.getElementById('orders-active-items-list');
     if (itemsList && lastOrder.items) {
-      itemsList.innerHTML = lastOrder.items.map(it => `
+      itemsList.innerHTML = lastOrder.items.map(it => {
+        const itName = esc(typeof window.getProductName === 'function' ? window.getProductName(it) : (typeof window.tr === 'function' ? window.tr(it.name) : it.name));
+        const itSize = it.selectedSize ? `[${esc(typeof window.getSizeName === 'function' ? window.getSizeName(it.selectedSize) : (typeof window.tr === 'function' ? window.tr(it.selectedSize.name) : it.selectedSize.name))}]` : '';
+        return `
         <div style="display:flex; justify-content:space-between; align-items:center; font-size:12.5px; padding:4px 0; border-bottom:1px dashed var(--border-subtle, rgba(0,0,0,0.06));">
-          <span><b style="color:var(--primary); font-weight:800;">${esc(it.qty)}x</b> ${esc(typeof window.tr === 'function' ? window.tr(it.name) : it.name)} ${it.selectedSize ? `[${esc(typeof window.tr === 'function' ? window.tr(it.selectedSize.name) : it.selectedSize.name)}]` : ''}</span>
+          <span><b style="color:var(--primary); font-weight:800;">${esc(it.qty)}x</b> ${itName} ${itSize}</span>
           <span class="font-num" style="font-weight:700;">${((it.price || 0) * it.qty).toFixed(2)} ${currency}</span>
         </div>
-      `).join('');
+      `;
+      }).join('');
     }
 
     // Total
@@ -1828,7 +1832,8 @@ function renderOrdersView() {
         const safeOrderId = cleanId || '#ORD';
         const dateLocale = (typeof window.I18n !== 'undefined' && window.I18n.getLanguage() === 'en') ? 'en-US' : 'ar-EG';
         const dateStr = order.createdAt ? new Date(order.createdAt).toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : (typeof window.t === 'function' ? window.t('past_order', 'طلب سابق') : 'طلب سابق');
-        const itemsSummary = (order.items || []).map(i => `${esc(i.qty)}x ${esc(typeof window.tr === 'function' ? window.tr(i.name) : i.name)}`).join('، ');
+        const isEn = (typeof window.I18n !== 'undefined' && window.I18n.getLanguage() === 'en');
+        const itemsSummary = (order.items || []).map(i => `${esc(i.qty)}x ${esc(typeof window.getProductName === 'function' ? window.getProductName(i) : (typeof window.tr === 'function' ? window.tr(i.name) : i.name))}`).join(isEn ? ', ' : '، ');
         let fulfillmentBadge = (typeof window.t === 'function' ? window.t('fulfillment_delivery', 'دليفري') : 'دليفري');
         if (order.fulfillmentType === 'takeaway') fulfillmentBadge = (typeof window.t === 'function' ? window.t('fulfillment_takeaway', 'تيك أواي') : 'تيك أواي');
         else if (order.fulfillmentType === 'dinein') fulfillmentBadge = `${typeof window.t === 'function' ? window.t('fulfillment_dinein', 'صالة') : 'صالة'} (${esc(order.tableNumber || '-')})`;
@@ -2394,6 +2399,14 @@ window.rerenderAllCustomerViews = function() {
   try {
     if (typeof renderCleanProfileUI === 'function') renderCleanProfileUI();
     if (typeof updateAccountDrawerProfileUI === 'function') updateAccountDrawerProfileUI();
+  } catch(e) {}
+
+  // 11. Quick Preview Modal auto-refresh if open
+  try {
+    const previewModal = document.getElementById('quick-preview-modal');
+    if (previewModal && previewModal.classList.contains('open') && window.currentPreviewProductId && typeof window.openQuickPreview === 'function') {
+      window.openQuickPreview(window.currentPreviewProductId);
+    }
   } catch(e) {}
 };
 

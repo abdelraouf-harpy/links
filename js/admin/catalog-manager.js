@@ -907,23 +907,31 @@ async function saveProductForm() {
     return;
   }
 
-  // Collect sizes
+  // Auto-translate fields to English for permanent bilingual record
+  const nameEn = (typeof window.tr === 'function') ? window.tr(name) : name;
+  const descEn = (typeof window.tr === 'function' && desc) ? window.tr(desc) : desc;
+  const categoryEn = (typeof window.tr === 'function') ? window.tr(category) : category;
+  const badgeEn = (typeof window.tr === 'function' && badge) ? window.tr(badge) : badge;
+
+  // Collect sizes with auto-translation
   const sizes = [];
   document.querySelectorAll('.size-row-item').forEach((row, idx) => {
     const sName = (row.querySelector('.size-name-input')?.value || '').trim();
     const sPrice = parseFloat(row.querySelector('.size-price-input')?.value) || 0;
     if (sName) {
-      sizes.push({ id: 's_' + idx, name: sName, price: sPrice });
+      const sNameEn = (typeof window.tr === 'function') ? window.tr(sName) : sName;
+      sizes.push({ id: 's_' + idx, name: sName, name_en: sNameEn, price: sPrice });
     }
   });
 
-  // Collect addons
+  // Collect addons with auto-translation
   const addons = [];
   document.querySelectorAll('.addon-row-item').forEach((row, idx) => {
     const aName = (row.querySelector('.addon-name-input')?.value || '').trim();
     const aPrice = parseFloat(row.querySelector('.addon-price-input')?.value) || 0;
     if (aName) {
-      addons.push({ id: 'a_' + idx, name: aName, price: aPrice });
+      const aNameEn = (typeof window.tr === 'function') ? window.tr(aName) : aName;
+      addons.push({ id: 'a_' + idx, name: aName, name_en: aNameEn, price: aPrice });
     }
   });
 
@@ -991,13 +999,17 @@ async function saveProductForm() {
   const productData = {
     id,
     name,
+    name_en: nameEn,
     category,
+    category_en: categoryEn,
     price,
     originalPrice,
     prepTime,
     badge,
+    badge_en: badgeEn,
     isFeatured,
     desc,
+    desc_en: descEn,
     image,
     sizes,
     addons,

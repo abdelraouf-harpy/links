@@ -274,14 +274,15 @@ function renderProducts(forceRebuild = false) {
   const secTitleEl = document.getElementById('menu-section-title');
   if (secTitleEl) {
     if (searchQuery) {
-      secTitleEl.textContent = `نتائج البحث عن "${searchQuery}"`;
+      const prefix = (typeof window.t === 'function' ? window.t('search_results_for', 'نتائج البحث عن') : 'نتائج البحث عن');
+      secTitleEl.textContent = `${prefix} "${searchQuery}"`;
     } else if (activeDiscoveryFilter === 'fav') {
-      secTitleEl.textContent = 'الأصناف المفضلة';
+      secTitleEl.textContent = (typeof window.t === 'function' ? window.t('cat_fav', 'الأصناف المفضلة') : 'الأصناف المفضلة');
     } else if (activeCategoryFilter === 'all') {
-      secTitleEl.textContent = 'الأكثر مبيعاً';
+      secTitleEl.textContent = (typeof window.t === 'function' ? window.t('sec_featured_items', 'الأكثر مبيعاً') : 'الأكثر مبيعاً');
     } else {
       const cleanCat = (activeCategoryFilter || '').replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1FA00}-\u{1FAFF}\u{FE00}-\u{FE0F}]/gu, '').trim();
-      secTitleEl.textContent = `${cleanCat || activeCategoryFilter}`;
+      secTitleEl.textContent = (typeof window.getProductCategory === 'function' ? window.getProductCategory(cleanCat || activeCategoryFilter) : (typeof window.tr === 'function' ? window.tr(cleanCat || activeCategoryFilter) : (cleanCat || activeCategoryFilter)));
     }
   }
 
@@ -366,10 +367,16 @@ function renderProducts(forceRebuild = false) {
     const pDesc = (p.desc || p.description || '').toLowerCase();
     const pCategory = (p.category || '').toLowerCase();
     const pBadge = (p.badge || '').toLowerCase();
+    const pNameEn = (p.name_en || (typeof window.tr === 'function' ? window.tr(p.name) : '')).toLowerCase();
+    const pDescEn = (p.desc_en || (typeof window.tr === 'function' ? window.tr(pDesc) : '')).toLowerCase();
+    const pCatEn = (p.category_en || (typeof window.tr === 'function' ? window.tr(pCategory) : '')).toLowerCase();
     const searchMatch = !searchQuery || (
       p.name.toLowerCase().includes(searchQuery) ||
+      pNameEn.includes(searchQuery) ||
       pDesc.includes(searchQuery) ||
+      pDescEn.includes(searchQuery) ||
       pCategory.includes(searchQuery) ||
+      pCatEn.includes(searchQuery) ||
       pBadge.includes(searchQuery)
     );
 
@@ -424,8 +431,8 @@ function renderProducts(forceRebuild = false) {
       emptyOverlay.style.gridColumn = '1 / -1';
       emptyOverlay.innerHTML = `
         <svg class="empty-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-        <div class="empty-title">لا توجد أصناف مطابقة</div>
-        <p style="font-size:12px; color:var(--text-muted);">جرب البحث بكلمة أخرى أو تصفح باقي الأقسام</p>
+        <div class="empty-title">${typeof t === 'function' ? t('search_no_results', 'لا توجد أصناف مطابقة') : 'لا توجد أصناف مطابقة'}</div>
+        <p style="font-size:12px; color:var(--text-muted);">${typeof t === 'function' ? t('search_try_other', 'جرب البحث بكلمة أخرى أو تصفح باقي الأقسام') : 'جرب البحث بكلمة أخرى أو تصفح باقي الأقسام'}</p>
       `;
       elements.productsContainer.appendChild(emptyOverlay);
     }
@@ -464,17 +471,17 @@ function renderHeroShowcase(p, currency) {
   return `
     <div class="hero-product-card" onclick="handleCardClick(event, '${p.id}')">
       <div class="hero-product-img-wrap">
-        <img src="${p.image}" class="hero-product-img" alt="${p.name}" loading="eager" fetchpriority="high" decoding="async">
-        <span class="hero-badge-tag">${p.badge || 'اختيار الشيف'}</span>
+        <img src="${p.image}" class="hero-product-img" alt="${(typeof window.getProductName === 'function' ? window.getProductName(p) : p.name)}" loading="eager" fetchpriority="high" decoding="async">
+        <span class="hero-badge-tag">${(typeof window.getProductBadge === 'function' ? window.getProductBadge(p.badge || 'اختيار الشيف') : (p.badge || 'اختيار الشيف'))}</span>
       </div>
       <div class="hero-product-content">
         <div>
           <div class="hero-meta-row">
-            <span class="meta-chip">${p.category}</span>
-            <span class="meta-chip"><svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ${p.prepTime || '15 دقيقة'}</span>
+            <span class="meta-chip">${(typeof window.getProductCategory === 'function' ? window.getProductCategory(p.category) : p.category)}</span>
+            <span class="meta-chip"><svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ${(p.prepTime ? p.prepTime.replace(/دقيقة|دقائق/g, (typeof t === "function" ? t("mins", "mins") : "mins")) : ("15 " + (typeof t === "function" ? t("mins", "mins") : "mins")))}</span>
           </div>
-          <h2 class="hero-product-title">${p.name}</h2>
-          <p class="hero-product-desc">${p.desc || p.description || ''}</p>
+          <h2 class="hero-product-title">${(typeof window.getProductName === 'function' ? window.getProductName(p) : p.name)}</h2>
+          <p class="hero-product-desc">${(typeof window.getProductDesc === 'function' ? window.getProductDesc(p) : (p.desc || p.description || ''))}</p>
         </div>
         <div class="hero-product-footer">
           <div class="hero-price font-num">
@@ -515,7 +522,7 @@ function renderProductCard(p, currency, index = 0) {
       <div class="food-item-media">
         <img src="${prodImg}" class="food-item-img ${isAlreadyLoaded ? 'loaded' : ''}" alt="" ${isAboveFold ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"'} decoding="async" onload="this.classList.add('loaded')" onerror="this.onerror=null; this.src='${fallbackImg}'; this.classList.add('loaded');">
         <div class="card-top-actions">
-          ${p.badge ? `<span class="card-badge">${p.badge}</span>` : '<span></span>'}
+          ${p.badge ? `<span class="card-badge">${(typeof window.getProductBadge === 'function' ? window.getProductBadge(p.badge) : p.badge)}</span>` : '<span></span>'}
           <button class="btn-fav-toggle ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); handleToggleFav('${p.id}')" title="إضافة للمفضلة">
             <svg class="icon" viewBox="0 0 24 24" style="fill: ${isFav ? 'currentColor' : 'none'};"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
           </button>
@@ -529,15 +536,15 @@ function renderProductCard(p, currency, index = 0) {
               <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               <span>${(p.prepTime ? p.prepTime.replace(/دقيقة|دقائق/g, (typeof t === "function" ? t("mins", "mins") : "mins")) : ("15 " + (typeof t === "function" ? t("mins", "mins") : "mins")))}</span>
             </span>
-            <span style="font-size:11.5px; color:var(--text-muted);">• ${(typeof window.tr === "function" ? window.tr(p.category) : p.category)}</span>
+            <span style="font-size:11.5px; color:var(--text-muted);">• ${(typeof window.getProductCategory === "function" ? window.getProductCategory(p.category) : (typeof window.tr === "function" ? window.tr(p.category) : p.category))}</span>
           </div>
           <button class="btn-fav-inline ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); handleToggleFav('${p.id}')" title="إضافة للمفضلة">
             <svg class="icon icon-sm" viewBox="0 0 24 24" style="fill: ${isFav ? 'currentColor' : 'none'};"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
           </button>
         </div>
 
-        <h3 class="food-item-title">${(typeof window.tr === "function" ? window.tr(p.name) : p.name)}</h3>
-        <p class="food-item-desc">${(typeof window.tr === "function" ? window.tr(p.desc || p.description || "") : (p.desc || p.description || ""))}</p>
+        <h3 class="food-item-title">${(typeof window.getProductName === "function" ? window.getProductName(p) : (typeof window.tr === "function" ? window.tr(p.name) : p.name))}</h3>
+        <p class="food-item-desc">${(typeof window.getProductDesc === "function" ? window.getProductDesc(p) : (typeof window.tr === "function" ? window.tr(p.desc || p.description || "") : (p.desc || p.description || "")))}</p>
 
         <div class="food-item-footer">
           <div class="food-item-price font-num">
@@ -638,10 +645,12 @@ window.handleQuickAddItem = function(productId, triggerElement) {
       id: 'c_' + p.id + '_' + Date.now(),
       productId: p.id,
       name: p.name,
+      name_en: p.name_en || (typeof window.tr === 'function' ? window.tr(p.name) : ''),
       basePrice: p.price,
       price: p.price,
       image: p.image,
       category: p.category,
+      category_en: p.category_en || (typeof window.tr === 'function' ? window.tr(p.category) : ''),
       selectedSize: null,
       selectedAddons: [],
       notes: '',
@@ -699,23 +708,27 @@ window.openQuickPreview = function(productId) {
 
   currentPreviewProductId = productId;
   const s = Store.getSettings();
-  const currency = s.currency || "ج.م";
+  const currency = (typeof window.getCurrency === 'function') ? window.getCurrency(s.currency) : (typeof window.t === 'function' ? window.t('currency', s.currency || "ج.م") : (s.currency || "ج.م"));
 
   if (elements.previewImg) elements.previewImg.src = p.image;
   if (elements.previewBadge) {
-    elements.previewBadge.textContent = p.badge || 'مميز';
+    const bText = p.badge ? (typeof window.getProductBadge === 'function' ? window.getProductBadge(p.badge) : (typeof window.tr === 'function' ? window.tr(p.badge) : p.badge)) : '';
+    elements.previewBadge.textContent = bText || (typeof window.t === 'function' ? window.t('badge_featured', 'مميز') : 'مميز');
     elements.previewBadge.style.display = p.badge ? 'inline-block' : 'none';
   }
-  if (elements.previewTitle) elements.previewTitle.textContent = p.name;
-  if (elements.previewCategory) elements.previewCategory.textContent = p.category;
-  if (elements.previewPrepTime) elements.previewPrepTime.textContent = p.prepTime || '15 دقيقة';
+  if (elements.previewTitle) elements.previewTitle.textContent = (typeof window.getProductName === 'function' ? window.getProductName(p) : (typeof window.tr === 'function' ? window.tr(p.name) : p.name));
+  if (elements.previewCategory) elements.previewCategory.textContent = (typeof window.getProductCategory === 'function' ? window.getProductCategory(p.category) : (typeof window.tr === 'function' ? window.tr(p.category) : p.category));
+  if (elements.previewPrepTime) {
+    const prep = p.prepTime || '15 دقيقة';
+    elements.previewPrepTime.textContent = prep.replace(/دقيقة|دقائق/g, (typeof t === "function" ? t("mins", "mins") : "mins"));
+  }
   if (elements.previewPrice) {
     elements.previewPrice.innerHTML = `
       ${p.originalPrice && p.originalPrice > p.price ? `<span class="price-crossed" style="font-size:13px;">${p.originalPrice} ${currency}</span>` : ''}
       ${p.price} <span>${currency}</span>
     `;
   }
-  if (elements.previewDesc) elements.previewDesc.textContent = p.desc;
+  if (elements.previewDesc) elements.previewDesc.textContent = (typeof window.getProductDesc === 'function' ? window.getProductDesc(p) : (typeof window.tr === 'function' ? window.tr(p.desc || p.description || '') : (p.desc || p.description || '')));
 
   updatePreviewModalActions(productId);
 
