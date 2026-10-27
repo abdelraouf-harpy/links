@@ -6879,84 +6879,373 @@ body:has(#customizer-modal.open) .bottom-nav-bar {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   HARPY PRO: LTR DIRECTIONAL OVERRIDES (EN, FR, RU, IT)
+   HARPY PRO: COMPLETE LTR DIRECTIONAL & TYPOGRAPHY ENGINE
+   Full 5-Section Layout Flip, Chevron Inversion, Plus Jakarta Sans
    ═══════════════════════════════════════════════════════════ */
+
+/* 1. Global Font Switch & Direction */
+html[dir="ltr"],
+html[dir="ltr"] body,
+html[data-lang="en"],
+body[data-lang="en"],
+body[data-lang="en"] input,
+body[data-lang="en"] button,
+body[data-lang="en"] select,
+body[data-lang="en"] textarea,
+html[dir="ltr"] input,
+html[dir="ltr"] button,
+html[dir="ltr"] select,
+html[dir="ltr"] textarea {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  direction: ltr;
+}
+
 html[dir="ltr"],
 html[dir="ltr"] body {
-  direction: ltr;
+  direction: ltr !important;
   text-align: left;
 }
-html[dir="ltr"] .customer-onboard-modal,
-.customer-onboard-modal[dir="ltr"] {
-  direction: ltr;
-  text-align: left;
+
+/* 2. Globe Icon Clean Aesthetic Defense (No transparent square frame) */
+.row-icon,
+.account-menu-item .account-menu-icon {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
-html[dir="ltr"] .input-leading-icon,
-.customer-onboard-modal[dir="ltr"] .input-leading-icon {
-  right: auto;
-  left: 14px;
+
+/* 3. Section 1: Menu View & Search */
+html[dir="ltr"] .search-box-compact {
+  direction: ltr !important;
 }
-html[dir="ltr"] .input-luxury-field,
-.customer-onboard-modal[dir="ltr"] .input-luxury-field {
-  padding-right: 14px;
-  padding-left: 42px;
-  text-align: left;
+html[dir="ltr"] .search-box-compact .search-icon {
+  left: 14px !important;
+  right: auto !important;
 }
-html[dir="ltr"] .input-luxury-textarea,
-.customer-onboard-modal[dir="ltr"] .input-luxury-textarea {
-  padding-right: 14px;
-  padding-left: 42px;
-  text-align: left;
+html[dir="ltr"] .search-input-field {
+  padding-left: 42px !important;
+  padding-right: 14px !important;
+  text-align: left !important;
+  direction: ltr !important;
 }
-html[dir="ltr"] .menu-arrow {
-  transform: rotate(180deg);
-}
-html[dir="ltr"] .my-account-drawer {
-  direction: ltr;
-  text-align: left;
-}
-html[dir="ltr"] .cart-drawer {
-  direction: ltr;
-  text-align: left;
-}
-html[dir="ltr"] .account-drawer-header,
-html[dir="ltr"] .drawer-header {
-  direction: ltr;
-}
-html[dir="ltr"] .account-menu-item {
-  direction: ltr;
-  text-align: left;
-}
-html[dir="ltr"] .account-menu-info {
-  text-align: left;
-}
-html[dir="ltr"] .profile-text-wrap {
-  text-align: left;
-}
-html[dir="ltr"] .profile-card-top {
-  direction: ltr;
-}
-html[dir="ltr"] .btn-edit-profile {
-  margin-left: auto;
-  margin-right: 0;
-}
-html[dir="ltr"] .onboard-header {
-  text-align: center;
+html[dir="ltr"] .menu-section-header,
+html[dir="ltr"] .menu-section-title {
+  text-align: left !important;
 }
 html[dir="ltr"] .category-strip,
 html[dir="ltr"] .stories-strip-section {
-  direction: ltr;
+  direction: ltr !important;
 }
+html[dir="ltr"] .food-item-body,
 html[dir="ltr"] .food-item-content {
-  text-align: left;
+  text-align: left !important;
+}
+html[dir="ltr"] .food-item-title,
+html[dir="ltr"] .food-item-desc {
+  text-align: left !important;
+}
+html[dir="ltr"] .food-item-footer {
+  direction: ltr !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+html[dir="ltr"] .food-item-price {
+  text-align: left !important;
+  margin-right: auto !important;
+  margin-left: 0 !important;
+}
+html[dir="ltr"] .btn-quick-add,
+html[dir="ltr"] .card-action-btn {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+}
+html[dir="ltr"] .card-badge {
+  left: auto;
+  right: 10px;
+}
+html[dir="ltr"] .menu-meta-pill {
+  flex-direction: row;
+}
+
+/* 4. Section 2: Portfolio / About View */
+html[dir="ltr"] .portfolio-screen-container {
+  direction: ltr !important;
+  text-align: left !important;
+}
+html[dir="ltr"] .portfolio-hero-brand-wrap {
+  direction: ltr !important;
+}
+html[dir="ltr"] .portfolio-hero-name-col {
+  text-align: left !important;
+}
+html[dir="ltr"] .portfolio-hero-name-row {
+  justify-content: flex-start !important;
+}
+html[dir="ltr"] .portfolio-card {
+  text-align: left !important;
+}
+html[dir="ltr"] .portfolio-tagline-top-row {
+  direction: ltr !important;
+}
+html[dir="ltr"] .portfolio-tagline-stats-row {
+  direction: ltr !important;
+}
+html[dir="ltr"] .portfolio-card-heading-group {
+  direction: ltr !important;
+  justify-content: flex-start !important;
+}
+html[dir="ltr"] .portfolio-about-desc {
+  text-align: left !important;
+}
+html[dir="ltr"] .portfolio-actions-grid {
+  direction: ltr !important;
+}
+html[dir="ltr"] .action-btn-text-col {
+  text-align: left !important;
+}
+html[dir="ltr"] .portfolio-location-card {
+  direction: ltr !important;
+}
+html[dir="ltr"] .location-right-group {
+  direction: ltr !important;
+  text-align: left !important;
+}
+html[dir="ltr"] .location-left-arrow svg {
+  transform: scaleX(-1) !important;
+}
+html[dir="ltr"] .portfolio-big-cta-btn {
+  direction: ltr !important;
+}
+html[dir="ltr"] .cta-btn-arrow {
+  display: inline-block !important;
+  transform: scaleX(-1) !important;
+}
+html[dir="ltr"] .social-box-header {
+  direction: ltr !important;
+}
+
+/* 5. Section 3: Orders / Tracking View */
+html[dir="ltr"] .orders-screen-container {
+  direction: ltr !important;
+  text-align: left !important;
+}
+html[dir="ltr"] .orders-screen-header {
+  direction: ltr !important;
+  text-align: left !important;
+}
+html[dir="ltr"] .orders-header-title-row {
+  direction: ltr !important;
+  text-align: left !important;
+}
+html[dir="ltr"] .active-tracker-card {
+  direction: ltr !important;
+  text-align: left !important;
+}
+html[dir="ltr"] .tracker-card-top {
+  direction: ltr !important;
+}
+html[dir="ltr"] .tracker-badge-live {
+  direction: ltr !important;
+}
+html[dir="ltr"] .orders-stepper-wrap {
+  direction: ltr !important;
+}
+html[dir="ltr"] .orders-steps-grid {
+  direction: ltr !important;
+}
+html[dir="ltr"] .tracker-eta-banner {
+  direction: ltr !important;
+}
+html[dir="ltr"] .eta-left {
+  text-align: left !important;
+}
+html[dir="ltr"] .eta-status-desc {
+  text-align: right !important;
+}
+html[dir="ltr"] .tracker-location-banner {
+  direction: ltr !important;
+  text-align: left !important;
+}
+html[dir="ltr"] .tracker-items-section {
+  text-align: left !important;
+}
+html[dir="ltr"] .tracker-total-row {
+  direction: ltr !important;
+}
+html[dir="ltr"] .tracker-actions-row {
+  direction: ltr !important;
+}
+html[dir="ltr"] .previous-orders-wrap {
+  text-align: left !important;
+}
+html[dir="ltr"] .orders-section-subtitle {
+  direction: ltr !important;
+  text-align: left !important;
+}
+html[dir="ltr"] .previous-order-card {
+  text-align: left !important;
+  direction: ltr !important;
+}
+html[dir="ltr"] .orders-empty-card {
+  text-align: center !important;
+}
+
+/* 6. Section 4: Cart & Checkout Drawer */
+html[dir="ltr"] .cart-drawer {
+  direction: ltr !important;
+  text-align: left !important;
+}
+html[dir="ltr"] .drawer-header {
+  direction: ltr !important;
+}
+html[dir="ltr"] .checkout-back-bar {
+  direction: ltr !important;
+  text-align: left !important;
+}
+html[dir="ltr"] .checkout-back-bar svg {
+  transform: scaleX(-1) !important;
+}
+html[dir="ltr"] .cart-saved-profile-card {
+  direction: ltr !important;
+}
+html[dir="ltr"] .saved-profile-left {
+  text-align: left !important;
+}
+html[dir="ltr"] .btn-edit-profile-card {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+}
+html[dir="ltr"] .fulfillment-segmented-control {
+  direction: ltr !important;
+}
+html[dir="ltr"] .payment-methods-stack {
+  text-align: left !important;
+}
+html[dir="ltr"] .payment-luxury-card {
+  direction: ltr !important;
+  text-align: left !important;
+}
+html[dir="ltr"] .wallet-luxury-panel {
+  direction: ltr !important;
+  text-align: left !important;
+}
+html[dir="ltr"] .wallet-panel-head {
+  direction: ltr !important;
+}
+html[dir="ltr"] .wallet-account-card {
+  direction: ltr !important;
+}
+html[dir="ltr"] .wallet-amount-summary-banner {
+  direction: ltr !important;
+}
+html[dir="ltr"] .ledger-summary-row {
+  direction: ltr !important;
+}
+html[dir="ltr"] .btn-primary-action,
+html[dir="ltr"] .btn-confirm-order-direct {
+  direction: ltr !important;
+}
+html[dir="ltr"] #btn-proceed-to-payment svg {
+  transform: scaleX(1) !important;
 }
 html[dir="ltr"] .cart-item-info {
-  text-align: left;
+  text-align: left !important;
+}
+
+/* 7. Section 5: Account View & Drawer */
+html[dir="ltr"] .account-clean-container,
+html[dir="ltr"] .my-account-drawer {
+  direction: ltr !important;
+  text-align: left !important;
+}
+html[dir="ltr"] .account-clean-profile {
+  direction: ltr !important;
+  text-align: left !important;
+}
+html[dir="ltr"] .clean-profile-info {
+  text-align: left !important;
+}
+html[dir="ltr"] .btn-clean-edit {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+}
+html[dir="ltr"] .clean-field-group {
+  text-align: left !important;
+}
+html[dir="ltr"] .clean-setting-row {
+  direction: ltr !important;
+  text-align: left !important;
+}
+html[dir="ltr"] .clean-toggle-pill {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+}
+html[dir="ltr"] .row-arrow {
+  display: inline-block !important;
+  transform: scaleX(-1) !important;
+}
+html[dir="ltr"] .account-drawer-header {
+  direction: ltr !important;
+}
+html[dir="ltr"] .account-profile-card {
+  text-align: left !important;
+}
+html[dir="ltr"] .profile-card-top {
+  direction: ltr !important;
+}
+html[dir="ltr"] .profile-text-wrap {
+  text-align: left !important;
+}
+html[dir="ltr"] .btn-edit-profile {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+}
+html[dir="ltr"] .account-edit-form {
+  text-align: left !important;
+}
+html[dir="ltr"] .account-menu-item {
+  direction: ltr !important;
+  text-align: left !important;
+}
+html[dir="ltr"] .account-menu-text {
+  text-align: left !important;
+}
+html[dir="ltr"] .menu-arrow {
+  transform: rotate(180deg) !important;
+}
+
+/* 8. Bottom Navigation */
+html[dir="ltr"] .bottom-nav-bar {
+  direction: ltr !important;
+}
+
+/* 9. Forms & Inputs in LTR */
+html[dir="ltr"] .input-leading-icon,
+.customer-onboard-modal[dir="ltr"] .input-leading-icon {
+  right: auto !important;
+  left: 14px !important;
+}
+html[dir="ltr"] .input-luxury-field,
+.customer-onboard-modal[dir="ltr"] .input-luxury-field {
+  padding-right: 14px !important;
+  padding-left: 42px !important;
+  text-align: left !important;
+}
+html[dir="ltr"] .input-luxury-textarea,
+.customer-onboard-modal[dir="ltr"] .input-luxury-textarea {
+  padding-right: 14px !important;
+  padding-left: 42px !important;
+  text-align: left !important;
+}
+html[dir="ltr"] .customer-onboard-modal,
+.customer-onboard-modal[dir="ltr"] {
+  direction: ltr !important;
+  text-align: left !important;
+}
+html[dir="ltr"] .onboard-header {
+  text-align: center !important;
 }
 html[dir="ltr"] .order-details-grid {
-  text-align: left;
+  text-align: left !important;
 }
-
-
-
-

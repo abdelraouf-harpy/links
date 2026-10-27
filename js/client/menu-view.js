@@ -487,7 +487,7 @@ function renderHeroShowcase(p, currency) {
             </button>
             ${hasOptions ? `
               <button class="btn-quick-add" onclick="event.stopPropagation(); openCustomizer('${p.id}')">
-                <span>${(typeof t === "function" ? t("btn_customize", "تخصيص +") : "تخصيص +")}</span>
+                <span>${(typeof t === "function" ? t("btn_customize", "تخصيص") : "تخصيص")}</span>
               </button>
             ` : renderCardActionButton(p, qty)}
           </div>
@@ -547,7 +547,7 @@ function renderProductCard(p, currency, index = 0) {
           <div>
             ${hasOptions ? `
               <button class="btn-quick-add" onclick="event.stopPropagation(); openCustomizer('${p.id}')">
-                <span>${(typeof t === "function" ? t("btn_customize", "تخصيص +") : "تخصيص +")}</span>
+                <span>${(typeof t === "function" ? t("btn_customize", "تخصيص") : "تخصيص")}</span>
               </button>
             ` : renderCardActionButton(p, qty)}
           </div>
@@ -735,7 +735,7 @@ function updatePreviewModalActions(productId) {
   if (hasOptions) {
     elements.previewActionWrap.innerHTML = `
       <button class="btn btn-primary" onclick="closeQuickPreview(); openCustomizer('${p.id}');" style="padding:8px 20px;">
-        <span>تخصيص وإضافة +</span>
+        <span>${typeof t === "function" ? t("btn_customize", "تخصيص وإضافة") : "تخصيص وإضافة"}</span>
       </button>
     `;
     return;

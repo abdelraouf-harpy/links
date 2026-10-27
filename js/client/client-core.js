@@ -754,7 +754,9 @@ function renderStoreInfo() {
   const displayTagline = settings.storeTagline || (isDemo ? "أشهى المأكولات الطازجة" : "أشهى وألذ المأكولات المحضرة يومياً");
   const displayLogo = (settings.logo && settings.logo.trim() && settings.logo !== 'null') ? settings.logo : (isDemo ? 'assets/portfolio/logo.png' : 'assets/portfolio/logo.png');
   const displayCover = (settings.cover && settings.cover.trim() && settings.cover !== 'null') ? settings.cover : (isDemo ? 'assets/portfolio/order_restaurant_showcase.jpg' : 'assets/portfolio/order_restaurant_showcase.jpg');
-  const displayDelivery = settings.deliveryTime || '25 - 35 دقيقة';
+  const curLang = (typeof window.I18n !== 'undefined') ? window.I18n.getLanguage() : 'ar';
+  const rawDelivery = settings.deliveryTime || '25 - 35 دقيقة';
+  const displayDelivery = (curLang === 'en') ? rawDelivery.replace(/دقيقة|دقائق/g, 'mins') : rawDelivery;
 
   if (elements.storeName) elements.storeName.textContent = displayName;
   if (elements.storeTagline) elements.storeTagline.textContent = displayTagline;
@@ -775,7 +777,7 @@ function renderStoreInfo() {
 
   const pAboutText = document.getElementById('portfolio-about-text');
   if (pAboutText) {
-    pAboutText.textContent = settings.aboutText || settings.storeTagline || 'في مطعمنا بنقدملك طعم أصيل ووصفات مميزة بأجود المكونات وبدون أي تنازلات على الجودة. كل وجبة بتحكي قصة نكهة من قلب المطبخ.';
+    pAboutText.textContent = settings.aboutText || settings.storeTagline || (typeof window.t === 'function' ? window.t('portfolio_about_default', 'في مطعمنا بنقدملك طعم أصيل ووصفات مميزة بأجود المكونات وبدون أي تنازلات على الجودة. كل وجبة بتحكي قصة نكهة من قلب المطبخ.') : 'في مطعمنا بنقدملك طعم أصيل ووصفات مميزة بأجود المكونات وبدون أي تنازلات على الجودة. كل وجبة بتحكي قصة نكهة من قلب المطبخ.');
   }
 
   const pDeliveryTime = document.getElementById('portfolio-delivery-time');
@@ -789,7 +791,7 @@ function renderStoreInfo() {
 
   const pAddressText = document.getElementById('portfolio-address-text');
   if (pAddressText) {
-    pAddressText.textContent = settings.address || 'العنوان متاح عبر خدمة التوصيل والاستلام من الفرع';
+    pAddressText.textContent = settings.address || (typeof window.t === 'function' ? window.t('portfolio_address_default', 'العنوان متاح عبر خدمة التوصيل والاستلام من الفرع') : 'العنوان متاح عبر خدمة التوصيل والاستلام من الفرع');
   }
 
   const pMapLink = document.getElementById('portfolio-map-link');
@@ -899,11 +901,11 @@ function renderStoreInfo() {
     if (isClosed) {
       heroStatusChip.classList.remove('open');
       heroStatusChip.classList.add('closed');
-      heroStatusText.textContent = 'مغلق الآن';
+      heroStatusText.textContent = (typeof window.t === 'function') ? window.t('status_closed_now', 'مغلق الآن') : 'مغلق الآن';
     } else {
       heroStatusChip.classList.remove('closed');
       heroStatusChip.classList.add('open');
-      heroStatusText.textContent = 'مفتوح الآن';
+      heroStatusText.textContent = (typeof window.t === 'function') ? window.t('status_open_now', 'مفتوح الآن') : 'مفتوح الآن';
     }
   }
 
@@ -911,21 +913,21 @@ function renderStoreInfo() {
     if (isClosed) {
       pStatusChip.classList.remove('open');
       pStatusChip.classList.add('closed');
-      pStatusText.textContent = 'مغلق الآن';
+      pStatusText.textContent = (typeof window.t === 'function') ? window.t('status_closed_now', 'مغلق الآن') : 'مغلق الآن';
     } else {
       pStatusChip.classList.remove('closed');
       pStatusChip.classList.add('open');
-      pStatusText.textContent = 'مفتوح الآن';
+      pStatusText.textContent = (typeof window.t === 'function') ? window.t('status_open_now', 'مفتوح الآن') : 'مفتوح الآن';
     }
   }
 
   if (pStatusBanner) {
     if (isClosed) {
       pStatusBanner.className = 'status-badge-inline closed';
-      pStatusBanner.textContent = 'المطعم مغلق حالياً عن استقبال الطلبات';
+      pStatusBanner.textContent = (typeof window.t === 'function') ? window.t('status_closed_banner', 'المطعم مغلق حالياً عن استقبال الطلبات') : 'المطعم مغلق حالياً عن استقبال الطلبات';
     } else {
       pStatusBanner.className = 'status-badge-inline open';
-      pStatusBanner.textContent = 'نستقبل طلباتكم الآن بكل حب';
+      pStatusBanner.textContent = (typeof window.t === 'function') ? window.t('status_open_banner', 'نستقبل طلباتكم الآن بكل حب') : 'نستقبل طلباتكم الآن بكل حب';
     }
   }
 
@@ -1644,15 +1646,15 @@ function renderCleanProfileUI() {
   const themeStatusText = document.getElementById('clean-theme-status-text');
   const themeToggleLabel = document.getElementById('clean-theme-toggle-label');
   const themeToggleBtn = document.getElementById('clean-theme-toggle-btn');
-  if (themeStatusText) themeStatusText.textContent = isDark ? 'الوضع الداكن (Night Mode)' : 'الوضع النهاري (Light Mode)';
-  if (themeToggleLabel) themeToggleLabel.textContent = isDark ? 'تفعيل النهاري' : 'تفعيل الداكن';
+  if (themeStatusText) themeStatusText.textContent = isDark ? (typeof window.t === 'function' ? window.t('account_theme_dark', 'الوضع الداكن (Night Mode)') : 'الوضع الداكن (Night Mode)') : (typeof window.t === 'function' ? window.t('account_theme_light', 'الوضع النهاري (Light Mode)') : 'الوضع النهاري (Light Mode)');
+  if (themeToggleLabel) themeToggleLabel.textContent = isDark ? (typeof window.t === 'function' ? window.t('account_theme_btn_light', 'تفعيل الفاتح') : 'تفعيل الفاتح') : (typeof window.t === 'function' ? window.t('account_theme_btn_dark', 'تفعيل الداكن') : 'تفعيل الداكن');
   if (themeToggleBtn) themeToggleBtn.classList.toggle('active', isDark);
 
   // Update sound row info
   const soundEnabled = Store.getSoundEnabled();
   const soundToggleLabel = document.getElementById('clean-sound-toggle-label');
   const soundToggleBtn = document.getElementById('clean-sound-toggle-btn');
-  if (soundToggleLabel) soundToggleLabel.textContent = soundEnabled ? 'صوت مفعل' : 'صوت صامت';
+  if (soundToggleLabel) soundToggleLabel.textContent = soundEnabled ? (typeof window.t === 'function' ? window.t('account_sound_on', 'صوت مفعل') : 'صوت مفعل') : (typeof window.t === 'function' ? window.t('account_sound_off', 'صوت مكتوم') : 'صوت مكتوم');
   if (soundToggleBtn) soundToggleBtn.classList.toggle('active', soundEnabled);
 
   // Update language row status
@@ -1824,7 +1826,8 @@ function renderOrdersView() {
         const rawId = order.orderId || '#ORD';
         const cleanId = String(rawId).replace(/[^a-zA-Z0-9#\-_]/g, '');
         const safeOrderId = cleanId || '#ORD';
-        const dateStr = order.createdAt ? new Date(order.createdAt).toLocaleDateString('ar-EG', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'طلب سابق';
+        const dateLocale = (typeof window.I18n !== 'undefined' && window.I18n.getLanguage() === 'en') ? 'en-US' : 'ar-EG';
+        const dateStr = order.createdAt ? new Date(order.createdAt).toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : (typeof window.t === 'function' ? window.t('past_order', 'طلب سابق') : 'طلب سابق');
         const itemsSummary = (order.items || []).map(i => `${esc(i.qty)}x ${esc(typeof window.tr === 'function' ? window.tr(i.name) : i.name)}`).join('، ');
         let fulfillmentBadge = (typeof window.t === 'function' ? window.t('fulfillment_delivery', 'دليفري') : 'دليفري');
         if (order.fulfillmentType === 'takeaway') fulfillmentBadge = (typeof window.t === 'function' ? window.t('fulfillment_takeaway', 'تيك أواي') : 'تيك أواي');
@@ -2052,12 +2055,12 @@ function updateOrdersStepperUI(status = 'pending', order = null) {
     if (step3Name) step3Name.textContent = (typeof window.t === 'function' ? window.t('step_dinein_3', 'تقديم للطاولة') : 'تقديم للطاولة');
     if (step4Name) step4Name.textContent = (typeof window.t === 'function' ? window.t('step_dinein_4', 'بالهناء والشفاء') : 'بالهناء والشفاء');
 
-    if (etaTitle) etaTitle.textContent = 'خدمة الصالة والمائدة';
-    if (etaEl) etaEl.textContent = `طاولة رقم (${tableNumber || '1'})`;
+    if (etaTitle) etaTitle.textContent = (typeof window.t === 'function') ? window.t('eta_title_dinein', 'خدمة الصالة والمائدة') : 'خدمة الصالة والمائدة';
+    if (etaEl) etaEl.textContent = `${typeof window.t === 'function' ? window.t('table_number_prefix', 'طاولة رقم') : 'طاولة رقم'} (${tableNumber || '1'})`;
 
     if (locBanner && locText) {
       locBanner.style.display = 'flex';
-      locText.innerHTML = `مكان الخدمة: <strong>طاولة رقم ${tableNumber || '1'} داخل صالة المطعم</strong>`;
+      locText.innerHTML = `${typeof window.t === 'function' ? window.t('service_location', 'مكان الخدمة') : 'مكان الخدمة'}: <strong>${typeof window.t === 'function' ? window.t('table_number_prefix', 'طاولة رقم') : 'طاولة رقم'} ${tableNumber || '1'} (${typeof window.t === 'function' ? window.t('fulfillment_dinein', 'في الصالة') : 'في الصالة'})</strong>`;
     }
   } else if (isTakeaway) {
     if (step1Name) step1Name.textContent = (typeof window.t === 'function' ? window.t('step_takeaway_1', 'استلام الطلب') : 'استلام الطلب');
@@ -2065,12 +2068,12 @@ function updateOrdersStepperUI(status = 'pending', order = null) {
     if (step3Name) step3Name.textContent = (typeof window.t === 'function' ? window.t('step_takeaway_3', 'جاهز بالفرع') : 'جاهز بالفرع');
     if (step4Name) step4Name.textContent = (typeof window.t === 'function' ? window.t('step_takeaway_4', 'تم الاستلام') : 'تم الاستلام');
 
-    if (etaTitle) etaTitle.textContent = 'وقت التجهيز للاستلام';
-    if (etaEl) etaEl.textContent = '15 - 20 دقيقة';
+    if (etaTitle) etaTitle.textContent = (typeof window.t === 'function') ? window.t('eta_title_takeaway', 'وقت التجهيز للاستلام') : 'وقت التجهيز للاستلام';
+    if (etaEl) etaEl.textContent = `15 - 20 ${typeof window.t === 'function' ? window.t('mins', 'دقيقة') : 'دقيقة'}`;;
 
     if (locBanner && locText) {
       locBanner.style.display = 'flex';
-      locText.innerHTML = `مكان الاستلام: <strong>كاونتر فرع المطعم الرئيسي مباشرة</strong>`;
+      locText.innerHTML = `${typeof window.t === 'function' ? window.t('pickup_location', 'مكان الاستلام') : 'مكان الاستلام'}: <strong>${typeof window.t === 'function' ? window.t('pickup_counter', 'كاونتر فرع المطعم الرئيسي مباشرة') : 'كاونتر فرع المطعم الرئيسي مباشرة'}</strong>`;
     }
   } else {
     // Delivery
@@ -2079,12 +2082,12 @@ function updateOrdersStepperUI(status = 'pending', order = null) {
     if (step3Name) step3Name.textContent = (typeof window.t === 'function' ? window.t('order_stepper_step3', 'مع الكابتن') : 'مع الكابتن');
     if (step4Name) step4Name.textContent = (typeof window.t === 'function' ? window.t('order_stepper_step4', 'تم التوصيل') : 'تم التوصيل');
 
-    if (etaTitle) etaTitle.textContent = 'الوقت التقديري للوصول';
+    if (etaTitle) etaTitle.textContent = (typeof window.t === 'function') ? window.t('eta_title_delivery', 'الوقت التقديري للوصول') : 'الوقت التقديري للوصول';
     if (etaEl) etaEl.textContent = settings.deliveryTime || '25 - 35 دقيقة';
 
     if (locBanner && locText) {
       locBanner.style.display = 'flex';
-      locText.innerHTML = `عنوان التوصيل: <strong>${order?.customer?.address || 'العنوان المسجل للطلب'}</strong>`;
+      locText.innerHTML = `${typeof window.t === 'function' ? window.t('delivery_address_label', 'عنوان التوصيل') : 'عنوان التوصيل'}: <strong>${order?.customer?.address || (typeof window.t === 'function' ? window.t('default_address', 'العنوان المسجل للطلب') : 'العنوان المسجل للطلب')}</strong>`;
     }
   }
 
@@ -2140,7 +2143,7 @@ function updateOrdersStepperUI(status = 'pending', order = null) {
     }
   } else if (status === 'cancelled') {
     if (fill) fill.style.width = '0%';
-    if (descEl) descEl.textContent = 'تم إلغاء هذا الطلب من قِبل إدارة المطعم.';
+    if (descEl) descEl.textContent = (typeof window.t === 'function' ? window.t('desc_cancelled') : 'تم إلغاء هذا الطلب من قِبل إدارة المطعم.');
   }
 }
 

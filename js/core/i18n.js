@@ -949,17 +949,17 @@
     },
     "btn_add": {
         "ar": "إضافة",
-        "en": "Add +",
-        "fr": "Ajouter +",
-        "ru": "Добавить +",
-        "it": "Aggiungi +"
+        "en": "Add",
+        "fr": "Ajouter",
+        "ru": "Добавить",
+        "it": "Aggiungi"
     },
     "btn_customize": {
-        "ar": "تخصيص +",
-        "en": "Custom +",
-        "fr": "Choix +",
-        "ru": "Опции +",
-        "it": "Scelte +"
+        "ar": "تخصيص",
+        "en": "Customize",
+        "fr": "Personnaliser",
+        "ru": "Настроить",
+        "it": "Personalizza"
     },
     "sold_out": {
         "ar": "نفد مؤقتاً",
@@ -1059,6 +1059,8 @@
         "ru": "Ваша корзина",
         "it": "Il tuo carrello"
     },
+    "cart_empty_title": { "ar": "سلتك فارغة حالياً", "en": "Your cart is empty" },
+    "menu_sound": { "ar": "المؤثرات الصوتية", "en": "Sound Effects" },
     "cart_empty": {
         "ar": "سلتك فارغة حالياً",
         "en": "Your cart is empty",
@@ -1555,7 +1557,539 @@
         "fr": "Profil enregistré avec succès",
         "ru": "Данные успешно сохранены",
         "it": "Profilo salvato con successo"
+    },
+    // ── Header & Live Status ──
+    "status_open_now": {
+        "ar": "مفتوح الآن",
+        "en": "Open Now"
+    },
+    "status_closed_now": {
+        "ar": "مغلق الآن",
+        "en": "Closed Now"
+    },
+    "status_open_banner": {
+        "ar": "نستقبل طلباتكم الآن بكل حب",
+        "en": "We are happily taking your orders now"
+    },
+    "status_closed_banner": {
+        "ar": "المطعم مغلق حالياً عن استقبال الطلبات",
+        "en": "The restaurant is currently closed for orders"
+    },
+    "search_input_ph": {
+        "ar": "ابحث في المنيو (مثال: برجر، وجبات، صوص)",
+        "en": "Search menu (e.g. burger, meal, sauce)"
+    },
+
+    // ── Section 2: Portfolio / About ──
+    "portfolio_rating_label": {
+        "ar": "تقييم العملاء",
+        "en": "Customer Rating"
+    },
+    "portfolio_eta_label": {
+        "ar": "الوقت المتوقع للتوصيل",
+        "en": "Estimated Delivery"
+    },
+    "portfolio_about_title": {
+        "ar": "عن المطعم",
+        "en": "About Restaurant"
+    },
+    "portfolio_about_default": {
+        "ar": "في مطعمنا بنقدملك طعم أصيل ووصفات مميزة بأجود المكونات وبدون أي تنازلات على الجودة. كل وجبة بتحكي قصة نكهة من قلب المطبخ.",
+        "en": "We offer authentic flavors and special recipes crafted with the finest ingredients, with zero compromise on quality."
+    },
+    "portfolio_fresh_title": {
+        "ar": "طازج يوميًا",
+        "en": "Fresh Daily"
+    },
+    "portfolio_fresh_sub": {
+        "ar": "بمكونات عالية الجودة",
+        "en": "Finest quality ingredients"
+    },
+    "portfolio_rating_stat": {
+        "ar": "تقييم 4.8",
+        "en": "4.8 Rating"
+    },
+    "portfolio_rating_sub": {
+        "ar": "من عملائنا الكرام",
+        "en": "From our valued guests"
+    },
+    "portfolio_call_btn": {
+        "ar": "اتصال",
+        "en": "Call Us"
+    },
+    "portfolio_call_sub": {
+        "ar": "للاستفسار والحجز",
+        "en": "Inquiries & Reservations"
+    },
+    "portfolio_wa_btn": {
+        "ar": "تواصل عبر واتساب",
+        "en": "WhatsApp Us"
+    },
+    "portfolio_wa_sub": {
+        "ar": "رد سريع خلال دقائق",
+        "en": "Fast reply in minutes"
+    },
+    "portfolio_address_default": {
+        "ar": "العنوان متاح عبر خدمة التوصيل والاستلام من الفرع",
+        "en": "Address available for delivery & branch pickup"
+    },
+    "portfolio_social_follow": {
+        "ar": "تابعنا على السوشيال ميديا",
+        "en": "Follow us on social media"
+    },
+    "portfolio_order_now": {
+        "ar": "تصفح القائمة واطلب الآن",
+        "en": "Browse Menu & Order Now"
+    },
+    "social_facebook": {
+        "ar": "فيسبوك",
+        "en": "Facebook"
+    },
+    "social_instagram": {
+        "ar": "انستجرام",
+        "en": "Instagram"
+    },
+    "social_tiktok": {
+        "ar": "تيك توك",
+        "en": "TikTok"
+    },
+
+    // ── Section 3: Orders / Tracking ──
+    "orders_main_title": {
+        "ar": "طلباتي والتتبع",
+        "en": "My Orders & Tracking"
+    },
+    "orders_main_sub": {
+        "ar": "متابعة حالة طلبك الحالية وسجل طلباتك السابقة",
+        "en": "Live order tracking and past orders history"
+    },
+    "orders_badge_live": {
+        "ar": "طلبك قيد التنفيذ",
+        "en": "Order in Progress"
+    },
+    "orders_cancel_tooltip": {
+        "ar": "إخفاء ومسح الطلب من هاتفي",
+        "en": "Dismiss active order from my phone"
+    },
+    "orders_eta_title": {
+        "ar": "الوقت التقديري للوصول",
+        "en": "Estimated Arrival Time"
+    },
+    "orders_items_heading": {
+        "ar": "تفاصيل الأصناف:",
+        "en": "Order Items:"
+    },
+    "orders_total_due": {
+        "ar": "المبلغ الإجمالي المطلوب:",
+        "en": "Total Amount Due:"
+    },
+    "orders_wa_support": {
+        "ar": "تواصل مع المطعم عبر واتساب",
+        "en": "Contact Restaurant on WhatsApp"
+    },
+    "btn_call": {
+        "ar": "اتصال",
+        "en": "Call"
+    },
+    "orders_history_title": {
+        "ar": "سجل طلباتك السابقة",
+        "en": "Previous Orders"
+    },
+    "orders_history_hint": {
+        "ar": "يمكنك إعادة طلب نفس الوجبة بنقرة واحدة!",
+        "en": "Reorder your favorites in one click!"
+    },
+    "btn_browse_menu_order": {
+        "ar": "تصفح المنيو واطلب الآن",
+        "en": "Browse Menu & Order Now"
+    },
+    "eta_title_dinein": {
+        "ar": "خدمة الصالة والمائدة",
+        "en": "Dine-In Table Service"
+    },
+    "eta_title_takeaway": {
+        "ar": "وقت التجهيز للاستلام",
+        "en": "Estimated Pickup Time"
+    },
+    "eta_title_delivery": {
+        "ar": "الوقت التقديري للوصول",
+        "en": "Estimated Arrival Time"
+    },
+    "service_location": {
+        "ar": "مكان الخدمة",
+        "en": "Service Location"
+    },
+    "pickup_location": {
+        "ar": "مكان الاستلام",
+        "en": "Pickup Location"
+    },
+    "pickup_counter": {
+        "ar": "كاونتر فرع المطعم الرئيسي مباشرة",
+        "en": "Directly at restaurant main counter"
+    },
+    "delivery_address_label": {
+        "ar": "عنوان التوصيل",
+        "en": "Delivery Address"
+    },
+    "table_number_prefix": {
+        "ar": "طاولة رقم",
+        "en": "Table #"
+    },
+    "default_address": {
+        "ar": "العنوان المسجل للطلب",
+        "en": "Registered Order Address"
+    },
+    "past_order": {
+        "ar": "طلب سابق",
+        "en": "Past Order"
+    },
+    "desc_pending_dinein": {
+        "ar": "تم تسجيل طلبك وتوجيهه إلى مطبخ الصالة، جاري التأكيد.",
+        "en": "Your order has been recorded and sent to the kitchen."
+    },
+    "desc_pending_takeaway": {
+        "ar": "تم تسجيل طلبك للاستلام من الفرع، وسنبدأ تحضيره طازجاً فوراً.",
+        "en": "Your order is received and preparation for pickup will begin shortly."
+    },
+    "desc_pending_delivery": {
+        "ar": "تم استلام طلبك بنجاح وهو قيد المراجعة في المطعم الآن.",
+        "en": "Your order has been received and is being reviewed by the restaurant."
+    },
+    "desc_prep_dinein": {
+        "ar": "طهاة المطعم يجهزون وجبتك الساخنة الآن لتقديمها لطاولتك.",
+        "en": "Chefs are preparing your hot meal to serve at your table."
+    },
+    "desc_prep_takeaway": {
+        "ar": "جاري تحضير طلبك وتعليبه بعناية ليكون ساخناً وجاهزاً فور وصولك.",
+        "en": "Your order is being carefully prepared and packaged for pickup."
+    },
+    "desc_prep_delivery": {
+        "ar": "طهاة المطعم يجهزون وجبتك الطازجة الآن بأعلى معايير الجودة.",
+        "en": "Chefs are preparing your fresh meal with top quality standards."
+    },
+    "desc_out_dinein": {
+        "ar": "وجبتك جاهزة تماماً! طاقم الخدمة يقدمها الآن إلى طاولتك.",
+        "en": "Your meal is ready! Staff is now serving it to your table."
+    },
+    "desc_out_takeaway": {
+        "ar": "طلبك جاهز تماماً الآن على كاونتر الاستلام بالفرع، تفضل بالاستلام.",
+        "en": "Your order is ready at the branch counter! Please pick it up."
+    },
+    "desc_out_delivery": {
+        "ar": "الكابتن استلم وجبتك وهو في الطريق إلى عنوانك الآن.",
+        "en": "The courier picked up your order and is on the way to you."
+    },
+    "desc_done_dinein": {
+        "ar": "بالهناء والشفاء! نتمنى لك تجربة طعام رائعة في ضيافتنا.",
+        "en": "Enjoy your meal! We hope you have a wonderful dining experience."
+    },
+    "desc_done_takeaway": {
+        "ar": "تم تسليمك الطلب بالفرع بنجاح، بالهناء والشفاء وسعداء بزيارتك.",
+        "en": "Order picked up successfully! Enjoy your meal, happy to serve you."
+    },
+    "desc_done_delivery": {
+        "ar": "تم تسليم الطلب بنجاح إلى باب منزلك! بالهناء والشفاء.",
+        "en": "Order delivered successfully to your doorstep! Enjoy your meal."
+    },
+    "desc_cancelled": {
+        "ar": "تم إلغاء هذا الطلب من قِبل إدارة المطعم.",
+        "en": "This order was cancelled by the restaurant management."
+    },
+
+    // ── Section 4: Cart & Checkout Drawer ──
+    "cart_subtotal_now": {
+        "ar": "المجموع الحالي:",
+        "en": "Current Subtotal:"
+    },
+    "cart_proceed_step2": {
+        "ar": "متابعة لاختيار الاستلام والدفع",
+        "en": "Proceed to Details & Payment"
+    },
+    "cart_back_btn": {
+        "ar": "العودة لتعديل الأصناف والسلة",
+        "en": "Back to edit cart items"
+    },
+    "fulfillment_heading": {
+        "ar": "طريقة استلام الطلب:",
+        "en": "Fulfillment Method:"
+    },
+    "btn_collapse_save": {
+        "ar": "حفظ وإغلاق ✓",
+        "en": "Save & Close ✓"
+    },
+    "field_name_short": {
+        "ar": "الاسم",
+        "en": "Name"
+    },
+    "field_name_short_placeholder": {
+        "ar": "اسمك",
+        "en": "Your Name"
+    },
+    "field_phone_short": {
+        "ar": "رقم الهاتف",
+        "en": "Phone"
+    },
+    "field_address_detailed": {
+        "ar": "عنوان التوصيل بالتفصيل",
+        "en": "Detailed Delivery Address"
+    },
+    "field_address_detailed_ph": {
+        "ar": "المنطقة، اسم الشارع، رقم العمارة والشقة أو علامة مميزة",
+        "en": "Area, street name, building & apartment or landmark"
+    },
+    "takeaway_banner_title": {
+        "ar": "استلام من فرع المطعم (بدون رسوم توصيل)",
+        "en": "Branch Pickup (No Delivery Fee)"
+    },
+    "takeaway_banner_desc": {
+        "ar": "تجهيز طازج لتستلمه فور وصولك.",
+        "en": "Freshly prepared for you to pick up upon arrival."
+    },
+    "wallet_details_title": {
+        "ar": "بيانات تحويل المبلغ",
+        "en": "Transfer Details"
+    },
+    "wallet_copy_btn": {
+        "ar": "نسخ الرقم",
+        "en": "Copy Number"
+    },
+    "wallet_copied": {
+        "ar": "تم النسخ!",
+        "en": "Copied!"
+    },
+    "wallet_amount_label": {
+        "ar": "المبلغ المطلوب تحويله:",
+        "en": "Amount to transfer:"
+    },
+    "receipt_dropzone_title": {
+        "ar": "إرفاق إيصال / سكرين شوت التحويل",
+        "en": "Attach Transfer Receipt / Screenshot"
+    },
+    "receipt_required_tag": {
+        "ar": "مطلوب لتأكيد الدفع",
+        "en": "Required for payment"
+    },
+    "receipt_dropzone_desc": {
+        "ar": "انقر هنا لرفع أو تصوير إيصال فودافون كاش / إنستاباي",
+        "en": "Tap here to upload or capture payment receipt"
+    },
+    "summary_items_total": {
+        "ar": "إجمالي الأصناف:",
+        "en": "Items Total:"
+    },
+    "summary_spend_discount": {
+        "ar": "خصم طلب مميز",
+        "en": "Special Order Discount"
+    },
+    "summary_promo_discount": {
+        "ar": "كوبون الخصم",
+        "en": "Coupon Discount"
+    },
+    "summary_wallet_discount": {
+        "ar": "خصم الدفع الإلكتروني",
+        "en": "Online Payment Discount"
+    },
+    "summary_delivery_fee": {
+        "ar": "خدمة التوصيل:",
+        "en": "Delivery Fee:"
+    },
+    "btn_checkout": {
+        "ar": "تأكيد وإرسال الطلب",
+        "en": "Confirm & Send Order"
+    },
+
+    // ── Section 5: Account View & Drawer ──
+    "account_guest_title": {
+        "ar": "عميلنا العزيز",
+        "en": "Dear Guest"
+    },
+    "account_guest_phone": {
+        "ar": "لم تسجل رقم هاتفك بعد",
+        "en": "Phone not registered yet"
+    },
+    "account_btn_save": {
+        "ar": "حفظ التعديلات",
+        "en": "Save Changes"
+    },
+    "account_btn_cancel": {
+        "ar": "إلغاء",
+        "en": "Cancel"
+    },
+    "account_theme_light": {
+        "ar": "الوضع النهاري (Light Mode)",
+        "en": "Light Mode"
+    },
+    "account_theme_dark": {
+        "ar": "الوضع الداكن (Dark Mode)",
+        "en": "Dark Mode"
+    },
+    "account_theme_btn_dark": {
+        "ar": "تفعيل الداكن",
+        "en": "Enable Dark"
+    },
+    "account_theme_btn_light": {
+        "ar": "تفعيل الفاتح",
+        "en": "Enable Light"
+    },
+    "account_sound_sub": {
+        "ar": "أصوات التفاعل والإشعارات الحية",
+        "en": "Interactive sounds & live alerts"
+    },
+    "account_sound_on": {
+        "ar": "صوت مفعل",
+        "en": "Sound On"
+    },
+    "account_sound_off": {
+        "ar": "صوت مكتوم",
+        "en": "Sound Muted"
+    },
+    "account_wa_sub": {
+        "ar": "تواصل مع إدارة المطعم مباشرة عبر واتساب",
+        "en": "Contact restaurant management directly on WhatsApp"
+    },
+    "account_share_sub": {
+        "ar": "إرسال رابط منيو المطعم عبر تطبيقات التواصل",
+        "en": "Share menu link via social apps"
+    },
+    "account_drawer_title": {
+        "ar": "حسابي ومعلوماتي",
+        "en": "My Account & Info"
+    },
+    "account_menu_last_order": {
+        "ar": "متابعة طلبك الأخير",
+        "en": "Track Last Order"
+    },
+    "account_menu_last_order_sub": {
+        "ar": "عرض حالة التوصيل والتفاصيل",
+        "en": "View delivery status & details"
+    },
+    "account_menu_fav": {
+        "ar": "الأصناف المفضلة لديك",
+        "en": "Your Favorite Items"
+    },
+    "account_menu_fav_saved": {
+        "ar": "أصناف محفوظة",
+        "en": "saved items"
+    },
+    "account_menu_branch": {
+        "ar": "تغيير فرع المطعم",
+        "en": "Change Restaurant Branch"
+    },
+    "account_menu_install": {
+        "ar": "تثبيت التطبيق على جهازك",
+        "en": "Install App on Device"
+    },
+    "account_menu_install_sub": {
+        "ar": "وصول أسرع وتصفح يشبه التطبيقات الأصلية",
+        "en": "Faster access and native app feel"
+    },
+
+    // ── Modals & Overlays ──
+    "qr_modal_title": {
+        "ar": "رمز المنيو الرقمي (QR)",
+        "en": "Digital Menu QR Code"
+    },
+    "qr_modal_desc": {
+        "ar": "امسح رمز الـ QR بكاميرا الهاتف لفتح المنيو ومشاركته مع الأصدقاء فوراً",
+        "en": "Scan this QR code with your phone camera to open and share menu instantly"
+    },
+    "qr_share_btn": {
+        "ar": "مشاركة رابط المنيو",
+        "en": "Share Menu Link"
+    },
+    "qr_copy_btn": {
+        "ar": "نسخ الرابط إلى الحافظة",
+        "en": "Copy Link to Clipboard"
+    },
+    "branch_picker_title": {
+        "ar": "اختر الفرع الأقرب إليك",
+        "en": "Select Nearest Branch"
+    },
+    "branch_picker_sub": {
+        "ar": "يرجى تحديد فرع المطعم لطلب الوجبات واستلامها أو توصيلها بأسرع وقت",
+        "en": "Please choose a branch for fastest delivery or takeaway"
+    },
+    "customizer_title": {
+        "ar": "تخصيص الوجبة",
+        "en": "Customize Meal"
+    },
+    "customizer_desc": {
+        "ar": "اختر الحجم والإضافات المفضلة",
+        "en": "Choose size & favorite add-ons"
+    },
+    "customizer_size_title": {
+        "ar": "الحجم / الكمية",
+        "en": "Size / Portion"
+    },
+    "badge_required": {
+        "ar": "إجباري",
+        "en": "Required"
+    },
+    "customizer_addons_title": {
+        "ar": "إضافات مميزة",
+        "en": "Special Add-ons"
+    },
+    "badge_optional": {
+        "ar": "اختياري",
+        "en": "Optional"
+    },
+    "customizer_notes_title": {
+        "ar": "ملاحظات خاصة للشيف",
+        "en": "Special Notes for the Chef"
+    },
+    "customizer_notes_ph": {
+        "ar": "مثال: بدون بصل، صوص زيادة، حار جداً",
+        "en": "e.g. No onion, extra sauce, very spicy"
+    },
+    "story_cta": {
+        "ar": "اطلب هذا العرض الآن",
+        "en": "Order This Offer Now"
+    },
+    "confirm_dismiss_title": {
+        "ar": "مسح الطلب من السجل",
+        "en": "Dismiss Order from History"
+    },
+    "confirm_dismiss_msg": {
+        "ar": "هل تريد إخفاء ومسح هذا الطلب من هاتفك؟\n* لن يتم حذفه من سجل المطعم.",
+        "en": "Do you want to dismiss this order from your device?\n* It will remain in restaurant records."
+    },
+    "confirm_dismiss_accept": {
+        "ar": "مسح من هاتفي",
+        "en": "Dismiss from phone"
+    },
+    "confirm_dismiss_cancel": {
+        "ar": "إلغاء وتراجع",
+        "en": "Cancel"
+    },
+    "store_closed_title": {
+        "ar": "المطعم متوقف حالياً عن استقبال الطلبات",
+        "en": "The restaurant is currently closed for orders"
+    },
+    "store_closed_msg": {
+        "ar": "عذراً، المطعم لا يستقبل طلبات جديدة في الوقت الحالي. يمكنك تصفح قائمة الطعام والأسعار بحرية، وسنعاود استقبال الطلبات قريباً!",
+        "en": "Sorry, we are not taking new orders right now. You can freely browse our menu and prices. We will reopen shortly!"
+    },
+    "store_closed_browse": {
+        "ar": "تصفح قائمة الطعام والأسعار",
+        "en": "Browse Menu & Prices"
+    },
+    "store_closed_wa": {
+        "ar": "تواصل مع المطعم عبر الواتساب",
+        "en": "Contact Restaurant on WhatsApp"
+    },
+    "sub_suspended_title": {
+        "ar": "عفواً، الخدمة متوقفة مؤقتاً",
+        "en": "Service Temporarily Unavailable"
+    },
+    "sub_suspended_desc": {
+        "ar": "قائمة هذا المطعم غير متاحة حالياً لتلقي طلبات الأونلاين أو جاري تجديد الاشتراك.",
+        "en": "This restaurant menu is currently unavailable for online ordering or undergoing subscription renewal."
+    },
+    "sub_suspended_contact": {
+        "ar": "تواصل مع المطعم عبر الواتساب",
+        "en": "Contact Restaurant on WhatsApp"
     }
+
 };
 
 
