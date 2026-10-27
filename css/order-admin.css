@@ -412,6 +412,66 @@
   transform: translateY(0);
 }
 
+/* ── Multi-Tenant Hub Header 2-Button Symmetrical Layout ── */
+.btn-tenant-action {
+  min-height: 40px;
+  padding: 8px 16px;
+  font-weight: 800;
+  font-size: 13px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  cursor: pointer;
+  box-sizing: border-box;
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+.btn-tenant-qr {
+  background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.3);
+}
+.btn-tenant-qr:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(234, 88, 12, 0.45);
+  filter: brightness(1.06);
+}
+.btn-tenant-open {
+  background: var(--surface-raised, #182234);
+  color: var(--text-main, #f8fafc) !important;
+  border: 1px solid var(--border-strong, #334155);
+}
+.btn-tenant-open:hover {
+  background: var(--surface-hover, #233149);
+  border-color: var(--border-focus, #ea580c);
+  transform: translateY(-1px);
+}
+.btn-copy-inline {
+  background: rgba(234, 88, 12, 0.1);
+  color: var(--accent, #ea580c);
+  border: 1px solid rgba(234, 88, 12, 0.25);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+.btn-copy-inline:hover {
+  background: var(--accent, #ea580c);
+  color: #ffffff;
+}
+
+
 
 @media (max-width: 980px) {
   /* In POS cashier mode on mobile, hide the share link bar to maximize screen area for the cashier */
@@ -2703,23 +2763,17 @@ html.admin-unlocked #login-modal-backdrop {
   }
   .tenant-actions-right {
     width: 100% !important;
-    display: flex !important;
-    align-items: center !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
     gap: 8px !important;
+    margin-top: 10px !important;
   }
-  .tenant-actions-right {
-    flex-wrap: wrap !important;
-  }
-  .tenant-actions-right .btn-copy-chic,
-  .tenant-actions-right #btn-open-store-link,
-  .tenant-actions-right #btn-harpy-qr-sticker {
-    flex: 1 !important;
+  .btn-tenant-action {
+    width: 100% !important;
+    padding: 10px 12px !important;
+    font-size: 12.5px !important;
+    min-height: 42px !important;
     justify-content: center !important;
-    padding: 9px 12px !important;
-    font-size: 13px !important;
-    text-align: center !important;
-    box-sizing: border-box !important;
-    border-radius: 8px !important;
   }
 
   /* 3. Kitchen Operations & Orders Filter Chips */

@@ -2192,26 +2192,148 @@ function reorderPreviousOrder(orderId) {
 
 // ── DIGITAL MENU QR CODE MODAL ────────────────────────────
 
+let cachedClientHarpyImg = null;
+
+function loadClientHarpyTemplate() {
+  return new Promise((resolve) => {
+    if (cachedClientHarpyImg && cachedClientHarpyImg.complete && cachedClientHarpyImg.naturalWidth > 0) {
+      return resolve(cachedClientHarpyImg);
+    }
+    const candidates = [
+      'assets/brand/chef_harpy_qr_template.png',
+      '../assets/brand/chef_harpy_qr_template.png',
+      '/order/assets/brand/chef_harpy_qr_template.png',
+      './assets/brand/chef_harpy_qr_template.png'
+    ];
+    let idx = 0;
+    function tryNext() {
+      if (idx >= candidates.length) return resolve(null);
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => { cachedClientHarpyImg = img; resolve(img); };
+      img.onerror = () => { idx++; tryNext(); };
+      img.src = candidates[idx];
+    }
+    tryNext();
+  });
+}
+
+async function renderClientHarpyQR() {
+  const canvas = document.getElementById('client-harpy-canvas');
+  if (!canvas) return;
+  const loading = document.getElementById('client-harpy-loading');
+  const hiddenGen = document.getElementById('client-harpy-hidden-gen');
+  const linkText = document.getElementById('client-qr-link-text');
+
+  if (loading) loading.style.display = 'flex';
+
+  const currentUrl = window.location.href;
+  if (linkText) linkText.textContent = currentUrl;
+
+  try {
+    if (hiddenGen) hiddenGen.innerHTML = '';
+    const container = hiddenGen || document.createElement('div');
+    container.innerHTML = '';
+
+    if (typeof QRCode !== 'undefined') {
+      try {
+        new QRCode(container, {
+          text: currentUrl,
+          width: 440,
+          height: 440,
+          colorDark: '#0f172a',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.H
+        });
+      } catch(e) {}
+    }
+
+    await new Promise(r => setTimeout(r, 60));
+    let qrSource = container.querySelector('canvas');
+    if (!qrSource || qrSource.width === 0) {
+      qrSource = container.querySelector('img');
+      if (qrSource && !qrSource.complete) {
+        await new Promise(r => { qrSource.onload = r; qrSource.onerror = r; setTimeout(r, 300); });
+      }
+    }
+
+    const templateImg = await loadClientHarpyTemplate();
+
+    canvas.width = 1254;
+    canvas.height = 1254;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, 1254, 1254);
+
+    if (templateImg) {
+      ctx.drawImage(templateImg, 0, 0, 1254, 1254);
+    } else {
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(0, 0, 1254, 1254);
+    }
+
+    // Exact inner acrylic sign dimensions (pure white, NO extra borders, NO text!)
+    const cardX = 195;
+    const cardY = 590;
+    const cardW = 488;
+    const cardH = 490;
+    const cardRadius = 24;
+
+    ctx.save();
+    if (typeof ctx.roundRect === 'function') {
+      ctx.beginPath();
+      ctx.roundRect(cardX, cardY, cardW, cardH, cardRadius);
+    } else {
+      ctx.beginPath();
+      ctx.rect(cardX, cardY, cardW, cardH);
+    }
+    ctx.fillStyle = '#ffffff';
+    ctx.fill();
+    ctx.restore();
+
+    // Centered real QR
+    const qrSize = 440;
+    const qrX = cardX + Math.round((cardW - qrSize) / 2);
+    const qrY = cardY + Math.round((cardH - qrSize) / 2);
+
+    if (qrSource) {
+      ctx.drawImage(qrSource, qrX, qrY, qrSize, qrSize);
+    }
+  } catch(err) {
+    console.warn('Error in renderClientHarpyQR:', err);
+  } finally {
+    if (loading) loading.style.display = 'none';
+  }
+}
+
 function openQrModal() {
   const backdrop = document.getElementById('qr-modal-backdrop');
   const modal = document.getElementById('qr-code-modal');
-  const imgEl = document.getElementById('qr-code-image');
-  const nameEl = document.getElementById('qr-store-name');
-
   if (!modal) return;
 
-  const settings = Store.getSettings();
-  if (nameEl) nameEl.textContent = settings.storeName || 'منيو المطعم الرقمي';
-
-  const currentUrl = window.location.href;
-  if (imgEl) {
-    imgEl.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&format=png&data=${encodeURIComponent(currentUrl)}`;
-  }
+  renderClientHarpyQR();
 
   if (backdrop) backdrop.classList.add('active');
   modal.classList.add('open');
   pushNavState('qr_modal');
 }
+
+function downloadClientHarpySticker() {
+  const canvas = document.getElementById('client-harpy-canvas');
+  if (!canvas) return;
+  const settings = Store.getSettings() || {};
+  const storeName = (settings.storeName || 'Restaurant').replace(/[\s\/\\]+/g, '_');
+  const link = document.createElement('a');
+  link.download = `Chef_Harpy_QR_${storeName}.png`;
+  link.href = canvas.toDataURL('image/png');
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  if (typeof showToastNotification === 'function') {
+    showToastNotification('تم تحميل صورة الـ QR بنجاح!', 'success');
+  }
+}
+
+window.downloadClientHarpySticker = downloadClientHarpySticker;
 
 function closeQrModal(updateHistory = true) {
   const backdrop = document.getElementById('qr-modal-backdrop');

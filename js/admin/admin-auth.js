@@ -430,7 +430,7 @@ function setupRestaurantHub() {
       btnCopy.classList.remove('btn-ghost');
 
       setTimeout(() => {
-        if (copyText) copyText.textContent = "نسخ رابط المنيو";
+        if (copyText) copyText.textContent = "نسخ";
         btnCopy.classList.remove('btn-primary');
         btnCopy.classList.add('btn-ghost');
       }, 2500);

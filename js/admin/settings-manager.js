@@ -585,51 +585,7 @@ function getTableDirectUrl(tableId) {
 }
 
 window.openTableQRModal = function(tableId, tableName) {
-  currentActiveQRTable = { id: tableId, name: tableName };
-  const modal = document.getElementById('table-qr-modal');
-  const backdrop = document.getElementById('table-qr-modal-backdrop');
-  const brandEl = document.getElementById('table-qr-brand-name');
-  const badgeEl = document.getElementById('table-qr-badge-label');
-  const holder = document.getElementById('table-qr-canvas-holder');
-  const titleEl = document.getElementById('table-qr-modal-title');
-
-  const settings = Store.getSettings() || {};
-  if (brandEl) brandEl.textContent = settings.storeName || 'Harpy Order';
-  if (badgeEl) badgeEl.textContent = tableName || `طاولة ${tableId}`;
-  if (titleEl) titleEl.textContent = `كود QR — ${tableName}`;
-
-  const tableUrl = getTableDirectUrl(tableId);
-
-  if (holder) {
-    holder.innerHTML = '';
-    if (typeof QRCode !== 'undefined') {
-      try {
-        new QRCode(holder, {
-          text: tableUrl,
-          width: 190,
-          height: 190,
-          colorDark: "#0f172a",
-          colorLight: "#ffffff",
-          correctLevel: QRCode.CorrectLevel.H
-        });
-      } catch(e) {
-        const encoded = encodeURIComponent(tableUrl);
-        holder.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=190x190&data=${encoded}" alt="QR" width="190" height="190" style="display:block; border-radius:8px;">`;
-      }
-    } else {
-      const encoded = encodeURIComponent(tableUrl);
-      holder.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=190x190&data=${encoded}" alt="QR" width="190" height="190" style="display:block; border-radius:8px;">`;
-    }
-  }
-
-  if (modal) {
-    modal.classList.add('open', 'show');
-    modal.style.display = 'block';
-  }
-  if (backdrop) {
-    backdrop.classList.add('open', 'show');
-    backdrop.style.display = 'block';
-  }
+  openHarpyQRModal('table', { id: tableId, name: tableName });
 };
 
 window.closeTableQRModal = function() {
@@ -1127,11 +1083,15 @@ window.openHarpyQRModal = function(mode, tableData) {
     currentHarpyQRTable = null;
   }
 
-  // Update mode tabs UI
-  updateHarpyQRTabsUI();
-
-  // Populate tables dropdown
-  populateHarpyTablesDropdown();
+  // Update modal title
+  const titleEl = document.getElementById('harpy-qr-modal-title');
+  if (titleEl) {
+    if (currentHarpyQRMode === 'table' && currentHarpyQRTable) {
+      titleEl.textContent = `ستيكر الشيف هاربي — ${currentHarpyQRTable.name || 'طاولة ' + currentHarpyQRTable.id}`;
+    } else {
+      titleEl.textContent = 'ستيكر الشيف هاربي — منيو المطعم';
+    }
+  }
 
   // Show modal & backdrop
   const modal = document.getElementById('harpy-qr-modal');
@@ -1160,85 +1120,6 @@ window.closeHarpyQRModal = function() {
     backdrop.classList.remove('open', 'show');
     backdrop.style.display = 'none';
   }
-};
-
-window.switchHarpyQRTarget = function(target) {
-  if (target === currentHarpyQRMode) return;
-  currentHarpyQRMode = target;
-  if (target === 'table' && !currentHarpyQRTable) {
-    const settings = (typeof Store !== 'undefined' && Store.getSettings) ? Store.getSettings() : {};
-    const tables = settings.dineInTables || [];
-    currentHarpyQRTable = tables.length > 0 ? tables[0] : { id: '1', name: 'طاولة 1' };
-  }
-  updateHarpyQRTabsUI();
-  populateHarpyTablesDropdown();
-  renderHarpyQRComposite();
-};
-
-function updateHarpyQRTabsUI() {
-  const tabMenu = document.getElementById('tab-harpy-menu');
-  const tabTable = document.getElementById('tab-harpy-table');
-  const tableRow = document.getElementById('harpy-table-select-row');
-
-  if (currentHarpyQRMode === 'menu') {
-    if (tabMenu) {
-      tabMenu.style.background = 'var(--accent, #ea580c)';
-      tabMenu.style.color = '#ffffff';
-    }
-    if (tabTable) {
-      tabTable.style.background = 'transparent';
-      tabTable.style.color = 'var(--text-muted, #94a3b8)';
-    }
-    if (tableRow) tableRow.style.display = 'none';
-  } else {
-    if (tabTable) {
-      tabTable.style.background = 'var(--accent, #ea580c)';
-      tabTable.style.color = '#ffffff';
-    }
-    if (tabMenu) {
-      tabMenu.style.background = 'transparent';
-      tabMenu.style.color = 'var(--text-muted, #94a3b8)';
-    }
-    if (tableRow) tableRow.style.display = 'block';
-  }
-}
-
-function populateHarpyTablesDropdown() {
-  const select = document.getElementById('harpy-table-select');
-  if (!select) return;
-  const settings = (typeof Store !== 'undefined' && Store.getSettings) ? Store.getSettings() : {};
-  const tables = settings.dineInTables || [];
-
-  select.innerHTML = '';
-  if (tables.length === 0) {
-    const opt = document.createElement('option');
-    opt.value = '1';
-    opt.textContent = 'طاولة 1 (افتراضي)';
-    select.appendChild(opt);
-    if (!currentHarpyQRTable) currentHarpyQRTable = { id: '1', name: 'طاولة 1' };
-  } else {
-    tables.forEach(t => {
-      const opt = document.createElement('option');
-      opt.value = String(t.id);
-      opt.textContent = t.name || `طاولة ${t.id}`;
-      select.appendChild(opt);
-    });
-    if (currentHarpyQRTable) {
-      select.value = String(currentHarpyQRTable.id);
-    } else {
-      currentHarpyQRTable = tables[0];
-      select.value = String(tables[0].id);
-    }
-  }
-}
-
-window.onHarpyTableSelectChange = function() {
-  const select = document.getElementById('harpy-table-select');
-  if (!select) return;
-  const tableId = select.value;
-  const tableName = select.options[select.selectedIndex]?.textContent || `طاولة ${tableId}`;
-  currentHarpyQRTable = { id: tableId, name: tableName };
-  renderHarpyQRComposite();
 };
 
 function loadHarpyTemplate() {
@@ -1303,8 +1184,8 @@ async function renderHarpyQRComposite() {
       try {
         new QRCode(qrContainer, {
           text: targetUrl,
-          width: 360,
-          height: 360,
+          width: 440,
+          height: 440,
           colorDark: '#0f172a',
           colorLight: '#ffffff',
           correctLevel: QRCode.CorrectLevel.H
@@ -1344,81 +1225,29 @@ async function renderHarpyQRComposite() {
       ctx.fillRect(0, 0, canvasW, canvasH);
     }
 
-    // Acrylic sign dimensions & placement
-    const cardW = 440;
-    const cardH = 440;
-    const cardX = 205;
-    const cardY = 605;
-    const cardRadius = 20;
+    // Exact inner acrylic sign dimensions:
+    // Seamlessly covers dummy AI QR with smooth white rounded rect
+    // NO outer borders, NO outline stroke, NO extra pill badges or text!
+    const cardX = 195;
+    const cardY = 590;
+    const cardW = 488;
+    const cardH = 490;
+    const cardRadius = 24;
 
-    // Acrylic sign white card backing with shadow
     ctx.save();
     drawHarpyRoundedRectPath(ctx, cardX, cardY, cardW, cardH, cardRadius);
     ctx.fillStyle = '#ffffff';
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.18)';
-    ctx.shadowBlur = 18;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 8;
     ctx.fill();
     ctx.restore();
 
-    // Acrylic sign orange accent border
-    ctx.save();
-    drawHarpyRoundedRectPath(ctx, cardX, cardY, cardW, cardH, cardRadius);
-    ctx.strokeStyle = '#ea580c';
-    ctx.lineWidth = 4;
-    ctx.stroke();
-    ctx.restore();
-
-    // Draw real scannable QR Code
-    const qrSize = 360;
-    const qrX = cardX + Math.round((cardW - qrSize) / 2); // 245
-    const qrY = cardY + 14;                                // 619
+    // Draw pure real scannable QR Code centered seamlessly inside the acrylic stand
+    const qrSize = 440;
+    const qrX = cardX + Math.round((cardW - qrSize) / 2); // 219
+    const qrY = cardY + Math.round((cardH - qrSize) / 2); // 615
 
     if (qrSource) {
       ctx.drawImage(qrSource, qrX, qrY, qrSize, qrSize);
     }
-
-    // Draw Bottom Pill Badge on acrylic sign
-    const pillX = cardX + 16;
-    const pillY = cardY + cardH - 52;
-    const pillW = cardW - 32;
-    const pillH = 40;
-    const pillRadius = 10;
-
-    ctx.save();
-    drawHarpyRoundedRectPath(ctx, pillX, pillY, pillW, pillH, pillRadius);
-    ctx.fillStyle = '#fff7ed';
-    ctx.fill();
-    ctx.strokeStyle = '#fed7aa';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    ctx.restore();
-
-    // Badge text
-    const settings = (typeof Store !== 'undefined' && Store.getSettings) ? Store.getSettings() : {};
-    const storeName = settings.storeName || 'Harpy Order';
-
-    let badgeText = '';
-    if (currentHarpyQRMode === 'table') {
-      const tblName = currentHarpyQRTable ? (currentHarpyQRTable.name || `طاولة ${currentHarpyQRTable.id}`) : 'طاولة 1';
-      badgeText = `${tblName} • ${storeName}`;
-    } else {
-      badgeText = `${storeName} • امسح لفتح المنيو والطلب`;
-    }
-
-    ctx.fillStyle = '#ea580c';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-
-    // Auto-fit font size to pill width
-    let fontSize = 18;
-    ctx.font = `bold ${fontSize}px Cairo, Arial, sans-serif`;
-    while (ctx.measureText(badgeText).width > (pillW - 24) && fontSize > 11) {
-      fontSize -= 1;
-      ctx.font = `bold ${fontSize}px Cairo, Arial, sans-serif`;
-    }
-    ctx.fillText(badgeText, pillX + pillW / 2, pillY + pillH / 2);
 
   } catch (err) {
     console.error('Error rendering Harpy QR Composite:', err);
@@ -1529,7 +1358,7 @@ window.copyHarpyQRUrl = function() {
       document.execCommand('copy');
       document.body.removeChild(ta);
       if (typeof showToastNotification === 'function') {
-        showToastNotification('تم نسخ الرابط المباشر بنجاح!', 'success');
+        showToastNotification('تم نسخ الرابط بنجاح!', 'success');
       }
     } catch(e) {
       if (typeof showToastNotification === 'function') {
@@ -1541,7 +1370,7 @@ window.copyHarpyQRUrl = function() {
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(targetUrl).then(() => {
       if (typeof showToastNotification === 'function') {
-        showToastNotification('تم نسخ الرابط المباشر بنجاح!', 'success');
+        showToastNotification('تم نسخ الرابط بنجاح!', 'success');
       }
     }).catch(() => fallback(targetUrl));
   } else {

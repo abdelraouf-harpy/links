@@ -1736,6 +1736,20 @@
         "ru": "Служба поддержки клиентов",
         "it": "Assistenza clienti"
     },
+        "account_qr_title": {
+        "ar": "رمز الاستجابة السريعة (QR)",
+        "en": "QR Menu Code",
+        "fr": "Code QR du Menu",
+        "ru": "QR-код меню",
+        "it": "Codice QR del Menu"
+    },
+    "account_qr_sub": {
+        "ar": "عرض ومسح كود المنيو مع الشيف هاربي",
+        "en": "View and scan menu with Chef Harpy",
+        "fr": "Afficher et scanner avec Chef Harpy",
+        "ru": "Посмотреть и отсканировать меню",
+        "it": "Visualizza e scansiona il menu con Chef Harpy"
+    },
     "account_share_title": {
         "ar": "مشاركة المنيو مع الأصدقاء",
         "en": "Share Menu with Friends",
