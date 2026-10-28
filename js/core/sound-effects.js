@@ -116,38 +116,56 @@
     },
 
     // ── 4. Resonant Kitchen Bell (Incoming order alert for kitchen staff) ──
+    _synthesizeBell(ctx, delaySec = 0) {
+      try {
+        const now = ctx.currentTime + delaySec;
+        
+        // Note 1: High crisp bell (880 Hz)
+        const osc1 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(880, now);
+        gain1.gain.setValueAtTime(0.35, now);
+        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
+        osc1.connect(gain1);
+        gain1.connect(ctx.destination);
+        osc1.start(now);
+        osc1.stop(now + 0.66);
+
+        // Note 2: Lower resonant ringing bell (1174.66 Hz)
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(1174.66, now + 0.15);
+        gain2.gain.setValueAtTime(0.4, now + 0.15);
+        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.95);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.start(now + 0.15);
+        osc2.stop(now + 0.96);
+      } catch (e) {}
+    },
+
     playKitchenChime() {
       try {
         const ctx = this._ensureAudioContext();
         if (!ctx) return;
 
-        const now = ctx.currentTime;
-        
-        // Note 1: High bell
-        const osc1 = ctx.createOscillator();
-        const gain1 = ctx.createGain();
-        osc1.type = 'sine';
-        osc1.frequency.setValueAtTime(880, now);
-        gain1.gain.setValueAtTime(0.3, now);
-        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
-        osc1.connect(gain1);
-        gain1.connect(ctx.destination);
-        osc1.start(now);
-        osc1.stop(now + 0.6);
+        const triggerSound = () => {
+          this._synthesizeBell(ctx, 0);
+          // Second resonant chime for high audibility
+          this._synthesizeBell(ctx, 1.1);
 
-        // Note 2: Lower resonant bell
-        const osc2 = ctx.createOscillator();
-        const gain2 = ctx.createGain();
-        osc2.type = 'sine';
-        osc2.frequency.setValueAtTime(1174.66, now + 0.15);
-        gain2.gain.setValueAtTime(0.35, now + 0.15);
-        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
-        osc2.connect(gain2);
-        gain2.connect(ctx.destination);
-        osc2.start(now + 0.15);
-        osc2.stop(now + 0.9);
+          if (navigator.vibrate) {
+            navigator.vibrate([200, 100, 200, 100, 400]);
+          }
+        };
 
-        if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+        if (ctx.state === 'suspended') {
+          ctx.resume().then(() => triggerSound()).catch(() => triggerSound());
+        } else {
+          triggerSound();
+        }
       } catch (e) {}
     }
   };
@@ -159,18 +177,27 @@
       SoundFX.playKitchenChime();
     };
 
-    // Auto-unlock Web Audio on first user interaction (touch/click/keypress)
+    // Auto-unlock Web Audio on ANY user interaction (touch/click/keypress/pointer/focus)
     const unlockAudio = () => {
       try {
         SoundFX._ensureAudioContext();
       } catch(e) {}
-      window.removeEventListener('click', unlockAudio);
-      window.removeEventListener('touchstart', unlockAudio);
-      window.removeEventListener('keydown', unlockAudio);
     };
-    window.addEventListener('click', unlockAudio, { once: true, passive: true });
-    window.addEventListener('touchstart', unlockAudio, { once: true, passive: true });
-    window.addEventListener('keydown', unlockAudio, { once: true, passive: true });
+    ['click', 'touchstart', 'touchend', 'pointerdown', 'keydown', 'focus'].forEach(evt => {
+      window.addEventListener(evt, unlockAudio, { passive: true });
+    });
+
+    // Auto-resume whenever screen/tab becomes visible or wakes up
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        unlockAudio();
+      }
+    });
+
+    // PWA & Standalone auto-init
+    if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) {
+      unlockAudio();
+    }
   }
 
   if (typeof module !== 'undefined' && module.exports) {
