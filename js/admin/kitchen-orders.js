@@ -2966,3 +2966,61 @@ function updateHeaderShiftCockpit() {
   }
 }
 window.updateHeaderShiftCockpit = updateHeaderShiftCockpit;
+
+
+// ── Thermal Printer Test Receipt Generator ──
+window.testPrintThermalReceipt = function() {
+  const settings = (typeof Store !== 'undefined' && Store.getSettings) ? Store.getSettings() : {};
+  const storeName = settings.storeName || settings.name || "مطعم هاربي التجريبي";
+  const testOrder = {
+    orderId: 'ORD-TEST',
+    timestamp: Date.now(),
+    createdAt: new Date().toISOString(),
+    storeName: storeName,
+    orderType: 'dine_in',
+    tableNumber: '1',
+    customer: { name: 'فحص الطابعة الحرارية', phone: settings.phone || '01000000000' },
+    items: [
+      { name: 'فاتورة فحص الهوامش والخطوط', qty: 1, price: 50 },
+      { name: 'وجبة تجريبية - فحص التقطيع والتغذية', qty: 1, price: 100 }
+    ],
+    subtotal: 150,
+    discount: 0,
+    deliveryFee: 0,
+    total: 150,
+    paymentMethod: 'نقدي (تجربة فحص)'
+  };
+  if (typeof executePrintReceipt === 'function') {
+    executePrintReceipt(testOrder, 'thermal');
+  } else if (typeof window.openOrderInvoiceModal === 'function') {
+    window.openOrderInvoiceModal(testOrder);
+  }
+  if (typeof showToastNotification === 'function') {
+    showToastNotification('تم إرسال فاتورة الاختبار إلى الطابعة بنجاح!', 'info');
+  }
+};
+
+
+// ── Kitchen Sound Test & Autoplay Unlocker ──
+window.testAndUnlockKitchenSound = function() {
+  try {
+    if (typeof SoundFX !== 'undefined') {
+      SoundFX.init();
+      if (SoundFX.ctx && SoundFX.ctx.state === 'suspended') {
+        SoundFX.ctx.resume();
+      }
+      if (typeof SoundFX.playOrderPlaced === 'function') {
+        SoundFX.playOrderPlaced();
+      } else if (typeof SoundFX.playChime === 'function') {
+        SoundFX.playChime();
+      }
+    }
+    const dot = document.getElementById('kitchen-sound-status-dot');
+    if (dot) dot.classList.add('active');
+    if (typeof showToastNotification === 'function') {
+      showToastNotification('تم فحص وتفعيل جرس الطلبات بنجاح 🔔', 'success');
+    }
+  } catch (err) {
+    console.warn('[Kitchen Sound] Unlock error:', err);
+  }
+};

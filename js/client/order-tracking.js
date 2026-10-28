@@ -225,6 +225,27 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
     timestamp: Date.now()
   };
 
+  // 0. Live Menu Product Availability & Stale Cart Check
+  const liveMenu = (typeof Store !== 'undefined' && typeof Store.getMenu === 'function') ? Store.getMenu() : [];
+  if (liveMenu && liveMenu.length > 0) {
+    const unavailableItems = [];
+    cart.forEach(item => {
+      const prod = liveMenu.find(p => p.id === (item.productId || item.id));
+      if (prod && (prod.soldOut === true || prod.available === false)) {
+        unavailableItems.push(item.name || 'صنف غير متاح');
+      }
+    });
+    if (unavailableItems.length > 0) {
+      const msg = `عذراً، الأصناف التالية لم تعد متوفرة حالياً: ${unavailableItems.join('، ')}. يرجى تعديل السلة.`;
+      if (typeof showToastNotification === 'function') {
+        showToastNotification(msg, 'warning');
+      } else {
+        alert(msg);
+      }
+      return;
+    }
+  }
+
   // 1. Show transient loading state on submit buttons
   const submitBtns = document.querySelectorAll('#btn-confirm-order, #btn-confirm-order-whatsapp, .btn-confirm-checkout, #btn-confirm-order-direct');
   submitBtns.forEach(b => {

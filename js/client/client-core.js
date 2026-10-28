@@ -187,7 +187,11 @@ function handlePopStateNavigation(event) {
   }
   // 2. Live Order Tracker
   if (elements.trackerModal && elements.trackerModal.classList.contains('open')) {
-    closeLiveOrderTracker(false);
+    if (typeof window.closeLiveOrderTracker === 'function') {
+      window.closeLiveOrderTracker(false);
+    } else if (typeof closeLiveOrderTracker === 'function') {
+      closeLiveOrderTracker(false);
+    }
     return;
   }
   // 3. Item Customizer

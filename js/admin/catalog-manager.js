@@ -836,7 +836,14 @@ function openProductModal(productId) {
   pushAdminNavState('admin_product');
 }
 
-function closeProductModal(triggerHistoryBack = true) {
+let isProductModalDirty = false;
+
+function closeProductModal(triggerHistoryBack = true, force = false) {
+  if (isProductModalDirty && !force) {
+    const confirmDiscard = window.confirm('لديك تعديلات غير محفوظة على هذا الصنف، هل أنت متأكد من الإلغاء؟');
+    if (!confirmDiscard) return;
+  }
+  isProductModalDirty = false;
   currentEditingProductId = null;
   if (adminElements.productModal) adminElements.productModal.classList.remove('open');
   if (adminElements.productModalBackdrop) adminElements.productModalBackdrop.classList.remove('open');
@@ -1062,3 +1069,10 @@ window.addSizeRow = addSizeRow;
 window.addAddonRow = addAddonRow;
 window.saveProductForm = saveProductForm;
 window.renderCatalogCategoryActionsBar = renderCatalogCategoryActionsBar;
+
+window.addEventListener('beforeunload', (e) => {
+  if (isProductModalDirty) {
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});

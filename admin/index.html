@@ -50,7 +50,7 @@
 
   <link rel="stylesheet" href="css/order-tokens.css?v=118.0">
   <link rel="stylesheet" href="css/order-client.css?v=118.0">
-  <link rel="stylesheet" href="css/order-admin.css?v=150.0">
+  <link rel="stylesheet" href="css/order-admin.css?v=151.0">
 
   <script>
     // Instant zero-delay theme toggle available immediately on page paint
@@ -793,6 +793,16 @@
           <span id="push-notif-label">إشعارات الطلبات</span>
           <span id="push-notif-status-dot" class="push-dot"></span>
         </button>
+
+        <button type="button" id="btn-toggle-kitchen-sound" class="btn-quick-toggle btn-sound-toggle" onclick="testAndUnlockKitchenSound()" title="جرس وتنبيهات صوت الطلبات الجديدة" aria-label="جرس الطلبات">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+          </svg>
+          <span id="kitchen-sound-label">جرس الطلبات</span>
+          <span id="kitchen-sound-status-dot" class="wake-lock-dot active"></span>
+        </button>
       </div>
 
       <!-- Main Kitchen Orders Card Frame -->
@@ -1227,6 +1237,18 @@
                     <span>تيك توك (TikTok)</span>
                   </label>
                   <input type="url" id="set-tiktok-url" class="form-input font-num" placeholder="https://tiktok.com/@your-restaurant">
+                </div>
+              </div>
+
+              <!-- Test Print & Guidance -->
+              <div style="margin-top:14px; padding-top:12px; border-top:1px dashed var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="window.testPrintThermalReceipt && window.testPrintThermalReceipt()" style="display:inline-flex; align-items:center; gap:6px; font-weight:800; padding:8px 14px; font-size:12px; border-radius:8px;">
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                  <span>طباعة فاتورة فحص تجريبية</span>
+                </button>
+                <div style="font-size:11px; color:var(--text-muted); display:flex; align-items:center; gap:5px;">
+                  <span>💡</span>
+                  <span>في نافذة المتصفح: اختر طابعتك (مثل POS-80) واجعل الهوامش بلا (None).</span>
                 </div>
               </div>
             </div>
@@ -2285,6 +2307,10 @@
       <div class="inv-body" id="invModalBody">
         <!-- Rendered dynamically via openOrderInvoiceModal() -->
       </div>
+      <div style="background:var(--surface-raised, #182234); border:1px solid var(--border-strong, #334155); border-radius:8px; padding:7px 12px; margin:0 18px 10px; font-size:11.5px; color:var(--text-muted); display:flex; align-items:center; gap:8px;">
+        <span style="font-size:13px;">💡</span>
+        <span>لأفضل نتيجة: اختر طابعة الفواتير (مثل <strong>POS-80</strong>) واضبط الهوامش على <strong>بلا (None)</strong>.</span>
+      </div>
       <div class="inv-actions">
         <button type="button" class="inv-btn-print" onclick="triggerThermalPrint()" title="طباعة على ورق بون حراري">
           <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
@@ -2566,22 +2592,22 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=150.0"></script>
-  <script src="js/core/sound-effects.js?v=150.0"></script>
-  <script src="js/store.js?v=150.0"></script>
-  <script src="js/admin/admin-core.js?v=150.0"></script>
-  <script src="js/admin/admin-auth.js?v=150.0"></script>
-  <script src="js/admin/kitchen-orders.js?v=150.0"></script>
-  <script src="js/admin/inventory-manager.js?v=150.0"></script>
-  <script src="js/admin/catalog-manager.js?v=150.0"></script>
-  <script src="js/admin/category-manager.js?v=150.0"></script>
-  <script src="js/admin/stories-manager.js?v=150.0"></script>
-  <script src="js/admin/backup-restore.js?v=150.0"></script>
-  <script src="js/core/qrcode.min.js?v=150.0"></script>
-  <script src="js/admin/settings-manager.js?v=150.0"></script>
-  <script src="js/admin/pos-terminal.js?v=150.0"></script>
-  <script src="js/admin/admin-push.js?v=150.0"></script>
-  <script src="js/admin.js?v=150.0"></script>
-  <script src="js/pwa.js?v=150.0"></script>
+  <script src="js/core/demo-seed-data.js?v=151.0"></script>
+  <script src="js/core/sound-effects.js?v=151.0"></script>
+  <script src="js/store.js?v=151.0"></script>
+  <script src="js/admin/admin-core.js?v=151.0"></script>
+  <script src="js/admin/admin-auth.js?v=151.0"></script>
+  <script src="js/admin/kitchen-orders.js?v=151.0"></script>
+  <script src="js/admin/inventory-manager.js?v=151.0"></script>
+  <script src="js/admin/catalog-manager.js?v=151.0"></script>
+  <script src="js/admin/category-manager.js?v=151.0"></script>
+  <script src="js/admin/stories-manager.js?v=151.0"></script>
+  <script src="js/admin/backup-restore.js?v=151.0"></script>
+  <script src="js/core/qrcode.min.js?v=151.0"></script>
+  <script src="js/admin/settings-manager.js?v=151.0"></script>
+  <script src="js/admin/pos-terminal.js?v=151.0"></script>
+  <script src="js/admin/admin-push.js?v=151.0"></script>
+  <script src="js/admin.js?v=151.0"></script>
+  <script src="js/pwa.js?v=151.0"></script>
 </body>
 </html>
