@@ -1,0 +1,78 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "restaurants": {
+      ".read": false,
+      ".write": false,
+      "$slug": {
+        ".read": false,
+        ".write": false,
+        "settings": {
+          ".read": true,
+          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val())"
+        },
+        "categories": {
+          ".read": true,
+          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val())"
+        },
+        "products": {
+          ".read": true,
+          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val())",
+          ".indexOn": [
+            "category",
+            "visible",
+            "isFeatured"
+          ]
+        },
+        "stories": {
+          ".read": true,
+          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val())"
+        },
+        "orders": {
+          ".read": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val())",
+          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val())",
+          ".indexOn": [
+            "status",
+            "timestamp",
+            "createdAt"
+          ],
+          "$orderId": {
+            ".read": true,
+            ".write": "!data.exists() && newData.exists() || (auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val()))",
+            ".validate": "(newData.hasChildren(['orderId', 'items', 'finalTotal']) && newData.child('finalTotal').isNumber() && newData.child('finalTotal').val() >= 0) || newData.val() == null"
+          }
+        },
+        "meta": {
+          ".read": "auth != null && (auth.uid === data.child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val())",
+          ".write": "auth != null && (auth.uid === data.child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val())",
+          ".validate": "newData.hasChildren() || newData.val() == null"
+        },
+        "rawMaterials": {
+          ".read": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val())",
+          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val())"
+        },
+        "shifts": {
+          ".read": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val())",
+          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val())"
+        },
+        "deletedOrderIds": {
+          ".read": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val())",
+          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val())"
+        }
+      }
+    },
+    "licenses": {
+      ".read": false,
+      ".write": false,
+      "$slug": {
+        ".read": true,
+        ".write": false,
+        ".indexOn": [
+          "status",
+          "expiresAt"
+        ]
+      }
+    }
+  }
+}

@@ -3104,10 +3104,7 @@ const Store = {
     window.dispatchEvent(new Event('store_raw_materials_updated'));
 
     // Ultra-Fast Optimistic Flow: Push to cloud across both nodes
-    Promise.all([
-      this.pushToCloud('settings/rawMaterials', materials),
-      this.pushToCloud('rawMaterials', materials)
-    ]).then(() => {
+    this.pushToCloud('rawMaterials', materials).then(() => {
       this.lastSaveTimestamps.rawMaterials = Date.now();
       this.saveLocks.rawMaterials = false;
     }).catch(err => {
