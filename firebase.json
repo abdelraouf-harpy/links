@@ -13,6 +13,11 @@
     "trailingSlash": false,
     "redirects": [
       {
+        "source": "/master",
+        "destination": "/master.html",
+        "type": 301
+      },
+      {
         "source": "/products",
         "destination": "https://abdelraouf-harpy.github.io/products/",
         "type": 301
@@ -188,4 +193,3 @@
     ]
   }
 }
-
