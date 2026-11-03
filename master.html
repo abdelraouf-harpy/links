@@ -3,57 +3,63 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Harpy Master — لوحة التحكم المركزية</title>
+  <title>Harpy Master — القيادة المركزية للمؤسس</title>
   
   <!-- Favicon & PWA Identity -->
-  <link rel="icon" type="image/jpeg" href="assets/brand/master_founder.jpg">
-  <link rel="apple-touch-icon" href="assets/brand/master_founder.jpg">
+  <link rel="icon" type="image/jpeg" href="assets/brand/harpy_master_badge.png">
+  <link rel="apple-touch-icon" href="assets/brand/harpy_master_badge.png">
   <meta name="theme-color" content="#060A12">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Harpy Master">
 
-  <!-- Google Fonts: Cairo + Plus Jakarta Sans -->
+  <!-- Google Fonts: Cairo (Arabic) + Plus Jakarta Sans (English/Numbers) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
     /* ==========================================================================
-       Harpy Master — Compact Mobile-First Luxury Command Center
+       HARPY MASTER — MOBILE-FIRST LUXURY COMMAND CENTER
        ========================================================================== */
     :root {
-      --bg-body: #060A12;
-      --bg-surface: #0B111E;
-      --bg-card: rgba(15, 23, 40, 0.92);
-      --bg-card-hover: rgba(20, 31, 54, 0.96);
-      --bg-card-inner: #0F1829;
-      --border-subtle: rgba(255, 255, 255, 0.07);
-      --border-card: rgba(255, 255, 255, 0.11);
-      --border-accent: rgba(255, 106, 0, 0.35);
+      --bg-body: #050811;
+      --bg-surface: #0A101D;
+      --bg-card: rgba(13, 20, 36, 0.95);
+      --bg-card-inner: #0F172A;
+      --bg-input: rgba(15, 23, 42, 0.85);
+
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-card: rgba(255, 255, 255, 0.12);
+      --border-accent: rgba(255, 106, 0, 0.4);
 
       --primary: #FF6A00;
       --primary-hover: #E85E00;
-      --primary-glow: rgba(255, 106, 0, 0.22);
-      --primary-light: rgba(255, 106, 0, 0.1);
+      --primary-glow: rgba(255, 106, 0, 0.28);
+      --primary-subtle: rgba(255, 106, 0, 0.12);
 
       --gold: #F59E0B;
+      --gold-glow: rgba(245, 158, 11, 0.25);
+      
       --success: #10B981;
-      --success-glow: rgba(16, 185, 129, 0.2);
+      --success-glow: rgba(16, 185, 129, 0.25);
       --warning: #F59E0B;
       --danger: #EF4444;
+      --danger-glow: rgba(239, 68, 68, 0.25);
+      --info: #3B82F6;
 
       --text-main: #FFFFFF;
-      --text-muted: #8E9BAE;
-      --text-dim: #55657E;
+      --text-muted: #94A3B8;
+      --text-dim: #64748B;
 
       --font-ar: 'Cairo', system-ui, -apple-system, sans-serif;
       --font-num: 'Plus Jakarta Sans', 'Cairo', sans-serif;
 
       --radius-xs: 6px;
-      --radius-sm: 9px;
+      --radius-sm: 10px;
       --radius-md: 14px;
       --radius-lg: 18px;
+      --radius-xl: 22px;
       --radius-pill: 9999px;
 
       --safe-top: env(safe-area-inset-top, 0px);
@@ -70,436 +76,499 @@
     body {
       background-color: var(--bg-body);
       background-image: 
-        radial-gradient(circle at 50% 0%, rgba(255, 106, 0, 0.06), transparent 45%),
-        radial-gradient(circle at 10% 40%, rgba(11, 17, 30, 0.8), transparent 50%);
+        radial-gradient(circle at 50% 0%, rgba(255, 106, 0, 0.08), transparent 50%),
+        radial-gradient(circle at 100% 100%, rgba(15, 23, 42, 0.8), transparent 60%);
       color: var(--text-main);
       font-family: var(--font-ar);
-      font-size: 13.5px;
+      font-size: 13px;
+      line-height: 1.45;
       min-height: 100vh;
       overflow-x: hidden;
       padding-top: var(--safe-top);
-      padding-bottom: calc(var(--safe-bottom) + 24px);
+      padding-bottom: calc(var(--safe-bottom) + 20px);
       user-select: none;
       -webkit-font-smoothing: antialiased;
     }
 
     input, button, select, textarea {
       font-family: inherit;
+      color: inherit;
     }
 
-    .master-container {
-      max-width: 480px;
+    html {
+      width: 100vw;
+      max-width: 100vw;
+      overflow-x: clip;
+      box-sizing: border-box;
+    }
+
+    *, *::before, *::after {
+      box-sizing: inherit;
+    }
+
+    body {
+      background-color: var(--bg-body);
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(255, 106, 0, 0.08), transparent 50%),
+        radial-gradient(circle at 100% 100%, rgba(15, 23, 42, 0.8), transparent 60%);
+      color: var(--text-main);
+      font-family: var(--font-ar);
+      font-size: 13px;
+      line-height: 1.45;
+      min-height: 100vh;
+      width: 100%;
+      overflow-x: hidden;
+      margin: 0;
+      padding-top: var(--safe-top);
+      padding-bottom: calc(var(--safe-bottom) + 20px);
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .master-wrapper {
+      width: 100%;
+      max-width: 440px;
       margin: 0 auto;
-      padding: 12px 14px;
+      padding: 10px 12px calc(var(--safe-bottom) + 24px) 12px;
+      overflow-x: clip;
+      min-width: 0;
     }
 
     /* ==========================================================================
-       SCREEN 1: REFINED PIN LOCK SCREEN
+       SCREEN 1: LUXURY PIN LOCK SCREEN
        ========================================================================== */
     #lock-screen {
       position: fixed;
       inset: 0;
-      background: var(--bg-body);
-      background-image: radial-gradient(circle at 50% 15%, rgba(255, 106, 0, 0.09), transparent 55%);
       z-index: 9999;
+      background: #050811;
+      background-image: 
+        radial-gradient(circle at 50% 15%, rgba(255, 106, 0, 0.12), transparent 45%),
+        radial-gradient(circle at 50% 85%, rgba(16, 185, 129, 0.05), transparent 45%);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 20px;
-      transition: opacity 0.3s ease, transform 0.3s ease;
+      padding: 20px 18px calc(var(--safe-bottom) + 24px) 18px;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
     }
-
     #lock-screen.unlocked {
       opacity: 0;
+      visibility: hidden;
       pointer-events: none;
-      transform: scale(1.04);
     }
 
-    .founder-lock-avatar-wrapper {
+    .lock-emblem-wrap {
       position: relative;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
+      animation: floatBadge 3.5s ease-in-out infinite alternate;
     }
-
-    .founder-lock-avatar {
+    @keyframes floatBadge {
+      0% { transform: translateY(0px); filter: drop-shadow(0 8px 18px rgba(255, 106, 0, 0.25)); }
+      100% { transform: translateY(-4px); filter: drop-shadow(0 14px 26px rgba(245, 158, 11, 0.35)); }
+    }
+    .lock-emblem-img {
       width: 76px;
       height: 76px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2.5px solid var(--primary);
-      box-shadow: 0 0 20px var(--primary-glow);
+      border-radius: 18px;
+      object-fit: contain;
+      background: #000;
+      border: 2px solid rgba(245, 158, 11, 0.6);
+      box-shadow: 0 0 25px rgba(255, 106, 0, 0.25);
     }
-
-    .founder-badge-pill {
+    .lock-crown-pill {
       position: absolute;
-      bottom: -4px;
-      right: 50%;
-      transform: translateX(50%);
-      background: linear-gradient(135deg, var(--primary), var(--gold));
-      color: #FFFFFF;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #FF6A00, #F59E0B);
+      color: #000;
       font-size: 9.5px;
-      font-weight: 800;
+      font-weight: 900;
       padding: 2px 8px;
       border-radius: var(--radius-pill);
-      letter-spacing: 0.4px;
+      letter-spacing: 0.5px;
       white-space: nowrap;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
     }
 
     .lock-title {
-      font-size: 19px;
+      font-size: 20px;
       font-weight: 900;
-      color: #FFFFFF;
+      letter-spacing: -0.3px;
+      background: linear-gradient(135deg, #FFFFFF 30%, #FFB074 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
       margin-bottom: 2px;
-      text-align: center;
     }
-
-    .lock-subtitle {
-      font-size: 12px;
+    .lock-sub {
+      font-size: 11.5px;
       color: var(--text-muted);
-      margin-bottom: 20px;
+      margin-bottom: 18px;
       text-align: center;
     }
 
-    .pin-display-dots {
+    .pin-dots-container {
       display: flex;
-      gap: 14px;
+      gap: 12px;
       margin-bottom: 22px;
-      direction: ltr;
     }
-
     .pin-dot {
       width: 14px;
       height: 14px;
       border-radius: 50%;
-      border: 2px solid rgba(255, 255, 255, 0.22);
-      background: transparent;
+      border: 1.5px solid rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.05);
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
-
     .pin-dot.filled {
       background: var(--primary);
-      border-color: var(--primary);
-      box-shadow: 0 0 10px var(--primary-glow);
+      border-color: #FFB074;
       transform: scale(1.15);
+      box-shadow: 0 0 12px var(--primary);
     }
 
-    .pin-keypad {
+    /* Keypad Grid (Compact & Thumb Friendly) */
+    .keypad-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      max-width: 250px;
+      gap: 9px;
       width: 100%;
-      direction: ltr;
+      max-width: 270px;
     }
-
     .key-btn {
-      width: 62px;
-      height: 62px;
-      border-radius: 50%;
-      background: var(--bg-card);
+      aspect-ratio: 1 / 0.82;
+      background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--border-subtle);
-      color: #FFFFFF;
+      border-radius: var(--radius-md);
+      color: var(--text-main);
+      font-size: 19px;
       font-family: var(--font-num);
-      font-size: 24px;
       font-weight: 700;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       transition: all 0.12s ease;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+      touch-action: manipulation;
     }
-
     .key-btn:active {
-      background: var(--primary);
-      transform: scale(0.92);
-      box-shadow: 0 0 16px var(--primary-glow);
+      background: rgba(255, 106, 0, 0.2);
+      border-color: var(--primary);
+      transform: scale(0.94);
     }
-
-    .key-btn.action-btn {
+    .key-sub {
+      font-size: 8.5px;
+      font-family: var(--font-ar);
+      color: var(--text-dim);
+      margin-top: -2px;
+      letter-spacing: 1px;
+    }
+    .key-btn.action-key {
       background: transparent;
       border-color: transparent;
-      box-shadow: none;
-      font-size: 13px;
-      font-weight: 700;
       color: var(--text-muted);
+      font-size: 13px;
+      font-family: var(--font-ar);
     }
-
-    .key-btn.action-btn:active {
-      color: var(--primary);
-      background: rgba(255,255,255,0.06);
+    .key-btn.action-key:active {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
     }
 
     /* ==========================================================================
-       TOP NAVBAR (COMPACT 52px)
+       MAIN COMMAND CENTER LAYOUT
        ========================================================================== */
+    #main-app {
+      display: none;
+    }
+
+    /* Header Bar */
     .master-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 6px 0 14px 0;
+      padding: 6px 0 12px 0;
       border-bottom: 1px solid var(--border-subtle);
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
-
     .header-brand-side {
       display: flex;
       align-items: center;
       gap: 10px;
     }
-
-    .header-avatar {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid var(--primary);
-      box-shadow: 0 0 10px var(--primary-glow);
-      cursor: pointer;
+    .header-logo-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      object-fit: contain;
+      background: #000;
+      border: 1.5px solid rgba(245, 158, 11, 0.5);
+      box-shadow: 0 0 12px rgba(255, 106, 0, 0.2);
     }
-
-    .brand-text-col {
+    .header-title-col {
       display: flex;
       flex-direction: column;
     }
-
-    .brand-title-row {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .brand-name {
-      font-size: 16px;
-      font-weight: 900;
-      letter-spacing: -0.2px;
-      background: linear-gradient(135deg, #FFFFFF 60%, var(--gold));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .master-tag {
-      background: var(--primary-light);
-      border: 1px solid var(--border-accent);
-      color: var(--primary);
-      font-size: 9px;
+    .header-app-name {
+      font-size: 15px;
       font-weight: 800;
-      padding: 1px 6px;
-      border-radius: var(--radius-pill);
-      letter-spacing: 0.4px;
-    }
-
-    .live-status-row {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 10.5px;
-      color: var(--text-dim);
-      font-weight: 600;
-    }
-
-    .pulse-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--success);
-      box-shadow: 0 0 7px var(--success);
-      animation: pulseAnim 2s infinite;
-    }
-
-    @keyframes pulseAnim {
-      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-      70% { transform: scale(1); box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); }
-      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-    }
-
-    .header-actions {
+      line-height: 1.15;
       display: flex;
       align-items: center;
       gap: 6px;
     }
-
-    .icon-btn {
-      width: 34px;
-      height: 34px;
-      border-radius: var(--radius-sm);
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      color: var(--text-muted);
+    .header-badge-super {
+      background: linear-gradient(135deg, #FF6A00, #F59E0B);
+      color: #000;
+      font-size: 9px;
+      font-weight: 900;
+      padding: 1px 6px;
+      border-radius: var(--radius-pill);
+      letter-spacing: 0.3px;
+    }
+    .header-sub-status {
+      font-size: 11px;
+      color: var(--text-dim);
       display: flex;
       align-items: center;
-      justify-content: center;
+      gap: 4px;
+      margin-top: 1px;
+    }
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--success);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--success);
+      display: inline-block;
+      animation: pulseGlow 2s infinite ease-in-out;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.5; }
+    }
+
+    .header-actions-side {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-add-tenant {
+      background: linear-gradient(135deg, #FF6A00 0%, #E85E00 100%);
+      color: #FFF;
+      border: none;
+      padding: 7px 12px;
+      border-radius: var(--radius-pill);
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 5px;
       cursor: pointer;
+      box-shadow: 0 2px 10px rgba(255, 106, 0, 0.35);
       transition: all 0.15s ease;
     }
-
-    .icon-btn:hover, .icon-btn:active {
-      color: #FFFFFF;
-      background: var(--bg-card-inner);
-      border-color: var(--border-card);
-      transform: translateY(-1px);
+    .btn-add-tenant:active {
+      transform: scale(0.96);
+    }
+    .founder-avatar-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      padding: 0;
+      border: 1.5px solid var(--gold);
+      background: #000;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      flex-shrink: 0;
+      box-sizing: border-box;
+    }
+    .founder-avatar-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
-    /* ==========================================================================
-       HERO GREETING & PRIMARY CTA (COMPACT)
-       ========================================================================== */
-    .hero-greeting-card {
-      background: linear-gradient(135deg, rgba(255, 106, 0, 0.1), rgba(15, 23, 40, 0.9));
-      border: 1px solid var(--border-accent);
+    /* KPI Cards Strip (2x2 Grid) */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
-      padding: 12px 14px;
-      margin-bottom: 14px;
+      padding: 10px 12px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.15s ease;
+    }
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      left: 0;
+      height: 2px;
+      background: transparent;
+      transition: background 0.2s;
+    }
+    .kpi-card.kpi-primary::before { background: linear-gradient(90deg, var(--primary), transparent); }
+    .kpi-card.kpi-gold::before { background: linear-gradient(90deg, var(--gold), transparent); }
+    .kpi-card.kpi-success::before { background: linear-gradient(90deg, var(--success), transparent); }
+    .kpi-card.kpi-info::before { background: linear-gradient(90deg, var(--info), transparent); }
+
+    .kpi-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      margin-bottom: 4px;
     }
-
-    .greeting-text h2 {
-      font-size: 15px;
-      font-weight: 800;
-      color: #FFFFFF;
-      margin-bottom: 2px;
-    }
-
-    .greeting-text p {
+    .kpi-title {
       font-size: 11px;
       color: var(--text-muted);
+      font-weight: 600;
     }
-
-    .btn-add-primary {
-      background: linear-gradient(135deg, var(--primary), #FF8533);
-      color: #FFFFFF;
-      border: none;
-      padding: 8px 14px;
-      border-radius: var(--radius-pill);
-      font-size: 12.5px;
-      font-weight: 800;
+    .kpi-icon {
+      font-size: 14px;
+      opacity: 0.8;
+    }
+    .kpi-value-row {
       display: flex;
-      align-items: center;
+      align-items: baseline;
       gap: 6px;
-      cursor: pointer;
-      box-shadow: 0 3px 12px var(--primary-glow);
-      transition: all 0.15s ease;
-      white-space: nowrap;
     }
-
-    .btn-add-primary:active {
-      transform: scale(0.96);
-    }
-
-    /* Metrics Strip (Refined & Compact) */
-    .metrics-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-
-    .metric-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-sm);
-      padding: 9px 8px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      backdrop-filter: blur(8px);
-    }
-
-    .metric-val {
+    .kpi-num {
       font-family: var(--font-num);
-      font-size: 19px;
-      font-weight: 900;
-      color: #FFFFFF;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-main);
       line-height: 1.1;
-      margin-bottom: 2px;
     }
-
-    .metric-val.active-color { color: var(--success); }
-    .metric-val.gold-color { color: var(--gold); }
-    .metric-val.muted-color { color: var(--text-muted); }
-
-    .metric-lbl {
-      font-size: 10px;
+    .kpi-meta-tag {
+      font-size: 9.5px;
+      color: var(--success);
       font-weight: 700;
-      color: var(--text-dim);
+      background: rgba(16, 185, 129, 0.12);
+      padding: 1px 5px;
+      border-radius: var(--radius-xs);
     }
 
-    /* ==========================================================================
-       SEARCH & FILTER BAR
-       ========================================================================== */
-    .search-filter-row {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-
-    .search-input-box {
-      position: relative;
-      width: 100%;
-    }
-
-    .search-input-box svg {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-dim);
-      width: 15px;
-      height: 15px;
-      pointer-events: none;
-    }
-
-    .search-input {
-      width: 100%;
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-sm);
-      padding: 9px 36px 9px 12px;
-      font-size: 12.5px;
-      color: #FFFFFF;
-      outline: none;
-      transition: all 0.15s ease;
-    }
-
-    .search-input:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 2px var(--primary-glow);
-    }
-
-    .filter-pills {
+    /* Main Navigation Pills */
+    .nav-tabs-bar {
       display: flex;
       gap: 6px;
       overflow-x: auto;
+      overflow-y: hidden;
       scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 6px;
+      margin-bottom: 12px;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      contain: paint;
     }
-    .filter-pills::-webkit-scrollbar { display: none; }
-
-    .pill-btn {
-      background: var(--bg-surface);
+    .nav-tabs-bar::-webkit-scrollbar { display: none; }
+    .nav-tab-pill {
+      background: var(--bg-card);
       border: 1px solid var(--border-subtle);
       color: var(--text-muted);
-      padding: 5px 12px;
+      padding: 6px 12px;
       border-radius: var(--radius-pill);
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 700;
-      cursor: pointer;
       white-space: nowrap;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
       transition: all 0.15s ease;
     }
-
-    .pill-btn.active {
+    .nav-tab-pill.active {
       background: var(--primary);
-      color: #FFFFFF;
       border-color: var(--primary);
+      color: #FFF;
+      box-shadow: 0 2px 10px var(--primary-glow);
+    }
+    .nav-badge-count {
+      font-family: var(--font-num);
+      font-size: 10px;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 0 5px;
+      border-radius: var(--radius-pill);
+    }
+
+    /* Tab Panes */
+    .tab-pane {
+      display: none;
+    }
+    .tab-pane.active {
+      display: block;
+    }
+
+    /* Search & Filter Bar */
+    .search-filter-wrap {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .search-input-box {
+      flex: 1;
+      position: relative;
+    }
+    .search-input-box input {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 8px 32px 8px 12px;
+      font-size: 12.5px;
+      color: var(--text-main);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-input-box input:focus {
+      border-color: var(--primary);
+    }
+    .search-icon-pos {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dim);
+      pointer-events: none;
+    }
+
+    .filter-pills-row {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 12px;
+    }
+    .filter-chip {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .filter-chip.active {
+      background: rgba(255, 106, 0, 0.15);
+      border-color: var(--primary);
+      color: var(--primary);
     }
 
     /* ==========================================================================
-       TENANTS / RESTAURANTS CARDS (REFINED & COMPACT)
+       RESTAURANT CARDS (MATCHING SAAS MOCKUP)
        ========================================================================== */
     .tenants-list {
       display: flex;
@@ -509,319 +578,424 @@
 
     .tenant-card {
       background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: 13px 14px;
-      backdrop-filter: blur(10px);
-      transition: all 0.2s ease;
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      transition: transform 0.15s ease, border-color 0.2s ease;
       position: relative;
-      box-shadow: 0 3px 14px rgba(0, 0, 0, 0.22);
+    }
+    .tenant-card.suspended-card {
+      opacity: 0.78;
+      border-color: rgba(239, 68, 68, 0.3);
     }
 
-    .tenant-card:hover {
-      border-color: var(--border-card);
-      background: var(--bg-card-hover);
+    /* Card Cover Banner */
+    .card-cover-banner {
+      width: 100%;
+      height: 96px;
+      background: linear-gradient(135deg, #1E293B, #0F172A);
+      position: relative;
+      background-size: cover;
+      background-position: center;
     }
-
-    .tenant-card.suspended-state {
-      border-color: rgba(245, 158, 11, 0.25);
-      background: rgba(18, 22, 34, 0.88);
+    .card-cover-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(5, 8, 17, 0.2) 0%, rgba(13, 20, 36, 0.95) 100%);
     }
-
-    .tenant-header {
+    .card-cover-top-badges {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      left: 10px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 10px;
+      z-index: 2;
     }
-
-    .tenant-info-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
-    }
-
-    .tenant-logo-box {
-      width: 40px;
-      height: 40px;
-      border-radius: var(--radius-sm);
-      background: var(--bg-card-inner);
-      border: 1px solid var(--border-subtle);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      flex-shrink: 0;
-    }
-
-    .tenant-logo-box img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .tenant-logo-placeholder {
-      font-size: 17px;
-      font-weight: 800;
-      color: var(--primary);
-      font-family: var(--font-num);
-    }
-
-    .tenant-names-col {
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
-
-    .tenant-title {
-      font-size: 14.5px;
-      font-weight: 800;
-      color: #FFFFFF;
-      line-height: 1.2;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .tenant-slug-link {
-      font-size: 11px;
-      color: var(--primary);
-      font-family: var(--font-num);
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 3px;
-      margin-top: 2px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    /* Status & Switch */
-    .tenant-status-side {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 4px;
-      flex-shrink: 0;
-    }
-
     .status-badge {
-      font-size: 10px;
+      font-size: 10.5px;
       font-weight: 800;
-      padding: 2px 7px;
+      padding: 3px 9px;
       border-radius: var(--radius-pill);
-      display: inline-flex;
+      backdrop-filter: blur(8px);
+      display: flex;
       align-items: center;
       gap: 4px;
     }
-
     .status-badge.active-badge {
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid rgba(16, 185, 129, 0.35);
-      color: var(--success);
+      background: rgba(16, 185, 129, 0.22);
+      border: 1px solid rgba(16, 185, 129, 0.6);
+      color: #34D399;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
     }
-
     .status-badge.suspended-badge {
-      background: rgba(245, 158, 11, 0.15);
-      border: 1px solid rgba(245, 158, 11, 0.35);
-      color: var(--warning);
+      background: rgba(239, 68, 68, 0.22);
+      border: 1px solid rgba(239, 68, 68, 0.6);
+      color: #F87171;
     }
 
-    /* iOS Style Toggle Switch (Compact 38px) */
-    .switch-label {
+    /* Toggle Switch */
+    .switch-ui {
       position: relative;
       display: inline-block;
       width: 38px;
       height: 22px;
-      cursor: pointer;
     }
-
-    .switch-label input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    .slider {
+    .switch-ui input { opacity: 0; width: 0; height: 0; }
+    .switch-slider {
       position: absolute;
+      cursor: pointer;
       inset: 0;
-      background-color: #263346;
+      background-color: rgba(255, 255, 255, 0.2);
       border-radius: 34px;
-      transition: 0.25s;
+      transition: .25s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
     }
-
-    .slider:before {
+    .switch-slider:before {
       position: absolute;
       content: "";
       height: 16px;
       width: 16px;
       left: 3px;
-      bottom: 3px;
+      bottom: 2px;
       background-color: white;
       border-radius: 50%;
-      transition: 0.25s;
+      transition: .25s cubic-bezier(0.4, 0, 0.2, 1);
     }
-
-    input:checked + .slider {
+    input:checked + .switch-slider {
       background-color: var(--success);
+      border-color: #34D399;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+    }
+    input:checked + .switch-slider:before {
+      transform: translateX(15px);
     }
 
-    input:checked + .slider:before {
-      transform: translateX(16px);
+    /* Card Main Body */
+    .card-body {
+      padding: 0 12px 12px 12px;
+      position: relative;
+      margin-top: -24px;
+      z-index: 3;
     }
-
-    /* Subscription strip */
-    .tenant-meta-strip {
-      background: var(--bg-card-inner);
-      border-radius: var(--radius-xs);
-      padding: 7px 10px;
+    .card-header-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .card-logo-box {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      background: #0A101D;
+      border: 2px solid var(--border-card);
+      overflow: hidden;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
+      justify-content: center;
+    }
+    .card-logo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .card-logo-placeholder {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--primary);
+    }
+    .card-identity-col {
+      flex: 1;
+      min-width: 0;
+    }
+    .card-store-name {
+      font-size: 14.5px;
+      font-weight: 800;
+      color: #FFF;
+      line-height: 1.25;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .card-slug-link {
       font-size: 11px;
-      color: var(--text-muted);
+      font-family: var(--font-num);
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      text-decoration: none;
+      margin-top: 2px;
+    }
+    .card-slug-link:hover {
+      color: var(--primary);
     }
 
+    /* Card Meta Chips */
+    .card-meta-chips-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+      padding: 6px 8px;
+      background: var(--bg-card-inner);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+    }
+    .meta-chip {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10.5px;
+      color: var(--text-muted);
+    }
     .days-pill {
-      font-family: var(--font-num);
-      font-weight: 800;
-      color: #FFFFFF;
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(255, 106, 0, 0.15);
+      color: #FFB074;
+      font-weight: 700;
       padding: 1px 6px;
       border-radius: var(--radius-pill);
       font-size: 10px;
     }
-
     .days-pill.critical {
-      color: var(--danger);
-      background: rgba(239, 68, 68, 0.15);
+      background: rgba(239, 68, 68, 0.2);
+      color: #F87171;
     }
 
-    /* Action Buttons Grid (Compact) */
-    .tenant-actions-grid {
+    /* Action Buttons Grid */
+    .card-actions-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 6px;
+      gap: 5px;
     }
-
-    .action-btn-cell {
-      background: var(--bg-surface);
+    .card-btn {
+      background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-xs);
+      border-radius: var(--radius-sm);
       padding: 7px 4px;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 700;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
-      font-size: 10px;
-      font-weight: 700;
-      color: var(--text-muted);
+      justify-content: center;
+      gap: 3px;
       cursor: pointer;
-      transition: all 0.15s ease;
-      text-align: center;
       text-decoration: none;
+      transition: all 0.12s ease;
     }
-
-    .action-btn-cell svg {
+    .card-btn svg {
       width: 15px;
       height: 15px;
     }
-
-    .action-btn-cell:active {
-      color: #FFFFFF;
-      background: var(--bg-card-inner);
-      transform: scale(0.97);
+    .card-btn:active {
+      transform: scale(0.95);
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .card-btn.primary-btn {
+      background: linear-gradient(135deg, #FF6A00 0%, #D45500 100%);
+      border-color: #FF8A00;
+      color: #FFF;
+      box-shadow: 0 2px 8px var(--primary-glow);
+    }
+    .card-btn.danger-btn {
+      color: #F87171;
+      border-color: rgba(239, 68, 68, 0.25);
+    }
+    .card-btn.danger-btn:active {
+      background: rgba(239, 68, 68, 0.18);
     }
 
-    .action-btn-cell.primary-action {
-      background: var(--primary-light);
-      border-color: var(--border-accent);
+    /* Sub-Action Row (More actions dropdown/collapse) */
+    .card-secondary-actions-row {
+      display: flex;
+      gap: 5px;
+      margin-top: 6px;
+    }
+    .card-sub-btn {
+      flex: 1;
+      background: transparent;
+      border: 1px dashed var(--border-subtle);
+      border-radius: var(--radius-xs);
+      padding: 5px 6px;
+      color: var(--text-dim);
+      font-size: 10.5px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .card-sub-btn:hover, .card-sub-btn:active {
+      border-color: var(--primary);
       color: var(--primary);
     }
 
-    .action-btn-cell.primary-action:active {
-      background: var(--primary);
-      color: #FFFFFF;
-    }
-
-    .action-btn-cell.danger-action:active {
-      background: rgba(239, 68, 68, 0.2);
-      border-color: var(--danger);
-      color: var(--danger);
-    }
-
     /* ==========================================================================
-       MODALS & BOTTOM SHEETS
+       TAB 2: LIVE ORDERS MONITORING FEED
        ========================================================================== */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(6px);
-      z-index: 1000;
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.22s ease;
-    }
-
-    .modal-overlay.open {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .bottom-sheet {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-card);
-      border-top-left-radius: 20px;
-      border-top-right-radius: 20px;
-      width: 100%;
-      max-width: 480px;
-      max-height: 88vh;
-      overflow-y: auto;
-      padding: 18px 18px;
-      padding-bottom: calc(var(--safe-bottom) + 20px);
-      box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.6);
-      transform: translateY(100%);
-      transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .modal-overlay.open .bottom-sheet {
-      transform: translateY(0);
-    }
-
-    .sheet-drag-handle {
-      width: 36px;
-      height: 4px;
-      border-radius: 2px;
-      background: rgba(255, 255, 255, 0.2);
-      margin: 0 auto 14px auto;
-    }
-
-    .sheet-header {
+    .live-feed-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 16px;
+      margin-bottom: 10px;
+    }
+    .live-feed-title {
+      font-size: 13.5px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .live-orders-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .order-feed-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .order-feed-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .order-store-pill {
+      font-size: 10.5px;
+      font-weight: 800;
+      background: rgba(255, 106, 0, 0.15);
+      color: var(--primary);
+      padding: 2px 7px;
+      border-radius: var(--radius-xs);
+    }
+    .order-feed-id {
+      font-family: var(--font-num);
+      font-size: 12px;
+      font-weight: 700;
+      color: #FFF;
+    }
+    .order-feed-time {
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+    .order-feed-total {
+      font-family: var(--font-num);
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--success);
     }
 
-    .sheet-title {
+    /* ==========================================================================
+       TAB 3: GLOBAL BROADCAST ANNOUNCEMENT
+       ========================================================================== */
+    .broadcast-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .broadcast-active-card {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    /* ==========================================================================
+       BOTTOM SHEETS & MODALS (LUXURY MOBILE DESIGN)
+       ========================================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      z-index: 10000;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      transition: opacity 0.25s ease;
+    }
+    .modal-backdrop.open {
+      display: flex;
+      animation: fadeIn 0.2s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.78);
+      backdrop-filter: blur(8px);
+      z-index: 10000;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      transition: opacity 0.25s ease;
+    }
+
+    .bottom-sheet-content {
+      width: 100%;
+      max-width: 430px;
+      background: #0A101D;
+      border: 1px solid var(--border-card);
+      border-bottom: none;
+      border-radius: 22px 22px 0 0;
+      padding: 16px 18px calc(var(--safe-bottom) + 16px) 18px;
+      max-height: 85vh;
+      overflow-y: auto;
+      animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .sheet-handle-bar {
+      width: 36px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 2px;
+      margin: 0 auto 14px auto;
+    }
+    .sheet-header-title {
       font-size: 16px;
       font-weight: 800;
-      color: #FFFFFF;
+      color: #FFF;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
     }
-
     .sheet-close-btn {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.06);
+      background: rgba(255, 255, 255, 0.08);
       border: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
       color: var(--text-muted);
       cursor: pointer;
       display: flex;
@@ -829,104 +1003,154 @@
       justify-content: center;
     }
 
+    /* Form Fields */
     .form-group {
-      margin-bottom: 13px;
+      margin-bottom: 12px;
     }
-
     .form-label {
       display: block;
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 700;
       color: var(--text-muted);
       margin-bottom: 5px;
     }
-
-    .form-input, .form-select {
+    .form-input, .form-select, .form-textarea {
       width: 100%;
-      background: var(--bg-card-inner);
+      background: var(--bg-input);
       border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-xs);
-      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      padding: 9px 12px;
       font-size: 13px;
-      color: #FFFFFF;
+      color: #FFF;
       outline: none;
       transition: border-color 0.15s;
     }
-
-    .form-input:focus, .form-select:focus {
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
       border-color: var(--primary);
     }
 
-    .slug-preview-note {
-      font-size: 11px;
-      color: var(--primary);
-      font-family: var(--font-num);
-      margin-top: 4px;
-      direction: ltr;
-      text-align: right;
+    /* Template Cards Grid inside Wizard */
+    .template-selector-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 6px;
     }
-
-    .btn-submit-sheet {
-      width: 100%;
-      background: linear-gradient(135deg, var(--primary), #FF8533);
-      color: #FFFFFF;
-      border: none;
+    .template-card-option {
+      background: var(--bg-card-inner);
+      border: 1.5px solid var(--border-subtle);
       border-radius: var(--radius-sm);
-      padding: 12px;
-      font-size: 14px;
-      font-weight: 800;
+      padding: 8px;
       cursor: pointer;
-      margin-top: 8px;
-      box-shadow: 0 3px 14px var(--primary-glow);
-    }
-
-    .btn-submit-sheet:active {
-      transform: scale(0.98);
-    }
-
-    .btn-danger-sheet {
-      background: linear-gradient(135deg, var(--danger), #DC2626);
-      box-shadow: 0 3px 14px rgba(239, 68, 68, 0.3);
-    }
-
-    /* Toast Notifications */
-    #toast-container {
-      position: fixed;
-      bottom: calc(var(--safe-bottom) + 16px);
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 10000;
+      transition: all 0.15s;
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      pointer-events: none;
-      max-width: 90%;
+      gap: 4px;
     }
-
-    .toast-msg {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-card);
-      color: #FFFFFF;
+    .template-card-option.selected {
+      border-color: var(--primary);
+      background: rgba(255, 106, 0, 0.1);
+    }
+    .template-badge-name {
       font-size: 12px;
+      font-weight: 800;
+      color: #FFF;
+    }
+    .template-desc {
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+
+    /* Module Toggle List */
+    .module-list-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .module-item-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-card-inner);
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+    }
+    .module-info-col {
+      display: flex;
+      flex-direction: column;
+    }
+    .module-name-title {
+      font-size: 12.5px;
       font-weight: 700;
-      padding: 10px 16px;
-      border-radius: var(--radius-pill);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-      animation: toastIn 0.25s ease forwards;
+      color: #FFF;
+    }
+    .module-sub-desc {
+      font-size: 10.5px;
+      color: var(--text-dim);
     }
 
-    .toast-msg.success { border-color: var(--success); color: #E8FFF5; }
-    .toast-msg.error { border-color: var(--danger); color: #FFE8E8; }
-    .toast-msg.info { border-color: var(--primary); color: #FFF2E8; }
-
-    @keyframes toastIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    /* Buttons inside Sheets */
+    .btn-sheet-submit {
+      width: 100%;
+      background: linear-gradient(135deg, #FF6A00 0%, #D45500 100%);
+      color: #FFF;
+      border: none;
+      padding: 11px;
+      border-radius: var(--radius-sm);
+      font-size: 13.5px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 14px;
+      box-shadow: 0 4px 14px var(--primary-glow);
+      transition: transform 0.12s;
     }
+    .btn-sheet-submit:active {
+      transform: scale(0.98);
+    }
+    .btn-sheet-submit.danger-submit {
+      background: linear-gradient(135deg, #EF4444 0%, #B91C1C 100%);
+      box-shadow: 0 4px 14px var(--danger-glow);
+    }
+
+    /* Toast Notification Stack */
+    #toast-container {
+      position: fixed;
+      top: calc(var(--safe-top) + 12px);
+      left: 14px;
+      right: 14px;
+      z-index: 100000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+    .toast-msg {
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #FFF;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      font-size: 12.5px;
+      font-weight: 700;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      pointer-events: auto;
+      animation: toastDrop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes toastDrop {
+      from { transform: translateY(-16px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .toast-msg.success { border-color: rgba(16, 185, 129, 0.5); }
+    .toast-msg.error { border-color: rgba(239, 68, 68, 0.5); }
 
     .empty-state {
       text-align: center;
-      padding: 30px 16px;
+      padding: 30px 14px;
       color: var(--text-dim);
       font-size: 13px;
     }
@@ -934,262 +1158,538 @@
 </head>
 <body>
 
-  <!-- ==========================================================================
-       1. SCREEN: PIN LOCK SCREEN
-       ========================================================================== -->
+  <!-- ========================================================================
+       SCREEN 1: FOUNDER PIN LOCK SCREEN
+       ======================================================================== -->
   <div id="lock-screen">
-    <div class="founder-lock-avatar-wrapper">
-      <img src="assets/brand/master_founder.jpg" alt="Master Founder" class="founder-lock-avatar">
-      <span class="founder-badge-pill">FOUNDER & COMMAND</span>
+    <div class="lock-emblem-wrap">
+      <img src="assets/brand/harpy_master_badge.png" alt="Harpy Master" class="lock-emblem-img">
+      <div class="lock-crown-pill">👑 CENTRAL COMMAND</div>
     </div>
-    <h1 class="lock-title">Harpy Master</h1>
-    <p class="lock-subtitle">أهلاً بك يا ريس! أدخل رمز الدخول السريع (PIN)</p>
+    
+    <h1 class="lock-title">HARPY MASTER</h1>
+    <p class="lock-sub">منظومة الإدارة المركزية والتحكم للمؤسس</p>
 
-    <div class="pin-display-dots">
+    <div class="pin-dots-container">
       <div class="pin-dot" id="dot-1"></div>
       <div class="pin-dot" id="dot-2"></div>
       <div class="pin-dot" id="dot-3"></div>
       <div class="pin-dot" id="dot-4"></div>
     </div>
 
-    <div class="pin-keypad">
+    <div class="keypad-grid">
       <button class="key-btn" onclick="MasterApp.pressPin('1')">1</button>
       <button class="key-btn" onclick="MasterApp.pressPin('2')">2</button>
       <button class="key-btn" onclick="MasterApp.pressPin('3')">3</button>
+      
       <button class="key-btn" onclick="MasterApp.pressPin('4')">4</button>
       <button class="key-btn" onclick="MasterApp.pressPin('5')">5</button>
       <button class="key-btn" onclick="MasterApp.pressPin('6')">6</button>
+      
       <button class="key-btn" onclick="MasterApp.pressPin('7')">7</button>
       <button class="key-btn" onclick="MasterApp.pressPin('8')">8</button>
       <button class="key-btn" onclick="MasterApp.pressPin('9')">9</button>
-      <button class="key-btn action-btn" onclick="MasterApp.clearPin()">مسح</button>
+      
+      <button class="key-btn action-key" onclick="MasterApp.clearPin()">مسح</button>
       <button class="key-btn" onclick="MasterApp.pressPin('0')">0</button>
-      <button class="key-btn action-btn" onclick="MasterApp.backspacePin()">⌫</button>
+      <button class="key-btn action-key" onclick="MasterApp.backspacePin()">⌫</button>
     </div>
   </div>
 
-  <!-- ==========================================================================
-       2. SCREEN: MAIN DASHBOARD
-       ========================================================================== -->
-  <div class="master-container" id="main-app" style="display: none;">
-
-    <!-- Top Navbar -->
+  <!-- ========================================================================
+       SCREEN 2: MAIN COMMAND CENTER DASHBOARD
+       ======================================================================== -->
+  <div id="main-app" class="master-wrapper">
+    
+    <!-- Top Header Bar -->
     <header class="master-header">
       <div class="header-brand-side">
-        <img src="assets/brand/master_founder.jpg" alt="Founder" class="header-avatar" onclick="MasterApp.openChangePinModal()" title="إعدادات الحساب وتغيير PIN">
-        <div class="brand-text-col">
-          <div class="brand-title-row">
-            <span class="brand-name">Harpy Master</span>
-            <span class="master-tag">HUB</span>
+        <img src="assets/brand/harpy_master_badge.png" alt="Logo" class="header-logo-badge">
+        <div class="header-title-col">
+          <div class="header-app-name">
+            <span>هاربي ماستر</span>
+            <span class="header-badge-super">Super Admin</span>
           </div>
-          <div class="live-status-row">
-            <div class="pulse-dot"></div>
+          <div class="header-sub-status">
+            <span class="pulse-dot"></span>
             <span id="sync-status-text">متصل بالسيرفر الحي</span>
           </div>
         </div>
       </div>
-      <div class="header-actions">
-        <button class="icon-btn" onclick="MasterApp.loadTenantsFromCloud()" title="تحديث البيانات">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+
+      <div class="header-actions-side">
+        <button class="btn-add-tenant" onclick="MasterApp.openAddTenantModal()">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <span>إضافة مطعم</span>
         </button>
-        <button class="icon-btn" onclick="MasterApp.openChangePinModal()" title="تغيير الرمز السري">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        </button>
-        <button class="icon-btn" onclick="MasterApp.lock()" title="قفل اللوحة">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+
+        <button class="founder-avatar-btn" onclick="MasterApp.openFounderMenu()" title="حساب المؤسس">
+          <img src="assets/brand/master_founder.jpg" alt="Founder">
         </button>
       </div>
     </header>
 
-    <!-- Hero Greeting & Add Button -->
-    <div class="hero-greeting-card">
-      <div class="greeting-text">
-        <h2>أهلاً بك يا ريس 👋</h2>
-        <p>إدارة التراخيص والمطاعم بكل سهولة</p>
+    <!-- Platform KPI Metrics Strip (2x2 Grid) -->
+    <section class="kpi-grid">
+      <div class="kpi-card kpi-primary">
+        <div class="kpi-header">
+          <span class="kpi-title">المطاعم النشطة</span>
+          <span class="kpi-icon">🏪</span>
+        </div>
+        <div class="kpi-value-row">
+          <span class="kpi-num" id="kpi-active-tenants">2</span>
+          <span class="kpi-meta-tag" id="kpi-active-pct">100% نشط</span>
+        </div>
       </div>
-      <button class="btn-add-primary" onclick="MasterApp.openAddTenantModal()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-        <span>مطعم جديد</span>
+
+      <div class="kpi-card kpi-gold">
+        <div class="kpi-header">
+          <span class="kpi-title">إجمالي الوجبات</span>
+          <span class="kpi-icon">🍽️</span>
+        </div>
+        <div class="kpi-value-row">
+          <span class="kpi-num" id="kpi-total-meals">--</span>
+          <span class="kpi-meta-tag">قائمة الطعام</span>
+        </div>
+      </div>
+
+      <div class="kpi-card kpi-success">
+        <div class="kpi-header">
+          <span class="kpi-title">إجمالي طلبات المنصة</span>
+          <span class="kpi-icon">🛒</span>
+        </div>
+        <div class="kpi-value-row">
+          <span class="kpi-num" id="kpi-total-orders">--</span>
+          <span class="kpi-meta-tag">مسجلة بالداتابيز</span>
+        </div>
+      </div>
+
+      <div class="kpi-card kpi-info">
+        <div class="kpi-header">
+          <span class="kpi-title">كفاءة الخوادم</span>
+          <span class="kpi-icon">🛡️</span>
+        </div>
+        <div class="kpi-value-row">
+          <span class="kpi-num">99.9%</span>
+          <span class="kpi-meta-tag">RTDB Online</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Navigation Tabs -->
+    <nav class="nav-tabs-bar">
+      <button class="nav-tab-pill active" data-tab="tenants" onclick="MasterApp.switchTab('tenants')">
+        <span>🏢 المطاعم</span>
+        <span class="nav-badge-count" id="tab-badge-tenants">2</span>
       </button>
-    </div>
 
-    <!-- Quick Metric Cards -->
-    <div class="metrics-grid">
-      <div class="metric-card">
-        <span class="metric-val active-color" id="metric-active-count">0</span>
-        <span class="metric-lbl">مطاعم نشطة</span>
-      </div>
-      <div class="metric-card">
-        <span class="metric-val gold-color" id="metric-suspended-count">0</span>
-        <span class="metric-lbl">موقوفة / منتهية</span>
-      </div>
-      <div class="metric-card">
-        <span class="metric-val muted-color" id="metric-total-count">0</span>
-        <span class="metric-lbl">إجمالي المطاعم</span>
-      </div>
-    </div>
+      <button class="nav-tab-pill" data-tab="live-orders" onclick="MasterApp.switchTab('live-orders')">
+        <span>⚡ الطلبات المباشرة</span>
+      </button>
 
-    <!-- Search & Filter Controls -->
-    <div class="search-filter-row">
-      <div class="search-input-box">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        <input type="text" id="tenant-search-input" class="search-input" placeholder="ابحث باسم المطعم أو الرابط..." oninput="MasterApp.handleSearch(this.value)">
-      </div>
-      <div class="filter-pills">
-        <button class="pill-btn active" data-filter="all" onclick="MasterApp.setFilter('all')">الكل</button>
-        <button class="pill-btn" data-filter="active" onclick="MasterApp.setFilter('active')">النشطة فقط</button>
-        <button class="pill-btn" data-filter="suspended" onclick="MasterApp.setFilter('suspended')">الموقوفة</button>
-      </div>
-    </div>
+      <button class="nav-tab-pill" data-tab="broadcast" onclick="MasterApp.switchTab('broadcast')">
+        <span>📢 الإذاعة العامة</span>
+      </button>
 
-    <!-- Tenants Cards List -->
-    <div class="tenants-list" id="tenants-container">
-      <div class="empty-state">جاري تحميل بيانات المطاعم من السحابة...</div>
-    </div>
+      <button class="nav-tab-pill" data-tab="backups" onclick="MasterApp.switchTab('backups')">
+        <span>💾 النسخ الاحتياطي</span>
+      </button>
+    </nav>
+
+    <!-- ======================================================================
+         TAB PANE 1: RESTAURANTS MANAGEMENT
+         ====================================================================== -->
+    <main id="pane-tenants" class="tab-pane active">
+      <!-- Search Box -->
+      <div class="search-filter-wrap">
+        <div class="search-input-box">
+          <input type="text" id="tenant-search-input" placeholder="ابحث باسم المطعم أو الرابط أو الهاتف..." oninput="MasterApp.handleSearch(this.value)">
+          <span class="search-icon-pos">🔍</span>
+        </div>
+      </div>
+
+      <!-- Filter Chips -->
+      <div class="filter-pills-row">
+        <button class="filter-chip active" data-filter="all" onclick="MasterApp.setFilter('all')">الكل (<span id="filter-all-count">2</span>)</button>
+        <button class="filter-chip" data-filter="active" onclick="MasterApp.setFilter('active')">نشط (<span id="filter-active-count">2</span>)</button>
+        <button class="filter-chip" data-filter="suspended" onclick="MasterApp.setFilter('suspended')">مجمّد (<span id="filter-suspended-count">0</span>)</button>
+      </div>
+
+      <!-- Tenants Cards Container -->
+      <div id="tenants-container" class="tenants-list">
+        <!-- Rendered dynamically -->
+      </div>
+    </main>
+
+    <!-- ======================================================================
+         TAB PANE 2: LIVE ORDERS FEED
+         ====================================================================== -->
+    <section id="pane-live-orders" class="tab-pane">
+      <div class="live-feed-header">
+        <span class="live-feed-title">
+          <span class="pulse-dot"></span>
+          <span>أحدث الطلبات الواردة لجميع المطاعم</span>
+        </span>
+        <button class="card-sub-btn" onclick="MasterApp.loadLiveOrders()" style="width:auto; padding:3px 8px;">تحديث 🔄</button>
+      </div>
+
+      <div id="live-orders-container" class="live-orders-list">
+        <div class="empty-state">جاري سحب أحدث الطلبات...</div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         TAB PANE 3: GLOBAL BROADCAST ANNOUNCEMENT
+         ====================================================================== -->
+    <section id="pane-broadcast" class="tab-pane">
+      <div class="broadcast-box">
+        <h3 style="font-size:14px; font-weight:800; margin-bottom:8px;">📢 الإذاعة العامة لشاشات المطابخ والكاشير</h3>
+        <p style="font-size:11.5px; color:var(--text-muted); margin-bottom:12px;">
+          إرسال شريط تنبيه عام عاجل يظهر فوراً في أعلى لوحات الإدارة وشاشات المطابخ لجميع المطاعم.
+        </p>
+
+        <div id="active-broadcast-preview">
+          <!-- Rendered if there is an active announcement -->
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">نص الإعلان أو التنبيه:</label>
+          <input type="text" id="broadcast-message-input" class="form-input" placeholder="مثال: يرجى العلم بوجود تحديث مجدول الليلة في تمام 3 صباحاً">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">نوع التنبيه:</label>
+          <select id="broadcast-type-select" class="form-select">
+            <option value="info">ℹ️ معلومة وتنويه عام (أزرق)</option>
+            <option value="warning">⚠️ تحذير أو صيانة هامة (أصفر)</option>
+            <option value="danger">🚨 تنبيه عاجل وطارئ (أحمر)</option>
+            <option value="success">🎉 تهنئة أو إنجاز جديد (أخضر)</option>
+          </select>
+        </div>
+
+        <button class="btn-sheet-submit" onclick="MasterApp.publishBroadcast()">نشر التنبيه لجميع المطاعم فوراً 📡</button>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         TAB PANE 4: CLOUD BACKUPS
+         ====================================================================== -->
+    <section id="pane-backups" class="tab-pane">
+      <div class="broadcast-box">
+        <h3 style="font-size:14px; font-weight:800; margin-bottom:8px;">💾 الخزنة السحابية والنسخ الاحتياطي</h3>
+        <p style="font-size:11.5px; color:var(--text-muted); margin-bottom:12px;">
+          تحميل وتصدير نسخة احتياطية كاملة (JSON) فورية تشمل: المنيو، التصنيفات، الأسعار، المواد الخام، والإعدادات.
+        </p>
+
+        <div id="backups-tenants-list" class="module-list-group">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+    </section>
 
   </div>
 
-  <!-- ==========================================================================
-       3. MODAL: ONBOARD NEW RESTAURANT
-       ========================================================================== -->
-  <div class="modal-overlay" id="add-tenant-modal">
-    <div class="bottom-sheet">
-      <div class="sheet-drag-handle"></div>
-      <div class="sheet-header">
-        <h3 class="sheet-title">إضافة مطعم جديد 🚀</h3>
+  <!-- ========================================================================
+       MODAL 1: 1-CLICK ONBOARD RESTAURANT (STEP WIZARD)
+       ======================================================================== -->
+  <div id="add-tenant-modal" class="modal-backdrop">
+    <div class="bottom-sheet-content">
+      <div class="sheet-handle-bar"></div>
+      
+      <div class="sheet-header-title">
+        <span>⚡ تدشين مطعم جديد (1-Click Onboard)</span>
         <button class="sheet-close-btn" onclick="MasterApp.closeAddTenantModal()">✕</button>
       </div>
 
       <form id="add-tenant-form" onsubmit="MasterApp.handleCreateTenant(event)">
+        <!-- Step 1: Info -->
         <div class="form-group">
-          <label class="form-label">اسم المطعم بالعربي *</label>
-          <input type="text" id="new-store-name" class="form-input" placeholder="مثال: شاورما البرنس" required oninput="MasterApp.suggestSlug(this.value)">
+          <label class="form-label">اسم المطعم *</label>
+          <input type="text" id="new-store-name" class="form-input" placeholder="مثال: برجر شوب أو كافيه دي ميلانو" required oninput="MasterApp.suggestSlug(this.value)">
         </div>
 
         <div class="form-group">
-          <label class="form-label">رابط المنيو الإنجليزي (Slug) *</label>
-          <input type="text" id="new-store-slug" class="form-input" placeholder="مثال: elprince" required dir="ltr" pattern="[a-zA-Z0-9_-]+" oninput="MasterApp.updateSlugPreview(this.value)">
-          <div class="slug-preview-note" id="slug-preview-text">https://harpymenu.com/order/?m=...</div>
+          <label class="form-label">الرابط المخصص (Slug) *</label>
+          <input type="text" id="new-store-slug" class="form-input" placeholder="burger-town" required style="font-family:var(--font-num); text-transform:lowercase;">
+          <div style="font-size:10px; color:var(--text-dim); margin-top:3px;" id="slug-preview-text">https://harpymenu.com/order/?m=...</div>
         </div>
 
         <div class="form-group">
-          <label class="form-label">رقم هاتف المالك / الواتساب</label>
-          <input type="tel" id="new-owner-phone" class="form-input" placeholder="01xxxxxxxxx" dir="ltr">
+          <label class="form-label">رقم هاتف المالك *</label>
+          <input type="tel" id="new-owner-phone" class="form-input" placeholder="01012345678" required style="font-family:var(--font-num);">
         </div>
 
+        <!-- Step 2: Starter Template -->
         <div class="form-group">
-          <label class="form-label">مدة الاشتراك الأولية *</label>
+          <label class="form-label">قالب المنيو المبدئي (Starter Menu):</label>
+          <div class="template-selector-grid">
+            <div class="template-card-option selected" data-template="saj" onclick="MasterApp.selectTemplate(this, 'saj')">
+              <span class="template-badge-name">🌯 سوبر صاج</span>
+              <span class="template-desc">شاورما وسناكس كاملة</span>
+            </div>
+            <div class="template-card-option" data-template="king" onclick="MasterApp.selectTemplate(this, 'king')">
+              <span class="template-badge-name">🍔 مطعم كينج</span>
+              <span class="template-desc">برجر وسندوتشات غربية</span>
+            </div>
+            <div class="template-card-option" data-template="cafe" onclick="MasterApp.selectTemplate(this, 'cafe')">
+              <span class="template-badge-name">☕ كافيه ومشروبات</span>
+              <span class="template-desc">قهوة وحلويات</span>
+            </div>
+            <div class="template-card-option" data-template="blank" onclick="MasterApp.selectTemplate(this, 'blank')">
+              <span class="template-badge-name">📄 منيو فارغ</span>
+              <span class="template-desc">تأسيس نظيف من الصفر</span>
+            </div>
+          </div>
+          <input type="hidden" id="new-menu-template" value="saj">
+        </div>
+
+        <!-- Step 3: Subscription Plan -->
+        <div class="form-group">
+          <label class="form-label">مدة وتفاصيل الاشتراك:</label>
           <select id="new-sub-plan" class="form-select">
-            <option value="trial_14">فترة تجريبية (14 يوماً)</option>
-            <option value="month_1" selected>شهر واحد (30 يوماً)</option>
-            <option value="month_3">3 شهور (90 يوماً)</option>
-            <option value="year_1">سنة كاملة (365 يوماً)</option>
-            <option value="lifetime">مدى الحياة (مفتوح)</option>
+            <option value="trial_14">تجريبي مجاني (14 يوم)</option>
+            <option value="month_1" selected>شهر كامل (30 يوم)</option>
+            <option value="month_3">3 شهور (باقة ربع سنوية)</option>
+            <option value="year_1">سنة كاملة (365 يوم)</option>
+            <option value="lifetime">مدى الحياة (VIP Lifetime)</option>
           </select>
         </div>
 
-        <div class="form-group">
-          <label class="form-label">قالب المنيو المبدئي *</label>
-          <select id="new-menu-template" class="form-select">
-            <option value="blank">منيو فارغ (يبدأ من الصفر)</option>
-            <option value="saj">استنساخ أصناف منيو صاج (Saj Template)</option>
-            <option value="king">استنساخ أصناف منيو كينج (King Template)</option>
-          </select>
-        </div>
-
-        <button type="submit" class="btn-submit-sheet" id="btn-create-submit">إنشاء وتفعيل المطعم فوراً</button>
+        <button type="submit" id="btn-create-submit" class="btn-sheet-submit">تدشين وتفعيل المطعم فوراً 🚀</button>
       </form>
     </div>
   </div>
 
-  <!-- ==========================================================================
-       4. MODAL: EXTEND LICENSE
-       ========================================================================== -->
-  <div class="modal-overlay" id="extend-modal">
-    <div class="bottom-sheet">
-      <div class="sheet-drag-handle"></div>
-      <div class="sheet-header">
-        <h3 class="sheet-title">تمديد اشتراك المطعم ⏳</h3>
+  <!-- ========================================================================
+       MODAL 2: EXTEND LICENSE DURATION
+       ======================================================================== -->
+  <div id="extend-modal" class="modal-backdrop">
+    <div class="bottom-sheet-content">
+      <div class="sheet-handle-bar"></div>
+      <div class="sheet-header-title">
+        <span>⏳ تمديد ترخيص المطعم</span>
         <button class="sheet-close-btn" onclick="MasterApp.closeExtendModal()">✕</button>
       </div>
 
-      <div style="margin-bottom: 14px;">
-        <div style="font-size: 14px; font-weight: 800;" id="extend-store-name">...</div>
-        <div style="font-size: 11.5px; color: var(--text-muted);" id="extend-current-expiry">...</div>
-      </div>
+      <div style="font-size:13px; font-weight:700; color:#FFF; margin-bottom:4px;" id="extend-store-name">--</div>
+      <div style="font-size:11px; color:var(--text-muted); margin-bottom:14px;" id="extend-current-expiry">--</div>
 
       <div class="form-group">
-        <label class="form-label">اختر فترة التمديد:</label>
+        <label class="form-label">المدة المراد إضافتها للاشتراك:</label>
         <select id="extend-duration-select" class="form-select">
-          <option value="30">+ 30 يوماً (شهر إضافي)</option>
-          <option value="90">+ 90 يوماً (3 شهور)</option>
-          <option value="180">+ 6 شهور</option>
-          <option value="365">+ سنة كاملة</option>
+          <option value="30">شهر كامل (+30 يوم)</option>
+          <option value="90">3 شهور (+90 يوم)</option>
+          <option value="180">6 شهور (+180 يوم)</option>
+          <option value="365">سنة كاملة (+365 يوم)</option>
+          <option value="3650">ترخيص مدى الحياة (Lifetime)</option>
         </select>
       </div>
 
-      <button type="button" class="btn-submit-sheet" onclick="MasterApp.confirmExtendLicense()">حفظ وتمديد الاشتراك الآن</button>
+      <button class="btn-sheet-submit" onclick="MasterApp.confirmExtendLicense()">تأكيد التمديد الفوري في السحابة ✅</button>
     </div>
   </div>
 
-  <!-- ==========================================================================
-       5. MODAL: CONFIRM CASCADE DELETE
-       ========================================================================== -->
-  <div class="modal-overlay" id="delete-modal">
-    <div class="bottom-sheet">
-      <div class="sheet-drag-handle"></div>
-      <div class="sheet-header">
-        <h3 class="sheet-title" style="color: var(--danger);">حذف مطعم نهائياً ⚠️</h3>
-        <button class="sheet-close-btn" onclick="MasterApp.closeDeleteModal()">✕</button>
+  <!-- ========================================================================
+       MODAL 3: RESTAURANT FEATURE MODULES (PERMISSIONS)
+       ======================================================================== -->
+  <div id="modules-modal" class="modal-backdrop">
+    <div class="bottom-sheet-content">
+      <div class="sheet-handle-bar"></div>
+      <div class="sheet-header-title">
+        <span>🎛️ صلاحيات الميزات (Modules)</span>
+        <button class="sheet-close-btn" onclick="MasterApp.closeModulesModal()">✕</button>
       </div>
 
-      <p style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.5;">
-        أنت على وشك حذف مطعم <strong style="color: #FFFFFF;" id="delete-store-target-name">...</strong> نهائياً بجميع تصنيفاته ومنتجاته وصوره وترخيصه، ولن يمكن استرجاعها أبداً.
+      <div style="font-size:13px; font-weight:700; color:#FFF; margin-bottom:4px;" id="modules-store-name">--</div>
+      <p style="font-size:11px; color:var(--text-muted); margin-bottom:14px;">تفعيل أو تعطيل أقسام ومزايا النظام لهذا المطعم تحديداً.</p>
+
+      <div class="module-list-group">
+        <div class="module-item-row">
+          <div class="module-info-col">
+            <span class="module-name-title">💳 نظام الكاشير ونقاط البيع (POS)</span>
+            <span class="module-sub-desc">إدارة الطلبات السريعة وطباعة الفواتير</span>
+          </div>
+          <label class="switch-ui">
+            <input type="checkbox" id="mod-pos" checked>
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+
+        <div class="module-item-row">
+          <div class="module-info-col">
+            <span class="module-name-title">📦 المخزون والمواد الخام (Inventory)</span>
+            <span class="module-sub-desc">حساب استهلاك الوجبات وتكاليف المنتجات</span>
+          </div>
+          <label class="switch-ui">
+            <input type="checkbox" id="mod-inventory" checked>
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+
+        <div class="module-item-row">
+          <div class="module-info-col">
+            <span class="module-name-title">📖 قصص وتجارب المنيو (Stories)</span>
+            <span class="module-sub-desc">شريط القصص الترويجية على غرار إنستغرام</span>
+          </div>
+          <label class="switch-ui">
+            <input type="checkbox" id="mod-stories" checked>
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+
+        <div class="module-item-row">
+          <div class="module-info-col">
+            <span class="module-name-title">⚡ الطاولات و QR الداخلي (Smart Tables)</span>
+            <span class="module-sub-desc">الطلب المباشر من الصالة عبر رمز الطاولة</span>
+          </div>
+          <label class="switch-ui">
+            <input type="checkbox" id="mod-tables" checked>
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+
+        <div class="module-item-row">
+          <div class="module-info-col">
+            <span class="module-name-title">🛵 تتبع التوصيل والمناديب (Live Tracking)</span>
+            <span class="module-sub-desc">نظام توصيل الطلبات للمنازل مع اللوكيشن</span>
+          </div>
+          <label class="switch-ui">
+            <input type="checkbox" id="mod-delivery" checked>
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+
+        <div class="module-item-row">
+          <div class="module-info-col">
+            <span class="module-name-title">💰 بوابات الدفع الإلكتروني (Online Payments)</span>
+            <span class="module-sub-desc">الدفع بالفيزا والمحافظ الإلكترونية</span>
+          </div>
+          <label class="switch-ui">
+            <input type="checkbox" id="mod-online-payment">
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <button class="btn-sheet-submit" onclick="MasterApp.saveModules()">حفظ الصلاحيات في السحابة 💾</button>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 4: CLONE MENU TO ANOTHER RESTAURANT
+       ======================================================================== -->
+  <div id="clone-modal" class="modal-backdrop">
+    <div class="bottom-sheet-content">
+      <div class="sheet-handle-bar"></div>
+      <div class="sheet-header-title">
+        <span>📋 استنساخ المنيو (Clone Menu)</span>
+        <button class="sheet-close-btn" onclick="MasterApp.closeCloneModal()">✕</button>
+      </div>
+
+      <p style="font-size:11.5px; color:var(--text-muted); margin-bottom:12px;">
+        نسخ جميع تصنيفات ووجبات وقوائم مطعم <b id="clone-source-name" style="color:#FFF;">--</b> بالكامل ونقلها لمطعم آخر.
       </p>
 
       <div class="form-group">
-        <label class="form-label">لتأكيد الحذف، اكتب الكلمة (حذف) أدناه:</label>
-        <input type="text" id="delete-confirm-word-input" class="form-input" placeholder="اكتب: حذف" autocomplete="off">
+        <label class="form-label">اختر المطعم الهدف (الذي سيستقبل المنيو):</label>
+        <select id="clone-target-select" class="form-select">
+          <!-- Populated dynamically -->
+        </select>
       </div>
 
-      <button type="button" class="btn-submit-sheet btn-danger-sheet" onclick="MasterApp.confirmCascadeWipe()">تأكيد الحذف الجذري النهائي</button>
+      <div style="font-size:10.5px; color:var(--warning); margin-bottom:12px;">
+        ⚠️ تنبيه: سيتم استبدال الوجبات والتصنيفات في المطعم الهدف بنسخة طبق الأصل من المطعم المصدر.
+      </div>
+
+      <button class="btn-sheet-submit" onclick="MasterApp.confirmCloneMenu()">تنفيذ استنساخ المنيو فوراً 📋</button>
     </div>
   </div>
 
-  <!-- ==========================================================================
-       6. MODAL: CHANGE MASTER PIN
-       ========================================================================== -->
-  <div class="modal-overlay" id="pin-modal">
-    <div class="bottom-sheet">
-      <div class="sheet-drag-handle"></div>
-      <div class="sheet-header">
-        <h3 class="sheet-title">تغيير رمز PIN الشخصي 🔑</h3>
-        <button class="sheet-close-btn" onclick="MasterApp.closePinModal()">✕</button>
+  <!-- ========================================================================
+       MODAL 5: CASCADE WIPE CONFIRMATION
+       ======================================================================== -->
+  <div id="delete-modal" class="modal-backdrop">
+    <div class="bottom-sheet-content">
+      <div class="sheet-handle-bar"></div>
+      <div class="sheet-header-title">
+        <span style="color:#F87171;">🗑️ تأكيد الحذف الشامل والنهائي</span>
+        <button class="sheet-close-btn" onclick="MasterApp.closeDeleteModal()">✕</button>
+      </div>
+
+      <div style="background:rgba(239, 68, 68, 0.1); border:1px solid rgba(239, 68, 68, 0.3); border-radius:var(--radius-sm); padding:10px 12px; margin-bottom:12px;">
+        <div style="font-weight:800; color:#F87171; font-size:12.5px; margin-bottom:4px;">تحذير أمني بالغ الأهمية:</div>
+        <p style="font-size:11px; color:var(--text-muted);">
+          أنت على وشك حذف مطعم (<b id="delete-store-target-name" style="color:#FFF;">--</b>) بشكل كامل. سيتم مسح الترخيص، المنيو، الطلبات، والإعدادات نهائياً من قاعدة البيانات السحابية.
+        </p>
       </div>
 
       <div class="form-group">
-        <label class="form-label">رمز PIN الحالي</label>
-        <input type="password" id="pin-current-input" class="form-input" placeholder="****" maxlength="4" pattern="[0-9]*" inputmode="numeric" dir="ltr">
+        <label class="form-label">لتأكيد الحذف النهائي، اكتب كلمة (<b>حذف</b>) أدناه:</label>
+        <input type="text" id="delete-confirm-word-input" class="form-input" placeholder="اكتب: حذف" style="border-color:rgba(239, 68, 68, 0.4);">
+      </div>
+
+      <button class="btn-sheet-submit danger-submit" onclick="MasterApp.confirmCascadeWipe()">تنفيذ الحذف الشامل والمسح النهائي ⚠️</button>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 6: FOUNDER QUICK MENU & CHANGE PIN
+       ======================================================================== -->
+  <div id="founder-menu-modal" class="modal-backdrop">
+    <div class="bottom-sheet-content">
+      <div class="sheet-handle-bar"></div>
+      <div class="sheet-header-title">
+        <span>👑 حساب المؤسس والتحكم الأمني</span>
+        <button class="sheet-close-btn" onclick="MasterApp.closeFounderMenu()">✕</button>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px; background:var(--bg-card-inner); padding:10px; border-radius:var(--radius-md);">
+        <img src="assets/brand/master_founder.jpg" alt="Founder" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid var(--gold);">
+        <div>
+          <div style="font-size:13.5px; font-weight:800; color:#FFF;">عبد الرؤوف شريف</div>
+          <div style="font-size:11px; color:var(--text-muted);">Founder & Lead Architect — Harpy Order</div>
+        </div>
       </div>
 
       <div class="form-group">
-        <label class="form-label">رمز PIN الجديد (4 أرقام)</label>
-        <input type="password" id="pin-new-input" class="form-input" placeholder="****" maxlength="4" pattern="[0-9]*" inputmode="numeric" dir="ltr">
+        <label class="form-label">رمز PIN الحالي:</label>
+        <input type="password" id="pin-current-input" class="form-input" maxlength="4" placeholder="••••" style="font-family:var(--font-num);">
       </div>
 
-      <button type="button" class="btn-submit-sheet" onclick="MasterApp.confirmChangePin()">حفظ رمز PIN الجديد</button>
+      <div class="form-group">
+        <label class="form-label">رمز PIN الجديد (4 أرقام):</label>
+        <input type="password" id="pin-new-input" class="form-input" maxlength="4" placeholder="••••" style="font-family:var(--font-num);">
+      </div>
+
+      <button class="btn-sheet-submit" onclick="MasterApp.confirmChangePin()" style="margin-top:6px;">تحديث رمز الحماية PIN 🔒</button>
+
+      <button class="card-sub-btn" onclick="MasterApp.lock()" style="width:100%; margin-top:10px; padding:8px; border-color:rgba(239, 68, 68, 0.4); color:#F87171;">
+        <span>قفل الشاشة والخروج الفوري 🚪</span>
+      </button>
     </div>
   </div>
 
   <!-- Toast Notification Container -->
   <div id="toast-container"></div>
 
-  <!-- ==========================================================================
-       7. JAVASCRIPT MASTER ENGINE
-       ========================================================================== -->
+  <!-- ========================================================================
+       JAVASCRIPT ARCHITECTURE (PRODUCTION RUNTIME)
+       ======================================================================== -->
   <script>
     // Master Authentication Key (Used directly to bypass rules for Master Super-Admin)
     const MASTER_KEY = "r5nenhIbwtTX3BiCu0kaNOtXSC8ncr7Vk3tWaaPh";
+    const BASE_RTDB = "https://harpy-order-default-rtdb.firebaseio.com";
+
+    // Safe Expiration Date Parser (Handles ISO 8601 strings, millisecond numbers, and nulls)
+    function parseExpiry(val) {
+      if (!val) return null;
+      if (typeof val === 'number') return val;
+      if (typeof val === 'string') {
+        const parsed = new Date(val).getTime();
+        return isNaN(parsed) ? null : parsed;
+      }
+      return null;
+    }
 
     const MasterApp = {
       currentPin: '',
@@ -1197,8 +1697,12 @@
       tenants: [],
       currentFilter: 'all',
       searchQuery: '',
+      currentTab: 'tenants',
+      
       extendingSlug: null,
       deletingSlug: null,
+      modulesSlug: null,
+      cloningSourceSlug: null,
 
       init() {
         const isSessionUnlocked = sessionStorage.getItem('harpy_master_unlocked') === 'true';
@@ -1254,206 +1758,310 @@
       unlockScreen() {
         document.getElementById('lock-screen').classList.add('unlocked');
         document.getElementById('main-app').style.display = 'block';
-        this.loadTenantsFromCloud();
+        this.loadAllData();
       },
 
       lock() {
         sessionStorage.removeItem('harpy_master_unlocked');
         this.currentPin = '';
         this.updatePinDots();
+        this.closeFounderMenu();
         document.getElementById('main-app').style.display = 'none';
         document.getElementById('lock-screen').classList.remove('unlocked');
       },
 
-      // --- PIN Modal ---
-      openChangePinModal() {
-        document.getElementById('pin-current-input').value = '';
-        document.getElementById('pin-new-input').value = '';
-        document.getElementById('pin-modal').classList.add('open');
-      },
+      // --- Navigation Tabs ---
+      switchTab(tabName) {
+        this.currentTab = tabName;
+        document.querySelectorAll('.nav-tab-pill').forEach(b => {
+          if (b.dataset.tab === tabName) b.classList.add('active');
+          else b.classList.remove('active');
+        });
+        document.querySelectorAll('.tab-pane').forEach(p => {
+          if (p.id === `pane-${tabName}`) p.classList.add('active');
+          else p.classList.remove('active');
+        });
 
-      closePinModal() {
-        document.getElementById('pin-modal').classList.remove('open');
-      },
-
-      confirmChangePin() {
-        const current = document.getElementById('pin-current-input').value.trim();
-        const newPin = document.getElementById('pin-new-input').value.trim();
-        if (current !== this.correctPin) {
-          this.showToast("رمز PIN الحالي غير صحيح!", "error");
-          return;
+        if (tabName === 'live-orders') {
+          this.loadLiveOrders();
+        } else if (tabName === 'broadcast') {
+          this.loadBroadcast();
+        } else if (tabName === 'backups') {
+          this.renderBackupsList();
         }
-        if (!newPin || newPin.length !== 4 || !/^\d+$/.test(newPin)) {
-          this.showToast("الرمز الجديد يجب أن يتكون من 4 أرقام", "error");
-          return;
-        }
-        this.correctPin = newPin;
-        localStorage.setItem('harpy_master_pin', newPin);
-        this.closePinModal();
-        this.showToast("تم تحديث رمز PIN بنجاح! احفظه جيداً.", "success");
       },
 
-      // --- Cloud Data Synchronization ---
-      async loadTenantsFromCloud() {
+      // --- Cloud Data Fetching & Sync ---
+      async loadAllData() {
         const syncText = document.getElementById('sync-status-text');
-        if (syncText) syncText.textContent = "جاري المزامنة...";
+        if (syncText) syncText.textContent = "جاري المزامنة مع السحابة...";
 
         try {
-          // Fetch live licenses using Master Key
           const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
-          const res = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses.json${authParam}`);
+          
+          // 1. Fetch live licenses
+          const res = await fetch(`${BASE_RTDB}/licenses.json${authParam}`);
           if (!res.ok) throw new Error("HTTP " + res.status);
           const rawLicenses = await res.json() || {};
 
+          let totalMealsCount = 0;
+          let totalOrdersCount = 0;
           const loadedTenants = [];
+
           for (const [slug, lic] of Object.entries(rawLicenses)) {
             if (!lic || typeof lic !== 'object') continue;
 
-            // Fetch live settings for storeName and logo
+            // Fetch live settings, products count & orders count in parallel
             let settings = {};
+            let prodCount = 0;
+            let orderCount = 0;
+
             try {
-              const sRes = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/settings.json${authParam}`);
+              const [sRes, pRes, oRes] = await Promise.all([
+                fetch(`${BASE_RTDB}/restaurants/${slug}/settings.json${authParam}`),
+                fetch(`${BASE_RTDB}/restaurants/${slug}/products.json${authParam}&shallow=true`),
+                fetch(`${BASE_RTDB}/restaurants/${slug}/orders.json${authParam}&shallow=true`)
+              ]);
+
               if (sRes.ok) settings = await sRes.json() || {};
+              if (pRes.ok) {
+                const pData = await pRes.json() || {};
+                prodCount = Object.keys(pData).length;
+                totalMealsCount += prodCount;
+              }
+              if (oRes.ok) {
+                const oData = await oRes.json() || {};
+                orderCount = Object.keys(oData).length;
+                totalOrdersCount += orderCount;
+              }
             } catch(e) {}
 
             loadedTenants.push({
               slug: slug,
               name: settings.storeName || settings.name || lic.restaurantName || slug.toUpperCase(),
               logo: settings.logo || null,
+              coverImage: settings.coverImage || settings.cover || null,
               phone: settings.phone || lic.phone || '',
               status: lic.status || 'active',
               ownerUid: lic.ownerUid || null,
-              expiresAt: lic.expiresAt || (Date.now() + 30 * 86400000),
-              plan: lic.plan || 'standard'
+              expiresAt: lic.expiresAt,
+              plan: lic.plan || 'standard',
+              productsCount: prodCount,
+              ordersCount: orderCount,
+              modules: settings.modules || lic.modules || {}
             });
           }
 
           this.tenants = loadedTenants;
+          
+          // Update KPI Elements
+          document.getElementById('kpi-total-meals').textContent = totalMealsCount;
+          document.getElementById('kpi-total-orders').textContent = totalOrdersCount;
+
           this.renderUI();
           if (syncText) syncText.textContent = "متصل بالسيرفر الحي";
         } catch(err) {
-          console.error("Load tenants error:", err);
-          if (syncText) syncText.textContent = "خطأ في الاتصال";
-          this.showToast("تعذر تحميل البيانات، تحقق من السيرفر", "error");
+          console.error("Load data error:", err);
+          if (syncText) syncText.textContent = "خطأ في المزامنة";
+          this.showToast("تعذر تحميل البيانات، تحقق من اتصال السيرفر", "error");
         }
       },
 
       renderUI() {
         const now = Date.now();
-        const activeCount = this.tenants.filter(t => t.status === 'active' && (!t.expiresAt || t.expiresAt > now)).length;
-        const suspendedCount = this.tenants.length - activeCount;
+        let activeCount = 0;
+        let suspendedCount = 0;
 
-        document.getElementById('metric-active-count').textContent = activeCount;
-        document.getElementById('metric-suspended-count').textContent = suspendedCount;
-        document.getElementById('metric-total-count').textContent = this.tenants.length;
+        this.tenants.forEach(t => {
+          const expTime = parseExpiry(t.expiresAt);
+          const isExpired = expTime && expTime < now;
+          if (t.status === 'active' && !isExpired) {
+            activeCount++;
+          } else {
+            suspendedCount++;
+          }
+        });
 
-        // Filter & Search
+        document.getElementById('kpi-active-tenants').textContent = activeCount;
+        document.getElementById('tab-badge-tenants').textContent = this.tenants.length;
+        document.getElementById('filter-all-count').textContent = this.tenants.length;
+        document.getElementById('filter-active-count').textContent = activeCount;
+        document.getElementById('filter-suspended-count').textContent = suspendedCount;
+
+        // Filter and Search
         let filtered = this.tenants.filter(t => {
-          if (this.currentFilter === 'active') {
-            if (t.status !== 'active' || (t.expiresAt && t.expiresAt <= now)) return false;
-          }
-          if (this.currentFilter === 'suspended') {
-            if (t.status === 'active' && (!t.expiresAt || t.expiresAt > now)) return false;
-          }
+          const expTime = parseExpiry(t.expiresAt);
+          const isExpired = expTime && expTime < now;
+          const isActive = t.status === 'active' && !isExpired;
+
+          if (this.currentFilter === 'active' && !isActive) return false;
+          if (this.currentFilter === 'suspended' && isActive) return false;
+
           if (this.searchQuery) {
             const q = this.searchQuery.toLowerCase();
-            return (t.name && t.name.toLowerCase().includes(q)) || t.slug.toLowerCase().includes(q);
+            const n = (t.name || '').toLowerCase();
+            const s = (t.slug || '').toLowerCase();
+            const p = (t.phone || '').toLowerCase();
+            return n.includes(q) || s.includes(q) || p.includes(q);
           }
           return true;
         });
 
         const container = document.getElementById('tenants-container');
         if (filtered.length === 0) {
-          container.innerHTML = `<div class="empty-state">لا توجد مطاعم مطابقة للبحث</div>`;
+          container.innerHTML = `<div class="empty-state">لا توجد مطاعم مطابقة للبحث أو التصفية</div>`;
           return;
         }
 
         container.innerHTML = filtered.map(t => {
-          const isExpired = t.expiresAt && t.expiresAt < now;
+          const expTime = parseExpiry(t.expiresAt);
+          const isExpired = expTime && expTime < now;
           const isActive = t.status === 'active' && !isExpired;
-          
-          let daysLeftText = 'مدى الحياة';
+
+          let daysLeftText = 'مدى الحياة ♾️';
           let isCritical = false;
-          if (t.expiresAt) {
-            const diffDays = Math.ceil((t.expiresAt - now) / 86400000);
+          if (expTime) {
+            const diffDays = Math.ceil((expTime - now) / 86400000);
             if (diffDays <= 0) {
-              daysLeftText = `منتهي منذ ${Math.abs(diffDays)} يوم`;
+              daysLeftText = `منتهي منذ ${Math.abs(diffDays)} يوم ⚠️`;
               isCritical = true;
             } else {
               daysLeftText = `متبقي ${diffDays} يوم`;
-              if (diffDays <= 5) isCritical = true;
+              if (diffDays <= 7) isCritical = true;
             }
           }
 
+          const coverStyle = t.coverImage 
+            ? `background-image: url('${t.coverImage}');`
+            : `background: linear-gradient(135deg, #1E293B, #0F172A);`;
+
           const logoHtml = t.logo 
             ? `<img src="${t.logo}" alt="${t.name}">`
-            : `<span class="tenant-logo-placeholder">${t.name.slice(0, 1)}</span>`;
+            : `<span class="card-logo-placeholder">${t.name.slice(0, 1)}</span>`;
 
           return `
-            <div class="tenant-card ${isActive ? '' : 'suspended-state'}">
-              <div class="tenant-header">
-                <div class="tenant-info-left">
-                  <div class="tenant-logo-box">${logoHtml}</div>
-                  <div class="tenant-names-col">
-                    <span class="tenant-title">${t.name}</span>
-                    <a href="order.html?m=${t.slug}" target="_blank" class="tenant-slug-link">
-                      <span>harpymenu.com/order/?m=${t.slug}</span>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="10" height="10"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                    </a>
-                  </div>
-                </div>
-
-                <div class="tenant-status-side">
+            <div class="tenant-card ${isActive ? '' : 'suspended-card'}">
+              <!-- Cover Banner -->
+              <div class="card-cover-banner" style="${coverStyle}">
+                <div class="card-cover-overlay"></div>
+                
+                <div class="card-cover-top-badges">
                   <span class="status-badge ${isActive ? 'active-badge' : 'suspended-badge'}">
-                    ${isActive ? '● نشط' : '● موقف'}
+                    ${isActive ? '● نشط ومفعل' : '● مجمّد'}
                   </span>
-                  <label class="switch-label" title="تبديل حالة المطعم">
+
+                  <label class="switch-ui" title="تجميد أو تفعيل المطعم">
                     <input type="checkbox" ${isActive ? 'checked' : ''} onchange="MasterApp.toggleStatus('${t.slug}', this.checked)">
-                    <span class="slider"></span>
+                    <span class="switch-slider"></span>
                   </label>
                 </div>
               </div>
 
-              <div class="tenant-meta-strip">
-                <div>
-                  <span>صلاحية الاشتراك:</span>
-                  <span class="days-pill ${isCritical ? 'critical' : ''}">${daysLeftText}</span>
+              <!-- Card Body -->
+              <div class="card-body">
+                <div class="card-header-row">
+                  <div class="card-logo-box">${logoHtml}</div>
+                  <div class="card-identity-col">
+                    <div class="card-store-name">${t.name}</div>
+                    <a href="order.html?m=${t.slug}" target="_blank" class="card-slug-link">
+                      <span>harpymenu.com/order/?m=${t.slug}</span>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    </a>
+                  </div>
                 </div>
-                <div>${t.phone ? '📞 ' + t.phone : ''}</div>
-              </div>
 
-              <div class="tenant-actions-grid">
-                <button class="action-btn-cell primary-action" onclick="MasterApp.launchAdmin('${t.slug}')" title="دخول مباشر كمدير">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
-                  <span>الإدارة</span>
-                </button>
+                <!-- Meta Strip -->
+                <div class="card-meta-chips-row">
+                  <div class="meta-chip">
+                    <span>📅</span>
+                    <span class="days-pill ${isCritical ? 'critical' : ''}">${daysLeftText}</span>
+                  </div>
+                  <div class="meta-chip">
+                    <span>🍽️</span>
+                    <span>${t.productsCount} وجبة</span>
+                  </div>
+                  <div class="meta-chip">
+                    <span>🛒</span>
+                    <span>${t.ordersCount} طلب</span>
+                  </div>
+                  ${t.phone ? `<div class="meta-chip"><span>📞</span><span>${t.phone}</span></div>` : ''}
+                </div>
 
-                <a href="order.html?m=${t.slug}" target="_blank" class="action-btn-cell" title="معاينة المنيو">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                  <span>المنيو</span>
-                </a>
+                <!-- Primary Actions Grid -->
+                <div class="card-actions-grid">
+                  <button class="card-btn primary-btn" onclick="MasterApp.launchAdmin('${t.slug}')" title="دخول مباشر كمدير سوبر أدمن">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+                    <span>الإدارة</span>
+                  </button>
 
-                <button class="action-btn-cell" onclick="MasterApp.openExtendModal('${t.slug}')" title="تمديد الاشتراك">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                  <span>تمديد</span>
-                </button>
+                  <a href="order.html?m=${t.slug}" target="_blank" class="card-btn" title="معاينة منيو العميل المباشر">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <span>المنيو</span>
+                  </a>
 
-                <button class="action-btn-cell danger-action" onclick="MasterApp.openDeleteModal('${t.slug}', '${t.name}')" title="حذف شامل ونظيف">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                  <span>حذف</span>
-                </button>
+                  <button class="card-btn" onclick="MasterApp.openExtendModal('${t.slug}')" title="تمديد مدة الاشتراك">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span>تمديد</span>
+                  </button>
+
+                  <button class="card-btn" onclick="MasterApp.openModulesModal('${t.slug}')" title="التحكم في الميزات والصلاحيات">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    <span>ميزات</span>
+                  </button>
+                </div>
+
+                <!-- Secondary Sub-Actions -->
+                <div class="card-secondary-actions-row">
+                  <button class="card-sub-btn" onclick="MasterApp.exportBackup('${t.slug}')" title="تصدير نسخة احتياطية JSON">
+                    <span>📥 نسخة احتياطية</span>
+                  </button>
+                  <button class="card-sub-btn" onclick="MasterApp.openCloneModal('${t.slug}')" title="استنساخ المنيو لمطعم آخر">
+                    <span>📋 استنساخ</span>
+                  </button>
+                  <button class="card-sub-btn" onclick="MasterApp.openDeleteModal('${t.slug}', '${t.name}')" style="color:#F87171;" title="حذف شامل ونظيف من السحابة">
+                    <span>🗑️ حذف</span>
+                  </button>
+                </div>
               </div>
             </div>
           `;
         }).join('');
       },
 
-      // --- Actions ---
+      // --- Actions: Direct Admin Launch ---
+      launchAdmin(slug) {
+        const target = this.tenants.find(t => t.slug === slug);
+        const ownerUid = (target && target.ownerUid) ? target.ownerUid : `master_owner_${slug}`;
+        
+        const sessionPayload = {
+          email: `${slug}@harpymenu.com`,
+          uid: ownerUid,
+          authenticated: true,
+          slug: slug,
+          isMasterSuperAdmin: true,
+          timestamp: Date.now()
+        };
+
+        // Seed comprehensive auth keychain so admin bypasses login seamlessly
+        localStorage.setItem(`harpy_admin_auth_${slug}`, JSON.stringify(sessionPayload));
+        sessionStorage.setItem(`harpy_auth_${slug}`, JSON.stringify(sessionPayload));
+        localStorage.setItem('harpy_admin_active_slug', slug);
+        localStorage.setItem('harpy_active_slug', slug);
+        localStorage.setItem(`harpy_${slug}_sub_status`, 'active');
+        sessionStorage.setItem('harpy_branch_authorized_switch', slug);
+
+        this.showToast(`جاري فتح لوحة إدارة (${slug}) كـ Super Admin... 🚀`, "success");
+        
+        // Open admin directory directly
+        window.open(`./admin/?m=${slug}`, '_blank');
+      },
+
+      // --- Actions: Toggle Status ---
       async toggleStatus(slug, activate) {
         const newStatus = activate ? 'active' : 'suspended';
         const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
         try {
-          await fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${slug}.json${authParam}`, {
+          await fetch(`${BASE_RTDB}/licenses/${slug}.json${authParam}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: newStatus, updatedAt: Date.now() })
@@ -1467,33 +2075,16 @@
         }
       },
 
-      launchAdmin(slug) {
-        const target = this.tenants.find(t => t.slug === slug);
-        const ownerUid = (target && target.ownerUid) ? target.ownerUid : 'master_admin';
-        const session = {
-          email: `${slug}@harpymenu.com`,
-          uid: ownerUid,
-          authenticated: true,
-          slug: slug,
-          timestamp: Date.now(),
-          isMasterSuperAdmin: true
-        };
-        localStorage.setItem(`harpy_admin_auth_${slug}`, JSON.stringify(session));
-        sessionStorage.setItem(`harpy_auth_${slug}`, JSON.stringify(session));
-        localStorage.setItem('harpy_admin_active_slug', slug);
-        sessionStorage.setItem('harpy_branch_authorized_switch', slug);
-
-        this.showToast(`جاري فتح لوحة إدارة (${slug})...`, "success");
-        window.open(`admin.html?m=${slug}`, '_blank');
-      },
-
+      // --- Actions: Extend License ---
       openExtendModal(slug) {
         const target = this.tenants.find(t => t.slug === slug);
         if (!target) return;
         this.extendingSlug = slug;
         document.getElementById('extend-store-name').textContent = target.name;
-        const currentExp = target.expiresAt ? new Date(target.expiresAt).toLocaleDateString('ar-EG') : 'غير محدد';
-        document.getElementById('extend-current-expiry').textContent = `تاريخ الانتهاء الحالي: ${currentExp}`;
+        
+        const expTime = parseExpiry(target.expiresAt);
+        const currentExpStr = expTime ? new Date(expTime).toLocaleDateString('ar-EG') : 'غير محدد';
+        document.getElementById('extend-current-expiry').textContent = `تاريخ الانتهاء الحالي: ${currentExpStr}`;
         document.getElementById('extend-modal').classList.add('open');
       },
 
@@ -1508,12 +2099,13 @@
         const target = this.tenants.find(t => t.slug === this.extendingSlug);
         if (!target) return;
 
-        const baseTime = (target.expiresAt && target.expiresAt > Date.now()) ? target.expiresAt : Date.now();
+        const currentExp = parseExpiry(target.expiresAt);
+        const baseTime = (currentExp && currentExp > Date.now()) ? currentExp : Date.now();
         const newExpiry = baseTime + (days * 86400000);
         const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
 
         try {
-          await fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${this.extendingSlug}.json${authParam}`, {
+          await fetch(`${BASE_RTDB}/licenses/${this.extendingSlug}.json${authParam}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ expiresAt: newExpiry, status: 'active', updatedAt: Date.now() })
@@ -1522,12 +2114,180 @@
           target.status = 'active';
           this.closeExtendModal();
           this.renderUI();
-          this.showToast(`تم تمديد اشتراك (${target.name}) بنجاح!`, "success");
+          this.showToast(`تم تمديد اشتراك (${target.name}) بنجاح! 🎉`, "success");
         } catch(e) {
-          this.showToast("فشل تمديد الاشتراك", "error");
+          this.showToast("فشل تمديد الاشتراك بالسحابة", "error");
         }
       },
 
+      // --- Actions: Modules & Feature Flags ---
+      openModulesModal(slug) {
+        const target = this.tenants.find(t => t.slug === slug);
+        if (!target) return;
+        this.modulesSlug = slug;
+        document.getElementById('modules-store-name').textContent = target.name;
+
+        const mods = target.modules || {};
+        document.getElementById('mod-pos').checked = mods.pos !== false;
+        document.getElementById('mod-inventory').checked = mods.inventory !== false;
+        document.getElementById('mod-stories').checked = mods.stories !== false;
+        document.getElementById('mod-tables').checked = mods.tables !== false;
+        document.getElementById('mod-delivery').checked = mods.delivery !== false;
+        document.getElementById('mod-online-payment').checked = mods.onlinePayment === true;
+
+        document.getElementById('modules-modal').classList.add('open');
+      },
+
+      closeModulesModal() {
+        document.getElementById('modules-modal').classList.remove('open');
+        this.modulesSlug = null;
+      },
+
+      async saveModules() {
+        if (!this.modulesSlug) return;
+        const slug = this.modulesSlug;
+        const modulesPayload = {
+          pos: document.getElementById('mod-pos').checked,
+          inventory: document.getElementById('mod-inventory').checked,
+          stories: document.getElementById('mod-stories').checked,
+          tables: document.getElementById('mod-tables').checked,
+          delivery: document.getElementById('mod-delivery').checked,
+          onlinePayment: document.getElementById('mod-online-payment').checked,
+          updatedAt: Date.now()
+        };
+
+        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
+        try {
+          await Promise.all([
+            fetch(`${BASE_RTDB}/restaurants/${slug}/settings/modules.json${authParam}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(modulesPayload)
+            }),
+            fetch(`${BASE_RTDB}/licenses/${slug}/modules.json${authParam}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(modulesPayload)
+            })
+          ]);
+
+          const target = this.tenants.find(t => t.slug === slug);
+          if (target) target.modules = modulesPayload;
+
+          this.closeModulesModal();
+          this.showToast("تم تحديث صلاحيات الميزات بنجاح! 💾", "success");
+        } catch(e) {
+          this.showToast("فشل حفظ الصلاحيات بالسحابة", "error");
+        }
+      },
+
+      // --- Actions: Export Backup ---
+      async exportBackup(slug) {
+        this.showToast(`جاري سحب نسخة احتياطية لـ (${slug})... ⏳`, "info");
+        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
+
+        try {
+          const [licRes, setRes, catRes, prodRes, rawRes] = await Promise.all([
+            fetch(`${BASE_RTDB}/licenses/${slug}.json${authParam}`),
+            fetch(`${BASE_RTDB}/restaurants/${slug}/settings.json${authParam}`),
+            fetch(`${BASE_RTDB}/restaurants/${slug}/categories.json${authParam}`),
+            fetch(`${BASE_RTDB}/restaurants/${slug}/products.json${authParam}`),
+            fetch(`${BASE_RTDB}/restaurants/${slug}/rawMaterials.json${authParam}`)
+          ]);
+
+          const backupData = {
+            exportDate: new Date().toISOString(),
+            slug: slug,
+            license: await licRes.json(),
+            settings: await setRes.json(),
+            categories: await catRes.json(),
+            products: await prodRes.json(),
+            rawMaterials: await rawRes.json()
+          };
+
+          const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `harpy_backup_${slug}_${new Date().toISOString().slice(0,10)}.json`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
+
+          this.showToast(`تم تحميل النسخة الاحتياطية بنجاح! 📁`, "success");
+        } catch(e) {
+          console.error("Backup export error:", e);
+          this.showToast("فشل تصدير النسخة الاحتياطية", "error");
+        }
+      },
+
+      // --- Actions: Clone Menu ---
+      openCloneModal(sourceSlug) {
+        const source = this.tenants.find(t => t.slug === sourceSlug);
+        if (!source) return;
+        this.cloningSourceSlug = sourceSlug;
+
+        document.getElementById('clone-source-name').textContent = source.name;
+        const targetSelect = document.getElementById('clone-target-select');
+        const otherTenants = this.tenants.filter(t => t.slug !== sourceSlug);
+
+        if (otherTenants.length === 0) {
+          targetSelect.innerHTML = `<option value="">لا توجد مطاعم أخرى حالياً</option>`;
+        } else {
+          targetSelect.innerHTML = otherTenants.map(t => `<option value="${t.slug}">${t.name} (${t.slug})</option>`).join('');
+        }
+
+        document.getElementById('clone-modal').classList.add('open');
+      },
+
+      closeCloneModal() {
+        document.getElementById('clone-modal').classList.remove('open');
+        this.cloningSourceSlug = null;
+      },
+
+      async confirmCloneMenu() {
+        if (!this.cloningSourceSlug) return;
+        const targetSlug = document.getElementById('clone-target-select').value;
+        if (!targetSlug) {
+          this.showToast("يرجى اختيار المطعم الهدف", "error");
+          return;
+        }
+
+        this.showToast(`جاري استنساخ المنيو من (${this.cloningSourceSlug}) إلى (${targetSlug})...`, "info");
+        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
+
+        try {
+          const [catRes, prodRes] = await Promise.all([
+            fetch(`${BASE_RTDB}/restaurants/${this.cloningSourceSlug}/categories.json${authParam}`),
+            fetch(`${BASE_RTDB}/restaurants/${this.cloningSourceSlug}/products.json${authParam}`)
+          ]);
+
+          const cats = await catRes.json();
+          const prods = await prodRes.json();
+
+          await Promise.all([
+            fetch(`${BASE_RTDB}/restaurants/${targetSlug}/categories.json${authParam}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(cats)
+            }),
+            fetch(`${BASE_RTDB}/restaurants/${targetSlug}/products.json${authParam}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(prods)
+            })
+          ]);
+
+          this.closeCloneModal();
+          this.showToast(`تم استنساخ المنيو بنجاح إلى (${targetSlug})! 📋`, "success");
+          await this.loadAllData();
+        } catch(e) {
+          this.showToast("فشل استنساخ المنيو", "error");
+        }
+      },
+
+      // --- Actions: Cascade Wipe / Delete ---
       openDeleteModal(slug, name) {
         this.deletingSlug = slug;
         document.getElementById('delete-store-target-name').textContent = name;
@@ -1544,7 +2304,7 @@
         if (!this.deletingSlug) return;
         const word = document.getElementById('delete-confirm-word-input').value.trim();
         if (word !== 'حذف') {
-          this.showToast("يجب كتابة كلمة (حذف) باللغة العربية للتأكيد", "error");
+          this.showToast("يجب كتابة كلمة (حذف) بالعربية للتأكيد", "error");
           return;
         }
 
@@ -1554,28 +2314,34 @@
         const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
 
         try {
-          this.showToast(`جاري تنظيف وحذف مطعم (${name})...`, "info");
-          // 1. Delete license
-          await fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${slug}.json${authParam}`, { method: 'DELETE' });
-          // 2. Delete all restaurant data
-          await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}.json${authParam}`, { method: 'DELETE' });
+          this.showToast(`جاري تنظيف ومسح مطعم (${name})...`, "info");
+          await Promise.all([
+            fetch(`${BASE_RTDB}/licenses/${slug}.json${authParam}`, { method: 'DELETE' }),
+            fetch(`${BASE_RTDB}/restaurants/${slug}.json${authParam}`, { method: 'DELETE' })
+          ]);
 
           this.tenants = this.tenants.filter(t => t.slug !== slug);
           this.closeDeleteModal();
           this.renderUI();
-          this.showToast(`تم حذف مطعم (${name}) بنظافة تامة من السحابة!`, "success");
+          this.showToast(`تم حذف مطعم (${name}) بنظافة تامة من السحابة! 🗑️`, "success");
         } catch(e) {
           this.showToast("فشل حذف المطعم من السحابة", "error");
         }
       },
 
-      // --- Onboard New Tenant Wizard ---
+      // --- Wizard: 1-Click Onboard ---
       openAddTenantModal() {
         document.getElementById('add-tenant-modal').classList.add('open');
       },
 
       closeAddTenantModal() {
         document.getElementById('add-tenant-modal').classList.remove('open');
+      },
+
+      selectTemplate(cardEl, templateKey) {
+        document.querySelectorAll('.template-card-option').forEach(c => c.classList.remove('selected'));
+        cardEl.classList.add('selected');
+        document.getElementById('new-menu-template').value = templateKey;
       },
 
       suggestSlug(name) {
@@ -1585,20 +2351,16 @@
           if (clean) {
             slugInput.value = clean;
             slugInput.dataset.autoGenerated = 'true';
-            this.updateSlugPreview(clean);
+            document.getElementById('slug-preview-text').textContent = `https://harpymenu.com/order/?m=${clean}`;
           }
         }
-      },
-
-      updateSlugPreview(slug) {
-        document.getElementById('slug-preview-text').textContent = `https://harpymenu.com/order/?m=${slug || '...'}`;
       },
 
       async handleCreateTenant(e) {
         e.preventDefault();
         const submitBtn = document.getElementById('btn-create-submit');
         submitBtn.disabled = true;
-        submitBtn.textContent = "جاري التأسيس والرفع السحابي...";
+        submitBtn.textContent = "جاري التأسيس والتدشين السحابي... ⏳";
 
         const name = document.getElementById('new-store-name').value.trim();
         const slug = document.getElementById('new-store-slug').value.trim().toLowerCase();
@@ -1607,15 +2369,13 @@
         const template = document.getElementById('new-menu-template').value;
         const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
 
-        // Check duplicate
         if (this.tenants.some(t => t.slug === slug)) {
           this.showToast("هذا الرابط (Slug) مستخدم بالفعل لمطعم آخر", "error");
           submitBtn.disabled = false;
-          submitBtn.textContent = "إنشاء وتفعيل المطعم فوراً";
+          submitBtn.textContent = "تدشين وتفعيل المطعم فوراً 🚀";
           return;
         }
 
-        // Calculate Expiration
         let expiresAt = Date.now() + (30 * 86400000);
         if (plan === 'trial_14') expiresAt = Date.now() + (14 * 86400000);
         if (plan === 'month_3') expiresAt = Date.now() + (90 * 86400000);
@@ -1623,18 +2383,28 @@
         if (plan === 'lifetime') expiresAt = Date.now() + (3650 * 86400000);
 
         try {
-          let initialCategories = [{ id: 'cat_1', name: 'الوجبات الرئيسية', visible: true }];
+          let initialCategories = [{ id: 'cat_1', name: 'الوجبات المميزة', visible: true }];
           let initialProducts = [];
 
           if (template === 'saj' || template === 'king') {
             try {
               const [catRes, prodRes] = await Promise.all([
-                fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${template}/categories.json${authParam}`),
-                fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${template}/products.json${authParam}`)
+                fetch(`${BASE_RTDB}/restaurants/${template}/categories.json${authParam}`),
+                fetch(`${BASE_RTDB}/restaurants/${template}/products.json${authParam}`)
               ]);
               if (catRes.ok) initialCategories = await catRes.json() || initialCategories;
               if (prodRes.ok) initialProducts = await prodRes.json() || initialProducts;
             } catch(tErr) {}
+          } else if (template === 'cafe') {
+            initialCategories = [
+              { id: 'cat_c1', name: 'القهوة والمشروبات الساخنة', visible: true },
+              { id: 'cat_c2', name: 'المشروبات الباردة والسموذي', visible: true },
+              { id: 'cat_c3', name: 'الحلويات والمخبوزات', visible: true }
+            ];
+            initialProducts = [
+              { id: 'p_1', name: 'اسبريسو دوبل', price: 35, category: 'cat_c1', visible: true, description: 'حبوب بن برازيلية فاخرة' },
+              { id: 'p_2', name: 'سبانش لاتيه مثلج', price: 65, category: 'cat_c2', visible: true, description: 'مزيج الحليب المكثف مع الإسبريسو' }
+            ];
           }
 
           const licensePayload = {
@@ -1657,56 +2427,235 @@
             deliveryFee: 15,
             primaryColor: '#FF6A00',
             accentColor: '#17243C',
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            modules: { pos: true, inventory: true, stories: true, tables: true, delivery: true }
           };
 
-          // 1. Save License
-          await fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${slug}.json${authParam}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(licensePayload)
-          });
-
-          // 2. Save Settings
-          await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/settings.json${authParam}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(settingsPayload)
-          });
-
-          // 3. Save Categories
-          await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/categories.json${authParam}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(initialCategories)
-          });
-
-          // 4. Save Products
-          if (initialProducts.length > 0) {
-            await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/products.json${authParam}`, {
+          await Promise.all([
+            fetch(`${BASE_RTDB}/licenses/${slug}.json${authParam}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(licensePayload)
+            }),
+            fetch(`${BASE_RTDB}/restaurants/${slug}/settings.json${authParam}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(settingsPayload)
+            }),
+            fetch(`${BASE_RTDB}/restaurants/${slug}/categories.json${authParam}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(initialCategories)
+            }),
+            initialProducts.length > 0 ? fetch(`${BASE_RTDB}/restaurants/${slug}/products.json${authParam}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(initialProducts)
-            });
-          }
+            }) : Promise.resolve()
+          ]);
 
-          this.showToast(`تم تأسيس مطعم (${name}) بنجاح! 🚀`, "success");
+          this.showToast(`تم تأسيس وتدشين مطعم (${name}) بنجاح! 🚀`, "success");
           this.closeAddTenantModal();
           document.getElementById('add-tenant-form').reset();
-          await this.loadTenantsFromCloud();
+          await this.loadAllData();
         } catch(err) {
           console.error("Create tenant error:", err);
-          this.showToast("حدث خطأ أثناء الإنشاء، تحقق من الاتصال", "error");
+          this.showToast("حدث خطأ أثناء التأسيس، تحقق من السيرفر", "error");
         } finally {
           submitBtn.disabled = false;
-          submitBtn.textContent = "إنشاء وتفعيل المطعم فوراً";
+          submitBtn.textContent = "تدشين وتفعيل المطعم فوراً 🚀";
         }
       },
 
-      // --- Filters ---
+      // --- Live Orders Feed Tab ---
+      async loadLiveOrders() {
+        const container = document.getElementById('live-orders-container');
+        container.innerHTML = `<div class="empty-state">جاري سحب أحدث الطلبات الحية... ⏳</div>`;
+        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
+
+        try {
+          const fetchPromises = this.tenants.map(async t => {
+            try {
+              const res = await fetch(`${BASE_RTDB}/restaurants/${t.slug}/orders.json${authParam}&orderBy="$key"&limitToLast=6`);
+              if (!res.ok) return [];
+              const data = await res.json() || {};
+              return Object.entries(data).map(([orderId, ord]) => ({
+                orderId: orderId,
+                tenantSlug: t.slug,
+                tenantName: t.name,
+                ...ord
+              }));
+            } catch(e) {
+              return [];
+            }
+          });
+
+          const results = await Promise.all(fetchPromises);
+          const allOrders = results.flat();
+          
+          // Sort by creation time descending
+          allOrders.sort((a, b) => {
+            const timeA = new Date(a.createdAt || a.timestamp || 0).getTime();
+            const timeB = new Date(b.createdAt || b.timestamp || 0).getTime();
+            return timeB - timeA;
+          });
+
+          if (allOrders.length === 0) {
+            container.innerHTML = `<div class="empty-state">لا توجد طلبات مسجلة حتى الآن</div>`;
+            return;
+          }
+
+          container.innerHTML = allOrders.slice(0, 15).map(o => {
+            const total = o.finalTotal || o.total || 0;
+            const customer = o.customerName || o.name || 'عميل مباشر';
+            const phone = o.customerPhone || o.phone || '';
+            const status = o.status || 'new';
+            const timeStr = o.createdAt ? new Date(o.createdAt).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) : '';
+
+            let statusBadge = '<span class="status-badge" style="background:rgba(59,130,246,0.2); color:#60A5FA;">جديد</span>';
+            if (status === 'preparing') statusBadge = '<span class="status-badge" style="background:rgba(245,158,11,0.2); color:#FBBF24;">قيد التجهيز</span>';
+            if (status === 'delivered') statusBadge = '<span class="status-badge" style="background:rgba(16,185,129,0.2); color:#34D399;">مكتمل</span>';
+            if (status === 'cancelled') statusBadge = '<span class="status-badge" style="background:rgba(239,68,68,0.2); color:#F87171;">ملغي</span>';
+
+            return `
+              <div class="order-feed-card">
+                <div class="order-feed-top">
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <span class="order-store-pill">${o.tenantName}</span>
+                    <span class="order-feed-id">#${o.orderId}</span>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    ${statusBadge}
+                    <span class="order-feed-time">${timeStr}</span>
+                  </div>
+                </div>
+
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-top:2px;">
+                  <div>
+                    <span style="font-size:12px; font-weight:700; color:#FFF;">${customer}</span>
+                    ${phone ? `<span style="font-size:11px; color:var(--text-dim); margin-right:6px;">(${phone})</span>` : ''}
+                  </div>
+                  <span class="order-feed-total">${total} ج.م</span>
+                </div>
+              </div>
+            `;
+          }).join('');
+        } catch(err) {
+          container.innerHTML = `<div class="empty-state">فشل تحميل شريط الطلبات الحية</div>`;
+        }
+      },
+
+      // --- Global Broadcast Tab ---
+      async loadBroadcast() {
+        const preview = document.getElementById('active-broadcast-preview');
+        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
+        try {
+          const res = await fetch(`${BASE_RTDB}/announcements/global.json${authParam}`);
+          const data = await res.json();
+          if (data && data.message) {
+            preview.innerHTML = `
+              <div class="broadcast-active-card">
+                <div style="display:flex; align-items:center; justify-content:space-between;">
+                  <b style="color:var(--gold); font-size:12px;">📡 تنبيه نشط حالياً على الشاشات:</b>
+                  <button class="card-sub-btn" onclick="MasterApp.clearBroadcast()" style="color:#F87171; border-color:rgba(239,68,68,0.4); width:auto; padding:2px 8px;">إلغاء الإذاعة ✕</button>
+                </div>
+                <div style="font-size:12.5px; color:#FFF; font-weight:700;">${data.message}</div>
+                <div style="font-size:10px; color:var(--text-dim);">تاريخ النشر: ${new Date(data.createdAt).toLocaleString('ar-EG')}</div>
+              </div>
+            `;
+            document.getElementById('broadcast-message-input').value = data.message;
+          } else {
+            preview.innerHTML = `<div style="font-size:11.5px; color:var(--text-dim); margin-bottom:12px;">لا توجد إذاعة نشطة حالياً.</div>`;
+          }
+        } catch(e) {}
+      },
+
+      async publishBroadcast() {
+        const msg = document.getElementById('broadcast-message-input').value.trim();
+        if (!msg) {
+          this.showToast("يرجى كتابة نص التنبيه أولاً", "error");
+          return;
+        }
+        const type = document.getElementById('broadcast-type-select').value;
+        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
+
+        try {
+          await fetch(`${BASE_RTDB}/announcements/global.json${authParam}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              message: msg,
+              type: type,
+              active: true,
+              createdAt: Date.now()
+            })
+          });
+
+          this.showToast("تم نشر التنبيه بنجاح في جميع الشاشات! 📡", "success");
+          this.loadBroadcast();
+        } catch(e) {
+          this.showToast("فشل نشر الإذاعة", "error");
+        }
+      },
+
+      async clearBroadcast() {
+        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
+        try {
+          await fetch(`${BASE_RTDB}/announcements/global.json${authParam}`, { method: 'DELETE' });
+          this.showToast("تم إلغاء الإذاعة من الشاشات", "success");
+          document.getElementById('broadcast-message-input').value = '';
+          this.loadBroadcast();
+        } catch(e) {
+          this.showToast("فشل إلغاء الإذاعة", "error");
+        }
+      },
+
+      // --- Cloud Backups Tab ---
+      renderBackupsList() {
+        const list = document.getElementById('backups-tenants-list');
+        list.innerHTML = this.tenants.map(t => `
+          <div class="module-item-row">
+            <div class="module-info-col">
+              <span class="module-name-title">${t.name}</span>
+              <span class="module-sub-desc">harpymenu.com/order/?m=${t.slug} • ${t.productsCount} وجبة</span>
+            </div>
+            <button class="card-btn primary-btn" onclick="MasterApp.exportBackup('${t.slug}')" style="padding:6px 10px; width:auto;">
+              <span>تحميل JSON 📥</span>
+            </button>
+          </div>
+        `).join('');
+      },
+
+      // --- Founder Menu & PIN ---
+      openFounderMenu() {
+        document.getElementById('founder-menu-modal').classList.add('open');
+      },
+
+      closeFounderMenu() {
+        document.getElementById('founder-menu-modal').classList.remove('open');
+      },
+
+      confirmChangePin() {
+        const current = document.getElementById('pin-current-input').value.trim();
+        const newPin = document.getElementById('pin-new-input').value.trim();
+        if (current !== this.correctPin) {
+          this.showToast("رمز PIN الحالي غير صحيح!", "error");
+          return;
+        }
+        if (!newPin || newPin.length !== 4 || !/^\d+$/.test(newPin)) {
+          this.showToast("الرمز الجديد يجب أن يتكون من 4 أرقام", "error");
+          return;
+        }
+        this.correctPin = newPin;
+        localStorage.setItem('harpy_master_pin', newPin);
+        this.closeFounderMenu();
+        this.showToast("تم تحديث رمز PIN بنجاح! احفظه جيداً.", "success");
+      },
+
+      // --- Filters & Search ---
       setFilter(filter) {
         this.currentFilter = filter;
-        document.querySelectorAll('.pill-btn').forEach(b => {
+        document.querySelectorAll('.filter-chip').forEach(b => {
           if (b.dataset.filter === filter) b.classList.add('active');
           else b.classList.remove('active');
         });
@@ -1722,8 +2671,19 @@
         const container = document.getElementById('toast-container');
         const t = document.createElement('div');
         t.className = `toast-msg ${type}`;
-        t.textContent = msg;
+        
+        let icon = "✅";
+        if (type === "error") icon = "⚠️";
+        if (type === "info") icon = "ℹ️";
+
+        t.innerHTML = `<span>${icon}</span><span>${msg}</span>`;
         container.appendChild(t);
+
+        // Haptic feedback if supported
+        if (window.navigator && window.navigator.vibrate) {
+          window.navigator.vibrate(type === 'error' ? [50, 50, 50] : 40);
+        }
+
         setTimeout(() => {
           t.style.opacity = '0';
           t.style.transition = 'opacity 0.25s ease';
