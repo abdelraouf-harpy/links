@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Harpy Master — لوحة التحكم المركزية للمنصة</title>
+  <title>Harpy Master — لوحة التحكم المركزية</title>
   
   <!-- Favicon & PWA Identity -->
   <link rel="icon" type="image/jpeg" href="assets/brand/master_founder.jpg">
   <link rel="apple-touch-icon" href="assets/brand/master_founder.jpg">
-  <meta name="theme-color" content="#070B14">
+  <meta name="theme-color" content="#060A12">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Harpy Master">
@@ -20,43 +20,40 @@
 
   <style>
     /* ==========================================================================
-       Harpy Master — Luxury Mobile-First SaaS Command Center
-       Brand Aesthetics: Deep Obsidian Navy, Fire Orange & Champagne Gold
+       Harpy Master — Compact Mobile-First Luxury Command Center
        ========================================================================== */
     :root {
-      --bg-body: #070B14;
-      --bg-surface: #0E1626;
-      --bg-card: rgba(17, 27, 46, 0.88);
-      --bg-card-hover: rgba(24, 38, 64, 0.95);
-      --bg-card-inner: #131E33;
-      --border-subtle: rgba(255, 255, 255, 0.08);
-      --border-card: rgba(255, 255, 255, 0.12);
+      --bg-body: #060A12;
+      --bg-surface: #0B111E;
+      --bg-card: rgba(15, 23, 40, 0.92);
+      --bg-card-hover: rgba(20, 31, 54, 0.96);
+      --bg-card-inner: #0F1829;
+      --border-subtle: rgba(255, 255, 255, 0.07);
+      --border-card: rgba(255, 255, 255, 0.11);
       --border-accent: rgba(255, 106, 0, 0.35);
 
       --primary: #FF6A00;
       --primary-hover: #E85E00;
-      --primary-glow: rgba(255, 106, 0, 0.25);
-      --primary-light: rgba(255, 106, 0, 0.12);
+      --primary-glow: rgba(255, 106, 0, 0.22);
+      --primary-light: rgba(255, 106, 0, 0.1);
 
       --gold: #F59E0B;
-      --gold-light: rgba(245, 158, 11, 0.12);
-      
       --success: #10B981;
       --success-glow: rgba(16, 185, 129, 0.2);
       --warning: #F59E0B;
       --danger: #EF4444;
-      --danger-glow: rgba(239, 68, 68, 0.2);
 
       --text-main: #FFFFFF;
-      --text-muted: #94A3B8;
-      --text-dim: #64748B;
+      --text-muted: #8E9BAE;
+      --text-dim: #55657E;
 
       --font-ar: 'Cairo', system-ui, -apple-system, sans-serif;
       --font-num: 'Plus Jakarta Sans', 'Cairo', sans-serif;
 
-      --radius-sm: 10px;
-      --radius-md: 16px;
-      --radius-lg: 22px;
+      --radius-xs: 6px;
+      --radius-sm: 9px;
+      --radius-md: 14px;
+      --radius-lg: 18px;
       --radius-pill: 9999px;
 
       --safe-top: env(safe-area-inset-top, 0px);
@@ -73,14 +70,15 @@
     body {
       background-color: var(--bg-body);
       background-image: 
-        radial-gradient(circle at 50% -10%, rgba(255, 106, 0, 0.08), transparent 45%),
-        radial-gradient(circle at 10% 30%, rgba(14, 22, 38, 0.6), transparent 50%);
+        radial-gradient(circle at 50% 0%, rgba(255, 106, 0, 0.06), transparent 45%),
+        radial-gradient(circle at 10% 40%, rgba(11, 17, 30, 0.8), transparent 50%);
       color: var(--text-main);
       font-family: var(--font-ar);
+      font-size: 13.5px;
       min-height: 100vh;
       overflow-x: hidden;
       padding-top: var(--safe-top);
-      padding-bottom: calc(var(--safe-bottom) + 30px);
+      padding-bottom: calc(var(--safe-bottom) + 24px);
       user-select: none;
       -webkit-font-smoothing: antialiased;
     }
@@ -89,93 +87,92 @@
       font-family: inherit;
     }
 
-    /* Container */
     .master-container {
-      max-width: 680px;
+      max-width: 480px;
       margin: 0 auto;
-      padding: 16px;
+      padding: 12px 14px;
     }
 
     /* ==========================================================================
-       SCREEN 1: PIN LOCK SCREEN
+       SCREEN 1: REFINED PIN LOCK SCREEN
        ========================================================================== */
     #lock-screen {
       position: fixed;
       inset: 0;
       background: var(--bg-body);
-      background-image: radial-gradient(circle at 50% 20%, rgba(255, 106, 0, 0.12), transparent 60%);
+      background-image: radial-gradient(circle at 50% 15%, rgba(255, 106, 0, 0.09), transparent 55%);
       z-index: 9999;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 24px;
-      transition: opacity 0.35s ease, transform 0.35s ease;
+      padding: 20px;
+      transition: opacity 0.3s ease, transform 0.3s ease;
     }
 
     #lock-screen.unlocked {
       opacity: 0;
       pointer-events: none;
-      transform: scale(1.05);
+      transform: scale(1.04);
     }
 
     .founder-lock-avatar-wrapper {
       position: relative;
-      margin-bottom: 20px;
+      margin-bottom: 14px;
     }
 
     .founder-lock-avatar {
-      width: 104px;
-      height: 104px;
+      width: 76px;
+      height: 76px;
       border-radius: 50%;
       object-fit: cover;
-      border: 3px solid var(--primary);
-      box-shadow: 0 0 28px var(--primary-glow);
+      border: 2.5px solid var(--primary);
+      box-shadow: 0 0 20px var(--primary-glow);
     }
 
     .founder-badge-pill {
       position: absolute;
-      bottom: -6px;
+      bottom: -4px;
       right: 50%;
       transform: translateX(50%);
       background: linear-gradient(135deg, var(--primary), var(--gold));
       color: #FFFFFF;
-      font-size: 11px;
+      font-size: 9.5px;
       font-weight: 800;
-      padding: 3px 10px;
+      padding: 2px 8px;
       border-radius: var(--radius-pill);
-      letter-spacing: 0.5px;
+      letter-spacing: 0.4px;
       white-space: nowrap;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
     }
 
     .lock-title {
-      font-size: 22px;
+      font-size: 19px;
       font-weight: 900;
       color: #FFFFFF;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
       text-align: center;
     }
 
     .lock-subtitle {
-      font-size: 13px;
+      font-size: 12px;
       color: var(--text-muted);
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       text-align: center;
     }
 
     .pin-display-dots {
       display: flex;
-      gap: 16px;
-      margin-bottom: 30px;
+      gap: 14px;
+      margin-bottom: 22px;
       direction: ltr;
     }
 
     .pin-dot {
-      width: 16px;
-      height: 16px;
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
-      border: 2px solid rgba(255, 255, 255, 0.25);
+      border: 2px solid rgba(255, 255, 255, 0.22);
       background: transparent;
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
@@ -183,82 +180,83 @@
     .pin-dot.filled {
       background: var(--primary);
       border-color: var(--primary);
-      box-shadow: 0 0 12px var(--primary-glow);
+      box-shadow: 0 0 10px var(--primary-glow);
       transform: scale(1.15);
     }
 
     .pin-keypad {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      max-width: 280px;
+      gap: 12px;
+      max-width: 250px;
       width: 100%;
       direction: ltr;
     }
 
     .key-btn {
-      width: 76px;
-      height: 76px;
+      width: 62px;
+      height: 62px;
       border-radius: 50%;
       background: var(--bg-card);
       border: 1px solid var(--border-subtle);
       color: #FFFFFF;
       font-family: var(--font-num);
-      font-size: 28px;
+      font-size: 24px;
       font-weight: 700;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: all 0.15s ease;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      transition: all 0.12s ease;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.25);
     }
 
     .key-btn:active {
       background: var(--primary);
       transform: scale(0.92);
-      box-shadow: 0 0 20px var(--primary-glow);
+      box-shadow: 0 0 16px var(--primary-glow);
     }
 
     .key-btn.action-btn {
       background: transparent;
       border-color: transparent;
       box-shadow: none;
-      font-size: 15px;
-      font-weight: 600;
+      font-size: 13px;
+      font-weight: 700;
       color: var(--text-muted);
     }
 
     .key-btn.action-btn:active {
       color: var(--primary);
-      background: rgba(255,255,255,0.05);
+      background: rgba(255,255,255,0.06);
     }
 
     /* ==========================================================================
-       TOP NAVBAR
+       TOP NAVBAR (COMPACT 52px)
        ========================================================================== */
     .master-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 0 20px 0;
+      padding: 6px 0 14px 0;
       border-bottom: 1px solid var(--border-subtle);
-      margin-bottom: 20px;
+      margin-bottom: 14px;
     }
 
     .header-brand-side {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .header-avatar {
-      width: 46px;
-      height: 46px;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
       object-fit: cover;
       border: 2px solid var(--primary);
-      box-shadow: 0 0 12px var(--primary-glow);
+      box-shadow: 0 0 10px var(--primary-glow);
+      cursor: pointer;
     }
 
     .brand-text-col {
@@ -269,13 +267,13 @@
     .brand-title-row {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
     }
 
     .brand-name {
-      font-size: 19px;
+      font-size: 16px;
       font-weight: 900;
-      letter-spacing: -0.3px;
+      letter-spacing: -0.2px;
       background: linear-gradient(135deg, #FFFFFF 60%, var(--gold));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -285,46 +283,46 @@
       background: var(--primary-light);
       border: 1px solid var(--border-accent);
       color: var(--primary);
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 800;
-      padding: 1px 7px;
+      padding: 1px 6px;
       border-radius: var(--radius-pill);
-      letter-spacing: 0.5px;
+      letter-spacing: 0.4px;
     }
 
     .live-status-row {
       display: flex;
       align-items: center;
-      gap: 6px;
-      font-size: 11px;
+      gap: 5px;
+      font-size: 10.5px;
       color: var(--text-dim);
       font-weight: 600;
     }
 
     .pulse-dot {
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       background: var(--success);
-      box-shadow: 0 0 8px var(--success);
+      box-shadow: 0 0 7px var(--success);
       animation: pulseAnim 2s infinite;
     }
 
     @keyframes pulseAnim {
       0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-      70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+      70% { transform: scale(1); box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); }
       100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
     }
 
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
 
     .icon-btn {
-      width: 40px;
-      height: 40px;
+      width: 34px;
+      height: 34px;
       border-radius: var(--radius-sm);
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
@@ -333,7 +331,7 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.15s ease;
     }
 
     .icon-btn:hover, .icon-btn:active {
@@ -344,42 +342,29 @@
     }
 
     /* ==========================================================================
-       HERO GREETING & KPI METRICS
+       HERO GREETING & PRIMARY CTA (COMPACT)
        ========================================================================== */
     .hero-greeting-card {
-      background: linear-gradient(135deg, rgba(255, 106, 0, 0.12), rgba(17, 27, 46, 0.9));
+      background: linear-gradient(135deg, rgba(255, 106, 0, 0.1), rgba(15, 23, 40, 0.9));
       border: 1px solid var(--border-accent);
-      border-radius: var(--radius-lg);
-      padding: 18px 20px;
-      margin-bottom: 20px;
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      margin-bottom: 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero-greeting-card::before {
-      content: '';
-      position: absolute;
-      left: -20px;
-      top: -20px;
-      width: 90px;
-      height: 90px;
-      background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
-      pointer-events: none;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
     }
 
     .greeting-text h2 {
-      font-size: 18px;
+      font-size: 15px;
       font-weight: 800;
       color: #FFFFFF;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
 
     .greeting-text p {
-      font-size: 13px;
+      font-size: 11px;
       color: var(--text-muted);
     }
 
@@ -387,16 +372,16 @@
       background: linear-gradient(135deg, var(--primary), #FF8533);
       color: #FFFFFF;
       border: none;
-      padding: 10px 18px;
+      padding: 8px 14px;
       border-radius: var(--radius-pill);
-      font-size: 14px;
+      font-size: 12.5px;
       font-weight: 800;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       cursor: pointer;
-      box-shadow: 0 4px 16px var(--primary-glow);
-      transition: all 0.2s ease;
+      box-shadow: 0 3px 12px var(--primary-glow);
+      transition: all 0.15s ease;
       white-space: nowrap;
     }
 
@@ -404,42 +389,41 @@
       transform: scale(0.96);
     }
 
-    /* Metrics Grid */
+    /* Metrics Strip (Refined & Compact) */
     .metrics-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-bottom: 22px;
+      gap: 8px;
+      margin-bottom: 14px;
     }
 
     .metric-card {
       background: var(--bg-card);
       border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: 14px 12px;
+      border-radius: var(--radius-sm);
+      padding: 9px 8px;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
       backdrop-filter: blur(8px);
-      transition: all 0.2s ease;
     }
 
     .metric-val {
       font-family: var(--font-num);
-      font-size: 24px;
+      font-size: 19px;
       font-weight: 900;
       color: #FFFFFF;
       line-height: 1.1;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
 
-    .metric-val.active-color { color: var(--success); text-shadow: 0 0 14px var(--success-glow); }
+    .metric-val.active-color { color: var(--success); }
     .metric-val.gold-color { color: var(--gold); }
     .metric-val.muted-color { color: var(--text-muted); }
 
     .metric-lbl {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
       color: var(--text-dim);
     }
@@ -450,8 +434,8 @@
     .search-filter-row {
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      margin-bottom: 18px;
+      gap: 8px;
+      margin-bottom: 14px;
     }
 
     .search-input-box {
@@ -461,12 +445,12 @@
 
     .search-input-box svg {
       position: absolute;
-      right: 14px;
+      right: 12px;
       top: 50%;
       transform: translateY(-50%);
       color: var(--text-dim);
-      width: 18px;
-      height: 18px;
+      width: 15px;
+      height: 15px;
       pointer-events: none;
     }
 
@@ -474,67 +458,64 @@
       width: 100%;
       background: var(--bg-card);
       border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: 12px 42px 12px 14px;
-      font-size: 14px;
+      border-radius: var(--radius-sm);
+      padding: 9px 36px 9px 12px;
+      font-size: 12.5px;
       color: #FFFFFF;
       outline: none;
-      transition: all 0.2s ease;
+      transition: all 0.15s ease;
     }
 
     .search-input:focus {
       border-color: var(--primary);
-      box-shadow: 0 0 0 3px var(--primary-glow);
+      box-shadow: 0 0 0 2px var(--primary-glow);
     }
 
     .filter-pills {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       overflow-x: auto;
-      padding-bottom: 4px;
       scrollbar-width: none;
     }
-
     .filter-pills::-webkit-scrollbar { display: none; }
 
     .pill-btn {
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
       color: var(--text-muted);
-      padding: 6px 14px;
+      padding: 5px 12px;
       border-radius: var(--radius-pill);
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       cursor: pointer;
       white-space: nowrap;
-      transition: all 0.2s ease;
+      transition: all 0.15s ease;
     }
 
     .pill-btn.active {
       background: var(--primary);
       color: #FFFFFF;
       border-color: var(--primary);
-      box-shadow: 0 2px 10px var(--primary-glow);
     }
 
     /* ==========================================================================
-       TENANTS / RESTAURANTS CARDS
+       TENANTS / RESTAURANTS CARDS (REFINED & COMPACT)
        ========================================================================== */
     .tenants-list {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 12px;
     }
 
     .tenant-card {
       background: var(--bg-card);
       border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      padding: 18px;
-      backdrop-filter: blur(12px);
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: var(--radius-md);
+      padding: 13px 14px;
+      backdrop-filter: blur(10px);
+      transition: all 0.2s ease;
       position: relative;
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 3px 14px rgba(0, 0, 0, 0.22);
     }
 
     .tenant-card:hover {
@@ -543,27 +524,28 @@
     }
 
     .tenant-card.suspended-state {
-      border-color: rgba(245, 158, 11, 0.3);
-      background: rgba(20, 24, 38, 0.85);
+      border-color: rgba(245, 158, 11, 0.25);
+      background: rgba(18, 22, 34, 0.88);
     }
 
     .tenant-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 14px;
+      margin-bottom: 10px;
     }
 
     .tenant-info-left {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
+      min-width: 0;
     }
 
     .tenant-logo-box {
-      width: 48px;
-      height: 48px;
-      border-radius: var(--radius-md);
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
       background: var(--bg-card-inner);
       border: 1px solid var(--border-subtle);
       display: flex;
@@ -580,7 +562,7 @@
     }
 
     .tenant-logo-placeholder {
-      font-size: 20px;
+      font-size: 17px;
       font-weight: 800;
       color: var(--primary);
       font-family: var(--font-num);
@@ -589,28 +571,31 @@
     .tenant-names-col {
       display: flex;
       flex-direction: column;
+      min-width: 0;
     }
 
     .tenant-title {
-      font-size: 16px;
+      font-size: 14.5px;
       font-weight: 800;
       color: #FFFFFF;
       line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .tenant-slug-link {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--primary);
       font-family: var(--font-num);
       text-decoration: none;
       display: flex;
       align-items: center;
-      gap: 4px;
-      margin-top: 3px;
-    }
-
-    .tenant-slug-link:hover {
-      text-decoration: underline;
+      gap: 3px;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     /* Status & Switch */
@@ -618,37 +603,38 @@
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      gap: 6px;
+      gap: 4px;
+      flex-shrink: 0;
     }
 
     .status-badge {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 800;
-      padding: 3px 9px;
+      padding: 2px 7px;
       border-radius: var(--radius-pill);
       display: inline-flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
     }
 
     .status-badge.active-badge {
       background: rgba(16, 185, 129, 0.15);
-      border: 1px solid rgba(16, 185, 129, 0.4);
+      border: 1px solid rgba(16, 185, 129, 0.35);
       color: var(--success);
     }
 
     .status-badge.suspended-badge {
       background: rgba(245, 158, 11, 0.15);
-      border: 1px solid rgba(245, 158, 11, 0.4);
+      border: 1px solid rgba(245, 158, 11, 0.35);
       color: var(--warning);
     }
 
-    /* iOS Style Toggle Switch */
+    /* iOS Style Toggle Switch (Compact 38px) */
     .switch-label {
       position: relative;
       display: inline-block;
-      width: 44px;
-      height: 24px;
+      width: 38px;
+      height: 22px;
       cursor: pointer;
     }
 
@@ -661,21 +647,21 @@
     .slider {
       position: absolute;
       inset: 0;
-      background-color: #334155;
+      background-color: #263346;
       border-radius: 34px;
-      transition: 0.3s;
+      transition: 0.25s;
     }
 
     .slider:before {
       position: absolute;
       content: "";
-      height: 18px;
-      width: 18px;
+      height: 16px;
+      width: 16px;
       left: 3px;
       bottom: 3px;
       background-color: white;
       border-radius: 50%;
-      transition: 0.3s;
+      transition: 0.25s;
     }
 
     input:checked + .slider {
@@ -683,26 +669,20 @@
     }
 
     input:checked + .slider:before {
-      transform: translateX(20px);
+      transform: translateX(16px);
     }
 
-    /* Subscription & Stats Row */
+    /* Subscription strip */
     .tenant-meta-strip {
       background: var(--bg-card-inner);
-      border-radius: var(--radius-sm);
-      padding: 10px 14px;
+      border-radius: var(--radius-xs);
+      padding: 7px 10px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 14px;
-      font-size: 12px;
+      margin-bottom: 10px;
+      font-size: 11px;
       color: var(--text-muted);
-    }
-
-    .meta-item-left {
-      display: flex;
-      align-items: center;
-      gap: 6px;
     }
 
     .days-pill {
@@ -710,9 +690,9 @@
       font-weight: 800;
       color: #FFFFFF;
       background: rgba(255, 255, 255, 0.08);
-      padding: 2px 7px;
+      padding: 1px 6px;
       border-radius: var(--radius-pill);
-      font-size: 11px;
+      font-size: 10px;
     }
 
     .days-pill.critical {
@@ -720,41 +700,40 @@
       background: rgba(239, 68, 68, 0.15);
     }
 
-    /* Action Buttons Grid */
+    /* Action Buttons Grid (Compact) */
     .tenant-actions-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
+      gap: 6px;
     }
 
     .action-btn-cell {
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-sm);
-      padding: 8px 6px;
+      border-radius: var(--radius-xs);
+      padding: 7px 4px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 5px;
-      font-size: 11px;
+      gap: 4px;
+      font-size: 10px;
       font-weight: 700;
       color: var(--text-muted);
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.15s ease;
       text-align: center;
       text-decoration: none;
     }
 
     .action-btn-cell svg {
-      width: 17px;
-      height: 17px;
+      width: 15px;
+      height: 15px;
     }
 
-    .action-btn-cell:hover, .action-btn-cell:active {
+    .action-btn-cell:active {
       color: #FFFFFF;
       background: var(--bg-card-inner);
-      border-color: var(--border-card);
-      transform: translateY(-1px);
+      transform: scale(0.97);
     }
 
     .action-btn-cell.primary-action {
@@ -763,12 +742,12 @@
       color: var(--primary);
     }
 
-    .action-btn-cell.primary-action:hover, .action-btn-cell.primary-action:active {
+    .action-btn-cell.primary-action:active {
       background: var(--primary);
       color: #FFFFFF;
     }
 
-    .action-btn-cell.danger-action:hover, .action-btn-cell.danger-action:active {
+    .action-btn-cell.danger-action:active {
       background: rgba(239, 68, 68, 0.2);
       border-color: var(--danger);
       color: var(--danger);
@@ -780,15 +759,15 @@
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.78);
-      backdrop-filter: blur(8px);
-      z-index: 999;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(6px);
+      z-index: 1000;
       display: flex;
-      align-items: flex-end; /* Mobile Bottom-Sheet by default */
+      align-items: flex-end;
       justify-content: center;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.25s ease;
+      transition: opacity 0.22s ease;
     }
 
     .modal-overlay.open {
@@ -799,17 +778,17 @@
     .bottom-sheet {
       background: var(--bg-surface);
       border: 1px solid var(--border-card);
-      border-top-left-radius: 26px;
-      border-top-right-radius: 26px;
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
       width: 100%;
-      max-width: 600px;
-      max-height: 90vh;
+      max-width: 480px;
+      max-height: 88vh;
       overflow-y: auto;
-      padding: 24px;
-      padding-bottom: calc(var(--safe-bottom) + 24px);
-      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
+      padding: 18px 18px;
+      padding-bottom: calc(var(--safe-bottom) + 20px);
+      box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.6);
       transform: translateY(100%);
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .modal-overlay.open .bottom-sheet {
@@ -817,29 +796,29 @@
     }
 
     .sheet-drag-handle {
-      width: 44px;
-      height: 5px;
-      border-radius: 3px;
+      width: 36px;
+      height: 4px;
+      border-radius: 2px;
       background: rgba(255, 255, 255, 0.2);
-      margin: 0 auto 18px auto;
+      margin: 0 auto 14px auto;
     }
 
     .sheet-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
 
     .sheet-title {
-      font-size: 19px;
-      font-weight: 900;
+      font-size: 16px;
+      font-weight: 800;
       color: #FFFFFF;
     }
 
     .sheet-close-btn {
-      width: 34px;
-      height: 34px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
       background: rgba(255,255,255,0.06);
       border: none;
@@ -851,27 +830,27 @@
     }
 
     .form-group {
-      margin-bottom: 16px;
+      margin-bottom: 13px;
     }
 
     .form-label {
       display: block;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
       color: var(--text-muted);
-      margin-bottom: 6px;
+      margin-bottom: 5px;
     }
 
     .form-input, .form-select {
       width: 100%;
       background: var(--bg-card-inner);
       border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-sm);
-      padding: 12px 14px;
-      font-size: 14px;
+      border-radius: var(--radius-xs);
+      padding: 10px 12px;
+      font-size: 13px;
       color: #FFFFFF;
       outline: none;
-      transition: border-color 0.2s;
+      transition: border-color 0.15s;
     }
 
     .form-input:focus, .form-select:focus {
@@ -879,10 +858,10 @@
     }
 
     .slug-preview-note {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--primary);
       font-family: var(--font-num);
-      margin-top: 5px;
+      margin-top: 4px;
       direction: ltr;
       text-align: right;
     }
@@ -892,30 +871,34 @@
       background: linear-gradient(135deg, var(--primary), #FF8533);
       color: #FFFFFF;
       border: none;
-      border-radius: var(--radius-md);
-      padding: 14px;
-      font-size: 15px;
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      font-size: 14px;
       font-weight: 800;
       cursor: pointer;
-      margin-top: 10px;
-      box-shadow: 0 4px 18px var(--primary-glow);
-      transition: transform 0.15s ease;
+      margin-top: 8px;
+      box-shadow: 0 3px 14px var(--primary-glow);
     }
 
     .btn-submit-sheet:active {
       transform: scale(0.98);
     }
 
+    .btn-danger-sheet {
+      background: linear-gradient(135deg, var(--danger), #DC2626);
+      box-shadow: 0 3px 14px rgba(239, 68, 68, 0.3);
+    }
+
     /* Toast Notifications */
     #toast-container {
       position: fixed;
-      bottom: calc(var(--safe-bottom) + 20px);
+      bottom: calc(var(--safe-bottom) + 16px);
       left: 50%;
       transform: translateX(-50%);
       z-index: 10000;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       pointer-events: none;
       max-width: 90%;
     }
@@ -924,42 +907,35 @@
       background: var(--bg-surface);
       border: 1px solid var(--border-card);
       color: #FFFFFF;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
-      padding: 12px 20px;
+      padding: 10px 16px;
       border-radius: var(--radius-pill);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      animation: toastIn 0.3s ease forwards;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      animation: toastIn 0.25s ease forwards;
     }
 
     .toast-msg.success { border-color: var(--success); color: #E8FFF5; }
     .toast-msg.error { border-color: var(--danger); color: #FFE8E8; }
+    .toast-msg.info { border-color: var(--primary); color: #FFF2E8; }
 
     @keyframes toastIn {
-      from { opacity: 0; transform: translateY(14px); }
+      from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Empty state */
     .empty-state {
       text-align: center;
-      padding: 40px 20px;
+      padding: 30px 16px;
       color: var(--text-dim);
+      font-size: 13px;
     }
   </style>
-
-  <!-- Firebase 9 Compat SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 </head>
 <body>
 
   <!-- ==========================================================================
-       1. SCREEN: PIN LOCK SCREEN (PERSONAL SECURITY GATE)
+       1. SCREEN: PIN LOCK SCREEN
        ========================================================================== -->
   <div id="lock-screen">
     <div class="founder-lock-avatar-wrapper">
@@ -1000,7 +976,7 @@
     <!-- Top Navbar -->
     <header class="master-header">
       <div class="header-brand-side">
-        <img src="assets/brand/master_founder.jpg" alt="Founder" class="header-avatar" onclick="MasterApp.promptChangePin()">
+        <img src="assets/brand/master_founder.jpg" alt="Founder" class="header-avatar" onclick="MasterApp.openChangePinModal()" title="إعدادات الحساب وتغيير PIN">
         <div class="brand-text-col">
           <div class="brand-title-row">
             <span class="brand-name">Harpy Master</span>
@@ -1014,10 +990,13 @@
       </div>
       <div class="header-actions">
         <button class="icon-btn" onclick="MasterApp.loadTenantsFromCloud()" title="تحديث البيانات">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+        </button>
+        <button class="icon-btn" onclick="MasterApp.openChangePinModal()" title="تغيير الرمز السري">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         </button>
         <button class="icon-btn" onclick="MasterApp.lock()" title="قفل اللوحة">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         </button>
       </div>
     </header>
@@ -1029,7 +1008,7 @@
         <p>إدارة التراخيص والمطاعم بكل سهولة</p>
       </div>
       <button class="btn-add-primary" onclick="MasterApp.openAddTenantModal()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         <span>مطعم جديد</span>
       </button>
     </div>
@@ -1071,7 +1050,7 @@
   </div>
 
   <!-- ==========================================================================
-       3. BOTTOM SHEET MODAL: ONBOARD NEW RESTAURANT
+       3. MODAL: ONBOARD NEW RESTAURANT
        ========================================================================== -->
   <div class="modal-overlay" id="add-tenant-modal">
     <div class="bottom-sheet">
@@ -1124,7 +1103,7 @@
   </div>
 
   <!-- ==========================================================================
-       4. BOTTOM SHEET MODAL: EXTEND LICENSE
+       4. MODAL: EXTEND LICENSE
        ========================================================================== -->
   <div class="modal-overlay" id="extend-modal">
     <div class="bottom-sheet">
@@ -1134,9 +1113,9 @@
         <button class="sheet-close-btn" onclick="MasterApp.closeExtendModal()">✕</button>
       </div>
 
-      <div style="margin-bottom: 18px;">
-        <div style="font-size: 15px; font-weight: 800;" id="extend-store-name">...</div>
-        <div style="font-size: 12px; color: var(--text-muted);" id="extend-current-expiry">...</div>
+      <div style="margin-bottom: 14px;">
+        <div style="font-size: 14px; font-weight: 800;" id="extend-store-name">...</div>
+        <div style="font-size: 11.5px; color: var(--text-muted);" id="extend-current-expiry">...</div>
       </div>
 
       <div class="form-group">
@@ -1153,46 +1132,75 @@
     </div>
   </div>
 
+  <!-- ==========================================================================
+       5. MODAL: CONFIRM CASCADE DELETE
+       ========================================================================== -->
+  <div class="modal-overlay" id="delete-modal">
+    <div class="bottom-sheet">
+      <div class="sheet-drag-handle"></div>
+      <div class="sheet-header">
+        <h3 class="sheet-title" style="color: var(--danger);">حذف مطعم نهائياً ⚠️</h3>
+        <button class="sheet-close-btn" onclick="MasterApp.closeDeleteModal()">✕</button>
+      </div>
+
+      <p style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.5;">
+        أنت على وشك حذف مطعم <strong style="color: #FFFFFF;" id="delete-store-target-name">...</strong> نهائياً بجميع تصنيفاته ومنتجاته وصوره وترخيصه، ولن يمكن استرجاعها أبداً.
+      </p>
+
+      <div class="form-group">
+        <label class="form-label">لتأكيد الحذف، اكتب الكلمة (حذف) أدناه:</label>
+        <input type="text" id="delete-confirm-word-input" class="form-input" placeholder="اكتب: حذف" autocomplete="off">
+      </div>
+
+      <button type="button" class="btn-submit-sheet btn-danger-sheet" onclick="MasterApp.confirmCascadeWipe()">تأكيد الحذف الجذري النهائي</button>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       6. MODAL: CHANGE MASTER PIN
+       ========================================================================== -->
+  <div class="modal-overlay" id="pin-modal">
+    <div class="bottom-sheet">
+      <div class="sheet-drag-handle"></div>
+      <div class="sheet-header">
+        <h3 class="sheet-title">تغيير رمز PIN الشخصي 🔑</h3>
+        <button class="sheet-close-btn" onclick="MasterApp.closePinModal()">✕</button>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">رمز PIN الحالي</label>
+        <input type="password" id="pin-current-input" class="form-input" placeholder="****" maxlength="4" pattern="[0-9]*" inputmode="numeric" dir="ltr">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">رمز PIN الجديد (4 أرقام)</label>
+        <input type="password" id="pin-new-input" class="form-input" placeholder="****" maxlength="4" pattern="[0-9]*" inputmode="numeric" dir="ltr">
+      </div>
+
+      <button type="button" class="btn-submit-sheet" onclick="MasterApp.confirmChangePin()">حفظ رمز PIN الجديد</button>
+    </div>
+  </div>
+
   <!-- Toast Notification Container -->
   <div id="toast-container"></div>
 
   <!-- ==========================================================================
-       5. APPLICATION JAVASCRIPT ENGINE
+       7. JAVASCRIPT MASTER ENGINE
        ========================================================================== -->
   <script>
-    // Firebase Initialization
-    const firebaseConfig = {
-      apiKey: "AIzaSyAhDjUmVBnoRCp6bDSeqrmVgakAQ2pu0ww",
-      authDomain: "harpy-order.firebaseapp.com",
-      databaseURL: "https://harpy-order-default-rtdb.firebaseio.com",
-      projectId: "harpy-order",
-      storageBucket: "harpy-order.firebasestorage.app",
-      messagingSenderId: "588497645163",
-      appId: "1:588497645163:web:2af6b418c70e4ecf8938eb"
-    };
+    // Master Authentication Key (Used directly to bypass rules for Master Super-Admin)
+    const MASTER_KEY = "r5nenhIbwtTX3BiCu0kaNOtXSC8ncr7Vk3tWaaPh";
 
-    let app = null;
-    let db = null;
-    try {
-      if (typeof firebase !== 'undefined') {
-        app = firebase.initializeApp(firebaseConfig, "HarpyMasterApp");
-        db = app.database();
-      }
-    } catch(e) {
-      console.warn("Firebase Init fallback:", e);
-    }
-
-    // Master App Engine
     const MasterApp = {
       currentPin: '',
-      correctPin: localStorage.getItem('harpy_master_pin') || '1234', // Default PIN: 1234
+      correctPin: localStorage.getItem('harpy_master_pin') || '1234',
       tenants: [],
       currentFilter: 'all',
       searchQuery: '',
       extendingSlug: null,
+      deletingSlug: null,
 
       init() {
-        // Check session lock
         const isSessionUnlocked = sessionStorage.getItem('harpy_master_unlocked') === 'true';
         if (isSessionUnlocked) {
           this.unlockScreen();
@@ -1207,7 +1215,7 @@
         this.currentPin += digit;
         this.updatePinDots();
         if (this.currentPin.length === 4) {
-          setTimeout(() => this.verifyPin(), 120);
+          setTimeout(() => this.verifyPin(), 100);
         }
       },
 
@@ -1237,7 +1245,7 @@
           this.showToast("تم التحقق بنجاح! مرحباً يا ريس 👋", "success");
           this.unlockScreen();
         } else {
-          this.showToast("رمز PIN غير صحيح، حاول مرة أخرى", "error");
+          this.showToast("رمز PIN غير صحيح", "error");
           this.currentPin = '';
           this.updatePinDots();
         }
@@ -1257,20 +1265,32 @@
         document.getElementById('lock-screen').classList.remove('unlocked');
       },
 
-      promptChangePin() {
-        const current = prompt("أدخل رمز PIN الحالي لتعديله:");
+      // --- PIN Modal ---
+      openChangePinModal() {
+        document.getElementById('pin-current-input').value = '';
+        document.getElementById('pin-new-input').value = '';
+        document.getElementById('pin-modal').classList.add('open');
+      },
+
+      closePinModal() {
+        document.getElementById('pin-modal').classList.remove('open');
+      },
+
+      confirmChangePin() {
+        const current = document.getElementById('pin-current-input').value.trim();
+        const newPin = document.getElementById('pin-new-input').value.trim();
         if (current !== this.correctPin) {
-          if (current !== null) alert("رمز PIN الحالي غير صحيح!");
+          this.showToast("رمز PIN الحالي غير صحيح!", "error");
           return;
         }
-        const newPin = prompt("أدخل رمز PIN الجديد المكون من 4 أرقام:");
-        if (newPin && newPin.length === 4 && /^\d+$/.test(newPin)) {
-          this.correctPin = newPin;
-          localStorage.setItem('harpy_master_pin', newPin);
-          this.showToast("تم تحديث رمز PIN بنجاح! احفظه جيداً.", "success");
-        } else if (newPin !== null) {
-          alert("الرمز يجب أن يتكون من 4 أرقام فقط.");
+        if (!newPin || newPin.length !== 4 || !/^\d+$/.test(newPin)) {
+          this.showToast("الرمز الجديد يجب أن يتكون من 4 أرقام", "error");
+          return;
         }
+        this.correctPin = newPin;
+        localStorage.setItem('harpy_master_pin', newPin);
+        this.closePinModal();
+        this.showToast("تم تحديث رمز PIN بنجاح! احفظه جيداً.", "success");
       },
 
       // --- Cloud Data Synchronization ---
@@ -1279,8 +1299,9 @@
         if (syncText) syncText.textContent = "جاري المزامنة...";
 
         try {
-          // 1. Fetch live licenses from Firebase
-          const res = await fetch('https://harpy-order-default-rtdb.firebaseio.com/licenses.json');
+          // Fetch live licenses using Master Key
+          const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
+          const res = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses.json${authParam}`);
           if (!res.ok) throw new Error("HTTP " + res.status);
           const rawLicenses = await res.json() || {};
 
@@ -1288,23 +1309,22 @@
           for (const [slug, lic] of Object.entries(rawLicenses)) {
             if (!lic || typeof lic !== 'object') continue;
 
-            // Fetch live settings for branding & name
+            // Fetch live settings for storeName and logo
             let settings = {};
             try {
-              const sRes = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/settings.json`);
+              const sRes = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/settings.json${authParam}`);
               if (sRes.ok) settings = await sRes.json() || {};
             } catch(e) {}
 
             loadedTenants.push({
               slug: slug,
-              name: settings.name || lic.restaurantName || slug.toUpperCase(),
+              name: settings.storeName || settings.name || lic.restaurantName || slug.toUpperCase(),
               logo: settings.logo || null,
               phone: settings.phone || lic.phone || '',
               status: lic.status || 'active',
               ownerUid: lic.ownerUid || null,
               expiresAt: lic.expiresAt || (Date.now() + 30 * 86400000),
-              plan: lic.plan || 'standard',
-              themeColor: settings.primaryColor || '#FF6A00'
+              plan: lic.plan || 'standard'
             });
           }
 
@@ -1314,12 +1334,11 @@
         } catch(err) {
           console.error("Load tenants error:", err);
           if (syncText) syncText.textContent = "خطأ في الاتصال";
-          this.showToast("تعذر تحميل البيانات، تحقق من اتصالك", "error");
+          this.showToast("تعذر تحميل البيانات، تحقق من السيرفر", "error");
         }
       },
 
       renderUI() {
-        // Calculate Metrics
         const now = Date.now();
         const activeCount = this.tenants.filter(t => t.status === 'active' && (!t.expiresAt || t.expiresAt > now)).length;
         const suspendedCount = this.tenants.length - activeCount;
@@ -1328,16 +1347,14 @@
         document.getElementById('metric-suspended-count').textContent = suspendedCount;
         document.getElementById('metric-total-count').textContent = this.tenants.length;
 
-        // Filter and Search
+        // Filter & Search
         let filtered = this.tenants.filter(t => {
-          // Status filter
           if (this.currentFilter === 'active') {
             if (t.status !== 'active' || (t.expiresAt && t.expiresAt <= now)) return false;
           }
           if (this.currentFilter === 'suspended') {
             if (t.status === 'active' && (!t.expiresAt || t.expiresAt > now)) return false;
           }
-          // Search query
           if (this.searchQuery) {
             const q = this.searchQuery.toLowerCase();
             return (t.name && t.name.toLowerCase().includes(q)) || t.slug.toLowerCase().includes(q);
@@ -1347,7 +1364,7 @@
 
         const container = document.getElementById('tenants-container');
         if (filtered.length === 0) {
-          container.innerHTML = `<div class="empty-state">لا توجد مطاعم تطابق البحث</div>`;
+          container.innerHTML = `<div class="empty-state">لا توجد مطاعم مطابقة للبحث</div>`;
           return;
         }
 
@@ -1381,7 +1398,7 @@
                     <span class="tenant-title">${t.name}</span>
                     <a href="order.html?m=${t.slug}" target="_blank" class="tenant-slug-link">
                       <span>harpymenu.com/order/?m=${t.slug}</span>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="10" height="10"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
                     </a>
                   </div>
                 </div>
@@ -1398,7 +1415,7 @@
               </div>
 
               <div class="tenant-meta-strip">
-                <div class="meta-item-left">
+                <div>
                   <span>صلاحية الاشتراك:</span>
                   <span class="days-pill ${isCritical ? 'critical' : ''}">${daysLeftText}</span>
                 </div>
@@ -1408,7 +1425,7 @@
               <div class="tenant-actions-grid">
                 <button class="action-btn-cell primary-action" onclick="MasterApp.launchAdmin('${t.slug}')" title="دخول مباشر كمدير">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
-                  <span>لوحة الإدارة</span>
+                  <span>الإدارة</span>
                 </button>
 
                 <a href="order.html?m=${t.slug}" target="_blank" class="action-btn-cell" title="معاينة المنيو">
@@ -1421,7 +1438,7 @@
                   <span>تمديد</span>
                 </button>
 
-                <button class="action-btn-cell danger-action" onclick="MasterApp.cascadeWipeTenant('${t.slug}', '${t.name}')" title="حذف شامل ونظيف">
+                <button class="action-btn-cell danger-action" onclick="MasterApp.openDeleteModal('${t.slug}', '${t.name}')" title="حذف شامل ونظيف">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                   <span>حذف</span>
                 </button>
@@ -1434,8 +1451,9 @@
       // --- Actions ---
       async toggleStatus(slug, activate) {
         const newStatus = activate ? 'active' : 'suspended';
+        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
         try {
-          await fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${slug}.json`, {
+          await fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${slug}.json${authParam}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: newStatus, updatedAt: Date.now() })
@@ -1450,7 +1468,6 @@
       },
 
       launchAdmin(slug) {
-        // Generate valid super-admin bypass session in local storage
         const target = this.tenants.find(t => t.slug === slug);
         const ownerUid = (target && target.ownerUid) ? target.ownerUid : 'master_admin';
         const session = {
@@ -1493,9 +1510,10 @@
 
         const baseTime = (target.expiresAt && target.expiresAt > Date.now()) ? target.expiresAt : Date.now();
         const newExpiry = baseTime + (days * 86400000);
+        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
 
         try {
-          await fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${this.extendingSlug}.json`, {
+          await fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${this.extendingSlug}.json${authParam}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ expiresAt: newExpiry, status: 'active', updatedAt: Date.now() })
@@ -1510,21 +1528,40 @@
         }
       },
 
-      async cascadeWipeTenant(slug, name) {
-        const promptCode = prompt(`تحذير أمني شديد! ⚠️\nأنت على وشك حذف مطعم (${name}) نهائياً بجميع منتجاته وصوره وطلباته.\n\nلتأكيد الحذف النهائي، اكتب الكلمة (حذف) أدناه:`);
-        if (promptCode !== 'حذف') {
-          if (promptCode !== null) alert("تم إلغاء عملية الحذف.");
+      openDeleteModal(slug, name) {
+        this.deletingSlug = slug;
+        document.getElementById('delete-store-target-name').textContent = name;
+        document.getElementById('delete-confirm-word-input').value = '';
+        document.getElementById('delete-modal').classList.add('open');
+      },
+
+      closeDeleteModal() {
+        document.getElementById('delete-modal').classList.remove('open');
+        this.deletingSlug = null;
+      },
+
+      async confirmCascadeWipe() {
+        if (!this.deletingSlug) return;
+        const word = document.getElementById('delete-confirm-word-input').value.trim();
+        if (word !== 'حذف') {
+          this.showToast("يجب كتابة كلمة (حذف) باللغة العربية للتأكيد", "error");
           return;
         }
 
+        const slug = this.deletingSlug;
+        const target = this.tenants.find(t => t.slug === slug);
+        const name = target ? target.name : slug;
+        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
+
         try {
-          this.showToast(`جاري تنظيف وحذف بيانات (${slug})...`, "info");
-          // 1. Wipe license
-          await fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${slug}.json`, { method: 'DELETE' });
-          // 2. Wipe restaurant data
-          await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}.json`, { method: 'DELETE' });
+          this.showToast(`جاري تنظيف وحذف مطعم (${name})...`, "info");
+          // 1. Delete license
+          await fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${slug}.json${authParam}`, { method: 'DELETE' });
+          // 2. Delete all restaurant data
+          await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}.json${authParam}`, { method: 'DELETE' });
 
           this.tenants = this.tenants.filter(t => t.slug !== slug);
+          this.closeDeleteModal();
           this.renderUI();
           this.showToast(`تم حذف مطعم (${name}) بنظافة تامة من السحابة!`, "success");
         } catch(e) {
@@ -1544,7 +1581,6 @@
       suggestSlug(name) {
         const slugInput = document.getElementById('new-store-slug');
         if (!slugInput.value || slugInput.dataset.autoGenerated === 'true') {
-          // Simple transliteration approximation or sanitized slug
           const clean = name.trim().toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
           if (clean) {
             slugInput.value = clean;
@@ -1569,10 +1605,11 @@
         const phone = document.getElementById('new-owner-phone').value.trim();
         const plan = document.getElementById('new-sub-plan').value;
         const template = document.getElementById('new-menu-template').value;
+        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
 
         // Check duplicate
         if (this.tenants.some(t => t.slug === slug)) {
-          alert("هذا الرابط (Slug) مستخدم بالفعل لمطعم آخر، يرجى اختيار رابط آخر.");
+          this.showToast("هذا الرابط (Slug) مستخدم بالفعل لمطعم آخر", "error");
           submitBtn.disabled = false;
           submitBtn.textContent = "إنشاء وتفعيل المطعم فوراً";
           return;
@@ -1586,24 +1623,20 @@
         if (plan === 'lifetime') expiresAt = Date.now() + (3650 * 86400000);
 
         try {
-          // 1. Fetch template data if requested
           let initialCategories = [{ id: 'cat_1', name: 'الوجبات الرئيسية', visible: true }];
           let initialProducts = [];
 
           if (template === 'saj' || template === 'king') {
             try {
               const [catRes, prodRes] = await Promise.all([
-                fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${template}/categories.json`),
-                fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${template}/products.json`)
+                fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${template}/categories.json${authParam}`),
+                fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${template}/products.json${authParam}`)
               ]);
               if (catRes.ok) initialCategories = await catRes.json() || initialCategories;
               if (prodRes.ok) initialProducts = await prodRes.json() || initialProducts;
-            } catch(tErr) {
-              console.warn("Template fetch fallback:", tErr);
-            }
+            } catch(tErr) {}
           }
 
-          // 2. Build License Record
           const licensePayload = {
             restaurantName: name,
             slug: slug,
@@ -1615,8 +1648,8 @@
             ownerUid: `owner_${slug}_${Date.now().toString(36)}`
           };
 
-          // 3. Build Restaurant Initial Settings Record
           const settingsPayload = {
+            storeName: name,
             name: name,
             slug: slug,
             phone: phone,
@@ -1627,28 +1660,30 @@
             createdAt: new Date().toISOString()
           };
 
-          // 4. Save License
-          await fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${slug}.json`, {
+          // 1. Save License
+          await fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${slug}.json${authParam}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(licensePayload)
           });
 
-          // 5. Save Settings
-          await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/settings.json`, {
+          // 2. Save Settings
+          await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/settings.json${authParam}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(settingsPayload)
           });
 
-          // 6. Save Categories & Products
-          await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/categories.json`, {
+          // 3. Save Categories
+          await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/categories.json${authParam}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(initialCategories)
           });
+
+          // 4. Save Products
           if (initialProducts.length > 0) {
-            await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/products.json`, {
+            await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/products.json${authParam}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(initialProducts)
@@ -1668,7 +1703,7 @@
         }
       },
 
-      // --- Filter and Search handlers ---
+      // --- Filters ---
       setFilter(filter) {
         this.currentFilter = filter;
         document.querySelectorAll('.pill-btn').forEach(b => {
@@ -1691,13 +1726,12 @@
         container.appendChild(t);
         setTimeout(() => {
           t.style.opacity = '0';
-          t.style.transition = 'opacity 0.3s ease';
-          setTimeout(() => t.remove(), 300);
-        }, 3200);
+          t.style.transition = 'opacity 0.25s ease';
+          setTimeout(() => t.remove(), 250);
+        }, 3000);
       }
     };
 
-    // Auto initialize on load
     document.addEventListener('DOMContentLoaded', () => {
       MasterApp.init();
     });
