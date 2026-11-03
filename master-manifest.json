@@ -1,0 +1,25 @@
+{
+  "name": "Harpy Master — القيادة المركزية",
+  "short_name": "Harpy Master",
+  "description": "منظومة القيادة المركزية والإدارة الفورية لشبكة مطاعم هاربي أوردر",
+  "start_url": "./master.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#050811",
+  "theme_color": "#050811",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "assets/brand/master_pwa_icon_192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/brand/master_pwa_icon_512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

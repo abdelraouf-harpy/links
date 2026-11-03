@@ -954,7 +954,7 @@ function renderStoreInfo() {
     elements.walletNumDisplay.textContent = settings.walletNumber || "010xxxxxxxx";
   }
 
-  // Subscription Status Gate (Telegram Bot & SaaS Control)
+  // Subscription Status Gate (Harpy Master SaaS Control)
   const sub = settings.subscription;
   const overlay = document.getElementById('subscription-suspended-overlay');
   const backdrop = document.getElementById('subscription-suspended-backdrop');
