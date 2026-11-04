@@ -960,7 +960,7 @@ function renderStoreInfo() {
   const backdrop = document.getElementById('subscription-suspended-backdrop');
   const contactBtn = document.getElementById('sub-suspended-contact-btn');
 
-  if (sub && (sub.status === 'suspended' || sub.suspended === true || sub.active === false || (sub.expiresAt && new Date() > new Date(sub.expiresAt)))) {
+  if (sub && (sub.status === 'suspended' || sub.status === 'expired' || sub.suspended === true || sub.active === false || (sub.expiresAt && new Date() > new Date(sub.expiresAt)))) {
     if (overlay) overlay.style.display = 'block';
     if (backdrop) backdrop.style.display = 'block';
     if (contactBtn && settings.whatsappNumber) {

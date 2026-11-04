@@ -38,7 +38,9 @@
           .then(r => r.ok ? r.json() : null)
           .then(lic => {
             if (!lic) return;
-            const isSuspended = lic.active === false || lic.suspended === true || lic.status === 'suspended';
+            const expTime = lic.expiresAt ? (typeof lic.expiresAt === 'number' ? (lic.expiresAt < 10000000000 ? lic.expiresAt * 1000 : lic.expiresAt) : new Date(lic.expiresAt).getTime()) : 0;
+            const isExpired = expTime > 0 && Date.now() > expTime;
+            const isSuspended = lic.active === false || lic.suspended === true || lic.status === 'suspended' || lic.status === 'expired' || isExpired;
             const overlay = document.getElementById('subscription-suspended-overlay');
             const backdrop = document.getElementById('subscription-suspended-backdrop');
             if (isSuspended) {

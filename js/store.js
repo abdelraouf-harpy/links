@@ -4021,9 +4021,9 @@ const Store = {
 
       // Strict Guard: Only evaluate if an explicit license object is present; NEVER declare deleted on network null/transient state!
       if (lic && typeof lic === 'object') {
-        if (lic.status === 'suspended' || lic.status === 'blocked' || lic.status === 'inactive' || lic.active === false || lic.suspended === true) {
+        if (lic.status === 'suspended' || lic.status === 'blocked' || lic.status === 'inactive' || lic.status === 'expired' || lic.active === false || lic.suspended === true) {
           isBlocked = true;
-          reason = 'blocked';
+          reason = (lic.status === 'expired') ? 'expired' : 'blocked';
         } else if (lic.status === 'deleted') {
           isDeleted = true;
           isBlocked = true;
@@ -4039,9 +4039,9 @@ const Store = {
       }
 
       if (subSettings && typeof subSettings === 'object') {
-        if (subSettings.status === 'suspended' || subSettings.status === 'blocked' || subSettings.active === false || subSettings.suspended === true) {
+        if (subSettings.status === 'suspended' || subSettings.status === 'blocked' || subSettings.status === 'expired' || subSettings.active === false || subSettings.suspended === true) {
           isBlocked = true;
-          if (reason === 'active') reason = 'blocked';
+          if (reason === 'active') reason = (subSettings.status === 'expired') ? 'expired' : 'blocked';
         } else if (subSettings.status === 'deleted') {
           isDeleted = true;
           reason = 'deleted';
@@ -4049,9 +4049,9 @@ const Store = {
       }
 
       if (meta && typeof meta === 'object') {
-        if (meta.status === 'suspended' || meta.status === 'blocked' || meta.active === false || meta.suspended === true) {
+        if (meta.status === 'suspended' || meta.status === 'blocked' || meta.status === 'expired' || meta.active === false || meta.suspended === true) {
           isBlocked = true;
-          if (reason === 'active') reason = 'blocked';
+          if (reason === 'active') reason = (subSettings.status === 'expired') ? 'expired' : 'blocked';
         } else if (meta.status === 'deleted') {
           isDeleted = true;
           reason = 'deleted';

@@ -1353,6 +1353,13 @@
         <span>استنساخ المنيو لمطعم آخر</span>
       </div>
 
+      <div class="sheet-action-item" onclick="MasterApp.actionSheetExpireSubscription()" style="color:var(--danger);">
+        <span class="sheet-action-icon svg-icon" style="color:var(--danger);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline><line x1="4.93" y1="4.93" x2="19.07" y2="19.07" stroke="currentColor" stroke-width="2"></line></svg>
+        </span>
+        <span id="sheet-expire-label">إنهاء الاشتراك وتجميد المطعم فوراً</span>
+      </div>
+
       <div class="sheet-action-item" onclick="MasterApp.actionSheetToggleFreeze()">
         <span class="sheet-action-icon svg-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
@@ -1403,12 +1410,24 @@
 
       <div class="form-group">
         <label class="form-label">مدة الاشتراك المبدئي</label>
-        <select class="form-select" id="new-tenant-duration">
+        <select class="form-select" id="new-tenant-duration" onchange="MasterApp.onNewTenantDurationChange()">
           <option value="1">شهر واحد (30 يوماً)</option>
           <option value="3" selected>3 أشهر (90 يوماً)</option>
           <option value="6">6 أشهر (نصف سنوي)</option>
           <option value="12">سنة كاملة (12 شهراً)</option>
+          <option value="custom_days">تحديد عدد أيام مخصص (أي مدة تريدها)</option>
+          <option value="custom_date">تحديد تاريخ انتهاء بالتقويم (يوم/شهر/سنة)</option>
         </select>
+      </div>
+
+      <div class="form-group" id="new-tenant-custom-days-group" style="display:none;">
+        <label class="form-label">عدد الأيام المخصصة *</label>
+        <input type="number" class="form-input" id="new-tenant-custom-days" min="1" placeholder="مثال: 14، 45، 100..." style="font-family:var(--font-en); text-align:left;">
+      </div>
+
+      <div class="form-group" id="new-tenant-custom-date-group" style="display:none;">
+        <label class="form-label">تاريخ انتهاء الاشتراك *</label>
+        <input type="date" class="form-input" id="new-tenant-custom-date" style="font-family:var(--font-en); text-align:left;">
       </div>
 
       <button type="submit" class="btn-submit">
@@ -1528,38 +1547,60 @@
     <button class="btn-cancel" onclick="MasterApp.closeModulesModal()">إلغاء</button>
   </div>
 
-  <!-- MODAL: RECORD PAYMENT & EXTEND -->
+  <!-- MODAL: RECORD PAYMENT & MANAGE SUBSCRIPTION -->
   <div class="sheet-backdrop" id="modal-payment-backdrop" onclick="MasterApp.closePaymentModal()"></div>
   <div class="bottom-sheet" id="modal-payment">
     <div class="sheet-drag-handle"></div>
     <div class="sheet-header">
-      <div class="sheet-header-title">تسجيل سداد دفعة وتمديد الترخيص</div>
+      <div class="sheet-header-title">إدارة الاشتراك وتوثيق السداد</div>
     </div>
 
-    <div class="form-group">
+    <div id="pay-modal-current-info" style="font-size:12px; color:var(--text-secondary); margin-bottom:12px; font-weight:600; line-height:1.6;"></div>
+
+    <div class="form-group" id="pay-modal-amount-group">
       <label class="form-label">المبلغ المحصل (ج.م)</label>
       <input type="number" class="form-input" id="pay-modal-amount" value="1500" style="font-family:var(--font-en); text-align:left;">
     </div>
 
     <div class="form-group">
-      <label class="form-label">مدة التمديد الممنوحة</label>
-      <select class="form-select" id="pay-modal-period">
-        <option value="30" selected>شهر واحد (+30 يوماً)</option>
-        <option value="90">3 أشهر (+90 يوماً)</option>
-        <option value="180">6 أشهر (+180 يوماً)</option>
-        <option value="365">سنة كاملة (+365 يوماً)</option>
+      <label class="form-label">مدة الاشتراك أو حالة الترخيص</label>
+      <select class="form-select" id="pay-modal-period" onchange="MasterApp.onPayPeriodChange()">
+        <option value="30" selected>تمديد شهر واحد (+30 يوماً)</option>
+        <option value="90">تمديد 3 أشهر (+90 يوماً)</option>
+        <option value="180">تمديد 6 أشهر (+180 يوماً)</option>
+        <option value="365">تمديد سنة كاملة (+365 يوماً)</option>
+        <option value="custom_days">تحديد عدد أيام مخصص (أي مدة تريدها)</option>
+        <option value="custom_date">تحديد تاريخ انتهاء بالتقويم (يوم/شهر/سنة)</option>
+        <option value="expired">إنهاء الاشتراك فوراً (تعيين كمنتهي الصلاحية ومجمد)</option>
       </select>
     </div>
 
-    <div class="form-group">
-      <label class="form-label">ملاحظات التحصيل (اختياري)</label>
-      <input type="text" class="form-input" id="pay-modal-notes" placeholder="تم التحصيل عبر فودافون كاش / نقداً">
+    <div class="form-group" id="pay-modal-custom-days-group" style="display:none;">
+      <label class="form-label">عدد الأيام المخصصة للتمديد *</label>
+      <input type="number" class="form-input" id="pay-modal-custom-days" min="1" placeholder="مثال: 15" style="font-family:var(--font-en); text-align:left;">
     </div>
 
-    <button class="btn-submit" onclick="MasterApp.confirmRecordPayment()">
-      <span>توثيق السداد وتمديد الترخيص</span>
+    <div class="form-group" id="pay-modal-custom-date-group" style="display:none;">
+      <label class="form-label">تاريخ انتهاء الاشتراك الجديد *</label>
+      <input type="date" class="form-input" id="pay-modal-custom-date" style="font-family:var(--font-en); text-align:left;">
+    </div>
+
+    <div id="pay-modal-expired-warning" style="display:none; padding:12px; background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); border-radius:10px; margin-bottom:14px; font-size:12px; color:var(--danger); line-height:1.6;">
+      تنبيه: سيتم تعيين اشتراك هذا المطعم كمنتهي الصلاحية فوراً وتجميده مؤقتاً، وستظهر شاشة التوقف للزبائن والإدارة حتى يتم التجديد.
+    </div>
+
+    <div class="form-group" id="pay-modal-notes-group">
+      <label class="form-label">ملاحظات التحصيل (اختياري)</label>
+      <input type="text" class="form-input" id="pay-modal-notes" placeholder="تم التحصيل عبر فودافون كاش / إنستاباي / نقداً">
+    </div>
+
+    <button class="btn-submit" id="pay-modal-submit-btn" onclick="MasterApp.confirmRecordPayment()">
+      <span id="pay-modal-submit-text">توثيق السداد وتمديد الترخيص</span>
     </button>
-    <button class="btn-cancel" onclick="MasterApp.closePaymentModal()">إلغاء</button>
+    <button type="button" class="btn-cancel" id="pay-modal-direct-expire-btn" style="color:var(--danger); border-color:rgba(239,68,68,0.3); margin-top:8px;" onclick="MasterApp.confirmExpireFromModal()">
+      إنهاء الاشتراك وتجميد المطعم الآن
+    </button>
+    <button type="button" class="btn-cancel" onclick="MasterApp.closePaymentModal()">إلغاء</button>
   </div>
 
   <!-- MODAL: FOUNDER PIN & PROFILE -->
@@ -1837,20 +1878,30 @@
 
             const expTimestamp = parseExpiry(lic.expiresAt || lic.validUntil);
             const diffDays = Math.ceil((expTimestamp - now) / (1000 * 60 * 60 * 24));
+            const subSettings = settings.subscription || {};
+            const isExplicitExpired = lic.status === 'expired' || subSettings.status === 'expired';
+            const isTimestampExpired = expTimestamp > 0 && diffDays <= 0;
+            const isExpired = isExplicitExpired || isTimestampExpired;
+
             let expiryText = '';
-            if (expTimestamp <= 0) {
-              expiryText = 'مدى الحياة';
-            } else if (diffDays <= 0) {
+            if (isExpired) {
               expiryText = 'منتهي الصلاحية';
+            } else if (expTimestamp <= 0) {
+              expiryText = 'مدى الحياة';
             } else {
               expiryText = `متبقي ${diffDays} يوم`;
             }
+
+            const isSuspended = lic.active === false || lic.suspended === true || lic.status === 'suspended' || isExpired;
+            const active = !isSuspended;
 
             loadedTenants.push({
               slug,
               name: lic.restaurantName || settings.name || slug,
               phone: lic.ownerPhone || settings.phone || '',
-              active: lic.active !== false && lic.suspended !== true,
+              active: active,
+              suspended: isSuspended,
+              isExpired: isExpired,
               monthlyPrice: lic.monthlyPrice || 1500,
               expTimestamp,
               expiryText,
@@ -1928,7 +1979,17 @@
         }
 
         container.innerHTML = filtered.map(t => {
-          const isExpiring = t.diffDays > 0 && t.diffDays <= 7;
+          const isExpiring = !t.isExpired && t.diffDays > 0 && t.diffDays <= 7;
+          let tagText = 'نشط';
+          let tagClass = 'tag-active';
+          if (t.isExpired) {
+            tagText = 'مجمد (منتهي)';
+            tagClass = 'tag-frozen';
+          } else if (!t.active) {
+            tagText = 'مجمد مؤقتاً';
+            tagClass = 'tag-frozen';
+          }
+
           return `
             <div class="tenant-row ${!t.active ? 'is-frozen' : ''}" onclick="MasterApp.openActionSheet('${t.slug}')">
               <div class="tenant-avatar-box">
@@ -1939,13 +2000,13 @@
               <div class="tenant-info-box">
                 <div class="tenant-name-row">
                   <span class="tenant-name">${t.name}</span>
-                  <span class="tenant-tag ${t.active ? 'tag-active' : 'tag-frozen'}">${t.active ? 'نشط' : 'مجمد'}</span>
+                  <span class="tenant-tag ${tagClass}">${tagText}</span>
                 </div>
                 
                 <div class="tenant-meta-row">
                   <span style="font-family:var(--font-en); font-weight:700; color:var(--primary);">${(t.monthlyPrice || 0).toLocaleString()} ج.م/ش</span>
                   <span class="tenant-dot-divider">•</span>
-                  <span style="${isExpiring ? 'color:var(--amber); font-weight:700;' : ''}">${t.expiryText}</span>
+                  <span style="${t.isExpired ? 'color:var(--danger); font-weight:700;' : (isExpiring ? 'color:var(--amber); font-weight:700;' : '')}">${t.expiryText}</span>
                   <span class="tenant-dot-divider">•</span>
                   <span style="font-family:var(--font-en); font-size:10.5px;">${t.slug}</span>
                 </div>
@@ -1978,7 +2039,17 @@
         document.getElementById('sheet-avatar').src = t.logo || 'assets/brand/harpy_order_emblem_transparent.png';
         document.getElementById('sheet-title').textContent = t.name;
         document.getElementById('sheet-sub').textContent = `${t.slug} • ${(t.monthlyPrice || 0).toLocaleString()} ج.م/ش • ${t.expiryText}`;
-        document.getElementById('sheet-freeze-label').textContent = t.active ? 'تجميد / إيقاف المطعم' : 'إلغاء التجميد وتنشيط المطعم';
+        
+        const isExp = t.isExpired;
+        const freezeBtnText = isExp 
+          ? 'تنشيط وإلغاء تجميد المطعم' 
+          : (t.active ? 'تجميد / إيقاف المطعم مؤقتاً' : 'إلغاء التجميد وتنشيط المطعم');
+        document.getElementById('sheet-freeze-label').textContent = freezeBtnText;
+
+        const expireBtn = document.getElementById('sheet-expire-label');
+        if (expireBtn) {
+          expireBtn.textContent = isExp ? 'الاشتراك منتهي ومجمد بالفعل' : 'إنهاء الاشتراك وتجميد المطعم فوراً';
+        }
 
         document.getElementById('tenant-action-sheet').classList.add('open');
         document.getElementById('sheet-backdrop').classList.add('open');
@@ -2066,22 +2137,41 @@
       async toggleStatus(slug, activate) {
         const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
         const statusVal = activate ? 'active' : 'suspended';
+        const t = this.tenants.find(x => x.slug === slug);
+        
+        let newExp = t ? t.expTimestamp : 0;
+        // If unfreezing an expired restaurant, give it 30 days active automatically
+        if (activate && (!newExp || newExp <= Date.now())) {
+          newExp = Date.now() + (30 * 24 * 60 * 60 * 1000);
+        }
+
         const subPayload = {
           status: statusVal,
           active: activate,
           suspended: !activate,
           lastStatusUpdate: Date.now()
         };
+        if (activate && newExp > Date.now()) {
+          subPayload.expiresAt = newExp;
+          subPayload.validUntil = newExp;
+        }
 
         // Immediately update in-memory and local cache for instant UI response
-        const t = this.tenants.find(x => x.slug === slug);
         if (t) {
           t.active = activate;
           t.suspended = !activate;
+          t.isExpired = !activate && (t.isExpired || newExp <= Date.now());
+          if (activate) {
+            t.expTimestamp = newExp;
+            t.diffDays = Math.ceil((newExp - Date.now()) / (1000 * 60 * 60 * 24));
+            t.expiryText = `متبقي ${t.diffDays} يوم`;
+          }
           try {
             localStorage.setItem('harpy_master_cached_tenants', JSON.stringify(this.tenants));
           } catch(e) {}
           this.renderUI();
+          this.renderFinanceUI();
+          this.renderWatchdogUI();
         }
 
         try {
@@ -2092,11 +2182,22 @@
             }),
             fetch(`${BASE_RTDB}/restaurants/${slug}/settings/subscription.json${authParam}`, {
               method: 'PATCH',
-              body: JSON.stringify(subPayload)
+              body: JSON.stringify({
+                status: statusVal,
+                active: activate,
+                suspended: !activate,
+                expiresAt: new Date(newExp).toISOString(),
+                lastStatusUpdate: Date.now()
+              })
             }),
             fetch(`${BASE_RTDB}/restaurants/${slug}/meta.json${authParam}`, {
               method: 'PATCH',
-              body: JSON.stringify(subPayload)
+              body: JSON.stringify({
+                status: statusVal,
+                active: activate,
+                suspended: !activate,
+                lastStatusUpdate: Date.now()
+              })
             })
           ]);
 
@@ -2108,42 +2209,238 @@
         }
       },
 
-      // --- Payment & Billing ---
+      // --- Payment & Flexible Duration Engine ---
       openPaymentModal(slug) {
         const t = this.tenants.find(x => x.slug === slug);
         if (!t) return;
         this.payingSlug = slug;
+
+        const infoEl = document.getElementById('pay-modal-current-info');
+        if (infoEl) {
+          const statusDesc = t.isExpired ? 'مجمد (منتهي الصلاحية)' : (!t.active ? 'مجمد مؤقتاً' : 'نشط وسارٍ');
+          infoEl.innerHTML = `المطعم: <b style="color:var(--text-primary);">${t.name}</b> (${slug})<br>الحالة: <span style="color:${t.isExpired || !t.active ? 'var(--danger)' : 'var(--teal)'}; font-weight:700;">${statusDesc}</span> • ${t.expiryText}`;
+        }
+
         document.getElementById('pay-modal-amount').value = t.monthlyPrice || 1500;
+        document.getElementById('pay-modal-period').value = '30';
+        document.getElementById('pay-modal-notes').value = '';
+        if (document.getElementById('pay-modal-custom-days')) {
+          document.getElementById('pay-modal-custom-days').value = '30';
+        }
+        if (document.getElementById('pay-modal-custom-date')) {
+          const d = new Date(Date.now() + 30 * 86400000);
+          document.getElementById('pay-modal-custom-date').value = d.toISOString().split('T')[0];
+        }
+
+        this.onPayPeriodChange();
+
         document.getElementById('modal-payment').classList.add('open');
         document.getElementById('modal-payment-backdrop').classList.add('open');
       },
+
       closePaymentModal() {
         document.getElementById('modal-payment').classList.remove('open');
         document.getElementById('modal-payment-backdrop').classList.remove('open');
         this.payingSlug = null;
       },
+
+      onPayPeriodChange() {
+        const val = document.getElementById('pay-modal-period').value;
+        const customDaysGroup = document.getElementById('pay-modal-custom-days-group');
+        const customDateGroup = document.getElementById('pay-modal-custom-date-group');
+        const expiredWarning = document.getElementById('pay-modal-expired-warning');
+        const amountGroup = document.getElementById('pay-modal-amount-group');
+        const submitText = document.getElementById('pay-modal-submit-text');
+        const submitBtn = document.getElementById('pay-modal-submit-btn');
+
+        if (customDaysGroup) customDaysGroup.style.display = (val === 'custom_days') ? 'block' : 'none';
+        if (customDateGroup) customDateGroup.style.display = (val === 'custom_date') ? 'block' : 'none';
+        if (expiredWarning) expiredWarning.style.display = (val === 'expired') ? 'block' : 'none';
+
+        if (val === 'expired') {
+          if (amountGroup) amountGroup.style.display = 'none';
+          if (submitText) submitText.textContent = 'تأكيد إنهاء الاشتراك وتجميد المطعم';
+          if (submitBtn) submitBtn.style.background = 'var(--danger)';
+        } else {
+          if (amountGroup) amountGroup.style.display = 'block';
+          if (submitText) submitText.textContent = 'توثيق السداد وتمديد الترخيص';
+          if (submitBtn) submitBtn.style.background = '';
+        }
+      },
+
+      onNewTenantDurationChange() {
+        const val = document.getElementById('new-tenant-duration').value;
+        const customDaysGroup = document.getElementById('new-tenant-custom-days-group');
+        const customDateGroup = document.getElementById('new-tenant-custom-date-group');
+
+        if (customDaysGroup) customDaysGroup.style.display = (val === 'custom_days') ? 'block' : 'none';
+        if (customDateGroup) customDateGroup.style.display = (val === 'custom_date') ? 'block' : 'none';
+
+        if (val === 'custom_date' && document.getElementById('new-tenant-custom-date')) {
+          const d = new Date(Date.now() + 90 * 86400000);
+          document.getElementById('new-tenant-custom-date').value = d.toISOString().split('T')[0];
+        }
+      },
+
+      confirmExpireFromModal() {
+        if (!this.payingSlug) return;
+        const slug = this.payingSlug;
+        this.closePaymentModal();
+        this.actionSheetExpireSubscription(slug);
+      },
+
+      actionSheetExpireSubscription(slugParam) {
+        const slug = slugParam || (this.activeSheetTenant ? this.activeSheetTenant.slug : null);
+        if (!slug) return;
+        const t = this.tenants.find(x => x.slug === slug);
+        const name = t ? t.name : slug;
+
+        this.closeActionSheet();
+
+        if (!confirm(`هل أنت متأكد من إنهاء اشتراك مطعم "${name}" وتجميده مؤقتاً؟\n\nسيتم إيقاف المنيو ولوحة الإدارة فوراً حتى يتم التجديد.`)) {
+          return;
+        }
+
+        this.expireSubscription(slug);
+      },
+
+      async expireSubscription(slug) {
+        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
+        const expiredTimestamp = Date.now() - 1000;
+
+        const subPayload = {
+          status: 'expired',
+          active: false,
+          suspended: true,
+          expiresAt: expiredTimestamp,
+          validUntil: expiredTimestamp,
+          lastStatusUpdate: Date.now()
+        };
+
+        // Instant optimistic UI update
+        const t = this.tenants.find(x => x.slug === slug);
+        if (t) {
+          t.active = false;
+          t.suspended = true;
+          t.isExpired = true;
+          t.expTimestamp = expiredTimestamp;
+          t.diffDays = 0;
+          t.expiryText = 'منتهي الصلاحية';
+          try {
+            localStorage.setItem('harpy_master_cached_tenants', JSON.stringify(this.tenants));
+          } catch(e) {}
+          this.renderUI();
+          this.renderFinanceUI();
+          this.renderWatchdogUI();
+        }
+
+        try {
+          await Promise.all([
+            fetch(`${BASE_RTDB}/licenses/${slug}.json${authParam}`, {
+              method: 'PATCH',
+              body: JSON.stringify(subPayload)
+            }),
+            fetch(`${BASE_RTDB}/restaurants/${slug}/settings/subscription.json${authParam}`, {
+              method: 'PATCH',
+              body: JSON.stringify({
+                status: 'expired',
+                active: false,
+                suspended: true,
+                expiresAt: new Date(expiredTimestamp).toISOString(),
+                lastStatusUpdate: Date.now()
+              })
+            }),
+            fetch(`${BASE_RTDB}/restaurants/${slug}/meta.json${authParam}`, {
+              method: 'PATCH',
+              body: JSON.stringify({
+                status: 'suspended',
+                active: false,
+                suspended: true,
+                lastStatusUpdate: Date.now()
+              })
+            })
+          ]);
+
+          this.logAudit('SUB_EXPIRE', `إنهاء اشتراك وتجميد مطعم ${slug} مؤقتاً`, slug);
+          this.showToast("تم إنهاء الاشتراك وتجميد المطعم مؤقتاً بنجاح", "success");
+          this.loadAllData();
+        } catch(e) {
+          this.showToast("فشل إنهاء الاشتراك وتجميد المطعم", "error");
+        }
+      },
+
       async confirmRecordPayment() {
         if (!this.payingSlug) return;
         const slug = this.payingSlug;
-        const amount = Number(document.getElementById('pay-modal-amount').value) || 1500;
-        const days = Number(document.getElementById('pay-modal-period').value) || 30;
-        const notes = document.getElementById('pay-modal-notes').value || 'سداد دوري';
+        const periodVal = document.getElementById('pay-modal-period').value;
 
+        // If user chose expired option
+        if (periodVal === 'expired') {
+          this.closePaymentModal();
+          await this.expireSubscription(slug);
+          return;
+        }
+
+        const amount = Number(document.getElementById('pay-modal-amount').value) || 0;
+        const notes = document.getElementById('pay-modal-notes').value || 'سداد دوري وتمديد';
         const t = this.tenants.find(x => x.slug === slug);
-        let baseExp = t && t.expTimestamp > Date.now() ? t.expTimestamp : Date.now();
-        const newExp = baseExp + (days * 24 * 60 * 60 * 1000);
+
+        let newExp = 0;
+        let daysAdded = 0;
+
+        if (periodVal === 'custom_days') {
+          const customDays = Number(document.getElementById('pay-modal-custom-days').value);
+          if (!customDays || customDays <= 0) {
+            this.showToast("يرجى إدخال عدد أيام صحيح للتمديد", "error");
+            return;
+          }
+          daysAdded = customDays;
+          let baseExp = t && t.expTimestamp > Date.now() ? t.expTimestamp : Date.now();
+          newExp = baseExp + (customDays * 24 * 60 * 60 * 1000);
+        } else if (periodVal === 'custom_date') {
+          const dateVal = document.getElementById('pay-modal-custom-date').value;
+          if (!dateVal) {
+            this.showToast("يرجى تحديد تاريخ انتهاء الاشتراك", "error");
+            return;
+          }
+          newExp = new Date(dateVal).getTime() + (23 * 3600 + 59 * 60 + 59) * 1000;
+          daysAdded = Math.max(1, Math.ceil((newExp - Date.now()) / (1000 * 60 * 60 * 24)));
+        } else {
+          daysAdded = Number(periodVal) || 30;
+          let baseExp = t && t.expTimestamp > Date.now() ? t.expTimestamp : Date.now();
+          newExp = baseExp + (daysAdded * 24 * 60 * 60 * 1000);
+        }
+
+        const isExpInFuture = newExp > Date.now();
         const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
 
         const payPayload = {
           expiresAt: newExp,
           validUntil: newExp,
-          active: true,
-          suspended: false,
-          status: 'active',
+          active: isExpInFuture,
+          suspended: !isExpInFuture,
+          status: isExpInFuture ? 'active' : 'expired',
           lastPaymentDate: Date.now(),
           lastPaymentAmount: amount,
-          lastPaymentNotes: notes
+          lastPaymentNotes: notes,
+          lastStatusUpdate: Date.now()
         };
+
+        // Instant optimistic UI update
+        if (t) {
+          t.active = isExpInFuture;
+          t.suspended = !isExpInFuture;
+          t.isExpired = !isExpInFuture;
+          t.expTimestamp = newExp;
+          t.diffDays = Math.ceil((newExp - Date.now()) / (1000 * 60 * 60 * 24));
+          t.expiryText = isExpInFuture ? `متبقي ${t.diffDays} يوم` : 'منتهي الصلاحية';
+          try {
+            localStorage.setItem('harpy_master_cached_tenants', JSON.stringify(this.tenants));
+          } catch(e) {}
+          this.renderUI();
+          this.renderFinanceUI();
+          this.renderWatchdogUI();
+        }
 
         try {
           await Promise.all([
@@ -2155,19 +2452,29 @@
               method: 'PATCH',
               body: JSON.stringify({
                 expiresAt: new Date(newExp).toISOString(),
-                status: 'active',
-                active: true,
-                suspended: false
+                status: isExpInFuture ? 'active' : 'expired',
+                active: isExpInFuture,
+                suspended: !isExpInFuture,
+                lastStatusUpdate: Date.now()
+              })
+            }),
+            fetch(`${BASE_RTDB}/restaurants/${slug}/meta.json${authParam}`, {
+              method: 'PATCH',
+              body: JSON.stringify({
+                status: isExpInFuture ? 'active' : 'suspended',
+                active: isExpInFuture,
+                suspended: !isExpInFuture,
+                lastStatusUpdate: Date.now()
               })
             })
           ]);
 
-          this.logAudit('PAYMENT_RECORD', `تسجيل سداد ${amount} ج.م وتمديد ${days} يوماً لمطعم ${slug}`, slug);
+          this.logAudit('PAYMENT_RECORD', `تسجيل سداد ${amount} ج.م وتحديد الصلاحية (${daysAdded} يوماً) لمطعم ${slug}`, slug);
           this.closePaymentModal();
-          this.showToast("تم توثيق السداد وتمديد الترخيص بنجاح", "success");
+          this.showToast(isExpInFuture ? "تم توثيق السداد وتمديد الترخيص بنجاح" : "تم ضبط الاشتراك كمنتهي الصلاحية وتجميد المطعم", "success");
           this.loadAllData();
         } catch(e) {
-          this.showToast("فشل تسجيل السداد", "error");
+          this.showToast("فشل حفظ بيانات الاشتراك والسداد", "error");
         }
       },
 
@@ -2265,7 +2572,7 @@
         const name = document.getElementById('new-tenant-name').value.trim();
         const slug = document.getElementById('new-tenant-slug').value.trim().toLowerCase();
         const phone = document.getElementById('new-tenant-phone').value.trim();
-        const durationMonths = Number(document.getElementById('new-tenant-duration').value) || 3;
+        const durChoice = document.getElementById('new-tenant-duration').value;
         const price = Number(document.getElementById('new-tenant-price').value) || 1500;
 
         if (!name || !slug || !phone) {
@@ -2273,7 +2580,25 @@
           return;
         }
 
-        const expTimestamp = Date.now() + (durationMonths * 30 * 24 * 60 * 60 * 1000);
+        let expTimestamp = 0;
+        if (durChoice === 'custom_days') {
+          const cd = Number(document.getElementById('new-tenant-custom-days').value);
+          if (!cd || cd <= 0) {
+            this.showToast("يرجى إدخال عدد أيام صحيح للاشتراك المبدئي", "error");
+            return;
+          }
+          expTimestamp = Date.now() + (cd * 24 * 60 * 60 * 1000);
+        } else if (durChoice === 'custom_date') {
+          const dVal = document.getElementById('new-tenant-custom-date').value;
+          if (!dVal) {
+            this.showToast("يرجى تحديد تاريخ انتهاء الاشتراك", "error");
+            return;
+          }
+          expTimestamp = new Date(dVal).getTime() + (23 * 3600 + 59 * 60 + 59) * 1000;
+        } else {
+          const durationMonths = Number(durChoice) || 3;
+          expTimestamp = Date.now() + (durationMonths * 30 * 24 * 60 * 60 * 1000);
+        }
         const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
 
         const allMods = {
@@ -2415,14 +2740,21 @@
 
       // --- Tab 3: Watchdog UI ---
       renderWatchdogUI() {
-        const expiring = this.tenants.filter(t => t.diffDays > 0 && t.diffDays <= 7);
+        const expiring = this.tenants.filter(t => !t.isExpired && t.diffDays > 0 && t.diffDays <= 7);
+        const expired = this.tenants.filter(t => t.isExpired);
         const descEl = document.getElementById('watchdog-exp-desc');
         if (descEl) {
+          let parts = [];
+          if (expired.length > 0) {
+            parts.push(`يوجد <b style="color:var(--danger);">${expired.length}</b> مطاعم منتهية الصلاحية ومجمدة مؤقتاً: ` + expired.map(x => x.name).join('، '));
+          }
           if (expiring.length > 0) {
-            descEl.innerHTML = `يوجد <b style="color:var(--amber);">${expiring.length}</b> مطاعم قارب اشتراكها على الانتهاء: ` +
-              expiring.map(x => `${x.name} (${x.expiryText})`).join('، ');
+            parts.push(`يوجد <b style="color:var(--amber);">${expiring.length}</b> مطاعم قارب اشتراكها على الانتهاء: ` + expiring.map(x => `${x.name} (${x.expiryText})`).join('، '));
+          }
+          if (parts.length > 0) {
+            descEl.innerHTML = parts.join('<br>');
           } else {
-            descEl.textContent = 'جميع التراخيص سارية، ولا توجد مطاعم أوشك اشتراكها على الانتهاء في الأيام الـ 7 القادمة.';
+            descEl.textContent = 'جميع التراخيص سارية ونشطة، ولا توجد اشتراكات منتهية أو قاربت على الانتهاء.';
           }
         }
       },
