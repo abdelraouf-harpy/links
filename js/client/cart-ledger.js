@@ -319,9 +319,15 @@ function updateLedgerUI() {
   const promoInputContainer = document.getElementById('promo-input-container');
   const promoBoxWrap = document.getElementById('promo-box-wrap') || document.querySelector('.promo-box-wrap');
 
-  // Hide coupon box completely when cart is empty per user requirement
+  // Hide coupon box completely when cart is empty or when coupons module is disabled
+  const isCouponsDisabled = (settings && settings.modules && settings.modules.coupons === false) ||
+                            (window.ModuleEnforcer && window.ModuleEnforcer.modules && window.ModuleEnforcer.modules.coupons === false);
   if (promoBoxWrap) {
-    promoBoxWrap.style.display = (cart.length > 0) ? 'block' : 'none';
+    if (isCouponsDisabled) {
+      promoBoxWrap.style.setProperty('display', 'none', 'important');
+    } else {
+      promoBoxWrap.style.display = (cart.length > 0) ? 'block' : 'none';
+    }
   }
 
   if (appliedCoupon && subtotal > 0 && cart.length > 0) {

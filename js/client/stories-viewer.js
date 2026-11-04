@@ -11,6 +11,16 @@ let isStoryPaused = false;
 // ── Stories Highlights Engine ──────────────────────────────
 function renderStories() {
   if (!elements.storiesTrack) return;
+  const settings = (typeof Store !== 'undefined' && Store.getSettings) ? Store.getSettings() : {};
+  const isStoriesDisabled = (settings && settings.modules && settings.modules.stories === false) ||
+                            (window.ModuleEnforcer && window.ModuleEnforcer.modules && window.ModuleEnforcer.modules.stories === false);
+  if (isStoriesDisabled) {
+    if (elements.storiesSection) {
+      elements.storiesSection.style.setProperty('display', 'none', 'important');
+      elements.storiesSection.innerHTML = '';
+    }
+    return;
+  }
   const stories = Store.getStories();
   if (!stories || stories.length === 0) {
     if (elements.storiesSection) elements.storiesSection.style.display = 'none';
