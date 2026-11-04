@@ -1022,6 +1022,14 @@ function renderAnnouncement() {
 
   if (!promoCard) return;
 
+  const isAnnouncementDisabled = (settings && settings.modules && settings.modules.announcementBar === false) ||
+                                 (window.ModuleEnforcer && window.ModuleEnforcer.modules && window.ModuleEnforcer.modules.announcementBar === false);
+  if (isAnnouncementDisabled) {
+    promoCard.style.setProperty('display', 'none', 'important');
+    if (elements && elements.announcementBar) elements.announcementBar.style.setProperty('display', 'none', 'important');
+    return;
+  }
+
   const isEnabled = (settings.showAnnouncement === true || settings.showAnnouncement === 'true');
   const hasText = !!(settings.announcementText && settings.announcementText.trim());
   const hasAnnouncement = isEnabled && hasText;

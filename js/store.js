@@ -4036,6 +4036,9 @@ const Store = {
             if (!isBlocked) reason = 'expired';
           }
         }
+        if (lic.modules && typeof lic.modules === 'object' && window.ModuleEnforcer && typeof window.ModuleEnforcer.enforce === 'function') {
+          window.ModuleEnforcer.enforce(lic.modules);
+        }
       }
 
       if (subSettings && typeof subSettings === 'object') {

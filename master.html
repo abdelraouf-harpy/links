@@ -1471,7 +1471,7 @@
       <label class="module-toggle-row">
         <div>
           <div class="module-toggle-title">1. الكاشير ونقاط البيع (POS Terminal)</div>
-          <div class="module-toggle-desc">لوحة كاشير المطبخ وتوزيع الطاولات السريع</div>
+          <div class="module-toggle-desc">لوحة كاشير المطبخ وإدخال الطلبات السريع</div>
         </div>
         <input type="checkbox" id="mod-toggle-pos" style="width:20px; height:20px; accent-color:var(--primary);">
       </label>
@@ -1479,8 +1479,8 @@
       <!-- 2. Inventory -->
       <label class="module-toggle-row">
         <div>
-          <div class="module-toggle-title">2. إدارة المخازن والمقادير (Inventory & Recipes)</div>
-          <div class="module-toggle-desc">خصم المكونات وتكاليف الوجبات والموردين</div>
+          <div class="module-toggle-title">2. إدارة المخازن والمقادير والمواد الخام (Inventory)</div>
+          <div class="module-toggle-desc">خصم المكونات وتكاليف الوجبات والموردين والحد الأدنى</div>
         </div>
         <input type="checkbox" id="mod-toggle-inventory" style="width:20px; height:20px; accent-color:var(--primary);">
       </label>
@@ -1488,8 +1488,8 @@
       <!-- 3. Stories -->
       <label class="module-toggle-row">
         <div>
-          <div class="module-toggle-title">3. شريط القصص والعروض (Stories)</div>
-          <div class="module-toggle-desc">قصص إنستجرام أعلى المنيو للزبائن</div>
+          <div class="module-toggle-title">3. شريط القصص والعروض التفاعلية (Stories)</div>
+          <div class="module-toggle-desc">قصص إنستجرام أعلى المنيو وإدارتها من اللوحة</div>
         </div>
         <input type="checkbox" id="mod-toggle-stories" style="width:20px; height:20px; accent-color:var(--primary);">
       </label>
@@ -1497,8 +1497,8 @@
       <!-- 4. Smart Tables -->
       <label class="module-toggle-row">
         <div>
-          <div class="module-toggle-title">4. الطاولات الذكية والصالة (Smart Tables / QR)</div>
-          <div class="module-toggle-desc">طلب الزبائن من الصالة برقم الطاولة</div>
+          <div class="module-toggle-title">4. إدارة طاولات الصالة وأكواد وتوليد طاولات بـ QR</div>
+          <div class="module-toggle-desc">توليد أكواد QR، ستاندات الطاولات، وطلب الصالة برقم الطاولة</div>
         </div>
         <input type="checkbox" id="mod-toggle-tables" style="width:20px; height:20px; accent-color:var(--primary);">
       </label>
@@ -1506,8 +1506,8 @@
       <!-- 5. Delivery -->
       <label class="module-toggle-row">
         <div>
-          <div class="module-toggle-title">5. خدمة التوصيل للمنازل (Home Delivery)</div>
-          <div class="module-toggle-desc">حساب رسوم ومناطق التوصيل الدليفري</div>
+          <div class="module-toggle-title">5. تسعير خدمة التوصيل لنطاقات معينة (Home Delivery & Zones)</div>
+          <div class="module-toggle-desc">تفعيل الدليفري، تسعير النطاقات الجغرافية وكلمات الكشف الذكي</div>
         </div>
         <input type="checkbox" id="mod-toggle-delivery" style="width:20px; height:20px; accent-color:var(--primary);">
       </label>
@@ -1515,8 +1515,8 @@
       <!-- 6. Takeaway -->
       <label class="module-toggle-row">
         <div>
-          <div class="module-toggle-title">6. الاستلام من الفرع (Takeaway / Pickup)</div>
-          <div class="module-toggle-desc">تجهيز طلبات الاستلام السريع للعملاء</div>
+          <div class="module-toggle-title">6. الاستلام من الفرع والتيك أواي (Takeaway / Pickup)</div>
+          <div class="module-toggle-desc">تجهيز واستلام الطلبات مباشرة من مقر المطعم</div>
         </div>
         <input type="checkbox" id="mod-toggle-takeaway" style="width:20px; height:20px; accent-color:var(--primary);">
       </label>
@@ -1524,8 +1524,8 @@
       <!-- 7. Online Payment -->
       <label class="module-toggle-row">
         <div>
-          <div class="module-toggle-title">7. الدفع الإلكتروني والمحافظ (Online Payments)</div>
-          <div class="module-toggle-desc">فودافون كاش، إنستاباي، وبطاقات الدفع</div>
+          <div class="module-toggle-title">7. المحفظة الإلكترونية والدفع الذكي (Online Payments)</div>
+          <div class="module-toggle-desc">فودافون كاش، إنستاباي، وإدارة بطاقات الدفع والخصم الترويجي</div>
         </div>
         <input type="checkbox" id="mod-toggle-payments" style="width:20px; height:20px; accent-color:var(--primary);">
       </label>
@@ -1533,8 +1533,8 @@
       <!-- 8. Archive & Reports -->
       <label class="module-toggle-row">
         <div>
-          <div class="module-toggle-title">8. أرشيف المبيعات والتقارير (Sales Archive)</div>
-          <div class="module-toggle-desc">التقارير اليومية وتاريخ الفواتير السابقة</div>
+          <div class="module-toggle-title">8. أرشيف المبيعات والتقارير المالية (Sales Archive)</div>
+          <div class="module-toggle-desc">التقارير اليومية، تاريخ الفواتير، وتحليلات الإيرادات السابقة</div>
         </div>
         <input type="checkbox" id="mod-toggle-archive" style="width:20px; height:20px; accent-color:var(--primary);">
       </label>
@@ -1542,17 +1542,44 @@
       <!-- 9. Coupons -->
       <label class="module-toggle-row">
         <div>
-          <div class="module-toggle-title">9. كوبونات الخصم والعروض (Coupons)</div>
-          <div class="module-toggle-desc">تفعيل أكواد الخصم والبروموكود بالسلة</div>
+          <div class="module-toggle-title">9. كوبون الخصم برومو كود (Promo Codes & Coupons)</div>
+          <div class="module-toggle-desc">إنشاء أكواد الخصم الترويجية وتطبيقها بالسلة</div>
         </div>
         <input type="checkbox" id="mod-toggle-coupons" style="width:20px; height:20px; accent-color:var(--primary);">
       </label>
 
-      <!-- 10. Reviews -->
+      <!-- 10. Cart Discount -->
       <label class="module-toggle-row">
         <div>
-          <div class="module-toggle-title">10. تقييمات وآراء العملاء (Reviews)</div>
-          <div class="module-toggle-desc">نظام تقييم الأصناف وجودة الخدمة</div>
+          <div class="module-toggle-title">10. خصم إجمالي قيمة الطلب (Spend Tier Discount)</div>
+          <div class="module-toggle-desc">خصم مباشر عند الوصول لحد أدنى للطلب ومؤشر التقدم بالسلة</div>
+        </div>
+        <input type="checkbox" id="mod-toggle-cart-discount" style="width:20px; height:20px; accent-color:var(--primary);">
+      </label>
+
+      <!-- 11. Announcement Bar -->
+      <label class="module-toggle-row">
+        <div>
+          <div class="module-toggle-title">11. تفعيل شريط الإعلانات الترويجي (Announcement Ticker)</div>
+          <div class="module-toggle-desc">الشريط الترويجي أعلى صفحة المنيو والإشعارات العاجلة</div>
+        </div>
+        <input type="checkbox" id="mod-toggle-announcement" style="width:20px; height:20px; accent-color:var(--primary);">
+      </label>
+
+      <!-- 12. Multi-Branch Network -->
+      <label class="module-toggle-row">
+        <div>
+          <div class="module-toggle-title">12. شبكة الفروع وإدارتها (Multi-Branch Network)</div>
+          <div class="module-toggle-desc">ربط وتنسيق الفروع المتعددة والتبديل السريع بينها</div>
+        </div>
+        <input type="checkbox" id="mod-toggle-branches" style="width:20px; height:20px; accent-color:var(--primary);">
+      </label>
+
+      <!-- 13. Reviews -->
+      <label class="module-toggle-row">
+        <div>
+          <div class="module-toggle-title">13. تقييمات وآراء العملاء (Reviews & Ratings)</div>
+          <div class="module-toggle-desc">نظام تقييم الأصناف وجودة الخدمة وشارات التقييم بالمنيو</div>
         </div>
         <input type="checkbox" id="mod-toggle-reviews" style="width:20px; height:20px; accent-color:var(--primary);">
       </label>
@@ -2584,6 +2611,9 @@
         document.getElementById('mod-toggle-payments').checked = mods.onlinePayment !== false;
         document.getElementById('mod-toggle-archive').checked = mods.archive !== false;
         document.getElementById('mod-toggle-coupons').checked = mods.coupons !== false;
+        document.getElementById('mod-toggle-cart-discount').checked = mods.cartDiscount !== false;
+        document.getElementById('mod-toggle-announcement').checked = mods.announcementBar !== false;
+        document.getElementById('mod-toggle-branches').checked = mods.branches !== false;
         document.getElementById('mod-toggle-reviews').checked = mods.reviews !== false;
 
         document.getElementById('modal-modules').classList.add('open');
@@ -2607,6 +2637,9 @@
           onlinePayment: document.getElementById('mod-toggle-payments').checked,
           archive: document.getElementById('mod-toggle-archive').checked,
           coupons: document.getElementById('mod-toggle-coupons').checked,
+          cartDiscount: document.getElementById('mod-toggle-cart-discount').checked,
+          announcementBar: document.getElementById('mod-toggle-announcement').checked,
+          branches: document.getElementById('mod-toggle-branches').checked,
           reviews: document.getElementById('mod-toggle-reviews').checked
         };
         const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';

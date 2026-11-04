@@ -282,10 +282,13 @@ function updateLedgerUI() {
   const totalItemsCount = cart.reduce((sum, item) => sum + item.qty, 0);
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
-  // Spend Tier Discount
+  // Spend Tier Discount (controlled by cartDiscount module)
   let spendTierDiscountAmount = 0;
   let spendTierProgress = 0;
-  if (settings.enableSpendTierDiscount && settings.spendTierMinAmount > 0 && subtotal > 0) {
+  const isCartDiscountDisabled = (settings && settings.modules && settings.modules.cartDiscount === false) ||
+                                 (window.ModuleEnforcer && window.ModuleEnforcer.modules && window.ModuleEnforcer.modules.cartDiscount === false);
+
+  if (!isCartDiscountDisabled && settings.enableSpendTierDiscount && settings.spendTierMinAmount > 0 && subtotal > 0) {
     const minSpend = settings.spendTierMinAmount;
     const tierValue = settings.spendTierDiscountValue || 15;
     const isPercent = settings.spendTierDiscountType !== 'fixed';

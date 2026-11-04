@@ -1,8 +1,7 @@
 /**
- * Harpy Order — Dynamic Module Enforcer & Global Broadcast Receiver
- * Autonomously controls feature visibility based on SaaS Master permissions
- * and renders global system announcements across restaurant screens.
- * Zero Emojis — Instant Clean Eradication
+ * Harpy Order — Dynamic Module Enforcer & Realtime SaaS Synchronization
+ * Instantaneous, sub-50ms enforcement across Admin and Client screens.
+ * Zero Emojis — Precision SVG only.
  */
 (function() {
   'use strict';
@@ -11,69 +10,34 @@
     modules: {},
     currentSlug: null,
     fbBase: 'https://harpy-order-default-rtdb.firebaseio.com',
+    eventSource: null,
+    dbListenersAttached: false,
+    styleElement: null,
 
     init() {
-      // 1. Detect active restaurant slug
+      // 1. Identify active restaurant slug
       this.currentSlug = this.detectSlug();
       if (!this.currentSlug) return;
 
-      // 2. Initial check from cached settings
+      // 2. Initial synchronous read from cache
       this.applyFromCache();
 
-      // 3. Listen to settings updates from Store or Cloud
-      this.watchSettings();
+      // 3. Setup injected dynamic stylesheet
+      this.setupStyleSheet();
 
-      // 4. Setup Global Broadcast listener for Admin screens
+      // 4. Attach Real-Time Listeners (Firebase WebSocket + SSE Stream)
+      this.initRealtimeListeners();
+
+      // 5. Watch local store events
+      this.watchLocalEvents();
+
+      // 6. Global Broadcast Receiver for Admin screens
       if (window.location.pathname.includes('/admin') || document.querySelector('.admin-drawer-nav')) {
         this.initBroadcastReceiver();
       }
 
-      // 5. Enforce Realtime License / Suspension Gate & Module Permissions
+      // 7. License & Subscription Status Gate
       this.checkSubscriptionGate();
-    },
-
-    checkSubscriptionGate() {
-      if (!this.currentSlug || this.currentSlug === 'demo') return;
-      const fetchLicense = () => {
-        fetch(`${this.fbBase}/licenses/${this.currentSlug}.json`)
-          .then(r => r.ok ? r.json() : null)
-          .then(lic => {
-            if (!lic) return;
-            if (lic.modules && typeof lic.modules === 'object') {
-              this.enforce(lic.modules);
-            }
-            const expTime = lic.expiresAt ? (typeof lic.expiresAt === 'number' ? (lic.expiresAt < 10000000000 ? lic.expiresAt * 1000 : lic.expiresAt) : new Date(lic.expiresAt).getTime()) : 0;
-            const isExpired = expTime > 0 && Date.now() > expTime;
-            const isSuspended = lic.active === false || lic.suspended === true || lic.status === 'suspended' || lic.status === 'expired' || isExpired;
-            const overlay = document.getElementById('subscription-suspended-overlay');
-            const backdrop = document.getElementById('subscription-suspended-backdrop');
-            if (isSuspended) {
-              if (overlay) {
-                overlay.classList.add('active');
-                overlay.style.setProperty('display', 'block', 'important');
-              }
-              if (backdrop) {
-                backdrop.classList.add('active');
-                backdrop.style.setProperty('display', 'block', 'important');
-              }
-              document.body.classList.add('harpy-account-locked');
-            } else {
-              if (overlay && !overlay.dataset.expired) {
-                overlay.classList.remove('active');
-                overlay.style.removeProperty('display');
-              }
-              if (backdrop && !backdrop.dataset.expired) {
-                backdrop.classList.remove('active');
-                backdrop.style.removeProperty('display');
-              }
-              document.body.classList.remove('harpy-account-locked');
-            }
-          })
-          .catch(() => {});
-      };
-
-      fetchLicense();
-      setInterval(fetchLicense, 10000);
     },
 
     detectSlug() {
@@ -91,6 +55,17 @@
           localStorage.getItem('harpy_last_visited_slug') ||
           sessionStorage.getItem('harpy_active_slug');
       return s ? s.toLowerCase().trim() : null;
+    },
+
+    setupStyleSheet() {
+      if (!this.styleElement) {
+        this.styleElement = document.getElementById('harpy-module-enforcer-styles');
+        if (!this.styleElement) {
+          this.styleElement = document.createElement('style');
+          this.styleElement.id = 'harpy-module-enforcer-styles';
+          document.head.appendChild(this.styleElement);
+        }
+      }
     },
 
     applyFromCache() {
@@ -113,14 +88,105 @@
       } catch(e) {}
     },
 
-    watchSettings() {
-      // Hook into Store if available
+    initRealtimeListeners() {
+      if (!this.currentSlug || this.currentSlug === 'demo') return;
+      const slug = this.currentSlug;
+
+      // ── Method A: Firebase RTDB WebSocket (Sub-50ms latency) ──
+      const attachFirebaseListeners = () => {
+        if (this.dbListenersAttached) return;
+        if (window.firebase && typeof window.firebase.database === 'function') {
+          try {
+            const db = window.firebase.database();
+
+            // 1. Listen to restaurants/{slug}/settings/modules
+            const modRef = db.ref(`restaurants/${slug}/settings/modules`);
+            modRef.on('value', (snap) => {
+              const mods = snap ? snap.val() : null;
+              if (mods && typeof mods === 'object') {
+                this.enforce(mods);
+              }
+            });
+
+            // 2. Listen to licenses/{slug}/modules
+            const licModRef = db.ref(`licenses/${slug}/modules`);
+            licModRef.on('value', (snap) => {
+              const mods = snap ? snap.val() : null;
+              if (mods && typeof mods === 'object') {
+                this.enforce(mods);
+              }
+            });
+
+            // 3. Listen to licenses/{slug} for instant freeze/suspension
+            const licRef = db.ref(`licenses/${slug}`);
+            licRef.on('value', (snap) => {
+              const lic = snap ? snap.val() : null;
+              if (lic && typeof lic === 'object') {
+                this.applyLicense(lic);
+              }
+            });
+
+            this.dbListenersAttached = true;
+          } catch(e) {}
+        }
+      };
+
+      attachFirebaseListeners();
+      if (!this.dbListenersAttached) {
+        let attempts = 0;
+        const retryTimer = setInterval(() => {
+          attempts++;
+          attachFirebaseListeners();
+          if (this.dbListenersAttached || attempts > 25) clearInterval(retryTimer);
+        }, 400);
+      }
+
+      // ── Method B: Native Server-Sent Events (SSE) Stream ──
+      // Instant push redundancy from Firebase RTDB over HTTP
+      try {
+        if (typeof EventSource !== 'undefined') {
+          if (this.eventSource) {
+            try { this.eventSource.close(); } catch(e) {}
+          }
+          const sseUrl = `${this.fbBase}/restaurants/${slug}/settings/modules.json`;
+          this.eventSource = new EventSource(sseUrl);
+          this.eventSource.addEventListener('put', (e) => {
+            try {
+              const payload = JSON.parse(e.data);
+              if (payload && payload.data && typeof payload.data === 'object') {
+                this.enforce(payload.data);
+              }
+            } catch(err) {}
+          });
+          this.eventSource.addEventListener('patch', (e) => {
+            try {
+              const payload = JSON.parse(e.data);
+              if (payload && payload.data && typeof payload.data === 'object') {
+                this.enforce(Object.assign({}, this.modules, payload.data));
+              }
+            } catch(err) {}
+          });
+        }
+      } catch(e) {}
+
+      // ── Method C: Fast REST Fetch on Startup ──
+      fetch(`${this.fbBase}/restaurants/${slug}/settings/modules.json?cb=${Date.now()}`)
+        .then(r => r.ok ? r.json() : null)
+        .then(mods => {
+          if (mods && typeof mods === 'object') this.enforce(mods);
+        })
+        .catch(() => {});
+    },
+
+    watchLocalEvents() {
+      // 1. Hook into Store
       if (window.Store && typeof window.Store.on === 'function') {
         window.Store.on('settings', (st) => {
           if (st && st.modules) this.enforce(st.modules);
         });
       }
 
+      // 2. Listen to custom window store events
       window.addEventListener('store_settings_updated', () => {
         if (window.Store && typeof window.Store.getSettings === 'function') {
           const st = window.Store.getSettings();
@@ -137,155 +203,226 @@
           }
         }
       });
+    },
 
-      // Direct RTDB fetch
-      if (this.currentSlug) {
-        fetch(`${this.fbBase}/restaurants/${this.currentSlug}/settings/modules.json`)
+    checkSubscriptionGate() {
+      if (!this.currentSlug || this.currentSlug === 'demo') return;
+      const fetchLicense = () => {
+        fetch(`${this.fbBase}/licenses/${this.currentSlug}.json?cb=${Date.now()}`)
           .then(r => r.ok ? r.json() : null)
-          .then(mods => {
-            if (mods && typeof mods === 'object') {
-              this.enforce(mods);
-            }
+          .then(lic => {
+            if (!lic) return;
+            this.applyLicense(lic);
           })
           .catch(() => {});
+      };
+
+      fetchLicense();
+      setInterval(fetchLicense, 10000);
+    },
+
+    applyLicense(lic) {
+      if (!lic || typeof lic !== 'object') return;
+      if (lic.modules && typeof lic.modules === 'object') {
+        this.enforce(lic.modules);
+      }
+      const expTime = lic.expiresAt ? (typeof lic.expiresAt === 'number' ? (lic.expiresAt < 10000000000 ? lic.expiresAt * 1000 : lic.expiresAt) : new Date(lic.expiresAt).getTime()) : 0;
+      const isExpired = expTime > 0 && Date.now() > expTime;
+      const isSuspended = lic.active === false || lic.suspended === true || lic.status === 'suspended' || lic.status === 'expired' || isExpired;
+      const overlay = document.getElementById('subscription-suspended-overlay');
+      const backdrop = document.getElementById('subscription-suspended-backdrop');
+      if (isSuspended) {
+        if (overlay) {
+          overlay.classList.add('active');
+          overlay.style.setProperty('display', 'block', 'important');
+        }
+        if (backdrop) {
+          backdrop.classList.add('active');
+          backdrop.style.setProperty('display', 'block', 'important');
+        }
+        document.body.classList.add('harpy-account-locked');
+      } else {
+        if (overlay && !overlay.dataset.expired) {
+          overlay.classList.remove('active');
+          overlay.style.removeProperty('display');
+        }
+        if (backdrop && !backdrop.dataset.expired) {
+          backdrop.classList.remove('active');
+          backdrop.style.removeProperty('display');
+        }
+        document.body.classList.remove('harpy-account-locked');
       }
     },
 
     enforce(modules) {
       if (!modules || typeof modules !== 'object') return;
-      this.modules = modules;
+      this.modules = Object.assign({}, this.modules, modules);
 
-      // ── Synchronous Body Data Attributes ──
       const root = document.documentElement;
       const b = document.body;
-      if (root && b) {
-        Object.keys(modules).forEach(k => {
-          const isEnabled = modules[k] !== false;
-          root.dataset[`mod${k.charAt(0).toUpperCase() + k.slice(1)}`] = String(isEnabled);
-          b.dataset[`mod${k.charAt(0).toUpperCase() + k.slice(1)}`] = String(isEnabled);
-        });
-      }
 
-      // ── 1. POS / Cashier Module ──
-      const posTabBtn = document.querySelector('button[data-tab="tab-pos"]');
-      const posPane = document.getElementById('tab-pos');
+      // ── 1. Synchronous Root & Body Dataset Flags ──
+      const setFlag = (name, val) => {
+        const str = String(val !== false);
+        root.setAttribute(`data-mod-${name}`, str);
+        if (b) b.setAttribute(`data-mod-${name}`, str);
+      };
+
+      setFlag('pos', modules.pos);
+      setFlag('inventory', modules.inventory);
+      setFlag('stories', modules.stories);
+      setFlag('tables', modules.smartTables);
+      setFlag('delivery', modules.delivery);
+      setFlag('takeaway', modules.takeaway);
+      setFlag('payments', modules.onlinePayment);
+      setFlag('archive', modules.archive);
+      setFlag('coupons', modules.coupons);
+      setFlag('cart-discount', modules.cartDiscount);
+      setFlag('announcement', modules.announcementBar);
+      setFlag('branches', modules.branches);
+      setFlag('reviews', modules.reviews);
+
+      // ── 2. Inject Dynamic CSS Rules for Zero-Latency DOM Suppression ──
+      this.setupStyleSheet();
+      let cssRules = [];
+
       if (modules.pos === false) {
-        if (posTabBtn) posTabBtn.style.setProperty('display', 'none', 'important');
-        if (posPane) posPane.style.setProperty('display', 'none', 'important');
-        if (posTabBtn && posTabBtn.classList.contains('active')) {
-          const ordersBtn = document.querySelector('button[data-tab="tab-orders"]');
-          if (ordersBtn) ordersBtn.click();
-        }
-      } else {
-        if (posTabBtn) posTabBtn.style.removeProperty('display');
+        cssRules.push('button[data-tab="tab-pos"], [data-nav="pos"], #drawer-nav-pos, #tab-pos { display: none !important; }');
       }
-
-      // ── 2. Inventory / Raw Materials Module ──
-      const invTabBtn = document.querySelector('button[data-tab="tab-inventory"]');
-      const invPane = document.getElementById('tab-inventory');
-      const recipeBtns = document.querySelectorAll('.btn-recipe-modal, [data-action="manage-recipe"], .recipe-builder-trigger');
-      const lowStockBadge = document.getElementById('inventory-low-stock-badge');
       if (modules.inventory === false) {
-        if (invTabBtn) invTabBtn.style.setProperty('display', 'none', 'important');
-        if (invPane) invPane.style.setProperty('display', 'none', 'important');
-        if (lowStockBadge) lowStockBadge.style.setProperty('display', 'none', 'important');
-        recipeBtns.forEach(el => el.style.setProperty('display', 'none', 'important'));
-        if (invTabBtn && invTabBtn.classList.contains('active')) {
-          const prodBtn = document.querySelector('button[data-tab="tab-products"]');
-          if (prodBtn) prodBtn.click();
-        }
-      } else {
-        if (invTabBtn) invTabBtn.style.removeProperty('display');
-        recipeBtns.forEach(el => el.style.removeProperty('display'));
+        cssRules.push('button[data-tab="tab-inventory"], [data-nav="inventory"], #drawer-nav-inventory, #tab-inventory { display: none !important; }');
+      }
+      if (modules.stories === false) {
+        cssRules.push('button[data-tab="tab-stories"], [data-nav="stories"], #drawer-nav-stories, #tab-stories, #card-story-management, #stories-section, .stories-container, #stories-modal, .story-bubble, .story-ring { display: none !important; }');
+      }
+      const isTablesDisabled = (modules.smartTables === false || modules.tables === false);
+      if (isTablesDisabled) {
+        cssRules.push('#card-tables-management, #btn-add-new-table, #admin-tables-list, #fulfillment-tab-dinein, [data-type="dinein"], #dinein-table-box, #table-number-input, .table-picker-modal, #table-indicator-pill { display: none !important; }');
+      }
+      if (modules.delivery === false) {
+        cssRules.push('#card-delivery-management, #fulfillment-tab-delivery, [data-type="delivery"], #delivery-address-box, #delivery-zone-select, #hero-chip-delivery, .delivery-badge, #delivery-fee-row { display: none !important; }');
+      }
+      if (modules.takeaway === false) {
+        cssRules.push('#fulfillment-tab-takeaway, [data-type="takeaway"], #takeaway-time-box { display: none !important; }');
+      }
+      if (modules.onlinePayment === false) {
+        cssRules.push('#card-wallets-management, #pay-wallet-option, .payment-option-online, [data-payment-method="online"], #wallet-transfer-box, #wallet-details-box, #wallet-discount-row { display: none !important; }');
+      }
+      if (modules.archive === false) {
+        cssRules.push('button[data-tab="tab-archive"], [data-nav="archive"], #drawer-nav-archive, #tab-archive, #archive-badge-count { display: none !important; }');
+      }
+      if (modules.coupons === false) {
+        cssRules.push('#box-promo-codes-settings, #promo-box-wrap, #promo-input-container, .coupon-section, #coupon-box, .cart-coupon-row, .coupon-trigger-btn, #promo-discount-row { display: none !important; }');
+      }
+      if (modules.cartDiscount === false) {
+        cssRules.push('#box-spend-tier-settings, #spend-tier-card, #spend-tier-progress-card, #spend-tier-discount-row, .cart-tier-discount-row { display: none !important; }');
+      }
+      if (modules.announcementBar === false) {
+        cssRules.push('#box-announcement-settings, #promo-deal-card, .promo-announcement-bar, #announcement-bar, .promo-banner-ticker, #hero-announcement { display: none !important; }');
+      }
+      if (modules.coupons === false && modules.cartDiscount === false && modules.announcementBar === false) {
+        cssRules.push('#card-promotions-management { display: none !important; }');
+      }
+      if (modules.branches === false) {
+        cssRules.push('#card-branches-management, #drawer-branches-widget, #drawer-branches-toggle-btn, #header-branch-pill, #account-branch-item, #branch-picker-backdrop, #branch-picker-modal, #takeaway-branch-address { display: none !important; }');
+      }
+      if (modules.reviews === false) {
+        cssRules.push('#reviews-section, .reviews-section, #ratings-modal, .customer-reviews-wrap, #hero-chip-rating, .pill-rating, .highlight-rating, [data-i18n="portfolio_rating_label"] { display: none !important; }');
+      }
+      if (modules.delivery === false && modules.takeaway === false && isTablesDisabled) {
+        cssRules.push('#cart-flow-fulfillment, #fulfillment-segmented-control { display: none !important; }');
       }
 
-      // ── 3. Stories Module ──
-      const storiesTabBtn = document.querySelector('button[data-tab="tab-stories"]');
-      const storiesPane = document.getElementById('tab-stories');
-      const cardStorySettings = document.getElementById('card-story-management');
-      const clientStoriesSection = document.getElementById('stories-section');
-      const clientStoriesBackdrop = document.getElementById('story-modal-backdrop');
-      const clientStoriesModal = document.getElementById('story-viewer-modal');
-      if (modules.stories === false) {
-        if (storiesTabBtn) storiesTabBtn.style.setProperty('display', 'none', 'important');
-        if (storiesPane) storiesPane.style.setProperty('display', 'none', 'important');
-        if (cardStorySettings) cardStorySettings.style.setProperty('display', 'none', 'important');
-        if (clientStoriesSection) {
-          clientStoriesSection.style.setProperty('display', 'none', 'important');
-          clientStoriesSection.innerHTML = '';
-        }
-        if (clientStoriesBackdrop) clientStoriesBackdrop.style.setProperty('display', 'none', 'important');
-        if (clientStoriesModal) clientStoriesModal.style.setProperty('display', 'none', 'important');
-        if (storiesTabBtn && storiesTabBtn.classList.contains('active')) {
+      if (this.styleElement) {
+        this.styleElement.textContent = cssRules.join('\n');
+      }
+
+      // ── 3. Direct Inline DOM Manipulation (Fail-safe) ──
+
+      // POS Module
+      const posElements = document.querySelectorAll('button[data-tab="tab-pos"], [data-nav="pos"], #drawer-nav-pos, #tab-pos');
+      if (modules.pos === false) {
+        posElements.forEach(el => el.style.setProperty('display', 'none', 'important'));
+        const activePosBtn = document.querySelector('button[data-tab="tab-pos"].active');
+        if (activePosBtn) {
           const ordersBtn = document.querySelector('button[data-tab="tab-orders"]');
           if (ordersBtn) ordersBtn.click();
         }
       } else {
-        if (storiesTabBtn) storiesTabBtn.style.removeProperty('display');
-        if (cardStorySettings) cardStorySettings.style.removeProperty('display');
+        posElements.forEach(el => el.style.removeProperty('display'));
       }
 
-      // ── 4. Smart Tables / Dine-in QR Module ──
-      const dineInTab = document.querySelector('.fulfillment-tab[data-type="dinein"]');
-      const dineInField = document.getElementById('cust-table-number-section');
-      const cardTablesSettings = document.getElementById('card-tables-management');
-      const heroDineInPill = document.getElementById('hero-dinein-pill');
-      const isTablesDisabled = modules.tables === false || modules.smartTables === false;
-
-      if (isTablesDisabled) {
-        if (dineInTab) dineInTab.style.setProperty('display', 'none', 'important');
-        if (dineInField) dineInField.style.setProperty('display', 'none', 'important');
-        if (cardTablesSettings) cardTablesSettings.style.setProperty('display', 'none', 'important');
-        if (heroDineInPill) heroDineInPill.style.setProperty('display', 'none', 'important');
-        if (window.currentFulfillmentType === 'dinein') {
-          if (typeof window.setFulfillmentType === 'function') {
-            window.setFulfillmentType(modules.delivery !== false ? 'delivery' : (modules.takeaway !== false ? 'takeaway' : 'none'));
-          }
+      // Inventory Module
+      const invElements = document.querySelectorAll('button[data-tab="tab-inventory"], [data-nav="inventory"], #drawer-nav-inventory, #tab-inventory');
+      if (modules.inventory === false) {
+        invElements.forEach(el => el.style.setProperty('display', 'none', 'important'));
+        const activeInvBtn = document.querySelector('button[data-tab="tab-inventory"].active');
+        if (activeInvBtn) {
+          const ordersBtn = document.querySelector('button[data-tab="tab-orders"]');
+          if (ordersBtn) ordersBtn.click();
         }
       } else {
-        if (dineInTab) dineInTab.style.removeProperty('display');
+        invElements.forEach(el => el.style.removeProperty('display'));
+      }
+
+      // Stories Module
+      const storiesElements = document.querySelectorAll('button[data-tab="tab-stories"], [data-nav="stories"], #drawer-nav-stories, #tab-stories, #card-story-management');
+      const storiesClientWrap = document.getElementById('stories-section');
+      if (modules.stories === false) {
+        storiesElements.forEach(el => el.style.setProperty('display', 'none', 'important'));
+        if (storiesClientWrap) {
+          storiesClientWrap.style.setProperty('display', 'none', 'important');
+          storiesClientWrap.innerHTML = '';
+        }
+        const activeStoriesBtn = document.querySelector('button[data-tab="tab-stories"].active');
+        if (activeStoriesBtn) {
+          const ordersBtn = document.querySelector('button[data-tab="tab-orders"]');
+          if (ordersBtn) ordersBtn.click();
+        }
+      } else {
+        storiesElements.forEach(el => el.style.removeProperty('display'));
+      }
+
+      // Smart Tables Module
+      const tableTabs = document.querySelectorAll('#fulfillment-tab-dinein, [data-type="dinein"], #dinein-table-box, #table-number-input, .table-picker-modal, #table-indicator-pill');
+      const cardTablesSettings = document.getElementById('card-tables-management');
+      if (isTablesDisabled) {
+        tableTabs.forEach(el => el.style.setProperty('display', 'none', 'important'));
+        if (cardTablesSettings) cardTablesSettings.style.setProperty('display', 'none', 'important');
+        if (window.currentFulfillmentType === 'dinein' && typeof window.setFulfillmentType === 'function') {
+          window.setFulfillmentType(modules.delivery !== false ? 'delivery' : (modules.takeaway !== false ? 'takeaway' : 'none'));
+        }
+      } else {
+        tableTabs.forEach(el => el.style.removeProperty('display'));
         if (cardTablesSettings) cardTablesSettings.style.removeProperty('display');
       }
 
-      // ── 5. Delivery Module ──
-      const deliveryTab = document.querySelector('.fulfillment-tab[data-type="delivery"]');
-      const deliveryZoneRow = document.getElementById('delivery-zone-feedback-row');
-      const deliveryFeeRow = document.getElementById('delivery-fee-row');
+      // Delivery Module
+      const deliveryTabs = document.querySelectorAll('#fulfillment-tab-delivery, [data-type="delivery"], #delivery-address-box, #delivery-zone-select, #hero-chip-delivery, .delivery-badge, #delivery-fee-row');
       const cardDeliverySettings = document.getElementById('card-delivery-management');
-      const deliveryPills = document.querySelectorAll('.pill-delivery, #hero-delivery-time, #portfolio-delivery-time, #portfolio-delivery-time-badge');
-
       if (modules.delivery === false) {
-        if (deliveryTab) deliveryTab.style.setProperty('display', 'none', 'important');
-        if (deliveryZoneRow) deliveryZoneRow.style.setProperty('display', 'none', 'important');
-        if (deliveryFeeRow) deliveryFeeRow.style.setProperty('display', 'none', 'important');
+        deliveryTabs.forEach(el => el.style.setProperty('display', 'none', 'important'));
         if (cardDeliverySettings) cardDeliverySettings.style.setProperty('display', 'none', 'important');
-        deliveryPills.forEach(p => p.style.setProperty('display', 'none', 'important'));
-        if (window.currentFulfillmentType === 'delivery') {
-          if (typeof window.setFulfillmentType === 'function') {
-            window.setFulfillmentType(!isTablesDisabled ? 'dinein' : (modules.takeaway !== false ? 'takeaway' : 'none'));
-          }
+        if (window.currentFulfillmentType === 'delivery' && typeof window.setFulfillmentType === 'function') {
+          window.setFulfillmentType(modules.takeaway !== false ? 'takeaway' : (!isTablesDisabled ? 'dinein' : 'none'));
         }
       } else {
-        if (deliveryTab) deliveryTab.style.removeProperty('display');
+        deliveryTabs.forEach(el => el.style.removeProperty('display'));
         if (cardDeliverySettings) cardDeliverySettings.style.removeProperty('display');
       }
 
-      // ── 6. Takeaway / Pickup Module ──
-      const takeawayTabs = document.querySelectorAll('.fulfillment-tab[data-type="takeaway"], [data-fulfillment="takeaway"]');
-      const takeawayBanner = document.getElementById('fulfillment-takeaway-banner');
+      // Takeaway Module
+      const takeawayTabs = document.querySelectorAll('#fulfillment-tab-takeaway, [data-type="takeaway"], #takeaway-time-box');
       if (modules.takeaway === false) {
         takeawayTabs.forEach(el => el.style.setProperty('display', 'none', 'important'));
-        if (takeawayBanner) takeawayBanner.style.setProperty('display', 'none', 'important');
-        if (window.currentFulfillmentType === 'takeaway') {
-          if (typeof window.setFulfillmentType === 'function') {
-            window.setFulfillmentType(modules.delivery !== false ? 'delivery' : (!isTablesDisabled ? 'dinein' : 'none'));
-          }
+        if (window.currentFulfillmentType === 'takeaway' && typeof window.setFulfillmentType === 'function') {
+          window.setFulfillmentType(modules.delivery !== false ? 'delivery' : (!isTablesDisabled ? 'dinein' : 'none'));
         }
       } else {
         takeawayTabs.forEach(el => el.style.removeProperty('display'));
       }
 
-      // ── All Fulfillments Gate ──
+      // All Fulfillments Gate
       const allFulfillmentsDisabled = modules.delivery === false && modules.takeaway === false && isTablesDisabled;
       const cartFulfillmentWrap = document.getElementById('cart-flow-fulfillment');
       const fulfillmentControl = document.getElementById('fulfillment-segmented-control');
@@ -297,7 +434,7 @@
         if (fulfillmentControl) fulfillmentControl.style.removeProperty('display');
       }
 
-      // ── 7. Online Payments Module ──
+      // Online Payment Module
       const onlinePayWraps = document.querySelectorAll('.payment-option-online, [data-payment-method="online"], #wallet-transfer-box, #pay-wallet-option, #wallet-details-box, #wallet-discount-row');
       const cardWalletsSettings = document.getElementById('card-wallets-management');
       const payCodOption = document.getElementById('pay-cod-option');
@@ -313,7 +450,7 @@
         if (cardWalletsSettings) cardWalletsSettings.style.removeProperty('display');
       }
 
-      // ── 8. Sales Archive Module ──
+      // Sales Archive Module
       const archiveTabBtn = document.querySelector('button[data-tab="tab-archive"]');
       const archivePane = document.getElementById('tab-archive');
       const archiveBadge = document.getElementById('archive-badge-count');
@@ -329,33 +466,84 @@
         if (archiveTabBtn) archiveTabBtn.style.removeProperty('display');
       }
 
-      // ── 9. Discount Coupons Module ──
-      const couponBoxes = document.querySelectorAll('#coupon-section, .coupon-section, #coupon-box, .cart-coupon-row, .coupon-trigger-btn, #promo-box-wrap, #promo-input-container, #promo-deal-card, #promo-discount-row, #promo-discount-row-s1');
-      const cardPromotionsSettings = document.getElementById('card-promotions-management');
+      // Coupons Module
+      const couponBoxes = document.querySelectorAll('#coupon-section, .coupon-section, #coupon-box, .cart-coupon-row, .coupon-trigger-btn, #promo-box-wrap, #promo-input-container, #promo-discount-row');
+      const boxPromoSettings = document.getElementById('box-promo-codes-settings');
       if (modules.coupons === false) {
         couponBoxes.forEach(el => el.style.setProperty('display', 'none', 'important'));
-        if (cardPromotionsSettings) cardPromotionsSettings.style.setProperty('display', 'none', 'important');
+        if (boxPromoSettings) boxPromoSettings.style.setProperty('display', 'none', 'important');
       } else {
         couponBoxes.forEach(el => el.style.removeProperty('display'));
-        if (cardPromotionsSettings) cardPromotionsSettings.style.removeProperty('display');
+        if (boxPromoSettings) boxPromoSettings.style.removeProperty('display');
       }
 
-      // ── 10. Customer Reviews Module ──
+      // Cart Discount Module (Spend Tier)
+      const cartDiscountElements = document.querySelectorAll('#spend-tier-card, #spend-tier-progress-card, #spend-tier-discount-row, .cart-tier-discount-row');
+      const boxSpendTierSettings = document.getElementById('box-spend-tier-settings');
+      if (modules.cartDiscount === false) {
+        cartDiscountElements.forEach(el => el.style.setProperty('display', 'none', 'important'));
+        if (boxSpendTierSettings) boxSpendTierSettings.style.setProperty('display', 'none', 'important');
+      } else {
+        cartDiscountElements.forEach(el => el.style.removeProperty('display'));
+        if (boxSpendTierSettings) boxSpendTierSettings.style.removeProperty('display');
+      }
+
+      // Announcement Bar Module
+      const announcementElements = document.querySelectorAll('#promo-deal-card, .promo-announcement-bar, #announcement-bar, .promo-banner-ticker, #hero-announcement');
+      const boxAnnouncementSettings = document.getElementById('box-announcement-settings');
+      if (modules.announcementBar === false) {
+        announcementElements.forEach(el => el.style.setProperty('display', 'none', 'important'));
+        if (boxAnnouncementSettings) boxAnnouncementSettings.style.setProperty('display', 'none', 'important');
+      } else {
+        announcementElements.forEach(el => el.style.removeProperty('display'));
+        if (boxAnnouncementSettings) boxAnnouncementSettings.style.removeProperty('display');
+      }
+
+      // Card 5 Gate: Promotions, Announcements & Coupons
+      const cardPromotionsSettings = document.getElementById('card-promotions-management');
+      if (cardPromotionsSettings) {
+        if (modules.coupons === false && modules.cartDiscount === false && modules.announcementBar === false) {
+          cardPromotionsSettings.style.setProperty('display', 'none', 'important');
+        } else {
+          cardPromotionsSettings.style.removeProperty('display');
+        }
+      }
+
+      // Multi-Branch Network Module
+      const branchElements = document.querySelectorAll('#drawer-branches-widget, #drawer-branches-toggle-btn, #header-branch-pill, #account-branch-item, #branch-picker-backdrop, #branch-picker-modal, #takeaway-branch-address');
+      const cardBranchesSettings = document.getElementById('card-branches-management');
+      if (modules.branches === false) {
+        branchElements.forEach(el => el.style.setProperty('display', 'none', 'important'));
+        if (cardBranchesSettings) cardBranchesSettings.style.setProperty('display', 'none', 'important');
+      } else {
+        branchElements.forEach(el => el.style.removeProperty('display'));
+        if (cardBranchesSettings) cardBranchesSettings.style.removeProperty('display');
+      }
+
+      // Customer Reviews Module
       const reviewBoxes = document.querySelectorAll('#reviews-section, .reviews-section, #ratings-modal, .customer-reviews-wrap, #hero-chip-rating, .pill-rating, .highlight-rating, [data-i18n="portfolio_rating_label"]');
       if (modules.reviews === false) {
         reviewBoxes.forEach(el => el.style.setProperty('display', 'none', 'important'));
       } else {
         reviewBoxes.forEach(el => el.style.removeProperty('display'));
       }
+
+      // ── 4. Dispatch Instant Notification to Client Engines ──
+      window.dispatchEvent(new CustomEvent('harpy_modules_changed', { detail: this.modules }));
     },
 
-    // ── Global Broadcast Announcement Receiver ──
+    // ── Global Broadcast Receiver for Admin Dashboard ──
     initBroadcastReceiver() {
       const fetchBroadcast = () => {
-        fetch(`${this.fbBase}/announcements/global.json`)
+        fetch(`${this.fbBase}/systemBroadcast.json?cb=${Date.now()}`)
           .then(r => r.ok ? r.json() : null)
           .then(data => {
-            this.renderBroadcastBanner(data);
+            if (data && data.active && data.message) {
+              this.renderBroadcastBanner(data);
+            } else {
+              const existing = document.getElementById('harpy-global-broadcast-banner');
+              if (existing) existing.remove();
+            }
           })
           .catch(() => {});
       };
@@ -365,8 +553,7 @@
     },
 
     renderBroadcastBanner(data) {
-      let banner = document.getElementById('harpy-global-announcement-bar');
-
+      let banner = document.getElementById('harpy-global-broadcast-banner');
       if (!data || !data.active || !data.message) {
         if (banner) banner.remove();
         return;
@@ -378,66 +565,77 @@
         return;
       }
 
+      const type = data.type || 'info';
+      const colors = {
+        urgent: { bg: 'rgba(239, 68, 68, 0.14)', border: 'rgba(239, 68, 68, 0.4)', text: 'var(--danger, #ef4444)' },
+        maintenance: { bg: 'rgba(245, 158, 11, 0.14)', border: 'rgba(245, 158, 11, 0.4)', text: 'var(--warning, #f59e0b)' },
+        feature: { bg: 'rgba(16, 185, 129, 0.14)', border: 'rgba(16, 185, 129, 0.4)', text: 'var(--success, #10b981)' },
+        info: { bg: 'rgba(59, 130, 246, 0.14)', border: 'rgba(59, 130, 246, 0.4)', text: 'var(--primary, #3b82f6)' }
+      }[type] || { bg: 'rgba(59, 130, 246, 0.14)', border: 'rgba(59, 130, 246, 0.4)', text: 'var(--primary, #3b82f6)' };
+
       if (!banner) {
         banner = document.createElement('div');
-        banner.id = 'harpy-global-announcement-bar';
-        document.body.prepend(banner);
+        banner.id = 'harpy-global-broadcast-banner';
+        banner.style.cssText = `
+          position: sticky;
+          top: 0;
+          z-index: 99999;
+          width: 100%;
+          padding: 10px 16px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          font-family: inherit;
+          font-size: 13px;
+          font-weight: 700;
+          line-height: 1.4;
+          box-sizing: border-box;
+          direction: rtl;
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          transition: transform 0.25s ease;
+        `;
+        const adminApp = document.querySelector('.admin-app') || document.body;
+        adminApp.insertBefore(banner, adminApp.firstChild);
       }
 
-      let bg = '#1E3A8A';
-      let border = '#38BDF8';
-      let iconSvg = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2"></circle><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"></path></svg>';
-
-      if (data.type === 'warning') {
-        bg = '#78350F';
-        border = '#F59E0B';
-        iconSvg = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>';
-      } else if (data.type === 'danger') {
-        bg = '#7F1D1D';
-        border = '#EF4444';
-        iconSvg = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>';
-      } else if (data.type === 'success') {
-        bg = '#064E3B';
-        border = '#10B981';
-        iconSvg = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
-      }
-
-      banner.style.cssText = `
-        background: ${bg};
-        border-bottom: 2px solid ${border};
-        color: #FFFFFF;
-        padding: 9px 14px;
-        font-family: 'Cairo', system-ui, sans-serif;
-        font-size: 13px;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-        position: sticky;
-        top: 0;
-        z-index: 999999;
-        box-shadow: 0 4px 14px rgba(0,0,0,0.5);
-      `;
+      banner.style.backgroundColor = colors.bg;
+      banner.style.borderBottom = `1px solid ${colors.border}`;
+      banner.style.color = colors.text;
 
       banner.innerHTML = `
-        <div style="display:flex; align-items:center; gap:8px;">
-          <span style="display:inline-flex; align-items:center; justify-content:center;">${iconSvg}</span>
-          <span>${data.message}</span>
+        <div style="display:flex; align-items:center; gap:10px; flex:1; min-width:0;">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${data.message}</span>
         </div>
-        <button type="button" onclick="sessionStorage.setItem('dismissed_broadcast_${data.createdAt}', 'true'); this.parentElement.remove();" style="background:transparent; border:none; color:#FFF; cursor:pointer; padding:2px; display:inline-flex; align-items:center; justify-content:center;" title="إغلاق">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        <button type="button" id="dismiss-broadcast-btn" style="background:transparent; border:none; color:inherit; cursor:pointer; padding:4px; display:flex; align-items:center; opacity:0.8; margin-right:8px;" aria-label="Dismiss">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
         </button>
       `;
+
+      const dismissBtn = banner.querySelector('#dismiss-broadcast-btn');
+      if (dismissBtn) {
+        dismissBtn.onclick = () => {
+          sessionStorage.setItem('dismissed_broadcast_' + data.createdAt, 'true');
+          banner.remove();
+        };
+      }
     }
   };
 
-  // Auto-init on DOMContentLoaded
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => ModuleEnforcer.init());
-  } else {
-    ModuleEnforcer.init();
+  if (typeof window !== 'undefined') {
+    window.ModuleEnforcer = ModuleEnforcer;
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => ModuleEnforcer.init());
+    } else {
+      ModuleEnforcer.init();
+    }
   }
-
-  window.ModuleEnforcer = ModuleEnforcer;
 })();
