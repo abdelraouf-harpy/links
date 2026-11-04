@@ -724,7 +724,17 @@ function bindDeviceImageUploader({
   return { showPreview, clearPreview };
 }
 
+let _lastAdminToastMsg = '';
+let _lastAdminToastTime = 0;
+
 function showToastNotification(message, type = 'success') {
+  const now = Date.now();
+  if (message === _lastAdminToastMsg && (now - _lastAdminToastTime) < 2200) {
+    return;
+  }
+  _lastAdminToastMsg = message;
+  _lastAdminToastTime = now;
+
   const existing = document.getElementById('harpy-admin-toast');
   if (existing) existing.remove();
 
@@ -946,7 +956,7 @@ window.updateAdminBranchDrawerSwitcher = function() {
             <span style="width:7px; height:7px; border-radius:50%; background:var(--primary); display:inline-block; flex-shrink:0;"></span>
             <span style="font-size:12px; font-weight:900; color:var(--text-main);">${bName}</span>
           </div>
-          <span style="font-size:10px; color:var(--primary); font-weight:800; background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px;">✓ نشط الآن</span>
+          <span style="font-size:10px; color:var(--primary); font-weight:800; background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px;">نشط الآن</span>
         </div>
       `;
     } else {

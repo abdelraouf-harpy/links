@@ -46,7 +46,8 @@ function showAdminOrderNotification(newOrder) {
   if (!('Notification' in window)) return;
   if (Notification.permission !== 'granted') return;
 
-  const title = `طلب جديد #${newOrder.orderId || ''}`;
+  const safeOrderId = '#' + String(newOrder.orderId || '').replace(/^#+/, '');
+  const title = `طلب جديد ${safeOrderId}`;
   const options = {
     body: `العميل: ${newOrder.customer?.name || 'عميل'} | المبلغ: ${newOrder.finalTotal || ''} ج.م`,
     icon: './assets/icons/admin-icon-192.png',
@@ -2148,7 +2149,7 @@ function checkShiftCashDiscrepancy(val) {
   if (diff === 0) {
     diffBadge.style.background = 'rgba(34,197,94,0.15)';
     diffBadge.style.color = '#16a34a';
-    diffBadge.textContent = 'الكاش في الدرج مطابق للسيستم تماماً ✓';
+    diffBadge.textContent = 'الكاش في الدرج مطابق للسيستم تماماً';
   } else if (diff < 0) {
     diffBadge.style.background = 'rgba(239,68,68,0.15)';
     diffBadge.style.color = '#ef4444';
@@ -2832,7 +2833,7 @@ window.renderClosedShiftsArchive = function() {
 
     let cashStatusBadge = '';
     if (cashDiff === 0) {
-      cashStatusBadge = `<span style="font-size:11px; font-weight:800; color:#16a34a; background:rgba(34,197,94,0.12); padding:2px 8px; border-radius:6px;">الدرج مطابق ✓</span>`;
+      cashStatusBadge = `<span style="font-size:11px; font-weight:800; color:#16a34a; background:rgba(34,197,94,0.12); padding:2px 8px; border-radius:6px;">الدرج مطابق</span>`;
     } else if (cashDiff < 0) {
       cashStatusBadge = `<span style="font-size:11px; font-weight:800; color:#ef4444; background:rgba(239,68,68,0.12); padding:2px 8px; border-radius:6px;">عجز درج: ${cashDiff.toFixed(0)} ${currency}</span>`;
     } else {

@@ -7,8 +7,8 @@
   'use strict';
 
   const SUPPORTED_LANGS = {
-    ar: { code: 'ar', name: 'العربية', englishName: 'Arabic', flag: '🇪🇬', dir: 'rtl', fontClass: 'font-ar' },
-    en: { code: 'en', name: 'English', englishName: 'English', flag: '🇬🇧', dir: 'ltr', fontClass: 'font-en' }
+    ar: { code: 'ar', name: 'العربية', englishName: 'Arabic', flag: '', dir: 'rtl', fontClass: 'font-ar' },
+    en: { code: 'en', name: 'English', englishName: 'English', flag: '', dir: 'ltr', fontClass: 'font-en' }
   };
 
   const COMMON_TERMS = {
@@ -1119,7 +1119,7 @@
         "it": "Filiale:"
     },
     "search_placeholder": {
-        "ar": "ابحث عن وجبتك المفضلة...",
+        "ar": "ابحث عن وجبتك المفضلة",
         "en": "Search for your favorite food...",
         "fr": "Recherchez votre plat préféré...",
         "ru": "Поиск любимого блюда...",
@@ -1287,7 +1287,7 @@
         "it": "Note speciali per la cucina:"
     },
     "customizer_notes_placeholder": {
-        "ar": "مثال: بدون بصل، صوص خارجي، تسوية زيادة...",
+        "ar": "مثال: بدون بصل، صوص خارجي، تسوية زيادة",
         "en": "e.g. No onion, sauce on the side, well done...",
         "fr": "ex. Sans oignon, sauce à part, bien cuit...",
         "ru": "напр. Без лука, соус отдельно, хорошо прожарить...",
@@ -1450,7 +1450,7 @@
         "it": "Note sull'ordine"
     },
     "field_notes_placeholder": {
-        "ar": "أي تفاصيل خاصة ترغب بإبلاغ المطعم بها...",
+        "ar": "أي تفاصيل خاصة ترغب بإبلاغ المطعم بها",
         "en": "Any special instructions for the restaurant...",
         "fr": "Instructions spéciales pour le restaurant...",
         "ru": "Любые особые пожелания ресторану...",
@@ -1541,11 +1541,11 @@
         "it": "Procedi ai dettagli e pagamento →"
     },
     "btn_confirm_order": {
-        "ar": "تأكيد وإرسال الطلب للمطعم ✓",
-        "en": "Confirm & Send Order ✓",
-        "fr": "Confirmer et envoyer la commande ✓",
-        "ru": "Подтвердить и отправить заказ ✓",
-        "it": "Conferma e invia l'ordine ✓"
+        "ar": "تأكيد وإرسال الطلب للمطعم",
+        "en": "Confirm & Send Order",
+        "fr": "Confirmer et envoyer la commande",
+        "ru": "Подтвердить и отправить заказ",
+        "it": "Conferma e invia l'ordine"
     },
     "btn_reorder": {
         "ar": "إعادة الطلب",
@@ -2090,8 +2090,8 @@
         "en": "Fulfillment Method:"
     },
     "btn_collapse_save": {
-        "ar": "حفظ وإغلاق ✓",
-        "en": "Save & Close ✓"
+        "ar": "حفظ وإغلاق",
+        "en": "Save & Close"
     },
     "field_name_short": {
         "ar": "الاسم",
@@ -2653,22 +2653,22 @@
       // 4. Update language indicator in "My Account" drawer
       const accountLangSub = document.getElementById('account-language-sub');
       if (accountLangSub && SUPPORTED_LANGS[lang]) {
-        accountLangSub.textContent = `${SUPPORTED_LANGS[lang].flag} ${SUPPORTED_LANGS[lang].name} (${SUPPORTED_LANGS[lang].englishName})`;
+        accountLangSub.textContent = `${SUPPORTED_LANGS[lang].name} (${SUPPORTED_LANGS[lang].englishName})`;
       }
 
       // 5. Update language indicator in clean view (#view-account)
       const cleanLangSub = document.getElementById('clean-language-status-text');
       if (cleanLangSub && SUPPORTED_LANGS[lang]) {
-        cleanLangSub.textContent = `${SUPPORTED_LANGS[lang].flag} ${SUPPORTED_LANGS[lang].name} (${SUPPORTED_LANGS[lang].englishName})`;
+        cleanLangSub.textContent = `${SUPPORTED_LANGS[lang].name} (${SUPPORTED_LANGS[lang].englishName})`;
       }
 
       // 6. Update clean-language-toggle-btn to show next quick switch option
       const cleanLangBtn = document.getElementById('clean-language-toggle-btn');
       if (cleanLangBtn) {
         if (lang === 'ar') {
-          cleanLangBtn.innerHTML = '<span>English 🇬🇧</span>';
+          cleanLangBtn.innerHTML = '<span>English</span>';
         } else {
-          cleanLangBtn.innerHTML = '<span>العربية 🇪🇬</span>';
+          cleanLangBtn.innerHTML = '<span>العربية</span>';
         }
       }
     },

@@ -126,7 +126,7 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
     if (!window.uploadedReceiptUrl && elements.receiptInput?.files?.length > 0) {
       const file = elements.receiptInput.files[0];
       if (file) {
-        showToastNotification("جاري رفع وتأمين صورة الإيصال...", "info");
+        showToastNotification("جاري رفع وتأمين صورة الإيصال", "info");
         try {
           const uploadedUrl = await Store.uploadImage(file);
           if (uploadedUrl) {
@@ -251,7 +251,7 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
   submitBtns.forEach(b => {
     b.dataset.origText = b.innerHTML;
     b.disabled = true;
-    b.innerHTML = 'جارٍ تأكيد وإرسال الطلب...';
+    b.innerHTML = 'جارٍ تأكيد وإرسال الطلب';
   });
 
   // 2. Await verified cloud push

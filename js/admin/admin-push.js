@@ -139,7 +139,7 @@
       if (isGranted) {
         descSettings.textContent = `الهاتف متصل ومفعل بنجاح لاستقبال إشعارات الطلبات الجديدة لمطعم (${slug}) برنين واهتزاز فوري عند وصول أي أوردر.`;
       } else if (isDenied) {
-        descSettings.textContent = `الإشعارات محظورة حالياً في متصفحك. يرجى الضغط على علامة القفل 🔒 بجانب رابط الموقع في الأعلى واختيار "سماح بالاشعارات" (Allow Notifications).`;
+        descSettings.textContent = `الإشعارات محظورة حالياً في متصفحك. يرجى الضغط على رمز الأمان بجانب رابط الموقع في الأعلى واختيار "سماح بالاشعارات" (Allow Notifications).`;
       } else {
         descSettings.textContent = `فعل الإشعارات على هذا الهاتف لتسمع صوت رنين واهتزاز فور ورود أي طلب جديد، كأنك تستخدم تطبيقاً مستقلاً تماماً.`;
       }
@@ -184,7 +184,7 @@
     if (Notification.permission === 'denied') {
       window.updatePushNotifUI();
       if (typeof showToastNotification === 'function') {
-        showToastNotification('الإشعارات محظورة في متصفحك. اضغط على رمز القفل 🔒 بجانب الرابط وفعل الإشعارات.', 'error');
+        showToastNotification('الإشعارات محظورة في متصفحك. اضغط على رمز الأمان بجانب الرابط وفعل الإشعارات.', 'error');
       } else {
         if(typeof showToastNotification==='function') showToastNotification('الإشعارات محظورة في متصفحك. يرجى تفعيلها من إعدادات الموقع أو رمز القفل بجانب الرابط.', 'error');
       }

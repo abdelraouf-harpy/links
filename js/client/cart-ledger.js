@@ -95,7 +95,7 @@ window.togglePromoInput = function() {
   if (!container) return;
   const isHidden = container.style.display === 'none' || !container.style.display;
   container.style.display = isHidden ? 'flex' : 'none';
-  if (icon) icon.textContent = isHidden ? '✕ إغلاق' : '+ إضافة كود';
+  if (icon) icon.textContent = isHidden ? 'إغلاق' : '+ إضافة كود';
   if (isHidden) {
     const inp = document.getElementById('promo-code-input');
     if (inp) inp.focus();
@@ -895,7 +895,7 @@ function setupEventListeners() {
       reader.readAsDataURL(file);
 
       if (elements.receiptStatus) {
-        elements.receiptStatus.textContent = "جاري رفع الإيصال وتأمينه...";
+        elements.receiptStatus.textContent = "جاري رفع الإيصال وتأمينه";
         elements.receiptStatus.className = "upload-status-chip loading";
         elements.receiptStatus.style.display = "inline-block";
       }
@@ -911,7 +911,7 @@ function setupEventListeners() {
           if (elements.dropzonePrompt) elements.dropzonePrompt.style.display = 'none';
 
           if (elements.receiptStatus) {
-            elements.receiptStatus.textContent = "تم تجهيز ورفع الإيصال بنجاح ✓";
+            elements.receiptStatus.textContent = "تم تجهيز ورفع الإيصال بنجاح";
             elements.receiptStatus.className = "upload-status-chip success";
           }
         } else {
@@ -929,7 +929,7 @@ function setupEventListeners() {
             if (elements.dropzonePrompt) elements.dropzonePrompt.style.display = 'none';
 
             if (elements.receiptStatus) {
-              elements.receiptStatus.textContent = "تم تجهيز الإيصال بنجاح ✓";
+              elements.receiptStatus.textContent = "تم تجهيز الإيصال بنجاح";
               elements.receiptStatus.className = "upload-status-chip success";
             }
           } else {
@@ -945,7 +945,7 @@ function setupEventListeners() {
             if (elements.receiptPreviewWrap) elements.receiptPreviewWrap.style.display = 'block';
             if (elements.dropzonePrompt) elements.dropzonePrompt.style.display = 'none';
             if (elements.receiptStatus) {
-              elements.receiptStatus.textContent = "تم تجهيز الإيصال بنجاح ✓";
+              elements.receiptStatus.textContent = "تم تجهيز الإيصال بنجاح";
               elements.receiptStatus.className = "upload-status-chip success";
             }
           };
@@ -1100,7 +1100,7 @@ window.updateCartSavedProfileCard = function() {
       if (descEl) {
         if (fType === 'delivery') descEl.textContent = `${address}`;
         else if (fType === 'takeaway') descEl.textContent = (typeof window.t === 'function' ? window.t('ful_takeaway_desc', 'استلام من كاونتر المطعم (بدون دليفري)') : 'استلام من كاونتر المطعم (بدون دليفري)');
-        else if (fType === 'dinein') descEl.textContent = `🍽️ ${(typeof window.t === 'function' ? window.t('fulfillment_dinein', 'طلب صالة') : 'طلب صالة')} — ${(typeof window.t === 'function' ? window.t('field_table', 'طاولة') : 'طاولة')}: ${tableNum}`;
+        else if (fType === 'dinein') descEl.textContent = `${(typeof window.t === 'function' ? window.t('fulfillment_dinein', 'طلب صالة') : 'طلب صالة')} — ${(typeof window.t === 'function' ? window.t('field_table', 'طاولة') : 'طاولة')}: ${tableNum}`;
       }
       card.style.display = 'flex';
     }

@@ -829,7 +829,7 @@ function renderAdminBranchesList() {
             </button>
           ` : `
             <div style="flex:1; text-align:center; padding:6px; font-size:11px; font-weight:800; color:var(--primary); background:var(--primary-subtle); border-radius:6px;">
-              ✓ الفرع النشط حالياً في لوحة التحكم
+              الفرع النشط حالياً في لوحة التحكم
             </div>
           `}
         </div>
@@ -878,7 +878,7 @@ async function addAdminBranch() {
   }
 
   if (addBtn) addBtn.disabled = true;
-  if (btnText) btnText.textContent = "جاري التحقق الأمني...";
+  if (btnText) btnText.textContent = "جاري التحقق الأمني";
 
   try {
     const authCheck = (Store.verifyBranchCredentials) 
@@ -886,7 +886,7 @@ async function addAdminBranch() {
       : { success: true };
 
     if (!authCheck.success) {
-      showToastNotification("❌ كلمة مرور أمان الفرع غير صحيحة! لا يمكنك إضافة هذا الفرع دون التحقق من ملكيته.", "error");
+      showToastNotification("كلمة مرور أمان الفرع غير صحيحة! لا يمكنك إضافة هذا الفرع دون التحقق من ملكيته.", "error");
       if (passInp) {
         passInp.focus();
         passInp.select();
@@ -909,7 +909,7 @@ async function addAdminBranch() {
 
     renderAdminBranchesList();
     safeRefreshDrawerBranches();
-    showToastNotification(`✅ تم التحقق من ملكية فرع "${name}" وإضافته بنجاح إلى شبكة فروعك!`, "success");
+    showToastNotification(`تم التحقق من ملكية فرع "${name}" وإضافته بنجاح إلى شبكة فروعك!`, "success");
   } catch (err) {
     console.error("[Add Branch Error]", err);
     showToastNotification("حدث خطأ أثناء إضافة الفرع: " + (err.message || "يرجى المحاولة مجدداً"), "error");

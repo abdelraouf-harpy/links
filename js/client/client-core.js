@@ -438,7 +438,7 @@ async function initApp() {
       if (!isCloudReady && elements.productsContainer) {
         elements.productsContainer.innerHTML = `
           <div class="weak-network-fallback-card" style="grid-column: 1 / -1; text-align: center; padding: 45px 20px; background: var(--surface-raised, rgba(255,255,255,0.03)); border: 1px dashed var(--border); border-radius: 16px; margin: 15px 0;">
-            <div style="font-size: 34px; margin-bottom: 12px; line-height: 1;">📶</div>
+            <div style="display:flex; justify-content:center; margin-bottom: 12px;"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"></line><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path><path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg></div>
             <h3 style="font-size: 1.05rem; margin-bottom: 6px; color: var(--text-main); font-weight:800;">الاتصال بالإنترنت ضعيف أو بطيء</h3>
             <p style="font-size: 13px; color: var(--text-muted); max-width: 280px; margin: 0 auto 16px; line-height: 1.5;">جارٍ محاولة الاتصال وتحديث قائمة الطعام تلقائياً. يمكنك الضغط أدناه لإعادة المحاولة.</p>
             <button type="button" class="btn btn-primary btn-sm" onclick="location.reload()" style="padding: 8px 22px; font-weight: 700; border-radius: 10px;">
@@ -507,7 +507,17 @@ function setupOutboxSync() {
   }, 15000);
 }
 
+let _lastClientToastMsg = '';
+let _lastClientToastTime = 0;
+
 function showToastNotification(message, type = 'success') {
+  const now = Date.now();
+  if (message === _lastClientToastMsg && (now - _lastClientToastTime) < 2200) {
+    return;
+  }
+  _lastClientToastMsg = message;
+  _lastClientToastTime = now;
+
   const existing = document.getElementById('harpy-app-toast');
   if (existing) existing.remove();
 
@@ -1410,13 +1420,13 @@ window.openLanguagePickerModal = function() {
       return `
         <button type="button" onclick="selectLanguageOption('${l.code}')" style="width:100%; border:1.5px solid ${isSelected ? 'var(--primary)' : 'var(--border)'}; background:${isSelected ? 'var(--primary-subtle)' : 'var(--surface)'}; border-radius:12px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; text-align:${l.dir === 'rtl' ? 'right' : 'left'}; font-family:inherit; transition:all 0.18s ease;">
           <div style="display:flex; align-items:center; gap:10px;">
-            <span style="font-size:22px; line-height:1;">${l.flag}</span>
+            
             <div style="text-align:${l.dir === 'rtl' ? 'right' : 'left'};">
               <div style="font-size:14px; font-weight:900; color:var(--text-main); line-height:1.2;">${l.name}</div>
               <div style="font-size:11px; color:var(--text-muted); line-height:1.2; margin-top:2px;">${l.englishName}</div>
             </div>
           </div>
-          ${isSelected ? `<span style="font-size:11px; font-weight:800; color:var(--primary); background:rgba(234,88,12,0.12); padding:3px 8px; border-radius:6px;">✓ ${l.code === 'ar' ? 'النشطة' : 'Active'}</span>` : ''}
+          ${isSelected ? `<span style="font-size:11px; font-weight:800; color:var(--primary); background:rgba(234,88,12,0.12); padding:3px 8px; border-radius:6px;">${l.code === 'ar' ? 'النشطة' : 'Active'}</span>` : ''}
         </button>
       `;
     }).join('');
@@ -1666,7 +1676,7 @@ function renderCleanProfileUI() {
   const cleanLangSub = document.getElementById('clean-language-status-text');
   if (cleanLangSub && typeof I18n !== 'undefined' && I18n.supportedLanguages[curLang]) {
     const l = I18n.supportedLanguages[curLang];
-    cleanLangSub.textContent = `${l.flag} ${l.name} (${l.englishName})`;
+    cleanLangSub.textContent = `${l.name} (${l.englishName})`;
   }
 
   // WhatsApp link
@@ -2479,22 +2489,22 @@ window.rerenderAllCustomerViews = function() {
 
   // 3. Translate search bar placeholder
   const searchInput = document.getElementById('search-input');
-  if (searchInput && typeof t === 'function') searchInput.placeholder = t('search_placeholder', 'ابحث عن وجبتك المفضلة...');
+  if (searchInput && typeof t === 'function') searchInput.placeholder = t('search_placeholder', 'ابحث عن وجبتك المفضلة');
 
   // 4. Update language indicator in #view-account and drawer
   const cleanLangSub = document.getElementById('clean-language-status-text');
   if (cleanLangSub && typeof I18n !== 'undefined' && I18n.supportedLanguages[lang]) {
     const l = I18n.supportedLanguages[lang];
-    cleanLangSub.textContent = `${l.flag} ${l.name} (${l.englishName})`;
+    cleanLangSub.textContent = `${l.name} (${l.englishName})`;
   }
   const cleanLangBtn = document.getElementById('clean-language-toggle-btn');
   if (cleanLangBtn) {
-    cleanLangBtn.innerHTML = (lang === 'ar') ? '<span>English 🇬🇧</span>' : '<span>العربية 🇪🇬</span>';
+    cleanLangBtn.innerHTML = (lang === 'ar') ? '<span>English</span>' : '<span>العربية</span>';
   }
   const accountLangSub = document.getElementById('account-language-sub');
   if (accountLangSub && typeof I18n !== 'undefined' && I18n.supportedLanguages[lang]) {
     const l = I18n.supportedLanguages[lang];
-    accountLangSub.textContent = `${l.flag} ${l.name} (${l.englishName})`;
+    accountLangSub.textContent = `${l.name} (${l.englishName})`;
   }
 
   // 5. Invalidate category cache signature & re-render categories
@@ -2609,7 +2619,7 @@ function updateHeaderBranchPill() {
       pill.style.background = 'var(--primary-subtle)';
       pill.style.color = 'var(--primary)';
       pill.style.cursor = 'default';
-      if (icon) icon.textContent = '🍽️';
+      if (icon) icon.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/></svg>';
       if (text) text.textContent = `طاولة ${dineInTable} (صالة)`;
       if (arrow) arrow.style.display = 'none';
     }
@@ -2630,7 +2640,7 @@ function updateHeaderBranchPill() {
       pill.style.background = 'var(--surface)';
       pill.style.color = 'var(--text-main)';
       if (arrow) arrow.style.display = 'inline';
-      if (icon) icon.textContent = '📍';
+      if (icon) icon.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>';
       if (text) text.textContent = branchName;
     }
 

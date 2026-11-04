@@ -533,7 +533,7 @@ function handleStockAuditRowChange(matId) {
     diffBadge.style.background = 'rgba(34,197,94,0.15)';
     diffBadge.style.borderColor = 'rgba(34,197,94,0.3)';
     diffBadge.style.color = '#16a34a';
-    diffBadge.textContent = 'مطابق تماماً ✓';
+    diffBadge.textContent = 'مطابق تماماً';
   } else if (diff < 0) {
     diffBadge.style.background = 'rgba(239,68,68,0.15)';
     diffBadge.style.borderColor = 'rgba(239,68,68,0.3)';
@@ -585,7 +585,7 @@ function updateStockAuditSummary() {
   }
 
   if (netMoneyDiff === 0 && deficitCount === 0 && surplusCount === 0) {
-    summaryEl.textContent = `تم جرد ${filledCount} مادة: جميع الكميات مطابقة 100% ✓`;
+    summaryEl.textContent = `تم جرد ${filledCount} مادة: جميع الكميات مطابقة 100%`;
     summaryEl.style.color = '#16a34a';
   } else if (netMoneyDiff < 0) {
     summaryEl.textContent = `تم جرد ${filledCount} مادة: إجمالي عجز المخزون ${netMoneyDiff.toFixed(1)} ${currency} (${deficitCount} أصناف عجز)`;

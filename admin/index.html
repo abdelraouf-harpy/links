@@ -515,7 +515,7 @@
         <div class="unified-menu-header" style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:16px; flex-wrap:wrap;">
           <!-- Search input -->
           <div style="flex:1; min-width:240px; position:relative;">
-            <input type="text" id="catalog-search-input" class="form-input" placeholder="بحث باسم الصنف أو الوصف..." oninput="handleCatalogSearch(this.value)" style="padding-inline-start:34px;">
+            <input type="text" id="catalog-search-input" class="form-input" placeholder="بحث باسم الصنف أو الوصف" oninput="handleCatalogSearch(this.value)" style="padding-inline-start:34px;">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           </div>
 
@@ -554,7 +554,7 @@
         <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap;">
           <!-- Search Input -->
           <div style="flex:1; min-width:220px; position:relative;">
-            <input type="text" id="inventory-search-input" class="form-input" placeholder="بحث باسم المادة الخام..." style="padding-inline-start:34px;">
+            <input type="text" id="inventory-search-input" class="form-input" placeholder="بحث باسم المادة الخام" style="padding-inline-start:34px;">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           </div>
 
@@ -915,7 +915,7 @@
               </div>
             </div>
             <div class="archive-search-wrap">
-              <input type="text" id="archive-search-input" class="form-input" placeholder="بحث برقم الفاتورة أو اسم العميل..." oninput="handleArchiveSearch(this.value)">
+              <input type="text" id="archive-search-input" class="form-input" placeholder="بحث برقم الفاتورة أو اسم العميل" oninput="handleArchiveSearch(this.value)">
             </div>
             <span id="archive-date-range-label" style="display:none;">الوردية الحالية</span>
           </div>
@@ -1554,7 +1554,7 @@
                   <span>ربط فرع جديد بشبكة فروعك</span>
                 </div>
                 <span style="font-size:11px; color:var(--primary); font-weight:700; background:var(--primary-subtle); padding:2px 8px; border-radius:4px; display:inline-flex; align-items:center; gap:4px;">
-                  🔒 التحقق الأمني إلزامي لمنع ربط أي مطعم غير مصرح به
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" style="display:inline-block; vertical-align:middle;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> <span>التحقق الأمني إلزامي لمنع ربط أي مطعم غير مصرح به</span>
                 </span>
               </div>
               <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px; margin-bottom:12px;">
@@ -1582,7 +1582,7 @@
                   <span id="btn-add-branch-text">التحقق وإضافة الفرع</span>
                 </button>
                 <div style="font-size:11px; color:var(--text-muted);">
-                  💡 يتم التحقق فورياً من كلمة مرور الفرع لحماية الخصوصية ومنع ربط أي مطعم دون إذن مالكه.
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block; vertical-align:middle;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> <span>يتم التحقق فورياً من كلمة مرور الفرع لحماية الخصوصية ومنع ربط أي مطعم دون إذن مالكه.</span>
                 </div>
               </div>
             </div>
@@ -1655,7 +1655,7 @@
   <div class="modal-box" id="harpy-qr-modal" style="max-width:500px; text-align:center; padding:22px 18px;">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
       <div style="display:flex; align-items:center; gap:8px;">
-        <span style="font-size:20px;">🎨</span>
+        <span style="display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:8px; background:var(--primary-subtle); color:var(--primary);"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg></span>
         <h3 id="harpy-qr-modal-title" style="margin:0; font-size:1.1rem; font-weight:900; color:var(--text-main);">ستيكر كود QR الذكي</h3>
       </div>
       <button type="button" class="btn-close" onclick="closeHarpyQRModal()" aria-label="إغلاق">
@@ -1667,7 +1667,7 @@
     <div id="harpy-qr-preview-wrapper" style="position:relative; width:100%; max-width:320px; margin:0 auto 14px; border-radius:20px; overflow:hidden; box-shadow:0 10px 28px rgba(0,0,0,0.12); border:1px solid rgba(0,0,0,0.06); aspect-ratio:1/1; background:#ffffff; display:flex; align-items:center; justify-content:center;">
       <div id="harpy-qr-loading" style="display:none; position:absolute; inset:0; background:rgba(255,255,255,0.88); border-radius:20px; z-index:10; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;">
         <div class="spinner-ring" style="width:36px; height:36px; border:3px solid var(--accent, #ea580c); border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite;"></div>
-        <span style="font-size:12px; font-weight:800; color:var(--text-main, #0f172a);">جاري تجهيز وتوليد الستيكر...</span>
+        <span style="font-size:12px; font-weight:800; color:var(--text-main, #0f172a);">جاري تجهيز وتوليد الستيكر</span>
       </div>
       <canvas id="harpy-qr-canvas" width="1254" height="1254" style="width:100%; height:100%; display:block; object-fit:contain;"></canvas>
       <div id="harpy-qr-hidden-gen" style="display:none;"></div>
@@ -2290,7 +2290,7 @@
         <!-- Rendered dynamically via openOrderInvoiceModal() -->
       </div>
       <div style="background:var(--surface-raised, #182234); border:1px solid var(--border-strong, #334155); border-radius:8px; padding:7px 12px; margin:0 18px 10px; font-size:11.5px; color:var(--text-muted); display:flex; align-items:center; gap:8px;">
-        <span style="font-size:13px;">💡</span>
+        <span style="display:inline-flex; align-items:center; color:var(--primary);"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span>
         <span>لأفضل نتيجة: اختر طابعة الفواتير (مثل <strong>POS-80</strong>) واضبط الهوامش على <strong>بلا (None)</strong>.</span>
       </div>
       <div class="inv-actions">
@@ -2418,7 +2418,7 @@
 
     <!-- Quick Search -->
     <div style="margin-bottom:12px; position:relative;">
-      <input type="text" id="stock-audit-search" class="form-input" placeholder="تصفية المواد بالاسم..." style="font-size:12.5px; padding:7px 12px; padding-inline-start:34px;" oninput="filterStockAuditItems(this.value)">
+      <input type="text" id="stock-audit-search" class="form-input" placeholder="تصفية المواد بالاسم" style="font-size:12.5px; padding:7px 12px; padding-inline-start:34px;" oninput="filterStockAuditItems(this.value)">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" style="position:absolute; right:11px; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
     </div>
 
@@ -2561,7 +2561,7 @@
         </button>
       </div>
       <div class="custom-picker-search" id="custom-picker-search-wrap">
-        <input type="text" id="custom-picker-search-input" placeholder="بحث سريع..." autocomplete="off">
+        <input type="text" id="custom-picker-search-input" placeholder="بحث سريع" autocomplete="off">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
       </div>
       <div class="custom-picker-list" id="custom-picker-items-list">

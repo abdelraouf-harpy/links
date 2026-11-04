@@ -211,7 +211,7 @@ window.handleCategoryModalSubmit = async function(event) {
 
     if (submitBtn) {
       submitBtn.disabled = true;
-      submitBtn.textContent = "جاري الحفظ...";
+      submitBtn.textContent = "جاري الحفظ";
     }
 
     try {
@@ -265,7 +265,7 @@ window.handleCategoryModalSubmit = async function(event) {
 
     if (submitBtn) {
       submitBtn.disabled = true;
-      submitBtn.textContent = "جاري الإضافة...";
+      submitBtn.textContent = "جاري الإضافة";
     }
 
     try {

@@ -288,7 +288,7 @@
           <span style="width:7px; height:7px; border-radius:50%; background:#f97316; display:inline-block; animation: harpyPulseGlow 1.5s infinite;"></span>
           تحديث جديد متوفر
         </div>
-        <button id="btn-update-card-close" style="background:transparent; border:none; color:#a8a29e; cursor:pointer; font-size:17px; width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:8px;" title="إغلاق">✕</button>
+        <button id="btn-update-card-close" style="background:transparent; border:none; color:#a8a29e; cursor:pointer; font-size:17px; width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:8px;" title="إغلاق"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
       <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
         <div style="position:relative; width:48px; height:48px; border-radius:14px; overflow:hidden; flex-shrink:0; background:#120e0c; border:1.5px solid rgba(249,115,22,0.45); box-shadow:0 4px 14px rgba(0,0,0,0.45);">
