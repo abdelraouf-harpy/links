@@ -4021,7 +4021,7 @@ const Store = {
 
       // Strict Guard: Only evaluate if an explicit license object is present; NEVER declare deleted on network null/transient state!
       if (lic && typeof lic === 'object') {
-        if (lic.status === 'suspended' || lic.status === 'blocked' || lic.status === 'inactive') {
+        if (lic.status === 'suspended' || lic.status === 'blocked' || lic.status === 'inactive' || lic.active === false || lic.suspended === true) {
           isBlocked = true;
           reason = 'blocked';
         } else if (lic.status === 'deleted') {
@@ -4039,7 +4039,7 @@ const Store = {
       }
 
       if (subSettings && typeof subSettings === 'object') {
-        if (subSettings.status === 'suspended' || subSettings.status === 'blocked') {
+        if (subSettings.status === 'suspended' || subSettings.status === 'blocked' || subSettings.active === false || subSettings.suspended === true) {
           isBlocked = true;
           if (reason === 'active') reason = 'blocked';
         } else if (subSettings.status === 'deleted') {
@@ -4049,7 +4049,7 @@ const Store = {
       }
 
       if (meta && typeof meta === 'object') {
-        if (meta.status === 'suspended' || meta.status === 'blocked') {
+        if (meta.status === 'suspended' || meta.status === 'blocked' || meta.active === false || meta.suspended === true) {
           isBlocked = true;
           if (reason === 'active') reason = 'blocked';
         } else if (meta.status === 'deleted') {

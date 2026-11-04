@@ -1666,11 +1666,47 @@
       init() {
         this.applyTheme(this.currentTheme);
 
+        // Instant Cache-First Render (0ms - zero delay)
+        const cached = localStorage.getItem('harpy_master_cached_tenants');
+        if (cached) {
+          try {
+            this.tenants = JSON.parse(cached);
+            this.renderUI();
+            this.renderFinanceUI();
+            this.renderWatchdogUI();
+          } catch(e) {}
+        } else {
+          this.renderSkeleton();
+        }
+
         const isSessionUnlocked = sessionStorage.getItem('harpy_master_unlocked') === 'true';
         if (isSessionUnlocked) {
           this.unlockScreen();
         }
+
+        // Fresh background sync
         this.loadAllData();
+      },
+
+      renderSkeleton() {
+        const container = document.getElementById('tenants-container');
+        if (!container) return;
+        container.innerHTML = `
+          <div class="tenant-row" style="opacity:0.4; pointer-events:none;">
+            <div class="tenant-avatar-box" style="background:var(--border-light);"></div>
+            <div class="tenant-info-box">
+              <div style="height:14px; width:40%; background:var(--border-light); border-radius:6px; margin-bottom:6px;"></div>
+              <div style="height:10px; width:65%; background:var(--border-light); border-radius:4px;"></div>
+            </div>
+          </div>
+          <div class="tenant-row" style="opacity:0.25; pointer-events:none;">
+            <div class="tenant-avatar-box" style="background:var(--border-light);"></div>
+            <div class="tenant-info-box">
+              <div style="height:14px; width:45%; background:var(--border-light); border-radius:6px; margin-bottom:6px;"></div>
+              <div style="height:10px; width:55%; background:var(--border-light); border-radius:4px;"></div>
+            </div>
+          </div>
+        `;
       },
 
       // --- Theme Logic (Light/Dark Mode) ---
@@ -1836,6 +1872,9 @@
           }
 
           this.tenants = loadedTenants;
+          try {
+            localStorage.setItem('harpy_master_cached_tenants', JSON.stringify(loadedTenants));
+          } catch(e) {}
           this.renderUI();
           this.renderFinanceUI();
           this.renderWatchdogUI();
@@ -2026,13 +2065,43 @@
 
       async toggleStatus(slug, activate) {
         const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
+        const statusVal = activate ? 'active' : 'suspended';
+        const subPayload = {
+          status: statusVal,
+          active: activate,
+          suspended: !activate,
+          lastStatusUpdate: Date.now()
+        };
+
+        // Immediately update in-memory and local cache for instant UI response
+        const t = this.tenants.find(x => x.slug === slug);
+        if (t) {
+          t.active = activate;
+          t.suspended = !activate;
+          try {
+            localStorage.setItem('harpy_master_cached_tenants', JSON.stringify(this.tenants));
+          } catch(e) {}
+          this.renderUI();
+        }
+
         try {
-          await fetch(`${BASE_RTDB}/licenses/${slug}.json${authParam}`, {
-            method: 'PATCH',
-            body: JSON.stringify({ active: activate, suspended: !activate })
-          });
-          this.logAudit(activate ? 'TENANT_ACTIVATE' : 'TENANT_FREEZE', `${activate ? 'تنشيط' : 'تجميد'} حساب مطعم ${slug}`, slug);
-          this.showToast(activate ? "تم تنشيط المطعم بنجاح" : "تم تجميد المطعم", "success");
+          await Promise.all([
+            fetch(`${BASE_RTDB}/licenses/${slug}.json${authParam}`, {
+              method: 'PATCH',
+              body: JSON.stringify(subPayload)
+            }),
+            fetch(`${BASE_RTDB}/restaurants/${slug}/settings/subscription.json${authParam}`, {
+              method: 'PATCH',
+              body: JSON.stringify(subPayload)
+            }),
+            fetch(`${BASE_RTDB}/restaurants/${slug}/meta.json${authParam}`, {
+              method: 'PATCH',
+              body: JSON.stringify(subPayload)
+            })
+          ]);
+
+          this.logAudit(activate ? 'TENANT_ACTIVATE' : 'TENANT_FREEZE', `${activate ? 'تنشيط وإلغاء تجميد' : 'تجميد وإيقاف'} حساب مطعم ${slug}`, slug);
+          this.showToast(activate ? "تم تنشيط وإلغاء تجميد المطعم بنجاح" : "تم تجميد وإيقاف المطعم فوراً", "success");
           this.loadAllData();
         } catch(e) {
           this.showToast("فشل تحديث حالة المطعم", "error");
@@ -2065,19 +2134,33 @@
         const newExp = baseExp + (days * 24 * 60 * 60 * 1000);
         const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
 
+        const payPayload = {
+          expiresAt: newExp,
+          validUntil: newExp,
+          active: true,
+          suspended: false,
+          status: 'active',
+          lastPaymentDate: Date.now(),
+          lastPaymentAmount: amount,
+          lastPaymentNotes: notes
+        };
+
         try {
-          await fetch(`${BASE_RTDB}/licenses/${slug}.json${authParam}`, {
-            method: 'PATCH',
-            body: JSON.stringify({
-              expiresAt: newExp,
-              validUntil: newExp,
-              active: true,
-              suspended: false,
-              lastPaymentDate: Date.now(),
-              lastPaymentAmount: amount,
-              lastPaymentNotes: notes
+          await Promise.all([
+            fetch(`${BASE_RTDB}/licenses/${slug}.json${authParam}`, {
+              method: 'PATCH',
+              body: JSON.stringify(payPayload)
+            }),
+            fetch(`${BASE_RTDB}/restaurants/${slug}/settings/subscription.json${authParam}`, {
+              method: 'PATCH',
+              body: JSON.stringify({
+                expiresAt: new Date(newExp).toISOString(),
+                status: 'active',
+                active: true,
+                suspended: false
+              })
             })
-          });
+          ]);
 
           this.logAudit('PAYMENT_RECORD', `تسجيل سداد ${amount} ج.م وتمديد ${days} يوماً لمطعم ${slug}`, slug);
           this.closePaymentModal();
@@ -2144,6 +2227,13 @@
             })
           ]);
 
+          const t = this.tenants.find(x => x.slug === slug);
+          if (t) {
+            t.modules = modulesPayload;
+            try {
+              localStorage.setItem('harpy_master_cached_tenants', JSON.stringify(this.tenants));
+            } catch(e) {}
+          }
           this.logAudit('MODULES_UPDATE', `تعديل صلاحيات ميزات مطعم ${slug}`, slug);
           this.closeModulesModal();
           this.showToast("تم حفظ وتطبيق الصلاحيات بنجاح", "success");

@@ -26,6 +26,48 @@
       if (window.location.pathname.includes('/admin') || document.querySelector('.admin-drawer-nav')) {
         this.initBroadcastReceiver();
       }
+
+      // 5. Enforce Realtime License / Suspension Gate
+      this.checkSubscriptionGate();
+    },
+
+    checkSubscriptionGate() {
+      if (!this.currentSlug || this.currentSlug === 'demo') return;
+      const fetchLicense = () => {
+        fetch(`${this.fbBase}/licenses/${this.currentSlug}.json`)
+          .then(r => r.ok ? r.json() : null)
+          .then(lic => {
+            if (!lic) return;
+            const isSuspended = lic.active === false || lic.suspended === true || lic.status === 'suspended';
+            const overlay = document.getElementById('subscription-suspended-overlay');
+            const backdrop = document.getElementById('subscription-suspended-backdrop');
+            if (isSuspended) {
+              if (overlay) {
+                overlay.classList.add('active');
+                overlay.style.setProperty('display', 'block', 'important');
+              }
+              if (backdrop) {
+                backdrop.classList.add('active');
+                backdrop.style.setProperty('display', 'block', 'important');
+              }
+              document.body.classList.add('harpy-account-locked');
+            } else {
+              if (overlay && !overlay.dataset.expired) {
+                overlay.classList.remove('active');
+                overlay.style.removeProperty('display');
+              }
+              if (backdrop && !backdrop.dataset.expired) {
+                backdrop.classList.remove('active');
+                backdrop.style.removeProperty('display');
+              }
+              document.body.classList.remove('harpy-account-locked');
+            }
+          })
+          .catch(() => {});
+      };
+
+      fetchLicense();
+      setInterval(fetchLicense, 15000);
     },
 
     detectSlug() {
