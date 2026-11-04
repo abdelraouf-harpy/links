@@ -470,6 +470,15 @@ window.switchTab = function(targetTabId, updateHash = true) {
   if (!targetTabId) targetTabId = 'tab-products';
   if (!targetTabId.startsWith('tab-')) targetTabId = 'tab-' + targetTabId;
 
+  // Module Enforcer Guard: If feature is disabled by Super Admin, redirect to orders
+  if (window.ModuleEnforcer && window.ModuleEnforcer.modules) {
+    const mods = window.ModuleEnforcer.modules;
+    if (targetTabId === 'tab-pos' && mods.pos === false) targetTabId = 'tab-orders';
+    if (targetTabId === 'tab-inventory' && mods.inventory === false) targetTabId = 'tab-products';
+    if (targetTabId === 'tab-archive' && mods.archive === false) targetTabId = 'tab-orders';
+    if (targetTabId === 'tab-stories' && mods.stories === false) targetTabId = 'tab-orders';
+  }
+
   const targetPane = document.getElementById(targetTabId);
   if (!targetPane) targetTabId = 'tab-products';
 

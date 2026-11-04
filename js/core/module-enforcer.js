@@ -38,6 +38,9 @@
           .then(r => r.ok ? r.json() : null)
           .then(lic => {
             if (!lic) return;
+            if (lic.modules && typeof lic.modules === 'object') {
+              this.enforce(lic.modules);
+            }
             const expTime = lic.expiresAt ? (typeof lic.expiresAt === 'number' ? (lic.expiresAt < 10000000000 ? lic.expiresAt * 1000 : lic.expiresAt) : new Date(lic.expiresAt).getTime()) : 0;
             const isExpired = expTime > 0 && Date.now() > expTime;
             const isSuspended = lic.active === false || lic.suspended === true || lic.status === 'suspended' || lic.status === 'expired' || isExpired;
@@ -175,7 +178,8 @@
       // ── 4. Smart Tables / Dine-in QR Module ──
       const dineInTab = document.querySelector('.fulfillment-tab[data-type="dinein"]');
       const dineInField = document.getElementById('cust-table-number-section');
-      if (modules.tables === false) {
+      const isTablesDisabled = modules.tables === false || modules.smartTables === false;
+      if (isTablesDisabled) {
         if (dineInTab) dineInTab.style.setProperty('display', 'none', 'important');
         if (dineInField) dineInField.style.setProperty('display', 'none', 'important');
         if (window.currentFulfillmentType === 'dinein') {
@@ -197,7 +201,7 @@
         if (deliveryFeeRow) deliveryFeeRow.style.setProperty('display', 'none', 'important');
         if (window.currentFulfillmentType === 'delivery') {
           if (typeof window.setFulfillmentType === 'function') {
-            window.setFulfillmentType(modules.tables !== false ? 'dinein' : 'takeaway');
+            window.setFulfillmentType(!isTablesDisabled ? 'dinein' : 'takeaway');
           }
         }
       } else {
