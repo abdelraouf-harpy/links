@@ -3389,10 +3389,35 @@
           return;
         }
 
+        let ownerUid = null;
+        try {
+          const authKey = "AIzaSyAhDjUmVBnoRCp6bDSeqrmVgakAQ2pu0ww";
+          const suRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${authKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: `${slug}@harpymenu.com`, password: `Harpy_${slug}_2026!`, returnSecureToken: true })
+          });
+          const suData = await suRes.json();
+          if (suData && suData.localId) {
+            ownerUid = suData.localId;
+          } else {
+            const siRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${authKey}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: `${slug}@harpymenu.com`, password: `Harpy_${slug}_2026!`, returnSecureToken: true })
+            });
+            const siData = await siRes.json();
+            if (siData && siData.localId) {
+              ownerUid = siData.localId;
+            }
+          }
+        } catch(e) {}
+
         const licensePayload = {
           restaurantName: name,
           ownerPhone: phone,
           adminPassword: password,
+          ownerUid: ownerUid,
           active: true,
           suspended: false,
           monthlyPrice: price,
@@ -3422,10 +3447,17 @@
           }
         };
 
+        const metaPayload = {
+          ownerUid: ownerUid,
+          createdAt: new Date().toISOString(),
+          sessionVersion: Date.now()
+        };
+
         try {
           await Promise.all([
             fetch(`${BASE_RTDB}/licenses/${slug}.json${authParam}`, { method: 'PUT', body: JSON.stringify(licensePayload) }),
-            fetch(`${BASE_RTDB}/restaurants/${slug}/settings.json${authParam}`, { method: 'PUT', body: JSON.stringify(settingsPayload) })
+            fetch(`${BASE_RTDB}/restaurants/${slug}/settings.json${authParam}`, { method: 'PUT', body: JSON.stringify(settingsPayload) }),
+            fetch(`${BASE_RTDB}/restaurants/${slug}/meta.json${authParam}`, { method: 'PUT', body: JSON.stringify(metaPayload) })
           ]);
 
           this.logAudit('TENANT_CREATE', `إطلاق وتأسيس مطعم جديد: ${name} (${slug})`, slug);

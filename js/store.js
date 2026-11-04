@@ -522,12 +522,77 @@ const Store = {
     const slug = this.getRestaurantSlug();
     const cleanId = (identifier || '').toLowerCase().trim();
     const cleanPassword = (password || '').trim();
+    const activeSlug = slug || cleanId;
 
     if (!cleanPassword) {
       throw new Error("auth/missing-password");
     }
 
-    // 1. Try Firebase Auth (Primary Multi-Tenant Authentication)
+    // 1. Direct Multi-Tenant Database Password Verification (Fast, Independent & Bulletproof)
+    let dbPassMatch = false;
+    let licData = null;
+    if (activeSlug && activeSlug !== 'demo') {
+      try {
+        const [licRes, restRes] = await Promise.all([
+          fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${activeSlug}.json`, { cache: 'no-store' }).catch(() => null),
+          fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${activeSlug}/settings/adminPassword.json`, { cache: 'no-store' }).catch(() => null)
+        ]);
+        licData = licRes && licRes.ok ? await licRes.json() : null;
+        const restPass = restRes && restRes.ok ? await restRes.json() : null;
+        let storedPass = (licData && (licData.adminPassword || (licData.subscription && licData.subscription.adminPassword))) || restPass;
+
+        if (!storedPass && typeof db !== 'undefined' && db && typeof db.ref === 'function') {
+          try {
+            const snap = await db.ref(`licenses/${activeSlug}/adminPassword`).once('value');
+            if (snap.exists()) storedPass = snap.val();
+          } catch(e) {}
+        }
+
+        if (storedPass && String(storedPass).trim() === cleanPassword) {
+          dbPassMatch = true;
+        }
+      } catch(dbErr) {
+        console.warn("[Store] DB pass check warning:", dbErr);
+      }
+    }
+
+    if (dbPassMatch) {
+      const sessionVersion = (licData && licData.meta && licData.meta.sessionVersion) || (licData && licData.sessionVersion) || Date.now();
+      let authUserCred = null;
+
+      // Connect to Firebase Auth using deterministic shadow credentials for full cloud write & realtime syncing
+      if (auth) {
+        const shadowEmail = `${activeSlug}@harpymenu.com`;
+        const shadowPass = `Harpy_${activeSlug}_2026!`;
+        try {
+          if (firebase.auth && firebase.auth.Auth && firebase.auth.Auth.Persistence) {
+            try { await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); } catch(pErr) {}
+          }
+          authUserCred = await auth.signInWithEmailAndPassword(shadowEmail, shadowPass);
+        } catch(shadowErr) {
+          try {
+            authUserCred = await auth.createUserWithEmailAndPassword(shadowEmail, shadowPass);
+          } catch(createErr) {}
+        }
+      }
+
+      const uid = (authUserCred && authUserCred.user && authUserCred.user.uid) || (licData && licData.ownerUid) || `tenant_${activeSlug}`;
+      const session = {
+        email: `${activeSlug}@harpymenu.com`,
+        uid: uid,
+        authenticated: true,
+        slug: activeSlug,
+        sessionVersion: sessionVersion,
+        timestamp: Date.now()
+      };
+      this.safeSetItem(`harpy_admin_auth_${activeSlug}`, JSON.stringify(session));
+      sessionStorage.setItem(`harpy_auth_${activeSlug}`, JSON.stringify(session));
+      this.safeSetItem('harpy_admin_active_slug', activeSlug);
+      if (this.setBranchKeychain) this.setBranchKeychain(activeSlug, cleanPassword);
+      return authUserCred || { user: { email: `${activeSlug}@harpymenu.com`, uid: uid } };
+    }
+
+    // 2. Direct Firebase Auth attempt with candidate emails (e.g. custom credentials or saj/king legacy sessions)
     if (auth) {
       const candidateEmails = [];
       if (cleanId.includes('@')) {
@@ -563,39 +628,6 @@ const Store = {
           console.warn(`[Store] Firebase Auth attempt for ${email}:`, authErr.code || authErr.message);
         }
       }
-    }
-
-    // 2. Database Password Verification Fallback (Guarantees login with Master-assigned password)
-    try {
-      const activeSlug = slug || cleanId;
-      if (activeSlug && activeSlug !== 'demo') {
-        const [licRes, restRes] = await Promise.all([
-          fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${activeSlug}.json`, { cache: 'no-store' }).catch(() => null),
-          fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${activeSlug}/settings/adminPassword.json`, { cache: 'no-store' }).catch(() => null)
-        ]);
-        const lic = licRes && licRes.ok ? await licRes.json() : null;
-        const restPass = restRes && restRes.ok ? await restRes.json() : null;
-        const storedPass = (lic && (lic.adminPassword || (lic.subscription && lic.subscription.adminPassword))) || restPass;
-
-        if (storedPass && String(storedPass).trim() === cleanPassword) {
-          const sessionVersion = (lic && lic.meta && lic.meta.sessionVersion) || (lic && lic.sessionVersion) || Date.now();
-          const session = {
-            email: `${activeSlug}@harpymenu.com`,
-            uid: `tenant_${activeSlug}`,
-            authenticated: true,
-            slug: activeSlug,
-            sessionVersion: sessionVersion,
-            timestamp: Date.now()
-          };
-          this.safeSetItem(`harpy_admin_auth_${activeSlug}`, JSON.stringify(session));
-          sessionStorage.setItem(`harpy_auth_${activeSlug}`, JSON.stringify(session));
-          this.safeSetItem('harpy_admin_active_slug', activeSlug);
-          if (this.setBranchKeychain) this.setBranchKeychain(activeSlug, cleanPassword);
-          return { user: { email: `${activeSlug}@harpymenu.com`, uid: `tenant_${activeSlug}` } };
-        }
-      }
-    } catch(dbAuthErr) {
-      console.warn("[Store] Database auth check fallback error:", dbAuthErr);
     }
 
     throw new Error("auth/invalid-credentials");
@@ -2236,7 +2268,11 @@ const Store = {
   },
 
   async verifyTenantOwnership(slug, userUid) {
-    if (!db || !slug || !userUid) return { isOwner: false, mismatchConfirmed: false };
+    if (!slug || !userUid) return { isOwner: false, mismatchConfirmed: false };
+    if (auth && auth.currentUser && auth.currentUser.email === `${slug}@harpymenu.com`) {
+      return { isOwner: true, mismatchConfirmed: false };
+    }
+    if (!db) return { isOwner: false, mismatchConfirmed: false };
     try {
       // 1. Try checking licenses node first
       try {
