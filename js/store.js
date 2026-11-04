@@ -565,6 +565,39 @@ const Store = {
       }
     }
 
+    // 2. Database Password Verification Fallback (Guarantees login with Master-assigned password)
+    try {
+      const activeSlug = slug || cleanId;
+      if (activeSlug && activeSlug !== 'demo') {
+        const [licRes, restRes] = await Promise.all([
+          fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${activeSlug}.json`, { cache: 'no-store' }).catch(() => null),
+          fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${activeSlug}/settings/adminPassword.json`, { cache: 'no-store' }).catch(() => null)
+        ]);
+        const lic = licRes && licRes.ok ? await licRes.json() : null;
+        const restPass = restRes && restRes.ok ? await restRes.json() : null;
+        const storedPass = (lic && (lic.adminPassword || (lic.subscription && lic.subscription.adminPassword))) || restPass;
+
+        if (storedPass && String(storedPass).trim() === cleanPassword) {
+          const sessionVersion = (lic && lic.meta && lic.meta.sessionVersion) || (lic && lic.sessionVersion) || Date.now();
+          const session = {
+            email: `${activeSlug}@harpymenu.com`,
+            uid: `tenant_${activeSlug}`,
+            authenticated: true,
+            slug: activeSlug,
+            sessionVersion: sessionVersion,
+            timestamp: Date.now()
+          };
+          this.safeSetItem(`harpy_admin_auth_${activeSlug}`, JSON.stringify(session));
+          sessionStorage.setItem(`harpy_auth_${activeSlug}`, JSON.stringify(session));
+          this.safeSetItem('harpy_admin_active_slug', activeSlug);
+          if (this.setBranchKeychain) this.setBranchKeychain(activeSlug, cleanPassword);
+          return { user: { email: `${activeSlug}@harpymenu.com`, uid: `tenant_${activeSlug}` } };
+        }
+      }
+    } catch(dbAuthErr) {
+      console.warn("[Store] Database auth check fallback error:", dbAuthErr);
+    }
+
     throw new Error("auth/invalid-credentials");
   },
 

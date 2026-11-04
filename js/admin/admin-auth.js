@@ -676,6 +676,19 @@ window.verifyAdminCredentials = async function(enteredPassword, slug) {
     }
   }
 
+  // 6. Database Password Verification Fallback
+  try {
+    const licRes = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${slug}.json`, { cache: 'no-store' }).catch(() => null);
+    const lic = licRes && licRes.ok ? await licRes.json() : null;
+    const storedPass = lic ? (lic.adminPassword || (lic.subscription && lic.subscription.adminPassword)) : null;
+    if (storedPass && String(storedPass).trim() === cleanPass) {
+      if (typeof Store !== 'undefined' && Store.setBranchKeychain) {
+        Store.setBranchKeychain(slug, cleanPass);
+      }
+      return true;
+    }
+  } catch(e) {}
+
   return false;
 };
 
