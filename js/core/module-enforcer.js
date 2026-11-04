@@ -167,6 +167,40 @@
       } else {
         onlinePayWraps.forEach(w => w.style.removeProperty('display'));
       }
+
+      // ── 7. Takeaway / Pickup Module ──
+      const takeawayTabs = document.querySelectorAll('.fulfillment-tab[data-type="takeaway"], [data-fulfillment="takeaway"]');
+      if (modules.takeaway === false) {
+        takeawayTabs.forEach(el => el.style.setProperty('display', 'none', 'important'));
+      } else {
+        takeawayTabs.forEach(el => el.style.removeProperty('display'));
+      }
+
+      // ── 8. Sales Archive Module ──
+      const archiveTabBtn = document.querySelector('button[data-tab="tab-archive"]');
+      const archivePane = document.getElementById('tab-archive');
+      if (modules.archive === false) {
+        if (archiveTabBtn) archiveTabBtn.style.setProperty('display', 'none', 'important');
+        if (archivePane) archivePane.style.setProperty('display', 'none', 'important');
+      } else {
+        if (archiveTabBtn) archiveTabBtn.style.removeProperty('display');
+      }
+
+      // ── 9. Discount Coupons Module ──
+      const couponBoxes = document.querySelectorAll('#coupon-section, .coupon-section, #coupon-box, .cart-coupon-row, .coupon-trigger-btn');
+      if (modules.coupons === false) {
+        couponBoxes.forEach(el => el.style.setProperty('display', 'none', 'important'));
+      } else {
+        couponBoxes.forEach(el => el.style.removeProperty('display'));
+      }
+
+      // ── 10. Customer Reviews Module ──
+      const reviewBoxes = document.querySelectorAll('#reviews-section, .reviews-section, #ratings-modal, .customer-reviews-wrap');
+      if (modules.reviews === false) {
+        reviewBoxes.forEach(el => el.style.setProperty('display', 'none', 'important'));
+      } else {
+        reviewBoxes.forEach(el => el.style.removeProperty('display'));
+      }
     },
 
     // ── Global Broadcast Announcement Receiver ──

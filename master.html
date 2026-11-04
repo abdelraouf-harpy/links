@@ -1,62 +1,101 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Harpy Master — القيادة المركزية للمؤسس</title>
+  <title>Harpy Order — Master Command</title>
   
-  <!-- Favicon & PWA Identity (Founder + Mascot Icon) -->
+  <!-- Favicon & PWA Identity -->
   <link rel="manifest" href="master-manifest.json">
-  <link rel="icon" type="image/png" href="assets/brand/master_pwa_icon_192.png">
+  <link rel="icon" type="image/png" href="assets/brand/harpy_order_emblem_transparent.png">
   <link rel="apple-touch-icon" href="assets/brand/master_apple_touch_icon.png">
-  <meta name="theme-color" content="#0B1015">
+  <meta name="theme-color" content="#0F1A2E">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Harpy Master">
   <meta name="mobile-web-app-capable" content="yes">
 
-  <!-- Google Fonts: Cairo & Inter -->
+  <!-- Google Fonts: Cairo & Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
     /* ==========================================================================
-       HARPY MASTER — WHATSAPP-INSPIRED LUXURY MOBILE SAAS CONTROL
+       HARPY MASTER — DUAL THEME (LIGHT & DARK ACCORDING TO PORTFOLIO)
        ========================================================================== */
     :root {
-      --bg-base: #0B1015;
-      --bg-surface: #111B21;
-      --bg-elevated: #182229;
-      --bg-sheet: #1F2C34;
-      --bg-input: #121B22;
+      /* Default: Dark Theme (إضاءة ليلية - من صفحة البروتوفوليو) */
+      --bg-base: #0F1A2E;
+      --bg-surface: #17243C;
+      --bg-elevated: #1F2E49;
+      --bg-sheet: #17243C;
+      --bg-input: #121B2B;
 
-      --primary: #FF9500;
-      --primary-hover: #FFA726;
-      --primary-gradient: linear-gradient(135deg, #FF9500 0%, #FF6A00 100%);
-      --teal: #00A884;
-      --teal-dim: rgba(0, 168, 132, 0.15);
+      --primary: #FF6A00;
+      --primary-hover: #E85E00;
+      --primary-gradient: linear-gradient(135deg, #FF6A00 0%, #FF8533 100%);
+      --primary-subtle: rgba(255, 106, 0, 0.12);
+
+      --teal: #10B981;
+      --teal-dim: rgba(16, 185, 129, 0.15);
       --red: #EF4444;
       --red-dim: rgba(239, 68, 68, 0.15);
       --amber: #F59E0B;
       --amber-dim: rgba(245, 158, 11, 0.15);
-      --blue: #3B82F6;
-      --blue-dim: rgba(59, 130, 246, 0.15);
 
-      --text-primary: #E9EDEF;
-      --text-secondary: #8696A0;
-      --text-muted: #667781;
-      --text-dim: #4B5563;
+      --text-primary: #FFFFFF;
+      --text-secondary: #B5C0D0;
+      --text-muted: #64748B;
 
-      --border-light: rgba(134, 150, 160, 0.14);
-      --border-highlight: rgba(255, 149, 0, 0.35);
-      --divider: rgba(134, 150, 160, 0.10);
+      --border-light: rgba(255, 255, 255, 0.10);
+      --border-highlight: rgba(255, 106, 0, 0.40);
+      --divider: rgba(255, 255, 255, 0.08);
+
+      --nav-bg: rgba(15, 26, 46, 0.96);
+      --nav-text: #8E99A8;
+      --nav-active-text: #FF6A00;
+      --nav-active-pill: rgba(255, 106, 0, 0.16);
 
       --font-ar: 'Cairo', system-ui, -apple-system, sans-serif;
-      --font-en: 'Inter', system-ui, sans-serif;
+      --font-en: 'Plus Jakarta Sans', system-ui, sans-serif;
 
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    [data-theme="light"] {
+      /* Light Theme (إضاءة نهارية - ألوان البروتوفوليو الرسمية) */
+      --bg-base: #F4F1EC;
+      --bg-surface: #FFFFFF;
+      --bg-elevated: #FAF8F5;
+      --bg-sheet: #FFFFFF;
+      --bg-input: #FAF8F5;
+
+      --primary: #FF6A00;
+      --primary-hover: #E85E00;
+      --primary-gradient: linear-gradient(135deg, #FF6A00 0%, #E85E00 100%);
+      --primary-subtle: rgba(255, 106, 0, 0.08);
+
+      --teal: #059669;
+      --teal-dim: rgba(5, 150, 105, 0.12);
+      --red: #DC2626;
+      --red-dim: rgba(220, 38, 38, 0.12);
+      --amber: #D97706;
+      --amber-dim: rgba(217, 119, 6, 0.12);
+
+      --text-primary: #0F1A2E;
+      --text-secondary: #5A6679;
+      --text-muted: #8E99A8;
+
+      --border-light: rgba(15, 26, 46, 0.08);
+      --border-highlight: rgba(255, 106, 0, 0.35);
+      --divider: rgba(15, 26, 46, 0.08);
+
+      --nav-bg: rgba(255, 255, 255, 0.96);
+      --nav-text: #5A6679;
+      --nav-active-text: #FF6A00;
+      --nav-active-pill: rgba(255, 106, 0, 0.12);
     }
 
     * {
@@ -71,6 +110,7 @@
       max-width: 100vw;
       overflow-x: clip;
       background-color: var(--bg-base);
+      transition: background-color 0.2s ease;
     }
 
     body {
@@ -82,9 +122,10 @@
       min-height: 100vh;
       overflow-x: clip;
       padding-top: var(--safe-top);
-      padding-bottom: calc(var(--safe-bottom) + 68px);
+      padding-bottom: calc(var(--safe-bottom) + 72px);
       user-select: none;
       -webkit-font-smoothing: antialiased;
+      transition: background-color 0.2s ease, color 0.2s ease;
     }
 
     input, button, select, textarea {
@@ -114,20 +155,19 @@
     }
 
     /* ==========================================================================
-       SCREEN 1: LOCK SCREEN (KEYPAD & FOUNDER PIN)
+       SCREEN 1: LOCK SCREEN (KEYPAD & AUTHENTIC EMBLEM)
        ========================================================================== */
     #lock-screen {
       position: fixed;
       inset: 0;
-      background: #070A0E;
+      background: var(--bg-base);
       z-index: 9999;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       padding: 24px;
-      backdrop-filter: blur(24px);
-      transition: opacity 0.35s ease, transform 0.35s ease;
+      transition: opacity 0.3s ease, transform 0.3s ease;
     }
     #lock-screen.hidden {
       opacity: 0;
@@ -136,44 +176,37 @@
     }
 
     .lock-emblem-wrap {
-      width: 84px;
-      height: 84px;
-      border-radius: 24px;
-      background: radial-gradient(circle, rgba(255,149,0,0.18) 0%, rgba(11,16,21,0.95) 100%);
-      border: 1px solid rgba(255, 149, 0, 0.45);
-      padding: 6px;
+      width: 88px;
+      height: 88px;
+      margin-bottom: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0 32px rgba(255, 149, 0, 0.22);
-      margin-bottom: 14px;
     }
     .lock-emblem-img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      border-radius: 18px;
+      object-fit: contain;
     }
 
     .lock-badge {
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      background: rgba(255, 149, 0, 0.12);
-      border: 1px solid rgba(255, 149, 0, 0.35);
+      background: var(--primary-subtle);
+      border: 1px solid var(--border-highlight);
       color: var(--primary);
-      font-size: 10.5px;
+      font-size: 11px;
       font-weight: 800;
       padding: 3px 10px;
       border-radius: 12px;
-      letter-spacing: 0.5px;
       margin-bottom: 8px;
     }
 
     .lock-title {
-      font-size: 19px;
+      font-size: 20px;
       font-weight: 800;
-      color: #FFFFFF;
+      color: var(--text-primary);
       letter-spacing: -0.3px;
     }
     .lock-subtitle {
@@ -186,20 +219,20 @@
     .pin-dots-container {
       display: flex;
       gap: 14px;
-      margin-bottom: 28px;
+      margin-bottom: 26px;
     }
     .pin-dot {
       width: 14px;
       height: 14px;
       border-radius: 50%;
-      border: 2px solid rgba(134, 150, 160, 0.35);
+      border: 2px solid var(--border-light);
       background: transparent;
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .pin-dot.filled {
       background: var(--primary);
       border-color: var(--primary);
-      box-shadow: 0 0 14px rgba(255, 149, 0, 0.7);
+      box-shadow: 0 0 12px rgba(255, 106, 0, 0.6);
       transform: scale(1.15);
     }
 
@@ -213,9 +246,9 @@
     .key-btn {
       height: 58px;
       border-radius: 16px;
-      background: #111B21;
+      background: var(--bg-surface);
       border: 1px solid var(--border-light);
-      color: #FFFFFF;
+      color: var(--text-primary);
       font-size: 22px;
       font-weight: 700;
       font-family: var(--font-en);
@@ -224,6 +257,7 @@
       justify-content: center;
       cursor: pointer;
       transition: all 0.12s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
     }
     .key-btn:active {
       background: var(--bg-elevated);
@@ -233,17 +267,18 @@
     .key-btn.action-key {
       background: transparent;
       border-color: transparent;
+      box-shadow: none;
       font-size: 13.5px;
       font-family: var(--font-ar);
       color: var(--text-secondary);
     }
     .key-btn.action-key:active {
       color: var(--text-primary);
-      background: rgba(255,255,255,0.05);
+      background: var(--primary-subtle);
     }
 
     /* ==========================================================================
-       SCREEN 2: APP HEADER (WHATSAPP TOP BAR - 56PX)
+       SCREEN 2: APP HEADER (CLEAN WHATSAPP TOP BAR - 56PX)
        ========================================================================== */
     .app-header {
       height: 56px;
@@ -251,67 +286,79 @@
       align-items: center;
       justify-content: space-between;
       border-bottom: 1px solid var(--divider);
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
 
     .header-brand {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 9px;
     }
     .header-logo-wrap {
-      width: 36px;
-      height: 36px;
-      border-radius: 12px;
-      background: var(--bg-elevated);
-      border: 1px solid var(--border-light);
-      padding: 3px;
+      width: 38px;
+      height: 38px;
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
     }
     .header-logo-wrap img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      border-radius: 9px;
+      object-fit: contain;
     }
     .header-title-box {
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      gap: 6px;
     }
     .header-app-title {
-      font-size: 16px;
+      font-size: 16.5px;
       font-weight: 800;
-      color: #FFFFFF;
+      color: var(--text-primary);
       letter-spacing: -0.2px;
-      line-height: 1.2;
     }
-    .header-status-indicator {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 10.5px;
-      color: var(--teal);
-      font-weight: 600;
-      margin-top: 1px;
-    }
-    .header-status-dot {
-      width: 6.5px;
-      height: 6.5px;
-      border-radius: 50%;
-      background: var(--teal);
-      box-shadow: 0 0 6px var(--teal);
+    .header-master-badge {
+      font-size: 9.5px;
+      font-weight: 800;
+      color: var(--primary);
+      background: var(--primary-subtle);
+      border: 1px solid var(--border-highlight);
+      padding: 1.5px 6px;
+      border-radius: 6px;
+      font-family: var(--font-en);
+      letter-spacing: 0.5px;
     }
 
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
     }
+
+    /* Theme Toggle Button (Light/Dark Mode) */
+    .theme-toggle-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      color: var(--text-secondary);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+    .theme-toggle-btn:active {
+      transform: scale(0.92);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
     .header-primary-btn {
       height: 34px;
-      padding: 0 12px;
+      padding: 0 11px;
       border-radius: 17px;
       background: var(--primary-gradient);
       color: #FFFFFF;
@@ -319,9 +366,9 @@
       font-weight: 700;
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
       cursor: pointer;
-      box-shadow: 0 2px 10px rgba(255, 149, 0, 0.35);
+      box-shadow: 0 2px 8px rgba(255, 106, 0, 0.35);
       transition: transform 0.12s ease;
     }
     .header-primary-btn:active {
@@ -336,6 +383,7 @@
       cursor: pointer;
       background: var(--bg-elevated);
       padding: 1px;
+      flex-shrink: 0;
     }
     .header-avatar-btn img {
       width: 100%;
@@ -345,58 +393,7 @@
     }
 
     /* ==========================================================================
-       METRIC MATRIX (WHATSAPP STATUS GLANCE - 4 COMPACT CARDS)
-       ========================================================================== */
-    .metric-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-    .metric-card {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-light);
-      border-radius: 12px;
-      padding: 9px 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .metric-info {
-      display: flex;
-      flex-direction: column;
-    }
-    .metric-label {
-      font-size: 11px;
-      color: var(--text-secondary);
-      font-weight: 600;
-    }
-    .metric-value {
-      font-size: 16px;
-      font-weight: 800;
-      color: #FFFFFF;
-      font-family: var(--font-en);
-      letter-spacing: -0.3px;
-      margin-top: 1px;
-    }
-    .metric-sub {
-      font-size: 9.5px;
-      color: var(--teal);
-      font-weight: 600;
-    }
-    .metric-icon-box {
-      width: 32px;
-      height: 32px;
-      border-radius: 9px;
-      background: rgba(255, 255, 255, 0.04);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--primary);
-    }
-
-    /* ==========================================================================
-       WHATSAPP SEARCH & FILTER BAR
+       SEARCH & FILTER BAR (WHATSAPP CHAT FILTER STYLE)
        ========================================================================== */
     .search-box-wrap {
       position: relative;
@@ -411,7 +408,8 @@
       padding: 0 40px 0 14px;
       font-size: 13px;
       color: var(--text-primary);
-      transition: border-color 0.15s ease;
+      transition: border-color 0.15s ease, background 0.15s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
     }
     .search-input:focus {
       border-color: var(--primary);
@@ -429,14 +427,13 @@
       pointer-events: none;
     }
 
-    /* Filter Chips (WhatsApp Chat Filters) */
     .filter-chips-row {
       display: flex;
       align-items: center;
       gap: 6px;
       overflow-x: auto;
       scrollbar-width: none;
-      padding-bottom: 8px;
+      padding-bottom: 10px;
       margin-bottom: 4px;
     }
     .filter-chips-row::-webkit-scrollbar {
@@ -450,7 +447,7 @@
       border: 1px solid var(--border-light);
       color: var(--text-secondary);
       font-size: 11.5px;
-      font-weight: 600;
+      font-weight: 700;
       display: inline-flex;
       align-items: center;
       gap: 5px;
@@ -459,14 +456,13 @@
       transition: all 0.12s ease;
     }
     .filter-chip.active {
-      background: rgba(255, 149, 0, 0.15);
+      background: var(--primary-subtle);
       border-color: var(--primary);
       color: var(--primary);
-      font-weight: 700;
     }
 
     /* ==========================================================================
-       TAB PANES CONTAINER
+       TAB PANES
        ========================================================================== */
     .tab-pane {
       display: none;
@@ -481,7 +477,7 @@
     }
 
     /* ==========================================================================
-       TAB 1: RESTAURANTS LIST (WHATSAPP CONTACT ROW STYLE)
+       TAB 1: RESTAURANTS LIST (WHATSAPP ROW STYLE - CLEAN, NO MEAL COUNTS)
        ========================================================================== */
     .tenants-list-wrap {
       display: flex;
@@ -493,7 +489,7 @@
       background: var(--bg-surface);
       border: 1px solid var(--border-light);
       border-radius: 14px;
-      height: 72px;
+      height: 68px;
       padding: 0 12px;
       display: flex;
       align-items: center;
@@ -501,6 +497,7 @@
       cursor: pointer;
       position: relative;
       transition: background 0.12s ease, border-color 0.12s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
     }
     .tenant-row:active {
       background: var(--bg-elevated);
@@ -510,11 +507,10 @@
       border-color: rgba(239, 68, 68, 0.3);
     }
 
-    /* Avatar + Status Indicator */
     .tenant-avatar-box {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
       position: relative;
       flex-shrink: 0;
       background: var(--bg-elevated);
@@ -524,15 +520,15 @@
     .tenant-avatar-img {
       width: 100%;
       height: 100%;
-      border-radius: 11px;
+      border-radius: 9px;
       object-fit: cover;
     }
     .tenant-status-indicator {
       position: absolute;
       bottom: -2px;
       left: -2px;
-      width: 11px;
-      height: 11px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
       border: 2px solid var(--bg-surface);
       background: var(--teal);
@@ -541,7 +537,6 @@
       background: var(--red);
     }
 
-    /* Row Center Information */
     .tenant-info-box {
       flex: 1;
       min-width: 0;
@@ -559,14 +554,14 @@
     .tenant-name {
       font-size: 14.5px;
       font-weight: 700;
-      color: #FFFFFF;
+      color: var(--text-primary);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
     .tenant-tag {
       font-size: 10px;
-      font-weight: 700;
+      font-weight: 800;
       padding: 1.5px 6px;
       border-radius: 8px;
       white-space: nowrap;
@@ -591,15 +586,11 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .tenant-meta-row span {
-      flex-shrink: 0;
-    }
     .tenant-dot-divider {
       color: var(--text-muted);
       font-size: 8px;
     }
 
-    /* Row Quick Action Buttons */
     .tenant-actions-box {
       display: flex;
       align-items: center;
@@ -607,11 +598,11 @@
       flex-shrink: 0;
     }
     .row-btn-primary {
-      height: 34px;
+      height: 32px;
       padding: 0 10px;
       border-radius: 10px;
-      background: rgba(255, 149, 0, 0.12);
-      border: 1px solid rgba(255, 149, 0, 0.35);
+      background: var(--primary-subtle);
+      border: 1px solid var(--border-highlight);
       color: var(--primary);
       font-size: 11.5px;
       font-weight: 700;
@@ -626,10 +617,10 @@
       color: #FFFFFF;
     }
     .row-btn-icon {
-      width: 34px;
-      height: 34px;
+      width: 32px;
+      height: 32px;
       border-radius: 10px;
-      background: rgba(255, 255, 255, 0.04);
+      background: var(--bg-elevated);
       border: 1px solid var(--border-light);
       color: var(--text-secondary);
       display: inline-flex;
@@ -639,8 +630,8 @@
       transition: all 0.12s ease;
     }
     .row-btn-icon:active {
-      background: var(--bg-elevated);
-      color: #FFFFFF;
+      background: var(--primary-subtle);
+      color: var(--primary);
       border-color: var(--primary);
     }
 
@@ -676,7 +667,7 @@
       padding: 12px 16px calc(var(--safe-bottom) + 16px);
       transform: translateY(100%);
       transition: transform 0.28s cubic-bezier(0.1, 0.9, 0.2, 1);
-      box-shadow: 0 -8px 30px rgba(0,0,0,0.5);
+      box-shadow: 0 -8px 30px rgba(0,0,0,0.3);
     }
     .bottom-sheet.open {
       transform: translateY(0);
@@ -686,7 +677,7 @@
       width: 36px;
       height: 4.5px;
       border-radius: 3px;
-      background: rgba(255, 255, 255, 0.25);
+      background: var(--border-light);
       margin: 2px auto 14px;
     }
 
@@ -708,7 +699,7 @@
     .sheet-header-title {
       font-size: 15.5px;
       font-weight: 700;
-      color: #FFFFFF;
+      color: var(--text-primary);
     }
     .sheet-header-sub {
       font-size: 11.5px;
@@ -716,7 +707,6 @@
       margin-top: 2px;
     }
 
-    /* WhatsApp Action Rows inside Bottom Sheet */
     .sheet-action-list {
       display: flex;
       flex-direction: column;
@@ -735,7 +725,7 @@
       transition: background 0.12s ease;
     }
     .sheet-action-item:active {
-      background: rgba(255, 255, 255, 0.06);
+      background: var(--primary-subtle);
     }
     .sheet-action-item.danger {
       color: var(--red);
@@ -755,19 +745,7 @@
       color: var(--red);
     }
 
-    /* Standard Modal Dialog (Fallback/Edit Modals) */
-    .modal-box {
-      background: var(--bg-sheet);
-      border-radius: 18px;
-      border: 1px solid var(--border-light);
-      padding: 18px;
-      width: 100%;
-      max-width: 400px;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-
-    /* Form Fields inside Modals */
+    /* Modal Form Elements */
     .form-group {
       margin-bottom: 12px;
     }
@@ -792,7 +770,6 @@
       border-color: var(--primary);
     }
 
-    /* Primary Action Button inside Modals */
     .btn-submit {
       width: 100%;
       height: 44px;
@@ -807,7 +784,7 @@
       gap: 6px;
       cursor: pointer;
       margin-top: 14px;
-      box-shadow: 0 2px 10px rgba(255, 149, 0, 0.35);
+      box-shadow: 0 2px 10px rgba(255, 106, 0, 0.35);
     }
     .btn-submit:active {
       transform: scale(0.97);
@@ -824,32 +801,30 @@
       cursor: pointer;
     }
 
-    /* ==========================================================================
-       TAB 2: FINANCE & BILLING (WHATSAPP WALLET STYLE)
-       ========================================================================== */
-    .finance-overview-card {
-      background: linear-gradient(135deg, rgba(255,149,0,0.12) 0%, rgba(17,27,33,0.95) 100%);
-      border: 1px solid rgba(255, 149, 0, 0.35);
-      border-radius: 16px;
-      padding: 14px;
-      margin-bottom: 12px;
+    /* Toggle Switch Row in Permissions Modal */
+    .module-toggle-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      background: var(--bg-input);
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border-light);
     }
-    .finance-title {
-      font-size: 12px;
+    .module-toggle-title {
+      font-weight: 700;
+      color: var(--text-primary);
+      font-size: 13px;
+    }
+    .module-toggle-desc {
+      font-size: 11px;
       color: var(--text-secondary);
-      font-weight: 600;
-    }
-    .finance-mrr {
-      font-size: 22px;
-      font-weight: 800;
-      color: #FFFFFF;
-      font-family: var(--font-en);
-      margin-top: 2px;
+      margin-top: 1px;
     }
 
+    /* ==========================================================================
+       TAB 2: FINANCE & BILLING
+       ========================================================================== */
     .bill-row {
       background: var(--bg-surface);
       border: 1px solid var(--border-light);
@@ -859,6 +834,7 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
     }
     .bill-row-top {
       display: flex;
@@ -868,7 +844,7 @@
     .bill-name {
       font-size: 14.5px;
       font-weight: 700;
-      color: #FFFFFF;
+      color: var(--text-primary);
     }
     .bill-price {
       font-size: 14.5px;
@@ -899,8 +875,8 @@
       height: 36px;
       padding: 0 12px;
       border-radius: 10px;
-      background: rgba(0, 168, 132, 0.15);
-      border: 1px solid rgba(0, 168, 132, 0.35);
+      background: var(--teal-dim);
+      border: 1px solid var(--teal);
       color: var(--teal);
       font-size: 12px;
       font-weight: 700;
@@ -923,6 +899,7 @@
       display: flex;
       align-items: center;
       gap: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
     }
     .watchdog-icon-circle {
       width: 40px;
@@ -937,14 +914,10 @@
       background: var(--teal-dim);
       color: var(--teal);
     }
-    .watchdog-icon-circle.amber {
-      background: var(--amber-dim);
-      color: var(--amber);
-    }
     .watchdog-title {
       font-size: 13.5px;
       font-weight: 700;
-      color: #FFFFFF;
+      color: var(--text-primary);
     }
     .watchdog-sub {
       font-size: 11.5px;
@@ -960,11 +933,12 @@
       border: 1px solid var(--border-light);
       border-radius: 16px;
       padding: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
     }
     .broadcast-header {
       font-size: 14.5px;
       font-weight: 700;
-      color: #FFFFFF;
+      color: var(--text-primary);
       margin-bottom: 4px;
     }
     .broadcast-sub {
@@ -974,7 +948,7 @@
     }
 
     /* ==========================================================================
-       TAB 5: AUDIT LOGS (WHATSAPP CHAT LOG STYLE)
+       TAB 5: AUDIT LOGS
        ========================================================================== */
     .audit-list-wrap {
       display: flex;
@@ -986,6 +960,7 @@
       border: 1px solid var(--border-light);
       border-radius: 12px;
       padding: 10px 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
     }
     .audit-top {
       display: flex;
@@ -998,7 +973,7 @@
       font-weight: 800;
       font-family: var(--font-en);
       color: var(--primary);
-      background: rgba(255, 149, 0, 0.12);
+      background: var(--primary-subtle);
       padding: 2px 6px;
       border-radius: 6px;
     }
@@ -1009,7 +984,7 @@
     .audit-actor {
       font-size: 12px;
       font-weight: 700;
-      color: #FFFFFF;
+      color: var(--text-primary);
     }
     .audit-desc {
       font-size: 12px;
@@ -1018,22 +993,24 @@
     }
 
     /* ==========================================================================
-       BOTTOM NAVIGATION BAR (WHATSAPP STYLE - 58PX)
+       BOTTOM NAVIGATION BAR (PROMINENT, BOLD & CRYSTAL CLEAR)
        ========================================================================== */
     .bottom-nav-bar {
       position: fixed;
       bottom: 0;
       left: 0;
       right: 0;
-      height: 58px;
+      height: 60px;
       z-index: 1000;
-      background: rgba(11, 16, 21, 0.96);
+      background: var(--nav-bg);
       backdrop-filter: blur(20px);
       border-top: 1px solid var(--border-light);
       display: flex;
       align-items: center;
       justify-content: space-around;
       padding-bottom: var(--safe-bottom);
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+      transition: background 0.2s ease;
     }
 
     .nav-tab-item {
@@ -1044,34 +1021,36 @@
       align-items: center;
       justify-content: center;
       gap: 3px;
-      color: var(--text-muted);
-      padding: 6px 12px;
+      color: var(--nav-text);
+      padding: 6px 14px;
       cursor: pointer;
       flex: 1;
-      transition: color 0.12s ease;
+      border-radius: 12px;
+      transition: all 0.15s ease;
     }
     .nav-tab-item.active {
-      color: var(--primary);
-      font-weight: 700;
+      color: var(--nav-active-text);
+      background: var(--nav-active-pill);
     }
-    .nav-tab-item.active .nav-tab-icon {
-      transform: scale(1.08);
-      color: var(--primary);
+    .nav-tab-item.active .nav-tab-label {
+      font-weight: 800;
+      color: var(--nav-active-text);
     }
     .nav-tab-icon {
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
       display: flex;
       align-items: center;
       justify-content: center;
       transition: transform 0.15s ease;
     }
     .nav-tab-label {
-      font-size: 10.5px;
+      font-size: 11px;
+      font-weight: 600;
       letter-spacing: -0.2px;
     }
 
-    /* Toast Notification */
+    /* Toast Notifications */
     #toast-container {
       position: fixed;
       bottom: 74px;
@@ -1085,14 +1064,14 @@
       pointer-events: none;
     }
     .toast-msg {
-      background: #1F2C34;
+      background: var(--bg-surface);
       border: 1px solid var(--border-light);
-      color: #FFFFFF;
+      color: var(--text-primary);
       font-size: 12.5px;
-      font-weight: 600;
+      font-weight: 700;
       padding: 9px 16px;
       border-radius: 20px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
       display: flex;
       align-items: center;
       gap: 8px;
@@ -1107,11 +1086,11 @@
 <body>
 
   <!-- ========================================================================
-       SCREEN 1: LUXURY FOUNDER PIN LOCK SCREEN
+       SCREEN 1: LUXURY PIN LOCK SCREEN (OFFICIAL HARPY EMBLEM)
        ======================================================================== -->
   <div id="lock-screen">
     <div class="lock-emblem-wrap">
-      <img src="assets/brand/harpy_master_badge.png" class="lock-emblem-img" alt="Harpy Master">
+      <img src="assets/brand/harpy_order_emblem_transparent.png" class="lock-emblem-img" alt="Harpy Order">
     </div>
 
     <div class="lock-badge">
@@ -1121,7 +1100,7 @@
       <span>القيادة المركزية</span>
     </div>
 
-    <h1 class="lock-title">هاربي ماستر</h1>
+    <h1 class="lock-title">Harpy Order</h1>
     <p class="lock-subtitle">منظومة الإدارة المركزية والتحكم للمؤسس</p>
 
     <div class="pin-dots-container">
@@ -1160,23 +1139,27 @@
     <header class="app-header">
       <div class="header-brand">
         <div class="header-logo-wrap">
-          <img src="assets/brand/harpy_master_badge.png" alt="Logo">
+          <img src="assets/brand/harpy_order_emblem_transparent.png" alt="Harpy Order Logo">
         </div>
         <div class="header-title-box">
-          <span class="header-app-title">هاربي ماستر</span>
-          <span class="header-status-indicator">
-            <span class="header-status-dot"></span>
-            <span>متصل بالسيرفر الحي</span>
-          </span>
+          <span class="header-app-title">Harpy Order</span>
+          <span class="header-master-badge">MASTER</span>
         </div>
       </div>
 
       <div class="header-actions">
+        <!-- Theme Toggle Button (Light/Dark Mode) -->
+        <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="MasterApp.toggleTheme()" title="تبديل الإضاءة (نهار / ليل)">
+          <span class="svg-icon" id="theme-icon" style="width:16px;height:16px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+          </span>
+        </button>
+
         <button class="header-primary-btn" onclick="MasterApp.openAddTenantModal()">
           <span class="svg-icon" style="width:14px;height:14px;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
           </span>
-          <span>مطعم جديد</span>
+          <span>مطعم</span>
         </button>
 
         <div class="header-avatar-btn" onclick="MasterApp.openFounderMenu()" title="إعدادات المؤسس">
@@ -1184,61 +1167,6 @@
         </div>
       </div>
     </header>
-
-    <!-- Metric Matrix (4 Compact Glance Cards) -->
-    <section class="metric-grid">
-      <div class="metric-card">
-        <div class="metric-info">
-          <span class="metric-label">الدخل الشهري للمنصة</span>
-          <span class="metric-value" id="stat-mrr">3,500</span>
-          <span class="metric-sub">ج.م / شهرياً</span>
-        </div>
-        <div class="metric-icon-box">
-          <span class="svg-icon" style="width:18px;height:18px;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="2"></circle><path d="M6 12h.01M18 12h.01"></path></svg>
-          </span>
-        </div>
-      </div>
-
-      <div class="metric-card">
-        <div class="metric-info">
-          <span class="metric-label">المطاعم النشطة</span>
-          <span class="metric-value" id="stat-active-count">2</span>
-          <span class="metric-sub">100% نشط ومعتمد</span>
-        </div>
-        <div class="metric-icon-box">
-          <span class="svg-icon" style="width:18px;height:18px;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-          </span>
-        </div>
-      </div>
-
-      <div class="metric-card">
-        <div class="metric-info">
-          <span class="metric-label">كفاءة الخوادم</span>
-          <span class="metric-value">99.9%</span>
-          <span class="metric-sub">RTDB Online</span>
-        </div>
-        <div class="metric-icon-box">
-          <span class="svg-icon" style="width:18px;height:18px;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
-          </span>
-        </div>
-      </div>
-
-      <div class="metric-card">
-        <div class="metric-info">
-          <span class="metric-label">إجمالي الوجبات</span>
-          <span class="metric-value" id="stat-meals-count">124</span>
-          <span class="metric-sub">قوائم الطعام</span>
-        </div>
-        <div class="metric-icon-box">
-          <span class="svg-icon" style="width:18px;height:18px;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-          </span>
-        </div>
-      </div>
-    </section>
 
     <!-- Search & Filter Bar (Only visible on Tenants tab) -->
     <div id="tenants-search-section">
@@ -1272,43 +1200,20 @@
     <!-- PANE 1: RESTAURANTS LIST (WHATSAPP ROWS) -->
     <main id="pane-tenants" class="tab-pane active">
       <div class="tenants-list-wrap" id="tenants-container">
-        <!-- Rendered dynamically via MasterApp.renderUI() -->
+        <!-- Rendered dynamically -->
       </div>
     </main>
 
     <!-- PANE 2: FINANCE & BILLING -->
     <main id="pane-finance" class="tab-pane">
-      <div class="finance-overview-card">
-        <div>
-          <div class="finance-title">إجمالي الدخل الشهري المتكرر (MRR)</div>
-          <div class="finance-mrr" id="finance-mrr-val">3,500 ج.م</div>
-        </div>
-        <div style="text-align:left;">
-          <div class="finance-title">اشتراكات مستحقة</div>
-          <div style="font-size:16px; font-weight:800; color:var(--teal);" id="finance-due-count">0 مطاعم</div>
-        </div>
-      </div>
-
-      <div style="font-size:13px; font-weight:700; color:#FFFFFF; margin-bottom:8px;">كشف تحصيل الاشتراكات:</div>
+      <div style="font-size:13.5px; font-weight:700; color:var(--text-primary); margin-bottom:10px;">كشف تحصيل الاشتراكات وتجديد التراخيص:</div>
       <div id="finance-list-container">
         <!-- Rendered dynamically -->
       </div>
     </main>
 
-    <!-- PANE 3: WATCHDOG & HEALTH -->
+    <!-- PANE 3: WATCHDOG & SECURITY RADAR -->
     <main id="pane-watchdog" class="tab-pane">
-      <div class="watchdog-card">
-        <div class="watchdog-icon-circle teal">
-          <span class="svg-icon" style="width:20px;height:20px;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
-          </span>
-        </div>
-        <div>
-          <div class="watchdog-title">سيرفرات المنصة وقاعدة البيانات متصلة بنسبة 100%</div>
-          <div class="watchdog-sub">اتصال RTDB مباشر ومشفر، زمن الاستجابة الفعلي: ~42ms</div>
-        </div>
-      </div>
-
       <div class="watchdog-card">
         <div class="watchdog-icon-circle teal">
           <span class="svg-icon" style="width:20px;height:20px;">
@@ -1316,8 +1221,8 @@
           </span>
         </div>
         <div>
-          <div class="watchdog-title">جميع تراخيص المطاعم سارية ومستقرة</div>
-          <div class="watchdog-sub" id="watchdog-exp-desc">لا توجد مطاعم أوشك اشتراكها على الانتهاء في الأيام الـ 7 القادمة.</div>
+          <div class="watchdog-title">رادار تراخيص المطاعم</div>
+          <div class="watchdog-sub" id="watchdog-exp-desc">جميع التراخيص سارية، ولا توجد مطاعم أوشك اشتراكها على الانتهاء في الأيام الـ 7 القادمة.</div>
         </div>
       </div>
 
@@ -1328,7 +1233,7 @@
           </span>
         </div>
         <div>
-          <div class="watchdog-title">لا توجد مطاعم مجمدة حالياً</div>
+          <div class="watchdog-title">حالة تشغيل المطاعم</div>
           <div class="watchdog-sub">كافة المطاعم المعتمدة تعمل بصورة طبيعية ومفتوحة للجمهور.</div>
         </div>
       </div>
@@ -1369,7 +1274,7 @@
     <!-- PANE 5: AUDIT LOGS -->
     <main id="pane-audit" class="tab-pane">
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
-        <span style="font-size:13.5px; font-weight:700; color:#FFFFFF;">سجل العمليات والأمان السحابي:</span>
+        <span style="font-size:13.5px; font-weight:700; color:var(--text-primary);">سجل العمليات والأمان:</span>
         <button class="filter-chip" onclick="MasterApp.loadAuditLogs()" style="height:26px; padding:0 8px;">
           <span class="svg-icon" style="width:12px;height:12px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></span>
           <span>تحديث</span>
@@ -1391,7 +1296,7 @@
     <div class="sheet-drag-handle"></div>
 
     <div class="sheet-header">
-      <img src="assets/brand/harpy_master_badge.png" class="sheet-header-avatar" id="sheet-avatar" alt="Avatar">
+      <img src="assets/brand/harpy_order_emblem_transparent.png" class="sheet-header-avatar" id="sheet-avatar" alt="Avatar">
       <div>
         <div class="sheet-header-title" id="sheet-title">اسم المطعم</div>
         <div class="sheet-header-sub" id="sheet-sub">تفاصيل المطعم</div>
@@ -1417,7 +1322,7 @@
         <span class="sheet-action-icon svg-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
         </span>
-        <span>تعديل الميزات والموديلات (Permissions)</span>
+        <span>التحكم في الميزات والموديلات (10 خيارات)</span>
       </div>
 
       <div class="sheet-action-item" onclick="MasterApp.actionSheetOpenPayment()">
@@ -1465,7 +1370,7 @@
   </div>
 
   <!-- ========================================================================
-       MODALS: ADD TENANT / PERMISSIONS / PAYMENT / FOUNDER PIN
+       MODALS: ADD TENANT / 10-MODULE PERMISSIONS / PAYMENT / FOUNDER PIN
        ======================================================================== -->
   <!-- MODAL: ADD NEW RESTAURANT -->
   <div class="sheet-backdrop" id="modal-add-tenant-backdrop" onclick="MasterApp.closeAddTenantModal()"></div>
@@ -1492,14 +1397,8 @@
       </div>
 
       <div class="form-group">
-        <label class="form-label">قالب المنيو المبدئي</label>
-        <select class="form-select" id="new-tenant-template">
-          <option value="burger">برجر وفاست فود (Burger & Fastfood)</option>
-          <option value="pizza">بيتزا وفطائر (Pizza & Italian)</option>
-          <option value="oriental">مشويات ومأكولات شرقية (Grill & Oriental)</option>
-          <option value="cafe">كافيه ومشروبات (Café & Coffee)</option>
-          <option value="empty">منيو فارغ تماماً</option>
-        </select>
+        <label class="form-label">قيمة الاشتراك الشهري (ج.م)</label>
+        <input type="number" class="form-input" id="new-tenant-price" value="1500" required style="font-family:var(--font-en); text-align:left;">
       </div>
 
       <div class="form-group">
@@ -1512,11 +1411,6 @@
         </select>
       </div>
 
-      <div class="form-group">
-        <label class="form-label">قيمة الاشتراك الشهري (ج.م)</label>
-        <input type="number" class="form-input" id="new-tenant-price" value="1500" required style="font-family:var(--font-en); text-align:left;">
-      </div>
-
       <button type="submit" class="btn-submit">
         <span>تأسيس المطعم وإطلاقه فوراً</span>
       </button>
@@ -1524,65 +1418,107 @@
     </form>
   </div>
 
-  <!-- MODAL: MODULES & PERMISSIONS -->
+  <!-- MODAL: GRANULAR 10-MODULE PERMISSIONS -->
   <div class="sheet-backdrop" id="modal-modules-backdrop" onclick="MasterApp.closeModulesModal()"></div>
   <div class="bottom-sheet" id="modal-modules">
     <div class="sheet-drag-handle"></div>
     <div class="sheet-header">
-      <div class="sheet-header-title" id="modules-modal-title">صلاحيات الميزات والموديلات</div>
+      <div class="sheet-header-title" id="modules-modal-title">التحكم في ميزات وأوبشن النظام</div>
     </div>
 
     <div style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">
       الميزة التي تلغي تفعيلها ستختفي تماماً وبدون أي أثر من لوحة إدارة المطعم وشاشات الزبائن.
     </div>
 
-    <div style="display:flex; flex-direction:column; gap:10px;">
-      <label style="display:flex; align-items:center; justify-content:space-between; background:var(--bg-input); padding:10px 14px; border-radius:12px; border:1px solid var(--border-light);">
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <!-- 1. POS -->
+      <label class="module-toggle-row">
         <div>
-          <div style="font-weight:700; color:#FFFFFF;">الكاشير السريع (POS Terminal)</div>
-          <div style="font-size:11px; color:var(--text-secondary);">لوحة كاشير المطبخ وتوزيع الطاولات</div>
+          <div class="module-toggle-title">1. الكاشير ونقاط البيع (POS Terminal)</div>
+          <div class="module-toggle-desc">لوحة كاشير المطبخ وتوزيع الطاولات السريع</div>
         </div>
         <input type="checkbox" id="mod-toggle-pos" style="width:20px; height:20px; accent-color:var(--primary);">
       </label>
 
-      <label style="display:flex; align-items:center; justify-content:space-between; background:var(--bg-input); padding:10px 14px; border-radius:12px; border:1px solid var(--border-light);">
+      <!-- 2. Inventory -->
+      <label class="module-toggle-row">
         <div>
-          <div style="font-weight:700; color:#FFFFFF;">إدارة المخازن والمقادير (Inventory)</div>
-          <div style="font-size:11px; color:var(--text-secondary);">ربط الوجبات بالمخزون وخصم المكونات</div>
+          <div class="module-toggle-title">2. إدارة المخازن والمقادير (Inventory & Recipes)</div>
+          <div class="module-toggle-desc">خصم المكونات وتكاليف الوجبات والموردين</div>
         </div>
         <input type="checkbox" id="mod-toggle-inventory" style="width:20px; height:20px; accent-color:var(--primary);">
       </label>
 
-      <label style="display:flex; align-items:center; justify-content:space-between; background:var(--bg-input); padding:10px 14px; border-radius:12px; border:1px solid var(--border-light);">
+      <!-- 3. Stories -->
+      <label class="module-toggle-row">
         <div>
-          <div style="font-weight:700; color:#FFFFFF;">شريط القصص والعروض (Stories)</div>
-          <div style="font-size:11px; color:var(--text-secondary);">قصص إنستجرام أعلى المنيو للزبائن</div>
+          <div class="module-toggle-title">3. شريط القصص والعروض (Stories)</div>
+          <div class="module-toggle-desc">قصص إنستجرام أعلى المنيو للزبائن</div>
         </div>
         <input type="checkbox" id="mod-toggle-stories" style="width:20px; height:20px; accent-color:var(--primary);">
       </label>
 
-      <label style="display:flex; align-items:center; justify-content:space-between; background:var(--bg-input); padding:10px 14px; border-radius:12px; border:1px solid var(--border-light);">
+      <!-- 4. Smart Tables -->
+      <label class="module-toggle-row">
         <div>
-          <div style="font-weight:700; color:#FFFFFF;">الطاولات الذكية (Smart Tables)</div>
-          <div style="font-size:11px; color:var(--text-secondary);">طلب الصالة وإدخال رقم الطاولة</div>
+          <div class="module-toggle-title">4. الطاولات الذكية والصالة (Smart Tables / QR)</div>
+          <div class="module-toggle-desc">طلب الزبائن من الصالة برقم الطاولة</div>
         </div>
         <input type="checkbox" id="mod-toggle-tables" style="width:20px; height:20px; accent-color:var(--primary);">
       </label>
 
-      <label style="display:flex; align-items:center; justify-content:space-between; background:var(--bg-input); padding:10px 14px; border-radius:12px; border:1px solid var(--border-light);">
+      <!-- 5. Delivery -->
+      <label class="module-toggle-row">
         <div>
-          <div style="font-weight:700; color:#FFFFFF;">خدمة التوصيل (Delivery Engine)</div>
-          <div style="font-size:11px; color:var(--text-secondary);">حساب رسوم ومناطق التوصيل</div>
+          <div class="module-toggle-title">5. خدمة التوصيل للمنازل (Home Delivery)</div>
+          <div class="module-toggle-desc">حساب رسوم ومناطق التوصيل الدليفري</div>
         </div>
         <input type="checkbox" id="mod-toggle-delivery" style="width:20px; height:20px; accent-color:var(--primary);">
       </label>
 
-      <label style="display:flex; align-items:center; justify-content:space-between; background:var(--bg-input); padding:10px 14px; border-radius:12px; border:1px solid var(--border-light);">
+      <!-- 6. Takeaway -->
+      <label class="module-toggle-row">
         <div>
-          <div style="font-weight:700; color:#FFFFFF;">الدفع الإلكتروني (Online Payments)</div>
-          <div style="font-size:11px; color:var(--text-secondary);">المحافظ الإلكترونية والبطاقات</div>
+          <div class="module-toggle-title">6. الاستلام من الفرع (Takeaway / Pickup)</div>
+          <div class="module-toggle-desc">تجهيز طلبات الاستلام السريع للعملاء</div>
+        </div>
+        <input type="checkbox" id="mod-toggle-takeaway" style="width:20px; height:20px; accent-color:var(--primary);">
+      </label>
+
+      <!-- 7. Online Payment -->
+      <label class="module-toggle-row">
+        <div>
+          <div class="module-toggle-title">7. الدفع الإلكتروني والمحافظ (Online Payments)</div>
+          <div class="module-toggle-desc">فودافون كاش، إنستاباي، وبطاقات الدفع</div>
         </div>
         <input type="checkbox" id="mod-toggle-payments" style="width:20px; height:20px; accent-color:var(--primary);">
+      </label>
+
+      <!-- 8. Archive & Reports -->
+      <label class="module-toggle-row">
+        <div>
+          <div class="module-toggle-title">8. أرشيف المبيعات والتقارير (Sales Archive)</div>
+          <div class="module-toggle-desc">التقارير اليومية وتاريخ الفواتير السابقة</div>
+        </div>
+        <input type="checkbox" id="mod-toggle-archive" style="width:20px; height:20px; accent-color:var(--primary);">
+      </label>
+
+      <!-- 9. Coupons -->
+      <label class="module-toggle-row">
+        <div>
+          <div class="module-toggle-title">9. كوبونات الخصم والعروض (Coupons)</div>
+          <div class="module-toggle-desc">تفعيل أكواد الخصم والبروموكود بالسلة</div>
+        </div>
+        <input type="checkbox" id="mod-toggle-coupons" style="width:20px; height:20px; accent-color:var(--primary);">
+      </label>
+
+      <!-- 10. Reviews -->
+      <label class="module-toggle-row">
+        <div>
+          <div class="module-toggle-title">10. تقييمات وآراء العملاء (Reviews)</div>
+          <div class="module-toggle-desc">نظام تقييم الأصناف وجودة الخدمة</div>
+        </div>
+        <input type="checkbox" id="mod-toggle-reviews" style="width:20px; height:20px; accent-color:var(--primary);">
       </label>
     </div>
 
@@ -1652,40 +1588,40 @@
   </div>
 
   <!-- ========================================================================
-       SCREEN 3: WHATSAPP-STYLE BOTTOM NAVIGATION BAR (FIXED 58PX)
+       SCREEN 3: PROMINENT & CRYSTAL CLEAR BOTTOM NAVIGATION BAR (60PX)
        ======================================================================== -->
   <nav class="bottom-nav-bar">
     <button class="nav-tab-item active" data-tab="tenants" onclick="MasterApp.switchTab('tenants')">
       <span class="nav-tab-icon svg-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
       </span>
       <span class="nav-tab-label">المطاعم</span>
     </button>
 
     <button class="nav-tab-item" data-tab="finance" onclick="MasterApp.switchTab('finance')">
       <span class="nav-tab-icon svg-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="2"></circle><path d="M6 12h.01M18 12h.01"></path></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="2"></circle><path d="M6 12h.01M18 12h.01"></path></svg>
       </span>
       <span class="nav-tab-label">الاشتراكات</span>
     </button>
 
     <button class="nav-tab-item" data-tab="watchdog" onclick="MasterApp.switchTab('watchdog')">
       <span class="nav-tab-icon svg-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
       </span>
-      <span class="nav-tab-label">المراقبة</span>
+      <span class="nav-tab-label">الأمان</span>
     </button>
 
     <button class="nav-tab-item" data-tab="broadcast" onclick="MasterApp.switchTab('broadcast')">
       <span class="nav-tab-icon svg-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"></circle><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"></path></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2"></circle><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"></path></svg>
       </span>
       <span class="nav-tab-label">الإذاعة</span>
     </button>
 
     <button class="nav-tab-item" data-tab="audit" onclick="MasterApp.switchTab('audit')">
       <span class="nav-tab-icon svg-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
       </span>
       <span class="nav-tab-label">السجل</span>
     </button>
@@ -1719,6 +1655,7 @@
       currentPin: '',
       isUnlocked: false,
       currentTab: 'tenants',
+      currentTheme: localStorage.getItem('harpy_master_theme') || 'dark',
       tenants: [],
       activeFilter: 'all',
       searchQuery: '',
@@ -1727,11 +1664,40 @@
       payingSlug: null,
 
       init() {
+        this.applyTheme(this.currentTheme);
+
         const isSessionUnlocked = sessionStorage.getItem('harpy_master_unlocked') === 'true';
         if (isSessionUnlocked) {
           this.unlockScreen();
         }
         this.loadAllData();
+      },
+
+      // --- Theme Logic (Light/Dark Mode) ---
+      toggleTheme() {
+        const next = this.currentTheme === 'dark' ? 'light' : 'dark';
+        this.applyTheme(next);
+      },
+      applyTheme(theme) {
+        this.currentTheme = theme;
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('harpy_master_theme', theme);
+
+        const themeMeta = document.querySelector('meta[name="theme-color"]');
+        if (themeMeta) {
+          themeMeta.setAttribute('content', theme === 'dark' ? '#0F1A2E' : '#F4F1EC');
+        }
+
+        const iconContainer = document.getElementById('theme-icon');
+        if (iconContainer) {
+          if (theme === 'dark') {
+            // Moon icon (currently in dark, click to go light)
+            iconContainer.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
+          } else {
+            // Sun icon (currently in light, click to go dark)
+            iconContainer.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+          }
+        }
       },
 
       // --- PIN Logic ---
@@ -1832,15 +1798,6 @@
           for (const [slug, lic] of Object.entries(licenses)) {
             const rest = restaurants[slug] || {};
             const settings = rest.settings || {};
-            const categories = rest.categories || {};
-            const products = rest.products || {};
-
-            let mealsCount = 0;
-            if (Array.isArray(products)) {
-              mealsCount = products.filter(Boolean).length;
-            } else if (typeof products === 'object') {
-              mealsCount = Object.keys(products).length;
-            }
 
             const expTimestamp = parseExpiry(lic.expiresAt || lic.validUntil);
             const diffDays = Math.ceil((expTimestamp - now) / (1000 * 60 * 60 * 24));
@@ -1862,15 +1819,18 @@
               expTimestamp,
               expiryText,
               diffDays,
-              mealsCount,
-              logo: settings.logoUrl || settings.logo || 'assets/brand/harpy_master_badge.png',
+              logo: settings.logoUrl || settings.logo || 'assets/brand/harpy_order_emblem_transparent.png',
               modules: settings.modules || lic.modules || {
                 pos: true,
                 inventory: true,
                 stories: true,
                 smartTables: true,
                 delivery: true,
-                onlinePayment: true
+                takeaway: true,
+                onlinePayment: true,
+                archive: true,
+                coupons: true,
+                reviews: true
               }
             });
           }
@@ -1885,27 +1845,11 @@
         }
       },
 
-      // --- Render UI (WhatsApp Contact Rows) ---
+      // --- Render UI (Clean Restaurant Rows - No Meal Counts) ---
       renderUI() {
-        // Summary Stats
         let activeCount = 0;
-        let totalMrr = 0;
-        let totalMeals = 0;
+        this.tenants.forEach(t => { if (t.active) activeCount++; });
 
-        this.tenants.forEach(t => {
-          if (t.active) activeCount++;
-          totalMrr += Number(t.monthlyPrice) || 0;
-          totalMeals += Number(t.mealsCount) || 0;
-        });
-
-        const statMrr = document.getElementById('stat-mrr');
-        const statActive = document.getElementById('stat-active-count');
-        const statMeals = document.getElementById('stat-meals-count');
-        if (statMrr) statMrr.textContent = totalMrr.toLocaleString('en-US');
-        if (statActive) statActive.textContent = `${activeCount} من ${this.tenants.length}`;
-        if (statMeals) statMeals.textContent = totalMeals;
-
-        // Filter Counts
         const countAll = document.getElementById('chip-count-all');
         const countActive = document.getElementById('chip-count-active');
         const countFrozen = document.getElementById('chip-count-frozen');
@@ -1913,7 +1857,6 @@
         if (countActive) countActive.textContent = `(${activeCount})`;
         if (countFrozen) countFrozen.textContent = `(${this.tenants.length - activeCount})`;
 
-        // Filter & Search
         let filtered = this.tenants.filter(t => {
           if (this.activeFilter === 'active') return t.active;
           if (this.activeFilter === 'frozen') return !t.active;
@@ -1938,7 +1881,7 @@
               <div class="svg-icon" style="width:36px; height:36px; margin:0 auto 10px; color:var(--text-muted);">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
               </div>
-              <div style="font-size:13.5px; font-weight:700; color:#FFFFFF;">لا توجد نتائج مطابقة</div>
+              <div style="font-size:13.5px; font-weight:700; color:var(--text-primary);">لا توجد نتائج مطابقة</div>
               <div style="font-size:12px; margin-top:2px;">جرب تغيير كلمة البحث أو الفلتر</div>
             </div>
           `;
@@ -1950,7 +1893,7 @@
           return `
             <div class="tenant-row ${!t.active ? 'is-frozen' : ''}" onclick="MasterApp.openActionSheet('${t.slug}')">
               <div class="tenant-avatar-box">
-                <img class="tenant-avatar-img" src="${t.logo}" alt="${t.name}" onerror="this.src='assets/brand/harpy_master_badge.png'">
+                <img class="tenant-avatar-img" src="${t.logo}" alt="${t.name}" onerror="this.src='assets/brand/harpy_order_emblem_transparent.png'">
                 <span class="tenant-status-indicator ${!t.active ? 'frozen' : ''}"></span>
               </div>
 
@@ -1961,11 +1904,11 @@
                 </div>
                 
                 <div class="tenant-meta-row">
-                  <span style="font-family:var(--font-en); font-weight:700; color:var(--primary);">${(t.monthlyPrice || 0).toLocaleString()} ج.م</span>
+                  <span style="font-family:var(--font-en); font-weight:700; color:var(--primary);">${(t.monthlyPrice || 0).toLocaleString()} ج.م/ش</span>
                   <span class="tenant-dot-divider">•</span>
                   <span style="${isExpiring ? 'color:var(--amber); font-weight:700;' : ''}">${t.expiryText}</span>
                   <span class="tenant-dot-divider">•</span>
-                  <span>${t.mealsCount} وجبة</span>
+                  <span style="font-family:var(--font-en); font-size:10.5px;">${t.slug}</span>
                 </div>
               </div>
 
@@ -1993,7 +1936,7 @@
         if (!t) return;
         this.activeSheetTenant = t;
 
-        document.getElementById('sheet-avatar').src = t.logo || 'assets/brand/harpy_master_badge.png';
+        document.getElementById('sheet-avatar').src = t.logo || 'assets/brand/harpy_order_emblem_transparent.png';
         document.getElementById('sheet-title').textContent = t.name;
         document.getElementById('sheet-sub').textContent = `${t.slug} • ${(t.monthlyPrice || 0).toLocaleString()} ج.م/ش • ${t.expiryText}`;
         document.getElementById('sheet-freeze-label').textContent = t.active ? 'تجميد / إيقاف المطعم' : 'إلغاء التجميد وتنشيط المطعم';
@@ -2007,7 +1950,6 @@
         this.activeSheetTenant = null;
       },
 
-      // Sheet Action Handlers
       actionSheetLaunchAdmin() {
         if (!this.activeSheetTenant) return;
         const slug = this.activeSheetTenant.slug;
@@ -2038,7 +1980,7 @@
         this.closeActionSheet();
         let phone = (t.phone || '').replace(/[^0-9]/g, '');
         if (phone.startsWith('01')) phone = '2' + phone;
-        const msg = encodeURIComponent(`مرحباً مطعم ${t.name}، نود التذكير بخصوص ترخيص المنصة الخاص بكم على Harpy Menu.`);
+        const msg = encodeURIComponent(`مرحباً مطعم ${t.name}، نود التذكير بخصوص ترخيص المنصة الخاص بكم على Harpy Order.`);
         window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
       },
       actionSheetBackup() {
@@ -2082,7 +2024,6 @@
         window.open(`admin/?m=${slug}`, '_blank');
       },
 
-      // --- Toggle Tenant Freeze/Active ---
       async toggleStatus(slug, activate) {
         const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
         try {
@@ -2147,7 +2088,7 @@
         }
       },
 
-      // --- Modules Modal ---
+      // --- 10-Module Permissions Modal ---
       openModulesModal(slug) {
         const t = this.tenants.find(x => x.slug === slug);
         if (!t) return;
@@ -2160,7 +2101,11 @@
         document.getElementById('mod-toggle-stories').checked = mods.stories !== false;
         document.getElementById('mod-toggle-tables').checked = mods.smartTables !== false;
         document.getElementById('mod-toggle-delivery').checked = mods.delivery !== false;
+        document.getElementById('mod-toggle-takeaway').checked = mods.takeaway !== false;
         document.getElementById('mod-toggle-payments').checked = mods.onlinePayment !== false;
+        document.getElementById('mod-toggle-archive').checked = mods.archive !== false;
+        document.getElementById('mod-toggle-coupons').checked = mods.coupons !== false;
+        document.getElementById('mod-toggle-reviews').checked = mods.reviews !== false;
 
         document.getElementById('modal-modules').classList.add('open');
         document.getElementById('modal-modules-backdrop').classList.add('open');
@@ -2179,7 +2124,11 @@
           stories: document.getElementById('mod-toggle-stories').checked,
           smartTables: document.getElementById('mod-toggle-tables').checked,
           delivery: document.getElementById('mod-toggle-delivery').checked,
-          onlinePayment: document.getElementById('mod-toggle-payments').checked
+          takeaway: document.getElementById('mod-toggle-takeaway').checked,
+          onlinePayment: document.getElementById('mod-toggle-payments').checked,
+          archive: document.getElementById('mod-toggle-archive').checked,
+          coupons: document.getElementById('mod-toggle-coupons').checked,
+          reviews: document.getElementById('mod-toggle-reviews').checked
         };
         const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
 
@@ -2228,7 +2177,6 @@
         const phone = document.getElementById('new-tenant-phone').value.trim();
         const durationMonths = Number(document.getElementById('new-tenant-duration').value) || 3;
         const price = Number(document.getElementById('new-tenant-price').value) || 1500;
-        const template = document.getElementById('new-tenant-template').value;
 
         if (!name || !slug || !phone) {
           this.showToast("يرجى ملء جميع الحقول المطلوبة", "error");
@@ -2237,6 +2185,12 @@
 
         const expTimestamp = Date.now() + (durationMonths * 30 * 24 * 60 * 60 * 1000);
         const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
+
+        const allMods = {
+          pos: true, inventory: true, stories: true, smartTables: true,
+          delivery: true, takeaway: true, onlinePayment: true, archive: true,
+          coupons: true, reviews: true
+        };
 
         const licensePayload = {
           restaurantName: name,
@@ -2247,15 +2201,15 @@
           expiresAt: expTimestamp,
           validUntil: expTimestamp,
           createdAt: Date.now(),
-          modules: { pos: true, inventory: true, stories: true, smartTables: true, delivery: true, onlinePayment: true }
+          modules: allMods
         };
 
         const settingsPayload = {
           name: name,
           phone: phone,
           currency: "ج.م",
-          logo: "assets/brand/harpy_master_badge.png",
-          modules: { pos: true, inventory: true, stories: true, smartTables: true, delivery: true, onlinePayment: true }
+          logo: "assets/brand/harpy_order_emblem_transparent.png",
+          modules: allMods
         };
 
         try {
@@ -2338,11 +2292,6 @@
         const container = document.getElementById('finance-list-container');
         if (!container) return;
 
-        let totalMrr = 0;
-        this.tenants.forEach(t => totalMrr += Number(t.monthlyPrice) || 0);
-        const mrrEl = document.getElementById('finance-mrr-val');
-        if (mrrEl) mrrEl.textContent = `${totalMrr.toLocaleString()} ج.م`;
-
         container.innerHTML = this.tenants.map(t => {
           let phone = (t.phone || '').replace(/[^0-9]/g, '');
           if (phone.startsWith('01')) phone = '2' + phone;
@@ -2383,7 +2332,7 @@
             descEl.innerHTML = `يوجد <b style="color:var(--amber);">${expiring.length}</b> مطاعم قارب اشتراكها على الانتهاء: ` +
               expiring.map(x => `${x.name} (${x.expiryText})`).join('، ');
           } else {
-            descEl.textContent = 'لا توجد مطاعم أوشك اشتراكها على الانتهاء في الأيام الـ 7 القادمة.';
+            descEl.textContent = 'جميع التراخيص سارية، ولا توجد مطاعم أوشك اشتراكها على الانتهاء في الأيام الـ 7 القادمة.';
           }
         }
       },
@@ -2403,7 +2352,7 @@
                   <b style="color:var(--amber); font-size:12px;">تنبيه نشط حالياً على الشاشات:</b>
                   <button onclick="MasterApp.clearBroadcast()" style="color:var(--red); background:none; font-size:11px; cursor:pointer; font-weight:700;">إلغاء الإذاعة</button>
                 </div>
-                <div style="font-size:13px; color:#FFF; font-weight:700; margin-top:4px;">${data.message}</div>
+                <div style="font-size:13px; color:var(--text-primary); font-weight:700; margin-top:4px;">${data.message}</div>
                 <div style="font-size:10px; color:var(--text-muted); margin-top:2px;">تاريخ النشر: ${new Date(data.createdAt).toLocaleString('ar-EG')}</div>
               </div>
             `;
