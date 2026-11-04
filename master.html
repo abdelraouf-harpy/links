@@ -1332,6 +1332,13 @@
         <span>تسجيل سداد وتمديد الترخيص</span>
       </div>
 
+      <div class="sheet-action-item" onclick="MasterApp.actionSheetOpenPricing()">
+        <span class="sheet-action-icon svg-icon" style="color:var(--primary);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+        </span>
+        <span>تعديل السعر والباقة (قيمة الاشتراك)</span>
+      </div>
+
       <div class="sheet-action-item" onclick="MasterApp.actionSheetOpenWhatsApp()">
         <span class="sheet-action-icon svg-icon" style="color:var(--teal);">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.301-.15-1.78-.878-2.056-.979-.276-.1-.476-.15-.676.15-.2.301-.776.979-.951 1.18-.175.2-.351.226-.652.075-.301-.15-1.272-.469-2.423-1.496-.895-.799-1.5-1.786-1.675-2.087-.175-.301-.019-.464.132-.614.136-.135.301-.351.451-.526.15-.175.2-.301.3-.501.101-.2.051-.376-.025-.526-.075-.15-.676-1.63-.926-2.233-.244-.588-.492-.508-.676-.517-.175-.008-.376-.01-.576-.01s-.526.075-.801.376c-.276.301-1.052 1.028-1.052 2.508s1.077 2.909 1.228 3.11c.15.2 2.119 3.236 5.134 4.538.717.31 1.277.495 1.713.633.72.229 1.376.197 1.895.119.579-.087 1.78-.727 2.031-1.429.25-.702.25-1.303.175-1.429-.075-.126-.276-.201-.577-.351zM12.04 2C6.51 2 2.02 6.49 2.02 12.02c0 1.98.58 3.82 1.58 5.37L2 22l4.78-1.55c1.5 1 3.28 1.57 5.26 1.57 5.53 0 10.02-4.49 10.02-10.02C22.06 6.49 17.57 2 12.04 2z"/></svg>
@@ -1404,8 +1411,18 @@
       </div>
 
       <div class="form-group">
-        <label class="form-label">قيمة الاشتراك الشهري (ج.م)</label>
-        <input type="number" class="form-input" id="new-tenant-price" value="1500" required style="font-family:var(--font-en); text-align:left;">
+        <label class="form-label">باقة الاشتراك</label>
+        <select class="form-select" id="new-tenant-plan" onchange="MasterApp.onNewTenantPlanChange()">
+          <option value="الباقة الأساسية (Starter)" data-price="1000">الباقة الأساسية (Starter) — 1,000 ج.م/ش</option>
+          <option value="الباقة الاحترافية (Pro)" data-price="2000" selected>الباقة الاحترافية (Pro) — 2,000 ج.م/ش</option>
+          <option value="الباقة الشاملة VIP (Enterprise)" data-price="3500">الباقة الشاملة VIP — 3,500 ج.م/ش</option>
+          <option value="باقة مخصصة" data-price="">باقة مخصصة (حدد السعر والاسم بحرية)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">قيمة الاشتراك (ج.م) *</label>
+        <input type="number" class="form-input" id="new-tenant-price" value="2000" required style="font-family:var(--font-en); text-align:left;" placeholder="أدخل أي قيمة تريدها">
       </div>
 
       <div class="form-group">
@@ -1558,7 +1575,10 @@
     <div id="pay-modal-current-info" style="font-size:12px; color:var(--text-secondary); margin-bottom:12px; font-weight:600; line-height:1.6;"></div>
 
     <div class="form-group" id="pay-modal-amount-group">
-      <label class="form-label">المبلغ المحصل (ج.م)</label>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <label class="form-label" style="margin:0;">المبلغ المحصل (ج.م)</label>
+        <a href="javascript:void(0)" onclick="MasterApp.openPricingFromPayment()" style="font-size:11.5px; color:var(--primary); font-weight:700; text-decoration:none;">تعديل باقة وسعر المطعم</a>
+      </div>
       <input type="number" class="form-input" id="pay-modal-amount" value="1500" style="font-family:var(--font-en); text-align:left;">
     </div>
 
@@ -1603,6 +1623,59 @@
     <button type="button" class="btn-cancel" onclick="MasterApp.closePaymentModal()">إلغاء</button>
   </div>
 
+  <!-- MODAL: EDIT RESTAURANT PRICING & PLAN -->
+  <div class="sheet-backdrop" id="modal-pricing-backdrop" onclick="MasterApp.closePricingModal()"></div>
+  <div class="bottom-sheet" id="modal-pricing">
+    <div class="sheet-drag-handle"></div>
+    <div class="sheet-header">
+      <div class="sheet-header-title">تعديل باقة وسعر الاشتراك</div>
+    </div>
+
+    <div id="pricing-modal-tenant-info" style="font-size:12px; color:var(--text-secondary); margin-bottom:12px; font-weight:600; line-height:1.6;"></div>
+
+    <div class="form-group">
+      <label class="form-label">اختر الباقة أو الخطة المالية</label>
+      <select class="form-select" id="pricing-plan-preset" onchange="MasterApp.onPricingPresetChange()">
+        <option value="custom">باقة مخصصة (كتابة الاسم والسعر يدوياً)</option>
+        <option value="starter">الباقة الأساسية (Starter) — 1,000 ج.م/شهرياً</option>
+        <option value="pro">الباقة الاحترافية (Pro) — 2,000 ج.م/شهرياً</option>
+        <option value="vip">الباقة الشاملة VIP (Enterprise) — 3,500 ج.م/شهرياً</option>
+        <option value="annual">الباقة السنوية المخفضة — 15,000 ج.م/سنوياً</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">اسم الباقة المعروض للمطعم *</label>
+      <input type="text" class="form-input" id="pricing-plan-name" placeholder="مثال: الباقة الذهبية / باقة الفروع">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">قيمة الاشتراك بالجنيه (ج.م) *</label>
+      <input type="number" class="form-input" id="pricing-amount" placeholder="مثال: 2000" style="font-family:var(--font-en); text-align:left;">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">دورة الفوترة والتحصيل</label>
+      <select class="form-select" id="pricing-billing-cycle">
+        <option value="monthly" selected>شهرياً (كل 30 يوماً)</option>
+        <option value="quarterly">كل 3 أشهر (ربع سنوي)</option>
+        <option value="semi_annual">كل 6 أشهر (نصف سنوي)</option>
+        <option value="annual">سنوياً (كل 12 شهراً)</option>
+        <option value="custom">مدة حرة / حسب الاتفاق</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">ملاحظات الاتفاق المالي (اختياري)</label>
+      <input type="text" class="form-input" id="pricing-notes" placeholder="مثال: خصم خاص للسنة الأولى / دفع كاش مسبق">
+    </div>
+
+    <button class="btn-submit" onclick="MasterApp.savePricing()">
+      <span>حفظ وتحديث السعر والباقة فوراً</span>
+    </button>
+    <button type="button" class="btn-cancel" onclick="MasterApp.closePricingModal()">إلغاء</button>
+  </div>
+
   <!-- MODAL: FOUNDER PIN & PROFILE -->
   <div class="sheet-backdrop" id="modal-founder-backdrop" onclick="MasterApp.closeFounderMenu()"></div>
   <div class="bottom-sheet" id="modal-founder">
@@ -1610,20 +1683,25 @@
     <div class="sheet-header">
       <img src="assets/brand/master_founder.jpg" class="sheet-header-avatar" alt="Founder">
       <div>
-        <div class="sheet-header-title">عبد الرؤوف شريف (المؤسس)</div>
-        <div class="sheet-header-sub">Super Admin • الصلاحيات الكاملة</div>
+        <div class="sheet-header-title" id="founder-profile-display-title">مدير النظام (Super Admin)</div>
+        <div class="sheet-header-sub">القيادة المركزية • الصلاحيات الكاملة</div>
       </div>
     </div>
 
     <div class="form-group" style="margin-top:10px;">
-      <label class="form-label">تغيير رمز الحماية PIN الجديد (4 أرقام):</label>
-      <input type="password" class="form-input" id="new-founder-pin" maxlength="4" placeholder="••••" style="font-family:var(--font-en); letter-spacing:4px; text-align:center;">
+      <label class="form-label">اسمك كمدير للمنصة (يُسجل في سجل العمليات):</label>
+      <input type="text" class="form-input" id="founder-input-name" placeholder="اكتب اسمك أو لقبك هنا">
     </div>
 
-    <button class="btn-submit" onclick="MasterApp.confirmChangePin()">
-      <span>حفظ وتحديث رمز PIN</span>
+    <div class="form-group">
+      <label class="form-label">تغيير رمز الحماية PIN (4 أرقام):</label>
+      <input type="password" class="form-input" id="new-founder-pin" maxlength="4" placeholder="•••• (اتركه فارغاً إذا لا تريد تغييره)" style="font-family:var(--font-en); letter-spacing:4px; text-align:center;">
+    </div>
+
+    <button class="btn-submit" onclick="MasterApp.saveFounderProfile()">
+      <span>حفظ البيانات وتحديث الإعدادات</span>
     </button>
-    <button class="btn-cancel" onclick="MasterApp.lock()" style="color:var(--red);">
+    <button class="btn-cancel" onclick="MasterApp.lock()" style="color:var(--danger); margin-top:8px;">
       <span>قفل الشاشة الآن</span>
     </button>
   </div>
@@ -1895,6 +1973,13 @@
             const isSuspended = lic.active === false || lic.suspended === true || lic.status === 'suspended' || isExpired;
             const active = !isSuspended;
 
+            const planName = lic.plan || subSettings.plan || (settings.subscription && settings.subscription.plan) || 'الباقة الأساسية';
+            const priceVal = (lic.monthlyPrice !== undefined && lic.monthlyPrice !== null)
+              ? Number(lic.monthlyPrice)
+              : ((subSettings.monthlyPrice !== undefined && subSettings.monthlyPrice !== null)
+                  ? Number(subSettings.monthlyPrice)
+                  : 1500);
+
             loadedTenants.push({
               slug,
               name: lic.restaurantName || settings.name || slug,
@@ -1902,7 +1987,10 @@
               active: active,
               suspended: isSuspended,
               isExpired: isExpired,
-              monthlyPrice: lic.monthlyPrice || 1500,
+              monthlyPrice: priceVal,
+              plan: planName,
+              billingCycle: lic.billingCycle || 'monthly',
+              pricingNotes: lic.pricingNotes || '',
               expTimestamp,
               expiryText,
               diffDays,
@@ -2005,6 +2093,7 @@
                 
                 <div class="tenant-meta-row">
                   <span style="font-family:var(--font-en); font-weight:700; color:var(--primary);">${(t.monthlyPrice || 0).toLocaleString()} ج.م/ش</span>
+                  ${t.plan ? `<span class="tenant-dot-divider">•</span><span style="font-weight:600; color:var(--text-secondary);">${t.plan}</span>` : ''}
                   <span class="tenant-dot-divider">•</span>
                   <span style="${t.isExpired ? 'color:var(--danger); font-weight:700;' : (isExpiring ? 'color:var(--amber); font-weight:700;' : '')}">${t.expiryText}</span>
                   <span class="tenant-dot-divider">•</span>
@@ -2218,7 +2307,7 @@
         const infoEl = document.getElementById('pay-modal-current-info');
         if (infoEl) {
           const statusDesc = t.isExpired ? 'مجمد (منتهي الصلاحية)' : (!t.active ? 'مجمد مؤقتاً' : 'نشط وسارٍ');
-          infoEl.innerHTML = `المطعم: <b style="color:var(--text-primary);">${t.name}</b> (${slug})<br>الحالة: <span style="color:${t.isExpired || !t.active ? 'var(--danger)' : 'var(--teal)'}; font-weight:700;">${statusDesc}</span> • ${t.expiryText}`;
+          infoEl.innerHTML = `المطعم: <b style="color:var(--text-primary);">${t.name}</b> (${slug})<br>الحالة: <span style="color:${t.isExpired || !t.active ? 'var(--danger)' : 'var(--teal)'}; font-weight:700;">${statusDesc}</span> • ${t.expiryText}<br>الباقة الحالية: <b style="color:var(--primary);">${t.plan || 'الباقة الأساسية'}</b> (${(t.monthlyPrice || 0).toLocaleString()} ج.م/ش)`;
         }
 
         document.getElementById('pay-modal-amount').value = t.monthlyPrice || 1500;
@@ -2607,12 +2696,16 @@
           coupons: true, reviews: true
         };
 
+        const planSelect = document.getElementById('new-tenant-plan');
+        const planName = planSelect ? planSelect.value : 'الباقة الأساسية';
+
         const licensePayload = {
           restaurantName: name,
           ownerPhone: phone,
           active: true,
           suspended: false,
           monthlyPrice: price,
+          plan: planName,
           expiresAt: expTimestamp,
           validUntil: expTimestamp,
           createdAt: Date.now(),
@@ -2624,7 +2717,15 @@
           phone: phone,
           currency: "ج.م",
           logo: "assets/brand/harpy_order_emblem_transparent.png",
-          modules: allMods
+          modules: allMods,
+          subscription: {
+            active: true,
+            suspended: false,
+            status: 'active',
+            monthlyPrice: price,
+            plan: planName,
+            expiresAt: new Date(expTimestamp).toISOString()
+          }
         };
 
         try {
@@ -2718,7 +2819,7 @@
                 <div>
                   <div class="bill-name">${t.name}</div>
                   <div style="font-size:11.5px; color:var(--text-secondary); margin-top:2px;">
-                    ${t.expiryText} • هاتف: ${t.phone || 'غير مسجل'}
+                    ${t.plan ? `<b style="color:var(--primary);">${t.plan}</b> • ` : ''}${t.expiryText} • هاتف: ${t.phone || 'غير مسجل'}
                   </div>
                 </div>
                 <div class="bill-price">${(t.monthlyPrice || 0).toLocaleString()} ج.م/ش</div>
@@ -2726,7 +2827,11 @@
               <div class="bill-actions">
                 <button class="bill-btn-pay" onclick="MasterApp.openPaymentModal('${t.slug}')">
                   <span class="svg-icon" style="width:14px;height:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg></span>
-                  <span>تسجيل سداد وتمديد</span>
+                  <span>تسجيل سداد</span>
+                </button>
+                <button class="bill-btn-pay" style="background:var(--surface-raised); color:var(--text-primary); border:1px solid var(--border);" onclick="MasterApp.openPricingModal('${t.slug}')">
+                  <span class="svg-icon" style="width:14px;height:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></span>
+                  <span>تعديل السعر</span>
                 </button>
                 <a href="${waUrl}" target="_blank" class="bill-btn-wa">
                   <span class="svg-icon" style="width:14px;height:14px;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.301-.15-1.78-.878-2.056-.979-.276-.1-.476-.15-.676.15-.2.301-.776.979-.951 1.18-.175.2-.351.226-.652.075-.301-.15-1.272-.469-2.423-1.496-.895-.799-1.5-1.786-1.675-2.087-.175-.301-.019-.464.132-.614.136-.135.301-.351.451-.526.15-.175.2-.301.3-.501.101-.2.051-.376-.025-.526-.075-.15-.676-1.63-.926-2.233-.244-.588-.492-.508-.676-.517-.175-.008-.376-.01-.576-.01s-.526.075-.801.376c-.276.301-1.052 1.028-1.052 2.508s1.077 2.909 1.228 3.11c.15.2 2.119 3.236 5.134 4.538.717.31 1.277.495 1.713.633.72.229 1.376.197 1.895.119.579-.087 1.78-.727 2.031-1.429.25-.702.25-1.303.175-1.429-.075-.126-.276-.201-.577-.351zM12.04 2C6.51 2 2.02 6.49 2.02 12.02c0 1.98.58 3.82 1.58 5.37L2 22l4.78-1.55c1.5 1 3.28 1.57 5.26 1.57 5.53 0 10.02-4.49 10.02-10.02C22.06 6.49 17.57 2 12.04 2z"/></svg></span>
@@ -2856,12 +2961,16 @@
           container.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-secondary);">فشل تحميل سجل العمليات.</div>`;
         }
       },
+      getFounderName() {
+        return localStorage.getItem('harpy_master_founder_name') || 'مدير المنصة (Super Admin)';
+      },
+
       async logAudit(action, details, slug = null) {
         const payload = {
           action: action,
           details: details,
           targetSlug: slug,
-          actor: "عبد الرؤوف شريف",
+          actor: this.getFounderName(),
           timestamp: Date.now()
         };
         const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
@@ -2875,6 +2984,16 @@
 
       // --- Founder Profile & PIN ---
       openFounderMenu() {
+        const currentName = this.getFounderName();
+        const nameInput = document.getElementById('founder-input-name');
+        if (nameInput) nameInput.value = currentName;
+
+        const displayTitle = document.getElementById('founder-profile-display-title');
+        if (displayTitle) displayTitle.textContent = currentName;
+
+        const pinInput = document.getElementById('new-founder-pin');
+        if (pinInput) pinInput.value = '';
+
         document.getElementById('modal-founder').classList.add('open');
         document.getElementById('modal-founder-backdrop').classList.add('open');
       },
@@ -2882,17 +3001,160 @@
         document.getElementById('modal-founder').classList.remove('open');
         document.getElementById('modal-founder-backdrop').classList.remove('open');
       },
-      confirmChangePin() {
-        const newPin = document.getElementById('new-founder-pin').value.trim();
-        if (newPin.length !== 4 || isNaN(newPin)) {
-          this.showToast("يجب أن يتكون رمز PIN من 4 أرقام", "error");
+      saveFounderProfile() {
+        const nameInput = document.getElementById('founder-input-name');
+        const newName = nameInput ? nameInput.value.trim() : '';
+        const pinInput = document.getElementById('new-founder-pin');
+        const newPin = pinInput ? pinInput.value.trim() : '';
+
+        if (newName) {
+          localStorage.setItem('harpy_master_founder_name', newName);
+          const displayTitle = document.getElementById('founder-profile-display-title');
+          if (displayTitle) displayTitle.textContent = newName;
+        }
+
+        if (newPin) {
+          if (newPin.length !== 4 || isNaN(newPin)) {
+            this.showToast("يجب أن يتكون رمز PIN من 4 أرقام", "error");
+            return;
+          }
+          this.correctPin = newPin;
+          localStorage.setItem('harpy_master_pin', newPin);
+        }
+
+        this.logAudit('PROFILE_UPDATE', `تحديث بيانات مدير المنصة: ${newName || this.getFounderName()}`);
+        this.closeFounderMenu();
+        this.showToast("تم حفظ الإعدادات بنجاح", "success");
+      },
+
+      // --- Pricing & Plan Management ---
+      openPricingModal(slug) {
+        const t = this.tenants.find(x => x.slug === slug);
+        if (!t) return;
+        this.editingPricingSlug = slug;
+
+        const infoEl = document.getElementById('pricing-modal-tenant-info');
+        if (infoEl) {
+          infoEl.innerHTML = `المطعم: <b style="color:var(--text-primary);">${t.name}</b> (${slug})<br>السعر الحالي: <b style="color:var(--primary); font-family:var(--font-en);">${(t.monthlyPrice || 0).toLocaleString()} ج.م</b> • الباقة: <b>${t.plan || 'الباقة الأساسية'}</b>`;
+        }
+
+        document.getElementById('pricing-plan-name').value = t.plan || 'الباقة الأساسية';
+        document.getElementById('pricing-amount').value = t.monthlyPrice || 1500;
+        document.getElementById('pricing-billing-cycle').value = t.billingCycle || 'monthly';
+        document.getElementById('pricing-notes').value = t.pricingNotes || '';
+        document.getElementById('pricing-plan-preset').value = 'custom';
+
+        document.getElementById('modal-pricing').classList.add('open');
+        document.getElementById('modal-pricing-backdrop').classList.add('open');
+      },
+      closePricingModal() {
+        document.getElementById('modal-pricing').classList.remove('open');
+        document.getElementById('modal-pricing-backdrop').classList.remove('open');
+        this.editingPricingSlug = null;
+      },
+      onPricingPresetChange() {
+        const val = document.getElementById('pricing-plan-preset').value;
+        const nameInput = document.getElementById('pricing-plan-name');
+        const amountInput = document.getElementById('pricing-amount');
+        const cycleInput = document.getElementById('pricing-billing-cycle');
+
+        if (val === 'starter') {
+          nameInput.value = 'الباقة الأساسية (Starter)';
+          amountInput.value = '1000';
+          cycleInput.value = 'monthly';
+        } else if (val === 'pro') {
+          nameInput.value = 'الباقة الاحترافية (Pro)';
+          amountInput.value = '2000';
+          cycleInput.value = 'monthly';
+        } else if (val === 'vip') {
+          nameInput.value = 'الباقة الشاملة VIP (Enterprise)';
+          amountInput.value = '3500';
+          cycleInput.value = 'monthly';
+        } else if (val === 'annual') {
+          nameInput.value = 'الباقة السنوية المخفضة';
+          amountInput.value = '15000';
+          cycleInput.value = 'annual';
+        }
+      },
+      openPricingFromPayment() {
+        const slug = this.payingSlug;
+        this.closePaymentModal();
+        if (slug) this.openPricingModal(slug);
+      },
+      actionSheetOpenPricing() {
+        if (!this.activeSheetTenant) return;
+        const slug = this.activeSheetTenant.slug;
+        this.closeActionSheet();
+        this.openPricingModal(slug);
+      },
+      onNewTenantPlanChange() {
+        const select = document.getElementById('new-tenant-plan');
+        const opt = select.options[select.selectedIndex];
+        const price = opt.getAttribute('data-price');
+        const priceInput = document.getElementById('new-tenant-price');
+        if (price) {
+          priceInput.value = price;
+        }
+      },
+      async savePricing() {
+        if (!this.editingPricingSlug) return;
+        const slug = this.editingPricingSlug;
+        const planName = document.getElementById('pricing-plan-name').value.trim() || 'الباقة الأساسية';
+        const amount = Number(document.getElementById('pricing-amount').value);
+        const cycle = document.getElementById('pricing-billing-cycle').value;
+        const notes = document.getElementById('pricing-notes').value.trim();
+
+        if (isNaN(amount) || amount < 0) {
+          this.showToast("يرجى إدخال قيمة اشتراك صحيحة", "error");
           return;
         }
-        this.correctPin = newPin;
-        localStorage.setItem('harpy_master_pin', newPin);
-        this.logAudit('PIN_CHANGE', "تحديث رمز الحماية PIN للمؤسس");
-        this.closeFounderMenu();
-        this.showToast("تم تحديث رمز PIN بنجاح", "success");
+
+        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
+        const payload = {
+          monthlyPrice: amount,
+          plan: planName,
+          billingCycle: cycle,
+          pricingNotes: notes,
+          lastPricingUpdate: Date.now()
+        };
+
+        // Instant optimistic update in memory & cache (0ms)
+        const t = this.tenants.find(x => x.slug === slug);
+        if (t) {
+          t.monthlyPrice = amount;
+          t.plan = planName;
+          t.billingCycle = cycle;
+          t.pricingNotes = notes;
+          try {
+            localStorage.setItem('harpy_master_cached_tenants', JSON.stringify(this.tenants));
+          } catch(e) {}
+          this.renderUI();
+          this.renderFinanceUI();
+        }
+
+        try {
+          await Promise.all([
+            fetch(`${BASE_RTDB}/licenses/${slug}.json${authParam}`, {
+              method: 'PATCH',
+              body: JSON.stringify(payload)
+            }),
+            fetch(`${BASE_RTDB}/restaurants/${slug}/settings/subscription.json${authParam}`, {
+              method: 'PATCH',
+              body: JSON.stringify(payload)
+            }),
+            fetch(`${BASE_RTDB}/restaurants/${slug}/meta.json${authParam}`, {
+              method: 'PATCH',
+              body: JSON.stringify({ monthlyPrice: amount, plan: planName })
+            })
+          ]);
+
+          this.logAudit('PRICING_UPDATE', `تعديل باقة وسعر اشتراك مطعم ${slug} إلى: ${amount.toLocaleString()} ج.م (${planName})`, slug);
+          this.closePricingModal();
+          this.showToast(`تم تحديث باقة وسعر مطعم ${t ? t.name : slug} بنجاح`, "success");
+          this.loadAllData();
+        } catch(e) {
+          this.showToast("فشل حفظ التعديلات في السعر والباقة", "error");
+        }
       },
 
       // --- Search & Filters ---
