@@ -745,6 +745,187 @@
       color: var(--red);
     }
 
+    /* --- Grouped Bottom Action Sheet (iOS/WhatsApp grade) --- */
+    .sheet-action-group {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: 14px;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    .sheet-action-group-title {
+      font-size: 10.5px;
+      font-weight: 800;
+      color: var(--text-muted);
+      letter-spacing: 0.3px;
+      padding: 7px 12px 4px;
+      border-bottom: 1px solid var(--divider);
+      background: var(--bg-surface-raised, rgba(0,0,0,0.02));
+    }
+    .sheet-action-item {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-primary);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--divider);
+      transition: background 0.12s ease;
+    }
+    .sheet-action-item:last-child {
+      border-bottom: none;
+    }
+    .sheet-action-item:active {
+      background: var(--primary-subtle);
+    }
+    .sheet-action-item.danger {
+      color: var(--red);
+    }
+    .sheet-action-icon-circle {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .sheet-action-text-box {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.25;
+    }
+    .sheet-action-text-main {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .sheet-action-text-sub {
+      font-size: 10.5px;
+      color: var(--text-secondary);
+      margin-top: 1px;
+    }
+
+    /* --- Packages & Plans Management UI --- */
+    .finance-subnav-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      background: var(--bg-surface);
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid var(--border-light);
+    }
+    .subnav-pill {
+      flex: 1;
+      height: 34px;
+      border-radius: 9px;
+      border: none;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      background: transparent;
+      color: var(--text-secondary);
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+    .subnav-pill.active {
+      background: var(--primary);
+      color: #FFFFFF;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .package-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: transform 0.12s ease, border-color 0.12s ease;
+    }
+    .package-card:hover {
+      border-color: var(--border-highlight);
+    }
+    .package-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .package-card-title {
+      font-size: 14.5px;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+    .package-card-price {
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--primary);
+      font-family: var(--font-en);
+    }
+    .package-card-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .package-badge {
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 2.5px 8px;
+      border-radius: 6px;
+      background: var(--primary-subtle);
+      color: var(--primary);
+    }
+    .package-badge-subscribers {
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 2.5px 8px;
+      border-radius: 6px;
+      background: var(--teal-dim);
+      color: var(--teal);
+    }
+    .package-card-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      border-top: 1px solid var(--divider);
+      padding-top: 10px;
+      margin-top: 2px;
+    }
+    .pkg-action-btn {
+      height: 30px;
+      padding: 0 10px;
+      border-radius: 8px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: inherit;
+      border: 1px solid var(--border-light);
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      transition: all 0.12s ease;
+    }
+    .pkg-action-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .pkg-action-btn.danger:hover {
+      border-color: var(--red);
+      color: var(--red);
+      background: var(--red-dim);
+    }
+
     /* Modal Form Elements */
     .form-group {
       margin-bottom: 12px;
@@ -1206,9 +1387,40 @@
 
     <!-- PANE 2: FINANCE & BILLING -->
     <main id="pane-finance" class="tab-pane">
-      <div style="font-size:13.5px; font-weight:700; color:var(--text-primary); margin-bottom:10px;">كشف تحصيل الاشتراكات وتجديد التراخيص:</div>
-      <div id="finance-list-container">
-        <!-- Rendered dynamically -->
+      <!-- Finance Subnav Toggle -->
+      <div class="finance-subnav-row">
+        <button type="button" class="subnav-pill active" id="fsubnav-tenants" onclick="MasterApp.switchFinanceSubnav('tenants')">
+          <span>سجل اشتراكات المطاعم</span>
+        </button>
+        <button type="button" class="subnav-pill" id="fsubnav-packages" onclick="MasterApp.switchFinanceSubnav('packages')">
+          <span>إدارة الباقات والأسعار</span>
+          <span id="fsubnav-pkg-count" style="margin-right:6px; font-size:10px; padding:1px 6px; border-radius:10px; background:rgba(255,255,255,0.2); font-weight:800;"></span>
+        </button>
+      </div>
+
+      <!-- Subview 1: Tenants Billing Ledger -->
+      <div id="fsubview-tenants">
+        <div style="font-size:13.5px; font-weight:700; color:var(--text-primary); margin-bottom:10px;">كشف تحصيل الاشتراكات وتجديد التراخيص:</div>
+        <div id="finance-list-container">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Subview 2: Packages & Plans Manager -->
+      <div id="fsubview-packages" style="display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <div>
+            <div style="font-size:14px; font-weight:800; color:var(--text-primary);">باقات اشتراك المنصة</div>
+            <div style="font-size:11.5px; color:var(--text-secondary); margin-top:2px;">تحكّم في أسعار ومدد الباقات المتاحة للمطاعم وتغييرها بحرية</div>
+          </div>
+          <button type="button" onclick="MasterApp.openCreatePackageModal()" class="row-btn-primary" style="height:34px; padding:0 12px; font-weight:800; gap:6px;">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span>باقة جديدة</span>
+          </button>
+        </div>
+        <div id="packages-cards-grid" style="display:flex; flex-direction:column; gap:10px;">
+          <!-- Rendered dynamically -->
+        </div>
       </div>
     </main>
 
@@ -1304,87 +1516,132 @@
     </div>
 
     <div class="sheet-action-list">
-      <div class="sheet-action-item" onclick="MasterApp.actionSheetLaunchAdmin()">
-        <span class="sheet-action-icon svg-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-        </span>
-        <span>فتح لوحة الإدارة (Admin Dashboard)</span>
-      </div>
+        <!-- Group 1: Quick Access -->
+        <div class="sheet-action-group">
+          <div class="sheet-action-group-title">الوصول السريع للمطعم</div>
+          <div class="sheet-action-item" onclick="MasterApp.actionSheetLaunchAdmin()">
+            <span class="sheet-action-icon-circle" style="background:var(--primary-subtle); color:var(--primary);">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+            </span>
+            <div class="sheet-action-text-box">
+              <span class="sheet-action-text-main">فتح لوحة الإدارة (SSO مباشر)</span>
+              <span class="sheet-action-text-sub">دخول فوري بحساب المدير العام</span>
+            </div>
+          </div>
+          <div class="sheet-action-item" onclick="MasterApp.actionSheetOpenMenu()">
+            <span class="sheet-action-icon-circle" style="background:var(--teal-dim); color:var(--teal);">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+            </span>
+            <div class="sheet-action-text-box">
+              <span class="sheet-action-text-main">عرض المنيو للزبائن</span>
+              <span class="sheet-action-text-sub">معاينة المتجر وتجربة الطلب الحقيقي</span>
+            </div>
+          </div>
+          <div class="sheet-action-item" onclick="MasterApp.actionSheetOpenWhatsApp()">
+            <span class="sheet-action-icon-circle" style="background:rgba(37,211,102,0.14); color:#25D366;">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M17.472 14.382c-.301-.15-1.78-.878-2.056-.979-.276-.1-.476-.15-.676.15-.2.301-.776.979-.951 1.18-.175.2-.351.226-.652.075-.301-.15-1.272-.469-2.423-1.496-.895-.799-1.5-1.786-1.675-2.087-.175-.301-.019-.464.132-.614.136-.135.301-.351.451-.526.15-.175.2-.301.3-.501.101-.2.051-.376-.025-.526-.075-.15-.676-1.63-.926-2.233-.244-.588-.492-.508-.676-.517-.175-.008-.376-.01-.576-.01s-.526.075-.801.376c-.276.301-1.052 1.028-1.052 2.508s1.077 2.909 1.228 3.11c.15.2 2.119 3.236 5.134 4.538.717.31 1.277.495 1.713.633.72.229 1.376.197 1.895.119.579-.087 1.78-.727 2.031-1.429.25-.702.25-1.303.175-1.429-.075-.126-.276-.201-.577-.351zM12.04 2C6.51 2 2.02 6.49 2.02 12.02c0 1.98.58 3.82 1.58 5.37L2 22l4.78-1.55c1.5 1 3.28 1.57 5.26 1.57 5.53 0 10.02-4.49 10.02-10.02C22.06 6.49 17.57 2 12.04 2z"/></svg>
+            </span>
+            <div class="sheet-action-text-box">
+              <span class="sheet-action-text-main">مراسلة المالك عبر واتساب</span>
+              <span class="sheet-action-text-sub">فتح محادثة مباشرة برقم هاتف المطعم</span>
+            </div>
+          </div>
+        </div>
 
-      <div class="sheet-action-item" onclick="MasterApp.actionSheetOpenMenu()">
-        <span class="sheet-action-icon svg-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-        </span>
-        <span>عرض المنيو للزبائن (Customer Menu)</span>
-      </div>
+        <!-- Group 2: Packages & Features -->
+        <div class="sheet-action-group">
+          <div class="sheet-action-group-title">الباقة والاشتراك والميزات</div>
+          <div class="sheet-action-item" onclick="MasterApp.actionSheetOpenPricing()">
+            <span class="sheet-action-icon-circle" style="background:var(--primary-subtle); color:var(--primary);">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            </span>
+            <div class="sheet-action-text-box">
+              <span class="sheet-action-text-main">تعديل باقة وسعر المطعم</span>
+              <span class="sheet-action-text-sub">تغيير الباقة، السعر، أو دورة الفوترة</span>
+            </div>
+          </div>
+          <div class="sheet-action-item" onclick="MasterApp.actionSheetOpenPayment()">
+            <span class="sheet-action-icon-circle" style="background:var(--blue-dim); color:var(--blue);">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+            </span>
+            <div class="sheet-action-text-box">
+              <span class="sheet-action-text-main">تسجيل سداد وتمديد الترخيص</span>
+              <span class="sheet-action-text-sub">إضافة فترة جديدة وتوثيق الدفع في السجل</span>
+            </div>
+          </div>
+          <div class="sheet-action-item" onclick="MasterApp.actionSheetOpenModules()">
+            <span class="sheet-action-icon-circle" style="background:var(--primary-subtle); color:var(--primary);">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
+            </span>
+            <div class="sheet-action-text-box">
+              <span class="sheet-action-text-main">صلاحيات ميزات النظام (الـ 13 ميزة)</span>
+              <span class="sheet-action-text-sub">تفعيل وإلغاء الأقسام والموديلات لحظياً</span>
+            </div>
+          </div>
+        </div>
 
-      <div class="sheet-action-item" onclick="MasterApp.actionSheetOpenModules()">
-        <span class="sheet-action-icon svg-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
-        </span>
-        <span>التحكم في الميزات والموديلات (10 خيارات)</span>
-      </div>
+        <!-- Group 3: Cloud & Data -->
+        <div class="sheet-action-group">
+          <div class="sheet-action-group-title">السحاب والبيانات</div>
+          <div class="sheet-action-item" onclick="MasterApp.actionSheetClone()">
+            <span class="sheet-action-icon-circle" style="background:rgba(168,85,247,0.14); color:#a855f7;">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            </span>
+            <div class="sheet-action-text-box">
+              <span class="sheet-action-text-main">استنساخ المنيو والوجبات</span>
+              <span class="sheet-action-text-sub">نسخ قائمة الطعام والأسعار إلى مطعم آخر</span>
+            </div>
+          </div>
+          <div class="sheet-action-item" onclick="MasterApp.actionSheetBackup()">
+            <span class="sheet-action-icon-circle" style="background:rgba(100,116,139,0.14); color:#64748b;">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            </span>
+            <div class="sheet-action-text-box">
+              <span class="sheet-action-text-main">تحميل نسخة احتياطية سحابية</span>
+              <span class="sheet-action-text-sub">حفظ ملف JSON كامل للمطعم</span>
+            </div>
+          </div>
+        </div>
 
-      <div class="sheet-action-item" onclick="MasterApp.actionSheetOpenPayment()">
-        <span class="sheet-action-icon svg-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
-        </span>
-        <span>تسجيل سداد وتمديد الترخيص</span>
-      </div>
+        <!-- Group 4: Status & Suspension -->
+        <div class="sheet-action-group">
+          <div class="sheet-action-group-title">إدارة الحالة والمنطقة الحرجة</div>
+          <div class="sheet-action-item" onclick="MasterApp.actionSheetToggleFreeze()">
+            <span class="sheet-action-icon-circle" style="background:var(--amber-dim); color:var(--amber);">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
+            </span>
+            <div class="sheet-action-text-box">
+              <span class="sheet-action-text-main" id="sheet-freeze-label">تجميد / إيقاف المطعم</span>
+              <span class="sheet-action-text-sub">تعطيل أو تنشيط الترخيص مؤقتاً</span>
+            </div>
+          </div>
+          <div class="sheet-action-item danger" onclick="MasterApp.actionSheetExpireSubscription()">
+            <span class="sheet-action-icon-circle" style="background:var(--red-dim); color:var(--red);">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline><line x1="4.93" y1="4.93" x2="19.07" y2="19.07" stroke="currentColor" stroke-width="2"></line></svg>
+            </span>
+            <div class="sheet-action-text-box">
+              <span class="sheet-action-text-main" id="sheet-expire-label">إنهاء الاشتراك فوراً</span>
+              <span class="sheet-action-text-sub">تعيين كمنتهي الصلاحية وحظر الدخول</span>
+            </div>
+          </div>
+          <div class="sheet-action-item danger" onclick="MasterApp.actionSheetDelete()">
+            <span class="sheet-action-icon-circle" style="background:var(--red-dim); color:var(--red);">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            </span>
+            <div class="sheet-action-text-box">
+              <span class="sheet-action-text-main">حذف المطعم نهائياً</span>
+              <span class="sheet-action-text-sub">مسح شامل لا يمكن التراجع عنه</span>
+            </div>
+          </div>
+        </div>
 
-      <div class="sheet-action-item" onclick="MasterApp.actionSheetOpenPricing()">
-        <span class="sheet-action-icon svg-icon" style="color:var(--primary);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-        </span>
-        <span>تعديل السعر والباقة (قيمة الاشتراك)</span>
-      </div>
-
-      <div class="sheet-action-item" onclick="MasterApp.actionSheetOpenWhatsApp()">
-        <span class="sheet-action-icon svg-icon" style="color:var(--teal);">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.301-.15-1.78-.878-2.056-.979-.276-.1-.476-.15-.676.15-.2.301-.776.979-.951 1.18-.175.2-.351.226-.652.075-.301-.15-1.272-.469-2.423-1.496-.895-.799-1.5-1.786-1.675-2.087-.175-.301-.019-.464.132-.614.136-.135.301-.351.451-.526.15-.175.2-.301.3-.501.101-.2.051-.376-.025-.526-.075-.15-.676-1.63-.926-2.233-.244-.588-.492-.508-.676-.517-.175-.008-.376-.01-.576-.01s-.526.075-.801.376c-.276.301-1.052 1.028-1.052 2.508s1.077 2.909 1.228 3.11c.15.2 2.119 3.236 5.134 4.538.717.31 1.277.495 1.713.633.72.229 1.376.197 1.895.119.579-.087 1.78-.727 2.031-1.429.25-.702.25-1.303.175-1.429-.075-.126-.276-.201-.577-.351zM12.04 2C6.51 2 2.02 6.49 2.02 12.02c0 1.98.58 3.82 1.58 5.37L2 22l4.78-1.55c1.5 1 3.28 1.57 5.26 1.57 5.53 0 10.02-4.49 10.02-10.02C22.06 6.49 17.57 2 12.04 2z"/></svg>
-        </span>
-        <span>مراسلة صاحب المطعم عبر واتساب</span>
-      </div>
-
-      <div class="sheet-action-item" onclick="MasterApp.actionSheetBackup()">
-        <span class="sheet-action-icon svg-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-        </span>
-        <span>تحميل نسخة احتياطية سحابية (JSON)</span>
-      </div>
-
-      <div class="sheet-action-item" onclick="MasterApp.actionSheetClone()">
-        <span class="sheet-action-icon svg-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-        </span>
-        <span>استنساخ المنيو لمطعم آخر</span>
-      </div>
-
-      <div class="sheet-action-item" onclick="MasterApp.actionSheetExpireSubscription()" style="color:var(--danger);">
-        <span class="sheet-action-icon svg-icon" style="color:var(--danger);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline><line x1="4.93" y1="4.93" x2="19.07" y2="19.07" stroke="currentColor" stroke-width="2"></line></svg>
-        </span>
-        <span id="sheet-expire-label">إنهاء الاشتراك وتجميد المطعم فوراً</span>
-      </div>
-
-      <div class="sheet-action-item" onclick="MasterApp.actionSheetToggleFreeze()">
-        <span class="sheet-action-icon svg-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
-        </span>
-        <span id="sheet-freeze-label">تجميد / إيقاف المطعم</span>
-      </div>
-
-      <div class="sheet-action-item danger" onclick="MasterApp.actionSheetDelete()">
-        <span class="sheet-action-icon svg-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-        </span>
-        <span>حذف المطعم نهائياً من المنصة</span>
+        <button type="button" class="btn-cancel" onclick="MasterApp.closeActionSheet()" style="margin-top:4px;">إلغاء وإغلاق</button>
       </div>
     </div>
   </div>
 
   <!-- ========================================================================
-       MODALS: ADD TENANT / 10-MODULE PERMISSIONS / PAYMENT / FOUNDER PIN
+  MODALS: ADD TENANT / 10-MODULE PERMISSIONS / PAYMENT / FOUNDER PIN
        ======================================================================== -->
   <!-- MODAL: ADD NEW RESTAURANT -->
   <div class="sheet-backdrop" id="modal-add-tenant-backdrop" onclick="MasterApp.closeAddTenantModal()"></div>
@@ -1589,6 +1846,104 @@
       <span>حفظ الصلاحيات وتطبيقها فوراً</span>
     </button>
     <button class="btn-cancel" onclick="MasterApp.closeModulesModal()">إلغاء</button>
+  </div>
+
+  <!-- ── MODAL: CUSTOM MODERN CONFIRMATION SHEET (Replaces primitive browser confirm) ── -->
+  <div class="sheet-backdrop" id="modal-confirm-backdrop" onclick="MasterApp.closeConfirmModal()"></div>
+  <div class="bottom-sheet" id="modal-confirm" style="max-width:440px; margin:0 auto; text-align:center;">
+    <div class="sheet-drag-handle"></div>
+    <div id="modal-confirm-icon-wrap" style="width:54px; height:54px; border-radius:50%; background:var(--red-dim); color:var(--red); display:flex; align-items:center; justify-content:center; margin:10px auto 14px;">
+      <svg id="modal-confirm-icon" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+    </div>
+    <div id="modal-confirm-title" style="font-size:16px; font-weight:800; color:var(--text-primary); margin-bottom:6px;">تأكيد الإجراء</div>
+    <div id="modal-confirm-desc" style="font-size:12.5px; color:var(--text-secondary); line-height:1.6; margin-bottom:18px; padding:0 8px;">هل أنت متأكد من تنفيذ هذا الإجراء؟</div>
+    <button type="button" class="btn-submit" id="modal-confirm-btn" style="margin-top:0;" onclick="MasterApp.executeConfirm()">
+      <span id="modal-confirm-btn-text">تأكيد ومتابعة</span>
+    </button>
+    <button type="button" class="btn-cancel" onclick="MasterApp.closeConfirmModal()" style="margin-top:8px;">إلغاء وتراجع</button>
+  </div>
+
+  <!-- ── MODAL: CUSTOM CLONE MENU SHEET (Replaces primitive browser prompt) ── -->
+  <div class="sheet-backdrop" id="modal-clone-backdrop" onclick="MasterApp.closeCloneModal()"></div>
+  <div class="bottom-sheet" id="modal-clone" style="max-width:440px; margin:0 auto;">
+    <div class="sheet-drag-handle"></div>
+    <div class="sheet-header">
+      <div class="sheet-header-title">استنساخ المنيو لمطعم آخر</div>
+    </div>
+    <div style="font-size:12px; color:var(--text-secondary); margin-bottom:14px; line-height:1.6;">
+      سيتم نسخ كافة الأقسام والوجبات والأسعار من المطعم المصدر إلى المطعم المستهدف سحابياً.
+    </div>
+    <div class="form-group">
+      <label class="form-label">المطعم المصدر (نسخ منه)</label>
+      <input type="text" class="form-input" id="clone-source-display" readonly style="opacity:0.85; font-weight:700;">
+    </div>
+    <div class="form-group">
+      <label class="form-label">المطعم المستهدف (نسخ إليه) *</label>
+      <select class="form-select" id="clone-target-select" onchange="MasterApp.onCloneTargetChange()">
+        <!-- Dynamically populated -->
+      </select>
+    </div>
+    <div class="form-group" id="clone-custom-slug-group" style="display:none;">
+      <label class="form-label">أدخل الرابط المخصص للمطعم المستهدف (Slug) *</label>
+      <input type="text" class="form-input" id="clone-target-slug" placeholder="target-slug" style="font-family:var(--font-en); text-align:left;">
+    </div>
+    <button type="button" class="btn-submit" onclick="MasterApp.executeClone()">
+      <span>بدء عملية الاستنساخ السحابي</span>
+    </button>
+    <button type="button" class="btn-cancel" onclick="MasterApp.closeCloneModal()">إلغاء</button>
+  </div>
+
+  <!-- ── MODAL: PACKAGE CREATION & EDITING ── -->
+  <div class="sheet-backdrop" id="modal-package-backdrop" onclick="MasterApp.closePackageModal()"></div>
+  <div class="bottom-sheet" id="modal-package-edit" style="max-width:460px; margin:0 auto;">
+    <div class="sheet-drag-handle"></div>
+    <div class="sheet-header">
+      <div class="sheet-header-title" id="package-modal-title">إضافة باقة اشتراك جديدة</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">اسم الباقة *</label>
+      <input type="text" class="form-input" id="pkg-input-name" placeholder="مثال: الباقة الشهرية / باقة 3 شهور / الباقة السنوية" required>
+    </div>
+    <div class="form-group">
+      <label class="form-label">سعر الباقة بالجنيه (ج.م) *</label>
+      <input type="number" class="form-input" id="pkg-input-price" placeholder="مثال: 1500" required style="font-family:var(--font-en); text-align:left;">
+    </div>
+    <div class="form-group">
+      <label class="form-label">مدة الباقة الافتراضية *</label>
+      <select class="form-select" id="pkg-input-duration" onchange="MasterApp.onPackageDurationSelect()">
+        <option value="30" selected>شهر واحد (30 يوماً)</option>
+        <option value="60">شهران (60 يوماً)</option>
+        <option value="90">3 أشهر (90 يوماً)</option>
+        <option value="180">6 أشهر (180 يوماً)</option>
+        <option value="365">سنة كاملة (365 يوماً)</option>
+        <option value="custom">تحديد عدد أيام مخصص (أي مدة تريدها)</option>
+        <option value="lifetime">دائمة / مدى الحياة (بدون تاريخ انتهاء)</option>
+      </select>
+    </div>
+    <div class="form-group" id="pkg-custom-days-group" style="display:none;">
+      <label class="form-label">عدد الأيام المخصص *</label>
+      <input type="number" class="form-input" id="pkg-input-custom-days" placeholder="مثال: 45" style="font-family:var(--font-en); text-align:left;">
+    </div>
+    <div class="form-group">
+      <label class="form-label">دورة الفوترة والتحصيل</label>
+      <select class="form-select" id="pkg-input-cycle">
+        <option value="monthly" selected>شهرياً</option>
+        <option value="quarterly">ربع سنوي (كل 3 أشهر)</option>
+        <option value="semi_annual">نصف سنوي (كل 6 أشهر)</option>
+        <option value="annual">سنوياً</option>
+        <option value="custom">مخصص / حسب الاتفاق</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">وصف ومميزات الباقة (اختياري)</label>
+      <input type="text" class="form-input" id="pkg-input-desc" placeholder="مثال: تشمل كافة مزايا السيستم الـ 13 والدعم الفني">
+    </div>
+    <button type="button" class="btn-submit" onclick="MasterApp.savePackage()">
+      <span id="pkg-save-btn-text">حفظ وتفعيل الباقة بالمنصة</span>
+    </button>
+    <button type="button" class="btn-cancel" onclick="MasterApp.closePackageModal()">إلغاء</button>
   </div>
 
   <!-- MODAL: RECORD PAYMENT & MANAGE SUBSCRIPTION -->
@@ -1808,6 +2163,17 @@
       activeSheetTenant: null,
       editingModulesSlug: null,
       payingSlug: null,
+      packages: [],
+      defaultPackages: [
+        { id: "starter", name: "الباقة الأساسية (Starter)", price: 1000, durationDays: 30, durationLabel: "شهر (30 يوماً)", billingCycle: "monthly", description: "تشمل منيو رقمي ذكي وكاشير محلي" },
+        { id: "pro", name: "الباقة الاحترافية (Pro)", price: 2000, durationDays: 30, durationLabel: "شهر (30 يوماً)", billingCycle: "monthly", description: "كافة مزايا السيستم والتوصيل والدفع الذكي" },
+        { id: "vip", name: "الباقة الشاملة VIP (Enterprise)", price: 3500, durationDays: 90, durationLabel: "3 أشهر (90 يوماً)", billingCycle: "quarterly", description: "جميع مزايا الـ 13 + نطاق خاص ودعم فني مخصص" },
+        { id: "annual", name: "الباقة السنوية المخفضة", price: 15000, durationDays: 365, durationLabel: "سنة كاملة (365 يوماً)", billingCycle: "annual", description: "وفر شهرين مع تحديثات غير محدودة" }
+      ],
+      editingPackageId: null,
+      confirmCallback: null,
+      cloneSourceSlug: null,
+      activeFinanceSubnav: 'tenants',
 
       init() {
         this.applyTheme(this.currentTheme);
@@ -1823,6 +2189,15 @@
           } catch(e) {}
         } else {
           this.renderSkeleton();
+        }
+
+        const cachedPkgs = localStorage.getItem('harpy_master_cached_packages');
+        if (cachedPkgs) {
+          try {
+            this.packages = JSON.parse(cachedPkgs);
+            this.renderPackagesUI();
+            this.renderPackageOptions();
+          } catch(e) {}
         }
 
         const isSessionUnlocked = sessionStorage.getItem('harpy_master_unlocked') === 'true';
@@ -1966,9 +2341,10 @@
       async loadAllData() {
         const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
         try {
-          const [licRes, restRes] = await Promise.all([
+          const [licRes, restRes, pkgRes] = await Promise.all([
             fetch(`${BASE_RTDB}/licenses.json${authParam}`),
-            fetch(`${BASE_RTDB}/restaurants.json${authParam}`)
+            fetch(`${BASE_RTDB}/restaurants.json${authParam}`),
+            fetch(`${BASE_RTDB}/subscriptionPlans.json${authParam}`).catch(() => null)
           ]);
 
           const licenses = await licRes.json() || {};
@@ -2041,8 +2417,30 @@
           try {
             localStorage.setItem('harpy_master_cached_tenants', JSON.stringify(loadedTenants));
           } catch(e) {}
+
+          // Dynamic Platform Packages
+          let pkgsData = (pkgRes && pkgRes.ok) ? await pkgRes.json() : null;
+          if (!pkgsData || typeof pkgsData !== 'object' || Object.keys(pkgsData).length === 0) {
+            const cachedPkgs = localStorage.getItem('harpy_master_cached_packages');
+            if (cachedPkgs) {
+              try { this.packages = JSON.parse(cachedPkgs); } catch(e) { this.packages = [...this.defaultPackages]; }
+            } else {
+              this.packages = [...this.defaultPackages];
+              try {
+                const seedObj = {};
+                this.packages.forEach(p => seedObj[p.id] = p);
+                fetch(`${BASE_RTDB}/subscriptionPlans.json${authParam}`, { method: 'PUT', body: JSON.stringify(seedObj) }).catch(() => {});
+              } catch(e) {}
+            }
+          } else {
+            this.packages = Object.values(pkgsData);
+          }
+          try { localStorage.setItem('harpy_master_cached_packages', JSON.stringify(this.packages)); } catch(e) {}
+
           this.renderUI();
           this.renderFinanceUI();
+          this.renderPackagesUI();
+          this.renderPackageOptions();
           this.renderWatchdogUI();
         } catch(err) {
           console.error("Data fetch error:", err);
@@ -2225,7 +2623,20 @@
         if (!this.activeSheetTenant) return;
         const t = this.activeSheetTenant;
         this.closeActionSheet();
-        this.toggleStatus(t.slug, !t.active);
+
+        if (t.active) {
+          this.openConfirmModal({
+            title: 'تجميد المطعم مؤقتاً',
+            message: `هل أنت متأكد من تجميد حساب مطعم "${t.name}"؟\nسيتوقف استلام الطلبات ودخول لوحة التحكم مؤقتاً لحين إعادة التفعيل.`,
+            confirmText: 'تجميد الحساب',
+            isDanger: true,
+            onConfirm: () => {
+              this.toggleStatus(t.slug, false);
+            }
+          });
+        } else {
+          this.toggleStatus(t.slug, true);
+        }
       },
       actionSheetDelete() {
         if (!this.activeSheetTenant) return;
@@ -2413,11 +2824,15 @@
 
         this.closeActionSheet();
 
-        if (!confirm(`هل أنت متأكد من إنهاء اشتراك مطعم "${name}" وتجميده مؤقتاً؟\n\nسيتم إيقاف المنيو ولوحة الإدارة فوراً حتى يتم التجديد.`)) {
-          return;
-        }
-
-        this.expireSubscription(slug);
+        this.openConfirmModal({
+          title: 'إنهاء الاشتراك وتجميد المطعم',
+          message: `هل أنت متأكد من إنهاء اشتراك مطعم "${name}" وتجميده مؤقتاً؟\nسيتم إيقاف المنيو ولوحة الإدارة فوراً حتى يتم التجديد.`,
+          confirmText: 'تجميد وإنهاء الاشتراك',
+          isDanger: true,
+          onConfirm: () => {
+            this.expireSubscription(slug);
+          }
+        });
       },
 
       async expireSubscription(slug) {
@@ -2794,11 +3209,74 @@
           this.showToast("فشل تحميل النسخة الاحتياطية", "error");
         }
       },
+      // --- Custom Clone Menu Modal (Eliminates browser prompt) ---
       openCloneModal(sourceSlug) {
-        const target = prompt(`استنساخ منيو مطعم [${sourceSlug}] إلى مطعم آخر.\nأدخل رابط المطعم المستهدف (Slug):`);
-        if (!target) return;
-        this.confirmCloneMenu(sourceSlug, target.trim().toLowerCase());
+        this.cloneSourceSlug = sourceSlug;
+        const sourceDisplay = document.getElementById('clone-source-display');
+        const targetSelect = document.getElementById('clone-target-select');
+        const customSlugGroup = document.getElementById('clone-custom-slug-group');
+        const customSlugInput = document.getElementById('clone-target-slug');
+
+        if (sourceDisplay) sourceDisplay.value = sourceSlug;
+
+        if (targetSelect) {
+          let html = '<option value="">-- اختر المطعم المستهدف للنسخ إليه --</option>';
+          (this.tenants || []).forEach(t => {
+            if (t.slug !== sourceSlug) {
+              html += `<option value="${t.slug}">${t.name} (${t.slug})</option>`;
+            }
+          });
+          html += '<option value="_custom">+ مطعم جديد آخر (أدخل الرابط يدوياً)</option>';
+          targetSelect.innerHTML = html;
+        }
+
+        if (customSlugGroup) customSlugGroup.style.display = 'none';
+        if (customSlugInput) customSlugInput.value = '';
+
+        document.getElementById('modal-clone-backdrop').classList.add('open');
+        document.getElementById('modal-clone').classList.add('open');
       },
+
+      onCloneTargetChange() {
+        const select = document.getElementById('clone-target-select');
+        const customGroup = document.getElementById('clone-custom-slug-group');
+        if (select && customGroup) {
+          customGroup.style.display = select.value === '_custom' ? 'block' : 'none';
+        }
+      },
+
+      closeCloneModal() {
+        document.getElementById('modal-clone-backdrop').classList.remove('open');
+        document.getElementById('modal-clone').classList.remove('open');
+        this.cloneSourceSlug = null;
+      },
+
+      async executeClone() {
+        const sourceSlug = this.cloneSourceSlug;
+        if (!sourceSlug) return;
+
+        const select = document.getElementById('clone-target-select');
+        let targetSlug = select ? select.value : '';
+
+        if (targetSlug === '_custom') {
+          const customInput = document.getElementById('clone-target-slug');
+          targetSlug = customInput ? customInput.value.trim().toLowerCase() : '';
+        }
+
+        if (!targetSlug) {
+          this.showToast("يرجى تحديد أو إدخال المطعم المستهدف", "error");
+          return;
+        }
+
+        if (targetSlug === sourceSlug) {
+          this.showToast("لا يمكن نسخ المنيو إلى نفس المطعم المصدر", "error");
+          return;
+        }
+
+        this.closeCloneModal();
+        await this.confirmCloneMenu(sourceSlug, targetSlug);
+      },
+
       async confirmCloneMenu(sourceSlug, targetSlug) {
         const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
         try {
@@ -2814,11 +3292,18 @@
           this.showToast("فشل استنساخ المنيو", "error");
         }
       },
+
+      // --- Custom Cascade Wipe Modal (Eliminates browser confirm) ---
       openDeleteModal(slug, name) {
-        const conf = confirm(`تحذير أمني شديد الخطورة!\nهل أنت متأكد من حذف المطعم [${name}] نهائياً مع كافة وجباته وطلباته وسجلاته؟\nلا يمكن التراجع عن هذا الإجراء!`);
-        if (conf) {
-          this.confirmCascadeWipe(slug);
-        }
+        this.openConfirmModal({
+          title: 'تحذير أمني شديد الخطورة',
+          message: `هل أنت متأكد من حذف المطعم [${name}] نهائياً مع كافة وجباته وطلباته وسجلاته؟\nلا يمكن التراجع عن هذا الإجراء نهائياً!`,
+          confirmText: 'تأكيد الحذف النهائي',
+          isDanger: true,
+          onConfirm: () => {
+            this.confirmCascadeWipe(slug);
+          }
+        });
       },
       async confirmCascadeWipe(slug) {
         const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
@@ -3091,6 +3576,18 @@
         const amountInput = document.getElementById('pricing-amount');
         const cycleInput = document.getElementById('pricing-billing-cycle');
 
+        if (val === 'custom') {
+          return;
+        }
+
+        const pkg = this.packages.find(p => p.id === val);
+        if (pkg) {
+          nameInput.value = pkg.name;
+          amountInput.value = pkg.price;
+          cycleInput.value = pkg.billingCycle || 'monthly';
+          return;
+        }
+
         if (val === 'starter') {
           nameInput.value = 'الباقة الأساسية (Starter)';
           amountInput.value = '1000';
@@ -3107,6 +3604,344 @@
           nameInput.value = 'الباقة السنوية المخفضة';
           amountInput.value = '15000';
           cycleInput.value = 'annual';
+        }
+      },
+
+      // --- Package Management Methods ---
+      switchFinanceSubnav(view) {
+        this.activeFinanceSubnav = view;
+        const btnTenants = document.getElementById('fsubnav-tenants');
+        const btnPkgs = document.getElementById('fsubnav-packages');
+        const viewTenants = document.getElementById('fsubview-tenants');
+        const viewPkgs = document.getElementById('fsubview-packages');
+
+        if (view === 'packages') {
+          if (btnTenants) btnTenants.classList.remove('active');
+          if (btnPkgs) btnPkgs.classList.add('active');
+          if (viewTenants) viewTenants.style.display = 'none';
+          if (viewPkgs) viewPkgs.style.display = 'block';
+          this.renderPackagesUI();
+        } else {
+          if (btnTenants) btnTenants.classList.add('active');
+          if (btnPkgs) btnPkgs.classList.remove('active');
+          if (viewTenants) viewTenants.style.display = 'block';
+          if (viewPkgs) viewPkgs.style.display = 'none';
+          this.renderFinanceUI();
+        }
+      },
+
+      renderPackagesUI() {
+        const countBadge = document.getElementById('fsubnav-pkg-count');
+        if (countBadge) countBadge.textContent = this.packages.length || '0';
+
+        const container = document.getElementById('packages-cards-grid');
+        if (!container) return;
+
+        if (!this.packages || this.packages.length === 0) {
+          container.innerHTML = `
+            <div style="text-align:center; padding:30px 10px; background:var(--bg-surface); border:1px dashed var(--border-light); border-radius:12px;">
+              <div style="font-size:13px; font-weight:700; color:var(--text-secondary); margin-bottom:10px;">لا توجد باقات اشتراك مضافة حالياً</div>
+              <button type="button" class="btn-submit" onclick="MasterApp.openCreatePackageModal()" style="max-width:200px; margin:0 auto; height:36px;">
+                <span>إضافة أول باقة</span>
+              </button>
+            </div>
+          `;
+          return;
+        }
+
+        const escapeHtml = (s) => String(s || '').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+        container.innerHTML = this.packages.map(p => {
+          const subscribers = (this.tenants || []).filter(t => {
+            const plan = (t.plan || '').toLowerCase();
+            const pName = (p.name || '').toLowerCase();
+            const pId = (p.id || '').toLowerCase();
+            return plan.includes(pId) || plan.includes(pName) || pName.includes(plan);
+          }).length;
+
+          let durationBadge = p.durationLabel || `${p.durationDays || 30} يوماً`;
+          if (p.durationDays === 'lifetime' || p.durationDays === 99999 || p.durationDays === 0) {
+            durationBadge = 'مدى الحياة';
+          }
+
+          let cycleText = 'شهرياً';
+          if (p.billingCycle === 'quarterly') cycleText = 'كل 3 أشهر';
+          else if (p.billingCycle === 'semi_annual') cycleText = 'كل 6 أشهر';
+          else if (p.billingCycle === 'annual') cycleText = 'سنوياً';
+          else if (p.billingCycle === 'custom') cycleText = 'مخصص';
+
+          return `
+            <div class="package-card">
+              <div class="package-card-header">
+                <div>
+                  <div class="package-card-title">${escapeHtml(p.name)}</div>
+                  <div style="font-size:11.5px; color:var(--text-secondary); margin-top:2px;">دورة الفوترة: ${cycleText}</div>
+                </div>
+                <div class="package-card-price">${Number(p.price || 0).toLocaleString()} <span style="font-size:11px; font-weight:700; color:var(--text-secondary);">ج.م</span></div>
+              </div>
+              <div class="package-card-meta">
+                <span class="package-badge">${durationBadge}</span>
+                <span class="package-badge-subscribers">${subscribers} مطعم مشترك</span>
+                ${p.description ? `<div style="font-size:11px; color:var(--text-muted); width:100%; margin-top:2px;">${escapeHtml(p.description)}</div>` : ''}
+              </div>
+              <div class="package-card-actions">
+                <button type="button" class="pkg-action-btn" onclick="MasterApp.openEditPackageModal('${p.id}')">
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                  <span>تعديل السعر والمدة</span>
+                </button>
+                <button type="button" class="pkg-action-btn danger" onclick="MasterApp.deletePackage('${p.id}')">
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                  <span>حذف</span>
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      },
+
+      renderPackageOptions() {
+        const escapeHtml = (s) => String(s || '').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+        const newTenantSelect = document.getElementById('new-tenant-plan');
+        if (newTenantSelect && this.packages.length > 0) {
+          let html = '';
+          this.packages.forEach((p, idx) => {
+            const isSel = idx === 0 ? 'selected' : '';
+            html += `<option value="${escapeHtml(p.name)}" data-price="${p.price}" data-duration="${p.durationDays || 30}" ${isSel}>${escapeHtml(p.name)} — ${Number(p.price).toLocaleString()} ج.م</option>`;
+          });
+          html += `<option value="باقة مخصصة" data-price="" data-duration="30">باقة مخصصة (حدد السعر والمدة بحرية)</option>`;
+          newTenantSelect.innerHTML = html;
+          this.onNewTenantPlanChange();
+        }
+
+        const presetSelect = document.getElementById('pricing-plan-preset');
+        if (presetSelect && this.packages.length > 0) {
+          let html = `<option value="custom">باقة مخصصة (كتابة الاسم والسعر يدوياً)</option>`;
+          this.packages.forEach(p => {
+            html += `<option value="${p.id}">${escapeHtml(p.name)} — ${Number(p.price).toLocaleString()} ج.م</option>`;
+          });
+          presetSelect.innerHTML = html;
+        }
+      },
+
+      openCreatePackageModal() {
+        this.editingPackageId = null;
+        const titleEl = document.getElementById('package-modal-title');
+        const btnTextEl = document.getElementById('pkg-save-btn-text');
+        if (titleEl) titleEl.textContent = 'إضافة باقة اشتراك جديدة';
+        if (btnTextEl) btnTextEl.textContent = 'حفظ وتفعيل الباقة بالمنصة';
+        document.getElementById('pkg-input-name').value = '';
+        document.getElementById('pkg-input-price').value = '';
+        document.getElementById('pkg-input-duration').value = '30';
+        document.getElementById('pkg-input-custom-days').value = '';
+        document.getElementById('pkg-custom-days-group').style.display = 'none';
+        document.getElementById('pkg-input-cycle').value = 'monthly';
+        document.getElementById('pkg-input-desc').value = '';
+
+        document.getElementById('modal-package-backdrop').classList.add('open');
+        document.getElementById('modal-package-edit').classList.add('open');
+      },
+
+      openEditPackageModal(pkgId) {
+        const p = this.packages.find(x => x.id === pkgId);
+        if (!p) return;
+        this.editingPackageId = pkgId;
+        const titleEl = document.getElementById('package-modal-title');
+        const btnTextEl = document.getElementById('pkg-save-btn-text');
+        if (titleEl) titleEl.textContent = `تعديل باقة: ${p.name}`;
+        if (btnTextEl) btnTextEl.textContent = 'حفظ التعديلات السحابية';
+        document.getElementById('pkg-input-name').value = p.name || '';
+        document.getElementById('pkg-input-price').value = p.price !== undefined ? p.price : '';
+
+        const durSelect = document.getElementById('pkg-input-duration');
+        const customGroup = document.getElementById('pkg-custom-days-group');
+        const customInput = document.getElementById('pkg-input-custom-days');
+
+        const stdDurations = ['30', '60', '90', '180', '365', 'lifetime'];
+        const durStr = String(p.durationDays);
+
+        if (stdDurations.includes(durStr)) {
+          durSelect.value = durStr;
+          customGroup.style.display = 'none';
+          customInput.value = '';
+        } else {
+          durSelect.value = 'custom';
+          customGroup.style.display = 'block';
+          customInput.value = durStr;
+        }
+
+        document.getElementById('pkg-input-cycle').value = p.billingCycle || 'monthly';
+        document.getElementById('pkg-input-desc').value = p.description || '';
+
+        document.getElementById('modal-package-backdrop').classList.add('open');
+        document.getElementById('modal-package-edit').classList.add('open');
+      },
+
+      closePackageModal() {
+        document.getElementById('modal-package-backdrop').classList.remove('open');
+        document.getElementById('modal-package-edit').classList.remove('open');
+        this.editingPackageId = null;
+      },
+
+      onPackageDurationSelect() {
+        const val = document.getElementById('pkg-input-duration').value;
+        const group = document.getElementById('pkg-custom-days-group');
+        if (val === 'custom') {
+          group.style.display = 'block';
+        } else {
+          group.style.display = 'none';
+        }
+      },
+
+      async savePackage() {
+        const name = document.getElementById('pkg-input-name').value.trim();
+        const price = Number(document.getElementById('pkg-input-price').value);
+        const durVal = document.getElementById('pkg-input-duration').value;
+        let durationDays = 30;
+        let durationLabel = 'شهر واحد (30 يوماً)';
+
+        if (!name) {
+          this.showToast("يرجى إدخال اسم الباقة", "error");
+          return;
+        }
+        if (isNaN(price) || price < 0) {
+          this.showToast("يرجى إدخال سعر صحيح للباقة", "error");
+          return;
+        }
+
+        if (durVal === 'custom') {
+          const customDays = parseInt(document.getElementById('pkg-input-custom-days').value, 10);
+          if (isNaN(customDays) || customDays <= 0) {
+            this.showToast("يرجى إدخال عدد أيام صالح للمدة المخصصة", "error");
+            return;
+          }
+          durationDays = customDays;
+          durationLabel = `${customDays} يوماً`;
+        } else if (durVal === 'lifetime') {
+          durationDays = 99999;
+          durationLabel = 'دائمة (مدى الحياة)';
+        } else {
+          durationDays = parseInt(durVal, 10);
+          const durMap = {
+            30: 'شهر واحد (30 يوماً)',
+            60: 'شهران (60 يوماً)',
+            90: '3 أشهر (90 يوماً)',
+            180: '6 أشهر (180 يوماً)',
+            365: 'سنة كاملة (365 يوماً)'
+          };
+          durationLabel = durMap[durationDays] || `${durationDays} يوماً`;
+        }
+
+        const billingCycle = document.getElementById('pkg-input-cycle').value || 'monthly';
+        const description = document.getElementById('pkg-input-desc').value.trim();
+
+        const id = this.editingPackageId || ('pkg_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 4));
+
+        const packageObj = {
+          id,
+          name,
+          price,
+          durationDays,
+          durationLabel,
+          billingCycle,
+          description,
+          updatedAt: Date.now()
+        };
+
+        const existingIdx = this.packages.findIndex(x => x.id === id);
+        if (existingIdx !== -1) {
+          this.packages[existingIdx] = packageObj;
+        } else {
+          this.packages.push(packageObj);
+        }
+
+        try { localStorage.setItem('harpy_master_cached_packages', JSON.stringify(this.packages)); } catch(e) {}
+        this.renderPackagesUI();
+        this.renderPackageOptions();
+        this.closePackageModal();
+
+        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
+        try {
+          await fetch(`${BASE_RTDB}/subscriptionPlans/${id}.json${authParam}`, {
+            method: 'PUT',
+            body: JSON.stringify(packageObj)
+          });
+          this.logAudit('PACKAGE_SAVED', `حفظ باقة [${name}] بسعر ${price} ج.م`, id);
+          this.showToast(`تم حفظ الباقة "${name}" بنجاح`, "success");
+        } catch(e) {
+          this.showToast("تم الحفظ محلياً وجارٍ المزامنة السحابية", "warning");
+        }
+      },
+
+      deletePackage(pkgId) {
+        const p = this.packages.find(x => x.id === pkgId);
+        if (!p) return;
+
+        this.openConfirmModal({
+          title: 'حذف باقة الاشتراك',
+          message: `هل أنت متأكد من حذف الباقة "${p.name}"؟\nلن تتأثر المطاعم المشتركة حالياً، ولكن لن تكون هذه الباقة متاحة للتعيين بعد الآن.`,
+          confirmText: 'تأكيد الحذف',
+          isDanger: true,
+          onConfirm: async () => {
+            this.packages = this.packages.filter(x => x.id !== pkgId);
+            try { localStorage.setItem('harpy_master_cached_packages', JSON.stringify(this.packages)); } catch(e) {}
+            this.renderPackagesUI();
+            this.renderPackageOptions();
+
+            const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
+            try {
+              await fetch(`${BASE_RTDB}/subscriptionPlans/${pkgId}.json${authParam}`, { method: 'DELETE' });
+              this.logAudit('PACKAGE_DELETED', `حذف باقة [${p.name}]`, pkgId);
+              this.showToast(`تم حذف الباقة "${p.name}"`, "success");
+            } catch(e) {
+              this.showToast("فشلت المزامنة السحابية للحذف", "error");
+            }
+          }
+        });
+      },
+
+      // --- Custom Modern Confirmation Modal Methods (Eliminates browser confirm) ---
+      openConfirmModal({ title, message, confirmText, isDanger, onConfirm }) {
+        const titleEl = document.getElementById('modal-confirm-title');
+        const descEl = document.getElementById('modal-confirm-desc');
+        const btnEl = document.getElementById('modal-confirm-btn');
+        const btnTextEl = document.getElementById('modal-confirm-btn-text');
+        const iconWrap = document.getElementById('modal-confirm-icon-wrap');
+
+        if (titleEl) titleEl.textContent = title || 'تأكيد الإجراء';
+        if (descEl) descEl.textContent = message || 'هل أنت متأكد من تنفيذ هذا الإجراء؟';
+        if (btnTextEl) btnTextEl.textContent = confirmText || 'تأكيد ومتابعة';
+
+        if (isDanger) {
+          if (iconWrap) {
+            iconWrap.style.background = 'var(--red-dim)';
+            iconWrap.style.color = 'var(--red)';
+          }
+          if (btnEl) btnEl.style.background = 'var(--red)';
+        } else {
+          if (iconWrap) {
+            iconWrap.style.background = 'var(--amber-dim)';
+            iconWrap.style.color = 'var(--amber)';
+          }
+          if (btnEl) btnEl.style.background = 'var(--primary)';
+        }
+
+        this.confirmCallback = onConfirm;
+        document.getElementById('modal-confirm-backdrop').classList.add('open');
+        document.getElementById('modal-confirm').classList.add('open');
+      },
+
+      closeConfirmModal() {
+        document.getElementById('modal-confirm-backdrop').classList.remove('open');
+        document.getElementById('modal-confirm').classList.remove('open');
+        this.confirmCallback = null;
+      },
+
+      executeConfirm() {
+        const cb = this.confirmCallback;
+        this.closeConfirmModal();
+        if (typeof cb === 'function') {
+          cb();
         }
       },
       openPricingFromPayment() {
