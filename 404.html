@@ -99,7 +99,7 @@
         } catch(e) {}
 
         if (adminHashes.indexOf(cleanHash) !== -1) {
-          var slug = storedSlug || 'saj';
+          var slug = storedSlug || 'aloo';
           window.location.replace(repoPrefix + '/admin.html?m=' + encodeURIComponent(slug) + '#' + cleanHash);
           return;
         }
@@ -111,7 +111,7 @@
           var params = new URLSearchParams(search);
           if (slug && !params.get('m')) params.set('m', slug);
           if (!params.get('m')) {
-            params.set('m', storedSlug || 'saj');
+            params.set('m', storedSlug || 'aloo');
           }
           var queryString = '?' + params.toString();
           window.location.replace(repoPrefix + '/admin.html' + queryString + hash);
@@ -139,14 +139,14 @@
         var filtered = remaining.filter(function(s) { return s !== 'order'; });
         var slug = filtered.length > 0 ? filtered[0] : '';
         var params = new URLSearchParams(search);
-        var resolvedSlug = slug || params.get('m') || storedSlug || 'saj';
+        var resolvedSlug = slug || params.get('m') || storedSlug || 'aloo';
         params.set('m', resolvedSlug);
         var queryString = '?' + params.toString();
 
         // Always route cleanly to /order.html?m={slug}
         window.location.replace(repoPrefix + '/order.html' + queryString + hash);
       } catch (e) {
-        window.location.replace((repoPrefix || '') + '/order.html?m=saj');
+        window.location.replace((repoPrefix || '') + '/order.html?m=aloo');
       }
     })();
   </script>

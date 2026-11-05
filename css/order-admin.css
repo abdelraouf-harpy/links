@@ -954,6 +954,13 @@ body.harpy-account-locked {
   height: 100vh !important;
   touch-action: none !important;
 }
+body.harpy-account-locked #login-modal,
+body.harpy-account-locked #login-modal-backdrop {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
 .harpy-lock-backdrop {
   position: fixed !important;
   top: 0 !important;
@@ -1028,6 +1035,16 @@ html.admin-locked #login-modal {
   display: block !important;
   z-index: 99999 !important;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45) !important;
+}
+
+html.admin-locked body.harpy-account-locked #login-modal,
+html.admin-locked body.harpy-account-locked #login-modal-backdrop,
+body.harpy-account-locked #login-modal,
+body.harpy-account-locked #login-modal-backdrop {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 html.admin-unlocked .app-header {

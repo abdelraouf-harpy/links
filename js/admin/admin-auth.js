@@ -209,7 +209,7 @@ function setupAuth() {
     const modalTitle = document.getElementById('login-modal-restaurant-name');
     const modalSub = document.getElementById('login-modal-subtitle');
     const storeSettings = Store.getSettings ? Store.getSettings(slug) : null;
-    const storeName = (storeSettings && storeSettings.name) ? storeSettings.name : (slug === 'saj' ? 'مطعم صاج' : slug);
+    const storeName = (storeSettings && storeSettings.name) ? storeSettings.name : slug;
     if (modalTitle) modalTitle.textContent = `إدارة: ${storeName}`;
     if (modalSub) modalSub.textContent = 'أدخل كلمة مرور الإدارة للدخول المباشر إلى لوحة التحكم';
     if (adminElements.adminEmailInput && !adminElements.adminEmailInput.value) {
@@ -574,7 +574,7 @@ function checkOnboardingSetup() {
 window.verifyAdminCredentials = async function(enteredPassword, slug) {
   if (!enteredPassword) return false;
   const cleanPass = enteredPassword.trim();
-  slug = (slug || (typeof Store !== 'undefined' ? Store.getRestaurantSlug() : 'saj')).toLowerCase().trim();
+  slug = (slug || (typeof Store !== 'undefined' ? Store.getRestaurantSlug() : '')).toLowerCase().trim();
 
   // 1. Instant Keychain Check (If admin authenticated on this device/session with this password)
   if (typeof Store !== 'undefined' && Store.getBranchKeychain) {
@@ -709,12 +709,33 @@ function setupSubscriptionWatcher() {
     if (suspendedOverlay) suspendedOverlay.classList.add('active');
 
     if (statusReason === 'deleted') {
-      if (iconEl) iconEl.innerHTML = '<svg class="icon" viewBox="0 0 24 24" style="width:28px; height:28px;"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/></svg>';
-      if (titleEl) titleEl.textContent = 'تم حذف حساب هذا المطعم نهائياً';
-      if (msgEl) msgEl.textContent = 'تم حذف بيانات وترخيص هذا المطعم نهائياً من المنصة، ولم يعد متاحاً.';
+      try {
+        document.title = '404 — حساب غير متوفر';
+        if (adminElements.loginModal) {
+          adminElements.loginModal.classList.remove('open');
+          adminElements.loginModal.style.display = 'none';
+        }
+        if (adminElements.loginBackdrop) {
+          adminElements.loginBackdrop.classList.remove('open');
+          adminElements.loginBackdrop.style.display = 'none';
+        }
+        const modalTitle = document.getElementById('login-modal-restaurant-name');
+        if (modalTitle) modalTitle.textContent = '';
+        if (typeof Store !== 'undefined' && Store.purgeRestaurantCache) {
+          Store.purgeRestaurantCache(slug);
+        }
+      } catch(e) {}
+      if (iconEl) {
+        iconEl.innerHTML = '<svg class="icon" viewBox="0 0 24 24" style="width:32px; height:32px; stroke-width:1.8;"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>';
+        iconEl.style.background = 'rgba(148, 163, 184, 0.12)';
+        iconEl.style.color = 'var(--text-muted, #94a3b8)';
+      }
+      if (titleEl) titleEl.textContent = 'حساب غير متوفر (404)';
+      if (msgEl) msgEl.textContent = 'عذراً، هذا الرابط غير مرتبط بأي حساب نشط على المنصة. يرجى التحقق من صحة الرابط أو تسجيل الدخول من اللوحة المركزية.';
       if (contactBtn) {
-        contactBtn.href = `https://wa.me/201019971508?text=${encodeURIComponent(`مرحباً إدارة هاربي، أود الاستفسار عن إنشاء مطعم جديد بدلاً من (${slug})`)}`;
-        contactBtn.textContent = 'تواصل مع الإدارة لإنشاء حساب جديد';
+        contactBtn.href = window.location.origin ? (window.location.origin + '/') : '/';
+        contactBtn.target = '_self';
+        contactBtn.textContent = 'الذهاب للصفحة الرئيسية';
       }
     } else if (statusReason === 'expired') {
       if (iconEl) iconEl.innerHTML = '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';

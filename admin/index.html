@@ -117,9 +117,9 @@
           if (savedAdminSlug) slug = savedAdminSlug;
         }
 
-        // Clean default: on admin without ?m=, always load primary restaurant 'saj' if nothing stored
+        // Clean default: on admin without ?m=, load active restaurant 'aloo' if nothing stored
         if (!slug) {
-          slug = 'saj';
+          slug = 'aloo';
         }
         slug = slug.toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
         window.__harpySlug = slug;
@@ -319,7 +319,7 @@
         </div>
         <div class="brand-text">
           <h1 id="admin-header-section-title" class="admin-header-section-title">طلبات المطبخ والتجهيز</h1>
-          <p id="admin-store-subtitle" class="admin-header-subtitle"><span id="admin-store-name">إدارة: صاج</span></p>
+          <p id="admin-store-subtitle" class="admin-header-subtitle"><span id="admin-store-name">لوحة الإدارة</span></p>
         </div>
       </div>
 
@@ -368,7 +368,7 @@
         </div>
         <img id="drawer-logo-img" class="drawer-logo-img" alt="Logo" style="display:none;">
         <div class="drawer-brand-text">
-          <div class="drawer-store-name" id="drawer-store-name">إدارة صاج</div>
+          <div class="drawer-store-name" id="drawer-store-name">لوحة الإدارة</div>
           <div class="drawer-store-sub">لوحة التحكم والتشغيل</div>
         </div>
       </div>

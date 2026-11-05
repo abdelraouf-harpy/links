@@ -2368,7 +2368,7 @@ const Store = {
       }
     } catch {}
 
-    const fallbackSlug = 'saj';
+    const fallbackSlug = 'aloo';
     if (typeof window !== 'undefined') window.__harpySlug = fallbackSlug;
     return fallbackSlug;
   },
@@ -4160,12 +4160,12 @@ const Store = {
       if (db) {
         licRef = db.ref(`licenses/${slug}`);
         wsCallback = snap => {
-          lastLicWsTime = Date.now();
           const val = snap ? snap.val() : null;
           if (val && typeof val === 'object') {
+            lastLicWsTime = Date.now();
             evaluateLicense(val);
           } else if (val === null && slug !== 'demo') {
-            fetchLicenseFast();
+            fetchLicenseFast(true);
           }
         };
         licRef.on('value', wsCallback, err => {
@@ -4178,10 +4178,10 @@ const Store = {
     }
 
     // 2. Smooth REST Fallback (Data-saver: skips when live WS or hidden)
-    const fetchLicenseFast = async () => {
+    const fetchLicenseFast = async (force = false) => {
       if (isDestroyed) return;
       if (typeof document !== 'undefined' && document.hidden) return;
-      if (licRef && (Date.now() - lastLicWsTime < 180000)) return;
+      if (!force && licRef && (Date.now() - lastLicWsTime < 180000)) return;
       try {
         const licRes = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${slug}.json`, { cache: 'no-store' }).catch(() => null);
 
@@ -4203,7 +4203,7 @@ const Store = {
       } catch (e) {}
     };
 
-    fetchLicenseFast();
+    fetchLicenseFast(true);
     pollTimer = setInterval(fetchLicenseFast, 180000);
 
     return () => {

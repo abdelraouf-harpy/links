@@ -573,9 +573,9 @@
                    localStorage.getItem('harpy_admin_active_slug');
           } catch(e) {}
         }
-        // In general web browser navigation without explicit tenant in URL, ALWAYS default to primary live restaurant 'saj'
+        // In general web browser navigation without explicit tenant in URL, default to active restaurant 'aloo'
         if (!slug) {
-          slug = 'saj';
+          slug = 'aloo';
         }
         slug = slug.toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
         window.__harpySlug = slug;
@@ -625,7 +625,11 @@
         var earlySubStatus = null;
         try {
           earlySubStatus = localStorage.getItem('harpy_' + slug + '_sub_status');
-          if (earlySubStatus === 'deleted' || earlySubStatus === 'suspended' || earlySubStatus === 'blocked') {
+          if (earlySubStatus === 'deleted') {
+            document.documentElement.classList.add('harpy-account-locked');
+            if (document.body) document.body.classList.add('harpy-account-locked');
+            document.title = 'الرابط غير صالح — 404';
+          } else if (earlySubStatus === 'suspended' || earlySubStatus === 'blocked') {
             document.documentElement.classList.add('harpy-account-locked');
             if (document.body) document.body.classList.add('harpy-account-locked');
           } else {

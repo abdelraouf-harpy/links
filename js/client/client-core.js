@@ -1130,12 +1130,26 @@ function setupSubscriptionWatcher() {
     if (suspendedOverlay) suspendedOverlay.classList.add('active');
 
     if (statusReason === 'deleted') {
-      if (iconEl) iconEl.innerHTML = '<svg class="icon" viewBox="0 0 24 24" style="width:28px; height:28px;"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/></svg>';
-      if (titleEl) titleEl.textContent = 'المطعم غير موجود أو تم حذفه نهائياً';
-      if (descEl) descEl.textContent = 'تم إيقاف هذا الرابط وحذف بيانات هذا المطعم بالكامل من منصة هاربي.';
+      try {
+        document.title = 'الرابط غير صالح — 404';
+        const elName = document.getElementById('store-name');
+        if (elName) elName.textContent = 'غير متوفر';
+        const elLogo = document.getElementById('store-logo');
+        if (elLogo) elLogo.style.display = 'none';
+        const elTagline = document.getElementById('store-tagline');
+        if (elTagline) elTagline.textContent = '';
+      } catch(e) {}
+      if (iconEl) {
+        iconEl.innerHTML = '<svg class="icon" viewBox="0 0 24 24" style="width:32px; height:32px; stroke-width:1.8;"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>';
+        iconEl.style.background = 'rgba(148, 163, 184, 0.12)';
+        iconEl.style.color = 'var(--text-muted, #94a3b8)';
+      }
+      if (titleEl) titleEl.textContent = 'الرابط غير صحيح أو غير متوفر';
+      if (descEl) descEl.textContent = 'عذراً، هذا الرابط غير موجود أو لم يعد متوفراً حالياً. يرجى التأكد من كتابة العنوان بشكل سليم أو إعادة مسح كود QR الصحيح.';
       if (contactBtn) {
-        contactBtn.href = `https://wa.me/201019971508?text=${encodeURIComponent(`مرحباً إدارة منصة هاربي، أود الاستفسار عن رابط المطعم (${slug})`)}`;
-        contactBtn.textContent = 'تواصل مع إدارة منصة هاربي';
+        contactBtn.href = window.location.origin ? (window.location.origin + '/') : '/';
+        contactBtn.target = '_self';
+        contactBtn.textContent = 'الذهاب للصفحة الرئيسية';
       }
     } else if (statusReason === 'expired') {
       if (iconEl) iconEl.innerHTML = '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
