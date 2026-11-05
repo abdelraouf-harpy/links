@@ -312,6 +312,9 @@ function setupAuth() {
         if (!isAuthenticated) {
           unlockDashboard();
         }
+        if (typeof Store.ensureFirebaseAuth === 'function') {
+          Store.ensureFirebaseAuth(slug).catch(() => {});
+        }
       }
     }
   });
@@ -343,6 +346,9 @@ function setupAuth() {
       if (typeof Store.setBranchKeychain === 'function') {
         Store.setBranchKeychain(slug, password);
         if (identifier) Store.setBranchKeychain(identifier, password);
+      }
+      if (typeof Store.safeSetItem === 'function') {
+        Store.safeSetItem(`harpy_admin_pass_${slug}`, password);
       }
       unlockDashboard();
     } catch (err) {
