@@ -473,10 +473,17 @@ window.switchTab = function(targetTabId, updateHash = true) {
   // Module Enforcer Guard: If feature is disabled by Super Admin, redirect to orders
   if (window.ModuleEnforcer && window.ModuleEnforcer.modules) {
     const mods = window.ModuleEnforcer.modules;
-    if (targetTabId === 'tab-pos' && mods.pos === false) targetTabId = 'tab-orders';
+    if (mods.ordering === false) {
+      const forbidden = ['tab-orders', 'tab-pos', 'tab-archive'];
+      if (mods.inventory === false) forbidden.push('tab-inventory');
+      if (mods.stories === false) forbidden.push('tab-stories');
+      if (mods.settings === false || mods.settings === undefined) forbidden.push('tab-settings');
+      if (mods.backup === false || mods.backup === undefined) forbidden.push('tab-backup');
+      if (forbidden.includes(targetTabId)) targetTabId = 'tab-products';
+    } else if (targetTabId === 'tab-pos' && mods.pos === false) targetTabId = 'tab-orders';
     if (targetTabId === 'tab-inventory' && mods.inventory === false) targetTabId = 'tab-products';
-    if (targetTabId === 'tab-archive' && mods.archive === false) targetTabId = 'tab-orders';
-    if (targetTabId === 'tab-stories' && mods.stories === false) targetTabId = 'tab-orders';
+    if (mods.ordering !== false && targetTabId === 'tab-archive' && mods.archive === false) targetTabId = 'tab-orders';
+    if (mods.ordering !== false && targetTabId === 'tab-stories' && mods.stories === false) targetTabId = 'tab-orders';
   }
 
   const targetPane = document.getElementById(targetTabId);
@@ -593,13 +600,27 @@ function setupTabNavigation() {
   const slug = Store.getRestaurantSlug();
   const savedTab = localStorage.getItem(`harpy_${slug}_admin_active_tab`);
 
-  let initialTab = targetOrderId ? 'tab-orders' : 'tab-orders';
+  const mods = (window.ModuleEnforcer && window.ModuleEnforcer.modules) ||
+               (Store.getSettings && Store.getSettings()?.modules) || {};
+  const isOrderingDisabled = (mods.ordering === false);
+  let initialTab = isOrderingDisabled ? 'tab-products' : (targetOrderId ? 'tab-orders' : 'tab-orders');
   if (targetOrderId) {
     initialTab = 'tab-orders';
   } else if (hash && document.getElementById('tab-' + hash)) {
     initialTab = 'tab-' + hash;
   } else if (savedTab && document.getElementById(savedTab)) {
     initialTab = savedTab;
+  }
+
+  if (isOrderingDisabled) {
+    const forbiddenInMenuOnly = ['tab-orders', 'tab-pos', 'tab-archive'];
+    if (mods.inventory === false) forbiddenInMenuOnly.push('tab-inventory');
+    if (mods.stories === false) forbiddenInMenuOnly.push('tab-stories');
+    if (mods.settings === false || mods.settings === undefined) forbiddenInMenuOnly.push('tab-settings');
+    if (mods.backup === false || mods.backup === undefined) forbiddenInMenuOnly.push('tab-backup');
+    if (forbiddenInMenuOnly.includes(initialTab)) {
+      initialTab = 'tab-products';
+    }
   }
 
   // Switch to initial tab immediately

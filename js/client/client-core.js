@@ -1305,6 +1305,13 @@ function saveCustomerProfile(name, phone, address = '', notes = '', lang = '') {
 }
 
 function checkCustomerOnboarding() {
+  // If restaurant is in "Digital Menu View Only" mode (ordering: false), never prompt customer onboarding
+  const mods = (window.ModuleEnforcer && window.ModuleEnforcer.modules) ||
+               (window.Store && typeof window.Store.getSettings === 'function' && window.Store.getSettings()?.modules) || {};
+  if (mods.ordering === false || document.documentElement.getAttribute('data-mod-ordering') === 'false') {
+    return;
+  }
+
   const profile = getCustomerProfile();
   if (profile) {
     if (elements.custName && !elements.custName.value && profile.name) elements.custName.value = profile.name;
@@ -1335,6 +1342,12 @@ function checkCustomerOnboarding() {
 }
 
 function openCustomerOnboardModal() {
+  const mods = (window.ModuleEnforcer && window.ModuleEnforcer.modules) ||
+               (window.Store && typeof window.Store.getSettings === 'function' && window.Store.getSettings()?.modules) || {};
+  if (mods.ordering === false || document.documentElement.getAttribute('data-mod-ordering') === 'false') {
+    return;
+  }
+
   const backdrop = document.getElementById('customer-onboard-backdrop');
   const modal = document.getElementById('customer-onboard-modal');
   if (backdrop && modal) {
@@ -1352,10 +1365,8 @@ function openCustomerOnboardModal() {
     const profile = getCustomerProfile();
     const nameInput = document.getElementById('onboard-name');
     const phoneInput = document.getElementById('onboard-phone');
-    const addressInput = document.getElementById('onboard-address');
     if (nameInput && profile && profile.name && !nameInput.value) nameInput.value = profile.name;
     if (phoneInput && profile && profile.phone && !phoneInput.value) phoneInput.value = profile.phone;
-    if (addressInput && profile && profile.address && !addressInput.value) addressInput.value = profile.address;
 
     setTimeout(() => {
       if (nameInput && !nameInput.value) nameInput.focus();
@@ -1388,7 +1399,6 @@ function closeCustomerOnboardModal(skipped = false, updateHistory = true) {
   document.documentElement.classList.remove('onboard-active');
   if (skipped) {
     sessionStorage.setItem('harpy_onboard_skipped', 'true');
-    localStorage.setItem('harpy_customer_lang_onboarded', 'true');
   }
   if (updateHistory && history.state && history.state.harpyNav === 'onboard_modal') {
     history.back();

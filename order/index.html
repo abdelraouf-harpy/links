@@ -592,7 +592,14 @@
           var _hasOnboarded = localStorage.getItem('harpy_customer_lang_onboarded');
           var _hasSkipped = sessionStorage.getItem('harpy_onboard_skipped');
           var _urlParams = new URLSearchParams(window.location.search);
-          if ((!_hasOnboarded && !_hasSkipped) || _urlParams.has('onboard') || _urlParams.has('lang')) {
+          var _isMenuOnly = false;
+          try {
+            var _cachedSettings = JSON.parse(localStorage.getItem('harpy_' + slug + '_settings') || '{}');
+            if (_cachedSettings && _cachedSettings.modules && _cachedSettings.modules.ordering === false) {
+              _isMenuOnly = true;
+            }
+          } catch(e) {}
+          if (!_isMenuOnly && ((!_hasOnboarded && !_hasSkipped) || _urlParams.has('onboard') || _urlParams.has('lang'))) {
             document.documentElement.classList.add('onboard-active');
           }
         } catch(e) {}
@@ -760,7 +767,7 @@
     <!-- Compact Brand Header (Zero-Cover Hero - Matching Exact Mockup) -->
     <header class="menu-compact-header" id="menu-compact-header">
       <!-- Right Side (RTL): Brand Group (Logo + Name + Tagline) -->
-      <div class="menu-header-brand-group">
+      <div class="menu-header-brand-group" style="cursor:pointer;" onclick="window.handleNavTabClick && window.handleNavTabClick('home')" title="عرض معلومات وتفاصيل المطعم">
         <div class="menu-header-logo-box">
           <img id="hero-store-logo" src="assets/portfolio/logo.png" alt="شعار المطعم" class="menu-header-logo-img" onerror="this.onerror=null;">
         </div>
@@ -826,7 +833,7 @@
 
         <!-- Dynamic Branch / Dine-In Table Indicator Pill -->
         <button type="button" id="header-branch-pill" class="menu-meta-pill pill-dark" onclick="window.openBranchPickerFromHeader && window.openBranchPickerFromHeader()" style="display:none; cursor:pointer; font-weight:800; font-size:11px; align-items:center; gap:5px; border:1px solid var(--border); background:var(--surface);" title="الفرع النشط">
-          <span id="header-branch-pill-icon">📍</span>
+          <span id="header-branch-pill-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
           <span id="header-branch-pill-text">الفرع</span>
           <span id="header-branch-pill-arrow" style="font-size:9px; opacity:0.75;">▼</span>
         </button>
@@ -918,7 +925,7 @@
         <div class="portfolio-hero-name-col">
           <div class="portfolio-hero-name-row">
             <h1 id="portfolio-store-name" class="portfolio-hero-store-name"></h1>
-            <span class="portfolio-hero-flame-icon">🔥</span>
+            <span class="portfolio-hero-flame-icon"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></span>
           </div>
           <div id="portfolio-status-chip" class="portfolio-live-chip open">
             <span class="status-pulse-dot"></span>
@@ -1551,7 +1558,7 @@
                 <span id="customer-info-section-label" data-i18n="cust_info_heading">بيانات التواصل والتوصيل:</span>
               </span>
               <button type="button" id="btn-collapse-profile-edit" onclick="window.toggleCustomerProfileEdit(false)" style="display:none; background:none; border:none; color:var(--primary); font-size:11.5px; font-weight:800; cursor:pointer;">
-                حفظ وإغلاق ✓
+                حفظ وإغلاق
               </button>
             </div>
 
@@ -2036,19 +2043,14 @@
   <!-- ═══════════════════════════════════════════════════════════
        CUSTOMER ONBOARDING MODAL (One-Time Frictionless Profile)
        ═══════════════════════════════════════════════════════════ -->
-  <div class="modal-backdrop" id="customer-onboard-backdrop" style="z-index:10008;" onclick="window.closeCustomerOnboardModal && window.closeCustomerOnboardModal(true)"></div>
+  <div class="modal-backdrop" id="customer-onboard-backdrop" style="z-index:10008;" onclick="window.closeCustomerOnboardModal && window.closeCustomerOnboardModal(false)"></div>
   <div class="customer-onboard-modal" id="customer-onboard-modal" style="z-index:10009;" role="dialog" aria-modal="true" aria-labelledby="onboard-title">
-    <button type="button" class="btn-close-onboard" onclick="window.closeCustomerOnboardModal && window.closeCustomerOnboardModal(true)" aria-label="تخطي">
+    <button type="button" class="btn-close-onboard" onclick="window.closeCustomerOnboardModal && window.closeCustomerOnboardModal(false)" aria-label="إغلاق">
       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </button>
     <div class="onboard-header">
-      <div class="onboard-avatar-circle">
-        <svg class="icon" viewBox="0 0 24 24" style="width:24px; height:24px; stroke-width:2;"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      </div>
-
       <!-- Language Selector Bar without Emojis -->
       <div class="onboard-lang-row">
-        <div class="onboard-lang-label" data-i18n="onboard_lang_select">لغة المنيو والتطبيق:</div>
         <div class="onboard-lang-pills" id="onboard-lang-pills">
           <button type="button" class="onboard-lang-btn active" data-lang="ar" onclick="selectOnboardLanguage('ar')">
             <span class="onboard-lang-code font-num">AR</span>
@@ -2062,7 +2064,7 @@
       </div>
 
       <h3 class="onboard-title" id="onboard-title" data-i18n="onboard_title">أهلاً بك في مطعمنا!</h3>
-      <p class="onboard-subtitle" id="onboard-subtitle" data-i18n="onboard_subtitle">اختر لغتك المفضلة وسجّل بياناتك مرة واحدة لتسريع تأكيد طلباتك:</p>
+      <p class="onboard-subtitle" id="onboard-subtitle" data-i18n="onboard_subtitle">سجّل اسمك ورقمك لتأكيد طلباتك بسهولة:</p>
     </div>
     <form id="customer-onboard-form" onsubmit="window.handleCustomerOnboardSubmit && window.handleCustomerOnboardSubmit(event)">
       <div class="input-luxury-group">
@@ -2081,15 +2083,6 @@
             <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
           </span>
           <input type="tel" id="onboard-phone" class="input-luxury-field font-num" placeholder="01012345678" data-i18n-placeholder="field_phone_placeholder" required autocomplete="tel">
-        </div>
-      </div>
-      <div class="input-luxury-group">
-        <label class="input-luxury-label" id="onboard-address-label" for="onboard-address" data-i18n="field_address">عنوان التوصيل المعتاد</label>
-        <div class="input-icon-wrapper">
-          <span class="input-leading-icon">
-            <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          </span>
-          <input type="text" id="onboard-address" class="input-luxury-field" placeholder="المنطقة، الشارع، رقم العمارة والشقة" data-i18n-placeholder="field_address_placeholder" autocomplete="street-address">
         </div>
       </div>
       <div class="onboard-actions">

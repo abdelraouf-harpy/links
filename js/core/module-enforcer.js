@@ -292,7 +292,35 @@
       let cssRules = [];
 
       if (modules.ordering === false) {
+        // Client: Suppress all ordering, cart, checkout, call-waiter elements
         cssRules.push('#nav-tab-cart, .nav-tab-cart, #desktop-nav-cart, #desktop-cart-badge, #cart-drawer, #cart-drawer-backdrop, .btn-quick-add, .qty-stepper, #btn-add-customized-cart, .btn-add-cart, [data-action="add-to-cart"], #bottom-cart-bar, #floating-cart-btn, .customizer-footer-action, #cart-flow-fulfillment, .cart-flow-section, #table-call-waiter, .product-card-counter, .cart-float, #btn-open-cart, .cart-counter, .cart-dock, .order-action-btn, #cart-bar { display: none !important; }');
+        // Client: Suppress orders tab, account tab, and customer onboarding modal in digital menu mode
+        cssRules.push('#nav-tab-orders, #nav-tab-account, #desktop-nav-orders, #desktop-nav-account, #customer-onboard-modal, #customer-onboard-backdrop { display: none !important; }');
+        // Client: Refine bottom nav bar for 2 tabs (الرئيسية and المنيو)
+        cssRules.push('.bottom-nav-bar { justify-content: space-evenly !important; max-width: 360px !important; margin-inline: auto !important; border-radius: 20px 20px 0 0 !important; }');
+        cssRules.push('.bottom-nav-bar #nav-tab-menu { flex: 1 1 0 !important; width: auto !important; height: 100% !important; min-width: 0 !important; border-radius: 12px !important; margin: 0 !important; transform: none !important; box-shadow: none !important; background: transparent !important; color: var(--text-muted, #78716c) !important; padding: 6px 0 4px !important; }');
+        cssRules.push('.bottom-nav-bar #nav-tab-menu .nav-tab-icon { width: auto !important; height: auto !important; }');
+        cssRules.push('.bottom-nav-bar #nav-tab-menu .nav-tab-icon svg { stroke: currentColor !important; width: 20px !important; height: 20px !important; }');
+        cssRules.push('.bottom-nav-bar #nav-tab-menu .nav-tab-label { color: inherit !important; font-size: 11px !important; font-weight: 700 !important; }');
+        cssRules.push('.bottom-nav-bar #nav-tab-menu.active { color: var(--primary, #ea580c) !important; font-weight: 800 !important; }');
+        cssRules.push('.bottom-nav-bar #nav-tab-home.active { color: var(--primary, #ea580c) !important; font-weight: 800 !important; }');
+
+        // Admin: Suppress kitchen orders, POS cashier, archive, and operational group header
+        cssRules.push('button[data-tab="tab-orders"], #drawer-nav-orders, #tab-orders, button[data-tab="tab-pos"], #drawer-nav-pos, #tab-pos, button[data-tab="tab-archive"], #drawer-nav-archive, #tab-archive, .drawer-nav-group-title:first-of-type { display: none !important; }');
+
+        // Admin Menu-Only mode: hide settings and backup unless explicitly enabled
+        if (modules.settings === false || modules.settings === undefined) {
+          cssRules.push('button[data-tab="tab-settings"], #tab-settings { display: none !important; }');
+        }
+        if (modules.backup === false || modules.backup === undefined) {
+          cssRules.push('button[data-tab="tab-backup"], #tab-backup { display: none !important; }');
+        }
+        if ((modules.settings === false || modules.settings === undefined) && (modules.backup === false || modules.backup === undefined)) {
+          cssRules.push('.drawer-nav-group-title:last-of-type { display: none !important; }');
+        }
+        if (modules.inventory === false && modules.stories === false) {
+          cssRules.push('.drawer-nav-group-title:nth-of-type(2) { display: none !important; }');
+        }
       }
 
       if (modules.pos === false) {
@@ -350,7 +378,7 @@
 
       // Ordering Module (Zero-Ordering / View-Only Digital Menu Mode)
       if (modules.ordering === false) {
-        document.querySelectorAll('#nav-tab-cart, .nav-tab-cart, #desktop-nav-cart, #desktop-cart-badge, #bottom-cart-bar, #floating-cart-btn').forEach(el => {
+        document.querySelectorAll('#nav-tab-cart, .nav-tab-cart, #desktop-nav-cart, #desktop-cart-badge, #bottom-cart-bar, #floating-cart-btn, #nav-tab-orders, #nav-tab-account, #desktop-nav-orders, #desktop-nav-account').forEach(el => {
           el.style.setProperty('display', 'none', 'important');
         });
         const cartDrawer = document.getElementById('cart-drawer');
@@ -364,6 +392,23 @@
           cartBackdrop.style.setProperty('display', 'none', 'important');
         }
         document.body.classList.remove('cart-drawer-open');
+
+        // Dismiss client onboarding modal if open
+        if (typeof window.closeCustomerOnboardModal === 'function') {
+          window.closeCustomerOnboardModal(false, false);
+        }
+
+        // Admin: Switch to tab-products if currently on an operational/disabled tab
+        if (typeof window.switchTab === 'function') {
+          const disabledTabs = ['tab-orders', 'tab-pos', 'tab-archive'];
+          if (modules.inventory === false) disabledTabs.push('tab-inventory');
+          if (modules.stories === false) disabledTabs.push('tab-stories');
+          if (modules.settings === false || modules.settings === undefined) disabledTabs.push('tab-settings');
+          if (modules.backup === false || modules.backup === undefined) disabledTabs.push('tab-backup');
+          if (disabledTabs.includes(window.currentTab) || !window.currentTab) {
+            window.switchTab('tab-products', false);
+          }
+        }
       }
 
       // POS Module (Nav triggers separated from pane to prevent pane leak)

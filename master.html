@@ -2301,6 +2301,24 @@
         </div>
         <input type="checkbox" id="mod-toggle-reviews" style="width:20px; height:20px; accent-color:var(--primary);">
       </label>
+
+      <!-- 14. Settings -->
+      <label class="module-toggle-row">
+        <div>
+          <div class="module-toggle-title">14. إعدادات المتجر وبيانات المكان (Store Settings)</div>
+          <div class="module-toggle-desc">تعديل بيانات المكان واللوجو وساعات العمل من لوحة الإدارة</div>
+        </div>
+        <input type="checkbox" id="mod-toggle-settings" style="width:20px; height:20px; accent-color:var(--primary);">
+      </label>
+
+      <!-- 15. Backup -->
+      <label class="module-toggle-row">
+        <div>
+          <div class="module-toggle-title">15. النسخ الاحتياطي والأمان السحابي (Backup & Security)</div>
+          <div class="module-toggle-desc">تنزيل واستعادة النسخ الاحتياطية وتصدير البيانات من لوحة الإدارة</div>
+        </div>
+        <input type="checkbox" id="mod-toggle-backup" style="width:20px; height:20px; accent-color:var(--primary);">
+      </label>
     </div>
 
     <button class="btn-submit" onclick="MasterApp.saveModules()">
@@ -2647,7 +2665,9 @@
         { key: 'announcementBar', name: 'شريط وبانر الإعلانات والعروض', desc: 'إظهار شريط إعلاني متحرك أو ثابت في أعلى صفحة المنيو' },
         { key: 'stories', name: 'قصص واستوريهات المنيو التفاعلية', desc: 'عرض منتجات وعروض يومية بفيديوهات وصور على طريقة إنستغرام' },
         { key: 'branches', name: 'شبكة الفروع المتعددة وتوجيه الطلبات', desc: 'إدارة فروع المطعم وتوجيه طلبات كل زبون للفرع الأقرب' },
-        { key: 'reviews', name: 'نظام التقييمات وآراء العملاء', desc: 'تقييم الوجبات وجودة الخدمة وجمع آراء الزبائن' }
+        { key: 'reviews', name: 'نظام التقييمات وآراء العملاء', desc: 'تقييم الوجبات وجودة الخدمة وجمع آراء الزبائن' },
+        { key: 'settings', name: 'إعدادات المتجر وبيانات المكان', desc: 'تمكين صاحب المطعم من تعديل بيانات المكان واللوجو وساعات العمل من الأدمن' },
+        { key: 'backup', name: 'النسخ الاحتياطي والأمان السحابي', desc: 'تنزيل نسخ احتياطية واستعادة البيانات من لوحة الإدارة' }
       ],
       defaultPackages: [
         {
@@ -2661,8 +2681,8 @@
           modules: {
             ordering: false, pos: false, inventory: false, smartTables: true,
             delivery: false, takeaway: false, onlinePayment: false, archive: false,
-            coupons: false, cartDiscount: false, announcementBar: true, stories: true,
-            branches: false, reviews: true
+            coupons: false, cartDiscount: false, announcementBar: true, stories: false,
+            branches: false, reviews: true, settings: false, backup: false
           }
         },
         {
@@ -3600,6 +3620,10 @@
         document.getElementById('mod-toggle-announcement').checked = mods.announcementBar !== false;
         document.getElementById('mod-toggle-branches').checked = mods.branches !== false;
         document.getElementById('mod-toggle-reviews').checked = mods.reviews !== false;
+        const elSettings = document.getElementById('mod-toggle-settings');
+        if (elSettings) elSettings.checked = mods.settings !== false;
+        const elBackup = document.getElementById('mod-toggle-backup');
+        if (elBackup) elBackup.checked = mods.backup !== false;
 
         document.getElementById('modal-modules').classList.add('open');
         document.getElementById('modal-modules-backdrop').classList.add('open');
@@ -3626,7 +3650,9 @@
           cartDiscount: document.getElementById('mod-toggle-cart-discount').checked,
           announcementBar: document.getElementById('mod-toggle-announcement').checked,
           branches: document.getElementById('mod-toggle-branches').checked,
-          reviews: document.getElementById('mod-toggle-reviews').checked
+          reviews: document.getElementById('mod-toggle-reviews').checked,
+          settings: document.getElementById('mod-toggle-settings') ? document.getElementById('mod-toggle-settings').checked : true,
+          backup: document.getElementById('mod-toggle-backup') ? document.getElementById('mod-toggle-backup').checked : true
         };
         const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
 
@@ -4631,7 +4657,7 @@
         this.ALL_MODULES_META.forEach(m => {
           const el = document.getElementById(`pkg-mod-${m.key}`);
           if (el) {
-            if (['ordering', 'pos', 'inventory', 'delivery', 'takeaway', 'onlinePayment', 'coupons', 'cartDiscount'].includes(m.key)) {
+            if (['ordering', 'pos', 'inventory', 'delivery', 'takeaway', 'onlinePayment', 'coupons', 'cartDiscount', 'archive', 'settings', 'backup', 'stories'].includes(m.key)) {
               el.checked = false;
             } else {
               el.checked = true;
