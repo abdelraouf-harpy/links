@@ -432,13 +432,14 @@
     .preview-modal,
     .customizer-modal,
     .cart-drawer,
-    .customer-onboard-modal,
     .my-account-drawer,
     .qr-code-modal,
     .tracker-modal {
       z-index: 1250 !important;
     }
     .modal-backdrop, .customizer-modal-backdrop { z-index: 1200 !important; }
+    #customer-onboard-backdrop { z-index: 10008 !important; }
+    #customer-onboard-modal, .customer-onboard-modal { z-index: 10009 !important; }
     .bottom-nav-bar { z-index: 1260 !important; }
     @media (max-width: 991px) {
       .cart-drawer {
@@ -447,13 +448,18 @@
         height: calc(100dvh - 64px) !important;
       }
     }
+    html.onboard-active .bottom-nav-bar,
+    body.onboard-open .bottom-nav-bar,
     body.preview-open .bottom-nav-bar,
     body.customizer-open .bottom-nav-bar,
+    body:has(#customer-onboard-modal.open) .bottom-nav-bar,
+    body:has(#customer-onboard-modal.show) .bottom-nav-bar,
     body:has(#preview-modal.open) .bottom-nav-bar,
     body:has(#customizer-modal.open) .bottom-nav-bar {
-      transform: translateY(115%) !important;
+      transform: translateY(120%) !important;
       opacity: 0 !important;
       pointer-events: none !important;
+      visibility: hidden !important;
     }
   </style>
   <script>
@@ -583,6 +589,12 @@
           localStorage.setItem('harpy_active_slug', slug);
           localStorage.setItem('harpy_last_visited_slug', slug);
           localStorage.setItem('harpy_customer_installed_slug', slug);
+          var _hasOnboarded = localStorage.getItem('harpy_customer_lang_onboarded');
+          var _hasSkipped = sessionStorage.getItem('harpy_onboard_skipped');
+          var _urlParams = new URLSearchParams(window.location.search);
+          if ((!_hasOnboarded && !_hasSkipped) || _urlParams.has('onboard') || _urlParams.has('lang')) {
+            document.documentElement.classList.add('onboard-active');
+          }
         } catch(e) {}
 
         var oldManifest = document.querySelector('link[rel="manifest"]');
@@ -2026,21 +2038,24 @@
        ═══════════════════════════════════════════════════════════ -->
   <div class="modal-backdrop" id="customer-onboard-backdrop" style="z-index:10008;" onclick="window.closeCustomerOnboardModal && window.closeCustomerOnboardModal(true)"></div>
   <div class="customer-onboard-modal" id="customer-onboard-modal" style="z-index:10009;" role="dialog" aria-modal="true" aria-labelledby="onboard-title">
+    <button type="button" class="btn-close-onboard" onclick="window.closeCustomerOnboardModal && window.closeCustomerOnboardModal(true)" aria-label="تخطي">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
     <div class="onboard-header">
       <div class="onboard-avatar-circle">
-        <svg class="icon" viewBox="0 0 24 24" style="width:28px; height:28px; stroke-width:2;"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <svg class="icon" viewBox="0 0 24 24" style="width:24px; height:24px; stroke-width:2;"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       </div>
 
-      <!-- Language Selector Bar with Flags -->
+      <!-- Language Selector Bar without Emojis -->
       <div class="onboard-lang-row">
-        <div style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:8px;" data-i18n="onboard_lang_select">لغة المنيو والتطبيق:</div>
+        <div class="onboard-lang-label" data-i18n="onboard_lang_select">لغة المنيو والتطبيق:</div>
         <div class="onboard-lang-pills" id="onboard-lang-pills">
           <button type="button" class="onboard-lang-btn active" data-lang="ar" onclick="selectOnboardLanguage('ar')">
-            <span class="flag">🇪🇬</span>
+            <span class="onboard-lang-code font-num">AR</span>
             <span>العربية (Arabic)</span>
           </button>
           <button type="button" class="onboard-lang-btn" data-lang="en" onclick="selectOnboardLanguage('en')">
-            <span class="flag">🇬🇧</span>
+            <span class="onboard-lang-code font-num">EN</span>
             <span>English (English)</span>
           </button>
         </div>

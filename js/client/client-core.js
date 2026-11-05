@@ -1326,9 +1326,11 @@ function checkCustomerOnboarding() {
   const forceOpen = urlParams.has('onboard') || urlParams.has('lang');
 
   if ((!hasOnboarded && !hasSkipped) || forceOpen) {
+    document.body.classList.add('onboard-open');
+    document.documentElement.classList.add('onboard-active');
     setTimeout(() => {
       openCustomerOnboardModal();
-    }, 450);
+    }, 120);
   }
 }
 
@@ -1336,6 +1338,8 @@ function openCustomerOnboardModal() {
   const backdrop = document.getElementById('customer-onboard-backdrop');
   const modal = document.getElementById('customer-onboard-modal');
   if (backdrop && modal) {
+    document.body.classList.add('onboard-open');
+    document.documentElement.classList.add('onboard-active');
     backdrop.classList.add('active', 'open', 'show');
     modal.classList.add('open', 'show');
     pushNavState('onboard_modal');
@@ -1380,6 +1384,8 @@ function closeCustomerOnboardModal(skipped = false, updateHistory = true) {
   const modal = document.getElementById('customer-onboard-modal');
   if (backdrop) backdrop.classList.remove('active', 'open', 'show');
   if (modal) modal.classList.remove('open', 'show');
+  document.body.classList.remove('onboard-open');
+  document.documentElement.classList.remove('onboard-active');
   if (skipped) {
     sessionStorage.setItem('harpy_onboard_skipped', 'true');
     localStorage.setItem('harpy_customer_lang_onboarded', 'true');
