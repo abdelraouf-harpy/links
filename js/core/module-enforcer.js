@@ -141,33 +141,36 @@
         }, 400);
       }
 
-      // ── Method B: Native Server-Sent Events (SSE) Stream ──
-      // Instant push redundancy from Firebase RTDB over HTTP
-      try {
-        if (typeof EventSource !== 'undefined') {
-          if (this.eventSource) {
-            try { this.eventSource.close(); } catch(e) {}
+      // ── Method B: Native Server-Sent Events (SSE) Stream (Fallback only) ──
+      const setupSseFallback = () => {
+        if (this.dbListenersAttached || this.eventSource) return;
+        try {
+          if (typeof EventSource !== 'undefined') {
+            const sseUrl = `${this.fbBase}/restaurants/${slug}/settings/modules.json`;
+            this.eventSource = new EventSource(sseUrl);
+            this.eventSource.addEventListener('put', (e) => {
+              try {
+                const payload = JSON.parse(e.data);
+                if (payload && payload.data && typeof payload.data === 'object') {
+                  this.enforce(payload.data);
+                }
+              } catch(err) {}
+            });
+            this.eventSource.addEventListener('patch', (e) => {
+              try {
+                const payload = JSON.parse(e.data);
+                if (payload && payload.data && typeof payload.data === 'object') {
+                  this.enforce(Object.assign({}, this.modules, payload.data));
+                }
+              } catch(err) {}
+            });
           }
-          const sseUrl = `${this.fbBase}/restaurants/${slug}/settings/modules.json`;
-          this.eventSource = new EventSource(sseUrl);
-          this.eventSource.addEventListener('put', (e) => {
-            try {
-              const payload = JSON.parse(e.data);
-              if (payload && payload.data && typeof payload.data === 'object') {
-                this.enforce(payload.data);
-              }
-            } catch(err) {}
-          });
-          this.eventSource.addEventListener('patch', (e) => {
-            try {
-              const payload = JSON.parse(e.data);
-              if (payload && payload.data && typeof payload.data === 'object') {
-                this.enforce(Object.assign({}, this.modules, payload.data));
-              }
-            } catch(err) {}
-          });
-        }
-      } catch(e) {}
+        } catch(e) {}
+      };
+
+      if (!this.dbListenersAttached) {
+        setTimeout(setupSseFallback, 3000);
+      }
 
       // ── Method C: Fast REST Fetch on Startup ──
       fetch(`${this.fbBase}/restaurants/${slug}/settings/modules.json?cb=${Date.now()}`)
@@ -207,7 +210,10 @@
 
     checkSubscriptionGate() {
       if (!this.currentSlug || this.currentSlug === 'demo') return;
+      let lastLicFetch = 0;
       const fetchLicense = () => {
+        if (typeof document !== 'undefined' && document.hidden) return;
+        lastLicFetch = Date.now();
         fetch(`${this.fbBase}/licenses/${this.currentSlug}.json?cb=${Date.now()}`)
           .then(r => r.ok ? r.json() : null)
           .then(lic => {
@@ -218,7 +224,14 @@
       };
 
       fetchLicense();
-      setInterval(fetchLicense, 10000);
+      if (typeof document !== 'undefined') {
+        document.addEventListener('visibilitychange', () => {
+          if (!document.hidden && (Date.now() - lastLicFetch > 60000)) {
+            fetchLicense();
+          }
+        });
+      }
+      setInterval(fetchLicense, 120000);
     },
 
     applyLicense(lic) {

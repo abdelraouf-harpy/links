@@ -1026,7 +1026,6 @@ function setupEventListeners() {
   }
 
   window.addEventListener('store_settings_updated', () => {
-    Store.clearMemoryCache();
     Store.applyTheme();
     renderStoreInfo();
     renderAnnouncement();
@@ -1035,17 +1034,14 @@ function setupEventListeners() {
     updateLedgerUI();
   });
   window.addEventListener('store_categories_updated', () => {
-    Store.clearMemoryCache();
     renderCategories();
     scheduleRenderProducts();
   });
   window.addEventListener('store_products_updated', () => {
-    Store.clearMemoryCache();
     scheduleRenderProducts();
     updateLedgerUI();
   });
   window.addEventListener('store_stories_updated', () => {
-    Store.clearMemoryCache();
     renderStories();
   });
   window.addEventListener('store_favorites_updated', () => {

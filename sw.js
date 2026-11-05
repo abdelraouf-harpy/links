@@ -6,7 +6,7 @@ try {
   console.warn("[SW] OneSignal worker import notice:", e);
 }
 
-const CACHE_NAME = 'order-pwa-v159.0';
+const CACHE_NAME = 'order-pwa-v160.0';
 const IMAGE_CACHE_NAME = 'order-images-v6';
 const ASSETS_TO_CACHE = [
   './',
@@ -141,6 +141,14 @@ self.addEventListener('fetch', (event) => {
 
   // Bypass Products POS & Inventory app — let products manage its own SW & caching
   if (reqUrl.pathname.startsWith('/products/') || reqUrl.pathname === '/products') {
+    return;
+  }
+
+  // Bypass all external Cloud APIs for zero-latency direct browser networking
+  if (reqUrl.hostname.includes('firebaseio.com') ||
+      reqUrl.hostname.includes('googleapis.com') ||
+      reqUrl.hostname.includes('gstatic.com') ||
+      reqUrl.hostname.includes('onesignal.com')) {
     return;
   }
 

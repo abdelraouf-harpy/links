@@ -2647,21 +2647,42 @@ function updateHeaderBranchPill() {
   const accountBranchItem = document.getElementById('account-branch-item');
   const accountBranchSub = document.getElementById('account-branch-name-sub');
 
+  if (!pill) return;
+
+  const hideAll = () => {
+    pill.style.setProperty('display', 'none', 'important');
+    if (accountBranchItem) accountBranchItem.style.setProperty('display', 'none', 'important');
+  };
+
+  const isModuleActive = (modName) => {
+    if (typeof Store !== 'undefined' && typeof Store.isModuleEnabled === 'function') {
+      return Store.isModuleEnabled(modName);
+    }
+    if (typeof ModuleEnforcer !== 'undefined' && ModuleEnforcer.modules) {
+      return ModuleEnforcer.modules[modName] !== false;
+    }
+    return true;
+  };
+
   const urlParams = new URLSearchParams(window.location.search);
   const dineInTable = (urlParams.get('table') || urlParams.get('t') || sessionStorage.getItem('harpy_dinein_table') || window.__harpyDineInTable || '').trim();
 
-  if (dineInTable) {
-    if (pill) {
-      pill.style.display = 'inline-flex';
-      pill.style.border = '1px solid var(--primary)';
-      pill.style.background = 'var(--primary-subtle)';
-      pill.style.color = 'var(--primary)';
-      pill.style.cursor = 'default';
-      if (icon) icon.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/></svg>';
-      if (text) text.textContent = `طاولة ${dineInTable} (صالة)`;
-      if (arrow) arrow.style.display = 'none';
-    }
-    if (accountBranchItem) accountBranchItem.style.display = 'none';
+  if (dineInTable && isModuleActive('smartTables')) {
+    pill.style.removeProperty('display');
+    pill.style.display = 'inline-flex';
+    pill.style.border = '1px solid var(--primary)';
+    pill.style.background = 'var(--primary-subtle)';
+    pill.style.color = 'var(--primary)';
+    pill.style.cursor = 'default';
+    if (icon) icon.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/></svg>';
+    if (text) text.textContent = `طاولة ${dineInTable} (صالة)`;
+    if (arrow) arrow.style.display = 'none';
+    if (accountBranchItem) accountBranchItem.style.setProperty('display', 'none', 'important');
+    return;
+  }
+
+  if (!isModuleActive('branches')) {
+    hideAll();
     return;
   }
 
@@ -2671,24 +2692,23 @@ function updateHeaderBranchPill() {
     const curB = branches.find(b => b.slug === curSlug);
     const branchName = curB ? curB.name : 'اختر الفرع';
 
-    if (pill) {
-      pill.style.display = 'inline-flex';
-      pill.style.cursor = 'pointer';
-      pill.style.border = '1px solid var(--border)';
-      pill.style.background = 'var(--surface)';
-      pill.style.color = 'var(--text-main)';
-      if (arrow) arrow.style.display = 'inline';
-      if (icon) icon.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>';
-      if (text) text.textContent = branchName;
-    }
+    pill.style.removeProperty('display');
+    pill.style.display = 'inline-flex';
+    pill.style.cursor = 'pointer';
+    pill.style.border = '1px solid var(--border)';
+    pill.style.background = 'var(--surface)';
+    pill.style.color = 'var(--text-main)';
+    if (arrow) arrow.style.display = 'inline';
+    if (icon) icon.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>';
+    if (text) text.textContent = branchName;
 
     if (accountBranchItem) {
+      accountBranchItem.style.removeProperty('display');
       accountBranchItem.style.display = 'flex';
       if (accountBranchSub) accountBranchSub.textContent = `الفرع الحالي: ${branchName}`;
     }
   } else {
-    if (pill) pill.style.display = 'none';
-    if (accountBranchItem) accountBranchItem.style.display = 'none';
+    hideAll();
   }
 }
 
