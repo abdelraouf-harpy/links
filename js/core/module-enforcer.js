@@ -257,6 +257,10 @@
     enforce(modules) {
       if (!modules || typeof modules !== 'object') return;
       this.modules = Object.assign({}, this.modules, modules);
+      const modHash = JSON.stringify(this.modules);
+      if (this._lastEnforcedHash === modHash && this._hasInitiallyEnforced) return;
+      this._lastEnforcedHash = modHash;
+      this._hasInitiallyEnforced = true;
 
       const root = document.documentElement;
       const b = document.body;
@@ -339,37 +343,60 @@
 
       // ── 3. Direct Inline DOM Manipulation (Fail-safe) ──
 
-      // POS Module
-      const posElements = document.querySelectorAll('button[data-tab="tab-pos"], [data-nav="pos"], #drawer-nav-pos, #tab-pos');
+      // POS Module (Nav triggers separated from pane to prevent pane leak)
+      const posNavElements = document.querySelectorAll('button[data-tab="tab-pos"], [data-nav="pos"], #drawer-nav-pos');
+      const posPane = document.getElementById('tab-pos');
       if (modules.pos === false) {
-        posElements.forEach(el => el.style.setProperty('display', 'none', 'important'));
+        posNavElements.forEach(el => el.style.setProperty('display', 'none', 'important'));
+        if (posPane) {
+          posPane.style.setProperty('display', 'none', 'important');
+          posPane.classList.remove('active');
+        }
         const activePosBtn = document.querySelector('button[data-tab="tab-pos"].active');
         if (activePosBtn) {
           const ordersBtn = document.querySelector('button[data-tab="tab-orders"]');
           if (ordersBtn) ordersBtn.click();
         }
       } else {
-        posElements.forEach(el => el.style.removeProperty('display'));
+        posNavElements.forEach(el => el.style.removeProperty('display'));
+        if (posPane && (!window.currentTab || window.currentTab !== 'tab-pos')) {
+          posPane.style.setProperty('display', 'none', 'important');
+          posPane.classList.remove('active');
+        }
       }
 
-      // Inventory Module
-      const invElements = document.querySelectorAll('button[data-tab="tab-inventory"], [data-nav="inventory"], #drawer-nav-inventory, #tab-inventory');
+      // Inventory Module (Nav triggers separated from pane to prevent pane leak)
+      const invNavElements = document.querySelectorAll('button[data-tab="tab-inventory"], [data-nav="inventory"], #drawer-nav-inventory');
+      const invPane = document.getElementById('tab-inventory');
       if (modules.inventory === false) {
-        invElements.forEach(el => el.style.setProperty('display', 'none', 'important'));
+        invNavElements.forEach(el => el.style.setProperty('display', 'none', 'important'));
+        if (invPane) {
+          invPane.style.setProperty('display', 'none', 'important');
+          invPane.classList.remove('active');
+        }
         const activeInvBtn = document.querySelector('button[data-tab="tab-inventory"].active');
         if (activeInvBtn) {
           const ordersBtn = document.querySelector('button[data-tab="tab-orders"]');
           if (ordersBtn) ordersBtn.click();
         }
       } else {
-        invElements.forEach(el => el.style.removeProperty('display'));
+        invNavElements.forEach(el => el.style.removeProperty('display'));
+        if (invPane && (!window.currentTab || window.currentTab !== 'tab-inventory')) {
+          invPane.style.setProperty('display', 'none', 'important');
+          invPane.classList.remove('active');
+        }
       }
 
-      // Stories Module
-      const storiesElements = document.querySelectorAll('button[data-tab="tab-stories"], [data-nav="stories"], #drawer-nav-stories, #tab-stories, #card-story-management');
+      // Stories Module (Nav triggers separated from pane to prevent pane leak)
+      const storiesNavElements = document.querySelectorAll('button[data-tab="tab-stories"], [data-nav="stories"], #drawer-nav-stories, #card-story-management');
+      const storiesPane = document.getElementById('tab-stories');
       const storiesClientWrap = document.getElementById('stories-section');
       if (modules.stories === false) {
-        storiesElements.forEach(el => el.style.setProperty('display', 'none', 'important'));
+        storiesNavElements.forEach(el => el.style.setProperty('display', 'none', 'important'));
+        if (storiesPane) {
+          storiesPane.style.setProperty('display', 'none', 'important');
+          storiesPane.classList.remove('active');
+        }
         if (storiesClientWrap) {
           storiesClientWrap.style.setProperty('display', 'none', 'important');
           storiesClientWrap.innerHTML = '';
@@ -380,7 +407,11 @@
           if (ordersBtn) ordersBtn.click();
         }
       } else {
-        storiesElements.forEach(el => el.style.removeProperty('display'));
+        storiesNavElements.forEach(el => el.style.removeProperty('display'));
+        if (storiesPane && (!window.currentTab || window.currentTab !== 'tab-stories')) {
+          storiesPane.style.setProperty('display', 'none', 'important');
+          storiesPane.classList.remove('active');
+        }
       }
 
       // Smart Tables Module
@@ -456,7 +487,10 @@
       const archiveBadge = document.getElementById('archive-badge-count');
       if (modules.archive === false) {
         if (archiveTabBtn) archiveTabBtn.style.setProperty('display', 'none', 'important');
-        if (archivePane) archivePane.style.setProperty('display', 'none', 'important');
+        if (archivePane) {
+          archivePane.style.setProperty('display', 'none', 'important');
+          archivePane.classList.remove('active');
+        }
         if (archiveBadge) archiveBadge.style.setProperty('display', 'none', 'important');
         if (archiveTabBtn && archiveTabBtn.classList.contains('active')) {
           const ordersBtn = document.querySelector('button[data-tab="tab-orders"]');
@@ -464,6 +498,10 @@
         }
       } else {
         if (archiveTabBtn) archiveTabBtn.style.removeProperty('display');
+        if (archivePane && (!window.currentTab || window.currentTab !== 'tab-archive')) {
+          archivePane.style.setProperty('display', 'none', 'important');
+          archivePane.classList.remove('active');
+        }
       }
 
       // Coupons Module

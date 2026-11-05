@@ -496,9 +496,16 @@ window.switchTab = function(targetTabId, updateHash = true) {
     }
   });
 
-  // 2. Update Tab Panes
-  adminElements.tabPanes.forEach(pane => {
-    pane.style.display = pane.id === targetTabId ? 'block' : 'none';
+  // 2. Strict Active-Only Tab Panes Guard (Zero Leaks, Zero Overlaps)
+  const allPanes = document.querySelectorAll('.tab-pane');
+  allPanes.forEach(pane => {
+    if (pane.id === targetTabId) {
+      pane.classList.add('active');
+      pane.style.setProperty('display', 'block', 'important');
+    } else {
+      pane.classList.remove('active');
+      pane.style.setProperty('display', 'none', 'important');
+    }
   });
 
   // 3. Save Active Tab to Storage

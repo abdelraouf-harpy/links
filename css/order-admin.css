@@ -903,8 +903,12 @@
    HARPY PRO: SEAMLESS TAB TRANSITION & REFRESH STABILIZATION
    ═══════════════════════════════════════════════════════════ */
 .tab-pane {
+  display: none !important;
   animation: harpyTabFadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
   min-height: 420px;
+}
+.tab-pane.active {
+  display: block !important;
 }
 
 @keyframes harpyTabFadeIn {
