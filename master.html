@@ -1473,18 +1473,11 @@
           </span>
         </button>
 
-        <button class="header-packages-btn" onclick="MasterApp.openPackagesManagerDirectly()" title="إدارة باقات وأسعار المنصة">
-          <span class="svg-icon" style="width:14px;height:14px;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-          </span>
-          <span>الباقات</span>
-        </button>
-
         <button class="header-primary-btn" onclick="MasterApp.openAddTenantModal()">
           <span class="svg-icon" style="width:14px;height:14px;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
           </span>
-          <span>مطعم</span>
+          <span>مطعم جديد</span>
         </button>
 
         <div class="header-avatar-btn" onclick="MasterApp.openFounderMenu()" title="إعدادات المؤسس">
@@ -1529,81 +1522,65 @@
       </div>
     </main>
 
-    <!-- PANE 2: FINANCE & BILLING -->
+    <!-- PANE 2: PACKAGES & PLANS -->
+    <main id="pane-packages" class="tab-pane">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <div>
+          <div style="font-size:15px; font-weight:800; color:var(--text-primary);">باقات اشتراك المنصة</div>
+          <div style="font-size:11.5px; color:var(--text-secondary); margin-top:2px;">تحكّم في أسعار ومدد ومزايا كل باقة بحرية</div>
+        </div>
+        <button type="button" onclick="MasterApp.openCreatePackageModal()" class="row-btn-primary" style="height:34px; padding:0 12px; font-weight:800; gap:6px;">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <span>باقة جديدة</span>
+        </button>
+      </div>
+      <div id="packages-cards-grid" style="display:flex; flex-direction:column; gap:10px;">
+        <!-- Rendered dynamically -->
+      </div>
+    </main>
+
+    <!-- PANE 3: FINANCE & SUBSCRIPTIONS -->
     <main id="pane-finance" class="tab-pane">
-      <!-- Finance Subnav Toggle -->
-      <div class="finance-subnav-row">
-        <button type="button" class="subnav-pill active" id="fsubnav-tenants" onclick="MasterApp.switchFinanceSubnav('tenants')">
-          <span>سجل اشتراكات المطاعم</span>
-        </button>
-        <button type="button" class="subnav-pill" id="fsubnav-packages" onclick="MasterApp.switchFinanceSubnav('packages')">
-          <span>إدارة الباقات والأسعار</span>
-          <span id="fsubnav-pkg-count" style="margin-right:6px; font-size:10px; padding:1px 6px; border-radius:10px; background:rgba(255,255,255,0.2); font-weight:800;"></span>
-        </button>
+      <div style="font-size:14px; font-weight:800; color:var(--text-primary); margin-bottom:12px;">كشف تحصيل الاشتراكات وتجديد التراخيص:</div>
+      <div id="finance-list-container">
+        <!-- Rendered dynamically -->
       </div>
+    </main>
 
-      <!-- Subview 1: Tenants Billing Ledger -->
-      <div id="fsubview-tenants">
-        <div style="font-size:13.5px; font-weight:700; color:var(--text-primary); margin-bottom:10px;">كشف تحصيل الاشتراكات وتجديد التراخيص:</div>
-        <div id="finance-list-container">
-          <!-- Rendered dynamically -->
+    <!-- PANE 4: PLATFORM SETTINGS & SECURITY HUB -->
+    <main id="pane-settings" class="tab-pane">
+      <!-- Founder & Master PIN Card -->
+      <div class="watchdog-card" style="margin-bottom:12px;">
+        <div class="watchdog-icon-circle" style="background:rgba(249,115,22,0.15); color:var(--primary);">
+          <span class="svg-icon" style="width:20px;height:20px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          </span>
         </div>
-      </div>
-
-      <!-- Subview 2: Packages & Plans Manager -->
-      <div id="fsubview-packages" style="display:none;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-          <div>
-            <div style="font-size:14px; font-weight:800; color:var(--text-primary);">باقات اشتراك المنصة</div>
-            <div style="font-size:11.5px; color:var(--text-secondary); margin-top:2px;">تحكّم في أسعار ومدد الباقات المتاحة للمطاعم وتغييرها بحرية</div>
+        <div style="flex:1;">
+          <div class="watchdog-title" style="display:flex; align-items:center; justify-content:space-between;">
+            <span>مؤسس النظام والأمان</span>
+            <span style="font-size:10.5px; padding:2px 8px; border-radius:12px; background:rgba(249,115,22,0.15); color:var(--primary); font-weight:800;">Super-Admin</span>
           </div>
-          <button type="button" onclick="MasterApp.openCreatePackageModal()" class="row-btn-primary" style="height:34px; padding:0 12px; font-weight:800; gap:6px;">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            <span>باقة جديدة</span>
-          </button>
-        </div>
-        <div id="packages-cards-grid" style="display:flex; flex-direction:column; gap:10px;">
-          <!-- Rendered dynamically -->
-        </div>
-      </div>
-    </main>
-
-    <!-- PANE 3: WATCHDOG & SECURITY RADAR -->
-    <main id="pane-watchdog" class="tab-pane">
-      <div class="watchdog-card">
-        <div class="watchdog-icon-circle teal">
-          <span class="svg-icon" style="width:20px;height:20px;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
-          </span>
-        </div>
-        <div>
-          <div class="watchdog-title">رادار تراخيص المطاعم</div>
-          <div class="watchdog-sub" id="watchdog-exp-desc">جميع التراخيص سارية، ولا توجد مطاعم أوشك اشتراكها على الانتهاء في الأيام الـ 7 القادمة.</div>
+          <div class="watchdog-sub">إدارة رقم المرور السري للمؤسس وتحميل النسخ الاحتياطية السحابية الكاملة.</div>
+          <div style="display:flex; gap:8px; margin-top:10px;">
+            <button type="button" class="filter-chip" onclick="MasterApp.openFounderMenu()" style="height:28px; padding:0 10px; font-size:11.5px; font-weight:700;">
+              <span>تغيير رقم المؤسس PIN</span>
+            </button>
+            <button type="button" class="filter-chip" onclick="MasterApp.exportAllBackup()" style="height:28px; padding:0 10px; font-size:11.5px; font-weight:700;">
+              <span>تحميل نسخة احتياطية</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      <div class="watchdog-card">
-        <div class="watchdog-icon-circle teal">
-          <span class="svg-icon" style="width:20px;height:20px;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
-          </span>
-        </div>
-        <div>
-          <div class="watchdog-title">حالة تشغيل المطاعم</div>
-          <div class="watchdog-sub">كافة المطاعم المعتمدة تعمل بصورة طبيعية ومفتوحة للجمهور.</div>
-        </div>
-      </div>
-    </main>
-
-    <!-- PANE 4: BROADCAST TRANSMITTER -->
-    <main id="pane-broadcast" class="tab-pane">
-      <div class="broadcast-card">
+      <!-- Global Broadcast Card -->
+      <div class="broadcast-card" style="margin-bottom:12px;">
         <div class="broadcast-header">الإذاعة العامة لشاشات المطابخ والكاشير</div>
         <div class="broadcast-sub">إرسال شريط تنبيه عام عاجل يظهر فوراً في أعلى لوحات الإدارة والمطابخ لجميع المطاعم.</div>
 
         <div id="active-broadcast-preview"></div>
 
-        <div class="form-group">
+        <div class="form-group" style="margin-top:10px;">
           <label class="form-label">نص الإعلان أو التنبيه:</label>
           <input type="text" class="form-input" id="broadcast-message-input" placeholder="مثال: يرجى العلم بوجود تحديث مجدول الليلة في تمام 3 صباحاً">
         </div>
@@ -1614,35 +1591,34 @@
             <option value="info">معلومة وتنويه عام (أزرق)</option>
             <option value="warning">تنبيه هام وملاحظة (أصفر)</option>
             <option value="danger">عاجل وطارئ (أحمر)</option>
-            <option value="success">إشعار إيجابي وتهنئة (أخضر)</option>
           </select>
         </div>
 
-        <button class="btn-submit" onclick="MasterApp.publishBroadcast()">
-          <span class="svg-icon" style="width:16px;height:16px;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2"></circle><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"></path></svg>
-          </span>
-          <span>نشر التنبيه لجميع المطاعم فوراً</span>
-        </button>
+        <div style="display:flex; gap:8px; margin-top:12px;">
+          <button type="button" class="btn-submit" onclick="MasterApp.sendBroadcast()" style="flex:1;">
+            <span>إرسال الإذاعة فوراً</span>
+          </button>
+          <button type="button" class="btn-cancel" onclick="MasterApp.clearBroadcast()" style="width:auto; padding:0 14px;">
+            <span>مسح التنبيه</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Audit Logs Card -->
+      <div style="background:var(--bg-card); border:1px solid var(--border-light); border-radius:14px; padding:14px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+          <span style="font-size:13.5px; font-weight:700; color:var(--text-primary);">سجل العمليات السحابية والأمان:</span>
+          <button class="filter-chip" onclick="MasterApp.loadAuditLogs()" style="height:26px; padding:0 8px;">
+            <span class="svg-icon" style="width:12px;height:12px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></span>
+            <span>تحديث</span>
+          </button>
+        </div>
+        <div class="audit-list-wrap" id="audit-logs-container">
+          <!-- Rendered dynamically -->
+        </div>
       </div>
     </main>
-
-    <!-- PANE 5: AUDIT LOGS -->
-    <main id="pane-audit" class="tab-pane">
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
-        <span style="font-size:13.5px; font-weight:700; color:var(--text-primary);">سجل العمليات والأمان:</span>
-        <button class="filter-chip" onclick="MasterApp.loadAuditLogs()" style="height:26px; padding:0 8px;">
-          <span class="svg-icon" style="width:12px;height:12px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></span>
-          <span>تحديث</span>
-        </button>
-      </div>
-
-      <div class="audit-list-wrap" id="audit-logs-container">
-        <!-- Rendered dynamically -->
-      </div>
-    </main>
-
-  </div><!-- /master-wrapper -->
+    </div><!-- /master-wrapper -->
 
   <!-- ========================================================================
        WHATSAPP BOTTOM SHEET: RESTAURANT ACTIONS MENU
@@ -1952,6 +1928,16 @@
     </div>
 
     <div style="display:flex; flex-direction:column; gap:8px;">
+      <!-- 0. ORDERING (Digital Menu vs Online Orders) -->
+      <label class="module-check-row" style="background:rgba(249,115,22,0.06); border:1px solid rgba(249,115,22,0.25);">
+        <div class="module-check-meta">
+          <div class="module-check-title" style="color:var(--primary); font-weight:800;">نظام الطلب والسلة المباشر أونلاين</div>
+          <div class="module-check-desc">إلغاء التفعيل يحوّل الرابط إلى عرض منيو رقمي فقط عبر QR بدون إمكانية الطلب أو الدفع</div>
+        </div>
+        <input type="checkbox" id="mod-toggle-ordering" class="module-switch-input" checked>
+        <span class="module-switch-slider"></span>
+      </label>
+
       <!-- 1. POS -->
       <label class="module-toggle-row">
         <div>
@@ -2166,7 +2152,22 @@
     </div>
     <div class="form-group">
       <label class="form-label">وصف ومميزات الباقة (اختياري)</label>
-      <input type="text" class="form-input" id="pkg-input-desc" placeholder="مثال: تشمل كافة مزايا السيستم الـ 13 والدعم الفني">
+      <input type="text" class="form-input" id="pkg-input-desc" placeholder="مثال: تشمل كافة مزايا السيستم والدعم الفني">
+    </div>
+    <div class="form-group">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <label class="form-label" style="margin-bottom:0;">المزايا والموديولات المشمولة بالباقة:</label>
+        <div style="display:flex; gap:6px;">
+          <button type="button" class="filter-chip" onclick="MasterApp.pkgSelectAllModules(true)" style="height:24px; padding:0 8px; font-size:11px;">تحديد الكل</button>
+          <button type="button" class="filter-chip" onclick="MasterApp.pkgSetDigitalMenuOnly()" style="height:24px; padding:0 8px; font-size:11px; background:rgba(239,68,68,0.12); color:#ef4444; border-color:rgba(239,68,68,0.3);">عرض منيو فقط</button>
+        </div>
+      </div>
+      <div style="font-size:11px; color:var(--text-secondary); margin-bottom:8px;">
+        حدد الأقسام المفتوحة للمطاعم المشتركة بهذه الباقة (يمكن تخصيص كل مطعم لاحقاً):
+      </div>
+      <div id="pkg-modules-list" style="display:flex; flex-direction:column; gap:6px; max-height:220px; overflow-y:auto; padding:8px; border:1px solid var(--border-light); border-radius:10px; background:var(--bg-surface);">
+        <!-- Rendered dynamically -->
+      </div>
     </div>
     <button type="button" class="btn-submit" onclick="MasterApp.savePackage()">
       <span id="pkg-save-btn-text">حفظ وتفعيل الباقة بالمنصة</span>
@@ -2327,32 +2328,25 @@
       <span class="nav-tab-label">المطاعم</span>
     </button>
 
+    <button class="nav-tab-item" data-tab="packages" onclick="MasterApp.switchTab('packages')">
+      <span class="nav-tab-icon svg-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+      </span>
+      <span class="nav-tab-label">الباقات والأسعار</span>
+    </button>
+
     <button class="nav-tab-item" data-tab="finance" onclick="MasterApp.switchTab('finance')">
       <span class="nav-tab-icon svg-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="2"></circle><path d="M6 12h.01M18 12h.01"></path></svg>
       </span>
-      <span class="nav-tab-label">الاشتراكات</span>
+      <span class="nav-tab-label">التحصيل والاشتراكات</span>
     </button>
 
-    <button class="nav-tab-item" data-tab="watchdog" onclick="MasterApp.switchTab('watchdog')">
+    <button class="nav-tab-item" data-tab="settings" onclick="MasterApp.switchTab('settings')">
       <span class="nav-tab-icon svg-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
       </span>
-      <span class="nav-tab-label">الأمان</span>
-    </button>
-
-    <button class="nav-tab-item" data-tab="broadcast" onclick="MasterApp.switchTab('broadcast')">
-      <span class="nav-tab-icon svg-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2"></circle><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"></path></svg>
-      </span>
-      <span class="nav-tab-label">الإذاعة</span>
-    </button>
-
-    <button class="nav-tab-item" data-tab="audit" onclick="MasterApp.switchTab('audit')">
-      <span class="nav-tab-icon svg-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-      </span>
-      <span class="nav-tab-label">السجل</span>
+      <span class="nav-tab-label">إعدادات المنصة</span>
     </button>
   </nav>
 
@@ -2392,11 +2386,98 @@
       editingModulesSlug: null,
       payingSlug: null,
       packages: [],
+      ALL_MODULES_META: [
+        { key: 'ordering', name: 'الطلب والسلة المباشر أونلاين', desc: 'إلغاء التفعيل يحوّل الرابط إلى عرض منيو فقط بدون طلب أو دفع' },
+        { key: 'pos', name: 'الكاشير ونقاط البيع السريعة POS', desc: 'إدارة طلبات الصالة والسفري والدليفري السريع من الكاشير' },
+        { key: 'inventory', name: 'المخزون ومستويات وتنبيهات النواقص', desc: 'تتبع الكميات وخصم الخامات تلقائياً مع كل طلب' },
+        { key: 'smartTables', name: 'إدارة طاولات الصالة وتوليد QR', desc: 'أكواد QR لكل طاولة وتتبع الجلسات المفتوحة والطلبات' },
+        { key: 'delivery', name: 'التوصيل والدليفري وتسعير النطاقات', desc: 'تحديد رسوم التوصيل بحسب المناطق والخرائط وتتبع السائقين' },
+        { key: 'takeaway', name: 'الاستلام الذاتي من الفرع (Takeaway)', desc: 'إتاحة تجهيز واستلام الطلب من مقر المطعم مباشرة' },
+        { key: 'onlinePayment', name: 'المحفظة الرقمية والدفع الذكي', desc: 'الدفع بإنستاباي وفودافون كاش والمحافظ الإلكترونية' },
+        { key: 'archive', name: 'الأرشيف السحابي والتقارير المالية', desc: 'حفظ سجلات الطلبات التاريخية وتصدير الإكسل والإحصائيات' },
+        { key: 'coupons', name: 'كوبونات الخصم والبروموكود الترويجي', desc: 'إنشاء رموز خصم بنسبة مئوية أو قيمة ثابتة بحد أدنى' },
+        { key: 'cartDiscount', name: 'الخصم التلقائي على إجمالي الطلب', desc: 'تطبيق خصومات شرائح السلة التلقائية' },
+        { key: 'announcementBar', name: 'شريط وبانر الإعلانات والعروض', desc: 'إظهار شريط إعلاني متحرك أو ثابت في أعلى صفحة المنيو' },
+        { key: 'stories', name: 'قصص واستوريهات المنيو التفاعلية', desc: 'عرض منتجات وعروض يومية بفيديوهات وصور على طريقة إنستغرام' },
+        { key: 'branches', name: 'شبكة الفروع المتعددة وتوجيه الطلبات', desc: 'إدارة فروع المطعم وتوجيه طلبات كل زبون للفرع الأقرب' },
+        { key: 'reviews', name: 'نظام التقييمات وآراء العملاء', desc: 'تقييم الوجبات وجودة الخدمة وجمع آراء الزبائن' }
+      ],
       defaultPackages: [
-        { id: "starter", name: "الباقة الأساسية (Starter)", price: 1000, durationDays: 30, durationLabel: "شهر (30 يوماً)", billingCycle: "monthly", description: "تشمل منيو رقمي ذكي وكاشير محلي" },
-        { id: "pro", name: "الباقة الاحترافية (Pro)", price: 2000, durationDays: 30, durationLabel: "شهر (30 يوماً)", billingCycle: "monthly", description: "كافة مزايا السيستم والتوصيل والدفع الذكي" },
-        { id: "vip", name: "الباقة الشاملة VIP (Enterprise)", price: 3500, durationDays: 90, durationLabel: "3 أشهر (90 يوماً)", billingCycle: "quarterly", description: "جميع مزايا الـ 13 + نطاق خاص ودعم فني مخصص" },
-        { id: "annual", name: "الباقة السنوية المخفضة", price: 15000, durationDays: 365, durationLabel: "سنة كاملة (365 يوماً)", billingCycle: "annual", description: "وفر شهرين مع تحديثات غير محدودة" }
+        {
+          id: "menu_only",
+          name: "باقة المنيو الرقمي (Digital Menu Only)",
+          price: 500,
+          durationDays: 30,
+          durationLabel: "شهر (30 يوماً)",
+          billingCycle: "monthly",
+          description: "عرض منيو رقمي فقط عبر QR بدون سلة أو طلبات مباشرة أو كاشير",
+          modules: {
+            ordering: false, pos: false, inventory: false, smartTables: true,
+            delivery: false, takeaway: false, onlinePayment: false, archive: false,
+            coupons: false, cartDiscount: false, announcementBar: true, stories: true,
+            branches: false, reviews: true
+          }
+        },
+        {
+          id: "starter",
+          name: "الباقة الأساسية (Starter)",
+          price: 1000,
+          durationDays: 30,
+          durationLabel: "شهر (30 يوماً)",
+          billingCycle: "monthly",
+          description: "تشمل منيو رقمي ذكي وكاشير محلي وطاولات QR",
+          modules: {
+            ordering: true, pos: true, inventory: false, smartTables: true,
+            delivery: true, takeaway: true, onlinePayment: false, archive: true,
+            coupons: false, cartDiscount: false, announcementBar: false, stories: false,
+            branches: false, reviews: true
+          }
+        },
+        {
+          id: "pro",
+          name: "الباقة الاحترافية (Pro)",
+          price: 2000,
+          durationDays: 30,
+          durationLabel: "شهر (30 يوماً)",
+          billingCycle: "monthly",
+          description: "كافة مزايا السيستم والتوصيل والدفع الذكي والكاشير",
+          modules: {
+            ordering: true, pos: true, inventory: true, smartTables: true,
+            delivery: true, takeaway: true, onlinePayment: true, archive: true,
+            coupons: true, cartDiscount: true, announcementBar: true, stories: true,
+            branches: false, reviews: true
+          }
+        },
+        {
+          id: "vip",
+          name: "الباقة الشاملة VIP (Enterprise)",
+          price: 3500,
+          durationDays: 90,
+          durationLabel: "3 أشهر (90 يوماً)",
+          billingCycle: "quarterly",
+          description: "كافة المزايا الـ 14 كاملة بدون قيود مع الفروع والدعم المخصص",
+          modules: {
+            ordering: true, pos: true, inventory: true, smartTables: true,
+            delivery: true, takeaway: true, onlinePayment: true, archive: true,
+            coupons: true, cartDiscount: true, announcementBar: true, stories: true,
+            branches: true, reviews: true
+          }
+        },
+        {
+          id: "annual",
+          name: "الباقة السنوية المخفضة",
+          price: 15000,
+          durationDays: 365,
+          durationLabel: "سنة كاملة (365 يوماً)",
+          billingCycle: "annual",
+          description: "وفر شهرين مع تحديثات غير محدودة وكافة المزايا الـ 14",
+          modules: {
+            ordering: true, pos: true, inventory: true, smartTables: true,
+            delivery: true, takeaway: true, onlinePayment: true, archive: true,
+            coupons: true, cartDiscount: true, announcementBar: true, stories: true,
+            branches: true, reviews: true
+          }
+        }
       ],
       editingPackageId: null,
       confirmCallback: null,
@@ -2426,6 +2507,10 @@
             this.renderPackagesUI();
             this.renderPackageOptions();
           } catch(e) {}
+        } else {
+          this.packages = [...this.defaultPackages];
+          this.renderPackagesUI();
+          this.renderPackageOptions();
         }
 
         const isSessionUnlocked = sessionStorage.getItem('harpy_master_unlocked') === 'true';
@@ -2554,13 +2639,12 @@
           searchSec.style.display = (tabName === 'tenants') ? 'block' : 'none';
         }
 
-        if (tabName === 'finance') {
+        if (tabName === 'packages') {
+          this.renderPackagesUI();
+        } else if (tabName === 'finance') {
           this.renderFinanceUI();
-        } else if (tabName === 'watchdog') {
-          this.renderWatchdogUI();
-        } else if (tabName === 'broadcast') {
+        } else if (tabName === 'settings') {
           this.loadBroadcast();
-        } else if (tabName === 'audit') {
           this.loadAuditLogs();
         }
       },
@@ -3247,6 +3331,8 @@
         document.getElementById('modules-modal-title').textContent = `صلاحيات ميزات: ${t.name}`;
 
         const mods = t.modules || {};
+        const toggleOrdering = document.getElementById('mod-toggle-ordering');
+        if (toggleOrdering) toggleOrdering.checked = mods.ordering !== false;
         document.getElementById('mod-toggle-pos').checked = mods.pos !== false;
         document.getElementById('mod-toggle-inventory').checked = mods.inventory !== false;
         document.getElementById('mod-toggle-stories').checked = mods.stories !== false;
@@ -3273,6 +3359,7 @@
         if (!this.editingModulesSlug) return;
         const slug = this.editingModulesSlug;
         const modulesPayload = {
+          ordering: document.getElementById('mod-toggle-ordering') ? document.getElementById('mod-toggle-ordering').checked : true,
           pos: document.getElementById('mod-toggle-pos').checked,
           inventory: document.getElementById('mod-toggle-inventory').checked,
           stories: document.getElementById('mod-toggle-stories').checked,
@@ -3374,14 +3461,15 @@
         }
         const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
 
-        const allMods = {
-          pos: true, inventory: true, stories: true, smartTables: true,
-          delivery: true, takeaway: true, onlinePayment: true, archive: true,
-          coupons: true, reviews: true
-        };
-
         const planSelect = document.getElementById('new-tenant-plan');
         const planName = planSelect ? planSelect.value : 'الباقة الأساسية';
+
+        const matchedPackage = this.packages.find(p => p.name === planName || p.id === planName);
+        const allMods = (matchedPackage && matchedPackage.modules) ? Object.assign({}, matchedPackage.modules) : {
+          ordering: true, pos: true, inventory: true, stories: true, smartTables: true,
+          delivery: true, takeaway: true, onlinePayment: true, archive: true,
+          coupons: true, cartDiscount: true, announcementBar: true, branches: true, reviews: true
+        };
 
         const password = (document.getElementById('new-tenant-password')?.value || '').trim();
         if (!password || password.length < 5) {
@@ -3887,10 +3975,32 @@
 
       // --- Direct Navigation to Packages ---
       openPackagesManagerDirectly() {
-        this.switchTab('finance');
-        this.switchFinanceSubnav('packages');
+        this.switchTab('packages');
         const grid = document.getElementById('packages-cards-grid');
         if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      },
+
+      openFounderMenu() {
+        document.getElementById('modal-founder-backdrop').classList.add('open');
+        document.getElementById('modal-founder').classList.add('open');
+      },
+
+      async exportAllBackup() {
+        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
+        try {
+          const res = await fetch(`${BASE_RTDB}/.json${authParam}`);
+          const data = await res.json();
+          const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `harpy_master_full_backup_${new Date().toISOString().split('T')[0]}.json`;
+          a.click();
+          this.logAudit('FULL_BACKUP', 'تحميل نسخة احتياطية سحابية شاملة للمنصة');
+          this.showToast("تم تحميل النسخة الاحتياطية الشاملة بنجاح", "success");
+        } catch(e) {
+          this.showToast("فشل تحميل النسخة الاحتياطية", "error");
+        }
       },
 
       // --- Modern Plan Cards & Duration Selection in Add Modal ---
@@ -4193,6 +4303,17 @@
               <div class="package-card-meta">
                 <span class="package-badge">${durationBadge}</span>
                 <span class="package-badge-subscribers">${subscribers} مطعم مشترك</span>
+                ${(() => {
+                  const mods = p.modules || {};
+                  if (mods.ordering === false) {
+                    return '<span class="package-badge" style="background:rgba(239,68,68,0.15); color:#ef4444; border-color:rgba(239,68,68,0.3); font-weight:800;">عرض منيو فقط (بدون طلب)</span>';
+                  }
+                  const enabled = (MasterApp.ALL_MODULES_META || []).filter(m => mods[m.key] !== false).length;
+                  if (enabled >= 14) {
+                    return '<span class="package-badge" style="background:rgba(16,185,129,0.15); color:#10b981; border-color:rgba(16,185,129,0.3); font-weight:800;">كافة المزايا الـ 14 كاملة</span>';
+                  }
+                  return `<span class="package-badge" style="background:rgba(59,130,246,0.15); color:#3b82f6; border-color:rgba(59,130,246,0.3); font-weight:800;">${enabled} ميزة مشمولة</span>`;
+                })()}
                 ${p.description ? `<div style="font-size:11px; color:var(--text-muted); width:100%; margin-top:2px;">${escapeHtml(p.description)}</div>` : ''}
               </div>
               <div class="package-card-actions">
@@ -4225,6 +4346,45 @@
         }
       },
 
+      renderPkgModulesChecklist(mods = {}) {
+        const container = document.getElementById('pkg-modules-list');
+        if (!container) return;
+        container.innerHTML = this.ALL_MODULES_META.map(m => {
+          const isChecked = mods[m.key] !== false;
+          return `
+            <label class="module-check-row" style="margin-bottom:0; padding:6px 8px; border-radius:8px; background:var(--bg-card); cursor:pointer;">
+              <div class="module-check-meta" style="flex:1;">
+                <div class="module-check-title" style="font-size:12px; font-weight:700;">${m.name}</div>
+                <div class="module-check-desc" style="font-size:10.5px; color:var(--text-secondary); line-height:1.3;">${m.desc}</div>
+              </div>
+              <input type="checkbox" id="pkg-mod-${m.key}" class="module-switch-input" ${isChecked ? 'checked' : ''}>
+              <span class="module-switch-slider"></span>
+            </label>
+          `;
+        }).join('');
+      },
+
+      pkgSelectAllModules(val) {
+        this.ALL_MODULES_META.forEach(m => {
+          const el = document.getElementById(`pkg-mod-${m.key}`);
+          if (el) el.checked = val;
+        });
+      },
+
+      pkgSetDigitalMenuOnly() {
+        this.ALL_MODULES_META.forEach(m => {
+          const el = document.getElementById(`pkg-mod-${m.key}`);
+          if (el) {
+            if (['ordering', 'pos', 'inventory', 'delivery', 'takeaway', 'onlinePayment', 'coupons', 'cartDiscount'].includes(m.key)) {
+              el.checked = false;
+            } else {
+              el.checked = true;
+            }
+          }
+        });
+        this.showToast("تم ضبط الباقة كـ (عرض منيو رقمي فقط بدون سلة أو طلبات)", "info");
+      },
+
       openCreatePackageModal() {
         this.editingPackageId = null;
         const titleEl = document.getElementById('package-modal-title');
@@ -4239,6 +4399,7 @@
         document.getElementById('pkg-input-cycle').value = 'monthly';
         document.getElementById('pkg-input-desc').value = '';
 
+        this.renderPkgModulesChecklist({});
         document.getElementById('modal-package-backdrop').classList.add('open');
         document.getElementById('modal-package-edit').classList.add('open');
       },
@@ -4274,6 +4435,7 @@
         document.getElementById('pkg-input-cycle').value = p.billingCycle || 'monthly';
         document.getElementById('pkg-input-desc').value = p.description || '';
 
+        this.renderPkgModulesChecklist(p.modules || {});
         document.getElementById('modal-package-backdrop').classList.add('open');
         document.getElementById('modal-package-edit').classList.add('open');
       },
@@ -4338,6 +4500,12 @@
 
         const id = this.editingPackageId || ('pkg_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 4));
 
+        const pkgModules = {};
+        this.ALL_MODULES_META.forEach(m => {
+          const el = document.getElementById(`pkg-mod-${m.key}`);
+          pkgModules[m.key] = el ? el.checked : true;
+        });
+
         const packageObj = {
           id,
           name,
@@ -4346,6 +4514,7 @@
           durationLabel,
           billingCycle,
           description,
+          modules: pkgModules,
           updatedAt: Date.now()
         };
 

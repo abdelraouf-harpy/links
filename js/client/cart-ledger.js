@@ -544,6 +544,11 @@ function renderCartDrawerItems() {
 }
 
 window.openCartDrawer = function() {
+  if (document.documentElement.getAttribute('data-mod-ordering') === 'false') return;
+  if (window.Store && typeof window.Store.getSettings === 'function') {
+    const st = window.Store.getSettings();
+    if (st && st.modules && st.modules.ordering === false) return;
+  }
   document.body.classList.add('cart-drawer-open');
   if (elements.cartDrawer) elements.cartDrawer.classList.add('open');
   if (elements.cartDrawerBackdrop) elements.cartDrawerBackdrop.classList.add('open');

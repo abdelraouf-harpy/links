@@ -492,7 +492,7 @@ function renderHeroShowcase(p, currency) {
             <button class="btn-fav-toggle ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); handleToggleFav('${p.id}')" title="إضافة للمفضلة">
               <svg class="icon" viewBox="0 0 24 24" style="fill: ${isFav ? 'currentColor' : 'none'};"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
             </button>
-            ${hasOptions ? `
+            ${(!isOrderingDisabled() && hasOptions) ? `
               <button class="btn-quick-add" onclick="event.stopPropagation(); openCustomizer('${p.id}')">
                 <span>${(typeof t === "function" ? t("btn_customize", "تخصيص") : "تخصيص")}</span>
               </button>
@@ -552,7 +552,7 @@ function renderProductCard(p, currency, index = 0) {
             ${p.price} <span>${currency}</span>
           </div>
           <div>
-            ${hasOptions ? `
+            ${(!isOrderingDisabled() && hasOptions) ? `
               <button class="btn-quick-add" onclick="event.stopPropagation(); openCustomizer('${p.id}')">
                 <span>${(typeof t === "function" ? t("btn_customize", "تخصيص") : "تخصيص")}</span>
               </button>
@@ -564,7 +564,23 @@ function renderProductCard(p, currency, index = 0) {
   `;
 }
 
+function isOrderingDisabled() {
+  if (document.documentElement.getAttribute('data-mod-ordering') === 'false') return true;
+  if (window.Store && typeof window.Store.getSettings === 'function') {
+    const st = window.Store.getSettings();
+    if (st && st.modules && st.modules.ordering === false) return true;
+  }
+  return false;
+}
+
 function renderCardActionButton(product, qty) {
+  if (isOrderingDisabled()) {
+    return `
+      <button class="btn-quick-add" onclick="event.stopPropagation(); openQuickPreview('${product.id}')" style="background:var(--bg-surface-elevated, rgba(255,255,255,0.06)); border:1px solid var(--border-light, rgba(255,255,255,0.1)); color:var(--text-secondary); width:auto; padding:0 12px;">
+        <span style="font-size:11.5px; font-weight:700;">تفاصيل</span>
+      </button>
+    `;
+  }
   if (qty > 0) {
     return `
       <div class="qty-stepper">
@@ -618,6 +634,7 @@ function findMatchingCartItem(cart, target) {
 }
 
 window.handleQuickAddItem = function(productId, triggerElement) {
+  if (isOrderingDisabled()) return;
   if (checkOrderingPaused()) return;
 
   const prods = Store.getProducts();
@@ -743,6 +760,15 @@ function updatePreviewModalActions(productId) {
   const prods = Store.getProducts();
   const p = prods.find(item => item.id === productId);
   if (!p) return;
+
+  if (isOrderingDisabled()) {
+    elements.previewActionWrap.innerHTML = `
+      <div style="display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; color:var(--text-secondary); background:rgba(255,255,255,0.06); padding:8px 16px; border-radius:20px; border:1px solid rgba(255,255,255,0.1);">
+        <span>قائمة طعام للعرض فقط</span>
+      </div>
+    `;
+    return;
+  }
 
   const hasOptions = (p.sizes && p.sizes.length > 0) || (p.addons && p.addons.length > 0);
   if (hasOptions) {

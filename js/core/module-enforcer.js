@@ -272,6 +272,7 @@
         if (b) b.setAttribute(`data-mod-${name}`, str);
       };
 
+      setFlag('ordering', modules.ordering);
       setFlag('pos', modules.pos);
       setFlag('inventory', modules.inventory);
       setFlag('stories', modules.stories);
@@ -289,6 +290,10 @@
       // ── 2. Inject Dynamic CSS Rules for Zero-Latency DOM Suppression ──
       this.setupStyleSheet();
       let cssRules = [];
+
+      if (modules.ordering === false) {
+        cssRules.push('#nav-tab-cart, .nav-tab-cart, #desktop-nav-cart, #desktop-cart-badge, #cart-drawer, #cart-drawer-backdrop, .btn-quick-add, .qty-stepper, #btn-add-customized-cart, .btn-add-cart, [data-action="add-to-cart"], #bottom-cart-bar, #floating-cart-btn, .customizer-footer-action, #cart-flow-fulfillment, .cart-flow-section, #table-call-waiter, .product-card-counter, .cart-float, #btn-open-cart, .cart-counter, .cart-dock, .order-action-btn, #cart-bar { display: none !important; }');
+      }
 
       if (modules.pos === false) {
         cssRules.push('button[data-tab="tab-pos"], [data-nav="pos"], #drawer-nav-pos, #tab-pos { display: none !important; }');
@@ -342,6 +347,24 @@
       }
 
       // ── 3. Direct Inline DOM Manipulation (Fail-safe) ──
+
+      // Ordering Module (Zero-Ordering / View-Only Digital Menu Mode)
+      if (modules.ordering === false) {
+        document.querySelectorAll('#nav-tab-cart, .nav-tab-cart, #desktop-nav-cart, #desktop-cart-badge, #bottom-cart-bar, #floating-cart-btn').forEach(el => {
+          el.style.setProperty('display', 'none', 'important');
+        });
+        const cartDrawer = document.getElementById('cart-drawer');
+        if (cartDrawer) {
+          cartDrawer.classList.remove('open');
+          cartDrawer.style.setProperty('display', 'none', 'important');
+        }
+        const cartBackdrop = document.getElementById('cart-drawer-backdrop');
+        if (cartBackdrop) {
+          cartBackdrop.classList.remove('open');
+          cartBackdrop.style.setProperty('display', 'none', 'important');
+        }
+        document.body.classList.remove('cart-drawer-open');
+      }
 
       // POS Module (Nav triggers separated from pane to prevent pane leak)
       const posNavElements = document.querySelectorAll('button[data-tab="tab-pos"], [data-nav="pos"], #drawer-nav-pos');
