@@ -144,6 +144,11 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Bypass Cards NFC app — let cards manage its own SW & caching
+  if (reqUrl.pathname.startsWith('/cards/') || reqUrl.pathname === '/cards') {
+    return;
+  }
+
   // Bypass all external Cloud APIs for zero-latency direct browser networking
   if (reqUrl.hostname.includes('firebaseio.com') ||
       reqUrl.hostname.includes('googleapis.com') ||

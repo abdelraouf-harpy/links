@@ -106,11 +106,61 @@
         "destination": "/portfolio.html"
       },
       {
+        "source": "/cards",
+        "destination": "/cards/index.html"
+      },
+      {
+        "source": "/cards/",
+        "destination": "/cards/index.html"
+      },
+      {
+        "source": "/cards/dashboard",
+        "destination": "/cards/dashboard.html"
+      },
+      {
+        "source": "/cards/dashboard.html",
+        "destination": "/cards/dashboard.html"
+      },
+      {
+        "source": "/cards/profile.html",
+        "destination": "/cards/profile.html"
+      },
+      {
+        "source": "/cards/:username",
+        "destination": "/cards/profile.html"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }
     ],
     "headers": [
+      {
+        "source": "cards/manifest.json",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/manifest+json; charset=utf-8"
+          }
+        ]
+      },
+      {
+        "source": "cards/sw.js",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          },
+          {
+            "key": "Service-Worker-Allowed",
+            "value": "/cards/"
+          }
+        ]
+      },
       {
         "source": "sw.js",
         "headers": [

@@ -1,0 +1,27 @@
+# Options
+Options -Indexes
+
+# Enable rewrite engine
+RewriteEngine On
+RewriteBase /cards/
+
+# Allow existing files and directories to be served directly
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Clean URLs: /cards/username → /cards/profile.html?u=username
+RewriteRule ^([a-zA-Z0-9_]{3,20})/?$ profile.html?u=$1 [QSA,L]
+
+# Enforce no-cache policy for all documents (HTML, clean URLs, CSS, JS)
+<IfModule mod_headers.c>
+  Header set Cache-Control "no-cache, no-store, must-revalidate"
+  Header set Pragma "no-cache"
+  Header set Expires "0"
+
+  # Allow browser caching for static assets (images, fonts) to save bandwidth
+  <FilesMatch "\.(ico|pdf|flv|jpg|jpeg|png|gif|webp|svg|swf|woff|woff2|otf|ttf)$">
+    Header set Cache-Control "max-age=2592000, public"
+    Header unset Pragma
+    Header unset Expires
+  </FilesMatch>
+</IfModule>
