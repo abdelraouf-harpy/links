@@ -342,7 +342,10 @@ function setupAuth() {
     }
 
     try {
-      await Store.loginAdmin(identifier || slug, password);
+      await Promise.race([
+        Store.loginAdmin(identifier || slug, password),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 6000))
+      ]);
       if (typeof Store.setBranchKeychain === 'function') {
         Store.setBranchKeychain(slug, password);
         if (identifier) Store.setBranchKeychain(identifier, password);
@@ -354,7 +357,9 @@ function setupAuth() {
     } catch (err) {
       console.warn("[Admin] Login failed:", err);
       let msg = "كلمة المرور غير صحيحة، يرجى التحقق وإعادة المحاولة.";
-      if (err.code === 'auth/too-many-requests') {
+      if (err && (err.message === 'timeout' || err.code === 'auth/timeout')) {
+        msg = "استغرق الاتصال وقتا أطول من المتوقع، يرجى التحقق من اتصال الإنترنت وإعادة المحاولة.";
+      } else if (err && err.code === 'auth/too-many-requests') {
         msg = "تم تجاوز عدد المحاولات المسموح به. يرجى المحاولة لاحقاً.";
       }
       if (adminElements.loginErrorMsg) {

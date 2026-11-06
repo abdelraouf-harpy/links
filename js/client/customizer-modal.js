@@ -127,8 +127,13 @@ function calculateCustomizerTotal() {
   });
 
   const total = unitPrice * customizerQty;
+  const formattedTotal = (Math.round(total * 100) / 100).toString();
   if (elements.customizerTotalPrice) {
-    elements.customizerTotalPrice.textContent = `${total.toFixed(2)} ${currency}`;
+    elements.customizerTotalPrice.textContent = `${formattedTotal} ${currency}`;
+  }
+  const btnBadge = document.getElementById('btn-customizer-price-badge');
+  if (btnBadge) {
+    btnBadge.textContent = `${formattedTotal} ${currency}`;
   }
 }
 

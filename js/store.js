@@ -533,18 +533,28 @@ const Store = {
     let licData = null;
     if (activeSlug && activeSlug !== 'demo') {
       try {
-        const [licRes, restRes] = await Promise.all([
-          fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${activeSlug}.json`, { cache: 'no-store' }).catch(() => null),
-          fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${activeSlug}/settings/adminPassword.json`, { cache: 'no-store' }).catch(() => null)
+        const fetchWithTimeout = (url, ms = 2200) => {
+          const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+          const tid = ctrl ? setTimeout(() => { try { ctrl.abort(); } catch(e){} }, ms) : null;
+          return fetch(url, { cache: 'no-store', signal: ctrl ? ctrl.signal : undefined })
+            .then(r => { if (tid) clearTimeout(tid); return r.ok ? r.json() : null; })
+            .catch(() => { if (tid) clearTimeout(tid); return null; });
+        };
+
+        const [licRes, restPass] = await Promise.all([
+          fetchWithTimeout(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${activeSlug}.json`),
+          fetchWithTimeout(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${activeSlug}/settings/adminPassword.json`)
         ]);
-        licData = licRes && licRes.ok ? await licRes.json() : null;
-        const restPass = restRes && restRes.ok ? await restRes.json() : null;
+        licData = licRes;
         let storedPass = (licData && (licData.adminPassword || (licData.subscription && licData.subscription.adminPassword))) || restPass;
 
         if (!storedPass && typeof db !== 'undefined' && db && typeof db.ref === 'function') {
           try {
-            const snap = await db.ref(`licenses/${activeSlug}/adminPassword`).once('value');
-            if (snap.exists()) storedPass = snap.val();
+            const snap = await Promise.race([
+              db.ref(`licenses/${activeSlug}/adminPassword`).once('value'),
+              new Promise(res => setTimeout(() => res(null), 1500))
+            ]);
+            if (snap && snap.exists && snap.exists()) storedPass = snap.val();
           } catch(e) {}
         }
 
@@ -575,7 +585,7 @@ const Store = {
       this.safeSetItem('harpy_admin_active_slug', activeSlug);
       if (this.setBranchKeychain) this.setBranchKeychain(activeSlug, cleanPassword);
 
-      // Non-blocking background shadow auth for cloud write permissions
+      // Non-blocking background shadow auth for cloud write permissions (Zero UI latency)
       if (auth) {
         const shadowEmail = `${activeSlug}@harpymenu.com`;
         const candidatePasses = Array.from(new Set([
@@ -613,13 +623,8 @@ const Store = {
           return null;
         };
 
-        try {
-          const fastCred = await Promise.race([
-            doShadowAuth(),
-            new Promise(res => setTimeout(() => res(null), 2500))
-          ]);
-          if (fastCred) return fastCred;
-        } catch(e) {}
+        // Fire-and-forget in background without holding up the user
+        doShadowAuth().catch(err => console.warn("[Store] Background shadow auth note:", err));
       }
 
       return { user: { email: `${activeSlug}@harpymenu.com`, uid: uid } };

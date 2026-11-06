@@ -2708,6 +2708,7 @@ function updateHeaderBranchPill() {
   if (!pill) return;
 
   const hideAll = () => {
+    document.body.classList.remove('has-multiple-branches', 'has-active-dinein-table');
     pill.style.setProperty('display', 'none', 'important');
     if (accountBranchItem) accountBranchItem.style.setProperty('display', 'none', 'important');
   };
@@ -2726,6 +2727,7 @@ function updateHeaderBranchPill() {
   const dineInTable = (urlParams.get('table') || urlParams.get('t') || sessionStorage.getItem('harpy_dinein_table') || window.__harpyDineInTable || '').trim();
 
   if (dineInTable && isModuleActive('smartTables')) {
+    document.body.classList.add('has-active-dinein-table');
     pill.style.removeProperty('display');
     pill.style.display = 'inline-flex';
     pill.style.border = '1px solid var(--primary)';
@@ -2745,11 +2747,12 @@ function updateHeaderBranchPill() {
   }
 
   const branches = (typeof Store !== 'undefined' && Store.getBranches) ? Store.getBranches() : [];
-  if (branches.length > 1) {
+  if (Array.isArray(branches) && branches.length > 1) {
     const curSlug = Store.getRestaurantSlug();
     const curB = branches.find(b => b.slug === curSlug);
     const branchName = curB ? curB.name : 'اختر الفرع';
 
+    document.body.classList.add('has-multiple-branches');
     pill.style.removeProperty('display');
     pill.style.display = 'inline-flex';
     pill.style.cursor = 'pointer';

@@ -3147,19 +3147,34 @@ html.admin-unlocked #login-modal-backdrop {
   position: fixed;
   top: 0;
   bottom: 0;
-  left: 0;
-  width: 320px;
+  right: 0;
+  left: auto;
+  width: 300px;
   max-width: 86vw;
   background: var(--surface);
-  border-right: 1px solid var(--border-strong);
+  border-left: 1px solid var(--border-strong);
+  border-right: none;
   z-index: 10001;
   display: flex;
   flex-direction: column;
-  transform: translateX(-105%);
+  transform: translateX(105%);
   transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.35);
+  direction: rtl;
 }
 .admin-drawer.open {
+  transform: translateX(0);
+}
+html[dir="ltr"] .admin-drawer {
+  right: auto;
+  left: 0;
+  border-left: none;
+  border-right: 1px solid var(--border-strong);
+  transform: translateX(-105%);
+  box-shadow: 10px 0 40px rgba(0, 0, 0, 0.35);
+  direction: ltr;
+}
+html[dir="ltr"] .admin-drawer.open {
   transform: translateX(0);
 }
 
@@ -3362,35 +3377,138 @@ html.admin-unlocked #login-modal-backdrop {
   .admin-modern-header {
     padding-top: max(8px, env(safe-area-inset-top, 8px));
     padding-bottom: 8px;
-    padding-left: max(0px, env(safe-area-inset-left, 0px));
-    padding-right: max(0px, env(safe-area-inset-right, 0px));
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  .admin-modern-header .header-wrap {
+    gap: 8px;
+  }
+  .admin-modern-header .brand-info {
+    flex: 1 1 auto;
+    min-width: 0;
+    gap: 8px;
   }
   .admin-modern-header .brand-logo {
-    width: 38px;
-    height: 38px;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
     border-radius: 10px;
   }
+  .admin-modern-header .brand-text {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
   .admin-modern-header .brand-text h1 {
-    font-size: 0.95rem;
+    font-size: 0.96rem;
+    line-height: 1.25;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .admin-modern-header .brand-text p {
-    display: block;
     font-size: 10px;
     opacity: 0.85;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .admin-modern-header .header-actions {
+    gap: 6px;
+    flex-shrink: 0;
   }
   .btn-header-preview {
     display: none !important;
   }
   .btn-admin-install-header {
-    padding: 6px 10px;
+    padding: 6px 8px;
     font-size: 11px;
     gap: 4px;
+  }
+  .btn-admin-install-header #btn-admin-install-text {
+    display: none;
   }
   .btn-drawer-toggle .drawer-btn-label {
     display: none;
   }
   .btn-drawer-toggle {
-    padding: 8px 10px;
+    padding: 7px 9px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DESKTOP PERMANENT DOCKED SIDEBAR (>= 1025px)
+   ═══════════════════════════════════════════════════════════ */
+@media (min-width: 1025px) {
+  .admin-drawer {
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    right: 0 !important;
+    left: auto !important;
+    width: 250px !important;
+    max-width: 250px !important;
+    transform: none !important;
+    box-shadow: none !important;
+    border-left: 1px solid var(--border-strong) !important;
+    border-right: none !important;
+    z-index: 950 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    transition: none !important;
+  }
+
+  .admin-drawer-backdrop {
+    display: none !important;
+  }
+  .btn-close-drawer {
+    display: none !important;
+  }
+  #btn-admin-drawer-toggle {
+    display: none !important;
+  }
+
+  .admin-modern-header {
+    margin-right: 250px !important;
+    width: calc(100% - 250px) !important;
+    max-width: calc(100% - 250px) !important;
+    box-sizing: border-box !important;
+  }
+  #admin-main-container,
+  .admin-main,
+  main.admin-main {
+    margin-right: 250px !important;
+    width: calc(100% - 250px) !important;
+    max-width: calc(100% - 250px) !important;
+    box-sizing: border-box !important;
+  }
+
+  html[dir="ltr"] .admin-drawer {
+    left: 0 !important;
+    right: auto !important;
+    border-right: 1px solid var(--border-strong) !important;
+    border-left: none !important;
+  }
+  html[dir="ltr"] .admin-modern-header,
+  html[dir="ltr"] #admin-main-container,
+  html[dir="ltr"] .admin-main,
+  html[dir="ltr"] main.admin-main {
+    margin-right: 0 !important;
+    margin-left: 250px !important;
+  }
+
+  #admin-orders-container,
+  #admin-archive-container {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)) !important;
+    gap: 16px !important;
+  }
+}
+
+@media (min-width: 1600px) {
+  #admin-orders-container,
+  #admin-archive-container {
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)) !important;
+    gap: 18px !important;
   }
 }
 

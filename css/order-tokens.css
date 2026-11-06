@@ -326,11 +326,12 @@ body::-webkit-scrollbar {
   width: 100%;
   max-width: 100%;
   margin: 0 auto;
-  padding: 0 10px;
+  padding: 0 12px;
+  box-sizing: border-box;
 }
 @media (min-width: 480px) {
   .container {
-    padding: 0 14px;
+    padding: 0 16px;
   }
 }
 @media (min-width: 768px) {
@@ -341,13 +342,13 @@ body::-webkit-scrollbar {
 }
 @media (min-width: 1024px) {
   .container {
-    max-width: 960px;
-    padding: 0 20px;
+    max-width: 1020px;
+    padding: 0 24px;
   }
 }
-@media (min-width: 1400px) {
+@media (min-width: 1280px) {
   .container {
-    max-width: 1040px;
+    max-width: 1200px;
     padding: 0 24px;
   }
 }
