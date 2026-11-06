@@ -231,7 +231,7 @@
   updatePwaBranding();
 
   // ── 2. Clean Update Engine ("متظهرش تاني طالما مفيش تحديث وطالما الشخص حدّث") ───
-  const CURRENT_PWA_BUILD = 'v170.0';
+  const CURRENT_PWA_BUILD = 'v171.0';
 
   function isUpdateAlreadyHandled() {
     try {
@@ -434,7 +434,7 @@
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       // Register strictly-scoped SW for each app independently (No cross-purging)
-      const swUrl = './sw.js?v=170.0';
+      const swUrl = './sw.js?v=171.0';
       const targetScope = isAdmin ? './admin/' : './order/';
       navigator.serviceWorker.register(swUrl, { scope: targetScope })
         .then(reg => {

@@ -2976,6 +2976,11 @@ const Store = {
     root.setAttribute('data-theme', mode);
     if (body) body.setAttribute('data-theme', mode);
 
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (metaTheme) {
+      metaTheme.setAttribute('content', mode === 'dark' ? '#070B13' : '#FFFFFF');
+    }
+
     let preset;
     if (mode === 'light') {
       // In daylight mode, preset is ALWAYS the crisp daylight preset

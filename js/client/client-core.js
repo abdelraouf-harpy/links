@@ -604,6 +604,11 @@ window.handleThemeToggle = function() {
   root.setAttribute('data-theme', newMode);
   if (body) body.setAttribute('data-theme', newMode);
 
+  const metaTheme = document.querySelector('meta[name="theme-color"]');
+  if (metaTheme) {
+    metaTheme.setAttribute('content', newMode === 'dark' ? '#070B13' : '#FFFFFF');
+  }
+
   const s = (typeof Store !== 'undefined' && Store.getSettings) ? Store.getSettings() : {};
   const newPreset = (newMode === 'light') ? 'cream' : ((s.themePreset && s.themePreset !== 'cream') ? s.themePreset : 'charcoal');
   root.setAttribute('data-theme-preset', newPreset);
