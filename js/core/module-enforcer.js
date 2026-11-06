@@ -547,11 +547,13 @@
       }
 
       // Online Payment Module
-      const onlinePayWraps = document.querySelectorAll('.payment-option-online, [data-payment-method="online"], #wallet-transfer-box, #pay-wallet-option, #wallet-details-box, #wallet-discount-row');
+      const onlinePayWraps = document.querySelectorAll('.payment-option-online, [data-payment-method="online"], #wallet-transfer-box, #pay-wallet-option, #wallet-discount-row');
       const cardWalletsSettings = document.getElementById('card-wallets-management');
       const payCodOption = document.getElementById('pay-cod-option');
       if (modules.onlinePayment === false) {
         onlinePayWraps.forEach(w => w.style.setProperty('display', 'none', 'important'));
+        const walletDetailsBox = document.getElementById('wallet-details-box');
+        if (walletDetailsBox) walletDetailsBox.style.setProperty('display', 'none', 'important');
         if (cardWalletsSettings) cardWalletsSettings.style.setProperty('display', 'none', 'important');
         if (payCodOption && !payCodOption.classList.contains('selected')) {
           payCodOption.classList.add('selected');
@@ -560,6 +562,12 @@
       } else {
         onlinePayWraps.forEach(w => w.style.removeProperty('display'));
         if (cardWalletsSettings) cardWalletsSettings.style.removeProperty('display');
+        const walletDetailsBox = document.getElementById('wallet-details-box');
+        if (walletDetailsBox) {
+          walletDetailsBox.style.removeProperty('display');
+          const currentMethod = window.selectedPaymentMethod || (typeof selectedPaymentMethod !== 'undefined' ? selectedPaymentMethod : 'cod');
+          walletDetailsBox.style.display = (currentMethod === 'wallet') ? 'block' : 'none';
+        }
       }
 
       // Sales Archive Module

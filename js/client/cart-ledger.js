@@ -462,6 +462,19 @@ function updateLedgerUI() {
     elements.walletAmountReminder.textContent = `${finalTotal.toFixed(2)} ${currency}`;
   }
 
+  const isOnlinePayDisabled = (settings && settings.modules && settings.modules.onlinePayment === false) ||
+                              (window.ModuleEnforcer && window.ModuleEnforcer.modules && window.ModuleEnforcer.modules.onlinePayment === false);
+  if (isOnlinePayDisabled && selectedPaymentMethod === 'wallet') {
+    selectedPaymentMethod = 'cod';
+    window.selectedPaymentMethod = 'cod';
+    if (elements.payCodOption) elements.payCodOption.classList.add('selected');
+    if (elements.payWalletOption) elements.payWalletOption.classList.remove('selected');
+  }
+
+  if (elements.walletDetailsBox) {
+    elements.walletDetailsBox.style.display = (!isOnlinePayDisabled && selectedPaymentMethod === 'wallet') ? 'block' : 'none';
+  }
+
   // Handle Empty State vs Step View Visibility
   const emptyView = document.getElementById('cart-empty-view');
   const step1View = document.getElementById('drawer-step-1');
@@ -668,6 +681,7 @@ window.goToCheckoutStep = function(stepNumber, pushHistory = true) {
 
 function setPaymentOption(opt) {
   selectedPaymentMethod = opt;
+  window.selectedPaymentMethod = opt;
   if (opt === 'cod') {
     if (elements.payCodOption) elements.payCodOption.classList.add('selected');
     if (elements.payWalletOption) elements.payWalletOption.classList.remove('selected');
@@ -680,6 +694,8 @@ function setPaymentOption(opt) {
   SoundFX.playPop();
   updateLedgerUI();
 }
+
+window.setPaymentOption = setPaymentOption;
 
 function setupEventListeners() {
   if (elements.soundToggleBtn) {

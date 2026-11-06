@@ -126,6 +126,9 @@ var elements = {
   payCodOption: document.getElementById('pay-cod-option'),
   payWalletOption: document.getElementById('pay-wallet-option'),
   walletDetailsBox: document.getElementById('wallet-details-box'),
+  walletNameLabel: document.getElementById('wallet-name-label'),
+  walletDiscountTagLabel: document.getElementById('wallet-discount-tag-label'),
+  walletSavingBadge: document.getElementById('wallet-saving-badge'),
   walletNameDisplay: document.getElementById('wallet-name-display'),
   walletNumDisplay: document.getElementById('wallet-num-display'),
   btnCopyNum: document.getElementById('btn-copy-num'),
@@ -957,11 +960,66 @@ function renderStoreInfo() {
     elements.storeWhatsAppLink.href = `https://wa.me/${cleanWaNum}`;
   }
 
+  // Sync Digital Wallet & Cash Transfer Details
+  const formatWalletAccount = (raw) => {
+    if (!raw) return '';
+    const trimmed = String(raw).trim();
+    if (!trimmed) return '';
+    if (trimmed.includes('@')) return trimmed;
+    let digits = trimmed.replace(/\D/g, '');
+    if (digits.startsWith('0020') && digits.length >= 13) {
+      digits = '0' + digits.slice(4);
+    } else if (digits.startsWith('20') && digits.length === 12) {
+      digits = '0' + digits.slice(2);
+    }
+    return digits || trimmed;
+  };
+
+  const rawWallet = (settings.walletNumber || '').trim();
+  const walletPhone = (settings.phone || '').trim();
+  const walletWa = (settings.whatsappNumber || '').trim();
+  const activeWalletNum = formatWalletAccount(rawWallet) ||
+                          formatWalletAccount(walletPhone) ||
+                          formatWalletAccount(walletWa) ||
+                          "01019971508";
+
+  const activeWalletName = (settings.walletName || '').trim() || "فودافون كاش / إنستاباي";
+
   if (elements.walletNameDisplay) {
-    elements.walletNameDisplay.textContent = settings.walletName || "فودافون كاش / إنستاباي";
+    elements.walletNameDisplay.textContent = activeWalletName;
+  }
+  const walletNameLabel = elements.walletNameLabel || document.getElementById('wallet-name-label');
+  if (walletNameLabel) {
+    walletNameLabel.textContent = activeWalletName;
+  }
+
+  // Wallet discount labels
+  const walletDiscountTagLabel = elements.walletDiscountTagLabel || document.getElementById('wallet-discount-tag-label');
+  const walletSavingBadge = elements.walletSavingBadge || document.getElementById('wallet-saving-badge');
+  const hasWalletDiscount = settings.enableWalletDiscount !== false;
+  const walletVal = settings.walletDiscountValue !== undefined ? settings.walletDiscountValue : 10;
+  const isPercent = settings.walletDiscountType !== 'fixed';
+  const curr = (typeof window.getCurrency === 'function') ? window.getCurrency(settings.currency) : (settings.currency || "ج.م");
+  const discountStr = isPercent ? `${walletVal}%` : `${walletVal} ${curr}`;
+
+  if (walletDiscountTagLabel) {
+    if (hasWalletDiscount && walletVal > 0) {
+      walletDiscountTagLabel.textContent = `خصم ${discountStr} فوري`;
+      walletDiscountTagLabel.style.display = 'inline-block';
+    } else {
+      walletDiscountTagLabel.style.display = 'none';
+    }
+  }
+  if (walletSavingBadge) {
+    if (hasWalletDiscount && walletVal > 0) {
+      walletSavingBadge.textContent = `خصم ${discountStr} مفعّل`;
+      walletSavingBadge.style.display = 'inline-block';
+    } else {
+      walletSavingBadge.style.display = 'none';
+    }
   }
   if (elements.walletNumDisplay) {
-    elements.walletNumDisplay.textContent = settings.walletNumber || "010xxxxxxxx";
+    elements.walletNumDisplay.textContent = activeWalletNum;
   }
 
   // Subscription Status Gate (Harpy Master SaaS Control)

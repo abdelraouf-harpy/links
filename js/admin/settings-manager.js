@@ -184,7 +184,12 @@ function loadSettingsIntoForm() {
   document.body.setAttribute('data-paper-size', s.printerPaperSize || '80mm');
   if (adminElements.setCurrency) adminElements.setCurrency.value = s.currency || 'ج.م';
   if (adminElements.setWhatsapp) adminElements.setWhatsapp.value = s.whatsappNumber || '';
-  if (adminElements.setWalletNumber) adminElements.setWalletNumber.value = s.walletNumber || '';
+  if (adminElements.setWalletNumber) {
+    adminElements.setWalletNumber.value = s.walletNumber || '';
+    const defPh = (s.phone || s.whatsappNumber || '01019971508').replace(/\D/g, '');
+    const cleanPh = (defPh.startsWith('20') && defPh.length === 12) ? ('0' + defPh.slice(2)) : defPh;
+    adminElements.setWalletNumber.placeholder = cleanPh || "010xxxxxxxx";
+  }
   if (adminElements.setWalletName) adminElements.setWalletName.value = s.walletName || '';
   
   const logoInput = document.getElementById('set-logo-url');
