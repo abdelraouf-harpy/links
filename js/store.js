@@ -939,6 +939,17 @@ const Store = {
           if (copy.tagline) copy.tagline = this.stripEmojiNoise(copy.tagline);
           if (copy.ctaText) copy.ctaText = this.stripEmojiNoise(copy.ctaText);
           if (copy.headline) copy.headline = this.stripEmojiNoise(copy.headline);
+          if (copy.price === undefined || copy.price === null || copy.price === 0) {
+            if (copy.id === 'story-mix-grill') copy.price = 290;
+            else if (copy.id === 'story-burger-smoked') copy.price = 165;
+            else if (copy.id === 'story-pizza-supreme') copy.price = 195;
+            else if (copy.id === 'story-loaded-fries') copy.price = 85;
+            else {
+              const fullText = (copy.desc || '') + ' ' + (copy.tagline || '');
+              const pm = fullText.match(/(\d+(?:\.\d+)?)\s*(?:ج\.م|جنيه)/);
+              if (pm) copy.price = parseFloat(pm[1]);
+            }
+          }
           return copy;
         });
         this._memoryCache.stories = storyArray;
