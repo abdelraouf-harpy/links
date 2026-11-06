@@ -51,8 +51,8 @@
   <link rel="preconnect" href="https://i.ibb.co" crossorigin>
   <link rel="dns-prefetch" href="https://i.ibb.co">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/order-tokens.css?v=172.0">
-  <link rel="stylesheet" href="css/order-client.css?v=172.0">
+  <link rel="stylesheet" href="css/order-tokens.css?v=173.0">
+  <link rel="stylesheet" href="css/order-client.css?v=173.0">
   <style id="harpy-critical-layout">
     /* ═══════════════════════════════════════════════════════════
        CRITICAL DEFENSIVE INLINE SHIELD (Prevents SW Cache Mismatches)
@@ -442,7 +442,27 @@
     .modal-backdrop, .customizer-modal-backdrop { z-index: 1200 !important; }
     #customer-onboard-backdrop { z-index: 10008 !important; }
     #customer-onboard-modal, .customer-onboard-modal { z-index: 10009 !important; }
-    .bottom-nav-bar { z-index: 1260 !important; }
+    .bottom-nav-bar {
+      position: fixed !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      height: calc(64px + env(safe-area-inset-bottom, 0px)) !important;
+      padding: 0 6px env(safe-area-inset-bottom, 0px) 6px !important;
+      background: rgba(255, 255, 255, 0.98) !important;
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+      border-top: 1px solid var(--border, #E2E8F0) !important;
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06) !important;
+      z-index: 1260 !important;
+    }
+    [data-theme="dark"] .bottom-nav-bar {
+      background: rgba(11, 15, 23, 0.98) !important;
+      border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+      box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.6) !important;
+    }
     @media (max-width: 991px) {
       .cart-drawer {
         bottom: 0 !important;
@@ -1187,27 +1207,18 @@
         </div>
         <div class="social-round-buttons-row">
           <!-- Facebook -->
-          <a id="portfolio-social-fb" href="#" target="_blank" rel="noopener" class="social-round-btn-item fb-circle-btn" title="فيسبوك">
-            <div class="social-round-circle">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-            </div>
-            <span class="social-circle-label" data-i18n="social_facebook">فيسبوك</span>
+          <a id="portfolio-social-fb" href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="social-brand-btn social-fb-btn" title="فيسبوك" aria-label="فيسبوك">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="#FFFFFF"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
           </a>
 
           <!-- Instagram -->
-          <a id="portfolio-social-ig" href="#" target="_blank" rel="noopener" class="social-round-btn-item ig-circle-btn" title="انستجرام">
-            <div class="social-round-circle">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
-            </div>
-            <span class="social-circle-label" data-i18n="social_instagram">انستجرام</span>
+          <a id="portfolio-social-ig" href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="social-brand-btn social-ig-btn" title="انستجرام" aria-label="انستجرام">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
           </a>
 
           <!-- TikTok -->
-          <a id="portfolio-social-tt" href="#" target="_blank" rel="noopener" class="social-round-btn-item tt-circle-btn" title="تيك توك">
-            <div class="social-round-circle">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.82 4.49 6.27 6.27 0 0 0 1.87-4.49V8.62a8.28 8.28 0 0 0 4.9 1.58V6.75a4.85 4.85 0 0 1-1-.06z"/></svg>
-            </div>
-            <span class="social-circle-label" data-i18n="social_tiktok">تيك توك</span>
+          <a id="portfolio-social-tt" href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="social-brand-btn social-tt-btn" title="تيك توك" aria-label="تيك توك">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="#FFFFFF"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.82 4.49 6.27 6.27 0 0 0 1.87-4.49V8.62a8.28 8.28 0 0 0 4.9 1.58V6.75a4.85 4.85 0 0 1-1-.06z"/></svg>
           </a>
         </div>
       </div>
@@ -2524,19 +2535,19 @@
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=172.0"></script>
-  <script src="js/core/sound-effects.js?v=172.0"></script>
-  <script src="js/core/i18n.js?v=172.0"></script>
-  <script src="js/store.js?v=172.0"></script>
-  <script src="js/core/qrcode.min.js?v=172.0"></script>
-  <script src="js/client/client-core.js?v=172.0"></script>
-  <script src="js/client/menu-view.js?v=172.0"></script>
-  <script src="js/client/stories-viewer.js?v=172.0"></script>
-  <script src="js/client/customizer-modal.js?v=172.0"></script>
-  <script src="js/client/cart-ledger.js?v=172.0"></script>
-  <script src="js/client/order-tracking.js?v=172.0"></script>
-  <script src="js/app.js?v=172.0"></script>
-  <script src="js/core/module-enforcer.js?v=172.0"></script>
-  <script src="js/pwa.js?v=172.0"></script>
+  <script src="js/core/demo-seed-data.js?v=173.0"></script>
+  <script src="js/core/sound-effects.js?v=173.0"></script>
+  <script src="js/core/i18n.js?v=173.0"></script>
+  <script src="js/store.js?v=173.0"></script>
+  <script src="js/core/qrcode.min.js?v=173.0"></script>
+  <script src="js/client/client-core.js?v=173.0"></script>
+  <script src="js/client/menu-view.js?v=173.0"></script>
+  <script src="js/client/stories-viewer.js?v=173.0"></script>
+  <script src="js/client/customizer-modal.js?v=173.0"></script>
+  <script src="js/client/cart-ledger.js?v=173.0"></script>
+  <script src="js/client/order-tracking.js?v=173.0"></script>
+  <script src="js/app.js?v=173.0"></script>
+  <script src="js/core/module-enforcer.js?v=173.0"></script>
+  <script src="js/pwa.js?v=173.0"></script>
 </body>
 </html>
