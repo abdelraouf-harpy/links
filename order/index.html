@@ -51,8 +51,8 @@
   <link rel="preconnect" href="https://i.ibb.co" crossorigin>
   <link rel="dns-prefetch" href="https://i.ibb.co">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/order-tokens.css?v=167.0">
-  <link rel="stylesheet" href="css/order-client.css?v=167.0">
+  <link rel="stylesheet" href="css/order-tokens.css?v=168.0">
+  <link rel="stylesheet" href="css/order-client.css?v=168.0">
   <style id="harpy-critical-layout">
     /* ═══════════════════════════════════════════════════════════
        CRITICAL DEFENSIVE INLINE SHIELD (Prevents SW Cache Mismatches)
@@ -845,6 +845,15 @@
           <span id="header-branch-pill-icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
           <span id="header-branch-pill-text">الفرع</span>
           <span id="header-branch-pill-arrow" style="font-size:9px; opacity:0.75;">▼</span>
+        </button>
+
+        <!-- Customer Profile / Account Pill on Desktop ("حسابي") -->
+        <button type="button" id="desktop-account-pill" class="menu-meta-pill pill-dark pill-account" onclick="window.handleNavTabClick && window.handleNavTabClick('account')" title="حسابي ومعلوماتي" aria-label="حسابي">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="7" r="4"/>
+            <path d="M5.5 21a6.5 6.5 0 0 1 13 0"/>
+          </svg>
+          <span id="desktop-account-pill-label" data-i18n="nav_account">حسابي</span>
         </button>
       </div>
     </header>
@@ -2430,19 +2439,19 @@
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=167.0"></script>
-  <script src="js/core/sound-effects.js?v=167.0"></script>
-  <script src="js/core/i18n.js?v=167.0"></script>
-  <script src="js/store.js?v=167.0"></script>
-  <script src="js/core/qrcode.min.js?v=167.0"></script>
-  <script src="js/client/client-core.js?v=167.0"></script>
-  <script src="js/client/menu-view.js?v=167.0"></script>
-  <script src="js/client/stories-viewer.js?v=167.0"></script>
-  <script src="js/client/customizer-modal.js?v=167.0"></script>
-  <script src="js/client/cart-ledger.js?v=167.0"></script>
-  <script src="js/client/order-tracking.js?v=167.0"></script>
-  <script src="js/app.js?v=167.0"></script>
-  <script src="js/core/module-enforcer.js?v=167.0"></script>
-  <script src="js/pwa.js?v=167.0"></script>
+  <script src="js/core/demo-seed-data.js?v=168.0"></script>
+  <script src="js/core/sound-effects.js?v=168.0"></script>
+  <script src="js/core/i18n.js?v=168.0"></script>
+  <script src="js/store.js?v=168.0"></script>
+  <script src="js/core/qrcode.min.js?v=168.0"></script>
+  <script src="js/client/client-core.js?v=168.0"></script>
+  <script src="js/client/menu-view.js?v=168.0"></script>
+  <script src="js/client/stories-viewer.js?v=168.0"></script>
+  <script src="js/client/customizer-modal.js?v=168.0"></script>
+  <script src="js/client/cart-ledger.js?v=168.0"></script>
+  <script src="js/client/order-tracking.js?v=168.0"></script>
+  <script src="js/app.js?v=168.0"></script>
+  <script src="js/core/module-enforcer.js?v=168.0"></script>
+  <script src="js/pwa.js?v=168.0"></script>
 </body>
 </html>

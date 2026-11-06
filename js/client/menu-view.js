@@ -9,8 +9,8 @@ var currentPreviewProductId = null;
 
 function getCategorySvgIcon(catName) {
   const c = (catName || '').toLowerCase().trim();
-  if (c === 'all' || c.includes('كل القائمة') || c.includes('الكل')) {
-    return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="currentColor"><path d="M12 1.5 2.5 19.8c2.8 1.8 6.3 2.7 9.5 2.7s6.7-.9 9.5-2.7L12 1.5zm0 4.3 5.4 10.8c-1.6-.5-3.5-.6-5.4.3-1.9-.9-3.8-.8-5.4-.3L12 5.8zm-2 9.2a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm4-4a1.3 1.3 0 1 1-2.6 0 1.3 1.3 0 0 1 2.6 0zm3 5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/></svg>';
+  if (c === 'all' || c.includes('كل القائمة') || c.includes('الكل') || c.includes('جميع')) {
+    return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="14" rx="1.5"/><rect width="7" height="7" x="3" y="14" rx="1.5"/></svg>';
   }
   if (c === 'fav' || c.includes('مفضل')) {
     return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
@@ -36,8 +36,13 @@ function getCategorySvgIcon(catName) {
   if (c.includes('فراخ') || c.includes('دجاج') || c.includes('chicken') || c.includes('بروست')) {
     return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="currentColor"><path d="M19.4 4.6c-2.8-2.8-8.2-1.2-11.2 1.8-2.6 2.6-3.4 6.8-1.7 9.8l-2.8 2.8a2 2 0 1 0 2.8 2.8l2.8-2.8c3 1.7 7.2.9 9.8-1.7 3.1-3.1 4.6-8.5 1.8-11.3l-1.5-1.4zm-2.4 3.4a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/></svg>';
   }
+  // Dedicated Sauces, Dips & Salads (Clean Ramekin Dip Bowl with Sauce Wave)
+  if (c.includes('صوص') || c.includes('سلط') || c.includes('salad') || c.includes('sauce') || c.includes('dip')) {
+    return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="7" rx="8" ry="3.5"/><path d="M4 7c0 5.5 3.6 11 8 11s8-5.5 8-11"/><path d="M7 8c1.5 1.2 3.2 1.8 5 1.8s3.5-.6 5-1.8"/><circle cx="12" cy="13" r="1.5" fill="currentColor"/></svg>';
+  }
+  // Appetizers, French Fries, Snacks & Sides (Clean, mathematically aligned geometry inside container)
   if (c.includes('بطاطس') || c.includes('فرايز') || c.includes('fries') || c.includes('سناكس') || c.includes('مقبلات') || c.includes('إضافات')) {
-    return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="currentColor"><path d="M5 11l1.8 11h10.4L19 11H5zm3.5-9h2v7h-2V2zm4.5 0h2v7h-2V2zm-7 2.5h2v6.5h-2V4.5zm13.5 0h2v6.5h-2V4.5z"/></svg>';
+    return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11l1.5 10a1.5 1.5 0 0 0 1.5 1.4h8a1.5 1.5 0 0 0 1.5-1.4L19 11H5z"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M8 11V5a1 1 0 0 1 2 0v6"/><path d="M11 11V3a1 1 0 0 1 2 0v8"/><path d="M14 11V6a1 1 0 0 1 2 0v5"/></svg>';
   }
   if (c.includes('مشروب') || c.includes('عصير') || c.includes('drink') || c.includes('غازية') || c.includes('بيبسي') || c.includes('مياه')) {
     return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="currentColor"><path d="M6 9l1.8 12.5a2 2 0 0 0 2 1.5h4.4a2 2 0 0 0 2-1.5L18 9H6zm-1-3h14a1 1 0 0 1 1 1v1H4V7a1 1 0 0 1 1-1zm8-4h2l-2 3h-2l2-3z"/></svg>';
@@ -47,9 +52,6 @@ function getCategorySvgIcon(catName) {
   }
   if (c.includes('مكرونة') || c.includes('باستا') || c.includes('أرز') || c.includes('pasta') || c.includes('rice') || c.includes('نودلز')) {
     return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="currentColor"><path d="M3 11c0 5 4 9 9 9s9-4 9-9H3zm4-7c-.5 0-1 .5-1 1s1 1.5 1 2.5c0 .6-.4 1-1 1s-1 .5-1 1 1 1.5 1 2.5H8c0-1.5-1-2-1-3 0-1 1-1.5 1-2.5 0-1-1-1-1-2zm5 0c-.5 0-1 .5-1 1s1 1.5 1 2.5c0 .6-.4 1-1 1s-1 .5-1 1 1 1.5 1 2.5h2c0-1.5-1-2-1-3 0-1 1-1.5 1-2.5 0-1-1-1-1-2zm5 0c-.5 0-1 .5-1 1s1 1.5 1 2.5c0 .6-.4 1-1 1s-1 .5-1 1 1 1.5 1 2.5h2c0-1.5-1-2-1-3 0-1 1-1.5 1-2.5 0-1-1-1-1-2z"/></svg>';
-  }
-  if (c.includes('صوص') || c.includes('سلط') || c.includes('salad')) {
-    return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="currentColor"><path d="M12 2C9 2 7 4 7 6c0 1.2.6 2.3 1.5 3H3c0 5 4 9 9 9s9-4 9-9h-5.5c.9-.7 1.5-1.8 1.5-3 0-2-2-4-5-4zm0 2c1.7 0 3 1 3 2s-1.3 2-3 2-3-1-3-2 1.3-2 3-2z"/></svg>';
   }
   if (c.includes('وجب') || c.includes('كومبو') || c.includes('meal')) {
     return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="10" y1="10" x2="10" y2="20"/></svg>';

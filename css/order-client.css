@@ -5038,8 +5038,42 @@ body:has(#customizer-modal.open) .bottom-nav-bar {
 .desktop-header-nav {
   display: none !important;
 }
+#desktop-account-pill {
+  display: none !important;
+}
 
 @media (min-width: 992px) {
+  #desktop-account-pill {
+    display: inline-flex !important;
+    cursor: pointer;
+    background: #1F2937;
+    color: #FFFFFF;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    font-size: 11px;
+    font-weight: 800;
+    padding: 3px 9px;
+    gap: 4px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  [data-theme="light"] #desktop-account-pill,
+  :root:not([data-theme="dark"]) #desktop-account-pill {
+    background: #F1F5F9;
+    color: #0F172A;
+    border-color: rgba(0, 0, 0, 0.08);
+  }
+  #desktop-account-pill:hover {
+    border-color: var(--primary, #FF6A00);
+    color: var(--primary, #FF6A00);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  }
+  #desktop-account-pill.active {
+    background: var(--primary, #FF6A00) !important;
+    color: #FFFFFF !important;
+    border-color: var(--primary, #FF6A00) !important;
+    box-shadow: 0 2px 8px rgba(255, 106, 0, 0.35);
+  }
+
   .desktop-header-nav {
     display: inline-flex !important;
     align-items: center;

@@ -2562,8 +2562,10 @@ function handleNavTabClick(tabId) {
     desktopLinks.forEach(l => l.classList.remove('active'));
     const clickedTab = document.getElementById('nav-tab-' + id);
     const clickedDesktop = document.getElementById('desktop-nav-' + id);
+    const desktopPill = document.getElementById('desktop-account-pill');
     if (clickedTab) clickedTab.classList.add('active');
     if (clickedDesktop) clickedDesktop.classList.add('active');
+    if (desktopPill) desktopPill.classList.toggle('active', id === 'account');
   }
 
   // If navigating away from cart, ensure cart drawer closes immediately!
