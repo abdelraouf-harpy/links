@@ -58,11 +58,29 @@ function loadCurrentStory() {
   const s = stories[currentStoryIndex];
   if (!s) return;
 
+  const prods = (typeof Store !== 'undefined' && Store.getProducts) ? Store.getProducts() : [];
+  const linkedProd = s.productId ? prods.find(p => p.id === s.productId) : null;
+  const settings = (typeof Store !== 'undefined' && Store.getSettings) ? Store.getSettings() : {};
+  const currency = (typeof window.getCurrency === 'function') ? window.getCurrency(settings.currency) : (settings.currency || "ج.م");
+
+  // Determine effective price: story custom price -> linked product price -> regex parse from text
+  let effectivePrice = (s.price !== undefined && s.price !== null && s.price !== '') ? parseFloat(s.price) : 0;
+  if (!effectivePrice && linkedProd) {
+    effectivePrice = parseFloat(linkedProd.price) || 0;
+  }
+  if (!effectivePrice) {
+    const textToSearch = (s.desc || '') + ' ' + (s.tagline || '') + ' ' + (s.headline || '');
+    const priceMatch = textToSearch.match(/(\d+(?:\.\d+)?)\s*(?:ج\.م|جنيه)/);
+    if (priceMatch) {
+      effectivePrice = parseFloat(priceMatch[1]);
+    }
+  }
+
   if (elements.storyViewerTitle) elements.storyViewerTitle.textContent = s.title;
   if (elements.storyViewerTime) elements.storyViewerTime.textContent = s.tagline || 'عرض مميز';
   if (elements.storyViewerImg) elements.storyViewerImg.src = s.image;
   if (elements.storyViewerBadge) elements.storyViewerBadge.textContent = s.badge || 'حصري';
-  if (elements.storyViewerHeadline) elements.storyViewerHeadline.textContent = s.title;
+  if (elements.storyViewerHeadline) elements.storyViewerHeadline.textContent = s.headline || s.title;
   if (elements.storyViewerDesc) elements.storyViewerDesc.textContent = s.desc || s.tagline || '';
 
   if (elements.storyProgressWrap) {
@@ -73,12 +91,84 @@ function loadCurrentStory() {
     `).join('');
   }
 
+  // Dynamic CTA button label with price
+  const ctaLabel = elements.storyCtaLabel || document.getElementById('story-cta-label');
+  if (ctaLabel) {
+    const baseAction = (s.ctaText && typeof Store !== 'undefined' && Store.stripEmojiNoise) ? Store.stripEmojiNoise(s.ctaText) : 'اطلب هذا العرض الآن';
+    if (effectivePrice > 0) {
+      ctaLabel.textContent = `${baseAction} • ${effectivePrice} ${currency}`;
+    } else {
+      ctaLabel.textContent = baseAction;
+    }
+  }
+
   if (elements.btnStoryCta) {
-    elements.btnStoryCta.onclick = () => {
-      if (s.productId) {
-        handleQuickAddItem(s.productId);
-        closeStoryViewer();
-        openCartDrawer();
+    elements.btnStoryCta.onclick = (e) => {
+      if (e) e.stopPropagation();
+
+      // Case 1: Linked product exists in active menu catalog
+      if (linkedProd) {
+        const hasOptions = (linkedProd.sizes && linkedProd.sizes.length > 0) || (linkedProd.addons && linkedProd.addons.length > 0);
+        closeStoryViewer(false);
+        if (hasOptions && typeof window.openCustomizer === 'function') {
+          window.openCustomizer(linkedProd.id);
+        } else if (typeof window.handleQuickAddItem === 'function') {
+          window.handleQuickAddItem(linkedProd.id);
+          if (typeof window.openCartDrawer === 'function') window.openCartDrawer();
+        }
+        return;
+      }
+
+      // Case 2: Exclusive story offer (not in catalog, or custom story deal)
+      if (effectivePrice > 0 || (s.title && s.title.trim())) {
+        const rawId = s.id || ('st_' + Date.now());
+        const dealId = 'story_offer_' + String(rawId).replace(/[^a-zA-Z0-9_-]/g, '');
+        const cleanTitle = (typeof Store !== 'undefined' && Store.stripEmojiNoise) ? Store.stripEmojiNoise(s.title || 'عرض خاص') : (s.title || 'عرض خاص');
+        const cleanTagline = (typeof Store !== 'undefined' && Store.stripEmojiNoise) ? Store.stripEmojiNoise(s.tagline || s.headline || '') : (s.tagline || s.headline || '');
+        const cleanDesc = (typeof Store !== 'undefined' && Store.stripEmojiNoise) ? Store.stripEmojiNoise(s.desc || '') : (s.desc || '');
+
+        const dealItem = {
+          id: dealId,
+          productId: dealId,
+          name: cleanTitle,
+          price: effectivePrice,
+          originalPrice: effectivePrice > 0 ? Math.round(effectivePrice * 1.15) : 0,
+          qty: 1,
+          quantity: 1,
+          image: s.image || '',
+          notes: cleanTagline ? (cleanTagline + (cleanDesc ? ' — ' + cleanDesc : '')) : cleanDesc,
+          category: 'عروض الستوري الحصرية',
+          selectedSize: null,
+          selectedAddons: [],
+          isStoryOffer: true
+        };
+
+        let cart = (typeof Store !== 'undefined' && Store.getCart) ? Store.getCart() : [];
+        const existing = cart.find(i => i.id === dealItem.id || i.productId === dealItem.id);
+        if (existing) {
+          existing.qty = (existing.qty || 1) + 1;
+          existing.quantity = existing.qty;
+        } else {
+          cart.push(dealItem);
+        }
+        if (typeof Store !== 'undefined' && Store.saveCart) Store.saveCart(cart);
+        if (typeof window.updateLedgerUI === 'function') window.updateLedgerUI();
+        if (typeof window.renderCartDrawerItems === 'function') window.renderCartDrawerItems();
+        if (typeof window.renderProducts === 'function') window.renderProducts();
+        if (window.SoundFX && typeof window.SoundFX.playPop === 'function') window.SoundFX.playPop();
+
+        closeStoryViewer(false);
+        if (typeof window.openCartDrawer === 'function') window.openCartDrawer();
+        if (typeof window.showToastNotification === 'function') {
+          window.showToastNotification(`تمت إضافة ${cleanTitle} إلى السلة بنجاح`, 'success');
+        }
+        return;
+      }
+
+      // Case 3: Informational story without price
+      closeStoryViewer();
+      if (typeof window.showToastNotification === 'function') {
+        window.showToastNotification('تفضل بتصفح قائمة المنيو واختيار وجباتك المفضلة', 'info');
       }
     };
   }

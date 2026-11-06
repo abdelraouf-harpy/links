@@ -167,6 +167,7 @@ var elements = {
   storyViewerHeadline: document.getElementById('story-viewer-headline'),
   storyViewerDesc: document.getElementById('story-viewer-desc'),
   btnStoryCta: document.getElementById('btn-story-cta'),
+  storyCtaLabel: document.getElementById('story-cta-label'),
   storyTouchPrev: document.getElementById('story-touch-prev'),
   storyTouchNext: document.getElementById('story-touch-next')
 };

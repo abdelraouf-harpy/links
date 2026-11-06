@@ -150,6 +150,7 @@ const adminElements = {
   storyTaglineInput: document.getElementById('story-tagline-input'),
   storyBadgeInput: document.getElementById('story-badge-input'),
   storyProductSelect: document.getElementById('story-product-select'),
+  storyPriceInput: document.getElementById('story-price-input'),
   storyDescInput: document.getElementById('story-desc-input'),
   storyImgUrl: document.getElementById('story-img-url'),
   storyImgFile: document.getElementById('story-img-file'),

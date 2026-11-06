@@ -55,7 +55,11 @@ function renderStoriesList() {
       <div style="flex:1;">
         <div style="font-size:13.5px; font-weight:800; color:var(--text-main);">${s.title}</div>
         <div style="font-size:11.5px; color:var(--text-muted);">${s.tagline || 'بدون نص ترويجي'}</div>
-        ${s.badge ? `<span style="font-size:10px; background:var(--primary-subtle); color:var(--primary); padding:1px 6px; border-radius:4px; font-weight:700;">${s.badge}</span>` : ''}
+        <div style="display:flex; align-items:center; gap:6px; margin-top:4px;">
+          ${s.badge ? `<span style="font-size:10px; background:var(--primary-subtle); color:var(--primary); padding:1px 6px; border-radius:4px; font-weight:700;">${s.badge}</span>` : ''}
+          ${s.price ? `<span style="font-size:11px; font-weight:800; color:var(--primary); font-family:var(--font-num);">${s.price} ج.م</span>` : ''}
+          ${s.productId ? `<span style="font-size:10px; color:var(--text-muted);">مرتبط بصنف</span>` : `<span style="font-size:10px; color:var(--text-muted);">عرض حصري</span>`}
+        </div>
       </div>
       <div style="display:flex; flex-direction:column; gap:4px;">
         <button class="btn btn-ghost btn-sm" onclick="openStoryModal('${s.id}')" title="تعديل القصة"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
@@ -83,6 +87,7 @@ function openStoryModal(storyId) {
     if (adminElements.storyTaglineInput) adminElements.storyTaglineInput.value = s.tagline || '';
     if (adminElements.storyBadgeInput) adminElements.storyBadgeInput.value = s.badge || '';
     if (adminElements.storyProductSelect) adminElements.storyProductSelect.value = s.productId || '';
+    if (adminElements.storyPriceInput) adminElements.storyPriceInput.value = (s.price !== undefined && s.price !== null) ? s.price : '';
     updateStoryProductPickerUI(s.productId || '');
     if (adminElements.storyDescInput) adminElements.storyDescInput.value = s.desc || '';
     if (adminElements.storyImgUrl) adminElements.storyImgUrl.value = s.image || '';
@@ -96,6 +101,7 @@ function openStoryModal(storyId) {
     if (adminElements.storyForm) adminElements.storyForm.reset();
     if (adminElements.storyId) adminElements.storyId.value = '';
     if (adminElements.storyProductSelect) adminElements.storyProductSelect.value = '';
+    if (adminElements.storyPriceInput) adminElements.storyPriceInput.value = '';
     updateStoryProductPickerUI('');
     if (storyImageUploader) storyImageUploader.clearPreview();
   }
@@ -123,6 +129,7 @@ async function saveStoryForm() {
   const tagline = (adminElements.storyTaglineInput?.value || '').trim();
   const badge = (adminElements.storyBadgeInput?.value || '').trim();
   const productId = adminElements.storyProductSelect?.value || '';
+  const price = parseFloat(adminElements.storyPriceInput?.value) || 0;
   const desc = (adminElements.storyDescInput?.value || '').trim();
   const image = (adminElements.storyImgUrl?.value || '').trim();
 
@@ -131,7 +138,7 @@ async function saveStoryForm() {
     return;
   }
 
-  const storyData = { id, title, tagline, badge, productId, desc, image };
+  const storyData = { id, title, tagline, badge, productId, price, desc, image };
 
   if (submitBtn) {
     submitBtn.disabled = true;
@@ -273,6 +280,12 @@ window.selectPickerProduct = function(productId) {
   pickerSelectedProductId = productId;
   if (adminElements.storyProductSelect) {
     adminElements.storyProductSelect.value = productId;
+  }
+  if (productId) {
+    const p = Store.getProducts().find(prod => prod.id === productId);
+    if (p && adminElements.storyPriceInput && (!adminElements.storyPriceInput.value || adminElements.storyPriceInput.value == '0')) {
+      adminElements.storyPriceInput.value = p.price;
+    }
   }
   updateStoryProductPickerUI(productId);
   closeStoryProductPicker();

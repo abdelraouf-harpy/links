@@ -49,7 +49,7 @@
   <meta name="apple-mobile-web-app-title" content="Admin">
 
   <link rel="stylesheet" href="css/order-tokens.css?v=168.0">
-  <link rel="stylesheet" href="css/order-client.css?v=168.0">
+  <link rel="stylesheet" href="css/order-client.css?v=169.0">
   <link rel="stylesheet" href="css/order-admin.css?v=168.0">
 
   <script>
@@ -1910,6 +1910,14 @@
       </div>
 
       <div class="form-group">
+        <label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">
+          <span>سعر العرض (ج.م)</span>
+          <span style="font-size:11px; color:var(--text-muted); font-weight:600;" id="story-price-hint">للطلب المباشر من الستوري</span>
+        </label>
+        <input type="number" id="story-price-input" class="form-input font-num" placeholder="0" min="0" step="any">
+      </div>
+
+      <div class="form-group">
         <label class="form-label">وصف وتفاصيل العرض</label>
         <textarea id="story-desc-input" class="form-textarea" rows="2" placeholder="تفاصيل العرض للزبائن"></textarea>
       </div>
@@ -2583,7 +2591,7 @@
   <script src="js/admin/inventory-manager.js?v=163.0"></script>
   <script src="js/admin/catalog-manager.js?v=163.0"></script>
   <script src="js/admin/category-manager.js?v=163.0"></script>
-  <script src="js/admin/stories-manager.js?v=163.0"></script>
+  <script src="js/admin/stories-manager.js?v=169.0"></script>
   <script src="js/admin/backup-restore.js?v=163.0"></script>
   <script src="js/core/qrcode.min.js?v=163.0"></script>
   <script src="js/admin/settings-manager.js?v=163.0"></script>

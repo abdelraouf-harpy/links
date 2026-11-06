@@ -2343,6 +2343,8 @@ const DEFAULT_STORIES = [
     title: "الأكثر طلباً",
     tagline: "سوبر برجر الأسطوري",
     badge: "الأكثر طلباً",
+    productId: "prod-super-burger-triple",
+    price: 220,
     image: "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=800&q=80",
     desc: "برجر بقري صافي مع الجبنة الذائبة والصوص السري"
   },
@@ -2351,6 +2353,8 @@ const DEFAULT_STORIES = [
     title: "جديدنا",
     tagline: "كريب كرسبي ذهبي",
     badge: "جديدنا",
+    productId: "",
+    price: 130,
     image: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=800&q=80",
     desc: "أشهى أنواع الكريب المحشو بقطع الفراخ المقرمشة والجبن"
   },
@@ -2359,6 +2363,8 @@ const DEFAULT_STORIES = [
     title: "كومبو الأسبوع",
     tagline: "فرايز بوكس المقرمش",
     badge: "سناكس",
+    productId: "",
+    price: 85,
     image: "https://images.unsplash.com/photo-1561758033-d89a9ad46330?auto=format&fit=crop&w=800&q=80",
     desc: "بطاطس ذهبية متبلة بصوص الشيدر والبهارات السرية"
   },
@@ -2367,6 +2373,8 @@ const DEFAULT_STORIES = [
     title: "عروض حصرية",
     tagline: "ساندوتشات راب مكس",
     badge: "عروض توفير",
+    productId: "prod-mix-burger-double",
+    price: 160,
     image: "https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?auto=format&fit=crop&w=800&q=80",
     desc: "مكس الجبابرة ساندوتش برجر مشوي مع كرسبي فرايد تشيكن"
   }
