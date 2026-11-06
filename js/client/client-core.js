@@ -884,7 +884,14 @@ function renderStoreInfo() {
 
   // Menu Compact Header Brand bindings (Matching Mockup)
   const heroStoreName = document.getElementById('hero-store-name');
-  if (heroStoreName) heroStoreName.textContent = displayName;
+  if (heroStoreName) {
+    if (curLang === 'ar' && displayName.includes(' | ') && window.innerWidth <= 600) {
+      heroStoreName.textContent = displayName.split(' | ')[0].trim();
+      heroStoreName.title = displayName;
+    } else {
+      heroStoreName.textContent = displayName;
+    }
+  }
 
   const heroStoreTagline = document.getElementById('hero-store-tagline');
   if (heroStoreTagline) heroStoreTagline.textContent = displayTagline;
@@ -1088,8 +1095,9 @@ function renderAnnouncement() {
     return;
   }
 
-  const isEnabled = (settings.showAnnouncement === true || settings.showAnnouncement === 'true');
-  const hasText = !!(settings.announcementText && settings.announcementText.trim());
+  const rawText = (settings && settings.announcementText ? settings.announcementText.trim() : '');
+  const hasText = rawText.length > 0;
+  const isEnabled = (settings.showAnnouncement === true || settings.showAnnouncement === 'true' || hasText);
   const hasAnnouncement = isEnabled && hasText;
 
   if (hasAnnouncement) {
@@ -1097,9 +1105,13 @@ function renderAnnouncement() {
     promoCard.style.display = 'flex';
     if (promoTitle) {
       const curLang = (typeof I18n !== 'undefined') ? I18n.getLanguage() : 'ar';
-      promoTitle.textContent = (curLang !== 'ar' && typeof tr === 'function') 
-        ? tr(settings.announcementText.trim()) 
-        : settings.announcementText.trim();
+      let cleanText = (curLang !== 'ar' && typeof tr === 'function') 
+        ? tr(rawText) 
+        : rawText;
+      if (typeof cleanText === 'string') {
+        cleanText = cleanText.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{FE00}-\u{FE0F}]/gu, '').trim();
+      }
+      promoTitle.textContent = cleanText;
     }
   } else {
     promoCard.style.setProperty('display', 'none', 'important');

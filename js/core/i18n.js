@@ -2750,9 +2750,14 @@
   window.getProductBadge = function(p, lang) {
     if (!p) return '';
     const l = lang || (typeof I18n !== 'undefined' ? I18n.getLanguage() : 'ar');
-    const rawBadge = (typeof p === 'string') ? p : (p.badge || '');
+    let rawBadge = (typeof p === 'string') ? p : (p.badge || '');
+    if (typeof rawBadge === 'string') {
+      rawBadge = rawBadge.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE00}-\u{FE0F}]/gu, '').trim();
+    }
     if (l === 'ar') return rawBadge;
-    if (typeof p === 'object' && p.badge_en && p.badge_en.trim()) return p.badge_en.trim();
+    if (typeof p === 'object' && p.badge_en && p.badge_en.trim()) {
+      return p.badge_en.trim().replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE00}-\u{FE0F}]/gu, '').trim();
+    }
     return rawBadge ? I18n.translate(rawBadge) : '';
   };
 
