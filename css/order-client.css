@@ -4310,59 +4310,147 @@ body.has-active-dinein-table #header-branch-pill {
    ═══════════════════════════════════════════════════════════ */
 .promo-announcement-bar {
   background: linear-gradient(135deg, rgba(255, 106, 0, 0.12) 0%, rgba(234, 88, 12, 0.05) 100%);
-  border: 1px solid rgba(255, 106, 0, 0.32);
+  border: 1.5px solid rgba(255, 106, 0, 0.35);
   border-radius: 9999px;
-  padding: 8px 16px;
+  padding: 6px 14px;
   margin: 6px 0 16px 0;
   display: flex;
   align-items: center;
   gap: 10px;
-  box-shadow: 0 4px 16px rgba(255, 106, 0, 0.08);
+  box-shadow: 0 4px 18px rgba(255, 106, 0, 0.10);
   position: relative;
   overflow: hidden;
   box-sizing: border-box;
   direction: rtl;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
 }
+.promo-announcement-bar:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 106, 0, 0.55);
+  box-shadow: 0 6px 22px rgba(255, 106, 0, 0.18);
+}
+.promo-announcement-bar:active {
+  transform: scale(0.99);
+}
+
 [data-theme="dark"] .promo-announcement-bar {
   background: linear-gradient(135deg, rgba(255, 106, 0, 0.18) 0%, rgba(30, 24, 20, 0.95) 100%);
-  border-color: rgba(255, 106, 0, 0.4);
+  border-color: rgba(255, 106, 0, 0.42);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
+[data-theme="dark"] .promo-announcement-bar:hover {
+  border-color: rgba(255, 106, 0, 0.65);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.6), 0 0 14px rgba(255, 106, 0, 0.25);
+}
+
 .promo-announcement-badge {
   background: linear-gradient(135deg, #FF6A00 0%, #EA580C 100%);
   color: #FFFFFF;
   font-size: 11px;
   font-weight: 900;
-  padding: 3px 10px;
+  padding: 4px 11px;
   border-radius: 9999px;
   white-space: nowrap;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(255, 106, 0, 0.4);
+  box-shadow: 0 2px 8px rgba(255, 106, 0, 0.45);
   letter-spacing: -0.2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  z-index: 2;
 }
+
+.promo-badge-pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  display: inline-block;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.95);
+  animation: harpyPromoPulse 1.8s infinite ease-in-out;
+}
+
+@keyframes harpyPromoPulse {
+  0% { transform: scale(0.85); opacity: 0.6; }
+  50% { transform: scale(1.35); opacity: 1; }
+  100% { transform: scale(0.85); opacity: 0.6; }
+}
+
 .promo-announcement-icon {
   color: #FF6A00;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  z-index: 2;
 }
-.promo-announcement-text-col {
+
+/* Marquee Viewport with Edge Fade Masks */
+.promo-marquee-viewport {
   flex: 1;
   min-width: 0;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  mask-image: linear-gradient(to right, transparent 0%, black 14px, black calc(100% - 14px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 14px, black calc(100% - 14px), transparent 100%);
 }
-.promo-announcement-text {
-  font-size: 0.85rem;
+
+/* Infinite Smooth Looping Track */
+.promo-marquee-track {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  will-change: transform;
+  animation: harpyMarqueeTicker 22s linear infinite;
+}
+
+.promo-announcement-bar:hover .promo-marquee-track,
+.promo-announcement-bar:active .promo-marquee-track {
+  animation-play-state: paused;
+}
+
+.promo-marquee-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  padding-left: 16px;
+  flex-shrink: 0;
+}
+
+.promo-marquee-text {
+  font-size: 0.88rem;
   font-weight: 800;
   color: var(--text-main);
   line-height: 1.35;
-  display: block;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  flex-shrink: 0;
+  letter-spacing: -0.2px;
 }
-[data-theme="dark"] .promo-announcement-text {
+[data-theme="dark"] .promo-marquee-text {
   color: #FFFFFF;
+}
+
+.promo-marquee-dot {
+  color: #FF6A00;
+  font-size: 15px;
+  font-weight: 900;
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+@keyframes harpyMarqueeTicker {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(50%, 0, 0);
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════

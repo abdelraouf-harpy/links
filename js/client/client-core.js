@@ -316,6 +316,7 @@ async function initApp() {
           renderProducts(true);
         }
         if (freshData.settings) {
+          renderAnnouncement();
           if (typeof window.updatePwaBranding === 'function') {
             window.updatePwaBranding(freshData.settings);
           }
@@ -1109,9 +1110,13 @@ function renderAnnouncement() {
         ? tr(rawText) 
         : rawText;
       if (typeof cleanText === 'string') {
-        cleanText = cleanText.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{FE00}-\u{FE0F}]/gu, '').trim();
+        cleanText = cleanText.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE00}-\u{FE0F}]/gu, '').trim();
       }
       promoTitle.textContent = cleanText;
+      ['promo-deal-title-clone-1', 'promo-deal-title-clone-2', 'promo-deal-title-clone-3'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = cleanText;
+      });
     }
   } else {
     promoCard.style.setProperty('display', 'none', 'important');
@@ -1121,6 +1126,25 @@ function renderAnnouncement() {
     elements.announcementBar.style.setProperty('display', 'none', 'important');
   }
 }
+
+window.handlePromoTickerClick = function(e) {
+  const settings = Store.getSettings();
+  let code = null;
+  if (settings && Array.isArray(settings.promoCodes) && settings.promoCodes.length > 0) {
+    code = settings.promoCodes[0].code;
+  }
+  if (!code && settings && settings.announcementText) {
+    const match = settings.announcementText.match(/كود[:\s]*([A-Za-z0-9_-]+)/i) || settings.announcementText.match(/code[:\s]*([A-Za-z0-9_-]+)/i);
+    if (match) code = match[1];
+  }
+  if (code && navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(code).then(() => {
+      if (typeof window.showToast === 'function') {
+        window.showToast(`تم نسخ كود الخصم (${code}) بنجاح!`, 'success');
+      }
+    }).catch(() => {});
+  }
+};
 
 
 // ── Store Ordering Paused (Friendly Non-Blocking Notice When Attempting to Order) ──
