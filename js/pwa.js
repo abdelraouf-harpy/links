@@ -242,8 +242,8 @@
   }
   updatePwaBranding();
 
-  // ── 2. Clean Update Engine ("متظهرش تاني طالما مفيش تحديث وطالما الشخص حدّث") ───
-  const CURRENT_PWA_BUILD = 'v174.0';
+  // ── 2. Clean Update Engine (Handles Code Updates & Live Store Name Updates) ───
+  const CURRENT_PWA_BUILD = 'v175.0';
 
   function isUpdateAlreadyHandled() {
     try {
@@ -256,37 +256,58 @@
   }
 
   function showUpdateNotification(updateData = {}) {
-    // If already applied or dismissed for this build, NEVER show
-    if (isUpdateAlreadyHandled()) return;
-    if (document.getElementById('harpy-pwa-update-modal')) return;
+    const isNameChange = (updateData.reason === 'name_change');
+    // For standard code builds, respect dismissal. For store name changes, ALWAYS show!
+    if (!isNameChange && isUpdateAlreadyHandled()) return;
+
+    // Clean any existing modal
+    const prevModal = document.getElementById('harpy-pwa-update-modal');
+    if (prevModal) {
+      try { prevModal.remove(); } catch(e) {}
+    }
+    const prevBackdrop = document.getElementById('harpy-pwa-update-backdrop');
+    if (prevBackdrop) {
+      try { prevBackdrop.remove(); } catch(e) {}
+    }
+
     ensurePwaStyles();
 
     const currentSlug = updateData.slug || getActiveSlug();
     const displayLogo = isAdmin ? ADMIN_ICON_URL : MENU_ICON_URL;
     const targetName = updateData.newName || storeName || (isAdmin ? 'لوحة التحكم' : 'المطعم');
-    const headline = isAdmin 
-      ? `تحديث لوحة تحكم: ${targetName}` 
-      : `تحديث تطبيق: ${targetName}`;
+    const cleanPrimary = (targetName || (currentSlug === 'king' ? 'كينج' : currentSlug)).split('|')[0].trim();
+
+    const headline = isNameChange
+      ? (isAdmin ? `تحديث اسم لوحة الإدارة: ${cleanPrimary}` : `تحديث تطبيق: ${cleanPrimary}`)
+      : (isAdmin ? `تحديث لوحة تحكم: ${cleanPrimary}` : `تحديث تطبيق: ${cleanPrimary}`);
+
+    const subText = isNameChange
+      ? `تم تحديث اسم المطعم إلى "${cleanPrimary}". انقر لتحديث اسم وهوية التطبيق على هاتفك فوراً.`
+      : `يتوفر إصدار أحدث لتحسين استقرار وسرعة التطبيق.`;
+
+    const btnText = isNameChange
+      ? `تحديث اسم وهوية التطبيق الآن`
+      : `تحديث التطبيق الآن`;
 
     const backdrop = document.createElement('div');
     backdrop.id = 'harpy-pwa-update-backdrop';
-    backdrop.style.cssText = 'position: fixed; inset: 0; z-index: 999998; background: rgba(0,0,0,0.45); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); opacity: 0; transition: opacity 0.3s ease;';
+    backdrop.style.cssText = 'position: fixed; inset: 0; z-index: 999998; background: rgba(0,0,0,0.55); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); opacity: 0; transition: opacity 0.3s ease;';
 
     const card = document.createElement('div');
     card.id = 'harpy-pwa-update-modal';
     card.style.cssText = `
       position: fixed;
-      top: 18px;
+      top: 20px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 999999;
-      width: calc(100% - 28px);
+      width: calc(100% - 24px);
       max-width: 440px;
-      background: linear-gradient(145deg, rgba(28,24,21,0.97), rgba(18,14,12,0.98));
-      border: 1.5px solid rgba(234, 88, 12, 0.55);
+      background: linear-gradient(145deg, rgba(28,24,21,0.98), rgba(18,14,12,0.99));
+      border: 1.5px solid rgba(234, 88, 12, 0.65);
       border-radius: 20px;
-      padding: 16px 18px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.7), 0 0 28px rgba(234,88,12,0.25);
+      padding: 18px 20px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.75), 0 0 30px rgba(234,88,12,0.3);
       color: #ffffff;
       direction: rtl;
       font-family: inherit;
@@ -298,29 +319,28 @@
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
         <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(234,88,12,0.18); border:1px solid rgba(234,88,12,0.4); padding:4px 11px; border-radius:20px; font-size:12px; font-weight:800; color:#fb923c;">
           <span style="width:7px; height:7px; border-radius:50%; background:#f97316; display:inline-block; animation: harpyPulseGlow 1.5s infinite;"></span>
-          تحديث جديد متوفر
+          ${isNameChange ? 'تحديث هوية التطبيق' : 'تحديث جديد متوفر'}
         </div>
         <button id="btn-update-card-close" style="background:transparent; border:none; color:#a8a29e; cursor:pointer; font-size:17px; width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:8px;" title="إغلاق"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
       <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
         <div style="position:relative; width:48px; height:48px; border-radius:14px; overflow:hidden; flex-shrink:0; background:#120e0c; border:1.5px solid rgba(249,115,22,0.45); box-shadow:0 4px 14px rgba(0,0,0,0.45);">
-          <img src="${displayLogo}" alt="${targetName}" style="width:100%; height:100%; object-fit:cover; display:block;" onerror="this.src='${fallbackIcon}'">
+          <img src="${displayLogo}" alt="${cleanPrimary}" style="width:100%; height:100%; object-fit:cover; display:block;" onerror="this.src='${fallbackIcon}'">
         </div>
         <div style="flex:1; min-width:0;">
           <div style="font-size:14.5px; font-weight:800; color:#ffffff; line-height:1.35; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
             ${headline}
           </div>
-          <div style="font-size:11.5px; color:#d6d3d1; font-weight:500; margin-top:3px; line-height:1.4;">
-            يتوفر إصدار أحدث لتحسين استقرار وسرعة التطبيق.
+          <div style="font-size:11.8px; color:#d6d3d1; font-weight:500; margin-top:3px; line-height:1.4;">
+            ${subText}
           </div>
         </div>
       </div>
       <div style="display:flex; align-items:center; gap:8px;">
-        <button id="btn-update-apply-now" style="flex:1; background:linear-gradient(135deg, #ea580c, #f97316); color:#fff; border:none; border-radius:12px; padding:10px 16px; font-size:13px; font-weight:800; cursor:pointer; font-family:inherit; box-shadow:0 4px 16px rgba(234,88,12,0.38); display:flex; align-items:center; justify-content:center; gap:6px;">
-          <span>تحديث التطبيق الآن</span>
-          
+        <button id="btn-update-apply-now" style="flex:1; background:linear-gradient(135deg, #ea580c, #f97316); color:#fff; border:none; border-radius:12px; padding:11px 16px; font-size:13px; font-weight:800; cursor:pointer; font-family:inherit; box-shadow:0 4px 16px rgba(234,88,12,0.38); display:flex; align-items:center; justify-content:center; gap:6px;">
+          <span>${btnText}</span>
         </button>
-        <button id="btn-update-dismiss" style="background:rgba(255,255,255,0.06); color:#a8a29e; border:1px solid rgba(255,255,255,0.12); border-radius:12px; padding:10px 16px; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit;">
+        <button id="btn-update-dismiss" style="background:rgba(255,255,255,0.06); color:#a8a29e; border:1px solid rgba(255,255,255,0.12); border-radius:12px; padding:11px 16px; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit;">
           لاحقاً
         </button>
       </div>
@@ -331,8 +351,9 @@
     requestAnimationFrame(() => { backdrop.style.opacity = '1'; });
 
     const dismissHandler = () => {
-      // Save permanently for this build so it NEVER shows again
-      try { localStorage.setItem('harpy_pwa_build_dismissed', CURRENT_PWA_BUILD); } catch(e) {}
+      if (!isNameChange) {
+        try { localStorage.setItem('harpy_pwa_build_dismissed', CURRENT_PWA_BUILD); } catch(e) {}
+      }
       card.style.animation = 'pwaUpdateFadeOut 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards';
       backdrop.style.opacity = '0';
       setTimeout(() => {
@@ -348,54 +369,124 @@
       const applyBtn = document.getElementById('btn-update-apply-now');
       if (applyBtn) {
         applyBtn.disabled = true;
-        applyBtn.innerHTML = `<span>جاري التحديث</span>`;
+        applyBtn.innerHTML = `<span>جاري تحديث هوية التطبيق...</span>`;
       }
 
-      // 1. Mark permanently as applied in localStorage so it NEVER shows again!
+      const activeSlug = updateData.slug || getActiveSlug();
+      const updatedName = targetName;
+      const cleanPrimary = (updatedName || (activeSlug === 'king' ? 'كينج' : activeSlug)).split('|')[0].trim();
+      const finalAppName = isAdmin ? `${cleanPrimary} | لوحة الإدارة` : `${cleanPrimary} | قائمة الطعام`;
+      const finalShortName = isAdmin ? `إدارة ${cleanPrimary}` : cleanPrimary;
+
       try {
+        localStorage.setItem('harpy_known_store_name_' + activeSlug, updatedName);
         localStorage.setItem('harpy_pwa_build_applied', CURRENT_PWA_BUILD);
+        localStorage.removeItem('harpy_pwa_build_dismissed');
       } catch(e) {}
 
-      // 2. Command Service Worker to activate immediately and clear old caches
-      if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.addEventListener('message', (event) => {
-      if (event.data && event.data.type === 'SW_CLAIMED') {
-        try {
-          console.log('[PWA] New version activated, refreshing...');
-          window.location.reload();
-        } catch(e) {}
-      }
-    });
-        try {
-          if (navigator.serviceWorker.controller) {
-            navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
-            navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_CACHES' });
-          }
-        } catch(e) {}
-        try {
-          const regs = await navigator.serviceWorker.getRegistrations();
-          for (const r of regs) {
-            if (r.waiting) r.waiting.postMessage({ type: 'SKIP_WAITING' });
-            r.update().catch(() => {});
-          }
-        } catch(e) {}
+      // Synthesize dynamic manifest object
+      const isNight = document.documentElement.getAttribute('data-theme') === 'dark';
+      const manifestObj = {
+        id: isAdmin ? (`/admin/?m=${activeSlug}`) : (`/order/?m=${activeSlug}`),
+        name: finalAppName,
+        short_name: finalShortName,
+        description: isAdmin ? `${cleanPrimary} - لوحة الإدارة وتجهيز الطلبات` : `${cleanPrimary} - المنيو الذكي وطلب الأوردر`,
+        start_url: isAdmin ? `./admin/?m=${activeSlug}` : `./order/?m=${activeSlug}`,
+        scope: isAdmin ? `./admin/` : `./order/`,
+        display: "standalone",
+        background_color: isNight ? "#070B13" : "#FFFFFF",
+        theme_color: isNight ? "#070B13" : "#FFFFFF",
+        orientation: "portrait",
+        icons: [
+          { src: appIcon, sizes: "512x512", type: "image/png", purpose: "any" },
+          { src: isAdmin ? ADMIN_ICON_192 : MENU_ICON_192, sizes: "192x192", type: "image/png", purpose: "any" },
+          { src: appIcon, sizes: "512x512", type: "image/png", purpose: "maskable" }
+        ]
+      };
+
+      // Refresh manifest tag in DOM with unique cache-buster URL
+      const ts = Date.now();
+      const authenticHref = isAdmin 
+        ? `admin-manifest-${activeSlug}.json?v=${ts}&name=${encodeURIComponent(cleanPrimary)}` 
+        : `manifest-${activeSlug}.json?v=${ts}&name=${encodeURIComponent(cleanPrimary)}`;
+
+      let manifestLink = document.querySelector('link[rel="manifest"]');
+      if (manifestLink) {
+        manifestLink.setAttribute('href', authenticHref);
       }
 
-      // 3. Dismiss modal smoothly and reload window
-      showToast(`تم تحديث التطبيق بنجاح!`);
+      // Update in-page identity
+      document.title = isAdmin ? `إدارة: ${cleanPrimary}` : `منيو: ${cleanPrimary}`;
+      const appNameMeta = document.querySelector('meta[name="application-name"]');
+      if (appNameMeta) appNameMeta.content = finalShortName;
+      const appleTitleMeta = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+      if (appleTitleMeta) appleTitleMeta.content = finalShortName;
+
+      // Broadcast to Service Worker
+      if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({
+          type: 'SET_DYNAMIC_MANIFEST',
+          slug: activeSlug,
+          isAdmin: isAdmin,
+          manifest: manifestObj
+        });
+        navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+      }
+
+      if (window.__swRegistration) {
+        try { await window.__swRegistration.update(); } catch(e) {}
+      }
+
+      showToast(`تم تحديث اسم وهوية التطبيق بنجاح!`);
       card.style.animation = 'pwaUpdateFadeOut 0.25s forwards';
       backdrop.style.opacity = '0';
       setTimeout(() => {
         try { card.remove(); backdrop.remove(); } catch(e) {}
         window.location.reload();
-      }, 400);
+      }, 350);
     });
   }
 
-  // ── 3. Listen for Store Settings Live Updates (DOM updates only, NO popups) ──
+  window.showUpdateNotification = showUpdateNotification;
+
+  window.triggerPwaIdentityUpdate = function(newName) {
+    const curSlug = getActiveSlug();
+    const cleanName = (newName || '').trim();
+    if (!cleanName) return;
+    showUpdateNotification({
+      slug: curSlug,
+      newName: cleanName,
+      reason: 'name_change'
+    });
+  };
+
+  // ── 3. Listen for Store Settings Live Updates ──
+  function checkNameChangeUpdate(settings) {
+    if (!settings || (!settings.storeName && !settings.name)) return;
+    const curSlug = getActiveSlug();
+    const newName = (settings.storeName || settings.name || '').trim();
+    if (!newName) return;
+
+    const knownKey = 'harpy_known_store_name_' + curSlug;
+    const lastKnown = localStorage.getItem(knownKey);
+
+    if (lastKnown && lastKnown !== newName) {
+      console.log(`[PWA] Store name changed from "${lastKnown}" to "${newName}". Prompting update.`);
+      showUpdateNotification({
+        slug: curSlug,
+        newName: newName,
+        oldName: lastKnown,
+        reason: 'name_change'
+      });
+    } else if (!lastKnown) {
+      localStorage.setItem(knownKey, newName);
+    }
+  }
+
   window.addEventListener('harpy_settings_updated', (e) => {
     if (e && e.detail) {
       updatePwaBranding(e.detail);
+      checkNameChangeUpdate(e.detail);
     }
   });
   window.addEventListener('store_settings_updated', () => {
@@ -403,6 +494,7 @@
       const s = JSON.parse(localStorage.getItem('harpy_' + getActiveSlug() + '_settings') || '{}');
       if (s) {
         updatePwaBranding(s);
+        checkNameChangeUpdate(s);
       }
     } catch(e) {}
   });
@@ -446,7 +538,7 @@
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       // Register strictly-scoped SW for each app independently (No cross-purging)
-      const swUrl = './sw.js?v=174.0';
+      const swUrl = './sw.js?v=175.0';
       const targetScope = isAdmin ? './admin/' : './order/';
       navigator.serviceWorker.register(swUrl, { scope: targetScope })
         .then(reg => {

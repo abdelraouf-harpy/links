@@ -6,7 +6,7 @@ try {
   console.warn("[SW] OneSignal worker import notice:", e);
 }
 
-const CACHE_NAME = 'order-pwa-v174.0';
+const CACHE_NAME = 'order-pwa-v175.0';
 const IMAGE_CACHE_NAME = 'order-images-v6';
 const ASSETS_TO_CACHE = [
   './',
@@ -35,34 +35,34 @@ const ASSETS_TO_CACHE = [
   './assets/portfolio/logo.png',
   './assets/portfolio/facebook_profile_logo.png',
   './assets/portfolio/01_Logo_and_Branding/order_logo_vector.svg',
-  './css/order-tokens.css?v=174.0',
-  './css/order-client.css?v=174.0',
-  './css/order-admin.css?v=174.0',
-  './css/portfolio.css?v=174.0',
-  './js/core/demo-seed-data.js?v=174.0',
-  './js/core/sound-effects.js?v=174.0',
-  './js/core/i18n.js?v=174.0',
-  './js/store.js?v=174.0',
-  './js/admin/admin-core.js?v=174.0',
-  './js/admin/admin-auth.js?v=174.0',
-  './js/admin/kitchen-orders.js?v=174.0',
-  './js/admin/inventory-manager.js?v=174.0',
-  './js/admin/catalog-manager.js?v=174.0',
-  './js/admin/category-manager.js?v=174.0',
-  './js/admin/stories-manager.js?v=174.0',
-  './js/admin/backup-restore.js?v=174.0',
-  './js/admin/settings-manager.js?v=174.0',
-  './js/admin/pos-terminal.js?v=174.0',
-  './js/admin/admin-push.js?v=174.0',
-  './js/client/client-core.js?v=174.0',
-  './js/client/menu-view.js?v=174.0',
-  './js/client/stories-viewer.js?v=174.0',
-  './js/client/customizer-modal.js?v=174.0',
-  './js/client/cart-ledger.js?v=174.0',
-  './js/client/order-tracking.js?v=174.0',
-  './js/app.js?v=174.0',
-  './js/admin.js?v=174.0',
-  './js/pwa.js?v=174.0'
+  './css/order-tokens.css?v=175.0',
+  './css/order-client.css?v=175.0',
+  './css/order-admin.css?v=175.0',
+  './css/portfolio.css?v=175.0',
+  './js/core/demo-seed-data.js?v=175.0',
+  './js/core/sound-effects.js?v=175.0',
+  './js/core/i18n.js?v=175.0',
+  './js/store.js?v=175.0',
+  './js/admin/admin-core.js?v=175.0',
+  './js/admin/admin-auth.js?v=175.0',
+  './js/admin/kitchen-orders.js?v=175.0',
+  './js/admin/inventory-manager.js?v=175.0',
+  './js/admin/catalog-manager.js?v=175.0',
+  './js/admin/category-manager.js?v=175.0',
+  './js/admin/stories-manager.js?v=175.0',
+  './js/admin/backup-restore.js?v=175.0',
+  './js/admin/settings-manager.js?v=175.0',
+  './js/admin/pos-terminal.js?v=175.0',
+  './js/admin/admin-push.js?v=175.0',
+  './js/client/client-core.js?v=175.0',
+  './js/client/menu-view.js?v=175.0',
+  './js/client/stories-viewer.js?v=175.0',
+  './js/client/customizer-modal.js?v=175.0',
+  './js/client/cart-ledger.js?v=175.0',
+  './js/client/order-tracking.js?v=175.0',
+  './js/app.js?v=175.0',
+  './js/admin.js?v=175.0',
+  './js/pwa.js?v=175.0'
 ];
 
 self.addEventListener('install', (event) => {
@@ -175,32 +175,11 @@ self.addEventListener('fetch', (event) => {
           });
         }
 
-        // 2. Try network fetch first
-        try {
-          const networkRes = await fetch(event.request);
-          const contentType = networkRes.headers.get('content-type') || '';
-          // Only accept if HTTP 200 AND NOT html fallback from hosting
-          if (networkRes.ok && !contentType.includes('text/html')) {
-            const clone = networkRes.clone();
-            caches.open(CACHE_NAME).then(c => c.put(event.request, clone));
-            return networkRes;
-          }
-        } catch (netErr) {}
-
-        // 3. Check Cache
-        const cachedRes = await caches.match(event.request);
-        if (cachedRes) {
-          const cachedType = cachedRes.headers.get('content-type') || '';
-          if (!cachedType.includes('text/html')) {
-            return cachedRes;
-          }
-        }
-
-        // 4. Synthesize valid tenant manifest dynamically for ANY tenant
+        // 2. Synthesize valid tenant manifest dynamically from live Firebase settings
         const isAdm = fileName.startsWith('admin-manifest-');
         const mSlug = isAdm 
-          ? fileName.replace('admin-manifest-', '').replace('.json', '') 
-          : fileName.replace('manifest-', '').replace('.json', '');
+          ? fileName.replace('admin-manifest-', '').replace('.json', '').split('?')[0] 
+          : fileName.replace('manifest-', '').replace('.json', '').split('?')[0];
 
         let storeName = mSlug;
         try {

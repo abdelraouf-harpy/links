@@ -435,6 +435,13 @@ async function saveSettingsFromForm() {
     try { if (typeof renderRestaurantHub === 'function') renderRestaurantHub(); } catch(e) { console.warn(e); }
     try { if (typeof window.updateDynamicManifest === 'function') window.updateDynamicManifest(updated); } catch(e) { console.warn(e); }
     try { if (typeof window.updatePwaBranding === 'function') window.updatePwaBranding(updated); } catch(e) { console.warn(e); }
+    if (current && current.storeName && updated.storeName && current.storeName !== updated.storeName) {
+      try {
+        if (typeof window.triggerPwaIdentityUpdate === 'function') {
+          window.triggerPwaIdentityUpdate(updated.storeName);
+        }
+      } catch(e) {}
+    }
     try {
       if (typeof window.showInstallNowModal === 'function') {
         window.showInstallNowModal({

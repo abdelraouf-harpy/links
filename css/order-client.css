@@ -2357,27 +2357,49 @@ html[dir="ltr"] .cart-drawer.open {
 }
 
 
-/* ── Stories Strip (Instagram / Highlights Style - Full Bleed Edge-to-Edge) ── */
-.stories-strip-section {
-  margin-left: -16px !important;
-  margin-right: -16px !important;
-  width: calc(100% + 32px) !important;
-  max-width: none !important;
-  padding: 0 !important;
-  margin-bottom: 6px !important;
-  overflow: hidden !important;
-}
-.stories-track {
-  display: flex !important;
-  gap: 12px !important;
-  overflow-x: auto !important;
-  padding: 4px 14px 6px 14px !important;
-  scroll-padding: 0 14px !important;
-  scrollbar-width: none !important;
-  -webkit-overflow-scrolling: touch !important;
-}
-@media (min-width: 1024px) {
+/* ── Stories & Category Strips (Full Bleed Edge-to-Edge Fluid Layout) ── */
+@media (max-width: 768px) {
+  .main-content-sheet > .container {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
   .stories-strip-section {
+    margin-left: -8px !important;
+    margin-right: -8px !important;
+    width: calc(100% + 16px) !important;
+    max-width: none !important;
+    padding: 0 !important;
+    margin-bottom: 6px !important;
+    overflow: hidden !important;
+  }
+  .stories-track {
+    display: flex !important;
+    gap: 10px !important;
+    overflow-x: auto !important;
+    padding: 4px 10px 6px 10px !important;
+    scroll-padding: 0 10px !important;
+    scrollbar-width: none !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  .category-strip {
+    margin-left: -8px !important;
+    margin-right: -8px !important;
+    width: calc(100% + 16px) !important;
+    max-width: none !important;
+    padding: 4px 10px 8px 10px !important;
+    scroll-padding: 0 10px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    white-space: nowrap !important;
+    border-bottom: 1px solid var(--border) !important;
+  }
+  .products-flow.view-mode-dual {
+    gap: 8px !important;
+  }
+}
+@media (min-width: 769px) {
+  .stories-strip-section,
+  .category-strip {
     margin-left: 0 !important;
     margin-right: 0 !important;
     width: 100% !important;
