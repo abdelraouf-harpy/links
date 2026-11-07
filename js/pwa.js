@@ -121,23 +121,35 @@
       }
 
       // Dynamic manifest resolution with authentic standardized identity
+      const isNight = document.documentElement.getAttribute('data-theme') === 'dark';
+      const cleanPrimary = (storeName || (slug === 'king' ? 'كينج' : slug || 'المطعم')).split('|')[0].trim();
       const finalAppName = isAdmin 
-        ? (storeName ? `${storeName} | إدارة` : 'صــاج | إدارة') 
-        : (storeName ? `${storeName} | منيو` : 'Order');
+        ? `${cleanPrimary} | لوحة الإدارة` 
+        : `${cleanPrimary} | قائمة الطعام`;
       const finalShortName = isAdmin
-        ? (storeName ? `إدارة ${storeName}` : 'إدارة صــاج')
-        : (storeName ? storeName : 'Order');
+        ? `إدارة ${cleanPrimary}`
+        : cleanPrimary;
+
+      const metaTheme = document.querySelector('meta[name="theme-color"]');
+      if (metaTheme) metaTheme.setAttribute('content', isNight ? '#070B13' : '#FFFFFF');
+      let metaNav = document.querySelector('meta[name="navigation-bar-color"]');
+      if (!metaNav) {
+        metaNav = document.createElement('meta');
+        metaNav.setAttribute('name', 'navigation-bar-color');
+        document.head.appendChild(metaNav);
+      }
+      metaNav.setAttribute('content', isNight ? '#070B13' : '#FFFFFF');
 
       const manifestObj = {
         id: isAdmin ? (`/admin/?m=${slug}`) : (`/order/?m=${slug}`),
         name: finalAppName,
         short_name: finalShortName,
-        description: isAdmin ? `${storeName || 'المطعم'} — لوحة الإدارة وتجهيز الطلبات` : `${storeName || 'المطعم'} — المنيو الذكي وطلب الأوردر`,
+        description: isAdmin ? `${cleanPrimary} - لوحة الإدارة وتجهيز الطلبات` : `${cleanPrimary} - المنيو الذكي وطلب الأوردر`,
         start_url: isAdmin ? `./admin/?m=${slug}` : `./order/?m=${slug}`,
         scope: isAdmin ? `./admin/` : `./order/`,
         display: "standalone",
-        background_color: "#070B13",
-        theme_color: "#FF6A00",
+        background_color: isNight ? "#070B13" : "#FFFFFF",
+        theme_color: isNight ? "#070B13" : "#FFFFFF",
         orientation: "portrait",
         icons: [
           {
@@ -231,7 +243,7 @@
   updatePwaBranding();
 
   // ── 2. Clean Update Engine ("متظهرش تاني طالما مفيش تحديث وطالما الشخص حدّث") ───
-  const CURRENT_PWA_BUILD = 'v173.0';
+  const CURRENT_PWA_BUILD = 'v174.0';
 
   function isUpdateAlreadyHandled() {
     try {
@@ -434,7 +446,7 @@
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       // Register strictly-scoped SW for each app independently (No cross-purging)
-      const swUrl = './sw.js?v=173.0';
+      const swUrl = './sw.js?v=174.0';
       const targetScope = isAdmin ? './admin/' : './order/';
       navigator.serviceWorker.register(swUrl, { scope: targetScope })
         .then(reg => {

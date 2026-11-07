@@ -6,7 +6,7 @@ try {
   console.warn("[SW] OneSignal worker import notice:", e);
 }
 
-const CACHE_NAME = 'order-pwa-v173.0';
+const CACHE_NAME = 'order-pwa-v174.0';
 const IMAGE_CACHE_NAME = 'order-images-v6';
 const ASSETS_TO_CACHE = [
   './',
@@ -35,34 +35,34 @@ const ASSETS_TO_CACHE = [
   './assets/portfolio/logo.png',
   './assets/portfolio/facebook_profile_logo.png',
   './assets/portfolio/01_Logo_and_Branding/order_logo_vector.svg',
-  './css/order-tokens.css?v=173.0',
-  './css/order-client.css?v=173.0',
-  './css/order-admin.css?v=173.0',
-  './css/portfolio.css?v=173.0',
-  './js/core/demo-seed-data.js?v=173.0',
-  './js/core/sound-effects.js?v=173.0',
-  './js/core/i18n.js?v=173.0',
-  './js/store.js?v=173.0',
-  './js/admin/admin-core.js?v=173.0',
-  './js/admin/admin-auth.js?v=173.0',
-  './js/admin/kitchen-orders.js?v=173.0',
-  './js/admin/inventory-manager.js?v=173.0',
-  './js/admin/catalog-manager.js?v=173.0',
-  './js/admin/category-manager.js?v=173.0',
-  './js/admin/stories-manager.js?v=173.0',
-  './js/admin/backup-restore.js?v=173.0',
-  './js/admin/settings-manager.js?v=173.0',
-  './js/admin/pos-terminal.js?v=173.0',
-  './js/admin/admin-push.js?v=173.0',
-  './js/client/client-core.js?v=173.0',
-  './js/client/menu-view.js?v=173.0',
-  './js/client/stories-viewer.js?v=173.0',
-  './js/client/customizer-modal.js?v=173.0',
-  './js/client/cart-ledger.js?v=173.0',
-  './js/client/order-tracking.js?v=173.0',
-  './js/app.js?v=173.0',
-  './js/admin.js?v=173.0',
-  './js/pwa.js?v=173.0'
+  './css/order-tokens.css?v=174.0',
+  './css/order-client.css?v=174.0',
+  './css/order-admin.css?v=174.0',
+  './css/portfolio.css?v=174.0',
+  './js/core/demo-seed-data.js?v=174.0',
+  './js/core/sound-effects.js?v=174.0',
+  './js/core/i18n.js?v=174.0',
+  './js/store.js?v=174.0',
+  './js/admin/admin-core.js?v=174.0',
+  './js/admin/admin-auth.js?v=174.0',
+  './js/admin/kitchen-orders.js?v=174.0',
+  './js/admin/inventory-manager.js?v=174.0',
+  './js/admin/catalog-manager.js?v=174.0',
+  './js/admin/category-manager.js?v=174.0',
+  './js/admin/stories-manager.js?v=174.0',
+  './js/admin/backup-restore.js?v=174.0',
+  './js/admin/settings-manager.js?v=174.0',
+  './js/admin/pos-terminal.js?v=174.0',
+  './js/admin/admin-push.js?v=174.0',
+  './js/client/client-core.js?v=174.0',
+  './js/client/menu-view.js?v=174.0',
+  './js/client/stories-viewer.js?v=174.0',
+  './js/client/customizer-modal.js?v=174.0',
+  './js/client/cart-ledger.js?v=174.0',
+  './js/client/order-tracking.js?v=174.0',
+  './js/app.js?v=174.0',
+  './js/admin.js?v=174.0',
+  './js/pwa.js?v=174.0'
 ];
 
 self.addEventListener('install', (event) => {
@@ -213,8 +213,9 @@ self.addEventListener('fetch', (event) => {
           }
         } catch (e) {}
 
-        const finalName = isAdm ? `${storeName} | إدارة` : storeName;
-        const finalShortName = isAdm ? `إدارة ${storeName}` : storeName;
+        const cleanShort = (storeName || (mSlug === 'king' ? 'كينج' : mSlug)).split('|')[0].trim();
+        const finalName = isAdm ? `${cleanShort} | لوحة الإدارة` : `${cleanShort} | قائمة الطعام`;
+        const finalShortName = isAdm ? `إدارة ${cleanShort}` : cleanShort;
         const iconUrl = isAdm ? './assets/icons/admin-icon-512.png' : './assets/icons/order-icon-512.png';
         const icon192 = isAdm ? './assets/icons/admin-icon-192.png' : './assets/icons/order-icon-192.png';
         const iconType = 'image/png';
@@ -223,12 +224,12 @@ self.addEventListener('fetch', (event) => {
           id: isAdm ? `/admin/?m=${mSlug}` : `/order/?m=${mSlug}`,
           name: finalName,
           short_name: finalShortName,
-          description: isAdm ? `Order Admin — Dashboard & Kitchen` : `Order — Smart Digital Menu`,
+          description: isAdm ? `${cleanShort} - لوحة الإدارة وتجهيز الطلبات` : `${cleanShort} - المنيو الذكي وطلب الأوردر`,
           start_url: isAdm ? `./admin/?m=${mSlug}` : `./order/?m=${mSlug}`,
           scope: isAdm ? `./admin/` : `./order/`,
           display: 'standalone',
-          background_color: '#070B13',
-          theme_color: '#FF6A00',
+          background_color: '#FFFFFF',
+          theme_color: '#FFFFFF',
           orientation: 'portrait',
           icons: [
             { src: iconUrl, sizes: '512x512', type: iconType, purpose: 'any' },

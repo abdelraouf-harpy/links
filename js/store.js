@@ -623,8 +623,15 @@ const Store = {
           return null;
         };
 
-        // Fire-and-forget in background without holding up the user
-        doShadowAuth().catch(err => console.warn("[Store] Background shadow auth note:", err));
+        // Await shadow auth with safety timeout so Firebase Auth currentUser is ready for writes
+        try {
+          await Promise.race([
+            doShadowAuth(),
+            new Promise((resolve) => setTimeout(resolve, 2000))
+          ]);
+        } catch(err) {
+          console.warn("[Store] Background shadow auth note:", err);
+        }
       }
 
       return { user: { email: `${activeSlug}@harpymenu.com`, uid: uid } };
@@ -826,17 +833,6 @@ const Store = {
     if (!this.saveLocks.settings && (now - this.lastSaveTimestamps.settings > 2500)) {
       if (data.settings && typeof data.settings === 'object') {
         const mergedSettings = { ...defaults, ...data.settings };
-        if (!isDemo) {
-          if (mergedSettings.storeName === DEFAULT_SETTINGS.storeName) mergedSettings.storeName = "";
-          if (mergedSettings.whatsappNumber === DEFAULT_SETTINGS.whatsappNumber) mergedSettings.whatsappNumber = "";
-          if (mergedSettings.walletNumber === DEFAULT_SETTINGS.walletNumber) mergedSettings.walletNumber = "";
-          if (mergedSettings.logo === DEFAULT_SETTINGS.logo) mergedSettings.logo = "";
-          if (mergedSettings.cover === DEFAULT_SETTINGS.cover) mergedSettings.cover = "";
-          if (mergedSettings.announcementText === DEFAULT_SETTINGS.announcementText) {
-            mergedSettings.announcementText = "";
-            mergedSettings.showAnnouncement = false;
-          }
-        }
         if (!mergedSettings.storeName && (data.settings.restaurantName || data.settings.name)) {
           mergedSettings.storeName = data.settings.restaurantName || data.settings.name;
         }
@@ -2475,7 +2471,7 @@ const Store = {
       }
     } catch {}
 
-    const fallbackSlug = 'aloo';
+    const fallbackSlug = 'king';
     if (typeof window !== 'undefined') window.__harpySlug = fallbackSlug;
     return fallbackSlug;
   },
@@ -2542,18 +2538,6 @@ const Store = {
           parsed.showAnnouncement = false;
         }
       } catch(e) {}
-    }
-
-    if (!isDemo) {
-      if (parsed.storeName === DEFAULT_SETTINGS.storeName) parsed.storeName = "";
-      if (parsed.whatsappNumber === DEFAULT_SETTINGS.whatsappNumber) parsed.whatsappNumber = "";
-      if (parsed.walletNumber === DEFAULT_SETTINGS.walletNumber) parsed.walletNumber = "";
-      if (parsed.logo === DEFAULT_SETTINGS.logo) parsed.logo = "";
-      if (parsed.cover === DEFAULT_SETTINGS.cover) parsed.cover = "";
-      if (parsed.announcementText === DEFAULT_SETTINGS.announcementText) {
-        parsed.announcementText = "";
-        parsed.showAnnouncement = false;
-      }
     }
 
     if (!parsed.storeName) {

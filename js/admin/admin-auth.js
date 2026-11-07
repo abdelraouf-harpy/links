@@ -209,11 +209,21 @@ function setupAuth() {
     const modalTitle = document.getElementById('login-modal-restaurant-name');
     const modalSub = document.getElementById('login-modal-subtitle');
     const storeSettings = Store.getSettings ? Store.getSettings(slug) : null;
-    const storeName = (storeSettings && storeSettings.name) ? storeSettings.name : slug;
+    const storeName = (storeSettings && (storeSettings.storeName || storeSettings.name)) 
+      ? (storeSettings.storeName || storeSettings.name) 
+      : (slug === 'king' ? 'مطعم كينج' : slug);
     if (modalTitle) modalTitle.textContent = `إدارة: ${storeName}`;
     if (modalSub) modalSub.textContent = 'أدخل كلمة مرور الإدارة للدخول المباشر إلى لوحة التحكم';
     if (adminElements.adminEmailInput && !adminElements.adminEmailInput.value) {
       adminElements.adminEmailInput.value = slug;
+    }
+    if (window.__harpyPreloadPromise) {
+      window.__harpyPreloadPromise.then(data => {
+        if (data && data.settings && (data.settings.storeName || data.settings.restaurantName)) {
+          const sName = data.settings.storeName || data.settings.restaurantName;
+          if (modalTitle) modalTitle.textContent = `إدارة: ${sName}`;
+        }
+      }).catch(() => {});
     }
   };
 

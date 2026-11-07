@@ -41,16 +41,17 @@
   <!-- Android & Modern PWA Meta -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="application-name" content="Admin">
-  <meta name="theme-color" content="#ea580c">
+  <meta name="theme-color" id="meta-theme-color" content="#FFFFFF">
+  <meta name="navigation-bar-color" content="#FFFFFF">
   
   <!-- Apple iOS / iPadOS PWA Meta -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Admin">
 
-  <link rel="stylesheet" href="css/order-tokens.css?v=173.0">
-  <link rel="stylesheet" href="css/order-client.css?v=173.0">
-  <link rel="stylesheet" href="css/order-admin.css?v=173.0">
+  <link rel="stylesheet" href="css/order-tokens.css?v=174.0">
+  <link rel="stylesheet" href="css/order-client.css?v=174.0">
+  <link rel="stylesheet" href="css/order-admin.css?v=174.0">
 
   <script>
     // Instant zero-delay theme toggle available immediately on page paint
@@ -117,9 +118,9 @@
           if (savedAdminSlug) slug = savedAdminSlug;
         }
 
-        // Clean default: on admin without ?m=, load active restaurant 'aloo' if nothing stored
+        // Clean default: on admin without ?m=, load active restaurant 'king' if nothing stored
         if (!slug) {
-          slug = 'aloo';
+          slug = 'king';
         }
         slug = slug.toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
         window.__harpySlug = slug;
@@ -249,35 +250,40 @@
           document.documentElement.classList.add('admin-locked');
         } else {
           document.documentElement.classList.add('admin-unlocked');
-          // Parallel fast cloud preload while scripts load (Decoupled Public Endpoints)
-          var fbBase = 'https://harpy-order-default-rtdb.firebaseio.com/restaurants/' + encodeURIComponent(slug);
-          var fOpt = { cache: 'no-store' };
-          window.__harpyPreloadPromise = Promise.all([
-            fetch(fbBase + '/settings.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
-            fetch(fbBase + '/categories.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
-            fetch(fbBase + '/products.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
-            fetch(fbBase + '/stories.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
-            fetch(fbBase + '/settings/rawMaterials.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; })
-          ]).then(function(results) {
-            var settings = results[0];
-            var categories = results[1];
-            var products = results[2];
-            var stories = results[3];
-            var rawMaterials = results[4] || (settings && settings.rawMaterials ? settings.rawMaterials : null);
-            if (settings && typeof settings === 'object') {
-              if (!settings.storeName && settings.restaurantName) settings.storeName = settings.restaurantName;
-              if (!settings.whatsappNumber && settings.phone) settings.whatsappNumber = settings.phone;
-            }
-            if (!settings && !categories && !products && !rawMaterials) return null;
-            return {
-              settings: settings || {},
-              categories: categories || [],
-              products: products || [],
-              stories: stories || {},
-              rawMaterials: rawMaterials || null
-            };
-          }).catch(function() { return null; });
         }
+
+        // Parallel fast cloud preload while scripts load (Decoupled Public Endpoints)
+        var fbBase = 'https://harpy-order-default-rtdb.firebaseio.com/restaurants/' + encodeURIComponent(slug);
+        var fOpt = { cache: 'no-store' };
+        window.__harpyPreloadPromise = Promise.all([
+          fetch(fbBase + '/settings.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
+          fetch(fbBase + '/categories.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
+          fetch(fbBase + '/products.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
+          fetch(fbBase + '/stories.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; }),
+          fetch(fbBase + '/settings/rawMaterials.json', fOpt).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; })
+        ]).then(function(results) {
+          var settings = results[0];
+          var categories = results[1];
+          var products = results[2];
+          var stories = results[3];
+          var rawMaterials = results[4] || (settings && settings.rawMaterials ? settings.rawMaterials : null);
+          if (settings && typeof settings === 'object') {
+            if (!settings.storeName && settings.restaurantName) settings.storeName = settings.restaurantName;
+            if (!settings.whatsappNumber && settings.phone) settings.whatsappNumber = settings.phone;
+            var rName = settings.storeName || settings.restaurantName || (slug === 'king' ? 'مطعم كينج' : slug);
+            var modalTitle = document.getElementById('login-modal-restaurant-name');
+            if (modalTitle) modalTitle.textContent = 'إدارة: ' + rName;
+            document.title = 'إدارة: ' + rName;
+          }
+          if (!settings && !categories && !products && !rawMaterials) return null;
+          return {
+            settings: settings || {},
+            categories: categories || [],
+            products: products || [],
+            stories: stories || {},
+            rawMaterials: rawMaterials || null
+          };
+        }).catch(function() { return null; });
       } catch(e) {
         document.documentElement.classList.add('admin-locked');
       }
@@ -2582,23 +2588,23 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=173.0"></script>
-  <script src="js/core/sound-effects.js?v=173.0"></script>
-  <script src="js/store.js?v=173.0"></script>
-  <script src="js/admin/admin-core.js?v=173.0"></script>
-  <script src="js/admin/admin-auth.js?v=173.0"></script>
-  <script src="js/admin/kitchen-orders.js?v=173.0"></script>
-  <script src="js/admin/inventory-manager.js?v=173.0"></script>
-  <script src="js/admin/catalog-manager.js?v=173.0"></script>
-  <script src="js/admin/category-manager.js?v=173.0"></script>
-  <script src="js/admin/stories-manager.js?v=173.0"></script>
-  <script src="js/admin/backup-restore.js?v=173.0"></script>
-  <script src="js/core/qrcode.min.js?v=173.0"></script>
-  <script src="js/admin/settings-manager.js?v=173.0"></script>
-  <script src="js/admin/pos-terminal.js?v=173.0"></script>
-  <script src="js/admin/admin-push.js?v=173.0"></script>
-  <script src="js/admin.js?v=173.0"></script>
-  <script src="js/core/module-enforcer.js?v=173.0"></script>
-  <script src="js/pwa.js?v=173.0"></script>
+  <script src="js/core/demo-seed-data.js?v=174.0"></script>
+  <script src="js/core/sound-effects.js?v=174.0"></script>
+  <script src="js/store.js?v=174.0"></script>
+  <script src="js/admin/admin-core.js?v=174.0"></script>
+  <script src="js/admin/admin-auth.js?v=174.0"></script>
+  <script src="js/admin/kitchen-orders.js?v=174.0"></script>
+  <script src="js/admin/inventory-manager.js?v=174.0"></script>
+  <script src="js/admin/catalog-manager.js?v=174.0"></script>
+  <script src="js/admin/category-manager.js?v=174.0"></script>
+  <script src="js/admin/stories-manager.js?v=174.0"></script>
+  <script src="js/admin/backup-restore.js?v=174.0"></script>
+  <script src="js/core/qrcode.min.js?v=174.0"></script>
+  <script src="js/admin/settings-manager.js?v=174.0"></script>
+  <script src="js/admin/pos-terminal.js?v=174.0"></script>
+  <script src="js/admin/admin-push.js?v=174.0"></script>
+  <script src="js/admin.js?v=174.0"></script>
+  <script src="js/core/module-enforcer.js?v=174.0"></script>
+  <script src="js/pwa.js?v=174.0"></script>
 </body>
 </html>

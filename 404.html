@@ -99,7 +99,7 @@
         } catch(e) {}
 
         if (adminHashes.indexOf(cleanHash) !== -1) {
-          var slug = storedSlug || 'aloo';
+          var slug = storedSlug || 'king';
           window.location.replace(repoPrefix + '/admin.html?m=' + encodeURIComponent(slug) + '#' + cleanHash);
           return;
         }
@@ -111,7 +111,7 @@
           var params = new URLSearchParams(search);
           if (slug && !params.get('m')) params.set('m', slug);
           if (!params.get('m')) {
-            params.set('m', storedSlug || 'aloo');
+            params.set('m', storedSlug || 'king');
           }
           var queryString = '?' + params.toString();
           window.location.replace(repoPrefix + '/admin.html' + queryString + hash);
@@ -139,7 +139,7 @@
         var filtered = remaining.filter(function(s) { return s !== 'order'; });
         var slug = filtered.length > 0 ? filtered[0] : '';
         var params = new URLSearchParams(search);
-        var resolvedSlug = slug || params.get('m') || storedSlug || 'aloo';
+        var resolvedSlug = slug || params.get('m') || storedSlug || 'king';
         params.set('m', resolvedSlug);
         var queryString = '?' + params.toString();
 

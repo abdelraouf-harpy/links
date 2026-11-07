@@ -1,13 +1,13 @@
 {
   "id": "/order/?m=king",
-  "name": "Order",
-  "short_name": "Order",
-  "description": "مطعم كينج | King Restaurant 👑 — Smart Digital Menu",
+  "name": "كينج | قائمة الطعام",
+  "short_name": "كينج",
+  "description": "مطعم كينج - قائمة الطعام والطلب الإلكتروني المباشر",
   "start_url": "./order/?m=king",
   "scope": "./order/",
   "display": "standalone",
-  "background_color": "#F7F7F7",
-  "theme_color": "#F7F7F7",
+  "background_color": "#FFFFFF",
+  "theme_color": "#FFFFFF",
   "orientation": "portrait",
   "icons": [
     {

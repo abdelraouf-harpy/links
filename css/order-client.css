@@ -2357,19 +2357,31 @@ html[dir="ltr"] .cart-drawer.open {
 }
 
 
-/* ── Stories Strip (Instagram / Highlights Style) ── */
+/* ── Stories Strip (Instagram / Highlights Style - Full Bleed Edge-to-Edge) ── */
 .stories-strip-section {
+  margin-left: -16px !important;
+  margin-right: -16px !important;
+  width: calc(100% + 32px) !important;
+  max-width: none !important;
+  padding: 0 !important;
   margin-bottom: 6px !important;
-  overflow: hidden;
+  overflow: hidden !important;
 }
 .stories-track {
-  display: flex;
-  gap: 12px;
-  overflow-x: auto;
-  padding: 2px 12px 4px 12px !important;
-  scroll-padding: 0 12px;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
+  display: flex !important;
+  gap: 12px !important;
+  overflow-x: auto !important;
+  padding: 4px 14px 6px 14px !important;
+  scroll-padding: 0 14px !important;
+  scrollbar-width: none !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+@media (min-width: 1024px) {
+  .stories-strip-section {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+  }
 }
 .stories-track::-webkit-scrollbar {
   display: none;

@@ -1,13 +1,13 @@
 {
   "id": "/admin/?m=king",
-  "name": "مطعم كينج | King Restaurant 👑 | إدارة",
-  "short_name": "إدارة مطعم كينج | King Restaurant 👑",
-  "description": "مطعم كينج | King Restaurant 👑 — Dashboard & Kitchen",
+  "name": "كينج | لوحة الإدارة",
+  "short_name": "إدارة كينج",
+  "description": "إدارة مطعم كينج - لوحة التحكم واستقبال الطلبات",
   "start_url": "./admin/?m=king",
   "scope": "./admin/",
   "display": "standalone",
-  "background_color": "#F7F7F7",
-  "theme_color": "#F7F7F7",
+  "background_color": "#FFFFFF",
+  "theme_color": "#FFFFFF",
   "orientation": "portrait",
   "icons": [
     {
