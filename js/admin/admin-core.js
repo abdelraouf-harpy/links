@@ -447,11 +447,15 @@ function setupAdminThemeToggle() {
 
 // ── Navigation Tabs with State Persistence & Zero-Latency Routing ────
 window.switchTab = function(targetTabId, updateHash = true) {
+  if (!targetTabId) targetTabId = 'tab-products';
+  if (!targetTabId.startsWith('tab-')) targetTabId = 'tab-' + targetTabId;
+
   const TAB_TITLES = {
     'tab-orders': 'طلبات المطبخ والتجهيز',
     'tab-pos': 'كاشير الصالة والسفري (POS)',
     'tab-archive': 'أرشيف الفواتير والورديات',
     'tab-products': 'إدارة المنيو والأصناف',
+    'tab-categories': 'أقسام وتصنيفات المنيو',
     'tab-inventory': 'المخزون والمواد الخام',
     'tab-stories': 'قصص وعروض اليوم',
     'tab-settings': 'إعدادات المكان',
@@ -468,8 +472,6 @@ window.switchTab = function(targetTabId, updateHash = true) {
   if (typeof window.closeAdminDrawer === 'function') {
     window.closeAdminDrawer();
   }
-  if (!targetTabId) targetTabId = 'tab-products';
-  if (!targetTabId.startsWith('tab-')) targetTabId = 'tab-' + targetTabId;
 
   // Module Enforcer Guard: If feature is disabled by Super Admin, redirect to orders
   if (window.ModuleEnforcer && window.ModuleEnforcer.modules) {

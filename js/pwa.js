@@ -243,7 +243,7 @@
   updatePwaBranding();
 
   // ── 2. Clean Update Engine (Handles Code Updates & Live Store Name Updates) ───
-  const CURRENT_PWA_BUILD = 'v176.0';
+  const CURRENT_PWA_BUILD = 'v177.0';
 
   function isUpdateAlreadyHandled() {
     try {

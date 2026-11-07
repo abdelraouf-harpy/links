@@ -156,6 +156,7 @@ const DEFAULT_CATEGORIES = [
 ];
 const DEFAULT_PRODUCTS = [
   {
+    "recipe": {"base":[{"materialId":"mat-beef-angus","amount":240},{"materialId":"mat-burger-buns","amount":1},{"materialId":"mat-cheddar-slices","amount":40},{"materialId":"mat-packaging-box","amount":1}]},
     "id": "prod-super-burger-triple",
     "name": "سوبر برجر الثلاثي",
     "category": "البرجر الفاخر والسندوتشات",
@@ -200,6 +201,7 @@ const DEFAULT_PRODUCTS = [
     "available": true
   },
   {
+    "recipe": {"base":[{"materialId":"mat-beef-angus","amount":160},{"materialId":"mat-burger-buns","amount":1},{"materialId":"mat-beef-bacon","amount":30},{"materialId":"mat-cheddar-slices","amount":20},{"materialId":"mat-bbq-sauce","amount":25},{"materialId":"mat-packaging-box","amount":1}]},
     "id": "prod-king-smoked-burger",
     "name": "سموكيد برجر كينج",
     "category": "البرجر الفاخر والسندوتشات",
@@ -244,6 +246,7 @@ const DEFAULT_PRODUCTS = [
     "available": true
   },
   {
+    "recipe": {"base":[{"materialId":"mat-chicken-breast","amount":180},{"materialId":"mat-burger-buns","amount":1},{"materialId":"mat-cheddar-slices","amount":20},{"materialId":"mat-ranch-sauce","amount":25},{"materialId":"mat-packaging-box","amount":1}]},
     "id": "prod-fried-chicken-burger",
     "name": "فرايد تشيكن مقرمش",
     "category": "البرجر الفاخر والسندوتشات",
@@ -288,6 +291,7 @@ const DEFAULT_PRODUCTS = [
     "available": true
   },
   {
+    "recipe": {"base":[{"materialId":"mat-beef-angus","amount":150},{"materialId":"mat-burger-buns","amount":1},{"materialId":"mat-cheddar-slices","amount":20},{"materialId":"mat-packaging-box","amount":1}]},
     "id": "prod-beef-burger",
     "name": "بيف برجر مشوي فحم",
     "category": "البرجر الفاخر والسندوتشات",
@@ -332,6 +336,7 @@ const DEFAULT_PRODUCTS = [
     "available": true
   },
   {
+    "recipe": {"base":[{"materialId":"mat-beef-angus","amount":250},{"materialId":"mat-chicken-breast","amount":200},{"materialId":"mat-packaging-box","amount":1}]},
     "id": "prod-mix-grill-king",
     "name": "ميكس جريل كينج فاخر",
     "category": "مشويات وميكس جريل ملوكي",
@@ -371,6 +376,7 @@ const DEFAULT_PRODUCTS = [
     "available": true
   },
   {
+    "recipe": {"base":[{"materialId":"mat-beef-angus","amount":300},{"materialId":"mat-packaging-box","amount":1}]},
     "id": "prod-grill-kofta",
     "name": "كفتة مشوية على الفحم",
     "category": "مشويات وميكس جريل ملوكي",
@@ -410,6 +416,7 @@ const DEFAULT_PRODUCTS = [
     "available": true
   },
   {
+    "recipe": {"base":[{"materialId":"mat-chicken-breast","amount":300},{"materialId":"mat-packaging-box","amount":1}]},
     "id": "prod-grill-shish",
     "name": "شيش طاووق متبل",
     "category": "مشويات وميكس جريل ملوكي",
@@ -449,6 +456,7 @@ const DEFAULT_PRODUCTS = [
     "available": true
   },
   {
+    "recipe": {"base":[{"materialId":"mat-beef-angus","amount":280},{"materialId":"mat-packaging-box","amount":1}]},
     "id": "prod-grill-tagine",
     "name": "طاجن لحم بلدي ملوكي",
     "category": "مشويات وميكس جريل ملوكي",
@@ -488,6 +496,7 @@ const DEFAULT_PRODUCTS = [
     "available": true
   },
   {
+    "recipe": {"base":[{"materialId":"mat-pizza-dough","amount":1},{"materialId":"mat-pizza-sauce","amount":80},{"materialId":"mat-mozzarella","amount":150},{"materialId":"mat-pepperoni","amount":40},{"materialId":"mat-beef-angus","amount":50},{"materialId":"mat-packaging-box","amount":1}]},
     "id": "prod-pizza-king-super-supreme",
     "name": "بيتزا نابولي سوبريم",
     "category": "بيتزا إيطالية وفطائر",
@@ -527,6 +536,7 @@ const DEFAULT_PRODUCTS = [
     "available": true
   },
   {
+    "recipe": {"base":[{"materialId":"mat-pizza-dough","amount":1},{"materialId":"mat-pizza-sauce","amount":80},{"materialId":"mat-mozzarella","amount":180},{"materialId":"mat-packaging-box","amount":1}]},
     "id": "prod-pizza-margherita",
     "name": "بيتزا مارجريتا كلاسيك",
     "category": "بيتزا إيطالية وفطائر",
@@ -566,6 +576,7 @@ const DEFAULT_PRODUCTS = [
     "available": true
   },
   {
+    "recipe": {"base":[{"materialId":"mat-pizza-dough","amount":1},{"materialId":"mat-pizza-sauce","amount":80},{"materialId":"mat-mozzarella","amount":140},{"materialId":"mat-pepperoni","amount":70},{"materialId":"mat-packaging-box","amount":1}]},
     "id": "prod-pizza-pepperoni",
     "name": "بيتزا بيبروني خاصة",
     "category": "بيتزا إيطالية وفطائر",
@@ -605,6 +616,7 @@ const DEFAULT_PRODUCTS = [
     "available": true
   },
   {
+    "recipe": {"base":[{"materialId":"mat-pizza-dough","amount":1},{"materialId":"mat-pizza-sauce","amount":60},{"materialId":"mat-bbq-sauce","amount":40},{"materialId":"mat-mozzarella","amount":140},{"materialId":"mat-chicken-breast","amount":100},{"materialId":"mat-packaging-box","amount":1}]},
     "id": "prod-pizza-bbq-chicken",
     "name": "بيتزا تشيكن باربيكيو",
     "category": "بيتزا إيطالية وفطائر",
@@ -644,6 +656,7 @@ const DEFAULT_PRODUCTS = [
     "available": true
   },
   {
+    "recipe": {"base":[{"materialId":"mat-potatoes","amount":250},{"materialId":"mat-cheddar-sauce","amount":60},{"materialId":"mat-beef-bacon","amount":25},{"materialId":"mat-ranch-sauce","amount":20},{"materialId":"mat-packaging-box","amount":1}]},
     "id": "prod-king-loaded-fries",
     "name": "لودد فرايز بالجبنة والبيكون",
     "category": "مقبلات ولودد فرايز",
@@ -683,6 +696,7 @@ const DEFAULT_PRODUCTS = [
     "available": true
   },
   {
+    "recipe": {"base":[{"materialId":"mat-chicken-breast","amount":220},{"materialId":"mat-potatoes","amount":100},{"materialId":"mat-ranch-sauce","amount":30},{"materialId":"mat-packaging-box","amount":1}]},
     "id": "prod-crispy-strips",
     "name": "تشيكن ستربس مقرمشة",
     "category": "مقبلات ولودد فرايز",
@@ -722,6 +736,7 @@ const DEFAULT_PRODUCTS = [
     "available": true
   },
   {
+    "recipe": {"base":[{"materialId":"mat-onion-rings","amount":8},{"materialId":"mat-bbq-sauce","amount":25},{"materialId":"mat-packaging-box","amount":1}]},
     "id": "prod-onion-rings-basket",
     "name": "حلقات بصل مقرمشة",
     "category": "مقبلات ولودد فرايز",
@@ -761,6 +776,7 @@ const DEFAULT_PRODUCTS = [
     "available": true
   },
   {
+    "recipe": {"base":[{"materialId":"mat-crepe-batter","amount":180},{"materialId":"mat-mozzarella","amount":60},{"materialId":"mat-beef-angus","amount":100},{"materialId":"mat-cheddar-sauce","amount":30},{"materialId":"mat-packaging-box","amount":1}]},
     "id": "prod-crepe-super-burger",
     "name": "كريب سوبر كينج الخاص",
     "category": "مقبلات ولودد فرايز",
@@ -800,6 +816,7 @@ const DEFAULT_PRODUCTS = [
     "available": true
   },
   {
+    "recipe": {"base":[{"materialId":"mat-crepe-batter","amount":180},{"materialId":"mat-nutella","amount":70},{"materialId":"mat-packaging-box","amount":1}]},
     "id": "prod-crepe-nutella",
     "name": "كريب نوتيلا بالمكسرات",
     "category": "حلويات ومشروبات فريش",
@@ -834,6 +851,7 @@ const DEFAULT_PRODUCTS = [
     "available": true
   },
   {
+    "recipe": {"base":[{"materialId":"mat-waffle-dough","amount":160},{"materialId":"mat-nutella","amount":50},{"materialId":"mat-packaging-box","amount":1}]},
     "id": "prod-waffle-chocolate",
     "name": "وافل بلجيكي شوكولاتة",
     "category": "حلويات ومشروبات فريش",
@@ -868,6 +886,7 @@ const DEFAULT_PRODUCTS = [
     "available": true
   },
   {
+    "recipe": {"base":[{"materialId":"mat-mango-pulp","amount":220},{"materialId":"mat-packaging-box","amount":1}]},
     "id": "prod-fresh-mango-juice",
     "name": "عصير مانجو طبيعي فريش",
     "category": "حلويات ومشروبات فريش",
@@ -886,6 +905,7 @@ const DEFAULT_PRODUCTS = [
     "available": true
   },
   {
+    "recipe": {"base":[{"materialId":"mat-blueberry-syrup","amount":40},{"materialId":"mat-packaging-box","amount":1}]},
     "id": "prod-mojito-blueberry",
     "name": "موهيتو بلوبيري منعش",
     "category": "حلويات ومشروبات فريش",
@@ -1090,7 +1110,191 @@ const DEFAULT_ORDERS = [
   }
 ];
 
+  const DEFAULT_RAW_MATERIALS = [
+  {
+    "id": "mat-beef-angus",
+    "name": "لحم بقري أنجوس مفروم فاخر",
+    "unit": "g",
+    "stock": 45000,
+    "minAlert": 10000,
+    "costPerUnit": 0.35,
+    "maxStock": 60000
+  },
+  {
+    "id": "mat-chicken-breast",
+    "name": "صدور دجاج متبلة طازجة",
+    "unit": "g",
+    "stock": 35000,
+    "minAlert": 8000,
+    "costPerUnit": 0.22,
+    "maxStock": 50000
+  },
+  {
+    "id": "mat-burger-buns",
+    "name": "خبز برجر بريوش طازج بالسمسم",
+    "unit": "pcs",
+    "stock": 350,
+    "minAlert": 50,
+    "costPerUnit": 7,
+    "maxStock": 500
+  },
+  {
+    "id": "mat-cheddar-slices",
+    "name": "جبنة شيدر حمراء نيوزيلندي شرائح",
+    "unit": "g",
+    "stock": 12000,
+    "minAlert": 3000,
+    "costPerUnit": 0.28,
+    "maxStock": 20000
+  },
+  {
+    "id": "mat-beef-bacon",
+    "name": "بيكون بقري مدخن فاخر",
+    "unit": "g",
+    "stock": 8000,
+    "minAlert": 2000,
+    "costPerUnit": 0.4,
+    "maxStock": 15000
+  },
+  {
+    "id": "mat-pizza-dough",
+    "name": "عجينة بيتزا إيطالية مخمرة",
+    "unit": "pcs",
+    "stock": 150,
+    "minAlert": 30,
+    "costPerUnit": 12,
+    "maxStock": 250
+  },
+  {
+    "id": "mat-mozzarella",
+    "name": "جبنة موتزاريلا طبيعية مبشورة",
+    "unit": "g",
+    "stock": 25000,
+    "minAlert": 6000,
+    "costPerUnit": 0.24,
+    "maxStock": 40000
+  },
+  {
+    "id": "mat-pizza-sauce",
+    "name": "صوص طماطم نابولي إيطالي بالأوريجانو",
+    "unit": "g",
+    "stock": 15000,
+    "minAlert": 3000,
+    "costPerUnit": 0.08,
+    "maxStock": 25000
+  },
+  {
+    "id": "mat-pepperoni",
+    "name": "شرائح بيبيروني بقري خاصة",
+    "unit": "g",
+    "stock": 6000,
+    "minAlert": 1500,
+    "costPerUnit": 0.38,
+    "maxStock": 10000
+  },
+  {
+    "id": "mat-bbq-sauce",
+    "name": "صوص باربيكيو مدخن أصلي",
+    "unit": "g",
+    "stock": 10000,
+    "minAlert": 2000,
+    "costPerUnit": 0.09,
+    "maxStock": 18000
+  },
+  {
+    "id": "mat-potatoes",
+    "name": "بطاطس فارم فريتس مقرمشة",
+    "unit": "g",
+    "stock": 40000,
+    "minAlert": 10000,
+    "costPerUnit": 0.06,
+    "maxStock": 60000
+  },
+  {
+    "id": "mat-cheddar-sauce",
+    "name": "صوص جبنة شيدر دافئ كريمي",
+    "unit": "g",
+    "stock": 12000,
+    "minAlert": 2500,
+    "costPerUnit": 0.12,
+    "maxStock": 20000
+  },
+  {
+    "id": "mat-ranch-sauce",
+    "name": "صوص رانش أمريكي فاخر",
+    "unit": "g",
+    "stock": 8000,
+    "minAlert": 1800,
+    "costPerUnit": 0.1,
+    "maxStock": 15000
+  },
+  {
+    "id": "mat-onion-rings",
+    "name": "حلقات بصل مقرمشة معدة للقلي",
+    "unit": "pcs",
+    "stock": 600,
+    "minAlert": 120,
+    "costPerUnit": 1.5,
+    "maxStock": 1000
+  },
+  {
+    "id": "mat-crepe-batter",
+    "name": "خليط كريب فرنسي طازج",
+    "unit": "ml",
+    "stock": 20000,
+    "minAlert": 4000,
+    "costPerUnit": 0.04,
+    "maxStock": 30000
+  },
+  {
+    "id": "mat-nutella",
+    "name": "شوكولاتة نوتيلا أصلية قابلة للدهن",
+    "unit": "g",
+    "stock": 10000,
+    "minAlert": 2000,
+    "costPerUnit": 0.25,
+    "maxStock": 15000
+  },
+  {
+    "id": "mat-waffle-dough",
+    "name": "عجين وافل بلجيكي أصلي",
+    "unit": "g",
+    "stock": 15000,
+    "minAlert": 3000,
+    "costPerUnit": 0.05,
+    "maxStock": 25000
+  },
+  {
+    "id": "mat-mango-pulp",
+    "name": "لب مانجو كيت فريش طبيعي",
+    "unit": "g",
+    "stock": 18000,
+    "minAlert": 4000,
+    "costPerUnit": 0.07,
+    "maxStock": 30000
+  },
+  {
+    "id": "mat-blueberry-syrup",
+    "name": "سيرب بلوبيري طبيعي مركز",
+    "unit": "ml",
+    "stock": 8000,
+    "minAlert": 1500,
+    "costPerUnit": 0.15,
+    "maxStock": 12000
+  },
+  {
+    "id": "mat-packaging-box",
+    "name": "علب وعبوات تغليف كينج الفاخرة",
+    "unit": "pcs",
+    "stock": 800,
+    "minAlert": 150,
+    "costPerUnit": 4,
+    "maxStock": 1200
+  }
+];
+
   const HARPY_DEMO_SEED = {
+    DEFAULT_RAW_MATERIALS,
     DEFAULT_SETTINGS,
     DEFAULT_CATEGORIES,
     DEFAULT_PRODUCTS,
@@ -1101,6 +1305,7 @@ const DEFAULT_ORDERS = [
   if (typeof window !== 'undefined') {
     window.HARPY_DEMO_SEED = HARPY_DEMO_SEED;
     window.DEFAULT_SETTINGS = DEFAULT_SETTINGS;
+    window.DEFAULT_RAW_MATERIALS = DEFAULT_RAW_MATERIALS;
     window.DEFAULT_CATEGORIES = DEFAULT_CATEGORIES;
     window.DEFAULT_PRODUCTS = DEFAULT_PRODUCTS;
     window.DEFAULT_STORIES = DEFAULT_STORIES;

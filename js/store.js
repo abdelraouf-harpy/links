@@ -225,15 +225,27 @@ const BLANK_SETTINGS = {
 const DEFAULT_CATEGORIES = (typeof window !== 'undefined' && window.HARPY_DEMO_SEED && window.HARPY_DEMO_SEED.DEFAULT_CATEGORIES) || [];
 const DEFAULT_PRODUCTS = (typeof window !== 'undefined' && window.HARPY_DEMO_SEED && window.HARPY_DEMO_SEED.DEFAULT_PRODUCTS) || [];
 const DEFAULT_STORIES = (typeof window !== 'undefined' && window.HARPY_DEMO_SEED && window.HARPY_DEMO_SEED.DEFAULT_STORIES) || [];
-const DEFAULT_RAW_MATERIALS = [
-  { id: 'mat_beef', name: 'لحم بقري مفروم بلدي', unit: 'g', stock: 18500, minAlert: 3000, costPerUnit: 0.35, updatedAt: new Date().toISOString() },
-  { id: 'mat_chicken', name: 'صدور فراخ تندر مقرمشة', unit: 'g', stock: 14200, minAlert: 2500, costPerUnit: 0.22, updatedAt: new Date().toISOString() },
-  { id: 'mat_cheddar', name: 'صوص جبنة شيدر سائل', unit: 'ml', stock: 8500, minAlert: 1500, costPerUnit: 0.12, updatedAt: new Date().toISOString() },
-  { id: 'mat_buns', name: 'خبز برجر سمسم فاخر', unit: 'pcs', stock: 120, minAlert: 30, costPerUnit: 3.5, updatedAt: new Date().toISOString() },
-  { id: 'mat_crepe', name: 'عجينة كريب طازجة', unit: 'pcs', stock: 85, minAlert: 20, costPerUnit: 4.0, updatedAt: new Date().toISOString() },
-  { id: 'mat_fries', name: 'بطاطس فارم فريتس مجمدة', unit: 'g', stock: 28000, minAlert: 5000, costPerUnit: 0.05, updatedAt: new Date().toISOString() },
-  { id: 'mat_sauce_special', name: 'صوص سوبر برجر السري', unit: 'ml', stock: 6200, minAlert: 1000, costPerUnit: 0.15, updatedAt: new Date().toISOString() },
-  { id: 'mat_can_coke', name: 'كانز كوكاكولا 330مل', unit: 'pcs', stock: 75, minAlert: 24, costPerUnit: 12, updatedAt: new Date().toISOString() }
+const DEFAULT_RAW_MATERIALS = (typeof window !== 'undefined' && window.HARPY_DEMO_SEED && window.HARPY_DEMO_SEED.DEFAULT_RAW_MATERIALS) || [
+  { id: 'mat-beef-angus', name: 'لحم بقري أنجوس مفروم فاخر', unit: 'g', stock: 45000, minAlert: 10000, costPerUnit: 0.35, maxStock: 60000 },
+  { id: 'mat-chicken-breast', name: 'صدور دجاج متبلة طازجة', unit: 'g', stock: 35000, minAlert: 8000, costPerUnit: 0.22, maxStock: 50000 },
+  { id: 'mat-burger-buns', name: 'خبز برجر بريوش طازج بالسمسم', unit: 'pcs', stock: 350, minAlert: 50, costPerUnit: 7, maxStock: 500 },
+  { id: 'mat-cheddar-slices', name: 'جبنة شيدر حمراء نيوزيلندي شرائح', unit: 'g', stock: 12000, minAlert: 3000, costPerUnit: 0.28, maxStock: 20000 },
+  { id: 'mat-beef-bacon', name: 'بيكون بقري مدخن فاخر', unit: 'g', stock: 8000, minAlert: 2000, costPerUnit: 0.40, maxStock: 15000 },
+  { id: 'mat-pizza-dough', name: 'عجينة بيتزا إيطالية مخمرة', unit: 'pcs', stock: 150, minAlert: 30, costPerUnit: 12, maxStock: 250 },
+  { id: 'mat-mozzarella', name: 'جبنة موتزاريلا طبيعية مبشورة', unit: 'g', stock: 25000, minAlert: 6000, costPerUnit: 0.24, maxStock: 40000 },
+  { id: 'mat-pizza-sauce', name: 'صوص طماطم نابولي إيطالي بالأوريجانو', unit: 'g', stock: 15000, minAlert: 3000, costPerUnit: 0.08, maxStock: 25000 },
+  { id: 'mat-pepperoni', name: 'شرائح بيبيروني بقري خاصة', unit: 'g', stock: 6000, minAlert: 1500, costPerUnit: 0.38, maxStock: 10000 },
+  { id: 'mat-bbq-sauce', name: 'صوص باربيكيو مدخن أصلي', unit: 'g', stock: 10000, minAlert: 2000, costPerUnit: 0.09, maxStock: 18000 },
+  { id: 'mat-potatoes', name: 'بطاطس فارم فريتس مقرمشة', unit: 'g', stock: 40000, minAlert: 10000, costPerUnit: 0.06, maxStock: 60000 },
+  { id: 'mat-cheddar-sauce', name: 'صوص جبنة شيدر دافئ كريمي', unit: 'g', stock: 12000, minAlert: 2500, costPerUnit: 0.12, maxStock: 20000 },
+  { id: 'mat-ranch-sauce', name: 'صوص رانش أمريكي فاخر', unit: 'g', stock: 8000, minAlert: 1800, costPerUnit: 0.10, maxStock: 15000 },
+  { id: 'mat-onion-rings', name: 'حلقات بصل مقرمشة معدة للقلي', unit: 'pcs', stock: 600, minAlert: 120, costPerUnit: 1.5, maxStock: 1000 },
+  { id: 'mat-crepe-batter', name: 'خليط كريب فرنسي طازج', unit: 'ml', stock: 20000, minAlert: 4000, costPerUnit: 0.04, maxStock: 30000 },
+  { id: 'mat-nutella', name: 'شوكولاتة نوتيلا أصلية قابلة للدهن', unit: 'g', stock: 10000, minAlert: 2000, costPerUnit: 0.25, maxStock: 15000 },
+  { id: 'mat-waffle-dough', name: 'عجين وافل بلجيكي أصلي', unit: 'g', stock: 15000, minAlert: 3000, costPerUnit: 0.05, maxStock: 25000 },
+  { id: 'mat-mango-pulp', name: 'لب مانجو كيت فريش طبيعي', unit: 'g', stock: 18000, minAlert: 4000, costPerUnit: 0.07, maxStock: 30000 },
+  { id: 'mat-blueberry-syrup', name: 'سيرب بلوبيري طبيعي مركز', unit: 'ml', stock: 8000, minAlert: 1500, costPerUnit: 0.15, maxStock: 12000 },
+  { id: 'mat-packaging-box', name: 'علب وعبوات تغليف كينج الفاخرة', unit: 'pcs', stock: 800, minAlert: 150, costPerUnit: 4.0, maxStock: 1200 }
 ];
 const Store = {
   // ── High-Speed In-Memory State Cache ───────────────────────
@@ -1397,14 +1409,17 @@ const Store = {
     const deletedIds = this.getDeletedOrderIds(slug);
 
     if (!forceRefresh && this._memoryCache.orders !== null) {
-      if (deletedIds.size > 0) {
-        return this._memoryCache.orders.filter(o => {
-          if (!o) return false;
+      return this._memoryCache.orders.filter(o => {
+        if (!o || typeof o !== 'object') return false;
+        const isTestOrProbe = /test|probe|dummy/i.test(o.orderId || '') || /test|probe|dummy/i.test(o.id || '') || /test|probe|dummy/i.test(o._fbKey || '');
+        const isGhost = (!o.items || !Array.isArray(o.items) || o.items.length === 0) && (!o.finalTotal || o.finalTotal <= 0) && (!o.customer || (!o.customer.name && !o.customer.phone));
+        if (isTestOrProbe || isGhost) return false;
+        if (deletedIds.size > 0) {
           const cid = String(o.orderId || o.id || o._fbKey || '').replace(/[^a-zA-Z0-9_-]/g, '');
           return !deletedIds.has(cid) && !deletedIds.has(o.orderId) && !deletedIds.has(o.id) && !deletedIds.has(o._fbKey);
-        });
-      }
-      return this._memoryCache.orders;
+        }
+        return true;
+      });
     }
     try {
       const data = localStorage.getItem(this.getKey('harpy_orders_cache'));
@@ -1412,6 +1427,9 @@ const Store = {
         const parsed = JSON.parse(data);
         const normalized = (Array.isArray(parsed) ? parsed : Object.values(parsed)).map(o => {
           if (!o || typeof o !== 'object') return null;
+          const isTestOrProbe = /test|probe|dummy/i.test(o.orderId || '') || /test|probe|dummy/i.test(o.id || '') || /test|probe|dummy/i.test(o._fbKey || '');
+          const isGhost = (!o.items || !Array.isArray(o.items) || o.items.length === 0) && (!o.finalTotal || o.finalTotal <= 0) && (!o.customer || (!o.customer.name && !o.customer.phone));
+          if (isTestOrProbe || isGhost) return null;
           if (!o.orderId || o.orderId === 'undefined') {
             o.orderId = o.id || o._fbKey || (`#ORD-${(o.timestamp || Date.now()).toString().slice(-4)}`);
           }
@@ -1422,6 +1440,10 @@ const Store = {
           return o;
         }).filter(Boolean);
         this._memoryCache.orders = normalized;
+        const origCount = Array.isArray(parsed) ? parsed.length : Object.keys(parsed).length;
+        if (normalized.length !== origCount) {
+          try { this.safeSetItem(this.getKey('harpy_orders_cache'), JSON.stringify(normalized)); } catch(e) {}
+        }
         return normalized;
       }
     } catch(e) {}
@@ -1440,6 +1462,9 @@ const Store = {
     const rawList = Array.isArray(orders) ? orders : Object.values(orders || {});
     const normalized = rawList.map(o => {
       if (!o || typeof o !== 'object') return null;
+      const isTestOrProbe = /test|probe|dummy/i.test(o.orderId || '') || /test|probe|dummy/i.test(o.id || '') || /test|probe|dummy/i.test(o._fbKey || '');
+      const isGhost = (!o.items || !Array.isArray(o.items) || o.items.length === 0) && (!o.finalTotal || o.finalTotal <= 0) && (!o.customer || (!o.customer.name && !o.customer.phone));
+      if (isTestOrProbe || isGhost) return null;
       if (!o.orderId || o.orderId === 'undefined') {
         o.orderId = o.id || o._fbKey || (`#ORD-${(o.timestamp || Date.now()).toString().slice(-4)}`);
       }
@@ -1462,6 +1487,11 @@ const Store = {
     }
     if (!slug || !orderData || !orderData.orderId) return false;
     const cleanId = orderData.orderId.replace(/[^a-zA-Z0-9_-]/g, '');
+
+    // Strict validation: Reject test probes, dummy placeholders, or empty orders
+    const isTest = /test|probe|dummy/i.test(orderData.orderId || '') || /test|probe|dummy/i.test(cleanId);
+    const isGhost = (!orderData.items || !Array.isArray(orderData.items) || orderData.items.length === 0) && (!orderData.finalTotal || orderData.finalTotal <= 0) && (!orderData.customer || (!orderData.customer.name && !orderData.customer.phone));
+    if (isTest || isGhost) return false;
 
     // 1. Cache locally for instant UI responsiveness
     try {
@@ -1725,11 +1755,12 @@ const Store = {
       const ordersList = entries.map(([fbKey, o]) => {
         if (!o || typeof o !== 'object') return null;
 
-        // Auto-clean: skip corrupt keys named "undefined" with empty data
-        if (fbKey === 'undefined' && (!o.items || o.items.length === 0) && (!o.customer || !o.customer.phone)) {
-          // Trigger async delete of ghost undefined record from cloud
-          if (db) { try { db.ref(`restaurants/${slug}/orders/undefined`).remove(); } catch(e) {} }
-          try { fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders/undefined.json`, { method: 'DELETE', keepalive: true }).catch(() => {}); } catch(e) {}
+        // Auto-clean: Purge any corrupt, ghost, dummy, or test probe records from cloud RTDB
+        const isTestOrProbe = /test|probe|dummy/i.test(fbKey) || /test|probe|dummy/i.test(o.orderId || '') || /test|probe|dummy/i.test(o.id || '');
+        const isGhost = (!o.items || !Array.isArray(o.items) || o.items.length === 0) && (!o.finalTotal || o.finalTotal <= 0) && (!o.customer || (!o.customer.name && !o.customer.phone));
+        if (fbKey === 'undefined' || isTestOrProbe || isGhost) {
+          if (db) { try { db.ref(`restaurants/${slug}/orders/${fbKey}`).remove(); } catch(e) {} }
+          try { fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders/${fbKey}.json`, { method: 'DELETE', keepalive: true }).catch(() => {}); } catch(e) {}
           return null;
         }
 
@@ -3208,10 +3239,10 @@ const Store = {
   // ═══════════════════════════════════════════════════════════
   getRawMaterials() {
     const slug = this.getRestaurantSlug();
-    const isDemo = (slug === 'demo');
-    const defaultMats = isDemo ? DEFAULT_RAW_MATERIALS : [];
+    const isKingOrDemo = (slug === 'demo' || slug === 'king');
+    const defaultMats = isKingOrDemo ? DEFAULT_RAW_MATERIALS : [];
     if (this._memoryCache.rawMaterials !== null) {
-      if (isDemo && (!this._memoryCache.rawMaterials || this._memoryCache.rawMaterials.length === 0)) {
+      if (isKingOrDemo && (!this._memoryCache.rawMaterials || this._memoryCache.rawMaterials.length === 0)) {
         this._memoryCache.rawMaterials = defaultMats;
       }
       return this._memoryCache.rawMaterials;
@@ -3232,7 +3263,7 @@ const Store = {
           return sMats;
         }
       }
-      if (isDemo) {
+      if (isKingOrDemo) {
         this._memoryCache.rawMaterials = defaultMats;
       }
       return defaultMats;
@@ -3240,11 +3271,11 @@ const Store = {
     try {
       const parsed = JSON.parse(raw);
       let res = Array.isArray(parsed) ? parsed : (parsed && typeof parsed === 'object' ? Object.values(parsed) : defaultMats);
-      if (isDemo && (!res || res.length === 0)) res = defaultMats;
+      if (isKingOrDemo && (!res || res.length === 0)) res = defaultMats;
       this._memoryCache.rawMaterials = res;
       return res;
     } catch {
-      if (isDemo) this._memoryCache.rawMaterials = defaultMats;
+      if (isKingOrDemo) this._memoryCache.rawMaterials = defaultMats;
       return defaultMats;
     }
   },

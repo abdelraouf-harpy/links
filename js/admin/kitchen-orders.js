@@ -1380,6 +1380,13 @@ window.renderOrdersList = function(orders = null) {
   if (orders === null || orders === undefined) {
     orders = Store.getOrders();
   }
+  // Defensive filter: Guarantee zero ghost, dummy, or corrupted orders render in kitchen
+  orders = (orders || []).filter(o => {
+    if (!o || typeof o !== 'object') return false;
+    const isTestOrProbe = /test|probe|dummy/i.test(o.orderId || '') || /test|probe|dummy/i.test(o.id || '') || /test|probe|dummy/i.test(o._fbKey || '');
+    const isGhost = (!o.items || !Array.isArray(o.items) || o.items.length === 0) && (!o.finalTotal || o.finalTotal <= 0) && (!o.customer || (!o.customer.name && !o.customer.phone));
+    return !isTestOrProbe && !isGhost;
+  });
   const currency = Store.getSettings().currency || "ج.م";
 
   // Active orders are: pending, preparing, out_for_delivery (never delivered or cancelled)

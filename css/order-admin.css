@@ -4345,3 +4345,59 @@ html[dir="ltr"] .admin-drawer.open {
 .tab-pane.active {
   flex: 1 0 auto !important;
 }
+
+/* ── Modern Responsive Header & Banners Across Admin Tabs ── */
+.unified-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 679px) {
+  .unified-menu-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+  .unified-menu-header > div:first-child {
+    width: 100% !important;
+    min-width: 100% !important;
+  }
+  .unified-menu-actions {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+  .unified-menu-actions #btn-open-add-product {
+    grid-column: 1 / -1 !important;
+    justify-content: center !important;
+    padding: 10px 16px !important;
+    font-size: 13.5px !important;
+  }
+  .unified-menu-actions button:not(#btn-open-add-product) {
+    justify-content: center !important;
+    padding: 8px 10px !important;
+    width: 100% !important;
+  }
+
+  .cat-action-banner,
+  .stories-action-banner {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    padding: 14px 16px !important;
+  }
+  .cat-add-input-wrap {
+    max-width: 100% !important;
+    min-width: 100% !important;
+  }
+  #btn-open-add-story {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}
+

@@ -50,9 +50,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Admin">
 
-  <link rel="stylesheet" href="css/order-tokens.css?v=176.0">
-  <link rel="stylesheet" href="css/order-client.css?v=176.0">
-  <link rel="stylesheet" href="css/order-admin.css?v=176.0">
+  <link rel="stylesheet" href="css/order-tokens.css?v=177.0">
+  <link rel="stylesheet" href="css/order-client.css?v=177.0">
+  <link rel="stylesheet" href="css/order-admin.css?v=177.0">
 
   <script>
     // Instant zero-delay theme toggle available immediately on page paint
@@ -526,7 +526,7 @@
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           </div>
 
-          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+          <div class="unified-menu-actions" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
             <button type="button" class="btn btn-ghost" onclick="openCategoryModal(null)" style="border:1.5px solid var(--border-strong); font-weight:800; font-size:12.5px; padding:8px 14px; border-radius:var(--radius-sm); display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
               <span>إضافة قسم</span>
@@ -1014,9 +1014,20 @@
     <!-- ═══ TAB 3: STORIES MANAGER ══════════════════════════ -->
     <div id="tab-stories" class="tab-pane" style="display:none;">
       <div class="admin-card">
-                <div style="display:flex; justify-content:flex-end; align-items:center; margin-bottom:16px;">
-          <button id="btn-open-add-story" class="btn btn-primary" onclick="openStoryModal(null)">
-            إضافة قصة أو عرض جديد
+        <div class="stories-action-banner" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px 20px; margin-bottom:24px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div style="width:42px; height:42px; border-radius:10px; background:var(--primary-subtle); color:var(--primary); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 8 10 8"></polygon></svg>
+            </div>
+            <div>
+              <div style="font-size:15px; font-weight:800; color:var(--text-main);">قصص وعروض اليوم (Stories)</div>
+              <div style="font-size:12px; color:var(--text-muted); font-weight:600;">نشر عروض تفاعلية حية تظهر في أعلى شاشة المنيو للزبائن</div>
+            </div>
+          </div>
+
+          <button id="btn-open-add-story" class="btn btn-primary" onclick="openStoryModal(null)" style="white-space:nowrap; display:inline-flex; align-items:center; gap:6px; font-weight:800; padding:10px 22px;">
+            <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span>إضافة قصة أو عرض جديد</span>
           </button>
         </div>
 
@@ -1147,7 +1158,7 @@
                   </div>
                 </div>
                 <input type="hidden" id="set-logo-url">
-                <input type="url" id="set-logo-url-direct" class="form-input" placeholder="أو الصق رابط صورة الشعار مباشرة (https://example.com/logo.png)" style="margin-top:8px; font-size:12px; font-family:inherit;">
+                <input type="url" id="set-logo-url-direct" class="form-input" placeholder="أو الصق رابط صورة الشعار مباشرة (https://example.com/logo.png)" style="margin-top:8px; font-size:12px; font-family:inherit; direction:ltr; text-align:left;">
               </div>
 
               <!-- Cover Banner Uploader -->
@@ -1168,7 +1179,7 @@
                   </div>
                 </div>
                 <input type="hidden" id="set-cover-url">
-                <input type="url" id="set-cover-url-direct" class="form-input" placeholder="أو الصق رابط صورة الغلاف مباشرة (https://example.com/cover.jpg)" style="margin-top:8px; font-size:12px; font-family:inherit;">
+                <input type="url" id="set-cover-url-direct" class="form-input" placeholder="أو الصق رابط صورة الغلاف مباشرة (https://example.com/cover.jpg)" style="margin-top:8px; font-size:12px; font-family:inherit; direction:ltr; text-align:left;">
               </div>
             </div>
           </div>
@@ -2589,23 +2600,23 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=176.0"></script>
-  <script src="js/core/sound-effects.js?v=176.0"></script>
-  <script src="js/store.js?v=176.0"></script>
-  <script src="js/admin/admin-core.js?v=176.0"></script>
-  <script src="js/admin/admin-auth.js?v=176.0"></script>
-  <script src="js/admin/kitchen-orders.js?v=176.0"></script>
-  <script src="js/admin/inventory-manager.js?v=176.0"></script>
-  <script src="js/admin/catalog-manager.js?v=176.0"></script>
-  <script src="js/admin/category-manager.js?v=176.0"></script>
-  <script src="js/admin/stories-manager.js?v=176.0"></script>
-  <script src="js/admin/backup-restore.js?v=176.0"></script>
-  <script src="js/core/qrcode.min.js?v=176.0"></script>
-  <script src="js/admin/settings-manager.js?v=176.0"></script>
-  <script src="js/admin/pos-terminal.js?v=176.0"></script>
-  <script src="js/admin/admin-push.js?v=176.0"></script>
-  <script src="js/admin.js?v=176.0"></script>
-  <script src="js/core/module-enforcer.js?v=176.0"></script>
-  <script src="js/pwa.js?v=176.0"></script>
+  <script src="js/core/demo-seed-data.js?v=177.0"></script>
+  <script src="js/core/sound-effects.js?v=177.0"></script>
+  <script src="js/store.js?v=177.0"></script>
+  <script src="js/admin/admin-core.js?v=177.0"></script>
+  <script src="js/admin/admin-auth.js?v=177.0"></script>
+  <script src="js/admin/kitchen-orders.js?v=177.0"></script>
+  <script src="js/admin/inventory-manager.js?v=177.0"></script>
+  <script src="js/admin/catalog-manager.js?v=177.0"></script>
+  <script src="js/admin/category-manager.js?v=177.0"></script>
+  <script src="js/admin/stories-manager.js?v=177.0"></script>
+  <script src="js/admin/backup-restore.js?v=177.0"></script>
+  <script src="js/core/qrcode.min.js?v=177.0"></script>
+  <script src="js/admin/settings-manager.js?v=177.0"></script>
+  <script src="js/admin/pos-terminal.js?v=177.0"></script>
+  <script src="js/admin/admin-push.js?v=177.0"></script>
+  <script src="js/admin.js?v=177.0"></script>
+  <script src="js/core/module-enforcer.js?v=177.0"></script>
+  <script src="js/pwa.js?v=177.0"></script>
 </body>
 </html>
