@@ -2342,9 +2342,12 @@ function reorderPreviousOrder(orderId) {
   if (typeof openCartDrawer === 'function') openCartDrawer();
 }
 
-// ── DIGITAL MENU QR CODE MODAL ────────────────────────────
+// ── DIGITAL MENU QR CODE MODAL (Chef Harpy Mascot Static & Cached) ──
 
 let cachedClientHarpyImg = null;
+let clientStickerCachedDataUrl = null;
+let clientStickerCachedUrl = null;
+let isClientHarpyPrecomputing = false;
 
 function loadClientHarpyTemplate() {
   return new Promise((resolve) => {
@@ -2352,10 +2355,12 @@ function loadClientHarpyTemplate() {
       return resolve(cachedClientHarpyImg);
     }
     const candidates = [
-      'assets/brand/chef_harpy_qr_template.png',
+      '../assets/brand/chef_harpy_qr_template.webp',
+      '/assets/brand/chef_harpy_qr_template.webp',
+      'assets/brand/chef_harpy_qr_template.webp',
       '../assets/brand/chef_harpy_qr_template.png',
-      '/order/assets/brand/chef_harpy_qr_template.png',
-      './assets/brand/chef_harpy_qr_template.png'
+      '/assets/brand/chef_harpy_qr_template.png',
+      'assets/brand/chef_harpy_qr_template.png'
     ];
     let idx = 0;
     function tryNext() {
@@ -2370,17 +2375,50 @@ function loadClientHarpyTemplate() {
   });
 }
 
-async function renderClientHarpyQR() {
+// Background pre-computation: ensure mascot template is fetched & sticker pre-drawn
+function precomputeClientHarpyQR() {
+  if (typeof QRCode === 'undefined') {
+    setTimeout(precomputeClientHarpyQR, 200);
+    return;
+  }
+  loadClientHarpyTemplate().then(() => {
+    renderClientHarpyQR(false);
+  });
+}
+
+// Initiate background precompute on idle
+if (typeof window !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(precomputeClientHarpyQR, 400);
+    });
+  } else {
+    setTimeout(precomputeClientHarpyQR, 400);
+  }
+}
+
+async function renderClientHarpyQR(showLoading = true) {
   const canvas = document.getElementById('client-harpy-canvas');
   if (!canvas) return;
   const loading = document.getElementById('client-harpy-loading');
   const hiddenGen = document.getElementById('client-harpy-hidden-gen');
   const linkText = document.getElementById('client-qr-link-text');
 
-  if (loading) loading.style.display = 'flex';
-
   const currentUrl = window.location.href;
   if (linkText) linkText.textContent = currentUrl;
+
+  // If already rendered for this exact URL, paint immediately with 0 delay
+  if (clientStickerCachedUrl === currentUrl && clientStickerCachedDataUrl) {
+    if (loading) loading.style.display = 'none';
+    return;
+  }
+
+  if (isClientHarpyPrecomputing) return;
+  isClientHarpyPrecomputing = true;
+
+  if (showLoading && loading) {
+    loading.style.display = 'flex';
+  }
 
   try {
     if (hiddenGen) hiddenGen.innerHTML = '';
@@ -2400,7 +2438,7 @@ async function renderClientHarpyQR() {
       } catch(e) {}
     }
 
-    await new Promise(r => setTimeout(r, 60));
+    await new Promise(r => setTimeout(r, 40));
     let qrSource = container.querySelector('canvas');
     if (!qrSource || qrSource.width === 0) {
       qrSource = container.querySelector('img');
@@ -2456,9 +2494,15 @@ async function renderClientHarpyQR() {
     }
 
     ctx.restore();
+
+    // Store in cache
+    clientStickerCachedUrl = currentUrl;
+    clientStickerCachedDataUrl = canvas.toDataURL('image/png');
+
   } catch(err) {
     console.warn('Error in renderClientHarpyQR:', err);
   } finally {
+    isClientHarpyPrecomputing = false;
     if (loading) loading.style.display = 'none';
   }
 }
@@ -2468,7 +2512,29 @@ function openQrModal() {
   const modal = document.getElementById('qr-code-modal');
   if (!modal) return;
 
-  renderClientHarpyQR();
+  const currentUrl = window.location.href;
+  const linkText = document.getElementById('client-qr-link-text');
+  if (linkText) linkText.textContent = currentUrl;
+
+  const modalTitle = document.getElementById('qr-modal-title');
+  if (modalTitle) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tbl = (urlParams.get('table') || urlParams.get('t') || sessionStorage.getItem('harpy_dinein_table') || window.__harpyDineInTable || '').trim();
+    if (tbl) {
+      modalTitle.textContent = `كود طاولة ${tbl} (QR)`;
+    } else {
+      modalTitle.textContent = 'رمز المنيو الرقمي (QR)';
+    }
+  }
+
+  const loading = document.getElementById('client-harpy-loading');
+
+  // If already rendered, show instantly with zero delay & zero spinner
+  if (clientStickerCachedUrl === currentUrl && clientStickerCachedDataUrl) {
+    if (loading) loading.style.display = 'none';
+  } else {
+    renderClientHarpyQR(true);
+  }
 
   if (backdrop) backdrop.classList.add('active');
   modal.classList.add('open');

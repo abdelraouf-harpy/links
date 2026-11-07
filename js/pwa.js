@@ -243,7 +243,7 @@
   updatePwaBranding();
 
   // ── 2. Clean Update Engine (Handles Code Updates & Live Store Name Updates) ───
-  const CURRENT_PWA_BUILD = 'v175.0';
+  const CURRENT_PWA_BUILD = 'v176.0';
 
   function isUpdateAlreadyHandled() {
     try {
@@ -538,7 +538,7 @@
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       // Register strictly-scoped SW for each app independently (No cross-purging)
-      const swUrl = './sw.js?v=175.0';
+      const swUrl = './sw.js?v=176.0';
       const targetScope = isAdmin ? './admin/' : './order/';
       navigator.serviceWorker.register(swUrl, { scope: targetScope })
         .then(reg => {

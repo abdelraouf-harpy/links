@@ -1044,6 +1044,7 @@ let currentHarpyQRMode = 'menu'; // 'menu' | 'table'
 let currentHarpyQRTable = null;  // { id, name }
 let cachedHarpyTemplateImg = null;
 let isHarpyRendering = false;
+const harpyStickerCache = new Map();
 
 function drawHarpyRoundedRectPath(ctx, x, y, width, height, radius) {
   if (typeof ctx.roundRect === 'function') {
@@ -1083,6 +1084,61 @@ function getHarpyTargetUrl() {
   return window.location.origin + cleanPath + `/order/?m=${encodeURIComponent(slug)}`;
 }
 
+function loadHarpyTemplate() {
+  return new Promise((resolve) => {
+    if (cachedHarpyTemplateImg && cachedHarpyTemplateImg.complete && cachedHarpyTemplateImg.naturalWidth > 0) {
+      return resolve(cachedHarpyTemplateImg);
+    }
+    const candidates = [
+      '../assets/brand/chef_harpy_qr_template.webp',
+      '/assets/brand/chef_harpy_qr_template.webp',
+      'assets/brand/chef_harpy_qr_template.webp',
+      '../assets/brand/chef_harpy_qr_template.png',
+      '/assets/brand/chef_harpy_qr_template.png',
+      'assets/brand/chef_harpy_qr_template.png'
+    ];
+    let idx = 0;
+    function tryNext() {
+      if (idx >= candidates.length) {
+        return resolve(null);
+      }
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        cachedHarpyTemplateImg = img;
+        resolve(img);
+      };
+      img.onerror = () => {
+        idx++;
+        tryNext();
+      };
+      img.src = candidates[idx];
+    }
+    tryNext();
+  });
+}
+
+// Background pre-computation for Admin stickers
+function precomputeAdminHarpyQR() {
+  if (typeof QRCode === 'undefined') {
+    setTimeout(precomputeAdminHarpyQR, 300);
+    return;
+  }
+  loadHarpyTemplate().then(() => {
+    renderHarpyQRComposite(false);
+  });
+}
+
+if (typeof window !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(precomputeAdminHarpyQR, 500);
+    });
+  } else {
+    setTimeout(precomputeAdminHarpyQR, 500);
+  }
+}
+
 window.openHarpyQRModal = function(mode, tableData) {
   currentHarpyQRMode = (mode === 'table') ? 'table' : 'menu';
   if (tableData) {
@@ -1093,6 +1149,12 @@ window.openHarpyQRModal = function(mode, tableData) {
     currentHarpyQRTable = tables.length > 0 ? tables[0] : { id: '1', name: 'طاولة 1' };
   } else {
     currentHarpyQRTable = null;
+  }
+
+  const targetUrl = getHarpyTargetUrl();
+  const urlDisplay = document.getElementById('harpy-qr-encoded-url');
+  if (urlDisplay) {
+    urlDisplay.textContent = targetUrl;
   }
 
   // Update modal title
@@ -1117,8 +1179,29 @@ window.openHarpyQRModal = function(mode, tableData) {
     backdrop.style.display = 'block';
   }
 
-  // Trigger composite render
-  renderHarpyQRComposite();
+  const loadingEl = document.getElementById('harpy-qr-loading');
+  const canvas = document.getElementById('harpy-qr-canvas');
+
+  // Check cache: if this targetUrl was already rendered, show instantly with 0ms delay!
+  if (harpyStickerCache.has(targetUrl)) {
+    if (loadingEl) loadingEl.style.display = 'none';
+    const cachedDataUrl = harpyStickerCache.get(targetUrl);
+    if (canvas) {
+      const cachedImg = new Image();
+      cachedImg.onload = () => {
+        canvas.width = 1254;
+        canvas.height = 1254;
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, 1254, 1254);
+        ctx.drawImage(cachedImg, 0, 0);
+      };
+      cachedImg.src = cachedDataUrl;
+    }
+    return;
+  }
+
+  // Otherwise trigger composite render
+  renderHarpyQRComposite(true);
 };
 
 window.closeHarpyQRModal = function() {
@@ -1134,39 +1217,7 @@ window.closeHarpyQRModal = function() {
   }
 };
 
-function loadHarpyTemplate() {
-  return new Promise((resolve) => {
-    if (cachedHarpyTemplateImg && cachedHarpyTemplateImg.complete && cachedHarpyTemplateImg.naturalWidth > 0) {
-      return resolve(cachedHarpyTemplateImg);
-    }
-    const candidates = [
-      'assets/brand/chef_harpy_qr_template.png',
-      '../assets/brand/chef_harpy_qr_template.png',
-      '/order/assets/brand/chef_harpy_qr_template.png',
-      './assets/brand/chef_harpy_qr_template.png'
-    ];
-    let idx = 0;
-    function tryNext() {
-      if (idx >= candidates.length) {
-        return resolve(null);
-      }
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = () => {
-        cachedHarpyTemplateImg = img;
-        resolve(img);
-      };
-      img.onerror = () => {
-        idx++;
-        tryNext();
-      };
-      img.src = candidates[idx];
-    }
-    tryNext();
-  });
-}
-
-async function renderHarpyQRComposite() {
+async function renderHarpyQRComposite(showLoading = true) {
   if (isHarpyRendering) return;
   isHarpyRendering = true;
 
@@ -1179,14 +1230,20 @@ async function renderHarpyQRComposite() {
   const urlDisplay = document.getElementById('harpy-qr-encoded-url');
   const hiddenGen = document.getElementById('harpy-qr-hidden-gen');
 
-  if (loadingEl) loadingEl.style.display = 'flex';
+  const targetUrl = getHarpyTargetUrl();
+  if (urlDisplay) {
+    urlDisplay.textContent = targetUrl;
+  }
+
+  if (harpyStickerCache.has(targetUrl)) {
+    isHarpyRendering = false;
+    if (loadingEl) loadingEl.style.display = 'none';
+    return;
+  }
+
+  if (showLoading && loadingEl) loadingEl.style.display = 'flex';
 
   try {
-    const targetUrl = getHarpyTargetUrl();
-    if (urlDisplay) {
-      urlDisplay.textContent = targetUrl;
-    }
-
     // 1. Generate real working QR Code offscreen
     if (hiddenGen) hiddenGen.innerHTML = '';
     const qrContainer = hiddenGen || document.createElement('div');
@@ -1208,7 +1265,7 @@ async function renderHarpyQRComposite() {
     }
 
     // Give QRCode a moment to paint to canvas
-    await new Promise(r => setTimeout(r, 60));
+    await new Promise(r => setTimeout(r, 40));
 
     let qrSource = qrContainer.querySelector('canvas');
     if (!qrSource || qrSource.width === 0) {
@@ -1264,6 +1321,9 @@ async function renderHarpyQRComposite() {
     }
 
     ctx.restore();
+
+    // Cache the composite result
+    harpyStickerCache.set(targetUrl, canvas.toDataURL('image/png'));
 
   } catch (err) {
     console.error('Error rendering Harpy QR Composite:', err);

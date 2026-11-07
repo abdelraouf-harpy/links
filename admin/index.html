@@ -34,6 +34,7 @@
   <link rel="alternate icon" href="favicon.ico">
   <link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
   <link rel="manifest" href="admin-manifest.json">
+  <link rel="preload" as="image" href="../assets/brand/chef_harpy_qr_template.webp" type="image/webp">
   
   <!-- OneSignal Web Push SDK v16 for Native Background Push Notifications -->
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
@@ -49,9 +50,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Admin">
 
-  <link rel="stylesheet" href="css/order-tokens.css?v=175.0">
-  <link rel="stylesheet" href="css/order-client.css?v=175.0">
-  <link rel="stylesheet" href="css/order-admin.css?v=175.0">
+  <link rel="stylesheet" href="css/order-tokens.css?v=176.0">
+  <link rel="stylesheet" href="css/order-client.css?v=176.0">
+  <link rel="stylesheet" href="css/order-admin.css?v=176.0">
 
   <script>
     // Instant zero-delay theme toggle available immediately on page paint
@@ -1671,7 +1672,7 @@
 
     <!-- Live Preview Canvas -->
     <div id="harpy-qr-preview-wrapper" style="position:relative; width:100%; max-width:320px; margin:0 auto 14px; border-radius:20px; overflow:hidden; box-shadow:0 10px 28px rgba(0,0,0,0.12); border:1px solid rgba(0,0,0,0.06); aspect-ratio:1/1; background:#ffffff; display:flex; align-items:center; justify-content:center;">
-      <div id="harpy-qr-loading" style="display:none; position:absolute; inset:0; background:rgba(255,255,255,0.88); border-radius:20px; z-index:10; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;">
+      <div id="harpy-qr-loading" style="display:none; position:absolute; inset:0; background:rgba(255,255,255,0.88); border-radius:20px; z-index:10; flex-direction:column; align-items:center; justify-content:center; gap:8px;">
         <div class="spinner-ring" style="width:36px; height:36px; border:3px solid var(--accent, #ea580c); border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite;"></div>
         <span style="font-size:12px; font-weight:800; color:var(--text-main, #0f172a);">جاري تجهيز وتوليد الستيكر</span>
       </div>
@@ -2588,23 +2589,23 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=175.0"></script>
-  <script src="js/core/sound-effects.js?v=175.0"></script>
-  <script src="js/store.js?v=175.0"></script>
-  <script src="js/admin/admin-core.js?v=175.0"></script>
-  <script src="js/admin/admin-auth.js?v=175.0"></script>
-  <script src="js/admin/kitchen-orders.js?v=175.0"></script>
-  <script src="js/admin/inventory-manager.js?v=175.0"></script>
-  <script src="js/admin/catalog-manager.js?v=175.0"></script>
-  <script src="js/admin/category-manager.js?v=175.0"></script>
-  <script src="js/admin/stories-manager.js?v=175.0"></script>
-  <script src="js/admin/backup-restore.js?v=175.0"></script>
-  <script src="js/core/qrcode.min.js?v=175.0"></script>
-  <script src="js/admin/settings-manager.js?v=175.0"></script>
-  <script src="js/admin/pos-terminal.js?v=175.0"></script>
-  <script src="js/admin/admin-push.js?v=175.0"></script>
-  <script src="js/admin.js?v=175.0"></script>
-  <script src="js/core/module-enforcer.js?v=175.0"></script>
-  <script src="js/pwa.js?v=175.0"></script>
+  <script src="js/core/demo-seed-data.js?v=176.0"></script>
+  <script src="js/core/sound-effects.js?v=176.0"></script>
+  <script src="js/store.js?v=176.0"></script>
+  <script src="js/admin/admin-core.js?v=176.0"></script>
+  <script src="js/admin/admin-auth.js?v=176.0"></script>
+  <script src="js/admin/kitchen-orders.js?v=176.0"></script>
+  <script src="js/admin/inventory-manager.js?v=176.0"></script>
+  <script src="js/admin/catalog-manager.js?v=176.0"></script>
+  <script src="js/admin/category-manager.js?v=176.0"></script>
+  <script src="js/admin/stories-manager.js?v=176.0"></script>
+  <script src="js/admin/backup-restore.js?v=176.0"></script>
+  <script src="js/core/qrcode.min.js?v=176.0"></script>
+  <script src="js/admin/settings-manager.js?v=176.0"></script>
+  <script src="js/admin/pos-terminal.js?v=176.0"></script>
+  <script src="js/admin/admin-push.js?v=176.0"></script>
+  <script src="js/admin.js?v=176.0"></script>
+  <script src="js/core/module-enforcer.js?v=176.0"></script>
+  <script src="js/pwa.js?v=176.0"></script>
 </body>
 </html>
