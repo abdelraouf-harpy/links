@@ -6,7 +6,7 @@ try {
   console.warn("[SW] OneSignal worker import notice:", e);
 }
 
-const CACHE_NAME = 'order-pwa-v177.0';
+const CACHE_NAME = 'order-pwa-v178.0';
 const IMAGE_CACHE_NAME = 'order-images-v6';
 const ASSETS_TO_CACHE = [
   './',
@@ -15,6 +15,7 @@ const ASSETS_TO_CACHE = [
   './order.html',
   './portfolio.html',
   './admin.html',
+  './master.html',
   './admin/',
   './admin/index.html',
   './order/',
@@ -23,6 +24,7 @@ const ASSETS_TO_CACHE = [
   './menu/index.html',
   './manifest.json',
   './admin-manifest.json',
+  './master-manifest.json',
   './favicon.ico',
   './assets/brand/favicon.png',
   './assets/brand/apple-touch-icon.png',
@@ -30,6 +32,9 @@ const ASSETS_TO_CACHE = [
   './assets/brand/harpy_order_logo.png',
   './assets/brand/chef_harpy_qr_template.webp',
   './assets/brand/chef_harpy_qr_template.png',
+  './assets/brand/master_pwa_icon_192.png',
+  './assets/brand/master_pwa_icon_512.png',
+  './assets/brand/master_apple_touch_icon.png',
   './assets/icons/order-icon-512.png',
   './assets/icons/order-icon-192.png',
   './assets/icons/admin-icon-512.png',
@@ -37,34 +42,34 @@ const ASSETS_TO_CACHE = [
   './assets/portfolio/logo.png',
   './assets/portfolio/facebook_profile_logo.png',
   './assets/portfolio/01_Logo_and_Branding/order_logo_vector.svg',
-  './css/order-tokens.css?v=176.0',
-  './css/order-client.css?v=176.0',
-  './css/order-admin.css?v=176.0',
-  './css/portfolio.css?v=176.0',
-  './js/core/demo-seed-data.js?v=176.0',
-  './js/core/sound-effects.js?v=176.0',
-  './js/core/i18n.js?v=176.0',
-  './js/store.js?v=176.0',
-  './js/admin/admin-core.js?v=176.0',
-  './js/admin/admin-auth.js?v=176.0',
-  './js/admin/kitchen-orders.js?v=176.0',
-  './js/admin/inventory-manager.js?v=176.0',
-  './js/admin/catalog-manager.js?v=176.0',
-  './js/admin/category-manager.js?v=176.0',
-  './js/admin/stories-manager.js?v=176.0',
-  './js/admin/backup-restore.js?v=176.0',
-  './js/admin/settings-manager.js?v=176.0',
-  './js/admin/pos-terminal.js?v=176.0',
-  './js/admin/admin-push.js?v=176.0',
-  './js/client/client-core.js?v=176.0',
-  './js/client/menu-view.js?v=176.0',
-  './js/client/stories-viewer.js?v=176.0',
-  './js/client/customizer-modal.js?v=176.0',
-  './js/client/cart-ledger.js?v=176.0',
-  './js/client/order-tracking.js?v=176.0',
-  './js/app.js?v=176.0',
-  './js/admin.js?v=176.0',
-  './js/pwa.js?v=176.0'
+  './css/order-tokens.css?v=178.0',
+  './css/order-client.css?v=178.0',
+  './css/order-admin.css?v=178.0',
+  './css/portfolio.css?v=178.0',
+  './js/core/demo-seed-data.js?v=178.0',
+  './js/core/sound-effects.js?v=178.0',
+  './js/core/i18n.js?v=178.0',
+  './js/store.js?v=178.0',
+  './js/admin/admin-core.js?v=178.0',
+  './js/admin/admin-auth.js?v=178.0',
+  './js/admin/kitchen-orders.js?v=178.0',
+  './js/admin/inventory-manager.js?v=178.0',
+  './js/admin/catalog-manager.js?v=178.0',
+  './js/admin/category-manager.js?v=178.0',
+  './js/admin/stories-manager.js?v=178.0',
+  './js/admin/backup-restore.js?v=178.0',
+  './js/admin/settings-manager.js?v=178.0',
+  './js/admin/pos-terminal.js?v=178.0',
+  './js/admin/admin-push.js?v=178.0',
+  './js/client/client-core.js?v=178.0',
+  './js/client/menu-view.js?v=178.0',
+  './js/client/stories-viewer.js?v=178.0',
+  './js/client/customizer-modal.js?v=178.0',
+  './js/client/cart-ledger.js?v=178.0',
+  './js/client/order-tracking.js?v=178.0',
+  './js/app.js?v=178.0',
+  './js/admin.js?v=178.0',
+  './js/pwa.js?v=178.0'
 ];
 
 self.addEventListener('install', (event) => {
@@ -283,6 +288,9 @@ self.addEventListener('fetch', (event) => {
           const accept = event.request.headers.get('accept') || '';
           if (accept.includes('text/html') || event.request.mode === 'navigate') {
             const reqUrlLower = event.request.url.toLowerCase();
+            if (reqUrlLower.includes('master')) {
+              return caches.match('./master.html', { ignoreSearch: true }).then(r => r || networkResponse);
+            }
             if (reqUrlLower.includes('admin')) {
               return caches.match('./admin/index.html', { ignoreSearch: true })
                 .then(r => r || caches.match('./admin/', { ignoreSearch: true }))
@@ -306,15 +314,19 @@ self.addEventListener('fetch', (event) => {
           if (cachedResponse) return cachedResponse;
           if (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html')) {
             const reqUrlLower = event.request.url.toLowerCase();
+            if (reqUrlLower.includes('master')) {
+              return caches.match('./master.html', { ignoreSearch: true });
+            }
             if (reqUrlLower.includes('admin')) {
               return caches.match('./admin/index.html', { ignoreSearch: true })
                 .then(r => r || caches.match('./admin/', { ignoreSearch: true }))
                 .then(r => r || caches.match('./admin.html', { ignoreSearch: true }));
             }
-            if (reqUrlLower.includes('menu') || reqUrlLower.includes('/order') || reqUrlLower.includes('order.html') || reqUrlLower.includes('m=')) {
-              return caches.match('./menu/index.html', { ignoreSearch: true })
-                .then(r => r || caches.match('./menu/', { ignoreSearch: true }))
-                .then(r => r || caches.match('./order.html', { ignoreSearch: true }));
+            if (reqUrlLower.includes('order') || reqUrlLower.includes('menu') || reqUrlLower.includes('m=')) {
+              return caches.match('./order/index.html', { ignoreSearch: true })
+                .then(r => r || caches.match('./order/', { ignoreSearch: true }))
+                .then(r => r || caches.match('./order.html', { ignoreSearch: true }))
+                .then(r => r || caches.match('./menu/index.html', { ignoreSearch: true }));
             }
             return caches.match('./index.html', { ignoreSearch: true });
           }

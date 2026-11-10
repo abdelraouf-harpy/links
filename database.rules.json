@@ -10,15 +10,15 @@
         ".write": false,
         "settings": {
           ".read": true,
-          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val())"
+          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')"
         },
         "categories": {
           ".read": true,
-          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val())"
+          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')"
         },
         "products": {
           ".read": true,
-          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val())",
+          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')",
           ".indexOn": [
             "category",
             "visible",
@@ -27,11 +27,11 @@
         },
         "stories": {
           ".read": true,
-          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val())"
+          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')"
         },
         "orders": {
-          ".read": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val())",
-          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val())",
+          ".read": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')",
+          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')",
           ".indexOn": [
             "status",
             "timestamp",
@@ -39,40 +39,48 @@
           ],
           "$orderId": {
             ".read": true,
-            ".write": "!data.exists() && newData.exists() || (auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val()))",
+            ".write": "!data.exists() && newData.exists() || (auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com'))",
             ".validate": "(newData.hasChildren(['orderId', 'items', 'finalTotal']) && newData.child('finalTotal').isNumber() && newData.child('finalTotal').val() >= 0) || newData.val() == null"
           }
         },
         "meta": {
-          ".read": "auth != null && (auth.uid === data.child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val())",
-          ".write": "auth != null && (auth.uid === data.child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val())",
+          ".read": "auth != null && (auth.uid === data.child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')",
+          ".write": "auth != null && (auth.uid === data.child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')",
           ".validate": "newData.hasChildren() || newData.val() == null"
         },
         "rawMaterials": {
-          ".read": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val())",
-          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val())"
+          ".read": true,
+          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')"
         },
         "shifts": {
-          ".read": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val())",
-          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val())"
+          ".read": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')",
+          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')"
         },
         "deletedOrderIds": {
-          ".read": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val())",
-          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val())"
+          ".read": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')",
+          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')"
         }
       }
     },
     "licenses": {
       ".read": false,
       ".write": false,
+      ".indexOn": [
+        "status",
+        "expiresAt"
+      ],
       "$slug": {
         ".read": true,
-        ".write": false,
-        ".indexOn": [
-          "status",
-          "expiresAt"
-        ]
+        ".write": false
       }
+    },
+    "subscriptionPlans": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "auditLogs": {
+      ".read": "auth != null",
+      ".write": "auth != null"
     }
   }
 }

@@ -620,7 +620,10 @@ const Store = {
             try {
               const res = await auth.signInWithEmailAndPassword(shadowEmail, sp);
               if (res && res.user) {
-                this.safeSetItem(`harpy_admin_pass_${activeSlug}`, sp);
+                if (sp !== cleanPassword && cleanPassword.length >= 6) {
+                  try { await res.user.updatePassword(cleanPassword); } catch(uErr) {}
+                }
+                this.safeSetItem(`harpy_admin_pass_${activeSlug}`, cleanPassword);
                 return res;
               }
             } catch(shadowErr) {}
