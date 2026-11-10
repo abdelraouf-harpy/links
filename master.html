@@ -3417,6 +3417,23 @@
           issuedAt: Date.now()
         };
         localStorage.setItem(`admin_session_${slug}`, JSON.stringify(sessionPayload));
+        localStorage.setItem(`harpy_admin_auth_${slug}`, JSON.stringify({
+          email: `${slug}@harpymenu.com`,
+          uid: `master_sso_${slug}`,
+          authenticated: true,
+          slug: slug,
+          authMethod: "harpy_master_sso",
+          timestamp: Date.now()
+        }));
+        sessionStorage.setItem(`harpy_auth_${slug}`, JSON.stringify({
+          email: `${slug}@harpymenu.com`,
+          uid: `master_sso_${slug}`,
+          authenticated: true,
+          slug: slug,
+          authMethod: "harpy_master_sso",
+          timestamp: Date.now()
+        }));
+        localStorage.setItem('harpy_admin_active_slug', slug);
         localStorage.setItem(`harpy_active_tenant`, slug);
         this.logAudit('ADMIN_SSO', `دخول مباشر للوحة إدارة مطعم ${slug}`, slug);
         const isProd = window.location.hostname.includes('harpymenu.com');

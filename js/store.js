@@ -574,7 +574,7 @@ const Store = {
           dbPassMatch = true;
         } else if ((activeSlug === 'king' && (cleanPassword === '123456' || cleanPassword === '12345')) ||
                    (activeSlug === 'aloo' && cleanPassword === '12345') ||
-                   (activeSlug === 'saj' && (cleanPassword === '1234' || cleanPassword === '123456'))) {
+                   (activeSlug === 'elmetaashy' && cleanPassword === 'harpy9683')) {
           dbPassMatch = true;
         }
       } catch(dbErr) {
@@ -755,11 +755,11 @@ const Store = {
   isAdminAuthenticated(slug) {
     const activeSlug = slug || this.getRestaurantSlug();
     if (activeSlug === 'demo') return true;
-    const localSession = localStorage.getItem(`harpy_admin_auth_${activeSlug}`);
+    const localSession = localStorage.getItem(`harpy_admin_auth_${activeSlug}`) || localStorage.getItem(`admin_session_${activeSlug}`);
     if (localSession) {
       try {
         const session = JSON.parse(localSession);
-        if (session && session.authenticated === true && (!session.slug || session.slug === activeSlug)) return true;
+        if (session && session.authenticated === true && (!session.slug && !session.tenantSlug || session.slug === activeSlug || session.tenantSlug === activeSlug)) return true;
       } catch(e) {}
     }
     const sessionStr = sessionStorage.getItem(`harpy_auth_${activeSlug}`);
@@ -813,7 +813,7 @@ const Store = {
       `Harpy_${activeSlug}_2026!`,
       (activeSlug === 'king' ? '123456' : null),
       (activeSlug === 'aloo' ? '12345' : null),
-      (activeSlug === 'saj' ? '1234' : null)
+      (activeSlug === 'elmetaashy' ? 'harpy9683' : null)
     ].filter(Boolean)));
 
     const email = `${activeSlug}@harpymenu.com`;

@@ -21,12 +21,12 @@ const KNOWN_TENANTS = {
     cover: 'https://res.cloudinary.com/pq2pimug/image/upload/v1794005719/akjpktm1dibqxpjovjxd.jpg',
     themeColor: '#ea580c'
   },
-  'saj': {
-    slug: 'saj',
-    name: 'مطعم صــاج',
-    tagline: 'أصل البيتزا والكريبات والحواوشي والسوري في سوهاج الجديدة',
-    logo: 'https://iili.io/n3HVHX4.jpg',
-    cover: 'https://iili.io/n3HVHX4.jpg',
+  'elmetaashy': {
+    slug: 'elmetaashy',
+    name: 'El Metaashy',
+    tagline: 'الجوع لما ينادي.. المتعشي هو الحل 🍔🔥',
+    logo: 'https://res.cloudinary.com/pq2pimug/image/upload/v1794336402/mnl4qazblj9bhwpnocy5.jpg',
+    cover: 'https://res.cloudinary.com/pq2pimug/image/upload/v1794336487/pbyjtv1kkekete5gifky.jpg',
     themeColor: '#c2410c'
   },
   'aloo': {
@@ -105,7 +105,7 @@ function generateMenuHtml(tenant) {
 
   <link rel="icon" href="${img}">
   <link rel="apple-touch-icon" href="${img}">
-  <link rel="manifest" href="/manifest-${slug}.json?v=182.0">
+  <link rel="manifest" href="/manifest-${slug}.json?v=183.0">
   <meta name="theme-color" content="${theme}">
 
   <!-- Instant Browser Redirect to Interactive Menu App -->
@@ -168,7 +168,7 @@ function generateAdminHtml(tenant) {
 
   <link rel="icon" href="${img}">
   <link rel="apple-touch-icon" href="${img}">
-  <link rel="manifest" href="/admin-manifest-${slug}.json?v=182.0">
+  <link rel="manifest" href="/admin-manifest-${slug}.json?v=183.0">
   <meta name="theme-color" content="${theme}">
 
   <!-- Instant Browser Redirect to Full Admin App -->

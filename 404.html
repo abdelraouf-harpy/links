@@ -43,7 +43,7 @@
     (function() {
       var TENANT_REGISTRY = {
         'king': { name: 'مطعم كينج', logo: 'https://res.cloudinary.com/pq2pimug/image/upload/v1794005707/fekgebaclepbe4hmt4ga.jpg', desc: 'أشهى المشويات، البرجر الفاخر، والبيتزا الإيطالية على أصولها' },
-        'saj': { name: 'مطعم صــاج', logo: 'https://iili.io/n3HVHX4.jpg', desc: 'أصل البيتزا والكريبات والحواوشي والسوري في سوهاج الجديدة' },
+        'elmetaashy': { name: 'مطعم المتعشي', logo: 'https://res.cloudinary.com/pq2pimug/image/upload/v1794336402/mnl4qazblj9bhwpnocy5.jpg', desc: 'الجوع لما ينادي.. المتعشي هو الحل 🍔🔥' },
         'aloo': { name: 'Aloo Burger', logo: 'https://res.cloudinary.com/pq2pimug/image/upload/v1793879648/ycssznrc2i1rf8abpyu2.jpg', desc: 'أشهى ساندوتشات البرجر والوجبات السريعة على أصولها' },
         'bazzes': { name: 'مطعم بازيز', logo: 'https://harpymenu.com/assets/icons/order-icon-512.png', desc: 'قائمة طعام مطعم بازيز أونلاين' },
         'sasa': { name: 'مطعم ساسا', logo: 'https://harpymenu.com/assets/icons/order-icon-512.png', desc: 'قائمة طعام مطعم ساسا أونلاين' }
@@ -112,24 +112,7 @@
           }
         }
 
-        // Check if landing with an admin tab hash (#orders, #products, #categories, etc.)
-        var adminHashes = ['orders', 'products', 'categories', 'stories', 'settings', 'backup', 'pos'];
-        var cleanHash = hash.replace('#', '').trim();
-        var storedSlug = '';
-        try {
-          storedSlug = localStorage.getItem('harpy_admin_active_slug') || 
-                       localStorage.getItem('harpy_active_slug') || 
-                       localStorage.getItem('harpy_customer_installed_slug') || 
-                       localStorage.getItem('harpy_last_visited_slug') || '';
-        } catch(e) {}
-
-        if (adminHashes.indexOf(cleanHash) !== -1) {
-          var slug = storedSlug || 'king';
-          window.location.replace(repoPrefix + '/admin.html?m=' + encodeURIComponent(slug) + '#' + cleanHash);
-          return;
-        }
-        
-        // If asking for admin (/admin, /admin/, /admin?m=slug)
+        // If asking for admin (/admin, /admin/, /admin/{slug}, /admin?m=slug)
         if (segments.indexOf('admin') !== -1 || path.indexOf('/admin') !== -1) {
           var remaining = segments.filter(function(s) { return s !== 'admin' && s !== 'order' && !s.endsWith('.html'); });
           var slug = remaining.length > 0 ? remaining[0] : '';
@@ -141,6 +124,17 @@
           var queryString = '?' + params.toString();
           updateTenantMeta(params.get('m'), true);
           window.location.replace(repoPrefix + '/admin/' + queryString + hash);
+          return;
+        }
+
+        // Check if landing with an admin tab hash (#orders, #products, #categories, etc.)
+        var adminHashes = ['orders', 'products', 'categories', 'stories', 'settings', 'backup', 'pos'];
+        var cleanHash = hash.replace('#', '').trim();
+        if (adminHashes.indexOf(cleanHash) !== -1) {
+          var remaining = segments.filter(function(s) { return s !== 'admin' && s !== 'order' && !s.endsWith('.html'); });
+          var pathSlug = remaining.length > 0 ? remaining[0] : '';
+          var slug = pathSlug || storedSlug || 'king';
+          window.location.replace(repoPrefix + '/admin/' + '?m=' + encodeURIComponent(slug) + '#' + cleanHash);
           return;
         }
 
