@@ -28,6 +28,30 @@
           var hash = window.location.hash || '';
           var cleanAdminPath = (repoPrefix ? repoPrefix : '') + '/admin/' + encodeURIComponent(activeSlug);
           window.history.replaceState(null, '', cleanAdminPath + (searchPart ? ('?' + searchPart) : '') + (hash || ''));
+
+          // Fast pre-render of Admin Title & Open Graph tags from cached store settings
+          try {
+            var raw = localStorage.getItem('harpy_' + activeSlug + '_settings');
+            if (raw) {
+              var s = JSON.parse(raw);
+              var sName = (s.storeName || s.name || activeSlug).split('|')[0].trim();
+              var sImg = (s.logo && s.logo.startsWith('http')) ? s.logo : '';
+              var sDesc = 'لوحة التحكم السحابية لإدارة طلبات ' + sName + ' وقوائم الطعام والمبيعات.';
+              document.title = 'لوحة إدارة ' + sName + ' — Harpy Admin';
+              var ogT = document.querySelector('meta[property="og:title"]');
+              if (ogT) ogT.content = 'لوحة إدارة ' + sName + ' — Harpy Admin';
+              var ogD = document.querySelector('meta[property="og:description"]');
+              if (ogD) ogD.content = sDesc;
+              var ogU = document.querySelector('meta[property="og:url"]');
+              if (ogU) ogU.content = 'https://harpymenu.com/admin/' + encodeURIComponent(activeSlug);
+              if (sImg) {
+                var ogI = document.querySelector('meta[property="og:image"]');
+                if (ogI) ogI.content = sImg;
+                var twI = document.querySelector('meta[name="twitter:image"]');
+                if (twI) twI.content = sImg;
+              }
+            }
+          } catch(e) {}
         }
       } catch(e) {}
     })();

@@ -1,29 +1,29 @@
 {
   "id": "/admin/?m=saj",
-  "name": "صــاج | إدارة",
-  "short_name": "إدارة صــاج",
-  "description": "صــاج — Dashboard & Kitchen",
+  "name": "مطعم صــاج | لوحة الإدارة",
+  "short_name": "إدارة مطعم صــاج",
+  "description": "لوحة إدارة مطعم صــاج وتجهيز الطلبات",
   "start_url": "./admin/?m=saj",
   "scope": "./admin/",
   "display": "standalone",
-  "background_color": "#F7F7F7",
-  "theme_color": "#F7F7F7",
+  "background_color": "#070B13",
+  "theme_color": "#c2410c",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/assets/icons/admin-icon-512.png",
+      "src": "https://iili.io/n3HVHX4.jpg",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/assets/icons/admin-icon-192.png",
+      "src": "https://iili.io/n3HVHX4.jpg",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/assets/icons/admin-icon-512.png",
+      "src": "https://iili.io/n3HVHX4.jpg",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

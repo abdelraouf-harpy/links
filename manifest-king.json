@@ -1,29 +1,29 @@
 {
   "id": "/order/?m=king",
-  "name": "كينج | قائمة الطعام",
-  "short_name": "كينج",
-  "description": "مطعم كينج - قائمة الطعام والطلب الإلكتروني المباشر",
+  "name": "king | قائمة الطعام",
+  "short_name": "king",
+  "description": "قائمة طعام king والطلب الإلكتروني المباشر",
   "start_url": "./order/?m=king",
   "scope": "./order/",
   "display": "standalone",
-  "background_color": "#FFFFFF",
-  "theme_color": "#FFFFFF",
+  "background_color": "#070B13",
+  "theme_color": "#ea580c",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/assets/icons/order-icon-512.png",
+      "src": "https://res.cloudinary.com/pq2pimug/image/upload/v1794005707/fekgebaclepbe4hmt4ga.jpg",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/assets/icons/order-icon-192.png",
+      "src": "https://res.cloudinary.com/pq2pimug/image/upload/v1794005707/fekgebaclepbe4hmt4ga.jpg",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/assets/icons/order-icon-512.png",
+      "src": "https://res.cloudinary.com/pq2pimug/image/upload/v1794005707/fekgebaclepbe4hmt4ga.jpg",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

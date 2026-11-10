@@ -70,36 +70,16 @@
     ],
     "rewrites": [
       {
-        "source": "/saj",
-        "destination": "/order.html?m=saj"
-      },
-      {
-        "source": "/saj/**",
-        "destination": "/order.html?m=saj"
-      },
-      {
-        "source": "/king",
-        "destination": "/order.html?m=king"
-      },
-      {
-        "source": "/king/**",
-        "destination": "/order.html?m=king"
-      },
-      {
         "source": "/order",
-        "destination": "/order.html"
+        "destination": "/order/index.html"
       },
       {
         "source": "/order/**",
-        "destination": "/order.html"
+        "destination": "/order/index.html"
       },
       {
         "source": "/admin",
-        "destination": "/admin.html"
-      },
-      {
-        "source": "/admin/**",
-        "destination": "/admin.html"
+        "destination": "/admin/index.html"
       },
       {
         "source": "/portfolio",

@@ -1,0 +1,32 @@
+{
+  "id": "/order/?m=aloo",
+  "name": "Aloo Burger | قائمة الطعام",
+  "short_name": "Aloo Burger",
+  "description": "قائمة طعام Aloo Burger والطلب الإلكتروني المباشر",
+  "start_url": "./order/?m=aloo",
+  "scope": "./order/",
+  "display": "standalone",
+  "background_color": "#070B13",
+  "theme_color": "#ea580c",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://res.cloudinary.com/pq2pimug/image/upload/v1793879648/ycssznrc2i1rf8abpyu2.jpg",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://res.cloudinary.com/pq2pimug/image/upload/v1793879648/ycssznrc2i1rf8abpyu2.jpg",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://res.cloudinary.com/pq2pimug/image/upload/v1793879648/ycssznrc2i1rf8abpyu2.jpg",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

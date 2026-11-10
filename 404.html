@@ -41,6 +41,31 @@
   </style>
   <script>
     (function() {
+      var TENANT_REGISTRY = {
+        'king': { name: 'مطعم كينج', logo: 'https://res.cloudinary.com/pq2pimug/image/upload/v1794005707/fekgebaclepbe4hmt4ga.jpg', desc: 'أشهى المشويات، البرجر الفاخر، والبيتزا الإيطالية على أصولها' },
+        'saj': { name: 'مطعم صــاج', logo: 'https://iili.io/n3HVHX4.jpg', desc: 'أصل البيتزا والكريبات والحواوشي والسوري في سوهاج الجديدة' },
+        'aloo': { name: 'Aloo Burger', logo: 'https://res.cloudinary.com/pq2pimug/image/upload/v1793879648/ycssznrc2i1rf8abpyu2.jpg', desc: 'أشهى ساندوتشات البرجر والوجبات السريعة على أصولها' },
+        'bazzes': { name: 'مطعم بازيز', logo: 'https://harpymenu.com/assets/icons/order-icon-512.png', desc: 'قائمة طعام مطعم بازيز أونلاين' },
+        'sasa': { name: 'مطعم ساسا', logo: 'https://harpymenu.com/assets/icons/order-icon-512.png', desc: 'قائمة طعام مطعم ساسا أونلاين' }
+      };
+
+      function updateTenantMeta(slug, isAdmin) {
+        try {
+          var t = TENANT_REGISTRY[slug] || {};
+          var name = t.name || slug;
+          var logo = t.logo || 'https://harpymenu.com/assets/brand/og_banner.png';
+          var desc = t.desc || (isAdmin ? ('لوحة التحكم السحابية لمطعم ' + name) : ('قائمة طعام ' + name + ' والطلب أونلاين'));
+          var title = isAdmin ? ('لوحة إدارة ' + name + ' — Harpy Admin') : ('منيو ' + name + ' — قائمة الطعام والطلبات');
+          document.title = title;
+          var mTitle = document.querySelector('meta[property="og:title"]');
+          if (mTitle) mTitle.content = title;
+          var mDesc = document.querySelector('meta[property="og:description"]');
+          if (mDesc) mDesc.content = desc;
+          var mImg = document.querySelector('meta[property="og:image"]');
+          if (mImg) mImg.content = logo;
+        } catch(e) {}
+      }
+
       try {
         var path = window.location.pathname || '';
         var search = window.location.search || '';
@@ -114,6 +139,7 @@
             params.set('m', storedSlug || 'king');
           }
           var queryString = '?' + params.toString();
+          updateTenantMeta(params.get('m'), true);
           window.location.replace(repoPrefix + '/admin/' + queryString + hash);
           return;
         }
@@ -141,6 +167,7 @@
         var params = new URLSearchParams(search);
         var resolvedSlug = slug || params.get('m') || storedSlug || 'king';
         params.set('m', resolvedSlug);
+        updateTenantMeta(resolvedSlug, false);
         var queryString = '?' + params.toString();
 
         // Always route cleanly to /order/?m={slug}

@@ -232,6 +232,53 @@
         } catch(e) {}
       }
 
+      // Dynamic Open Graph & Twitter Social Preview Tags update in real time
+      try {
+        const updateMeta = (prop, val, isName) => {
+          if (!val) return;
+          const selector = isName ? `meta[name="${prop}"]` : `meta[property="${prop}"]`;
+          let el = document.querySelector(selector);
+          if (!el) {
+            el = document.createElement('meta');
+            if (isName) el.setAttribute('name', prop);
+            else el.setAttribute('property', prop);
+            document.head.appendChild(el);
+          }
+          el.setAttribute('content', val);
+        };
+
+        const resolvedName = cleanPrimary || storeName || (slug === 'king' ? 'كينج' : slug);
+        const resolvedLogo = (storeLogo && (storeLogo.startsWith('http://') || storeLogo.startsWith('https://')))
+          ? storeLogo 
+          : (appIcon && appIcon.startsWith('http') ? appIcon : 'https://harpymenu.com/assets/brand/og_banner.png');
+        
+        const socialTitle = isAdmin 
+          ? `لوحة إدارة ${resolvedName} — Harpy Admin`
+          : `منيو ${resolvedName} — قائمة الطعام والطلبات`;
+        
+        const customTagline = (customSettings && (customSettings.storeTagline || customSettings.description || customSettings.aboutText)) || '';
+        const socialDesc = customTagline || (isAdmin 
+          ? `لوحة التحكم السحابية لإدارة طلبات ${resolvedName} وقوائم الطعام والمبيعات.`
+          : `تصفح قائمة طعام ${resolvedName} وأشهى الوجبات، واطلب أونلاين مباشرة عبر واتساب.`);
+
+        const cleanSocialUrl = isAdmin 
+          ? `https://harpymenu.com/admin/${encodeURIComponent(slug)}`
+          : `https://harpymenu.com/${encodeURIComponent(slug)}`;
+
+        updateMeta('og:title', socialTitle);
+        updateMeta('og:description', socialDesc);
+        updateMeta('og:image', resolvedLogo);
+        updateMeta('og:url', cleanSocialUrl);
+        updateMeta('og:site_name', resolvedName);
+
+        updateMeta('twitter:card', isAdmin ? 'summary' : 'summary_large_image', true);
+        updateMeta('twitter:title', socialTitle, true);
+        updateMeta('twitter:description', socialDesc, true);
+        updateMeta('twitter:image', resolvedLogo, true);
+      } catch(ogErr) {
+        console.warn('[PWA] Social meta update error:', ogErr);
+      }
+
       // Sync install UI buttons and banner with updated branding
       if (typeof updateInstallUI === 'function') {
         updateInstallUI();
@@ -243,7 +290,7 @@
   updatePwaBranding();
 
   // ── 2. Clean Update Engine (Handles Code Updates & Live Store Name Updates) ───
-  const CURRENT_PWA_BUILD = 'v180.0';
+  const CURRENT_PWA_BUILD = 'v181.0';
 
   function isUpdateAlreadyHandled() {
     try {

@@ -1,8 +1,8 @@
 {
   "id": "/order/?m=bazzes",
-  "name": "Order",
-  "short_name": "Order",
-  "description": "مطعم bazzes — Smart Digital Menu",
+  "name": "مطعم بازيز | قائمة الطعام",
+  "short_name": "مطعم بازيز",
+  "description": "قائمة طعام مطعم بازيز والطلب الإلكتروني المباشر",
   "start_url": "./order/?m=bazzes",
   "scope": "./order/",
   "display": "standalone",
@@ -11,19 +11,19 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "./assets/icons/order-icon-512.png",
+      "src": "https://harpymenu.com/assets/icons/order-icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./assets/icons/order-icon-192.png",
+      "src": "https://harpymenu.com/assets/icons/order-icon-512.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./assets/icons/order-icon-512.png",
+      "src": "https://harpymenu.com/assets/icons/order-icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

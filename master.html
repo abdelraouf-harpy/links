@@ -1817,6 +1817,10 @@
             <span class="svg-icon" style="width:14px;height:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></span>
             <span>نسخة احتياطية</span>
           </button>
+          <button type="button" class="settings-action-btn" onclick="MasterApp.openSocialPreviewManager()">
+            <span class="svg-icon" style="width:14px;height:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></span>
+            <span>كروت وروابط السوشيال</span>
+          </button>
         </div>
       </div>
 
@@ -1920,6 +1924,15 @@
             <div class="sheet-action-text-box">
               <span class="sheet-action-text-main">نسخ رابط لوحة التحكم النظيف</span>
               <span class="sheet-action-text-sub" id="sheet-preview-admin-url" style="font-family:var(--font-en); direction:ltr; text-align:right;">harpymenu.com/admin/{slug}</span>
+            </div>
+          </div>
+          <div class="sheet-action-item" onclick="MasterApp.actionSheetOpenSocialPreview()">
+            <span class="sheet-action-icon-circle" style="background:rgba(234,88,12,0.14); color:#ea580c;">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            </span>
+            <div class="sheet-action-text-box">
+              <span class="sheet-action-text-main">معاينة كارت السوشيال وصور الروابط</span>
+              <span class="sheet-action-text-sub">معاينة صور المنيو ولوحة الإدارة على واتساب وفيسبوك</span>
             </div>
           </div>
           <div class="sheet-action-item" onclick="MasterApp.actionSheetOpenWhatsApp()">
@@ -2600,6 +2613,21 @@
     </button>
   </div>
 
+  <!-- MODAL: SOCIAL CARDS & PREVIEWS -->
+  <div class="sheet-backdrop" id="modal-social-backdrop" onclick="MasterApp.closeSocialPreviewModal()"></div>
+  <div class="bottom-sheet" id="modal-social" style="max-height:85vh; overflow-y:auto;">
+    <div class="sheet-drag-handle"></div>
+    <div class="sheet-header">
+      <div class="sheet-header-title" id="social-modal-title">كروت السوشيال والمشاركة للمطعم</div>
+    </div>
+    
+    <div id="social-preview-body" style="display:flex; flex-direction:column; gap:16px; margin-top:10px;">
+      <!-- Rendered dynamically -->
+    </div>
+
+    <button type="button" class="btn-cancel" onclick="MasterApp.closeSocialPreviewModal()" style="margin-top:14px;">إغلاق المعاينة</button>
+  </div>
+
   <!-- ========================================================================
        SCREEN 3: PROMINENT & CRYSTAL CLEAR BOTTOM NAVIGATION BAR (60PX)
        ======================================================================== -->
@@ -3236,6 +3264,96 @@
         const slug = this.activeSheetTenant.slug;
         this.closeActionSheet();
         this.openPaymentModal(slug);
+      },
+      actionSheetOpenSocialPreview() {
+        if (!this.activeSheetTenant) return;
+        const t = this.activeSheetTenant;
+        this.closeActionSheet();
+        this.renderSocialPreview(t);
+        document.getElementById('modal-social').classList.add('open');
+        document.getElementById('modal-social-backdrop').classList.add('open');
+      },
+      openSocialPreviewManager() {
+        if (this.tenants && this.tenants.length > 0) {
+          this.renderSocialPreview(this.tenants[0]);
+        }
+        document.getElementById('modal-social').classList.add('open');
+        document.getElementById('modal-social-backdrop').classList.add('open');
+      },
+      closeSocialPreviewModal() {
+        document.getElementById('modal-social').classList.remove('open');
+        document.getElementById('modal-social-backdrop').classList.remove('open');
+      },
+      renderSocialPreview(t) {
+        if (!t) return;
+        const titleEl = document.getElementById('social-modal-title');
+        if (titleEl) titleEl.textContent = `كروت السوشيال: ${t.name}`;
+        const bodyEl = document.getElementById('social-preview-body');
+        if (!bodyEl) return;
+
+        const isProd = window.location.hostname.includes('harpymenu.com');
+        const base = isProd ? 'https://harpymenu.com' : (window.location.origin + (window.location.pathname.includes('/links') ? '/links' : ''));
+        const menuUrl = `${base}/${encodeURIComponent(t.slug)}`;
+        const adminUrl = `${base}/admin/${encodeURIComponent(t.slug)}`;
+        const logo = (t.logo && t.logo.startsWith('http')) ? t.logo : (t.cover && t.cover.startsWith('http') ? t.cover : 'https://harpymenu.com/assets/brand/og_banner.png');
+        const desc = t.description || t.tagline || `تصفح قائمة طعام ${t.name} واطلب أونلاين عبر واتساب.`;
+
+        bodyEl.innerHTML = `
+          ${(this.tenants && this.tenants.length > 1) ? `
+            <div class="form-group" style="margin-bottom:8px;">
+              <label class="form-label">اختر المطعم للمعاينة:</label>
+              <select class="form-select" onchange="MasterApp.selectSocialPreviewTenant(this.value)">
+                ${this.tenants.map(x => `<option value="${x.slug}" ${x.slug === t.slug ? 'selected' : ''}>${x.name} (${x.slug})</option>`).join('')}
+              </select>
+            </div>
+          ` : ''}
+
+          <!-- MENU PREVIEW CARD -->
+          <div style="background:#1f2937; border-radius:12px; overflow:hidden; border:1px solid rgba(255,255,255,0.1); box-shadow:0 4px 12px rgba(0,0,0,0.3);">
+            <div style="padding:8px 12px; background:#111827; font-size:12px; font-weight:800; color:#10b981; display:flex; justify-content:space-between; align-items:center;">
+              <span>🍽 كارت رابط المنيو (للزبائن)</span>
+              <span style="font-size:10px; color:#9ca3af; font-family:var(--font-en);">${menuUrl}</span>
+            </div>
+            <div style="display:flex; flex-direction:column;">
+              <img src="${logo}" alt="${t.name}" style="width:100%; height:180px; object-fit:cover; background:#000;">
+              <div style="padding:12px; background:#243042;">
+                <div style="font-size:14px; font-weight:800; color:#fff; margin-bottom:4px;">منيو ${t.name} — قائمة الطعام والطلبات</div>
+                <div style="font-size:12px; color:#cbd5e1; line-height:1.4; margin-bottom:6px;">${desc}</div>
+                <div style="font-size:11px; color:#94a3b8; font-family:var(--font-en); direction:ltr; text-align:left;">harpymenu.com/${t.slug}</div>
+              </div>
+            </div>
+            <div style="display:flex; gap:8px; padding:10px; background:#111827; border-top:1px solid rgba(255,255,255,0.06);">
+              <button type="button" class="row-btn-primary" onclick="navigator.clipboard.writeText('${menuUrl}'); MasterApp.showToast('تم نسخ رابط المنيو', 'success');" style="flex:1; height:32px; font-size:11.5px;">نسخ الرابط</button>
+              <a href="https://api.whatsapp.com/send?text=${encodeURIComponent(menuUrl)}" target="_blank" class="row-btn-ghost" style="padding:0 12px; height:32px; font-size:11.5px; display:inline-flex; align-items:center; text-decoration:none; color:#25D366;">تجربة واتساب</a>
+              <a href="https://developers.facebook.com/tools/debug/?q=${encodeURIComponent(menuUrl)}" target="_blank" class="row-btn-ghost" style="padding:0 12px; height:32px; font-size:11.5px; display:inline-flex; align-items:center; text-decoration:none;">فحص الفيسبوك</a>
+            </div>
+          </div>
+
+          <!-- ADMIN PREVIEW CARD -->
+          <div style="background:#1f2937; border-radius:12px; overflow:hidden; border:1px solid rgba(255,255,255,0.1); box-shadow:0 4px 12px rgba(0,0,0,0.3);">
+            <div style="padding:8px 12px; background:#111827; font-size:12px; font-weight:800; color:#a855f7; display:flex; justify-content:space-between; align-items:center;">
+              <span>⚙️ كارت رابط لوحة التحكم (للإدارة)</span>
+              <span style="font-size:10px; color:#9ca3af; font-family:var(--font-en);">${adminUrl}</span>
+            </div>
+            <div style="display:flex; flex-direction:column;">
+              <img src="${logo}" alt="${t.name}" style="width:100%; height:160px; object-fit:cover; background:#000;">
+              <div style="padding:12px; background:#243042;">
+                <div style="font-size:14px; font-weight:800; color:#fff; margin-bottom:4px;">لوحة إدارة ${t.name} — Harpy Admin</div>
+                <div style="font-size:12px; color:#cbd5e1; line-height:1.4; margin-bottom:6px;">لوحة التحكم السحابية لإدارة طلبات ${t.name} المباشرة وقوائم الطعام والمبيعات.</div>
+                <div style="font-size:11px; color:#94a3b8; font-family:var(--font-en); direction:ltr; text-align:left;">harpymenu.com/admin/${t.slug}</div>
+              </div>
+            </div>
+            <div style="display:flex; gap:8px; padding:10px; background:#111827; border-top:1px solid rgba(255,255,255,0.06);">
+              <button type="button" class="row-btn-primary" onclick="navigator.clipboard.writeText('${adminUrl}'); MasterApp.showToast('تم نسخ رابط لوحة التحكم', 'success');" style="flex:1; height:32px; font-size:11.5px;">نسخ الرابط</button>
+              <a href="https://api.whatsapp.com/send?text=${encodeURIComponent(adminUrl)}" target="_blank" class="row-btn-ghost" style="padding:0 12px; height:32px; font-size:11.5px; display:inline-flex; align-items:center; text-decoration:none; color:#25D366;">تجربة واتساب</a>
+              <a href="https://developers.facebook.com/tools/debug/?q=${encodeURIComponent(adminUrl)}" target="_blank" class="row-btn-ghost" style="padding:0 12px; height:32px; font-size:11.5px; display:inline-flex; align-items:center; text-decoration:none;">فحص الفيسبوك</a>
+            </div>
+          </div>
+        `;
+      },
+      selectSocialPreviewTenant(slug) {
+        const t = this.tenants ? this.tenants.find(x => x.slug === slug) : null;
+        if (t) this.renderSocialPreview(t);
       },
       actionSheetOpenWhatsApp() {
         if (!this.activeSheetTenant) return;

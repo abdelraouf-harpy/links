@@ -1,0 +1,32 @@
+{
+  "id": "/admin/?m=aloo",
+  "name": "Aloo Burger | لوحة الإدارة",
+  "short_name": "إدارة Aloo Burger",
+  "description": "لوحة إدارة Aloo Burger وتجهيز الطلبات",
+  "start_url": "./admin/?m=aloo",
+  "scope": "./admin/",
+  "display": "standalone",
+  "background_color": "#070B13",
+  "theme_color": "#ea580c",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://res.cloudinary.com/pq2pimug/image/upload/v1793879648/ycssznrc2i1rf8abpyu2.jpg",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://res.cloudinary.com/pq2pimug/image/upload/v1793879648/ycssznrc2i1rf8abpyu2.jpg",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://res.cloudinary.com/pq2pimug/image/upload/v1793879648/ycssznrc2i1rf8abpyu2.jpg",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

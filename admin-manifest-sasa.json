@@ -1,8 +1,8 @@
 {
   "id": "/admin/?m=sasa",
-  "name": "مطعم sasa | إدارة",
-  "short_name": "إدارة مطعم sasa",
-  "description": "مطعم sasa — Dashboard & Kitchen",
+  "name": "مطعم ساسا | لوحة الإدارة",
+  "short_name": "إدارة مطعم ساسا",
+  "description": "لوحة إدارة مطعم ساسا وتجهيز الطلبات",
   "start_url": "./admin/?m=sasa",
   "scope": "./admin/",
   "display": "standalone",
@@ -11,19 +11,19 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "./assets/icons/admin-icon-512.png",
+      "src": "https://harpymenu.com/assets/icons/order-icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./assets/icons/admin-icon-192.png",
+      "src": "https://harpymenu.com/assets/icons/order-icon-512.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./assets/icons/admin-icon-512.png",
+      "src": "https://harpymenu.com/assets/icons/order-icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

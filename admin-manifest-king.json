@@ -1,29 +1,29 @@
 {
   "id": "/admin/?m=king",
-  "name": "كينج | لوحة الإدارة",
-  "short_name": "إدارة كينج",
-  "description": "إدارة مطعم كينج - لوحة التحكم واستقبال الطلبات",
+  "name": "king | لوحة الإدارة",
+  "short_name": "إدارة king",
+  "description": "لوحة إدارة king وتجهيز الطلبات",
   "start_url": "./admin/?m=king",
   "scope": "./admin/",
   "display": "standalone",
-  "background_color": "#FFFFFF",
-  "theme_color": "#FFFFFF",
+  "background_color": "#070B13",
+  "theme_color": "#ea580c",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/assets/icons/admin-icon-512.png",
+      "src": "https://res.cloudinary.com/pq2pimug/image/upload/v1794005707/fekgebaclepbe4hmt4ga.jpg",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/assets/icons/admin-icon-192.png",
+      "src": "https://res.cloudinary.com/pq2pimug/image/upload/v1794005707/fekgebaclepbe4hmt4ga.jpg",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/assets/icons/admin-icon-512.png",
+      "src": "https://res.cloudinary.com/pq2pimug/image/upload/v1794005707/fekgebaclepbe4hmt4ga.jpg",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

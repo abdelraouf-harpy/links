@@ -1,0 +1,42 @@
+{
+  "king": {
+    "slug": "king",
+    "name": "king",
+    "tagline": "أشهى المشويات، البرجر الفاخر، والبيتزا الإيطالية على أصولها",
+    "logo": "https://res.cloudinary.com/pq2pimug/image/upload/v1794005707/fekgebaclepbe4hmt4ga.jpg",
+    "cover": "https://res.cloudinary.com/pq2pimug/image/upload/v1794005719/akjpktm1dibqxpjovjxd.jpg",
+    "themeColor": "#ea580c"
+  },
+  "saj": {
+    "slug": "saj",
+    "name": "مطعم صــاج",
+    "tagline": "أصل البيتزا والكريبات والحواوشي والسوري في سوهاج الجديدة",
+    "logo": "https://iili.io/n3HVHX4.jpg",
+    "cover": "https://iili.io/n3HVHX4.jpg",
+    "themeColor": "#c2410c"
+  },
+  "aloo": {
+    "slug": "aloo",
+    "name": "Aloo Burger",
+    "tagline": "أشهى ساندوتشات البرجر والوجبات السريعة على أصولها",
+    "logo": "https://res.cloudinary.com/pq2pimug/image/upload/v1793879648/ycssznrc2i1rf8abpyu2.jpg",
+    "cover": "",
+    "themeColor": "#ea580c"
+  },
+  "bazzes": {
+    "slug": "bazzes",
+    "name": "مطعم بازيز",
+    "tagline": "قائمة طعام مطعم بازيز — أشهى الأطباق والوجبات السريعة أونلاين عبر واتساب",
+    "logo": "https://harpymenu.com/assets/icons/order-icon-512.png",
+    "cover": "",
+    "themeColor": "#FF6A00"
+  },
+  "sasa": {
+    "slug": "sasa",
+    "name": "مطعم ساسا",
+    "tagline": "قائمة طعام مطعم ساسا — أشهى الوجبات والمأكولات أونلاين عبر واتساب",
+    "logo": "https://harpymenu.com/assets/icons/order-icon-512.png",
+    "cover": "",
+    "themeColor": "#FF6A00"
+  }
+}

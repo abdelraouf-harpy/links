@@ -34,6 +34,30 @@
           var hash = window.location.hash || '';
           var cleanPath = (repoPrefix ? repoPrefix : '') + '/' + encodeURIComponent(activeSlug);
           window.history.replaceState(null, '', cleanPath + (searchPart ? ('?' + searchPart) : '') + (hash || ''));
+
+          // Fast pre-render of Title & Open Graph tags from cached store settings
+          try {
+            var raw = localStorage.getItem('harpy_' + activeSlug + '_settings');
+            if (raw) {
+              var s = JSON.parse(raw);
+              var sName = (s.storeName || s.name || activeSlug).split('|')[0].trim();
+              var sImg = (s.logo && s.logo.startsWith('http')) ? s.logo : (s.cover && s.cover.startsWith('http') ? s.cover : '');
+              var sDesc = s.storeTagline || s.description || ('منيو ' + sName + ' — قائمة الطعام والطلبات');
+              document.title = 'منيو ' + sName + ' — قائمة الطعام والطلبات';
+              var ogT = document.querySelector('meta[property="og:title"]');
+              if (ogT) ogT.content = 'منيو ' + sName + ' — قائمة الطعام والطلبات';
+              var ogD = document.querySelector('meta[property="og:description"]');
+              if (ogD) ogD.content = sDesc;
+              var ogU = document.querySelector('meta[property="og:url"]');
+              if (ogU) ogU.content = 'https://harpymenu.com/' + encodeURIComponent(activeSlug);
+              if (sImg) {
+                var ogI = document.querySelector('meta[property="og:image"]');
+                if (ogI) ogI.content = sImg;
+                var twI = document.querySelector('meta[name="twitter:image"]');
+                if (twI) twI.content = sImg;
+              }
+            }
+          } catch(e) {}
         }
       } catch(e) {}
     })();
