@@ -3189,19 +3189,124 @@ const Store = {
       if (isDemo && (!res || res.length === 0)) {
         res = defaultProducts;
       }
-      res = res.map(p => {
+      res = res.map((p, idx) => {
         if (!p || typeof p !== 'object') return p;
         if (p.name) p.name = this.stripEmojiNoise(p.name);
         if (p.badge) p.badge = this.stripEmojiNoise(p.badge);
         if (p.category) p.category = this.stripEmojiNoise(p.category);
+        if (typeof p.sortOrder !== 'number' && typeof p.orderIndex === 'number') {
+          p.sortOrder = p.orderIndex;
+        }
         return p;
       });
+      res = this.sortProducts(res);
       this._memoryCache.products = res;
       return res;
     } catch {
-      if (isDemo) this._memoryCache.products = defaultProducts;
-      return defaultProducts;
+      const def = this.sortProducts(defaultProducts);
+      if (isDemo) this._memoryCache.products = def;
+      return def;
     }
+  },
+
+  // ── Multi-Tenant Category & Product Sequence Ordering Engine ──
+  sortProducts(prods, categories = null) {
+    if (!Array.isArray(prods)) return [];
+    const cats = categories || this.getCategories();
+    const catMap = new Map();
+    (cats || []).forEach((c, idx) => catMap.set(c, idx));
+
+    return [...prods].sort((a, b) => {
+      const catA = a?.category || '';
+      const catB = b?.category || '';
+      const idxA = catMap.has(catA) ? catMap.get(catA) : 9999;
+      const idxB = catMap.has(catB) ? catMap.get(catB) : 9999;
+
+      if (idxA !== idxB) {
+        return idxA - idxB;
+      }
+
+      const orderA = (typeof a?.sortOrder === 'number') ? a.sortOrder : ((typeof a?.orderIndex === 'number') ? a.orderIndex : 0);
+      const orderB = (typeof b?.sortOrder === 'number') ? b.sortOrder : ((typeof b?.orderIndex === 'number') ? b.orderIndex : 0);
+
+      return orderA - orderB;
+    });
+  },
+
+  async reorderCategory(fromIndex, toIndex) {
+    const cats = [...this.getCategories()];
+    if (fromIndex < 0 || fromIndex >= cats.length || toIndex < 0 || toIndex >= cats.length || fromIndex === toIndex) {
+      return cats;
+    }
+    const [moved] = cats.splice(fromIndex, 1);
+    cats.splice(toIndex, 0, moved);
+    await this.saveCategories(cats);
+
+    // Automatically align all products storage order with the new category sequence
+    const prods = this.getProducts();
+    const sortedProds = this.sortProducts(prods, cats);
+    await this.saveProducts(sortedProds);
+
+    return cats;
+  },
+
+  async reorderProductsInCategory(catName, orderedProductIds) {
+    const allProds = [...this.getProducts()];
+    const catProds = allProds.filter(p => p && p.category === catName);
+
+    const prodMap = new Map();
+    catProds.forEach(p => prodMap.set(p.id, p));
+
+    const reorderedCatProds = [];
+    (orderedProductIds || []).forEach((id, idx) => {
+      const p = prodMap.get(id);
+      if (p) {
+        p.sortOrder = idx;
+        p.orderIndex = idx;
+        reorderedCatProds.push(p);
+      }
+    });
+
+    catProds.forEach(p => {
+      if (!orderedProductIds.includes(p.id)) {
+        p.sortOrder = reorderedCatProds.length;
+        p.orderIndex = reorderedCatProds.length;
+        reorderedCatProds.push(p);
+      }
+    });
+
+    let catIndex = 0;
+    const finalProds = allProds.map(p => {
+      if (p && p.category === catName) {
+        return reorderedCatProds[catIndex++];
+      }
+      return p;
+    });
+
+    const fullySorted = this.sortProducts(finalProds);
+    await this.saveProducts(fullySorted);
+    return fullySorted;
+  },
+
+  async moveProductInCategory(productId, direction) {
+    const allProds = this.getProducts();
+    const target = allProds.find(p => p && p.id === productId);
+    if (!target) return allProds;
+
+    const catName = target.category;
+    const catProds = allProds.filter(p => p && p.category === catName);
+    const currIdx = catProds.findIndex(p => p.id === productId);
+    if (currIdx === -1) return allProds;
+
+    const targetIdx = direction === 'up' ? currIdx - 1 : currIdx + 1;
+    if (targetIdx < 0 || targetIdx >= catProds.length) return allProds;
+
+    const orderedIds = catProds.map(p => p.id);
+    const temp = orderedIds[currIdx];
+    orderedIds[currIdx] = orderedIds[targetIdx];
+    orderedIds[targetIdx] = temp;
+
+    return await this.reorderProductsInCategory(catName, orderedIds);
   },
 
   async saveProducts(prods) {
@@ -3226,18 +3331,38 @@ const Store = {
 
   async addProduct(prod) {
     const prods = this.getProducts();
-    prods.unshift(prod);
-    return await this.saveProducts(prods);
+    if (prod && typeof prod === 'object') {
+      const cat = prod.category;
+      const catProds = prods.filter(p => p && p.category === cat);
+      prod.sortOrder = catProds.length;
+      prod.orderIndex = catProds.length;
+    }
+    prods.push(prod);
+    const sorted = this.sortProducts(prods);
+    return await this.saveProducts(sorted);
   },
 
   async updateProduct(id, updatedProd) {
-    const prods = this.getProducts().map(p => p.id === id ? { ...p, ...updatedProd } : p);
-    return await this.saveProducts(prods);
+    const prods = this.getProducts().map(p => {
+      if (p.id === id) {
+        const merged = { ...p, ...updatedProd };
+        if (updatedProd.category && updatedProd.category !== p.category) {
+          const newCatProds = prods.filter(x => x.id !== id && x.category === updatedProd.category);
+          merged.sortOrder = newCatProds.length;
+          merged.orderIndex = newCatProds.length;
+        }
+        return merged;
+      }
+      return p;
+    });
+    const sorted = this.sortProducts(prods);
+    return await this.saveProducts(sorted);
   },
 
   async deleteProduct(id) {
     const prods = this.getProducts().filter(p => p.id !== id);
-    return await this.saveProducts(prods);
+    const sorted = this.sortProducts(prods);
+    return await this.saveProducts(sorted);
   },
 
   // ═══════════════════════════════════════════════════════════

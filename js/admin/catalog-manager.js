@@ -108,6 +108,10 @@ function renderCatalogCategoryActionsBar() {
         <span style="font-size:11px; background:var(--primary-subtle); color:var(--primary); padding:2px 8px; border-radius:10px; font-weight:800;" class="font-num">${countLabel}</span>
       </div>
       <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+        <button type="button" class="btn btn-primary btn-sm" onclick="openReorderProductsModal(decodeURIComponent('${encodeURIComponent(c)}'))" style="font-size:11.5px; font-weight:800; padding:5px 12px; border-radius:var(--radius-sm); display:inline-flex; align-items:center; gap:5px; cursor:pointer;" title="ترتيب الأصناف داخل هذا القسم">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="m21 8-4-4-4 4"/><path d="M17 4v16"/></svg>
+          <span>ترتيب أصناف القسم</span>
+        </button>
         <button type="button" class="btn btn-ghost btn-sm" onclick="openCategoryEditModalByName(decodeURIComponent('${encodeURIComponent(c)}'))" style="font-size:11.5px; font-weight:800; padding:5px 10px; border:1px solid var(--border); border-radius:var(--radius-sm); display:inline-flex; align-items:center; gap:5px; background:var(--surface);" title="تعديل اسم القسم">
           <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
           <span>تعديل اسم القسم</span>
@@ -217,21 +221,26 @@ function renderCatalogItemsOnly() {
     return;
   }
 
-  adminElements.catalogContainer.innerHTML = filtered.map(p => {
+  const isSpecificCat = (currentCatalogCategoryFilter && currentCatalogCategoryFilter !== 'all');
+
+  adminElements.catalogContainer.innerHTML = filtered.map((p, idx) => {
     const hasRecipe = p.recipe && (
       (Array.isArray(p.recipe.base) && p.recipe.base.length > 0) ||
       (p.recipe.sizes && Object.keys(p.recipe.sizes).length > 0) ||
       (p.recipe.addons && Object.keys(p.recipe.addons).length > 0)
     );
+    const isFirst = (idx === 0);
+    const isLast = (idx === filtered.length - 1);
 
     return `
-      <div class="admin-product-card ${p.visible === false ? 'hidden-item' : ''}" data-id="${p.id}" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden; display:flex; flex-direction:column;">
+      <div class="admin-product-card ${p.visible === false ? 'hidden-item' : ''}" data-id="${p.id}" data-prod-idx="${idx}" ${isSpecificCat ? 'draggable="true"' : ''} style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden; display:flex; flex-direction:column; position:relative;">
         <div style="position:relative; width:100%; height:140px; background:var(--bg);">
           <img src="${p.image}" alt="${p.name}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover;">
-          ${p.badge ? `<span style="position:absolute; top:8px; right:8px; background:rgba(0,0,0,0.75); color:#fff; font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px;">${p.badge}</span>` : ''}
-          ${p.isFeatured ? `<span style="position:absolute; top:8px; left:8px; background:var(--primary); color:#fff; font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px;">هيرو</span>` : ''}
+          ${isSpecificCat ? `<span style="position:absolute; top:8px; right:8px; background:var(--primary); color:#fff; font-size:10.5px; font-weight:800; padding:2px 7px; border-radius:10px; z-index:2; box-shadow:0 2px 4px rgba(0,0,0,0.3);" class="font-num" title="ترتيب الصنف في هذا القسم">#${idx + 1}</span>` : ''}
+          ${p.badge ? `<span style="position:absolute; top:8px; ${isSpecificCat ? 'right:44px;' : 'right:8px;'} background:rgba(0,0,0,0.75); color:#fff; font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px; z-index:2;">${p.badge}</span>` : ''}
+          ${p.isFeatured ? `<span style="position:absolute; top:8px; left:8px; background:var(--primary); color:#fff; font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px; z-index:2;">هيرو</span>` : ''}
           ${hasRecipe ? `
-            <span style="position:absolute; bottom:8px; right:8px; background:rgba(22,163,74,0.9); color:#fff; font-size:9.5px; font-weight:800; padding:2px 6px; border-radius:4px; display:inline-flex; align-items:center; gap:3px;">
+            <span style="position:absolute; bottom:8px; right:8px; background:rgba(22,163,74,0.9); color:#fff; font-size:9.5px; font-weight:800; padding:2px 6px; border-radius:4px; display:inline-flex; align-items:center; gap:3px; z-index:2;">
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
               مربوط بالمخزون
             </span>
@@ -249,12 +258,25 @@ function renderCatalogItemsOnly() {
           </div>
 
           <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:10px; margin-top:8px; gap:8px;">
-            <button class="btn btn-ghost btn-sm btn-admin-action btn-visibility-toggle ${p.visible === false ? 'btn-hidden-state' : ''}" onclick="toggleProductVisibilityFast('${p.id}', this)" title="${p.visible === false ? 'إظهار الصنف في المنيو' : 'إخفاء الصنف من المنيو'}" style="display:inline-flex; align-items:center; gap:5px; font-weight:700; font-size:12px; padding:5px 9px;">
-              ${p.visible === false 
-                ? `<svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-muted);"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg><span>مخفي</span>`
-                : `<svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#22c55e;"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg><span>ظاهر</span>`
-              }
-            </button>
+            <div style="display:flex; align-items:center; gap:5px;">
+              <button class="btn btn-ghost btn-sm btn-admin-action btn-visibility-toggle ${p.visible === false ? 'btn-hidden-state' : ''}" onclick="toggleProductVisibilityFast('${p.id}', this)" title="${p.visible === false ? 'إظهار الصنف في المنيو' : 'إخفاء الصنف من المنيو'}" style="display:inline-flex; align-items:center; gap:5px; font-weight:700; font-size:12px; padding:5px 9px;">
+                ${p.visible === false 
+                  ? `<svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-muted);"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg><span>مخفي</span>`
+                  : `<svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#22c55e;"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg><span>ظاهر</span>`
+                }
+              </button>
+              ${isSpecificCat ? `
+                <div style="display:inline-flex; align-items:center; gap:2px; background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:2px;">
+                  <button type="button" class="btn-prod-reorder" onclick="moveProductInCatalog('${p.id}', 'up')" ${isFirst ? 'disabled' : ''} style="width:24px; height:24px; border:none; background:none; cursor:pointer; color:var(--text-main); display:inline-flex; align-items:center; justify-content:center; border-radius:4px;" title="تقديم الصنف">
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                  </button>
+                  <button type="button" class="btn-prod-reorder" onclick="moveProductInCatalog('${p.id}', 'down')" ${isLast ? 'disabled' : ''} style="width:24px; height:24px; border:none; background:none; cursor:pointer; color:var(--text-main); display:inline-flex; align-items:center; justify-content:center; border-radius:4px;" title="تأخير الصنف">
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                  </button>
+                </div>
+              ` : ''}
+            </div>
+
             <div style="display:flex; gap:6px; align-items:center;">
               <button class="btn btn-ghost btn-sm btn-admin-action" onclick="openProductModal('${p.id}')" title="تعديل بيانات الصنف" style="display:inline-flex; align-items:center; gap:5px; font-weight:700; font-size:12px; padding:5px 10px;">
                 <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
@@ -269,6 +291,10 @@ function renderCatalogItemsOnly() {
       </div>
     `;
   }).join('');
+
+  if (isSpecificCat) {
+    bindCatalogCardsDragAndDrop(adminElements.catalogContainer, currentCatalogCategoryFilter);
+  }
 }
 
 window.openProductModalForCategory = function(catName) {
@@ -1069,6 +1095,295 @@ window.addSizeRow = addSizeRow;
 window.addAddonRow = addAddonRow;
 window.saveProductForm = saveProductForm;
 window.renderCatalogCategoryActionsBar = renderCatalogCategoryActionsBar;
+window.openReorderProductsModal = openReorderProductsModal;
+window.closeReorderProductsModal = closeReorderProductsModal;
+window.switchReorderCategory = switchReorderCategory;
+window.moveProductInReorderModal = moveProductInReorderModal;
+window.moveProductInCatalog = moveProductInCatalog;
+window.renderReorderProductsModalList = renderReorderProductsModalList;
+
+// ═══════════════════════════════════════════════════════════════════
+// LUXURY PRODUCT REORDERING IN CATEGORY CONTROLLER
+// ═══════════════════════════════════════════════════════════════════
+let currentReorderCategory = null;
+
+function openReorderProductsModal(catName) {
+  const cats = Store.getCategories();
+  if (cats.length === 0) {
+    showToastNotification("يرجى إضافة قسم أولاً", "warning");
+    return;
+  }
+
+  currentReorderCategory = catName || cats[0];
+  const modal = document.getElementById('modal-reorder-products');
+  const backdrop = document.getElementById('reorder-products-modal-backdrop');
+  const title = document.getElementById('reorder-products-modal-title');
+  const select = document.getElementById('reorder-cat-select');
+
+  if (title) {
+    title.textContent = `ترتيب أصناف قسم: ${currentReorderCategory}`;
+  }
+
+  if (select) {
+    select.innerHTML = cats.map(c => `
+      <option value="${Store.escapeHtml(c)}" ${c === currentReorderCategory ? 'selected' : ''}>${Store.escapeHtml(c)}</option>
+    `).join('');
+  }
+
+  renderReorderProductsModalList(currentReorderCategory);
+
+  if (modal) modal.classList.add('open', 'show');
+  if (backdrop) backdrop.classList.add('open', 'show');
+  pushAdminNavState('admin_reorder_products');
+}
+
+function closeReorderProductsModal(triggerHistoryBack = true) {
+  const modal = document.getElementById('modal-reorder-products');
+  const backdrop = document.getElementById('reorder-products-modal-backdrop');
+  if (modal) modal.classList.remove('open', 'show');
+  if (backdrop) backdrop.classList.remove('open', 'show');
+  currentReorderCategory = null;
+  renderCatalog();
+  if (triggerHistoryBack && window.history.state && window.history.state.adminNav === 'admin_reorder_products') {
+    try { history.back(); } catch(e) {}
+  }
+}
+
+function switchReorderCategory(newCat) {
+  currentReorderCategory = newCat;
+  const title = document.getElementById('reorder-products-modal-title');
+  if (title) title.textContent = `ترتيب أصناف قسم: ${newCat}`;
+  renderReorderProductsModalList(newCat);
+}
+
+async function moveProductInReorderModal(productId, direction) {
+  if (!currentReorderCategory) return;
+  await Store.moveProductInCategory(productId, direction);
+  renderReorderProductsModalList(currentReorderCategory);
+  renderCatalogItemsOnly();
+  if (navigator.vibrate) {
+    try { navigator.vibrate(25); } catch(e) {}
+  }
+}
+
+async function moveProductInCatalog(productId, direction) {
+  await Store.moveProductInCategory(productId, direction);
+  renderCatalogItemsOnly();
+  if (typeof renderReorderProductsModalList === 'function' && currentReorderCategory) {
+    renderReorderProductsModalList(currentReorderCategory);
+  }
+  showToastNotification("تم تحديث ترتيب الصنف بنجاح!", "success");
+}
+
+function renderReorderProductsModalList(catName) {
+  const container = document.getElementById('reorder-products-modal-list');
+  if (!container) return;
+
+  const allProds = Store.getProducts();
+  const catProds = allProds.filter(p => p && p.category === catName);
+  const currency = Store.getSettings().currency || "ج.م";
+
+  if (catProds.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center; padding:36px 16px; color:var(--text-muted); font-size:12.5px; background:var(--surface-raised); border:1px dashed var(--border); border-radius:var(--radius-sm);">
+        <div style="margin-bottom:6px;"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" opacity="0.4"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg></div>
+        لا توجد أصناف مضافة في قسم "<strong>${Store.escapeHtml(catName)}</strong>" حتى الآن.
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = catProds.map((p, idx) => {
+    const isFirst = (idx === 0);
+    const isLast = (idx === catProds.length - 1);
+    const imgHtml = p.image 
+      ? `<img src="${p.image}" alt="" style="width:36px; height:36px; border-radius:6px; object-fit:cover; flex-shrink:0;">`
+      : `<span style="width:36px; height:36px; border-radius:6px; background:var(--surface); display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--text-muted); font-size:10px;">🍽</span>`;
+
+    return `
+      <div class="reorder-prod-row" data-prod-id="${p.id}" data-prod-idx="${idx}" draggable="true" style="display:flex; justify-content:space-between; align-items:center; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-sm); padding:8px 12px; gap:8px;">
+        <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+          <span class="prod-drag-handle" style="cursor:grab; padding:4px; display:inline-flex; align-items:center; color:var(--text-muted);" title="اضغط واسحب لتغيير الترتيب">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><circle cx="9" cy="6" r="1.5"></circle><circle cx="15" cy="6" r="1.5"></circle><circle cx="9" cy="12" r="1.5"></circle><circle cx="15" cy="12" r="1.5"></circle><circle cx="9" cy="18" r="1.5"></circle><circle cx="15" cy="18" r="1.5"></circle></svg>
+          </span>
+          <span class="font-num" style="font-size:11px; font-weight:800; background:var(--primary-subtle); color:var(--primary); padding:2px 7px; border-radius:8px;">#${idx + 1}</span>
+          ${imgHtml}
+          <div style="min-width:0;">
+            <div style="font-weight:800; font-size:13px; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${Store.escapeHtml(p.name)}</div>
+            <div class="font-num" style="font-size:11px; color:var(--primary); font-weight:700;">${p.price} ${currency}</div>
+          </div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:4px; flex-shrink:0;">
+          <button type="button" class="btn-prod-reorder" onclick="moveProductInReorderModal('${p.id}', 'up')" ${isFirst ? 'disabled' : ''} style="width:28px; height:28px; border-radius:6px; border:1px solid var(--border); background:var(--surface); display:inline-flex; align-items:center; justify-content:center; cursor:pointer;" title="تحريك للأمام">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
+          </button>
+          <button type="button" class="btn-prod-reorder" onclick="moveProductInReorderModal('${p.id}', 'down')" ${isLast ? 'disabled' : ''} style="width:28px; height:28px; border-radius:6px; border:1px solid var(--border); background:var(--surface); display:inline-flex; align-items:center; justify-content:center; cursor:pointer;" title="تحريك للخلف">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  bindProductRowsDragAndDrop(container, catName);
+}
+
+function bindProductRowsDragAndDrop(container, catName) {
+  if (!container) return;
+  const rows = container.querySelectorAll('.reorder-prod-row');
+  let fromIdx = null;
+  let activeRow = null;
+
+  rows.forEach(row => {
+    // Desktop drag
+    row.addEventListener('dragstart', (e) => {
+      fromIdx = parseInt(row.dataset.prodIdx, 10);
+      activeRow = row;
+      row.classList.add('dragging');
+      if (e.dataTransfer) {
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', String(fromIdx));
+      }
+    });
+
+    row.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      if (row !== activeRow) row.classList.add('drag-over');
+    });
+
+    row.addEventListener('dragleave', () => {
+      row.classList.remove('drag-over');
+    });
+
+    row.addEventListener('drop', async (e) => {
+      e.preventDefault();
+      row.classList.remove('drag-over');
+      const toIdx = parseInt(row.dataset.prodIdx, 10);
+      if (fromIdx !== null && !isNaN(fromIdx) && !isNaN(toIdx) && fromIdx !== toIdx) {
+        const catProds = Store.getProducts().filter(p => p && p.category === catName);
+        const orderedIds = catProds.map(p => p.id);
+        const [movedId] = orderedIds.splice(fromIdx, 1);
+        orderedIds.splice(toIdx, 0, movedId);
+        await Store.reorderProductsInCategory(catName, orderedIds);
+        renderReorderProductsModalList(catName);
+        renderCatalogItemsOnly();
+        showToastNotification("تم تحديث ترتيب الأصناف بنجاح!", "success");
+      }
+      fromIdx = null;
+      activeRow = null;
+    });
+
+    row.addEventListener('dragend', () => {
+      row.classList.remove('dragging');
+      container.querySelectorAll('.drag-over').forEach(r => r.classList.remove('drag-over'));
+      fromIdx = null;
+      activeRow = null;
+    });
+
+    // Touch drag on mobile handle
+    const handle = row.querySelector('.prod-drag-handle');
+    if (handle) {
+      handle.addEventListener('touchstart', (e) => {
+        fromIdx = parseInt(row.dataset.prodIdx, 10);
+        activeRow = row;
+        row.classList.add('dragging');
+        if (navigator.vibrate) {
+          try { navigator.vibrate(25); } catch(ex) {}
+        }
+      }, { passive: true });
+
+      handle.addEventListener('touchmove', (e) => {
+        const touch = e.touches[0];
+        const el = document.elementFromPoint(touch.clientX, touch.clientY);
+        const target = el ? el.closest('.reorder-prod-row') : null;
+        container.querySelectorAll('.drag-over').forEach(r => r.classList.remove('drag-over'));
+        if (target && target !== activeRow) {
+          target.classList.add('drag-over');
+        }
+      }, { passive: true });
+
+      handle.addEventListener('touchend', async (e) => {
+        const touch = e.changedTouches[0];
+        const el = document.elementFromPoint(touch.clientX, touch.clientY);
+        const target = el ? el.closest('.reorder-prod-row') : null;
+        row.classList.remove('dragging');
+        container.querySelectorAll('.drag-over').forEach(r => r.classList.remove('drag-over'));
+
+        if (target && target !== row) {
+          const toIdx = parseInt(target.dataset.prodIdx, 10);
+          if (fromIdx !== null && !isNaN(fromIdx) && !isNaN(toIdx) && fromIdx !== toIdx) {
+            const catProds = Store.getProducts().filter(p => p && p.category === catName);
+            const orderedIds = catProds.map(p => p.id);
+            const [movedId] = orderedIds.splice(fromIdx, 1);
+            orderedIds.splice(toIdx, 0, movedId);
+            await Store.reorderProductsInCategory(catName, orderedIds);
+            renderReorderProductsModalList(catName);
+            renderCatalogItemsOnly();
+            if (navigator.vibrate) {
+              try { navigator.vibrate(35); } catch(ex) {}
+            }
+            showToastNotification("تم تحديث ترتيب الأصناف بنجاح!", "success");
+          }
+        }
+        fromIdx = null;
+        activeRow = null;
+      }, { passive: true });
+    }
+  });
+}
+
+function bindCatalogCardsDragAndDrop(container, catName) {
+  if (!container) return;
+  const cards = container.querySelectorAll('.admin-product-card');
+  let fromIdx = null;
+  let activeCard = null;
+
+  cards.forEach(card => {
+    card.addEventListener('dragstart', (e) => {
+      fromIdx = parseInt(card.dataset.prodIdx, 10);
+      activeCard = card;
+      card.classList.add('dragging');
+      if (e.dataTransfer) {
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', String(fromIdx));
+      }
+    });
+
+    card.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      if (card !== activeCard) card.classList.add('drag-over');
+    });
+
+    card.addEventListener('dragleave', () => {
+      card.classList.remove('drag-over');
+    });
+
+    card.addEventListener('drop', async (e) => {
+      e.preventDefault();
+      card.classList.remove('drag-over');
+      const toIdx = parseInt(card.dataset.prodIdx, 10);
+      if (fromIdx !== null && !isNaN(fromIdx) && !isNaN(toIdx) && fromIdx !== toIdx) {
+        const catProds = Store.getProducts().filter(p => p && p.category === catName);
+        const orderedIds = catProds.map(p => p.id);
+        const [movedId] = orderedIds.splice(fromIdx, 1);
+        orderedIds.splice(toIdx, 0, movedId);
+        await Store.reorderProductsInCategory(catName, orderedIds);
+        renderCatalogItemsOnly();
+        showToastNotification("تم تحديث ترتيب الأصناف بنجاح!", "success");
+      }
+      fromIdx = null;
+      activeCard = null;
+    });
+
+    card.addEventListener('dragend', () => {
+      card.classList.remove('dragging');
+      container.querySelectorAll('.drag-over').forEach(c => c.classList.remove('drag-over'));
+      fromIdx = null;
+      activeCard = null;
+    });
+  });
+}
 
 window.addEventListener('beforeunload', (e) => {
   if (isProductModalDirty) {

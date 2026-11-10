@@ -2583,6 +2583,76 @@ html.admin-unlocked #login-modal-backdrop {
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
+.cat-admin-card.dragging {
+  opacity: 0.45;
+  transform: scale(0.97);
+  border: 2px dashed var(--primary);
+}
+.cat-admin-card.drag-over {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px var(--primary-subtle);
+  transform: translateY(-2px);
+}
+.cat-drag-handle, .prod-drag-handle {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+.cat-drag-handle:active, .prod-drag-handle:active {
+  cursor: grabbing;
+}
+.cat-order-badge {
+  font-size: 11px;
+  font-weight: 800;
+  background: var(--primary-subtle);
+  color: var(--primary);
+  padding: 2px 7px;
+  border-radius: 8px;
+  line-height: 1.2;
+}
+.cat-order-arrows {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.btn-cat-reorder, .btn-prod-reorder {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-main);
+  transition: all 0.15s ease;
+}
+.btn-cat-reorder:hover:not(:disabled), .btn-prod-reorder:hover:not(:disabled) {
+  background: var(--primary-subtle);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+.btn-cat-reorder:disabled, .btn-prod-reorder:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.manage-cat-row.dragging, .reorder-prod-row.dragging, .admin-product-card.dragging {
+  opacity: 0.45;
+  border: 2px dashed var(--primary) !important;
+}
+.manage-cat-row.drag-over, .reorder-prod-row.drag-over, .admin-product-card.drag-over {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 2px var(--primary-subtle);
+}
 .cat-admin-card:hover {
   border-color: var(--primary-subtle);
   transform: translateY(-2px);

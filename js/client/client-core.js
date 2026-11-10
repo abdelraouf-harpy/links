@@ -432,6 +432,14 @@ async function initApp() {
     }
   });
 
+  window.addEventListener('store_categories_updated', () => {
+    if (typeof renderCategories === 'function') renderCategories();
+    if (typeof scheduleRenderProducts === 'function') scheduleRenderProducts(true);
+  });
+  window.addEventListener('store_products_updated', () => {
+    if (typeof scheduleRenderProducts === 'function') scheduleRenderProducts(true);
+  });
+
   // 6. Setup Offline Outbox background queue & auto-retry engine
   setupOutboxSync();
 

@@ -80,9 +80,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Admin">
 
-  <link rel="stylesheet" href="css/order-tokens.css?v=179.0">
-  <link rel="stylesheet" href="css/order-client.css?v=179.0">
-  <link rel="stylesheet" href="css/order-admin.css?v=179.0">
+  <link rel="stylesheet" href="css/order-tokens.css?v=180.0">
+  <link rel="stylesheet" href="css/order-client.css?v=180.0">
+  <link rel="stylesheet" href="css/order-admin.css?v=180.0">
 
   <script>
     // Instant zero-delay theme toggle available immediately on page paint
@@ -2295,6 +2295,51 @@
     </div>
   </div>
 
+  <!-- ═══ LUXURY REORDER PRODUCTS IN CATEGORY MODAL ════════════ -->
+  <div class="modal-backdrop" id="reorder-products-modal-backdrop" onclick="closeReorderProductsModal()"></div>
+  <div class="modal-box" id="modal-reorder-products" style="max-width:540px; text-align:right;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--border);">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div style="width:38px; height:38px; border-radius:10px; background:var(--primary-subtle); color:var(--primary); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="m21 8-4-4-4 4"/><path d="M17 4v16"/></svg>
+        </div>
+        <div>
+          <h3 id="reorder-products-modal-title" style="margin:0; font-size:1.1rem; font-weight:900; color:var(--text-main);">ترتيب أصناف القسم</h3>
+          <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">اضغط واسحب أي صنف أو اضغط على ⬆️ و ⬇️ لتحديد ترتيب الظهور للزبون</div>
+        </div>
+      </div>
+      <button type="button" class="btn-close" onclick="closeReorderProductsModal()" aria-label="إغلاق">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Category selector inside reorder modal -->
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:8px 12px;">
+      <span style="font-size:12px; font-weight:800; color:var(--text-muted); white-space:nowrap;">القسم المختار:</span>
+      <select id="reorder-cat-select" class="form-input" onchange="switchReorderCategory(this.value)" style="font-weight:800; padding:6px 10px; font-size:12.5px; cursor:pointer;">
+        <!-- Populated dynamically with category options -->
+      </select>
+    </div>
+
+    <!-- Products list container -->
+    <div id="reorder-products-modal-list" style="display:flex; flex-direction:column; gap:8px; max-height:52vh; overflow-y:auto; padding-inline-end:4px; margin-bottom:14px;">
+      <!-- Populated dynamically with draggable product items -->
+    </div>
+
+    <div style="display:flex; gap:10px; border-top:1px solid var(--border); padding-top:12px;">
+      <button type="button" class="btn btn-primary" onclick="closeReorderProductsModal()" style="flex:1; padding:10px; font-weight:800; font-size:0.92rem; display:inline-flex; align-items:center; justify-content:center; gap:6px;">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        <span>تم وحفظ الترتيب</span>
+      </button>
+      <button type="button" class="btn btn-ghost" onclick="closeReorderProductsModal()" style="padding:10px 18px; font-weight:700; font-size:0.92rem; border:1px solid var(--border);">
+        إغلاق
+      </button>
+    </div>
+  </div>
+
   <!-- Story Product Picker Modal -->
   <div class="modal-backdrop" id="story-product-picker-backdrop" style="z-index:10004;" onclick="closeStoryProductPicker()"></div>
   <div class="modal-box" id="story-product-picker-modal" style="max-width:560px; text-align:right; z-index:10005;">
@@ -2659,23 +2704,23 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=179.0"></script>
-  <script src="js/core/sound-effects.js?v=179.0"></script>
-  <script src="js/store.js?v=179.0"></script>
-  <script src="js/admin/admin-core.js?v=179.0"></script>
-  <script src="js/admin/admin-auth.js?v=179.0"></script>
-  <script src="js/admin/kitchen-orders.js?v=179.0"></script>
-  <script src="js/admin/inventory-manager.js?v=179.0"></script>
-  <script src="js/admin/catalog-manager.js?v=179.0"></script>
-  <script src="js/admin/category-manager.js?v=179.0"></script>
-  <script src="js/admin/stories-manager.js?v=179.0"></script>
-  <script src="js/admin/backup-restore.js?v=179.0"></script>
-  <script src="js/core/qrcode.min.js?v=179.0"></script>
-  <script src="js/admin/settings-manager.js?v=179.0"></script>
-  <script src="js/admin/pos-terminal.js?v=179.0"></script>
-  <script src="js/admin/admin-push.js?v=179.0"></script>
-  <script src="js/admin.js?v=179.0"></script>
-  <script src="js/core/module-enforcer.js?v=179.0"></script>
-  <script src="js/pwa.js?v=179.0"></script>
+  <script src="js/core/demo-seed-data.js?v=180.0"></script>
+  <script src="js/core/sound-effects.js?v=180.0"></script>
+  <script src="js/store.js?v=180.0"></script>
+  <script src="js/admin/admin-core.js?v=180.0"></script>
+  <script src="js/admin/admin-auth.js?v=180.0"></script>
+  <script src="js/admin/kitchen-orders.js?v=180.0"></script>
+  <script src="js/admin/inventory-manager.js?v=180.0"></script>
+  <script src="js/admin/catalog-manager.js?v=180.0"></script>
+  <script src="js/admin/category-manager.js?v=180.0"></script>
+  <script src="js/admin/stories-manager.js?v=180.0"></script>
+  <script src="js/admin/backup-restore.js?v=180.0"></script>
+  <script src="js/core/qrcode.min.js?v=180.0"></script>
+  <script src="js/admin/settings-manager.js?v=180.0"></script>
+  <script src="js/admin/pos-terminal.js?v=180.0"></script>
+  <script src="js/admin/admin-push.js?v=180.0"></script>
+  <script src="js/admin.js?v=180.0"></script>
+  <script src="js/core/module-enforcer.js?v=180.0"></script>
+  <script src="js/pwa.js?v=180.0"></script>
 </body>
 </html>
