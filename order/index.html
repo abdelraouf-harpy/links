@@ -23,6 +23,7 @@
         }
         var activeSlug = params.get('m') || pathSlug;
         if (activeSlug) {
+          window.__harpySlug = activeSlug;
           window.__harpyActiveSlug = activeSlug;
           var repoPrefix = '';
           if (window.location.hostname.includes('github.io') && segs.length > 0 && segs[0] !== 'order') {

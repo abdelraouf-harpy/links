@@ -573,7 +573,8 @@ const Store = {
         if (storedPass && String(storedPass).trim() === cleanPassword) {
           dbPassMatch = true;
         } else if ((activeSlug === 'king' && (cleanPassword === '123456' || cleanPassword === '12345')) ||
-                   (activeSlug === 'aloo' && cleanPassword === '12345')) {
+                   (activeSlug === 'aloo' && cleanPassword === '12345') ||
+                   (activeSlug === 'saj' && (cleanPassword === '1234' || cleanPassword === '123456'))) {
           dbPassMatch = true;
         }
       } catch(dbErr) {
@@ -811,7 +812,8 @@ const Store = {
       savedPass,
       `Harpy_${activeSlug}_2026!`,
       (activeSlug === 'king' ? '123456' : null),
-      (activeSlug === 'aloo' ? '12345' : null)
+      (activeSlug === 'aloo' ? '12345' : null),
+      (activeSlug === 'saj' ? '1234' : null)
     ].filter(Boolean)));
 
     const email = `${activeSlug}@harpymenu.com`;
@@ -2454,8 +2456,12 @@ const Store = {
   // ── Strict Multi-Tenant Restaurant Engine (Path, Query & Domain Support) ──
   getRestaurantSlug() {
     try {
-      if (typeof window !== 'undefined' && window.__harpySlug) {
-        return window.__harpySlug;
+      if (typeof window !== 'undefined') {
+        if (window.__harpySlug) return window.__harpySlug;
+        if (window.__harpyActiveSlug) {
+          window.__harpySlug = window.__harpyActiveSlug;
+          return window.__harpyActiveSlug;
+        }
       }
 
       // 1. Query Parameter Resolution (?m=slug or ?restaurant=slug)

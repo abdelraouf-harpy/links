@@ -1,8 +1,8 @@
 {
   "id": "/order/?m=saj",
-  "name": "مطعم صــاج | قائمة الطعام",
-  "short_name": "مطعم صــاج",
-  "description": "قائمة طعام مطعم صــاج والطلب الإلكتروني المباشر",
+  "name": "صــاج | قائمة الطعام",
+  "short_name": "صــاج",
+  "description": "قائمة طعام صــاج والطلب الإلكتروني المباشر",
   "start_url": "./order/?m=saj",
   "scope": "./order/",
   "display": "standalone",

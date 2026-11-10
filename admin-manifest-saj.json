@@ -1,8 +1,8 @@
 {
   "id": "/admin/?m=saj",
-  "name": "مطعم صــاج | لوحة الإدارة",
-  "short_name": "إدارة مطعم صــاج",
-  "description": "لوحة إدارة مطعم صــاج وتجهيز الطلبات",
+  "name": "صــاج | لوحة الإدارة",
+  "short_name": "إدارة صــاج",
+  "description": "لوحة إدارة صــاج وتجهيز الطلبات",
   "start_url": "./admin/?m=saj",
   "scope": "./admin/",
   "display": "standalone",

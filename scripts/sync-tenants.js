@@ -105,7 +105,7 @@ function generateMenuHtml(tenant) {
 
   <link rel="icon" href="${img}">
   <link rel="apple-touch-icon" href="${img}">
-  <link rel="manifest" href="/manifest-${slug}.json?v=181.0">
+  <link rel="manifest" href="/manifest-${slug}.json?v=182.0">
   <meta name="theme-color" content="${theme}">
 
   <!-- Instant Browser Redirect to Interactive Menu App -->
@@ -168,7 +168,7 @@ function generateAdminHtml(tenant) {
 
   <link rel="icon" href="${img}">
   <link rel="apple-touch-icon" href="${img}">
-  <link rel="manifest" href="/admin-manifest-${slug}.json?v=181.0">
+  <link rel="manifest" href="/admin-manifest-${slug}.json?v=182.0">
   <meta name="theme-color" content="${theme}">
 
   <!-- Instant Browser Redirect to Full Admin App -->
