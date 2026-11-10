@@ -1904,13 +1904,31 @@
               <span class="sheet-action-text-sub">معاينة المتجر وتجربة الطلب الحقيقي</span>
             </div>
           </div>
+          <div class="sheet-action-item" onclick="MasterApp.actionSheetCopyMenuLink()">
+            <span class="sheet-action-icon-circle" style="background:rgba(59,130,246,0.12); color:#3b82f6;">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            </span>
+            <div class="sheet-action-text-box">
+              <span class="sheet-action-text-main">نسخ رابط المنيو النظيف</span>
+              <span class="sheet-action-text-sub" id="sheet-preview-menu-url" style="font-family:var(--font-en); direction:ltr; text-align:right;">harpymenu.com/{slug}</span>
+            </div>
+          </div>
+          <div class="sheet-action-item" onclick="MasterApp.actionSheetCopyAdminLink()">
+            <span class="sheet-action-icon-circle" style="background:rgba(168,85,247,0.12); color:#a855f7;">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            </span>
+            <div class="sheet-action-text-box">
+              <span class="sheet-action-text-main">نسخ رابط لوحة التحكم النظيف</span>
+              <span class="sheet-action-text-sub" id="sheet-preview-admin-url" style="font-family:var(--font-en); direction:ltr; text-align:right;">harpymenu.com/admin/{slug}</span>
+            </div>
+          </div>
           <div class="sheet-action-item" onclick="MasterApp.actionSheetOpenWhatsApp()">
             <span class="sheet-action-icon-circle" style="background:rgba(37,211,102,0.14); color:#25D366;">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M17.472 14.382c-.301-.15-1.78-.878-2.056-.979-.276-.1-.476-.15-.676.15-.2.301-.776.979-.951 1.18-.175.2-.351.226-.652.075-.301-.15-1.272-.469-2.423-1.496-.895-.799-1.5-1.786-1.675-2.087-.175-.301-.019-.464.132-.614.136-.135.301-.351.451-.526.15-.175.2-.301.3-.501.101-.2.051-.376-.025-.526-.075-.15-.676-1.63-.926-2.233-.244-.588-.492-.508-.676-.517-.175-.008-.376-.01-.576-.01s-.526.075-.801.376c-.276.301-1.052 1.028-1.052 2.508s1.077 2.909 1.228 3.11c.15.2 2.119 3.236 5.134 4.538.717.31 1.277.495 1.713.633.72.229 1.376.197 1.895.119.579-.087 1.78-.727 2.031-1.429.25-.702.25-1.303.175-1.429-.075-.126-.276-.201-.577-.351zM12.04 2C6.51 2 2.02 6.49 2.02 12.02c0 1.98.58 3.82 1.58 5.37L2 22l4.78-1.55c1.5 1 3.28 1.57 5.26 1.57 5.53 0 10.02-4.49 10.02-10.02C22.06 6.49 17.57 2 12.04 2z"/></svg>
             </span>
             <div class="sheet-action-text-box">
               <span class="sheet-action-text-main">مراسلة المالك عبر واتساب</span>
-              <span class="sheet-action-text-sub">فتح محادثة مباشرة برقم هاتف المطعم</span>
+              <span class="sheet-action-text-sub">إرسال بيانات الدخول والروابط النظيفة</span>
             </div>
           </div>
         </div>
@@ -2058,7 +2076,7 @@
           </button>
         </div>
         <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">
-          يستخدمها صاحب المطعم أو الكاشير لتسجيل الدخول إلى لوحة التحكم الخاصة به (/admin/?m=...).
+          يستخدمها صاحب المطعم أو الكاشير لتسجيل الدخول إلى لوحة التحكم الخاصة به (/admin/{slug}).
         </div>
       </div>
 
@@ -3155,6 +3173,11 @@
 
         document.getElementById('tenant-action-sheet').classList.add('open');
         document.getElementById('sheet-backdrop').classList.add('open');
+
+        const menuPrevEl = document.getElementById('sheet-preview-menu-url');
+        if (menuPrevEl) menuPrevEl.textContent = `harpymenu.com/${t.slug}`;
+        const adminPrevEl = document.getElementById('sheet-preview-admin-url');
+        if (adminPrevEl) adminPrevEl.textContent = `harpymenu.com/admin/${t.slug}`;
       },
       closeActionSheet() {
         document.getElementById('tenant-action-sheet').classList.remove('open');
@@ -3172,7 +3195,35 @@
         if (!this.activeSheetTenant) return;
         const slug = this.activeSheetTenant.slug;
         this.closeActionSheet();
-        window.open(`order/?m=${slug}`, '_blank');
+        const isProd = window.location.hostname.includes('harpymenu.com');
+        const base = isProd ? 'https://harpymenu.com' : (window.location.origin + (window.location.pathname.includes('/links') ? '/links' : ''));
+        window.open(`${base}/${encodeURIComponent(slug)}`, '_blank');
+      },
+      actionSheetCopyMenuLink() {
+        if (!this.activeSheetTenant) return;
+        const slug = this.activeSheetTenant.slug;
+        const isProd = window.location.hostname.includes('harpymenu.com');
+        const base = isProd ? 'https://harpymenu.com' : (window.location.origin + (window.location.pathname.includes('/links') ? '/links' : ''));
+        const url = `${base}/${encodeURIComponent(slug)}`;
+        navigator.clipboard.writeText(url).then(() => {
+          this.showToast(`تم نسخ رابط المنيو: ${url}`, 'success');
+        }).catch(() => {
+          this.showToast('تعذر النسخ التلقائي', 'error');
+        });
+        this.closeActionSheet();
+      },
+      actionSheetCopyAdminLink() {
+        if (!this.activeSheetTenant) return;
+        const slug = this.activeSheetTenant.slug;
+        const isProd = window.location.hostname.includes('harpymenu.com');
+        const base = isProd ? 'https://harpymenu.com' : (window.location.origin + (window.location.pathname.includes('/links') ? '/links' : ''));
+        const url = `${base}/admin/${encodeURIComponent(slug)}`;
+        navigator.clipboard.writeText(url).then(() => {
+          this.showToast(`تم نسخ رابط لوحة التحكم: ${url}`, 'success');
+        }).catch(() => {
+          this.showToast('تعذر النسخ التلقائي', 'error');
+        });
+        this.closeActionSheet();
       },
       actionSheetOpenModules() {
         if (!this.activeSheetTenant) return;
@@ -3192,7 +3243,11 @@
         this.closeActionSheet();
         let phone = (t.phone || '').replace(/[^0-9]/g, '');
         if (phone.startsWith('01')) phone = '2' + phone;
-        const msg = encodeURIComponent(`مرحباً مطعم ${t.name}، نود التذكير بخصوص ترخيص المنصة الخاص بكم على Harpy Order.`);
+        const isProd = window.location.hostname.includes('harpymenu.com');
+        const base = isProd ? 'https://harpymenu.com' : (window.location.origin + (window.location.pathname.includes('/links') ? '/links' : ''));
+        const menuUrl = `${base}/${encodeURIComponent(t.slug)}`;
+        const adminUrl = `${base}/admin/${encodeURIComponent(t.slug)}`;
+        const msg = encodeURIComponent(`مرحباً إدارة مطعم ${t.name}،\n\nإليكم الروابط الرسمية لمنصتكم على Harpy Order:\n🍽 رابط المنيو للزبائن:\n${menuUrl}\n\n⚙️ رابط لوحة التحكم والإدارة:\n${adminUrl}`);
         window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
       },
       actionSheetBackup() {
@@ -3246,7 +3301,9 @@
         localStorage.setItem(`admin_session_${slug}`, JSON.stringify(sessionPayload));
         localStorage.setItem(`harpy_active_tenant`, slug);
         this.logAudit('ADMIN_SSO', `دخول مباشر للوحة إدارة مطعم ${slug}`, slug);
-        window.open(`admin/?m=${slug}`, '_blank');
+        const isProd = window.location.hostname.includes('harpymenu.com');
+        const base = isProd ? 'https://harpymenu.com' : (window.location.origin + (window.location.pathname.includes('/links') ? '/links' : ''));
+        window.open(`${base}/admin/${encodeURIComponent(slug)}`, '_blank');
       },
 
       async toggleStatus(slug, activate) {
@@ -4414,7 +4471,7 @@
         if (infoEl) {
           infoEl.innerHTML = `
             <div style="font-size:13.5px; font-weight:800; color:var(--text-primary);">${t.name} (${t.slug})</div>
-            <div style="font-size:11px; color:var(--text-secondary); margin-top:2px;">رابط لوحة التحكم: <span style="font-family:var(--font-en); direction:ltr; display:inline-block;">harpymenu.com/admin/?m=${t.slug}</span></div>
+            <div style="font-size:11px; color:var(--text-secondary); margin-top:2px;">رابط لوحة التحكم: <span style="font-family:var(--font-en); direction:ltr; display:inline-block;">harpymenu.com/admin/${t.slug}</span></div>
           `;
         }
 

@@ -2466,10 +2466,13 @@ const Store = {
       if (!urlSlug && typeof window !== 'undefined' && window.location && window.location.pathname && window.location.protocol.startsWith('http')) {
         const pathParts = window.location.pathname.split('/').filter(p => p && !p.endsWith('.html') && p !== 'admin' && p !== 'order' && p !== 'menu' && p.length > 1 && !/^[a-zA-Z]:$/.test(p));
         if (pathParts.length > 0) {
-          const firstPart = pathParts[0].toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
           const reservedNames = ['css', 'js', 'assets', 'api', 'admin', 'menu', 'manifest', 'sw', 'favicon', 'icons', 'products', 'portfolio', 'order', 'links', 'github', 'io', 'c', 'd', 'e', 'users', 'desktop'];
-          if (firstPart && firstPart.length > 1 && !reservedNames.includes(firstPart)) {
-            urlSlug = firstPart;
+          let candidate = pathParts[0].toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
+          if (reservedNames.includes(candidate) && pathParts.length > 1) {
+            candidate = pathParts[1].toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
+          }
+          if (candidate && candidate.length > 1 && !reservedNames.includes(candidate)) {
+            urlSlug = candidate;
           }
         }
       }

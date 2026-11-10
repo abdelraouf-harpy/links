@@ -2,6 +2,42 @@
 <html lang="ar" dir="rtl" data-theme="dark" data-theme-preset="charcoal">
 <head>
   <base href="../">
+  <script>
+    (function() {
+      try {
+        var params = new URLSearchParams(window.location.search);
+        var pathSlug = '';
+        var segs = (window.location.pathname || '').split('/').filter(Boolean);
+        var reserved = ['order', 'admin', 'css', 'js', 'assets', 'sw.js', 'manifest.json', 'index.html', 'portfolio.html', 'master.html'];
+        var orderIdx = segs.indexOf('order');
+        if (orderIdx !== -1 && segs.length > orderIdx + 1) {
+          var sub = segs[orderIdx + 1];
+          if (sub && !sub.endsWith('.html') && sub !== 'index') {
+            pathSlug = sub;
+          }
+        } else if (segs.length > 0) {
+          var first = segs[0].toLowerCase();
+          if (!reserved.includes(first) && !first.endsWith('.html')) {
+            pathSlug = first;
+          }
+        }
+        var activeSlug = params.get('m') || pathSlug;
+        if (activeSlug) {
+          window.__harpyActiveSlug = activeSlug;
+          var repoPrefix = '';
+          if (window.location.hostname.includes('github.io') && segs.length > 0 && segs[0] !== 'order') {
+            repoPrefix = '/' + segs[0];
+          }
+          var searchParams = new URLSearchParams(window.location.search);
+          searchParams.delete('m');
+          var searchPart = searchParams.toString();
+          var hash = window.location.hash || '';
+          var cleanPath = (repoPrefix ? repoPrefix : '') + '/' + encodeURIComponent(activeSlug);
+          window.history.replaceState(null, '', cleanPath + (searchPart ? ('?' + searchPart) : '') + (hash || ''));
+        }
+      } catch(e) {}
+    })();
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="robots" content="noindex, follow">
@@ -53,8 +89,8 @@
   <link rel="preconnect" href="https://i.ibb.co" crossorigin>
   <link rel="dns-prefetch" href="https://i.ibb.co">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/order-tokens.css?v=178.0">
-  <link rel="stylesheet" href="css/order-client.css?v=178.0">
+  <link rel="stylesheet" href="css/order-tokens.css?v=179.0">
+  <link rel="stylesheet" href="css/order-client.css?v=179.0">
   <style id="harpy-critical-layout">
     /* ═══════════════════════════════════════════════════════════
        CRITICAL DEFENSIVE INLINE SHIELD (Prevents SW Cache Mismatches)
@@ -787,23 +823,34 @@
         mLink.href = 'manifest-' + slug + '.json?v=94.2';
         document.head.appendChild(mLink);
 
-        // Safety Recovery: If browser lands on index.html with an admin tab hash, route directly to /admin.html
-        var adminTabs = ['orders', 'products', 'categories', 'stories', 'settings', 'backup'];
+        // Safety Recovery: If browser lands on index.html with an admin tab hash, route directly to /admin
+        var adminTabs = ['orders', 'products', 'categories', 'stories', 'settings', 'backup', 'pos'];
         var currentAdminHash = (window.location.hash || '').replace('#', '').trim();
         if (adminTabs.indexOf(currentAdminHash) !== -1) {
-          var adminDest = './admin/?m=' + encodeURIComponent(slug) + '#' + currentAdminHash;
+          var adminDest = '../admin/?m=' + encodeURIComponent(slug) + '#' + currentAdminHash;
           window.location.replace(adminDest);
           return;
         }
 
-        // Auto-preserve query parameter in URL bar so sharing never loses the restaurant
-        if (!window.location.search.includes('m=' + slug) && !window.location.search.includes('restaurant=' + slug)) {
-          try {
-            const url = new URL(window.location.href);
-            url.searchParams.set('m', slug);
-            window.history.replaceState({}, '', url.toString());
-          } catch(e) {}
-        }
+        // Clean URL Bar Synchronization: Present clean harpymenu.com/{slug} in the address bar
+        try {
+          if (window.history && window.history.replaceState && window.location.protocol.startsWith('http')) {
+            var repoPrefix = '';
+            var segs = (window.location.pathname || '').split('/').filter(Boolean);
+            if (window.location.hostname.includes('github.io') && segs.length > 0) {
+              var first = segs[0].toLowerCase();
+              if (first !== 'order' && first !== 'admin') repoPrefix = '/' + segs[0];
+            }
+            var urlParams = new URLSearchParams(window.location.search);
+            urlParams.delete('m');
+            urlParams.delete('restaurant');
+            urlParams.delete('store');
+            urlParams.delete('slug');
+            var remainingQuery = urlParams.toString();
+            var cleanPath = (repoPrefix ? repoPrefix : '') + '/' + encodeURIComponent(slug) + (remainingQuery ? ('?' + remainingQuery) : '') + window.location.hash;
+            window.history.replaceState({ slug: slug }, '', cleanPath);
+          }
+        } catch(e) {}
 
         const mode = localStorage.getItem('harpy_' + slug + '_theme_mode') || 'light';
         document.documentElement.setAttribute('data-theme', mode);
@@ -2592,19 +2639,19 @@
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=178.0"></script>
-  <script src="js/core/sound-effects.js?v=178.0"></script>
-  <script src="js/core/i18n.js?v=178.0"></script>
-  <script src="js/store.js?v=178.0"></script>
-  <script src="js/core/qrcode.min.js?v=178.0"></script>
-  <script src="js/client/client-core.js?v=178.0"></script>
-  <script src="js/client/menu-view.js?v=178.0"></script>
-  <script src="js/client/stories-viewer.js?v=178.0"></script>
-  <script src="js/client/customizer-modal.js?v=178.0"></script>
-  <script src="js/client/cart-ledger.js?v=178.0"></script>
-  <script src="js/client/order-tracking.js?v=178.0"></script>
-  <script src="js/app.js?v=178.0"></script>
-  <script src="js/core/module-enforcer.js?v=178.0"></script>
-  <script src="js/pwa.js?v=178.0"></script>
+  <script src="js/core/demo-seed-data.js?v=179.0"></script>
+  <script src="js/core/sound-effects.js?v=179.0"></script>
+  <script src="js/core/i18n.js?v=179.0"></script>
+  <script src="js/store.js?v=179.0"></script>
+  <script src="js/core/qrcode.min.js?v=179.0"></script>
+  <script src="js/client/client-core.js?v=179.0"></script>
+  <script src="js/client/menu-view.js?v=179.0"></script>
+  <script src="js/client/stories-viewer.js?v=179.0"></script>
+  <script src="js/client/customizer-modal.js?v=179.0"></script>
+  <script src="js/client/cart-ledger.js?v=179.0"></script>
+  <script src="js/client/order-tracking.js?v=179.0"></script>
+  <script src="js/app.js?v=179.0"></script>
+  <script src="js/core/module-enforcer.js?v=179.0"></script>
+  <script src="js/pwa.js?v=179.0"></script>
 </body>
 </html>

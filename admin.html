@@ -5,9 +5,17 @@
   <meta name="robots" content="noindex, follow">
   <script>
     (function() {
+      var path = window.location.pathname || '';
       var s = window.location.search || '';
       var h = window.location.hash || '';
-      window.location.replace('./admin/' + s + h);
+      var segs = path.split('/').filter(Boolean);
+      var sub = segs.filter(function(x) { return x !== 'admin.html' && x !== 'admin'; });
+      var params = new URLSearchParams(s);
+      if (sub.length > 0 && !params.get('m')) {
+        params.set('m', sub[0]);
+      }
+      var q = params.toString() ? ('?' + params.toString()) : '';
+      window.location.replace('./admin/' + q + h);
     })();
   </script>
   <meta http-equiv="refresh" content="0; url=./admin/">

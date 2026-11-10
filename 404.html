@@ -114,7 +114,7 @@
             params.set('m', storedSlug || 'king');
           }
           var queryString = '?' + params.toString();
-          window.location.replace(repoPrefix + '/admin.html' + queryString + hash);
+          window.location.replace(repoPrefix + '/admin/' + queryString + hash);
           return;
         }
 
@@ -143,10 +143,10 @@
         params.set('m', resolvedSlug);
         var queryString = '?' + params.toString();
 
-        // Always route cleanly to /order.html?m={slug}
-        window.location.replace(repoPrefix + '/order.html' + queryString + hash);
+        // Always route cleanly to /order/?m={slug}
+        window.location.replace(repoPrefix + '/order/' + queryString + hash);
       } catch (e) {
-        window.location.replace((repoPrefix || '') + '/order.html?m=aloo');
+        window.location.replace((repoPrefix || '') + '/order/?m=aloo');
       }
     })();
   </script>

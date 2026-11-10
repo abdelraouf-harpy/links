@@ -585,15 +585,12 @@ async function deleteAdminTable(tableId) {
 function getTableDirectUrl(tableId) {
   const slug = Store.getRestaurantSlug();
   const loc = window.location;
-  let baseOrigin = loc.origin;
-  let path = loc.pathname;
-  if (path.includes('/admin')) {
-    path = path.replace(/\/admin(\/.*)?$/, '/order/');
-  } else {
-    path = '/order/';
+  const isFile = loc.protocol === 'file:';
+  if (isFile) {
+    return loc.href.replace('admin.html', 'order/').split('?')[0] + `?m=${encodeURIComponent(slug)}&table=${encodeURIComponent(tableId)}`;
   }
-  if (!path.endsWith('/')) path += '/';
-  return `${baseOrigin}${path}?m=${encodeURIComponent(slug)}&table=${encodeURIComponent(tableId)}`;
+  const cleanPath = loc.pathname.replace('admin.html', '').replace(/\/admin(\/.*)?$/, '').replace(/\/$/, '');
+  return `${loc.origin}${cleanPath}/${encodeURIComponent(slug)}?table=${encodeURIComponent(tableId)}`;
 }
 
 window.openTableQRModal = function(tableId, tableName) {
@@ -1071,17 +1068,13 @@ function getHarpyTargetUrl() {
       return getTableDirectUrl(currentHarpyQRTable.id);
     }
   }
-  const shareLink = document.getElementById('tenant-share-link');
-  if (shareLink && shareLink.href && shareLink.href !== '#' && !shareLink.href.endsWith('/#')) {
-    return shareLink.href;
-  }
   const slug = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : 'demo';
   const isFile = window.location.protocol === 'file:';
   if (isFile) {
     return window.location.href.replace('admin.html', 'order/').split('?')[0] + `?m=${encodeURIComponent(slug)}`;
   }
-  const cleanPath = window.location.pathname.replace('admin.html', '').replace(/\/admin\/?$/, '').replace(/\/$/, '');
-  return window.location.origin + cleanPath + `/order/?m=${encodeURIComponent(slug)}`;
+  const cleanPath = window.location.pathname.replace('admin.html', '').replace(/\/admin(\/.*)?$/, '').replace(/\/$/, '');
+  return `${window.location.origin}${cleanPath}/${encodeURIComponent(slug)}`;
 }
 
 function loadHarpyTemplate() {

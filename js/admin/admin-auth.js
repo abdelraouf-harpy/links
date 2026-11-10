@@ -513,10 +513,10 @@ function renderRestaurantHub() {
   updateAllBrandHeadings(settings.storeName);
 
   const isFile = window.location.protocol === 'file:';
-  const cleanPath = window.location.pathname.replace('admin.html', '').replace(/\/admin\/?$/, '').replace(/\/$/, '');
+  const cleanPath = window.location.pathname.replace('admin.html', '').replace(/\/admin(\/.*)?$/, '').replace(/\/$/, '');
   const targetUrl = isFile
     ? window.location.href.replace('admin.html', 'order/').split('?')[0] + `?m=${encodeURIComponent(slug)}`
-    : (window.location.origin + cleanPath + `/order/?m=${encodeURIComponent(slug)}`);
+    : (window.location.origin + cleanPath + `/${encodeURIComponent(slug)}`);
 
   if (shareLink) {
     shareLink.textContent = targetUrl.replace(/^https?:\/\//, '');
