@@ -585,7 +585,7 @@
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       // Register strictly-scoped SW for each app independently (No cross-purging)
-      const swUrl = './sw.js?v=186.0';
+      const swUrl = './sw.js?v=187.0';
       const targetScope = isAdmin ? './admin/' : './order/';
       navigator.serviceWorker.register(swUrl, { scope: targetScope })
         .then(reg => {

@@ -5198,40 +5198,81 @@ html[dir="ltr"] .admin-drawer.open {
   border-radius: 10px;
 }
 
-#tab-settings .settings-sticky-save-bar {
-  position: sticky;
-  bottom: 12px;
-  z-index: 25;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 16px;
-  margin-top: 14px;
-  background: var(--surface);
-  border: 1px solid var(--border-strong);
-  border-radius: 14px;
-  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
+#tab-settings.tab-pane {
+  /* Keep Settings free of transform animations so fixed save bar always anchors to the viewport */
+  animation: harpySettingsFadeIn 0.14s ease-out;
+}
+@keyframes harpySettingsFadeIn {
+  from { opacity: 0.9; }
+  to { opacity: 1; }
+}
+#tab-settings.active {
+  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
-#tab-settings .settings-save-hint {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text-muted);
+#tab-settings .settings-sticky-save-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px calc(12px + env(safe-area-inset-bottom, 0px));
+  margin: 0;
+  background: var(--surface);
+  background: color-mix(in srgb, var(--surface) 95%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: none;
+  border-top: 1px solid var(--border-strong);
+  border-radius: 0;
+  box-shadow: 0 -8px 26px rgba(15, 23, 42, 0.12);
+}
+
+html.admin-locked #tab-settings .settings-sticky-save-bar,
+#tab-settings:not(.active) .settings-sticky-save-bar {
+  display: none !important;
+}
+
+@media (min-width: 1025px) {
+  #tab-settings .settings-sticky-save-bar {
+    right: 250px;
+    left: 0;
+  }
+  html[dir="ltr"] #tab-settings .settings-sticky-save-bar {
+    right: 0;
+    left: 250px;
+  }
 }
 
 #tab-settings .settings-save-btn {
   padding: 11px 28px;
-  min-height: 44px;
-  font-size: 14px;
+  min-height: 46px;
+  min-width: 280px;
+  max-width: 440px;
+  font-size: 14.5px;
   font-weight: 900;
-  border-radius: 10px;
+  border-radius: 12px;
   box-shadow: 0 4px 14px rgba(234, 88, 12, 0.3);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   white-space: nowrap;
+}
+
+@media (max-width: 1024px) {
+  #tab-settings .settings-sticky-save-bar {
+    border-radius: 16px 16px 0 0;
+    padding: 10px 14px calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+  #tab-settings .settings-save-btn {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
 }
 
 @media (max-width: 640px) {
@@ -5246,20 +5287,6 @@ html[dir="ltr"] .admin-drawer.open {
   }
   #tab-settings .admin-settings-card [style*="grid-template-columns:1fr 1fr"] {
     grid-template-columns: 1fr !important;
-  }
-  #tab-settings .settings-sticky-save-bar {
-    flex-direction: column;
-    align-items: stretch;
-    bottom: 70px;
-    padding: 10px 12px;
-    gap: 8px;
-  }
-  #tab-settings .settings-save-hint {
-    text-align: center;
-    font-size: 11px;
-  }
-  #tab-settings .settings-save-btn {
-    width: 100%;
   }
 }
 
