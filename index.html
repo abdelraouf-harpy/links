@@ -86,7 +86,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
 
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="css/portfolio.css?v=180.0">
+  <link rel="stylesheet" href="css/portfolio.css?v=188.0">
 
   <!-- Schema.org JSON-LD (Search Engine Authority Knowledge Graph) -->
   <script type="application/ld+json">
@@ -135,10 +135,11 @@
         "url": "https://harpymenu.com/",
         "image": "https://harpymenu.com/assets/brand/og_banner.png",
         "offers": {
-          "@type": "Offer",
-          "price": "0",
+          "@type": "AggregateOffer",
+          "lowPrice": "899",
+          "highPrice": "12000",
           "priceCurrency": "EGP",
-          "availability": "https://schema.org/InStock"
+          "offerCount": "4"
         }
       }
     ]
@@ -146,529 +147,829 @@
   </script>
 </head>
 <body>
-
-  <!-- ========================================================================
-       1. STICKY HEADER
-       ======================================================================== -->
+  <!-- =======================================================================
+       1. STICKY HEADER & NAVIGATION
+       ======================================================================= -->
   <header class="ho-header">
     <div class="ho-container ho-header-inner">
-      <a href="./" class="ho-logo" title="Harpy Order">
-        <img src="assets/brand/harpy_order_emblem_transparent.png" alt="شعار Harpy Order" class="ho-logo-img" width="44" height="44">
+      <a href="#hero" class="ho-logo" aria-label="Harpy Order الرئيسية">
+        <img src="assets/brand/harpy_order_emblem_transparent.png" alt="Harpy Order Logo" class="ho-logo-img" width="38" height="38">
         <div class="ho-logo-text">
           <span>Harpy <span class="ho-brand-accent">Order</span></span>
-          <span class="ho-logo-sub">نظام إدارة المطاعم</span>
+          <span class="ho-logo-sub">إدارة المطاعم السحابية</span>
         </div>
       </a>
 
-      <!-- Desktop Navigation -->
-      <nav class="ho-nav-desktop" aria-label="التنقل الرئيسي">
+      <nav class="ho-nav-desktop" aria-label="القائمة الرئيسية">
         <ul class="ho-nav-menu">
+          <li><a href="#features" class="ho-nav-link">المميزات</a></li>
           <li><a href="#customer-menu" class="ho-nav-link">منيو العميل</a></li>
-          <li><a href="#showcase" class="ho-nav-link">شاهد النظام</a></li>
-          <li><a href="#pricing" class="ho-nav-link">الأسعار</a></li>
-          <li><a href="#start" class="ho-nav-link">كيف تبدأ</a></li>
-          <li><a href="#contact" class="ho-nav-link">تواصل معنا</a></li>
+          <li><a href="#showcase" class="ho-nav-link">شاشات النظام</a></li>
+          <li><a href="#pricing" class="ho-nav-link">الباقات والأسعار</a></li>
+          <li><a href="#addons" class="ho-nav-link">الإضافات</a></li>
+          <li><a href="#faq" class="ho-nav-link">الأسئلة</a></li>
         </ul>
       </nav>
 
       <div class="ho-header-actions">
-        <a href="./demo" target="_blank" rel="noopener" class="ho-btn ho-header-demo-btn ho-btn-sm">
-          <span>تجربة الديمو</span>
+        <a href="./demo" target="_blank" rel="noopener" class="ho-btn ho-header-demo-btn ho-btn-sm ho-btn-pill">
+          تجربة الديمو
         </a>
-        <a href="https://wa.me/201113453475?text=%D8%A7%D9%84%D8%B3%D9%84%D8%A7%D9%85%20%D8%B9%D9%84%D9%8A%D9%83%D9%85%D8%8C%20%D8%AD%D8%A7%D8%A8%D8%A8%20%D8%A3%D8%B3%D8%AA%D9%81%D8%B3%D8%B1%20%D8%B9%D9%86%20%D9%86%D8%B8%D8%A7%D9%85%20Harpy%20Order%20%D9%84%D8%A5%D8%AF%D8%A7%D8%B1%D8%A9%20%D8%A7%D9%84%D9%85%D8%B7%D8%A7%D8%B9%D9%85%20%D9%88%D9%86%D9%82%D8%A7%D8%B7%20%D8%A7%D9%84%D8%A8%D9%8A%D8%B9." target="_blank" rel="noopener noreferrer" class="ho-btn ho-btn-primary ho-btn-sm ho-header-cta-btn">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
-          <span>كلمنا على واتساب</span>
+        <a href="#pricing" class="ho-btn ho-btn-primary ho-btn-sm ho-btn-pill ho-header-cta-btn">
+          اختر باقتك
         </a>
-
-        <!-- Mobile Drawer Toggle (Positioned on the Left) -->
-        <button type="button" class="ho-mobile-toggle" id="hoMobileToggle" aria-label="فتح القائمة" aria-expanded="false">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        <button class="ho-mobile-toggle" id="hoMobileToggle" aria-label="فتح القائمة" aria-expanded="false">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+            <line x1="4" y1="7" x2="20" y2="7"></line>
+            <line x1="4" y1="12" x2="20" y2="12"></line>
+            <line x1="4" y1="17" x2="20" y2="17"></line>
+          </svg>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- Mobile Drawer Backdrop Overlay -->
+  <!-- Mobile Navigation Drawer -->
   <div class="ho-drawer-backdrop" id="hoDrawerBackdrop"></div>
-
-  <!-- Luxury Mobile Drawer (Slides smoothly from LEFT where button is!) -->
-  <aside class="ho-mobile-drawer" id="hoMobileDrawer" aria-label="قائمة الموبايل">
-    <div class="ho-drawer-header">
-      <div class="ho-logo">
-        <img src="assets/brand/harpy_order_emblem_transparent.png" alt="شعار Harpy Order" class="ho-logo-img" width="38" height="38">
-        <div class="ho-logo-text" style="font-size:1.15rem;">
-          <span>Harpy <span class="ho-brand-accent">Order</span></span>
-          <span class="ho-logo-sub">نظام إدارة المطاعم</span>
+  <aside class="ho-mobile-drawer" id="hoMobileDrawer" aria-label="قائمة التنقل">
+    <div>
+      <div class="ho-drawer-header">
+        <div class="ho-logo">
+          <img src="assets/brand/harpy_order_emblem_transparent.png" alt="Harpy Order" class="ho-logo-img" width="34" height="34">
+          <div class="ho-logo-text">
+            <span>Harpy <span class="ho-brand-accent">Order</span></span>
+            <span class="ho-logo-sub">منصة المطاعم السحابية</span>
+          </div>
         </div>
+        <button class="ho-drawer-close" id="hoDrawerClose" aria-label="إغلاق القائمة">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
       </div>
-      <button type="button" class="ho-drawer-close" id="hoDrawerClose" aria-label="إغلاق القائمة">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
 
-    <nav class="ho-drawer-nav">
-      <a href="./demo" class="ho-drawer-link" target="_blank" rel="noopener" style="color:var(--primary); font-weight:800; background:rgba(255,106,0,0.06); border-radius:var(--radius-sm); padding:10px 14px; display:flex; align-items:center; gap:8px;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="currentColor"/></svg>
-        <span>معاينة المنيو التجريبي (Live Demo)</span>
-      </a>
-      <a href="#customer-menu" class="ho-drawer-link">منيو العميل الذكي</a>
-      <a href="#showcase" class="ho-drawer-link">شاهد شاشات النظام</a>
-      <a href="#pricing" class="ho-drawer-link">الأسعار والطلب</a>
-      <a href="#start" class="ho-drawer-link">كيف تبدأ التشغيل</a>
-      <a href="#contact" class="ho-drawer-link">تواصل معنا</a>
-    </nav>
+      <nav class="ho-drawer-nav">
+        <a href="./demo" target="_blank" rel="noopener" class="ho-drawer-link ho-drawer-link-highlight">
+          <span>تجربة منيو العميل (Live)</span>
+          <span class="font-num">→</span>
+        </a>
+        <a href="./admin/demo" target="_blank" rel="noopener" class="ho-drawer-link ho-drawer-link-highlight">
+          <span>تجربة لوحة الكاشير والإدارة</span>
+          <span class="font-num">→</span>
+        </a>
+        <a href="#features" class="ho-drawer-link">مميزات المنظومة</a>
+        <a href="#customer-menu" class="ho-drawer-link">تجربة العميل</a>
+        <a href="#showcase" class="ho-drawer-link">شاشات النظام الحية</a>
+        <a href="#pricing" class="ho-drawer-link">الباقات والأسعار</a>
+        <a href="#addons" class="ho-drawer-link">الميزات الإضافية</a>
+        <a href="#faq" class="ho-drawer-link">الأسئلة الشائعة</a>
+      </nav>
+    </div>
 
     <div class="ho-drawer-footer">
-      <a href="https://wa.me/201113453475?text=%D8%A7%D9%84%D8%B3%D9%84%D8%A7%D9%85%20%D8%B9%D9%84%D9%8A%D9%83%D9%85%D8%8C%20%D8%AD%D8%A7%D8%A8%D8%A8%20%D8%A3%D8%B3%D8%AA%D9%81%D8%B3%D8%B1%20%D8%B9%D9%86%20%D9%86%D8%B8%D8%A7%D9%85%20Harpy%20Order%20%D9%84%D8%A5%D8%AF%D8%A7%D8%B1%D8%A9%20%D8%A7%D9%84%D9%85%D8%B7%D8%A7%D8%B9%D9%85%20%D9%88%D9%86%D9%82%D8%A7%D8%B7%20%D8%A7%D9%84%D8%A8%D9%8A%D8%B9." target="_blank" rel="noopener noreferrer" class="ho-btn ho-btn-primary" style="width:100%; justify-content:center;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
-        <span>كلمنا على واتساب</span>
+      <a href="https://wa.me/201113453475?text=%D8%A3%D9%87%D9%84%D8%A7%D9%8B%20%D8%A8%D9%83%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D9%81%D9%8A%20%D8%A7%D9%84%D8%A7%D8%B4%D8%AA%D8%B1%D8%A7%D9%83%20%D9%81%D9%8A%20%D9%86%D8%B8%D8%A7%D9%85%20Harpy%20Order" target="_blank" rel="noopener noreferrer" class="ho-btn ho-btn-primary" style="width:100%;">
+        تواصل على واتساب
       </a>
-      <div class="ho-drawer-sub">01113453475 — متاح للرد السريع</div>
+      <div class="ho-drawer-sub">01113453475 — دعم مباشر سريع</div>
     </div>
   </aside>
-    </div>
-  </header>
 
-  <!-- ========================================================================
-       2. HERO SECTION
-       ======================================================================== -->
-  <section class="ho-hero" id="hero">
-    <div class="ho-container">
-      <div class="ho-hero-content">
-        <div class="ho-badge ho-hero-badge">
-          <span class="ho-badge-dot"></span>
-          <span>نظام إدارة مطاعم سحابي</span>
-        </div>
-
-        <h1 class="ho-hero-title">
-          مطعمك كله في <mark>نظام واحد</mark>
-        </h1>
-
-        <p class="ho-hero-sub">
-          طلبات أونلاين، كاشير، ومخزون — كل حاجة متصلة.
-        </p>
-
-        <div class="ho-hero-cta">
-          <a href="https://wa.me/201113453475?text=%D8%A7%D9%84%D8%B3%D9%84%D8%A7%D9%85%20%D8%B9%D9%84%D9%8A%D9%83%D9%85%D8%8C%20%D8%AD%D8%A7%D8%A8%D8%A8%20%D8%A3%D8%A8%D8%AF%D8%A3%20%D9%85%D8%B9%20%D9%86%D8%B8%D8%A7%D9%85%20Harpy%20Order%20%D9%84%D9%85%D8%B7%D8%B9%D9%85%D9%8A." target="_blank" rel="noopener noreferrer" class="ho-btn ho-btn-primary ho-btn-lg">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
-            <span>ابدأ تشغيل مطعمك الآن</span>
-          </a>
-
-          <a href="#showcase" class="ho-btn ho-btn-outline ho-btn-lg">
-            <span>استكشف شاشات المنظومة</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m19 12-7 7-7-7"/><path d="M12 19V5"/></svg>
-          </a>
-        </div>
-      </div>
-
-      <!-- Hero Mockup: Cashier Terminal with Overlapping Customer Mobile Menu -->
-      <div class="ho-hero-visual">
-        <div class="ho-mockup-desktop">
-          <div class="ho-mockup-desktop-bar">
-            <div class="ho-mockup-dots">
-              <span></span><span></span><span></span>
-            </div>
-            <div class="ho-mockup-title">harpy-pos-terminal.cloud</div>
-            <div style="width:42px;"></div>
+  <main>
+    <!-- =====================================================================
+         SECTION 1: HERO (PROPORTIONAL DESKTOP & MOBILE STAGE)
+         ===================================================================== -->
+    <section class="ho-hero" id="hero">
+      <div class="ho-container">
+        <div class="ho-hero-content">
+          <div class="ho-badge ho-hero-badge">
+            <span class="ho-badge-dot"></span>
+            <span>0% عمولة على الطلبات • يعمل سحابياً من أي جهاز</span>
           </div>
-          <div class="ho-mockup-desktop-screen">
-            <picture>
-              <source srcset="assets/brand/screenshots/pos_cashier_light.webp" type="image/webp">
-              <img src="assets/brand/screenshots/pos_cashier_light.png" alt="واجهة كاشير Harpy Order الحقيقية" width="1440" height="900" loading="eager">
-            </picture>
+
+          <h1 class="ho-hero-title">
+            أدر مطعمك بالكامل في <mark>منظومة سحابية واحدة</mark>
+          </h1>
+
+          <p class="ho-hero-sub">
+            منيو QR وتطبيق عملاء باسم مطعمك، تحصيل كاش وإنستاباي ومحافظ، كاشير POS وطباعة حرارية، شاشة مطبخ حية ومخزون — باشتراك شفاف بدون عمولة.
+          </p>
+
+          <div class="ho-hero-cta">
+            <a href="#pricing" class="ho-btn ho-btn-primary ho-btn-lg ho-btn-pill">
+              شاهد الباقات (من 899 ج.م)
+            </a>
+            <a href="./demo" target="_blank" rel="noopener" class="ho-btn ho-btn-outline ho-btn-lg ho-btn-pill">
+              معاينة المنيو لايف
+            </a>
+          </div>
+
+          <div class="ho-hero-trust" aria-label="مميزات تشغيلية">
+            <span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              تبدأ من 899 ج.م / شهر
+            </span>
+            <span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              طباعة 80mm و 58mm و A4
+            </span>
+            <span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              تشغيل في نفس اليوم
+            </span>
           </div>
         </div>
 
-        <!-- Overlapping Customer Phone Mockup (Sleek Proportions & Grounded) -->
-        <div class="ho-mockup-phone">
-          <div class="ho-mockup-phone-notch"></div>
-          <div class="ho-mockup-phone-screen">
-            <picture>
-              <source srcset="assets/brand/screenshots/customer_menu_light.webp" type="image/webp">
-              <img src="assets/brand/screenshots/customer_menu_light.png" alt="منيو العميل الحقيقي على الموبايل" width="412" height="915" loading="eager">
-            </picture>
+        <div class="ho-hero-visual">
+          <div class="ho-hero-sync-pill" aria-hidden="true">
+            <span class="ho-sync-pulse"></span>
+            <span>تزامن لحظي بين المنيو والكاشير والمطبخ</span>
           </div>
-        </div>
 
-        <!-- Cloud Sync Line / Indicator -->
-        <div class="ho-hero-sync-pill">
-          <span class="ho-sync-pulse"></span>
-          <span>طلب العميل ينزل في الكاشير والمطبخ لحظياً</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="ho-customer-exp" id="customer-menu">
-    <div class="ho-container">
-      <div class="ho-section-head">
-        <div class="ho-badge ho-hero-badge">
-          <span class="ho-badge-dot"></span>
-          <span>منيو رقمي فائق السلاسة والجاذبية</span>
-        </div>
-        <h2 class="ho-section-title">منيو إلكتروني ذكي يحوّل التصفح إلى طلبات مباشرة بالداشبورد</h2>
-        <p class="ho-section-desc">
-          صُممت تجربة العميل بعناية فائقة لتكون أسرع وأشيك طريقة لطلب الطعام: بدون تنزيل تطبيقات، مع ستوريز تفاعلية، وتخصيص دقيق للوجبات، واستقبال فوري للطلب على شاشة المطبخ والكاشير وتتبع حي.
-        </p>
-      </div>
-
-      <div class="ho-customer-exp-grid">
-        <!-- Visual Phone Feature Card with Floating Pills -->
-        <div class="ho-customer-mockup-col">
-          <div class="ho-customer-phone-wrap">
-            <div class="ho-customer-phone-frame">
-              <picture>
-                <source srcset="assets/brand/screenshots/customer_menu_light.webp" type="image/webp">
-                <img src="assets/brand/screenshots/customer_menu_light.png" alt="منيو العميل التفاعلي - مطعم سوبر برجر التجريبي" width="412" height="915" loading="lazy">
-              </picture>
-            </div>
-            
-            <!-- Floating interactive highlight badge 1 (No emojis - Pure SVG) -->
-            <div class="ho-float-pill ho-float-pill-top">
-              <div class="ho-float-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF6A00" stroke-width="2.2" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="#FF6A00" fill-opacity="0.2"/></svg>
+          <div class="ho-mockup-desktop">
+            <div class="ho-mockup-desktop-bar">
+              <div class="ho-mockup-dots">
+                <span></span><span></span><span></span>
               </div>
-              <div>
-                <strong>ستوريز تفاعلية</strong>
-                <span>عروض حصرية بأسلوب إنستجرام</span>
-              </div>
+              <div class="ho-mockup-title font-num">harpymenu.com/admin/super-burger</div>
             </div>
-
-            <!-- Floating interactive highlight badge 2 (No emojis - Pure SVG) -->
-            <div class="ho-float-pill ho-float-pill-bottom">
-              <div class="ho-float-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-              </div>
-              <div>
-                <strong>ربط سحابي لحظي</strong>
-                <span>الطلب ينزل في المطبخ والكاشير فوراً</span>
-              </div>
+            <div class="ho-mockup-desktop-screen">
+              <img src="assets/brand/screenshots/pos_cashier_light.webp" alt="شاشة كاشير الصالة والسفري Harpy Order POS" width="1280" height="800" loading="eager">
             </div>
           </div>
 
-
-        </div>
-
-        <!-- Explanatory Pillars Grid -->
-        <div class="ho-customer-features-col">
-          <!-- Pillar 1 -->
-          <div class="ho-exp-card">
-            <div class="ho-exp-card-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="currentColor"/></svg>
-            </div>
-            <div class="ho-exp-card-body">
-              <h3 class="ho-exp-card-title">ستوريز تفاعلية وأقسام سريعة</h3>
-              <p class="ho-exp-card-desc">
-                شريط ستوريز في أعلى المنيو يعرض عروض اليوم والأصناف الأكثر طلباً مع صور شهية وأسعار مغرية تجذب العميل فوراً وتزيد متوسط قيمة الفاتورة.
-              </p>
-            </div>
-          </div>
-
-          <!-- Pillar 2 -->
-          <div class="ho-exp-card">
-            <div class="ho-exp-card-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 20v-6M6 20V10M18 20V4"/></svg>
-            </div>
-            <div class="ho-exp-card-body">
-              <h3 class="ho-exp-card-title">مودال تخصيص الوجبات (الأحجام والإضافات)</h3>
-              <p class="ho-exp-card-desc">
-                العميل يختار الحجم (سينجل، دبل، كومبو)، ويضيف صوص الشيدر، أصابع الموتزاريلا، أو البطاطس بضغطة زر مع تحديث فوري للسعر الإجمالي.
-              </p>
-            </div>
-          </div>
-
-          <!-- Pillar 3 -->
-          <div class="ho-exp-card">
-            <div class="ho-exp-card-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            </div>
-            <div class="ho-exp-card-body">
-              <h3 class="ho-exp-card-title">عرض شبكي ذكي (صنفين جنب بعض) وبحث فوري</h3>
-              <p class="ho-exp-card-desc">
-                تصميم مريح للعين يعرض أصناف المنيو بنظام الشبكة المتوازنة (صنفين في كل سطر)، مع وصول فوري لأي وجبة بمجرد كتابة أول حرفين وخاصية حفظ المفضلة.
-              </p>
-            </div>
-          </div>
-
-          <!-- Pillar 4: Direct Dashboard Sync (Zero-WhatsApp Dependency) -->
-          <div class="ho-exp-card">
-            <div class="ho-exp-card-icon" style="background:rgba(16,185,129,0.1); color:#10B981;">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-            </div>
-            <div class="ho-exp-card-body">
-              <h3 class="ho-exp-card-title">استقبال لحظي بالداشبورد والكاشير (بدون وسيط)</h3>
-              <p class="ho-exp-card-desc">
-                الطلب يذهب مباشرة في جزء من الثانية إلى شاشة المطبخ (KDS) ونقاط البيع (POS) برنين صوتي مميز، مع خصم تلقائي لكميات المخزون وتحديث فوري لمراحل التحضير للزبون.
-              </p>
+          <div class="ho-mockup-phone">
+            <div class="ho-mockup-phone-notch"></div>
+            <div class="ho-mockup-phone-screen">
+              <img src="assets/brand/screenshots/customer_menu_light.webp" alt="تطبيق ومنيو العميل على الموبايل Harpy Order" width="390" height="844" loading="eager">
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="ho-showcase" id="showcase">
-    <div class="ho-container">
-      <div class="ho-section-head">
-        <div class="ho-badge">
-          <span>معرض الشاشات الحية</span>
+    <!-- =====================================================================
+         SECTION 2: COMPLETE ECOSYSTEM CAPABILITIES (ALL CORE MODULES)
+         ===================================================================== -->
+    <section class="ho-capabilities" id="features">
+      <div class="ho-container">
+        <div class="ho-section-head">
+          <div class="ho-badge">
+            <span class="ho-badge-dot"></span>
+            <span>إمكانيات المنظومة المتكاملة</span>
+          </div>
+          <h2 class="ho-section-title">كل ما يحتاجه مطعمك في مكان واحد</h2>
+          <p class="ho-section-desc">صُمم Harpy Order للسوق المصري والعربي ليعوضك عن الاشتراكات المتفرقة ويحميك من عمولات التطبيقات.</p>
         </div>
-        <h2 class="ho-section-title">شاهد النظام كما هو في الواقع</h2>
-        <p class="ho-section-desc">
-          تنقل بين شاشات الكاشير، منيو العميل، والمطبخ والمخزون، وجرب الوضعين الفاتح والداكن.
-        </p>
+
+        <div class="ho-cap-grid">
+          <article class="ho-cap-card">
+            <div class="ho-cap-top">
+              <div class="ho-cap-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="5" y="2" width="14" height="20" rx="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+              </div>
+              <h3 class="ho-cap-title">منيو وتطبيق PWA بهويتك</h3>
+            </div>
+            <p class="ho-cap-desc">رابط احترافي خاص بك <span class="font-num">harpymenu.com/اسمك</span> وتثبيت فوري كتطبيق على هاتف العميل باسم ولوجو مطعمك بالعربي والإنجليزي.</p>
+          </article>
+
+          <article class="ho-cap-card">
+            <div class="ho-cap-top">
+              <div class="ho-cap-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="1" y="4" width="22" height="16" rx="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+              </div>
+              <h3 class="ho-cap-title">دفع محلي فوري بـ 0% عمولة</h3>
+            </div>
+            <p class="ho-cap-desc">استلم الطلبات كاش أو تحويل مباشر عبر إنستاباي وفودافون كاش والمحافظ الإلكترونية مع رفع صورة الإيصال، دون خصم نسبة من مبيعاتك.</p>
+          </article>
+
+          <article class="ho-cap-card">
+            <div class="ho-cap-top">
+              <div class="ho-cap-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+              </div>
+              <h3 class="ho-cap-title">كاشير POS وطباعة 80mm / A4</h3>
+            </div>
+            <p class="ho-cap-desc">إدارة الصالة والسفري والدليفري من أي جهاز أو موبايل مع طباعة فواتير حرارية 80mm و 58mm و A4 وأرشيف فواتير متكامل.</p>
+          </article>
+
+          <article class="ho-cap-card">
+            <div class="ho-cap-top">
+              <div class="ho-cap-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+              </div>
+              <h3 class="ho-cap-title">مطبخ حي KDS وتتبع للعميل</h3>
+            </div>
+            <p class="ho-cap-desc">يصل الطلب فوراً للشيف بصوت تنبيه وإشعارات Push ومنع انطفاء الشاشة، بينما يتابع العميل حالة طلبه لحظياً خطوة بخطوة.</p>
+          </article>
+
+          <article class="ho-cap-card">
+            <div class="ho-cap-top">
+              <div class="ho-cap-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline></svg>
+              </div>
+              <h3 class="ho-cap-title">مخزون، خامات COGS، وورديات</h3>
+            </div>
+            <p class="ho-cap-desc">ميزات مرنة تفعّلها حسب حاجتك: خصم تلقائي للخامات بالوصفات، تقفيل الوردية وحركة الدرج، طاولات QR، وفروع متعددة.</p>
+          </article>
+
+          <article class="ho-cap-card">
+            <div class="ho-cap-top">
+              <div class="ho-cap-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+              </div>
+              <h3 class="ho-cap-title">أدوات تسويق لزيادة الفاتورة</h3>
+            </div>
+            <p class="ho-cap-desc">استوريهات تفاعلية أعلى المنيو، شريط إعلانات متحرك، كوبونات وخصم تلقائي عند مبلغ محدد، ومناطق توصيل بتسعير مرن.</p>
+          </article>
+        </div>
       </div>
+    </section>
 
-      <!-- Controls: Tabs + Light/Dark Toggle -->
-      <div class="ho-showcase-controls">
-        <div class="ho-showcase-tabs" role="tablist">
-          <button type="button" class="ho-tab-btn active" data-target="showcase-pos" role="tab" aria-selected="true">
-            <span class="tab-desktop">كاشير الصالة والسفري (POS)</span>
-            <span class="tab-mobile">الكاشير (POS)</span>
-          </button>
-          <button type="button" class="ho-tab-btn" data-target="showcase-kitchen" role="tab" aria-selected="false">
-            <span class="tab-desktop">شاشة المطبخ الحية</span>
-            <span class="tab-mobile">المطبخ (KDS)</span>
-          </button>
-          <button type="button" class="ho-tab-btn" data-target="showcase-inventory" role="tab" aria-selected="false">
-            <span class="tab-desktop">إدارة المخزون والمواد الخام</span>
-            <span class="tab-mobile">المخزون</span>
-          </button>
-          <button type="button" class="ho-tab-btn" data-target="showcase-customer" role="tab" aria-selected="false">
-            <span class="tab-desktop">منيو العميل على الموبايل</span>
-            <span class="tab-mobile">منيو QR</span>
-          </button>
+    <!-- =====================================================================
+         SECTION 3: CUSTOMER EXPERIENCE SPOTLIGHT
+         ===================================================================== -->
+    <section class="ho-customer-exp" id="customer-menu">
+      <div class="ho-container">
+        <div class="ho-section-head">
+          <div class="ho-badge">
+            <span class="ho-badge-dot"></span>
+            <span>تجربة العميل المباشرة</span>
+          </div>
+          <h2 class="ho-section-title">منيو سريع يحول التصفح إلى طلب مؤكد</h2>
+          <p class="ho-section-desc">تجربة مصممة خصيصاً للموبايل في الوضع الفاتح والداكن تجعل العميل يطلب في ثوانٍ بدون تسجيل معقد.</p>
         </div>
 
-        <div class="ho-theme-toggle-wrap">
-          <button type="button" class="ho-theme-toggle-btn" aria-label="تبديل وضع العرض">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        <div class="ho-customer-exp-grid">
+          <div class="ho-customer-mockup-col">
+            <div class="ho-customer-phone-wrap">
+              <div class="ho-customer-phone-frame">
+                <img src="assets/brand/screenshots/customer_menu_dark.webp" alt="منيو Harpy Order للعميل في الوضع الداكن" width="390" height="844" loading="eager">
+              </div>
+            </div>
+            <div class="ho-customer-cta-box">
+              <a href="./demo" target="_blank" rel="noopener" class="ho-btn ho-btn-demo ho-btn-pill" style="width:100%;">
+                جرب المنيو لايف الآن →
+              </a>
+              <span class="ho-customer-cta-note">منيو حي حقيقي — جرّب الإضافة للسلة والطلب</span>
+            </div>
+          </div>
+
+          <div class="ho-customer-features-col">
+            <article class="ho-exp-card">
+              <div class="ho-exp-card-head">
+                <div class="ho-exp-card-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+                </div>
+                <h3 class="ho-exp-card-title">استوريهات وعروض تفاعلية</h3>
+              </div>
+              <p class="ho-exp-card-desc">دوائر عروض أعلى المنيو تجذب انتباه العميل فوراً وتعرض الأكثر مبيعاً بضغطة واحدة.</p>
+            </article>
+
+            <article class="ho-exp-card">
+              <div class="ho-exp-card-head">
+                <div class="ho-exp-card-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line></svg>
+                </div>
+                <h3 class="ho-exp-card-title">تخصيص الأحجام والإضافات</h3>
+              </div>
+              <p class="ho-exp-card-desc">اختيار الحجم والكومبو والصوصات بسهولة تامة مع تحديث تلقائي لسعر السلة لحظياً.</p>
+            </article>
+
+            <article class="ho-exp-card">
+              <div class="ho-exp-card-head">
+                <div class="ho-exp-card-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </div>
+                <h3 class="ho-exp-card-title">تصفح شبكي وبحث فوري</h3>
+              </div>
+              <p class="ho-exp-card-desc">عرض صنفين متجاورين بألوان واضحة وحفظ المفضلة والوصول لأي وجبة من أول حرفين.</p>
+            </article>
+
+            <article class="ho-exp-card">
+              <div class="ho-exp-card-head">
+                <div class="ho-exp-card-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                </div>
+                <h3 class="ho-exp-card-title">ملف عميل وتتبع طلب حي</h3>
+              </div>
+              <p class="ho-exp-card-desc">شاشة حسابي تحفظ عناوين العميل وسجل طلباته مع متابعة حالة تجهيز الطلب والتوصيل مباشرة.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 4: INTERACTIVE SCREEN SHOWCASE
+         ===================================================================== -->
+    <section class="ho-showcase" id="showcase">
+      <div class="ho-container">
+        <div class="ho-section-head">
+          <div class="ho-badge">
+            <span class="ho-badge-dot"></span>
+            <span>معرض الشاشات الحقيقية</span>
+          </div>
+          <h2 class="ho-section-title">شاهد واجهات النظام الفاتحة والداكنة</h2>
+          <p class="ho-section-desc">تنقّل بين شاشات الكاشير، المطبخ، المخزون، ومنيو الموبايل وجرب الوضع الداكن.</p>
+        </div>
+
+        <div class="ho-showcase-controls">
+          <div class="ho-showcase-tabs" role="tablist" aria-label="شاشات النظام">
+            <button class="ho-tab-btn active" role="tab" aria-selected="true" data-target="pane-pos">
+              <span class="tab-desktop">الكاشير والصالة (POS)</span>
+              <span class="tab-mobile">الكاشير</span>
+            </button>
+            <button class="ho-tab-btn" role="tab" aria-selected="false" data-target="pane-kitchen">
+              <span class="tab-desktop">شاشة المطبخ (KDS)</span>
+              <span class="tab-mobile">المطبخ</span>
+            </button>
+            <button class="ho-tab-btn" role="tab" aria-selected="false" data-target="pane-inventory">
+              <span class="tab-desktop">المخزون والوصفات</span>
+              <span class="tab-mobile">المخزون</span>
+            </button>
+            <button class="ho-tab-btn" role="tab" aria-selected="false" data-target="pane-customer">
+              <span class="tab-desktop">منيو الموبايل</span>
+              <span class="tab-mobile">المنيو</span>
+            </button>
+          </div>
+
+          <button class="ho-theme-toggle-btn" id="hoThemeToggleBtn" type="button">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
             <span class="ho-theme-toggle-label">عرض الوضع الداكن</span>
           </button>
         </div>
-      </div>
 
-      <!-- Showcase Display Frame -->
-      <div class="ho-showcase-frame">
-        <!-- Pane 1: POS Cashier -->
-        <div class="ho-showcase-pane active" id="showcase-pos">
-          <img class="ho-showcase-img"
-               src="assets/brand/screenshots/pos_cashier_light.webp"
-               data-light="assets/brand/screenshots/pos_cashier_light.webp"
-               data-dark="assets/brand/screenshots/pos_cashier_dark.webp"
-               alt="شاشة كاشير Harpy Order"
-               width="1440" height="900"
-               loading="lazy">
-        </div>
-
-        <!-- Pane 2: Kitchen Display -->
-        <div class="ho-showcase-pane" id="showcase-kitchen">
-          <img class="ho-showcase-img"
-               src="assets/brand/screenshots/admin_orders_light.webp"
-               data-light="assets/brand/screenshots/admin_orders_light.webp"
-               data-dark="assets/brand/screenshots/admin_orders_dark.webp"
-               alt="شاشة المطبخ والطلبات الحية"
-               width="1440" height="900"
-               loading="lazy">
-        </div>
-
-        <!-- Pane 3: Inventory -->
-        <div class="ho-showcase-pane" id="showcase-inventory">
-          <img class="ho-showcase-img"
-               src="assets/brand/screenshots/admin_inventory_light.webp"
-               data-light="assets/brand/screenshots/admin_inventory_light.webp"
-               data-dark="assets/brand/screenshots/admin_inventory_dark.webp"
-               alt="شاشة المخزون والمواد الخام"
-               width="1440" height="900"
-               loading="lazy">
-        </div>
-
-        <!-- Pane 4: Customer Menu -->
-        <div class="ho-showcase-pane pane-mobile" id="showcase-customer">
-          <img class="ho-showcase-img"
-               src="assets/brand/screenshots/customer_menu_light.webp"
-               data-light="assets/brand/screenshots/customer_menu_light.webp"
-               data-dark="assets/brand/screenshots/customer_menu_dark.webp"
-               alt="منيو العميل الإلكتروني على الموبايل"
-               width="412" height="915"
-               loading="lazy">
-        </div>
-      </div>
-
-      <!-- Single Tasteful Live Demo Action -->
-      <div style="display:flex; justify-content:center; margin-top:28px;">
-        <a href="./admin/demo" target="_blank" rel="noopener" class="ho-btn ho-btn-demo ho-btn-sm" style="display:inline-flex; align-items:center; gap:8px; padding:10px 22px;">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
-          <span>معاينة لوحة التحكم والنظام لايف ↗</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ========================================================================
-       6. CUSTOM QUOTE / PRICING SECTION
-       ======================================================================== -->
-  <section class="ho-pricing" id="pricing">
-    <div class="ho-container">
-      <div class="ho-pricing-card">
-        <div class="ho-pricing-bg-pattern"></div>
-        <div class="ho-pricing-content">
-          <div class="ho-badge" style="background:rgba(255,106,0,0.15); border-color:rgba(255,106,0,0.3); color:#FF6A00; margin-bottom:20px;">
-            <span>خطة واضحة ومباشرة</span>
+        <div class="ho-showcase-frame">
+          <div class="ho-showcase-pane active" id="pane-pos">
+            <img class="ho-showcase-img"
+                 src="assets/brand/screenshots/pos_cashier_light.webp"
+                 data-light="assets/brand/screenshots/pos_cashier_light.webp"
+                 data-dark="assets/brand/screenshots/pos_cashier_dark.webp"
+                 alt="شاشة الكاشير السريعة Harpy Order POS"
+                 width="1280" height="800">
           </div>
-          <h2 class="ho-pricing-title">نظام متكامل مخصص لحجم مطعمك</h2>
-          <p class="ho-pricing-desc">
-            سواء كنت تدير فرعاً واحداً، مطبخاً سحابياً، أو سلسلة صالات — نجهز لك المنظومة بالكامل باشتراك مرن وبدون نسبة عمولة على طلباتك.
-          </p>
-
-          <ul class="ho-pricing-checklist">
-            <li>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-              <span>منيو إلكتروني سريع باسم مطعمك وهوية علامتك</span>
-            </li>
-            <li>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-              <span>نظام كاشير متصل وشاشات مطبخ بلا حدود للأجهزة</span>
-            </li>
-            <li>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-              <span>إدارة المخزون والمواد الخام وتقارير الورديات</span>
-            </li>
-            <li>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-              <span>دعم فني مباشر وتدريب فريقك على التشغيل</span>
-            </li>
-          </ul>
+          <div class="ho-showcase-pane" id="pane-kitchen">
+            <img class="ho-showcase-img"
+                 src="assets/brand/screenshots/admin_orders_light.webp"
+                 data-light="assets/brand/screenshots/admin_orders_light.webp"
+                 data-dark="assets/brand/screenshots/admin_orders_dark.webp"
+                 alt="شاشة استقبال المطبخ الحية Harpy Order"
+                 width="1280" height="800">
+          </div>
+          <div class="ho-showcase-pane" id="pane-inventory">
+            <img class="ho-showcase-img"
+                 src="assets/brand/screenshots/admin_inventory_light.webp"
+                 data-light="assets/brand/screenshots/admin_inventory_light.webp"
+                 data-dark="assets/brand/screenshots/admin_inventory_dark.webp"
+                 alt="إدارة المخزون والوصفات في Harpy Order"
+                 width="1280" height="800">
+          </div>
+          <div class="ho-showcase-pane pane-mobile" id="pane-customer">
+            <img class="ho-showcase-img"
+                 src="assets/brand/screenshots/customer_menu_light.webp"
+                 data-light="assets/brand/screenshots/customer_menu_light.webp"
+                 data-dark="assets/brand/screenshots/customer_menu_dark.webp"
+                 alt="منيو العميل على الجوال Harpy Order"
+                 width="390" height="844">
+          </div>
         </div>
 
-        <div class="ho-pricing-action-box">
-          <h4>جاهز لتطوير مطعمك؟</h4>
-          <p>تواصل معنا لنحدد احتياجات مطعمك ونرسل لك عرض سعر مخصص فوراً.</p>
-          <a href="https://wa.me/201113453475?text=%D8%A7%D9%84%D8%B3%D9%84%D8%A7%D9%85%20%D8%B9%D9%84%D9%8A%D9%83%D9%85%D8%8C%20%D8%AD%D8%A7%D8%A8%D8%A8%20%D8%A3%D8%B9%D8%B1%D9%81%20%D8%AA%D9%81%D8%A7%D8%B5%D9%8A%D9%84%20%D8%A7%D9%84%D8%A3%D8%B3%D8%B9%D8%A7%D8%B1%20%D9%88%D8%B9%D8%B1%D8%B6%20%D8%AE%D8%A7%D8%B5%20%D9%84%D9%85%D8%B7%D8%B9%D9%85%D9%8A." target="_blank" rel="noopener noreferrer" class="ho-btn ho-btn-primary" style="width:100%;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
-            <span>اطلب عرض سعر مخصص</span>
+        <div class="ho-showcase-demo-bar">
+          <div class="ho-showcase-demo-info">
+            <span class="ho-demo-pulse"></span>
+            <span>هل ترغب في تجربة النظام بنفسك الآن قبل الاشتراك؟</span>
+          </div>
+          <div class="ho-showcase-demo-actions">
+            <a href="./demo" target="_blank" rel="noopener" class="ho-btn ho-btn-outline ho-btn-sm ho-btn-pill">
+              معاينة منيو العميل
+            </a>
+            <a href="./admin/demo" target="_blank" rel="noopener" class="ho-btn ho-btn-demo ho-btn-sm ho-btn-pill">
+              فتح لوحة الكاشير والأدمن
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 5: 4 OFFICIAL PACKAGES + CORE 8 FEATURES
+         ===================================================================== -->
+    <section class="ho-pricing" id="pricing">
+      <div class="ho-container">
+        <div class="ho-section-head">
+          <div class="ho-badge">
+            <span class="ho-badge-dot"></span>
+            <span>باقات واضحة بدون مفاجآت أو عمولة</span>
+          </div>
+          <h2 class="ho-section-title">اختر الباقة الأنسب لنشاطك وميزانيتك</h2>
+          <p class="ho-section-desc">جميع الباقات تشمل المنظومة الأساسية الكاملة (8 مزايا رئيسية) بعمولة 0% على الطلبات، مع حرية إضافة ما تحتاجه فقط.</p>
+        </div>
+
+        <div class="ho-pricing-grid">
+          <!-- Package 1: Monthly -->
+          <article class="ho-pkg-card">
+            <span class="ho-pkg-save-pill neutral">بداية سريعة ومرنة</span>
+            <h3 class="ho-pkg-name">الباقة الشهرية</h3>
+            <p class="ho-pkg-subtitle">مثالية للتجربة الفورية أو التشغيل الموسمي بدون أي التزام طويل</p>
+            <div class="ho-pkg-price-wrap">
+              <div class="ho-pkg-price-row">
+                <span class="ho-pkg-price">899</span>
+                <span class="ho-pkg-currency">ج.م</span>
+              </div>
+              <div class="ho-pkg-period">كل 30 يوماً • فرع واحد</div>
+            </div>
+            <ul class="ho-pkg-list">
+              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"></polyline></svg> جميع المزايا الأساسية الثمانية</li>
+              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"></polyline></svg> 0% عمولة على جميع الطلبات</li>
+              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"></polyline></svg> تفعيل الميزات الإضافية بأي وقت</li>
+              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"></polyline></svg> دعم فني متواصل عبر واتساب</li>
+            </ul>
+            <a href="https://wa.me/201113453475?text=%D8%A3%D9%87%D9%84%D8%A7%D9%8B%20%D8%A8%D9%83%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D9%81%D9%8A%20%D8%A7%D9%84%D8%A7%D8%B4%D8%AA%D8%B1%D8%A7%D9%83%20%D9%81%D9%8A%20%D8%A7%D9%84%D8%A8%D8%A7%D9%82%D8%A9%20%D8%A7%D9%84%D8%B4%D9%87%D8%B1%D9%8A%D8%A9%20(899%20%D8%AC.%D9%85)" target="_blank" rel="noopener noreferrer" class="ho-btn ho-btn-outline">
+              اشترك في الشهرية
+            </a>
+          </article>
+
+          <!-- Package 2: 6 Months -->
+          <article class="ho-pkg-card">
+            <span class="ho-pkg-save-pill">وفر 41% (2,194 ج.م)</span>
+            <h3 class="ho-pkg-name">باقة 6 شهور</h3>
+            <p class="ho-pkg-subtitle">استقرار وتكلفة شهرية مخفضة للمطاعم والكافيهات النشطة</p>
+            <div class="ho-pkg-price-wrap">
+              <div class="ho-pkg-price-row">
+                <span class="ho-pkg-price">3,200</span>
+                <span class="ho-pkg-currency">ج.م</span>
+              </div>
+              <div class="ho-pkg-period">تعادل <span class="font-num">~533</span> ج.م شهرياً</div>
+            </div>
+            <ul class="ho-pkg-list">
+              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"></polyline></svg> جميع المزايا الأساسية الثمانية</li>
+              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"></polyline></svg> 0% عمولة على جميع الطلبات</li>
+              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"></polyline></svg> تهيئة أولية للحساب والمنيو</li>
+              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"></polyline></svg> أولوية في الدعم والتحديثات</li>
+            </ul>
+            <a href="https://wa.me/201113453475?text=%D8%A3%D9%87%D9%84%D8%A7%D9%8B%20%D8%A8%D9%83%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D9%81%D9%8A%20%D8%A7%D9%84%D8%A7%D8%B4%D8%AA%D8%B1%D8%A7%D9%83%20%D9%81%D9%8A%20%D8%A8%D8%A7%D9%82%D8%A9%206%20%D8%B4%D9%87%D9%88%D8%B1%20(3%2C200%20%D8%AC.%D9%85)" target="_blank" rel="noopener noreferrer" class="ho-btn ho-btn-outline">
+              اشترك في 6 شهور
+            </a>
+          </article>
+
+          <!-- Package 3: Annual (Most Popular) -->
+          <article class="ho-pkg-card popular">
+            <span class="ho-pkg-ribbon">الأكثر توفيراً وطلباً</span>
+            <span class="ho-pkg-save-pill">وفر 52% مقارنة بالشهري</span>
+            <h3 class="ho-pkg-name">الباقة السنوية</h3>
+            <p class="ho-pkg-subtitle">أقل تكلفة شهرية وتجهيز كامل للمنيو والـ QR جاهز للطباعة مجاناً</p>
+            <div class="ho-pkg-price-wrap">
+              <div class="ho-pkg-price-row">
+                <span class="ho-pkg-price">5,200</span>
+                <span class="ho-pkg-currency">ج.م</span>
+              </div>
+              <div class="ho-pkg-period">تعادل <span class="font-num">~433</span> ج.م شهرياً فقط</div>
+            </div>
+            <ul class="ho-pkg-list">
+              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"></polyline></svg> جميع المزايا الأساسية الثمانية</li>
+              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"></polyline></svg> إدخال المنيو والصور مجاناً</li>
+              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"></polyline></svg> تصميم ستيكر QR جاهز للطباعة</li>
+              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"></polyline></svg> أولوية قصوى للدعم الفني والتحديثات</li>
+            </ul>
+            <a href="https://wa.me/201113453475?text=%D8%A3%D9%87%D9%84%D8%A7%D9%8B%20%D8%A8%D9%83%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D9%81%D9%8A%20%D8%A7%D9%84%D8%A7%D8%B4%D8%AA%D8%B1%D8%A7%D9%83%20%D9%81%D9%8A%20%D8%A7%D9%84%D8%A8%D8%A7%D9%82%D8%A9%20%D8%A7%D9%84%D8%B3%D9%86%D9%88%D9%8A%D8%A9%20(5%2C200%20%D8%AC.%D9%85)" target="_blank" rel="noopener noreferrer" class="ho-btn ho-btn-primary">
+              اختر الباقة السنوية
+            </a>
+          </article>
+
+          <!-- Package 4: Lifetime -->
+          <article class="ho-pkg-card">
+            <span class="ho-pkg-save-pill neutral">امتلاك دائم بدون تجديد</span>
+            <h3 class="ho-pkg-name">باقة مدى الحياة</h3>
+            <p class="ho-pkg-subtitle">استثمار لمرة واحدة لفرع واحد — تخلص من أي التزام أو فاتورة تجديد للأبد</p>
+            <div class="ho-pkg-price-wrap">
+              <div class="ho-pkg-price-row">
+                <span class="ho-pkg-price">12,000</span>
+                <span class="ho-pkg-currency">ج.م</span>
+              </div>
+              <div class="ho-pkg-period">دفعة واحدة • ترخيص دائم لفرع واحد</div>
+            </div>
+            <ul class="ho-pkg-list">
+              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"></polyline></svg> المنظومة الأساسية دائماً بلا تجديد</li>
+              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"></polyline></svg> 0% عمولة على مبيعاتك للأبد</li>
+              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"></polyline></svg> دعم وتحديثات مجانية للسنة الأولى</li>
+              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"></polyline></svg> تهيئة شاملة وتدريب الكاشير</li>
+            </ul>
+            <a href="https://wa.me/201113453475?text=%D8%A3%D9%87%D9%84%D8%A7%D9%8B%20%D8%A8%D9%83%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D9%81%D9%8A%20%D8%A7%D9%84%D8%A7%D8%B4%D8%AA%D8%B1%D8%A7%D9%83%20%D9%81%D9%8A%20%D8%A8%D8%A7%D9%82%D8%A9%20%D9%85%D8%AF%D9%89%20%D8%A7%D9%84%D8%AD%D9%8A%D8%A7%D8%A9%20(12%2C000%20%D8%AC.%D9%85)" target="_blank" rel="noopener noreferrer" class="ho-btn ho-btn-dark">
+              اطلب باقة مدى الحياة
+            </a>
+          </article>
+        </div>
+
+        <!-- Core 8 Features Strip Shared Across All Packages -->
+        <div class="ho-core-box">
+          <div class="ho-core-head">
+            <h3>المزايا الأساسية الثمانية المشمولة تلقائياً في كل الباقات:</h3>
+            <span class="ho-core-zero-badge">0% عمولة على جميع الطلبات</span>
+          </div>
+          <div class="ho-core-grid">
+            <div class="ho-core-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span>منيو QR وتطبيق عملاء PWA باسم ولوجو مطعمك (عربي/إنجليزي)</span>
+            </div>
+            <div class="ho-core-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span>الطلب المباشر من المنيو مع الأحجام والإضافات والسلة</span>
+            </div>
+            <div class="ho-core-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span>دفع كاش + إنستاباي + فودافون كاش مع رفع الإيصال</span>
+            </div>
+            <div class="ho-core-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span>التتبع الحي لحالة الطلب للعميل خطوة بخطوة</span>
+            </div>
+            <div class="ho-core-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span>شاشة استقبال المطبخ الحية بصوت تنبيه وإشعارات Push</span>
+            </div>
+            <div class="ho-core-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span>لوحة الكاشير السريعة POS وطباعة 80mm / 58mm / A4</span>
+            </div>
+            <div class="ho-core-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span>أرشيف الفواتير المسلمة وتقارير المبيعات اليومية</span>
+            </div>
+            <div class="ho-core-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span>رابط خاص harpymenu.com/اسمك + ستيكر QR + نسخ سحابي</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 6: MODULAR OPTIONAL ADD-ONS (#addons)
+         ===================================================================== -->
+    <section class="ho-addons" id="addons">
+      <div class="ho-container">
+        <div class="ho-section-head">
+          <div class="ho-badge">
+            <span class="ho-badge-dot"></span>
+            <span>نظام التسعير المرن (Modular)</span>
+          </div>
+          <h2 class="ho-section-title">أضف المزايا المتقدمة حسب حاجتك فقط</h2>
+          <p class="ho-section-desc">لا تدفع مقابل خصائص لا تستخدمها — أضف أي وحدة تشغيلية بأي وقت، أو اطلب الحزمة الشاملة بخصم يقارب 50%.</p>
+        </div>
+
+        <div class="ho-addon-controls">
+          <div class="ho-addon-pills" role="group" aria-label="اختر مدة الاشتراك لعرض أسعار الإضافات">
+            <button type="button" class="ho-addon-pill" data-period="monthly" aria-pressed="false">شهري</button>
+            <button type="button" class="ho-addon-pill" data-period="6m" aria-pressed="false">6 شهور</button>
+            <button type="button" class="ho-addon-pill active" data-period="yearly" aria-pressed="true">سنوي</button>
+            <button type="button" class="ho-addon-pill" data-period="lifetime" aria-pressed="false">مدى الحياة</button>
+          </div>
+        </div>
+
+        <div class="ho-addons-table-wrap">
+          <table class="ho-addons-table">
+            <thead>
+              <tr>
+                <th>الميزة / الوحدة الإضافية</th>
+                <th class="price-col" data-period="monthly">شهري</th>
+                <th class="price-col" data-period="6m">6 شهور</th>
+                <th class="price-col is-selected-col" data-period="yearly">سنوي</th>
+                <th class="price-col" data-period="lifetime">مدى الحياة</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <span class="ho-addon-title">1. المخزون والخامات والوصفات (COGS)</span>
+                  <span class="ho-addon-sub">ربط مكونات الوجبة بالخامات، الخصم التلقائي عند الطلب، وحساب تكلفة الصنف والربح</span>
+                </td>
+                <td class="price-cell" data-period="monthly">199 ج.م</td>
+                <td class="price-cell" data-period="6m">950 ج.م</td>
+                <td class="price-cell is-selected-col" data-period="yearly">1,600 ج.م</td>
+                <td class="price-cell" data-period="lifetime">3,500 ج.م</td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="ho-addon-title">2. نظام تقفيل الورديات وحركة الدرج</span>
+                  <span class="ho-addon-sub">فتح وإغلاق شفت الكاشير، عد النقدية، وسجل ورديات ومقارنة العجز والزيادة</span>
+                </td>
+                <td class="price-cell" data-period="monthly">99 ج.م</td>
+                <td class="price-cell" data-period="6m">500 ج.م</td>
+                <td class="price-cell is-selected-col" data-period="yearly">850 ج.م</td>
+                <td class="price-cell" data-period="lifetime">1,800 ج.م</td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="ho-addon-title">3. طاولات الصالة وأكواد QR الذكية</span>
+                  <span class="ho-addon-sub">إنشاء رقم طاولة وباركود لكل ترابيزة، وربط طلب الزبون برقمه على الكاشير</span>
+                </td>
+                <td class="price-cell" data-period="monthly">99 ج.م</td>
+                <td class="price-cell" data-period="6m">500 ج.م</td>
+                <td class="price-cell is-selected-col" data-period="yearly">850 ج.م</td>
+                <td class="price-cell" data-period="lifetime">1,800 ج.م</td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="ho-addon-title">4. قصص واستوريهات العروض التفاعلية</span>
+                  <span class="ho-addon-sub">شريط Stories أعلى المنيو للوجبات الجديدة والعروض السريعة القابلة للطلب فوراً</span>
+                </td>
+                <td class="price-cell" data-period="monthly">99 ج.م</td>
+                <td class="price-cell" data-period="6m">500 ج.م</td>
+                <td class="price-cell is-selected-col" data-period="yearly">850 ج.م</td>
+                <td class="price-cell" data-period="lifetime">1,500 ج.م</td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="ho-addon-title">5. كوبونات الخصم والخصم التلقائي للسلة</span>
+                  <span class="ho-addon-sub">إنشاء أكواد خصم وتفعيل خصم تلقائي عند تخطي الفاتورة حد معين لرفع المبيعات</span>
+                </td>
+                <td class="price-cell" data-period="monthly">99 ج.م</td>
+                <td class="price-cell" data-period="6m">500 ج.م</td>
+                <td class="price-cell is-selected-col" data-period="yearly">850 ج.م</td>
+                <td class="price-cell" data-period="lifetime">1,500 ج.م</td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="ho-addon-title">6. تسعير مناطق التوصيل المخصصة</span>
+                  <span class="ho-addon-sub">تحديد رسوم دليفري منفصلة لكل منطقة أو حي تلقائياً أثناء اختيار العميل لعنوانه</span>
+                </td>
+                <td class="price-cell" data-period="monthly">99 ج.م</td>
+                <td class="price-cell" data-period="6m">500 ج.م</td>
+                <td class="price-cell is-selected-col" data-period="yearly">850 ج.م</td>
+                <td class="price-cell" data-period="lifetime">1,500 ج.م</td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="ho-addon-title">7. شريط الإعلانات الترويجي المتحرك</span>
+                  <span class="ho-addon-sub">رسالة ترويجية وتنبيهات الخصومات وساعات العمل تتحرك بسلاسة أعلى المنيو</span>
+                </td>
+                <td class="price-cell" data-period="monthly">49 ج.م</td>
+                <td class="price-cell" data-period="6m">250 ج.م</td>
+                <td class="price-cell is-selected-col" data-period="yearly">450 ج.م</td>
+                <td class="price-cell" data-period="lifetime">900 ج.م</td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="ho-addon-title">8. نظام تقييمات وآراء العملاء</span>
+                  <span class="ho-addon-sub">تقييم العملاء لكل طلب بعد الاستلام لبناء الثقة ومراقبة جودة الخدمة</span>
+                </td>
+                <td class="price-cell" data-period="monthly">49 ج.م</td>
+                <td class="price-cell" data-period="6m">250 ج.م</td>
+                <td class="price-cell is-selected-col" data-period="yearly">450 ج.م</td>
+                <td class="price-cell" data-period="lifetime">900 ج.م</td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="ho-addon-title">9. ربط فرع إضافي (Multi-Branch)</span>
+                  <span class="ho-addon-sub">ترخيص تشغيلي مستقل لكل فرع إضافي بنفس علامة مطعمك أو قوائم أسعار مخصصة</span>
+                </td>
+                <td class="price-cell" data-period="monthly">399 ج.م</td>
+                <td class="price-cell" data-period="6m">1,900 ج.م</td>
+                <td class="price-cell is-selected-col" data-period="yearly">3,200 ج.م</td>
+                <td class="price-cell" data-period="lifetime">6,500 ج.م</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="ho-bundle-banner">
+          <div class="ho-bundle-info">
+            <h4>حزمة الإضافات الشاملة (المزايا من 1 إلى 8 معاً)</h4>
+            <p>احصل على جميع الإضافات الثمانية دفعة واحدة ووفّر نحو 50% بدلاً من شرائها منفردة.</p>
+          </div>
+          <div class="ho-bundle-action">
+            <div class="ho-bundle-price">
+              <strong id="hoBundlePrice">+3,500 ج.م</strong>
+              <span id="hoBundlePeriod">سنوياً (بدلاً من 6,850 ج.م منفردة)</span>
+            </div>
+            <a id="hoBundleCta" href="https://wa.me/201113453475?text=%D8%A3%D9%87%D9%84%D8%A7%D9%8B%20%D8%A8%D9%83%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D9%81%D9%8A%20%D8%AD%D8%B2%D9%85%D8%A9%20%D8%A7%D9%84%D8%A5%D8%B6%D8%A7%D9%81%D8%A7%D8%AA%20%D8%A7%D9%84%D8%B4%D8%A7%D9%85%D9%84%D8%A9%20%D8%A7%D9%84%D8%B3%D9%86%D9%88%D9%8A%D8%A9%20(3%2C500%20%D8%AC.%D9%85)" target="_blank" rel="noopener noreferrer" class="ho-btn ho-btn-primary ho-btn-pill">
+              أضف الحزمة الشاملة
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 7: HOW TO START + FAQ + FINAL CTA
+         ===================================================================== -->
+    <section class="ho-start" id="start">
+      <div class="ho-container">
+        <div class="ho-section-head">
+          <div class="ho-badge">
+            <span class="ho-badge-dot"></span>
+            <span>تشغيل سريع في نفس اليوم</span>
+          </div>
+          <h2 class="ho-section-title">كيف يبدأ مطعمك في 3 خطوات بسيطة؟</h2>
+          <p class="ho-section-desc">بدون أجهزة مكلفة أو تعقيدات تقنية — فريقنا يجهز لك المنظومة لتعمل فورياً.</p>
+        </div>
+
+        <div class="ho-start-grid">
+          <article class="ho-start-step">
+            <div class="ho-step-head">
+              <span class="ho-step-circle">1</span>
+              <h3 class="ho-step-title">اختر باقتك وأرسل المنيو</h3>
+            </div>
+            <p class="ho-step-desc">تواصل معنا بالمنيو والأسعار والشعار الخاص بمطعمك لنجهز هيكل الأصناف والإضافات.</p>
+          </article>
+
+          <article class="ho-start-step">
+            <div class="ho-step-head">
+              <span class="ho-step-circle">2</span>
+              <h3 class="ho-step-title">نجهز حسابك خلال ساعات</h3>
+            </div>
+            <p class="ho-step-desc">نبرمج رابط مطعمك <span class="font-num">harpymenu.com/اسمك</span> ولوحة الكاشير والمطبخ وأكواد الـ QR.</p>
+          </article>
+
+          <article class="ho-start-step">
+            <div class="ho-step-head">
+              <span class="ho-step-circle">3</span>
+              <h3 class="ho-step-title">استقبل طلباتك فوراً</h3>
+            </div>
+            <p class="ho-step-desc">افتح النظام على أي موبايل أو تابلت أو كمبيوتر وابدأ البيع المباشر بعمولة 0%.</p>
+          </article>
+        </div>
+
+        <!-- Concise FAQ Accordion -->
+        <div class="ho-faq-wrap" id="faq">
+          <h3 class="ho-faq-heading">الأسئلة الشائعة</h3>
+          <div class="ho-faq-list">
+            <details class="ho-faq-item">
+              <summary>هل يحصل Harpy Order على أي نسبة أو عمولة من الطلبات؟</summary>
+              <div class="ho-faq-answer">لا نهائياً. جميع الباقات تعمل بـ 0% عمولة على مبيعاتك وطلباتك سواء من داخل الصالة أو السفري أو الدليفري.</div>
+            </details>
+            <details class="ho-faq-item">
+              <summary>هل أحتاج شراء أجهزة كاشير غالية بمواصفات خاصة؟</summary>
+              <div class="ho-faq-answer">لا. يعمل النظام سحابياً من المتصفح على أي جهاز متوفر لديك (كمبيوتر، تابلت، أو موبايل)، ويدعم جميع الطابعات الحرارية 80mm و 58mm وطابعات A4.</div>
+            </details>
+            <details class="ho-faq-item">
+              <summary>كيف أستلم أموال عملائي من إنستاباي وفودافون كاش؟</summary>
+              <div class="ho-faq-answer">يقوم العميل بالتحويل مباشرة إلى حسابك أو رقم محفظتك ويرفع صورة الإيصال داخل الطلب فتظهر فوراً في لوحة الكاشير لتأكيد الطلب بدون أي وسيط مالي.</div>
+            </details>
+            <details class="ho-faq-item">
+              <summary>هل يمكنني البدء بالأساسية ثم إضافة المخزون أو الورديات لاحقاً؟</summary>
+              <div class="ho-faq-answer">نعم بالتأكيد. جميع الميزات الإضافية معيارية (Modular) — يمكنك تفعيل أي ميزة أو باقة فروع وقتما ينمو مطعمك وفي لحظات.</div>
+            </details>
+          </div>
+        </div>
+
+        <div class="ho-final-cta">
+          <h3>جاهز لإطلاق مطعمك وتوفير عمولات التطبيقات؟</h3>
+          <p>تواصل معنا الآن عبر واتساب لتفعيل اشتراكك أو طلب معاينة خاصة بقائمة مطعمك.</p>
+          <a href="https://wa.me/201113453475?text=%D8%A3%D9%87%D9%84%D8%A7%D9%8B%20%D8%A8%D9%83%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D9%81%D9%8A%20%D8%AA%D8%B4%D8%BA%D9%8A%D9%84%20%D9%86%D8%B8%D8%A7%D9%85%20Harpy%20Order%20%D9%84%D9%85%D8%B7%D8%B9%D9%85%D9%8A" target="_blank" rel="noopener noreferrer" class="ho-btn ho-btn-primary ho-btn-lg ho-btn-pill">
+            تواصل معنا عبر واتساب الآن
           </a>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+  </main>
 
-  <!-- ========================================================================
-       7. HOW TO START (3 SIMPLE STEPS)
-       ======================================================================== -->
-  <section class="ho-start" id="start">
-    <div class="ho-container">
-      <div class="ho-section-head">
-        <div class="ho-badge">
-          <span>خطوات التشغيل السريع</span>
-        </div>
-        <h2 class="ho-section-title">كيف تبدأ في 3 خطوات بسيطة؟</h2>
-        <p class="ho-section-desc">
-          لا تحتاج لشراء أجهزة معقدة أو تعطيل العمل في مطعمك.
-        </p>
-      </div>
-
-      <div class="ho-start-grid">
-        <!-- Step 1 -->
-        <div class="ho-start-step">
-          <div class="ho-step-circle">1</div>
-          <h3 class="ho-step-title">تواصل معنا وحدد قائمة طعامك</h3>
-          <p class="ho-step-desc">
-            أرسل لنا المنيو الخاص بك بأسعاره وتصنيفاته عبر واتساب، ونحن نتولى إدخال كافة الأصناف والإضافات والصور.
-          </p>
-        </div>
-
-        <!-- Step 2 -->
-        <div class="ho-start-step">
-          <div class="ho-step-circle">2</div>
-          <h3 class="ho-step-title">نجهز منصتك بالكامل في ساعات</h3>
-          <p class="ho-step-desc">
-            نقوم ببرمجة لوحة التحكم السحابية، وتهيئة شاشات المطبخ والكاشير، وإنشاء أكواد الـ QR الخاصة بطاولاتك.
-          </p>
-        </div>
-
-        <!-- Step 3 -->
-        <div class="ho-start-step">
-          <div class="ho-step-circle">3</div>
-          <h3 class="ho-step-title">ابدأ البيع واستقبال الأوردرات</h3>
-          <p class="ho-step-desc">
-            شغل النظام على أجهزة التابلت أو الموبايل أو الكمبيوتر المتوفرة لديك حالياً واستقبل أول طلب في نفس اليوم.
-          </p>
-        </div>
-      </div>
-
-      <!-- Final Strong CTA Banner -->
-      <div class="ho-final-cta" id="contact">
-        <h3>انضم إلى المطاعم التي تدير عملها باحتراف</h3>
-        <p>ابدأ اليوم وتخلص من فوضى الأوردرات الورقية وأخطاء الحسابات في مطعمك.</p>
-        <a href="https://wa.me/201113453475?text=%D8%A7%D9%84%D8%B3%D9%84%D8%A7%D9%85%20%D8%B9%D9%84%D9%8A%D9%83%D9%85%D8%8C%20%D8%AD%D8%A7%D8%A8%D8%A8%20%D8%A3%D8%A8%D8%AF%D8%A3%20%D8%AA%D8%B4%D8%BA%D9%8A%D9%84%20%D9%86%D8%B8%D8%A7%D9%85%20Harpy%20Order%20%D9%84%D9%85%D8%B7%D8%B9%D9%85%D9%8A." target="_blank" rel="noopener noreferrer" class="ho-btn ho-btn-primary ho-btn-lg">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
-          <span>تواصل معنا الآن عبر واتساب</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ========================================================================
-       8. FOOTER
-       ======================================================================== -->
+  <!-- =======================================================================
+       FOOTER & WHATSAPP FAB
+       ======================================================================= -->
   <footer class="ho-footer">
     <div class="ho-container">
       <div class="ho-footer-top">
         <div class="ho-footer-brand">
-          <img src="assets/brand/harpy_order_emblem_transparent.png" alt="شعار Harpy Order" class="ho-footer-logo-img" width="54" height="54">
+          <img src="assets/brand/harpy_order_emblem_transparent.png" alt="Harpy Order Logo" class="ho-footer-logo-img" width="44" height="44">
           <div class="ho-footer-brand-text">
-            <h4>Harpy <span style="color:var(--primary);">Order</span></h4>
-            <p>نظام التشغيل السحابي لإدارة المطاعم</p>
+            <h4>Harpy <span>Order</span></h4>
+            <p>نظام التشغيل السحابي المتكامل لإدارة المطاعم والكافيهات</p>
           </div>
         </div>
 
         <div class="ho-footer-social">
-          <a href="https://wa.me/201113453475?text=%D8%A7%D9%84%D8%B3%D9%84%D8%A7%D9%85%20%D8%B9%D9%84%D9%8A%D9%83%D9%85%D8%8C%20%D8%AD%D8%A7%D8%A8%D8%A8%20%D8%A3%D8%B3%D8%AA%D9%81%D8%B3%D8%B1%20%D8%B9%D9%86%20%D9%86%D8%B8%D8%A7%D9%85%20Harpy%20Order." target="_blank" rel="noopener noreferrer" class="ho-social-link" title="واتساب">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+          <a href="https://wa.me/201113453475" target="_blank" rel="noopener noreferrer" class="ho-social-link" title="تواصل عبر واتساب">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 2c-5.516 0-9.969 4.453-9.969 9.969 0 1.766.469 3.484 1.344 5.016l-1.406 5.156 5.281-1.391c1.484.813 3.125 1.234 4.75 1.234 5.516 0 9.969-4.453 9.969-9.969S17.547 2 12.031 2zm5.828 14.125c-.25.703-1.453 1.344-2.016 1.422-.531.078-1.203.109-1.938-.125-.453-.141-1.031-.328-1.766-.656-3.078-1.359-5.078-4.484-5.234-4.688-.156-.203-1.25-1.672-1.25-3.188s.797-2.25 1.078-2.563c.281-.313.609-.391.813-.391s.406 0 .578.016c.188.016.438-.078.688.531.266.641.891 2.172.969 2.328s.125.344.016.563c-.109.219-.156.344-.313.531s-.328.406-.469.547c-.156.156-.328.328-.141.656.188.328.828 1.375 1.781 2.219 1.234 1.094 2.266 1.438 2.594 1.594.328.156.516.125.703-.094.188-.219.813-.953 1.031-1.281.219-.328.438-.266.734-.156s1.875.891 2.203 1.047c.328.156.547.234.625.375.078.141.078.797-.172 1.5z"/></svg>
             <span class="font-num">01113453475</span>
           </a>
-
           <a href="https://www.facebook.com/share/1G5XfnP2Lv/" target="_blank" rel="noopener noreferrer" class="ho-social-link" title="صفحة فيسبوك الرسمية">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.495v-9.294h-3.128v-3.622h3.128v-2.671c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.325v-21.35c0-.732-.593-1.325-1.325-1.325z"/></svg>
             <span>فيسبوك</span>
           </a>
         </div>
       </div>
 
       <div class="ho-footer-bottom">
-        <div>
-          &copy; <span class="font-num">2026</span> Harpy Order. جميع الحقوق محفوظة.
-        </div>
-        <div style="color:#718096;">
-          مطعمك كله في نظام واحد
-        </div>
+        <span>© 2026 Harpy Order. جميع الحقوق محفوظة.</span>
+        <span>منصة إدارة المطاعم والكافيهات السحابية • 0% عمولة</span>
       </div>
     </div>
   </footer>
 
-  <!-- ========================================================================
-       LUXURY FLOATING WHATSAPP CHAT BADGE (PRO REDESIGN)
-       ======================================================================== -->
-  <a href="https://wa.me/201113453475?text=%D8%A7%D9%84%D8%B3%D9%84%D8%A7%D9%85%20%D8%B9%D9%84%D9%8A%D9%83%D9%85%D8%8C%20%D8%AD%D8%A7%D8%A8%D8%A8%20%D8%A3%D8%B3%D8%AA%D9%81%D8%B3%D8%B1%20%D8%B9%D9%86%20%D9%86%D8%B8%D8%A7%D9%85%20Harpy%20Order%20%D9%84%D8%A5%D8%AF%D8%A7%D8%B1%D8%A9%20%D8%A7%D9%84%D9%85%D8%B7%D8%A7%D8%B9%D9%85."
-     target="_blank"
-     rel="noopener noreferrer"
-     class="ho-luxury-wa"
-     aria-label="تواصل معنا عبر واتساب">
-    <div class="ho-wa-avatar-box">
-      <div class="ho-wa-ping"></div>
-      <div class="ho-wa-icon-circle">
-        <svg viewBox="0 0 24 24" class="ho-wa-icon-svg"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
-        <span class="ho-wa-dot"></span>
-      </div>
+  <!-- Floating WhatsApp Contact -->
+  <a href="https://wa.me/201113453475?text=%D8%A3%D9%87%D9%84%D8%A7%D9%8B%20%D8%A8%D9%83%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D9%81%D9%8A%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20%D9%86%D8%B8%D8%A7%D9%85%20Harpy%20Order" target="_blank" rel="noopener noreferrer" class="ho-luxury-wa" aria-label="تواصل معنا عبر واتساب">
+    <div class="ho-wa-icon-circle">
+      <svg class="ho-wa-icon-svg" viewBox="0 0 24 24"><path d="M12.031 2c-5.516 0-9.969 4.453-9.969 9.969 0 1.766.469 3.484 1.344 5.016l-1.406 5.156 5.281-1.391c1.484.813 3.125 1.234 4.75 1.234 5.516 0 9.969-4.453 9.969-9.969S17.547 2 12.031 2zm5.828 14.125c-.25.703-1.453 1.344-2.016 1.422-.531.078-1.203.109-1.938-.125-.453-.141-1.031-.328-1.766-.656-3.078-1.359-5.078-4.484-5.234-4.688-.156-.203-1.25-1.672-1.25-3.188s.797-2.25 1.078-2.563c.281-.313.609-.391.813-.391s.406 0 .578.016c.188.016.438-.078.688.531.266.641.891 2.172.969 2.328s.125.344.016.563c-.109.219-.156.344-.313.531s-.328.406-.469.547c-.156.156-.328.328-.141.656.188.328.828 1.375 1.781 2.219 1.234 1.094 2.266 1.438 2.594 1.594.328.156.516.125.703-.094.188-.219.813-.953 1.031-1.281.219-.328.438-.266.734-.156s1.875.891 2.203 1.047c.328.156.547.234.625.375.078.141.078.797-.172 1.5z"/></svg>
     </div>
     <div class="ho-wa-info">
-      <div class="ho-wa-title">تواصل معنا على واتساب</div>
-      <div class="ho-wa-subtitle">متاحون للرد السريع الآن</div>
+      <span class="ho-wa-title">تواصل معنا عبر واتساب</span>
+      <span class="ho-wa-subtitle">رد فوري 01113453475</span>
     </div>
   </a>
 
-  <!-- Interactive JavaScript Engine -->
-  <script src="js/portfolio.js?v=6.0"></script>
+  <script src="js/portfolio.js?v=7.0"></script>
 </body>
 </html>
