@@ -2286,10 +2286,19 @@
       <!-- 8. Archive & Reports -->
       <label class="module-toggle-row">
         <div>
-          <div class="module-toggle-title">8. أرشيف المبيعات والتقارير المالية (Sales Archive)</div>
-          <div class="module-toggle-desc">التقارير اليومية، تاريخ الفواتير، وتحليلات الإيرادات السابقة</div>
+          <div class="module-toggle-title">8. أرشيف المبيعات والفواتير المسلمة (Sales Archive)</div>
+          <div class="module-toggle-desc">التقارير اليومية، سجل الفواتير المسلمة، وتحليلات الإيرادات</div>
         </div>
         <input type="checkbox" id="mod-toggle-archive" style="width:20px; height:20px; accent-color:var(--primary);">
+      </label>
+
+      <!-- 8b. Shifts & Z-Report -->
+      <label class="module-toggle-row">
+        <div>
+          <div class="module-toggle-title">8b. نظام الورديات وتقفيل الشيفتات (Shifts Archive)</div>
+          <div class="module-toggle-desc">تفعيل سجل الورديات المقفلة وتقفيل الشيفت (تعطيله يُبقي الفواتير المسلمة فقط)</div>
+        </div>
+        <input type="checkbox" id="mod-toggle-shifts" style="width:20px; height:20px; accent-color:var(--primary);">
       </label>
 
       <!-- 9. Coupons -->
@@ -2751,7 +2760,8 @@
         { key: 'delivery', name: 'التوصيل والدليفري وتسعير النطاقات', desc: 'تحديد رسوم التوصيل بحسب المناطق والخرائط وتتبع السائقين' },
         { key: 'takeaway', name: 'الاستلام الذاتي من الفرع (Takeaway)', desc: 'إتاحة تجهيز واستلام الطلب من مقر المطعم مباشرة' },
         { key: 'onlinePayment', name: 'المحفظة الرقمية والدفع الذكي', desc: 'الدفع بإنستاباي وفودافون كاش والمحافظ الإلكترونية' },
-        { key: 'archive', name: 'الأرشيف السحابي والتقارير المالية', desc: 'حفظ سجلات الطلبات التاريخية وتصدير الإكسل والإحصائيات' },
+        { key: 'archive', name: 'الأرشيف السحابي والفواتير المسلمة', desc: 'حفظ سجلات الفواتير المسلمة التاريخية وتصدير الإكسل والإحصائيات' },
+        { key: 'shifts', name: 'نظام الورديات وتقفيل الشيفتات (Shifts)', desc: 'إدارة وتقفيل الورديات وسجل الورديات المقفلة (إيقافه يعرض الفواتير المسلمة فقط)' },
         { key: 'coupons', name: 'كوبونات الخصم والبروموكود الترويجي', desc: 'إنشاء رموز خصم بنسبة مئوية أو قيمة ثابتة بحد أدنى' },
         { key: 'cartDiscount', name: 'الخصم التلقائي على إجمالي الطلب', desc: 'تطبيق خصومات شرائح السلة التلقائية' },
         { key: 'announcementBar', name: 'شريط وبانر الإعلانات والعروض', desc: 'إظهار شريط إعلاني متحرك أو ثابت في أعلى صفحة المنيو' },
@@ -2772,7 +2782,7 @@
           description: "عرض منيو رقمي فقط عبر QR بدون سلة أو طلبات مباشرة أو كاشير",
           modules: {
             ordering: false, pos: false, inventory: false, smartTables: true,
-            delivery: false, takeaway: false, onlinePayment: false, archive: false,
+            delivery: false, takeaway: false, onlinePayment: false, archive: false, shifts: false,
             coupons: false, cartDiscount: false, announcementBar: true, stories: false,
             branches: false, reviews: true, settings: false, backup: false
           }
@@ -2787,7 +2797,7 @@
           description: "تشمل منيو رقمي ذكي وكاشير محلي وطاولات QR",
           modules: {
             ordering: true, pos: true, inventory: false, smartTables: true,
-            delivery: true, takeaway: true, onlinePayment: false, archive: true,
+            delivery: true, takeaway: true, onlinePayment: false, archive: true, shifts: true,
             coupons: false, cartDiscount: false, announcementBar: false, stories: false,
             branches: false, reviews: true
           }
@@ -2802,7 +2812,7 @@
           description: "كافة مزايا السيستم والتوصيل والدفع الذكي والكاشير",
           modules: {
             ordering: true, pos: true, inventory: true, smartTables: true,
-            delivery: true, takeaway: true, onlinePayment: true, archive: true,
+            delivery: true, takeaway: true, onlinePayment: true, archive: true, shifts: true,
             coupons: true, cartDiscount: true, announcementBar: true, stories: true,
             branches: false, reviews: true
           }
@@ -2817,7 +2827,7 @@
           description: "كافة المزايا الـ 14 كاملة بدون قيود مع الفروع والدعم المخصص",
           modules: {
             ordering: true, pos: true, inventory: true, smartTables: true,
-            delivery: true, takeaway: true, onlinePayment: true, archive: true,
+            delivery: true, takeaway: true, onlinePayment: true, archive: true, shifts: true,
             coupons: true, cartDiscount: true, announcementBar: true, stories: true,
             branches: true, reviews: true
           }
@@ -2832,7 +2842,7 @@
           description: "وفر شهرين مع تحديثات غير محدودة وكافة المزايا الـ 14",
           modules: {
             ordering: true, pos: true, inventory: true, smartTables: true,
-            delivery: true, takeaway: true, onlinePayment: true, archive: true,
+            delivery: true, takeaway: true, onlinePayment: true, archive: true, shifts: true,
             coupons: true, cartDiscount: true, announcementBar: true, stories: true,
             branches: true, reviews: true
           }
@@ -3094,7 +3104,7 @@
               logo: settings.logoUrl || settings.logo || 'assets/brand/harpy_order_emblem_transparent.png',
               modules: lic.modules || settings.modules || {
                 ordering: true, pos: true, inventory: true, stories: true, smartTables: true,
-                delivery: true, takeaway: true, onlinePayment: true, archive: true,
+                delivery: true, takeaway: true, onlinePayment: true, archive: true, shifts: true, shifts: true,
                 coupons: true, cartDiscount: true, announcementBar: true, branches: true, reviews: true,
                 settings: true, backup: true
               }
@@ -3897,6 +3907,8 @@
         document.getElementById('mod-toggle-takeaway').checked = mods.takeaway !== false;
         document.getElementById('mod-toggle-payments').checked = mods.onlinePayment !== false;
         document.getElementById('mod-toggle-archive').checked = mods.archive !== false;
+        const elShiftsMod = document.getElementById('mod-toggle-shifts');
+        if (elShiftsMod) elShiftsMod.checked = mods.shifts !== false;
         document.getElementById('mod-toggle-coupons').checked = mods.coupons !== false;
         document.getElementById('mod-toggle-cart-discount').checked = mods.cartDiscount !== false;
         document.getElementById('mod-toggle-announcement').checked = mods.announcementBar !== false;
@@ -3928,6 +3940,7 @@
           takeaway: document.getElementById('mod-toggle-takeaway').checked,
           onlinePayment: document.getElementById('mod-toggle-payments').checked,
           archive: document.getElementById('mod-toggle-archive').checked,
+          shifts: document.getElementById('mod-toggle-shifts') ? document.getElementById('mod-toggle-shifts').checked : true,
           coupons: document.getElementById('mod-toggle-coupons').checked,
           cartDiscount: document.getElementById('mod-toggle-cart-discount').checked,
           announcementBar: document.getElementById('mod-toggle-announcement').checked,
@@ -4047,7 +4060,7 @@
           ? Object.assign({ settings: true, backup: true }, matchedPackage.modules)
           : {
               ordering: true, pos: true, inventory: true, stories: true, smartTables: true,
-              delivery: true, takeaway: true, onlinePayment: true, archive: true,
+              delivery: true, takeaway: true, onlinePayment: true, archive: true, shifts: true,
               coupons: true, cartDiscount: true, announcementBar: true, branches: true, reviews: true,
               settings: true, backup: true
             };
@@ -5082,7 +5095,7 @@
         this.ALL_MODULES_META.forEach(m => {
           const el = document.getElementById(`pkg-mod-${m.key}`);
           if (el) {
-            if (['ordering', 'pos', 'inventory', 'delivery', 'takeaway', 'onlinePayment', 'coupons', 'cartDiscount', 'archive', 'settings', 'backup', 'stories'].includes(m.key)) {
+            if (['ordering', 'pos', 'inventory', 'delivery', 'takeaway', 'onlinePayment', 'coupons', 'cartDiscount', 'archive', 'shifts', 'settings', 'backup', 'stories'].includes(m.key)) {
               el.checked = false;
             } else {
               el.checked = true;

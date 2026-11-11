@@ -76,6 +76,9 @@ function setupAuth() {
     
     // 0ms Instant Render: Display all cached orders, categories, and products immediately
     loadAllDashboardData();
+    if (typeof window.syncActiveTabAfterUnlock === 'function') {
+      window.syncActiveTabAfterUnlock();
+    }
 
     // Dismiss native splash shield smoothly with instant complete reveal
     const splash = document.getElementById('admin-splash-shield');
@@ -86,41 +89,58 @@ function setupAuth() {
       });
     }
 
-    // Background Non-blocking preloaded cloud refresh (Zero delay to user)
-    if (window.__harpyPreloadPromise) {
-      window.__harpyPreloadPromise.then(preloadData => {
-        if (preloadData && typeof preloadData === 'object') {
-          const changed = Store.applySnapshotData(preloadData);
-          if (changed) loadAllDashboardData();
+    const runDirectCloudFetch = async () => {
+      try {
+        const fbBase = 'https://harpy-order-default-rtdb.firebaseio.com/restaurants/' + encodeURIComponent(slug);
+        let idToken = '';
+        if (window.firebase && firebase.auth && firebase.auth().currentUser) {
+          try { idToken = await firebase.auth().currentUser.getIdToken(); } catch(e) {}
         }
-      }).catch(() => {});
+        const authParam = idToken ? `?auth=${idToken}` : '';
+        const fOpt = { cache: 'no-store' };
+        const results = await Promise.all([
+          fetch(fbBase + '/settings.json' + authParam, fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
+          fetch(fbBase + '/categories.json' + authParam, fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
+          fetch(fbBase + '/products.json' + authParam, fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
+          fetch(fbBase + '/stories.json' + authParam, fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
+          fetch(fbBase + '/settings/rawMaterials.json', fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
+          fetch(fbBase + '/rawMaterials.json' + authParam, fOpt).then(r => r.ok ? r.json() : null).catch(() => null)
+        ]);
+        const s = results[0], c = results[1], p = results[2], st = results[3];
+        const rm = results[4] || results[5] || (s && s.rawMaterials);
+        if (s || c || p || rm) {
+          Store.applySnapshotData({ settings: s, categories: c, products: p, stories: st, rawMaterials: rm });
+          if (window.ModuleEnforcer && typeof window.ModuleEnforcer.enforce === 'function') {
+            try { window.ModuleEnforcer.enforce((s && s.modules) || window.ModuleEnforcer.modules); } catch(e) {}
+          }
+          loadAllDashboardData();
+          if (typeof window.syncActiveTabAfterUnlock === 'function') {
+            window.syncActiveTabAfterUnlock();
+          }
+        }
+      } catch(e) {}
+    };
+
+    // Background Non-blocking preloaded cloud refresh, falling back to direct fetch if empty/null
+    if (window.__harpyPreloadPromise) {
+      Promise.resolve(window.__harpyPreloadPromise).then(preloadData => {
+        if (preloadData && typeof preloadData === 'object' && (preloadData.settings || preloadData.products || preloadData.categories)) {
+          const changed = Store.applySnapshotData(preloadData);
+          if (window.ModuleEnforcer && typeof window.ModuleEnforcer.enforce === 'function') {
+            try { window.ModuleEnforcer.enforce((preloadData.settings && preloadData.settings.modules) || window.ModuleEnforcer.modules); } catch(e) {}
+          }
+          if (changed) loadAllDashboardData();
+          if (typeof window.syncActiveTabAfterUnlock === 'function') {
+            window.syncActiveTabAfterUnlock();
+          }
+        } else {
+          runDirectCloudFetch();
+        }
+      }).catch(() => {
+        runDirectCloudFetch();
+      });
     } else {
-      // First-time interactive login: fetch tenant cloud data in background
-      (async () => {
-        try {
-          const fbBase = 'https://harpy-order-default-rtdb.firebaseio.com/restaurants/' + encodeURIComponent(slug);
-          let idToken = '';
-          if (window.firebase && firebase.auth && firebase.auth().currentUser) {
-            try { idToken = await firebase.auth().currentUser.getIdToken(); } catch(e) {}
-          }
-          const authParam = idToken ? `?auth=${idToken}` : '';
-          const fOpt = { cache: 'no-store' };
-          const results = await Promise.all([
-            fetch(fbBase + '/settings.json' + authParam, fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
-            fetch(fbBase + '/categories.json' + authParam, fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
-            fetch(fbBase + '/products.json' + authParam, fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
-            fetch(fbBase + '/stories.json' + authParam, fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
-            fetch(fbBase + '/settings/rawMaterials.json', fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
-            fetch(fbBase + '/rawMaterials.json' + authParam, fOpt).then(r => r.ok ? r.json() : null).catch(() => null)
-          ]);
-          const s = results[0], c = results[1], p = results[2], st = results[3];
-          const rm = results[4] || results[5] || (s && s.rawMaterials);
-          if (s || c || p || rm) {
-            Store.applySnapshotData({ settings: s, categories: c, products: p, stories: st, rawMaterials: rm });
-            loadAllDashboardData();
-          }
-        } catch(e) {}
-      })();
+      runDirectCloudFetch();
     }
 
     // Sync raw materials with cloud using available auth credentials
@@ -274,12 +294,31 @@ function setupAuth() {
 
   // Listen to Firebase Auth state
   Store.onAuthStateChanged(async (user) => {
+    // Ignore transient auth transitions while logging into this tenant
+    if (typeof window !== 'undefined' && window.__harpyAuthTransitionSlug === slug) {
+      return;
+    }
+
     if (user) {
       // Strict Guard: If local session for this tenant does not exist (e.g. user logged out),
       // do NOT auto-unlock even if Firebase Auth still has a cached user!
       if (!Store.isAdminAuthenticated(slug)) {
         console.warn(`[Admin] Firebase Auth user (${user.email}) present but local session for ${slug} is absent. Keeping dashboard locked.`);
         lockDashboard();
+        return;
+      }
+
+      // If Firebase Auth holds a DIFFERENT tenant's user, do not verify that UID against this tenant;
+      // unlock via verified local session + REST fetch and re-auth Firebase Auth silently for this slug.
+      const expectedEmail = `${slug}@harpymenu.com`.toLowerCase();
+      const actualEmail = (user.email || '').toLowerCase();
+      if (actualEmail && actualEmail !== expectedEmail) {
+        if (!isAuthenticated) {
+          unlockDashboard();
+        }
+        if (typeof Store.ensureFirebaseAuth === 'function') {
+          Store.ensureFirebaseAuth(slug).catch(() => {});
+        }
         return;
       }
 

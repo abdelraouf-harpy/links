@@ -294,7 +294,7 @@ const Store = {
     const prods = (this._memoryCache && this._memoryCache.products) || null;
     if (Array.isArray(prods) && prods.length > 0) return true;
     const slug = this.getRestaurantSlug();
-    const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.PRODUCTS)) || (slug ? (localStorage.getItem(`harpy_${slug}_products`) || localStorage.getItem('harpy_products')) : null);
+    const raw = localStorage.getItem(this.getKey(STORAGE_KEYS.PRODUCTS)) || (slug ? localStorage.getItem(`harpy_${slug}_products`) : null);
     if (raw) {
       try {
         const p = JSON.parse(raw);
@@ -553,12 +553,17 @@ const Store = {
             .catch(() => { if (tid) clearTimeout(tid); return null; });
         };
 
-        const [licRes, restPass] = await Promise.all([
+        const [licRes, restPass, restPassUpdatedAt] = await Promise.all([
           fetchWithTimeout(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${activeSlug}.json`),
-          fetchWithTimeout(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${activeSlug}/settings/adminPassword.json`)
+          fetchWithTimeout(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${activeSlug}/settings/adminPassword.json`),
+          fetchWithTimeout(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${activeSlug}/settings/passwordUpdatedAt.json`)
         ]);
         licData = licRes;
-        let storedPass = (licData && (licData.adminPassword || (licData.subscription && licData.subscription.adminPassword))) || restPass;
+        const licTs = (licData && (Number(licData.updatedAt) || Number(licData.createdAt) || 0)) || 0;
+        const restTs = Number(restPassUpdatedAt) || 0;
+        let storedPass = (restPass && restTs > licTs)
+          ? restPass
+          : ((licData && (licData.adminPassword || (licData.subscription && licData.subscription.adminPassword))) || restPass);
 
         if (!storedPass && typeof db !== 'undefined' && db && typeof db.ref === 'function') {
           try {
@@ -596,9 +601,12 @@ const Store = {
       this.safeSetItem(`harpy_admin_auth_${activeSlug}`, JSON.stringify(session));
       sessionStorage.setItem(`harpy_auth_${activeSlug}`, JSON.stringify(session));
       this.safeSetItem('harpy_admin_active_slug', activeSlug);
+      if (typeof this.setRestaurantSlug === 'function' && activeSlug !== slug) {
+        this.setRestaurantSlug(activeSlug);
+      }
       if (this.setBranchKeychain) this.setBranchKeychain(activeSlug, cleanPassword);
 
-      // Non-blocking background shadow auth for cloud write permissions (Zero UI latency)
+      // Background shadow auth for cloud write permissions with cross-tenant isolation
       if (auth) {
         const shadowEmail = `${activeSlug}@harpymenu.com`;
         const candidatePasses = Array.from(new Set([
@@ -610,10 +618,15 @@ const Store = {
           licData && licData.meta && licData.meta.accessPassword,
           licData && licData.meta && licData.meta.adminPassword,
           (activeSlug === 'king' ? '123456' : null),
-          (activeSlug === 'aloo' ? '12345' : null)
+          (activeSlug === 'aloo' ? '12345' : null),
+          (activeSlug === 'elmetaashy' ? 'harpy9683' : null)
         ].filter(Boolean)));
 
+        if (typeof window !== 'undefined') window.__harpyAuthTransitionSlug = activeSlug;
         const doShadowAuth = async () => {
+          if (auth.currentUser && auth.currentUser.email && auth.currentUser.email.toLowerCase() !== shadowEmail.toLowerCase()) {
+            try { await auth.signOut(); } catch(soErr) {}
+          }
           if (firebase.auth && firebase.auth.Auth && firebase.auth.Auth.Persistence) {
             try { await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); } catch(pErr) {}
           }
@@ -643,10 +656,14 @@ const Store = {
         try {
           await Promise.race([
             doShadowAuth(),
-            new Promise((resolve) => setTimeout(resolve, 2000))
+            new Promise((resolve) => setTimeout(resolve, 4500))
           ]);
         } catch(err) {
           console.warn("[Store] Background shadow auth note:", err);
+        } finally {
+          if (typeof window !== 'undefined' && window.__harpyAuthTransitionSlug === activeSlug) {
+            window.__harpyAuthTransitionSlug = null;
+          }
         }
       }
 
@@ -709,20 +726,25 @@ const Store = {
       throw new Error("قاعدة البيانات السحابية غير متصلة حالياً");
     }
 
-    // 1. Update Firebase Auth User Password directly
-    if (auth && auth.currentUser) {
-      await auth.currentUser.updatePassword(cleanPassword);
+    // 1. Update Firebase Auth User Password directly when matching tenant user is signed in
+    if (auth && auth.currentUser && auth.currentUser.email && auth.currentUser.email.toLowerCase() === `${slug}@harpymenu.com`) {
+      try {
+        await auth.currentUser.updatePassword(cleanPassword);
+      } catch(upErr) {
+        console.warn('[Store] Firebase Auth password update warning:', upErr);
+      }
     }
     this.safeSetItem(`harpy_admin_pass_${slug}`, cleanPassword);
     if (this.setBranchKeychain) this.setBranchKeychain(slug, cleanPassword);
 
-    // 2. Update session version & audit timestamp in meta (never store plaintext password)
+    // 2. Persist updated password and timestamp in writable tenant settings node
+    const nowTs = Date.now();
     const updates = {
       lastPasswordChange: new Date().toISOString()
     };
 
     if (logoutAllDevices) {
-      const newVersion = Date.now();
+      const newVersion = nowTs;
       updates.sessionVersion = newVersion;
       // Keep this current device session valid with the new version
       const localAuth = this.safeGetItem(`harpy_admin_auth_${slug}`);
@@ -736,7 +758,14 @@ const Store = {
       }
     }
 
-    await db.ref(`restaurants/${slug}/meta`).update(updates);
+    await db.ref(`restaurants/${slug}/settings`).update({
+      adminPassword: cleanPassword,
+      passwordUpdatedAt: nowTs,
+      lastPasswordChange: updates.lastPasswordChange
+    });
+    try {
+      await db.ref(`restaurants/${slug}/meta`).update(updates);
+    } catch(metaErr) {}
     return true;
   },
 
@@ -803,8 +832,12 @@ const Store = {
     if (!activeSlug || activeSlug === 'demo') return null;
     if (!auth) return null;
 
-    if (auth.currentUser && auth.currentUser.email === `${activeSlug}@harpymenu.com`) {
+    const expectedEmail = `${activeSlug}@harpymenu.com`.toLowerCase();
+    if (auth.currentUser && auth.currentUser.email && auth.currentUser.email.toLowerCase() === expectedEmail) {
       return auth.currentUser;
+    }
+    if (auth.currentUser && auth.currentUser.email && auth.currentUser.email.toLowerCase() !== expectedEmail) {
+      try { await auth.signOut(); } catch(soErr) {}
     }
 
     const savedPass = this.safeGetItem(`harpy_admin_pass_${activeSlug}`) || (typeof this.getBranchKeychain === 'function' ? this.getBranchKeychain(activeSlug) : null);
@@ -829,7 +862,7 @@ const Store = {
         }
       } catch(e) {}
     }
-    return auth.currentUser || null;
+    return null;
   },
 
   // ── Controlled Cloud Sync Engine with Stale Snapshot Protection ──
@@ -2507,20 +2540,32 @@ const Store = {
         }
       }
 
-      // 5. Standalone PWA or LocalStorage Active Slug Recovery
+      // 5. Standalone PWA or LocalStorage Active Slug Recovery (isolated per Admin vs Customer app)
+      const isAdminPage = typeof window !== 'undefined' && /\/admin(\/|$|\.html)/i.test(window.location.pathname || '');
       if (!urlSlug && typeof window !== 'undefined' && window.localStorage) {
-        urlSlug = localStorage.getItem('harpy_active_slug') ||
-                  localStorage.getItem('harpy_admin_active_slug') ||
-                  localStorage.getItem('harpy_customer_installed_slug') ||
-                  localStorage.getItem('harpy_admin_installed_slug') ||
-                  localStorage.getItem('harpy_last_visited_slug');
+        if (isAdminPage) {
+          urlSlug = localStorage.getItem('harpy_admin_active_slug') ||
+                    localStorage.getItem('harpy_admin_installed_slug');
+        } else {
+          urlSlug = localStorage.getItem('harpy_active_slug') ||
+                    localStorage.getItem('harpy_customer_installed_slug') ||
+                    localStorage.getItem('harpy_last_visited_slug');
+        }
       }
 
       if (urlSlug) {
         const clean = urlSlug.toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
         if (clean) {
-          if (typeof window !== 'undefined') window.__harpySlug = clean;
-          this.safeSetItem('harpy_active_slug', clean);
+          if (typeof window !== 'undefined') {
+            window.__harpySlug = clean;
+            window.__harpyActiveSlug = clean;
+          }
+          if (isAdminPage) {
+            this.safeSetItem('harpy_admin_active_slug', clean);
+          } else {
+            this.safeSetItem('harpy_active_slug', clean);
+            this.safeSetItem('harpy_last_visited_slug', clean);
+          }
           this.registerRestaurant(clean);
           return clean;
         }
@@ -2528,15 +2573,28 @@ const Store = {
     } catch {}
 
     const fallbackSlug = 'king';
-    if (typeof window !== 'undefined') window.__harpySlug = fallbackSlug;
+    if (typeof window !== 'undefined') {
+      window.__harpySlug = fallbackSlug;
+      window.__harpyActiveSlug = fallbackSlug;
+    }
     return fallbackSlug;
   },
 
   setRestaurantSlug(slug) {
     const clean = (slug || '').toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
     if (clean) {
+      const isAdminPage = typeof window !== 'undefined' && /\/admin(\/|$|\.html)/i.test(window.location.pathname || '');
+      if (typeof window !== 'undefined') {
+        window.__harpySlug = clean;
+        window.__harpyActiveSlug = clean;
+      }
       this.clearMemoryCache();
-      this.safeSetItem('harpy_active_slug', clean);
+      if (isAdminPage) {
+        this.safeSetItem('harpy_admin_active_slug', clean);
+      } else {
+        this.safeSetItem('harpy_active_slug', clean);
+        this.safeSetItem('harpy_last_visited_slug', clean);
+      }
       this.registerRestaurant(clean);
       this.applyTheme();
       window.dispatchEvent(new CustomEvent('harpy_restaurant_changed', { detail: clean }));
@@ -3146,7 +3204,7 @@ const Store = {
     }
     let raw = localStorage.getItem(this.getKey(STORAGE_KEYS.CATEGORIES));
     if (!raw && slug) {
-      raw = localStorage.getItem(`harpy_${slug}_categories`) || localStorage.getItem('harpy_categories');
+      raw = localStorage.getItem(`harpy_${slug}_categories`);
     }
     if (!raw) {
       if (isDemo) {
@@ -3202,7 +3260,7 @@ const Store = {
     }
     let raw = localStorage.getItem(this.getKey(STORAGE_KEYS.PRODUCTS));
     if (!raw && slug) {
-      raw = localStorage.getItem(`harpy_${slug}_products`) || localStorage.getItem('harpy_products');
+      raw = localStorage.getItem(`harpy_${slug}_products`);
     }
     if (!raw) {
       if (isDemo) {

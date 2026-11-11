@@ -6,7 +6,7 @@ try {
   console.warn("[SW] OneSignal worker import notice:", e);
 }
 
-const CACHE_NAME = 'order-pwa-v185.0';
+const CACHE_NAME = 'order-pwa-v186.0';
 const IMAGE_CACHE_NAME = 'order-images-v6';
 const ASSETS_TO_CACHE = [
   './',
@@ -42,34 +42,36 @@ const ASSETS_TO_CACHE = [
   './assets/portfolio/logo.png',
   './assets/portfolio/facebook_profile_logo.png',
   './assets/portfolio/01_Logo_and_Branding/order_logo_vector.svg',
-  './css/order-tokens.css?v=184.0',
-  './css/order-client.css?v=184.0',
-  './css/order-admin.css?v=184.0',
-  './css/portfolio.css?v=184.0',
-  './js/core/demo-seed-data.js?v=184.0',
-  './js/core/sound-effects.js?v=184.0',
-  './js/core/i18n.js?v=184.0',
-  './js/store.js?v=184.0',
-  './js/admin/admin-core.js?v=184.0',
-  './js/admin/admin-auth.js?v=184.0',
-  './js/admin/kitchen-orders.js?v=184.0',
-  './js/admin/inventory-manager.js?v=184.0',
-  './js/admin/catalog-manager.js?v=184.0',
-  './js/admin/category-manager.js?v=184.0',
-  './js/admin/stories-manager.js?v=184.0',
-  './js/admin/backup-restore.js?v=184.0',
-  './js/admin/settings-manager.js?v=184.0',
-  './js/admin/pos-terminal.js?v=184.0',
-  './js/admin/admin-push.js?v=184.0',
-  './js/client/client-core.js?v=184.0',
-  './js/client/menu-view.js?v=184.0',
-  './js/client/stories-viewer.js?v=184.0',
-  './js/client/customizer-modal.js?v=184.0',
-  './js/client/cart-ledger.js?v=184.0',
-  './js/client/order-tracking.js?v=184.0',
-  './js/app.js?v=184.0',
-  './js/admin.js?v=184.0',
-  './js/pwa.js?v=184.0'
+  './css/order-tokens.css?v=186.0',
+  './css/order-client.css?v=186.0',
+  './css/order-admin.css?v=186.0',
+  './css/portfolio.css?v=180.0',
+  './js/core/demo-seed-data.js?v=186.0',
+  './js/core/sound-effects.js?v=186.0',
+  './js/core/i18n.js?v=186.0',
+  './js/core/module-enforcer.js?v=186.0',
+  './js/store.js?v=186.0',
+  './js/admin/admin-core.js?v=186.0',
+  './js/admin/admin-auth.js?v=186.0',
+  './js/admin/kitchen-orders.js?v=186.0',
+  './js/admin/inventory-manager.js?v=186.0',
+  './js/admin/catalog-manager.js?v=186.0',
+  './js/admin/category-manager.js?v=186.0',
+  './js/admin/stories-manager.js?v=186.0',
+  './js/admin/backup-restore.js?v=186.0',
+  './js/admin/settings-manager.js?v=186.0',
+  './js/admin/pos-terminal.js?v=186.0',
+  './js/admin/admin-push.js?v=186.0',
+  './js/client/client-core.js?v=186.0',
+  './js/client/menu-view.js?v=186.0',
+  './js/client/stories-viewer.js?v=186.0',
+  './js/client/customizer-modal.js?v=186.0',
+  './js/client/cart-ledger.js?v=186.0',
+  './js/client/order-tracking.js?v=186.0',
+  './js/portfolio.js?v=6.0',
+  './js/app.js?v=186.0',
+  './js/admin.js?v=186.0',
+  './js/pwa.js?v=186.0'
 ];
 
 self.addEventListener('install', (event) => {

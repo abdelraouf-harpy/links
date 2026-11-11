@@ -450,10 +450,11 @@ window.switchTab = function(targetTabId, updateHash = true) {
   if (!targetTabId) targetTabId = 'tab-products';
   if (!targetTabId.startsWith('tab-')) targetTabId = 'tab-' + targetTabId;
 
+  const isShiftsEnabled = !(window.ModuleEnforcer && window.ModuleEnforcer.modules && window.ModuleEnforcer.modules.shifts === false);
   const TAB_TITLES = {
     'tab-orders': 'طلبات المطبخ والتجهيز',
     'tab-pos': 'كاشير الصالة والسفري (POS)',
-    'tab-archive': 'أرشيف الفواتير والورديات',
+    'tab-archive': isShiftsEnabled ? 'أرشيف الفواتير والورديات' : 'أرشيف الفواتير',
     'tab-products': 'إدارة المنيو والأصناف',
     'tab-categories': 'أقسام وتصنيفات المنيو',
     'tab-inventory': 'المخزون والمواد الخام',
@@ -471,6 +472,9 @@ window.switchTab = function(targetTabId, updateHash = true) {
   }
   if (typeof window.closeAdminDrawer === 'function') {
     window.closeAdminDrawer();
+  }
+  if (targetTabId === 'tab-settings' && typeof window.filterSettingsGroup === 'function') {
+    window.filterSettingsGroup(window.__activeSettingsGroup || 'all');
   }
 
   // Module Enforcer Guard: If feature is disabled by Super Admin, redirect safely
@@ -606,39 +610,53 @@ function setupTabNavigation() {
   const hash = (window.location.hash || '').replace('#', '').trim();
   const slug = Store.getRestaurantSlug();
   const savedTab = localStorage.getItem(`harpy_${slug}_admin_active_tab`);
+  const defaultTab = (typeof Store.getSettings === 'function' && Store.getSettings()?.modules?.ordering === false) ? 'tab-products' : 'tab-orders';
+  let initialTab = targetOrderId ? 'tab-orders'
+    : (hash && document.getElementById('tab-' + hash)) ? ('tab-' + hash)
+    : (savedTab && document.getElementById(savedTab)) ? savedTab
+    : defaultTab;
 
-  const mods = (window.ModuleEnforcer && window.ModuleEnforcer.modules) ||
-               (Store.getSettings && Store.getSettings()?.modules) || {};
-  const isOrderingDisabled = (mods.ordering === false);
-  let initialTab = isOrderingDisabled ? 'tab-products' : (targetOrderId ? 'tab-orders' : 'tab-orders');
-  if (targetOrderId) {
-    initialTab = 'tab-orders';
-  } else if (hash && document.getElementById('tab-' + hash)) {
-    initialTab = 'tab-' + hash;
-  } else if (savedTab && document.getElementById(savedTab)) {
-    initialTab = savedTab;
-  }
-
-  if (isOrderingDisabled) {
-    const forbiddenInMenuOnly = ['tab-orders', 'tab-pos', 'tab-archive'];
-    if (mods.inventory === false) forbiddenInMenuOnly.push('tab-inventory');
-    if (mods.stories === false) forbiddenInMenuOnly.push('tab-stories');
-    if (mods.settings === false || mods.settings === undefined) forbiddenInMenuOnly.push('tab-settings');
-    if (mods.backup === false || mods.backup === undefined) forbiddenInMenuOnly.push('tab-backup');
-    if (forbiddenInMenuOnly.includes(initialTab)) {
-      initialTab = 'tab-products';
+  const resolveAllowedInitialTab = (candidateTab) => {
+    const mods = (window.ModuleEnforcer && window.ModuleEnforcer.modules) ||
+                 (Store.getSettings && Store.getSettings()?.modules) || {};
+    const isOrderingDisabled = (mods.ordering === false);
+    let resolved = candidateTab || (isOrderingDisabled ? 'tab-products' : 'tab-orders');
+    if (isOrderingDisabled) {
+      const forbiddenInMenuOnly = ['tab-orders', 'tab-pos', 'tab-archive'];
+      if (mods.inventory === false) forbiddenInMenuOnly.push('tab-inventory');
+      if (mods.stories === false) forbiddenInMenuOnly.push('tab-stories');
+      if (mods.settings === false || mods.settings === undefined) forbiddenInMenuOnly.push('tab-settings');
+      if (mods.backup === false || mods.backup === undefined) forbiddenInMenuOnly.push('tab-backup');
+      if (forbiddenInMenuOnly.includes(resolved)) resolved = 'tab-products';
+    } else {
+      if (resolved === 'tab-pos' && mods.pos === false) resolved = 'tab-orders';
+      if (resolved === 'tab-inventory' && mods.inventory === false) resolved = 'tab-orders';
+      if (resolved === 'tab-archive' && mods.archive === false) resolved = 'tab-orders';
+      if (resolved === 'tab-stories' && mods.stories === false) resolved = 'tab-orders';
+      if (resolved === 'tab-settings' && mods.settings === false) resolved = 'tab-orders';
+      if (resolved === 'tab-backup' && mods.backup === false) resolved = 'tab-orders';
     }
-  } else {
-    if (initialTab === 'tab-pos' && mods.pos === false) initialTab = 'tab-orders';
-    if (initialTab === 'tab-inventory' && mods.inventory === false) initialTab = 'tab-orders';
-    if (initialTab === 'tab-archive' && mods.archive === false) initialTab = 'tab-orders';
-    if (initialTab === 'tab-stories' && mods.stories === false) initialTab = 'tab-orders';
-    if (initialTab === 'tab-settings' && mods.settings === false) initialTab = 'tab-orders';
-    if (initialTab === 'tab-backup' && mods.backup === false) initialTab = 'tab-orders';
-  }
+    return resolved;
+  };
 
-  // Switch to initial tab immediately
-  window.switchTab(initialTab, false);
+  window.syncActiveTabAfterUnlock = () => {
+    const activePanel = document.querySelector('.admin-tab-panel.active');
+    const currentId = activePanel ? activePanel.id : initialTab;
+    const validTab = resolveAllowedInitialTab(currentId);
+    window.switchTab(validTab, false);
+    if (typeof window.filterSettingsGroup === 'function') {
+      window.filterSettingsGroup(window.__activeSettingsGroup || 'all');
+    }
+  };
+
+  initialTab = resolveAllowedInitialTab(initialTab);
+
+  // Switch to initial tab immediately only when authenticated (avoids unauthenticated tab flash)
+  if (typeof Store.isAdminAuthenticated !== 'function' || Store.isAdminAuthenticated(slug)) {
+    window.switchTab(initialTab, false);
+  } else {
+    window.switchTab('tab-products', false);
+  }
 
   // If opened directly from an order notification, automatically open that order's modal
   if (targetOrderId) {
@@ -1046,4 +1064,50 @@ window.addEventListener('store_settings_updated', () => {
     try { window.updateAdminBranchDrawerSwitcher(); } catch(e) {}
   }
 });
+
+/**
+ * Filter Settings tab cards by logical section pill without clobbering module gates.
+ */
+window.filterSettingsGroup = function(group, btnEl) {
+  const nav = document.getElementById('settings-quick-nav');
+  const cardsContainer = document.querySelector('#tab-settings .settings-cards-layout') || document.getElementById('tab-settings');
+  if (!cardsContainer) return;
+
+  const cards = Array.from(cardsContainer.querySelectorAll('.admin-settings-card[data-settings-group]'));
+  const groupHasVisibleCard = {};
+  cards.forEach((card) => {
+    const grp = card.getAttribute('data-settings-group');
+    if (!grp) return;
+    const isHiddenByModule = card.getAttribute('data-module-hidden') === 'true' || card.style.display === 'none';
+    if (!isHiddenByModule) groupHasVisibleCard[grp] = true;
+  });
+
+  if (nav) {
+    nav.querySelectorAll('.settings-nav-pill').forEach((pill) => {
+      const f = pill.getAttribute('data-settings-filter');
+      if (f && f !== 'all') {
+        pill.style.display = groupHasVisibleCard[f] ? '' : 'none';
+      }
+    });
+  }
+
+  let targetGroup = (group || 'all').trim();
+  if (targetGroup !== 'all' && !groupHasVisibleCard[targetGroup]) {
+    targetGroup = 'all';
+  }
+  window.__activeSettingsGroup = targetGroup;
+
+  if (nav) {
+    nav.querySelectorAll('.settings-nav-pill').forEach((pill) => {
+      const matches = (btnEl && pill === btnEl && pill.getAttribute('data-settings-filter') === targetGroup) ||
+                      pill.getAttribute('data-settings-filter') === targetGroup;
+      pill.classList.toggle('active', matches);
+    });
+  }
+
+  cards.forEach((card) => {
+    const grp = card.getAttribute('data-settings-group');
+    card.classList.toggle('settings-group-hidden', targetGroup !== 'all' && grp !== targetGroup);
+  });
+};
 

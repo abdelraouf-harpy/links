@@ -1086,6 +1086,68 @@ function animateFlyToCart(sourceElement, imageUrl) {
   }, 650);
 }
 
+function updatePromoMarqueeSpeed(forceRestart = false) {
+  const track = document.getElementById('promo-marquee-track');
+  const viewport = document.getElementById('promo-marquee-viewport');
+  if (!track || !viewport) return;
+
+  const promoCard = document.getElementById('promo-deal-card');
+  if (!promoCard || promoCard.style.display === 'none') return;
+
+  // Remove dynamically cloned extra groups first so baseline count stays 4 even pairs
+  track.querySelectorAll('.promo-marquee-group.promo-clone-extra').forEach(n => n.remove());
+
+  const baseGroups = Array.from(track.querySelectorAll('.promo-marquee-group'));
+  const firstGroup = baseGroups[0];
+  if (!firstGroup) return;
+
+  const vw = Math.max(viewport.clientWidth || 0, 320);
+  const singleW = Math.max(firstGroup.getBoundingClientRect().width || 0, 60);
+
+  // Ensure each half (total/2) spans at least viewport + buffer so there is NEVER a blank gap
+  const minHalfWidth = vw + 140;
+  let halfCount = 2; // baseline is 4 groups = 2 per half
+  while (halfCount * singleW < minHalfWidth && halfCount < 16) {
+    halfCount += 1;
+  }
+
+  const neededTotal = halfCount * 2;
+  const currentTotal = baseGroups.length;
+  for (let i = currentTotal; i < neededTotal; i++) {
+    const clone = firstGroup.cloneNode(true);
+    clone.classList.add('promo-clone-extra');
+    clone.setAttribute('aria-hidden', 'true');
+    clone.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+    track.appendChild(clone);
+  }
+
+  // Constant pixel speed regardless of text length, screen size, or RTL/LTR language
+  const SPEED_PX_PER_SEC = 48;
+  const halfDistance = Math.max(track.scrollWidth / 2, singleW * halfCount, vw);
+  const durationSec = Math.max(5.5, +(halfDistance / SPEED_PX_PER_SEC).toFixed(2));
+  const prevDur = track.dataset.marqueeDuration || '';
+
+  track.style.setProperty('--marquee-duration', durationSec + 's');
+  track.style.animationDuration = durationSec + 's';
+
+  if (forceRestart || prevDur !== String(durationSec)) {
+    track.dataset.marqueeDuration = String(durationSec);
+    track.style.animation = 'none';
+    void track.offsetWidth;
+    track.style.animation = '';
+    track.style.animationDuration = durationSec + 's';
+  }
+}
+
+if (typeof window !== 'undefined' && !window.__harpyMarqueeResizeBound) {
+  window.__harpyMarqueeResizeBound = true;
+  let _marqueeResizeTimer = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(_marqueeResizeTimer);
+    _marqueeResizeTimer = setTimeout(() => updatePromoMarqueeSpeed(false), 180);
+  }, { passive: true });
+}
+
 function renderAnnouncement() {
   const settings = Store.getSettings();
   const promoCard = document.getElementById('promo-deal-card');
@@ -1117,11 +1179,13 @@ function renderAnnouncement() {
       if (typeof cleanText === 'string') {
         cleanText = cleanText.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE00}-\u{FE0F}]/gu, '').trim();
       }
+      const prevText = promoTitle.textContent;
       promoTitle.textContent = cleanText;
       ['promo-deal-title-clone-1', 'promo-deal-title-clone-2', 'promo-deal-title-clone-3'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.textContent = cleanText;
       });
+      requestAnimationFrame(() => updatePromoMarqueeSpeed(prevText !== cleanText));
     }
   } else {
     promoCard.style.setProperty('display', 'none', 'important');
@@ -1761,12 +1825,21 @@ function handleAccountEditSubmit(e) {
     e.preventDefault();
     e.stopPropagation();
   }
+  const submittedFormId = e && e.target && e.target.id ? e.target.id : '';
   const cleanNameInput = document.getElementById('edit-profile-name-clean');
   const cleanPhoneInput = document.getElementById('edit-profile-phone-clean');
   const cleanAddressInput = document.getElementById('edit-profile-address-clean');
-  const editName = cleanNameInput || document.getElementById('edit-profile-name');
-  const editPhone = cleanPhoneInput || document.getElementById('edit-profile-phone');
-  const editAddress = cleanAddressInput || document.getElementById('edit-profile-address');
+  const drawerNameInput = document.getElementById('edit-profile-name');
+  const drawerPhoneInput = document.getElementById('edit-profile-phone');
+  const drawerAddressInput = document.getElementById('edit-profile-address');
+  const drawerForm = document.getElementById('account-edit-form');
+  const cleanForm = document.getElementById('clean-profile-edit-form');
+  const isDrawerForm = submittedFormId === 'account-edit-form' ||
+    (submittedFormId !== 'clean-profile-edit-form' && drawerForm && drawerForm.style.display !== 'none' && (!cleanForm || cleanForm.style.display === 'none'));
+
+  const editName = isDrawerForm ? (drawerNameInput || cleanNameInput) : (cleanNameInput || drawerNameInput);
+  const editPhone = isDrawerForm ? (drawerPhoneInput || cleanPhoneInput) : (cleanPhoneInput || drawerPhoneInput);
+  const editAddress = isDrawerForm ? (drawerAddressInput || cleanAddressInput) : (cleanAddressInput || drawerAddressInput);
   const name = editName ? editName.value.trim() : '';
   const phone = editPhone ? editPhone.value.trim() : '';
   const address = editAddress ? editAddress.value.trim() : '';

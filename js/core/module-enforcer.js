@@ -335,6 +335,7 @@
       setFlag('takeaway', modules.takeaway);
       setFlag('payments', modules.onlinePayment);
       setFlag('archive', modules.archive);
+      setFlag('shifts', modules.shifts);
       setFlag('coupons', modules.coupons);
       setFlag('cart-discount', modules.cartDiscount);
       setFlag('announcement', modules.announcementBar);
@@ -386,7 +387,7 @@
         cssRules.push('button[data-tab="tab-pos"], [data-nav="pos"], #drawer-nav-pos, #tab-pos { display: none !important; }');
       }
       if (modules.inventory === false) {
-        cssRules.push('button[data-tab="tab-inventory"], [data-nav="inventory"], #drawer-nav-inventory, #tab-inventory { display: none !important; }');
+        cssRules.push('button[data-tab="tab-inventory"], [data-nav="inventory"], #drawer-nav-inventory, #tab-inventory, #product-recipe-section { display: none !important; }');
       }
       if (modules.stories === false) {
         cssRules.push('button[data-tab="tab-stories"], [data-nav="stories"], #drawer-nav-stories, #tab-stories, #card-story-management, #stories-section, .stories-container, #stories-modal, .story-bubble, .story-ring { display: none !important; }');
@@ -406,6 +407,9 @@
       }
       if (modules.archive === false) {
         cssRules.push('button[data-tab="tab-archive"], [data-nav="archive"], #drawer-nav-archive, #tab-archive, #archive-badge-count { display: none !important; }');
+      }
+      if (modules.shifts === false) {
+        cssRules.push('.archive-subtabs-wrap, #subtab-btn-shifts, #archive-subtab-shifts-view, .archive-period-item[data-preset="shift"], #shift-close-modal, #shift-close-backdrop { display: none !important; }');
       }
       if (modules.coupons === false) {
         cssRules.push('#box-promo-codes-settings, #promo-box-wrap, #promo-input-container, .coupon-section, #coupon-box, .cart-coupon-row, .coupon-trigger-btn, #promo-discount-row { display: none !important; }');
@@ -627,10 +631,20 @@
         }
       }
 
-      // Sales Archive Module
+      // Sales Archive & Shifts Module
       const archiveTabBtn = document.querySelector('button[data-tab="tab-archive"]');
       const archivePane = document.getElementById('tab-archive');
       const archiveBadge = document.getElementById('archive-badge-count');
+      const shiftsDisabled = (modules.shifts === false);
+      const archiveLabelText = shiftsDisabled ? 'أرشيف الفواتير' : 'أرشيف الفواتير والورديات';
+      document.querySelectorAll('button[data-tab="tab-archive"] .tab-label, #drawer-nav-archive .tab-label').forEach(lbl => {
+        lbl.textContent = archiveLabelText;
+      });
+      const adminPageTitle = document.getElementById('admin-page-title');
+      if (adminPageTitle && archiveTabBtn && archiveTabBtn.classList.contains('active')) {
+        adminPageTitle.textContent = archiveLabelText;
+      }
+
       if (modules.archive === false) {
         if (archiveTabBtn) archiveTabBtn.style.setProperty('display', 'none', 'important');
         if (archivePane) {
@@ -647,6 +661,34 @@
         if (archivePane && (!window.currentTab || window.currentTab !== 'tab-archive')) {
           archivePane.style.setProperty('display', 'none', 'important');
           archivePane.classList.remove('active');
+        }
+        const subtabsWrap = document.querySelector('#tab-archive .archive-subtabs-wrap');
+        const shiftsView = document.getElementById('archive-subtab-shifts-view');
+        const shiftPeriodItem = document.querySelector('.archive-period-item[data-preset="shift"]');
+        const periodSelect = document.getElementById('archive-period-select');
+        if (shiftsDisabled) {
+          if (subtabsWrap) subtabsWrap.style.setProperty('display', 'none', 'important');
+          if (shiftsView) shiftsView.style.setProperty('display', 'none', 'important');
+          if (shiftPeriodItem) shiftPeriodItem.style.setProperty('display', 'none', 'important');
+          if (typeof window.switchArchiveSubtab === 'function') {
+            window.switchArchiveSubtab('invoices');
+          }
+          if (periodSelect && periodSelect.value === 'shift' && typeof window.setArchiveDatePreset === 'function') {
+            window.setArchiveDatePreset('today');
+          }
+        } else {
+          if (subtabsWrap) subtabsWrap.style.removeProperty('display');
+          if (shiftPeriodItem) shiftPeriodItem.style.removeProperty('display');
+        }
+      }
+
+      // Inventory Recipe Gate inside Product Modal
+      const prodRecipeSection = document.getElementById('product-recipe-section');
+      if (prodRecipeSection) {
+        if (modules.inventory === false) {
+          prodRecipeSection.style.setProperty('display', 'none', 'important');
+        } else {
+          prodRecipeSection.style.removeProperty('display');
         }
       }
 

@@ -105,9 +105,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Admin">
 
-  <link rel="stylesheet" href="css/order-tokens.css?v=184.0">
-  <link rel="stylesheet" href="css/order-client.css?v=184.0">
-  <link rel="stylesheet" href="css/order-admin.css?v=184.0">
+  <link rel="stylesheet" href="css/order-tokens.css?v=186.0">
+  <link rel="stylesheet" href="css/order-client.css?v=186.0">
+  <link rel="stylesheet" href="css/order-admin.css?v=186.0">
 
   <script>
     // Instant zero-delay theme toggle available immediately on page paint
@@ -176,13 +176,10 @@
           }
         }
 
-        // Standalone PWA installed app recovery & stored tenant session:
+        // Standalone PWA installed app recovery (strictly isolated to admin storage keys):
         if (!slug) {
           var savedAdminSlug = localStorage.getItem('harpy_admin_installed_slug') ||
-                               localStorage.getItem('harpy_admin_active_slug') ||
-                               localStorage.getItem('harpy_active_slug') ||
-                               localStorage.getItem('harpy_customer_installed_slug') ||
-                               localStorage.getItem('harpy_last_visited_slug');
+                               localStorage.getItem('harpy_admin_active_slug');
           if (savedAdminSlug) slug = savedAdminSlug;
         }
 
@@ -192,11 +189,10 @@
         }
         slug = slug.toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
         window.__harpySlug = slug;
+        window.__harpyActiveSlug = slug;
         try {
           localStorage.setItem('harpy_admin_active_slug', slug);
           localStorage.setItem('harpy_admin_installed_slug', slug);
-          localStorage.setItem('harpy_active_slug', slug);
-          localStorage.setItem('harpy_last_visited_slug', slug);
         } catch(e) {}
 
         var oldManifest = document.querySelector('link[rel="manifest"]');
@@ -773,74 +769,69 @@
               </div>
             </div>
 
-            <!-- Ticket Footer (Fixed at bottom of ticket column) -->
+            <!-- Ticket Footer (Clean & Structured at bottom of ticket column) -->
             <div class="pos-ticket-footer">
-              <!-- Note input -->
-              <div style="margin-bottom:3px;">
-                <input type="text" id="pos-order-note" class="form-input" placeholder="ملاحظات خاصة (بدون بصل، ثلج زيادة)" style="font-size:11px; padding:4px 8px; height:26px;">
+              <!-- Customer Note & Quick Discount Strip -->
+              <div class="pos-footer-note-wrap">
+                <input type="text" id="pos-order-note" class="form-input pos-note-input" placeholder="ملاحظة للمطبخ (اختياري: بدون بصل، شطة زيادة...)">
               </div>
 
-              <!-- Discount Quick Selector Box -->
-              <div class="pos-discount-box" style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:4px 8px; margin-bottom:4px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px;">
-                  <span style="font-size:10.5px; font-weight:800; color:var(--text-main); display:inline-flex; align-items:center; gap:4px;">
-                    <span>كوبون:</span>
-                    <span>نظام الخصم:</span>
-                  </span>
-                  <span id="pos-discount-tag" class="pos-discount-tag-badge" style="display:none; font-size:10px; font-weight:900; background:#dcfce7; color:#15803d; padding:1px 5px; border-radius:5px;">خصم 0%</span>
-                </div>
-                <div class="pos-discount-pills" style="display:grid; grid-template-columns:repeat(5, 1fr); gap:3px;">
-                  <button type="button" class="btn btn-sm pos-disc-btn active" data-disc="0" onclick="applyPOSDiscountPercent(0)">بدون</button>
-                  <button type="button" class="btn btn-sm pos-disc-btn" data-disc="5" onclick="applyPOSDiscountPercent(5)">5%</button>
-                  <button type="button" class="btn btn-sm pos-disc-btn" data-disc="10" onclick="applyPOSDiscountPercent(10)">10%</button>
-                  <button type="button" class="btn btn-sm pos-disc-btn" data-disc="15" onclick="applyPOSDiscountPercent(15)">15%</button>
-                  <button type="button" class="btn btn-sm pos-disc-btn" data-disc="custom" onclick="openPOSCustomDiscount()">مخصص</button>
+              <div class="pos-discount-box">
+                <div class="pos-discount-header">
+                  <span class="pos-discount-title">الخصم</span>
+                  <span id="pos-discount-tag" class="pos-discount-tag-badge" style="display:none;">خصم 0%</span>
+                  <div class="pos-discount-pills">
+                    <button type="button" class="btn btn-sm pos-disc-btn active" data-disc="0" onclick="applyPOSDiscountPercent(0)">بدون</button>
+                    <button type="button" class="btn btn-sm pos-disc-btn" data-disc="5" onclick="applyPOSDiscountPercent(5)">5%</button>
+                    <button type="button" class="btn btn-sm pos-disc-btn" data-disc="10" onclick="applyPOSDiscountPercent(10)">10%</button>
+                    <button type="button" class="btn btn-sm pos-disc-btn" data-disc="15" onclick="applyPOSDiscountPercent(15)">15%</button>
+                    <button type="button" class="btn btn-sm pos-disc-btn" data-disc="custom" onclick="openPOSCustomDiscount()">مخصص</button>
+                  </div>
                 </div>
                 <!-- Hidden custom discount input -->
-                <div id="pos-custom-disc-wrap" style="display:none; margin-top:4px; align-items:center; gap:6px;">
-                  <span style="font-size:10px; font-weight:700; color:var(--text-muted);">مبلغ الخصم:</span>
-                  <input type="number" id="pos-discount-input" min="0" value="0" class="form-input font-num" style="flex:1; padding:2px 6px; font-size:11px; font-weight:800; text-align:center; height:22px;" oninput="onPOSCustomDiscountInput()">
-                  <span class="pos-currency-symbol" style="font-size:10.5px; color:var(--text-muted); font-weight:700;">ج.م</span>
+                <div id="pos-custom-disc-wrap" class="pos-custom-disc-row" style="display:none;">
+                  <span class="pos-custom-disc-lbl">مبلغ الخصم:</span>
+                  <input type="number" id="pos-discount-input" min="0" value="0" class="form-input font-num pos-custom-disc-input" oninput="onPOSCustomDiscountInput()">
+                  <span class="pos-currency-symbol pos-custom-disc-cur">ج.م</span>
                 </div>
               </div>
 
-              <!-- Calculation Breakdown -->
-              <div class="pos-calc-card" style="margin-bottom:4px;">
-                <div class="pos-calc-line">
-                  <span class="pos-calc-title">المجموع:</span>
-                  <span id="pos-subtotal" class="font-num pos-calc-num">0 ج.م</span>
+              <!-- Totals Summary -->
+              <div class="pos-calc-card">
+                <div class="pos-calc-meta-row">
+                  <div class="pos-calc-line pos-calc-sub-line">
+                    <span class="pos-calc-title">المجموع:</span>
+                    <span id="pos-subtotal" class="font-num pos-calc-num">0 ج.م</span>
+                  </div>
+                  <div id="pos-discount-display-line" class="pos-calc-line pos-calc-disc-line" style="display:none;">
+                    <span class="pos-calc-title">الخصم:</span>
+                    <span id="pos-discount-amount" class="font-num">- 0 ج.م</span>
+                  </div>
                 </div>
-                <div id="pos-discount-display-line" class="pos-calc-line" style="display:none; color:#16a34a;">
-                  <span class="pos-calc-title" style="color:#16a34a; font-weight:800;">قيمة الخصم:</span>
-                  <span id="pos-discount-amount" class="font-num" style="font-size:11.5px; font-weight:900;">- 0 ج.م</span>
-                </div>
-                <div class="pos-calc-divider"></div>
                 <div class="pos-calc-line pos-calc-total-line">
-                  <span class="pos-calc-total-label">المطلوب تحصيله:</span>
+                  <span class="pos-calc-total-label">المطلوب تحصيله</span>
                   <span id="pos-final-total" class="font-num pos-calc-total-num">0 ج.م</span>
                 </div>
               </div>
 
-              <!-- Payment Method -->
-              <div style="margin-bottom:3px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
-                  <span style="font-size:10px; font-weight:800; color:var(--text-muted);">طريقة الدفع:</span>
-                </div>
-                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:3px;">
+              <!-- Payment Method Segmented Selector -->
+              <div class="pos-pay-section">
+                <span class="pos-pay-label">الدفع:</span>
+                <div class="pos-pay-segment">
                   <button type="button" class="btn btn-sm pos-pay-method-btn active" id="pos-pay-cash-btn" data-pay="cash" onclick="setPOSPayMethod('cash')">نقداً (كاش)</button>
-                  <button type="button" class="btn btn-sm pos-pay-method-btn" id="pos-pay-card-btn" data-pay="card" onclick="setPOSPayMethod('card')">فيزا / بطاقة</button>
-                  <button type="button" class="btn btn-sm pos-pay-method-btn" id="pos-pay-wallet-btn" data-pay="wallet" onclick="setPOSPayMethod('wallet')">محفظة إلكترونية</button>
+                  <button type="button" class="btn btn-sm pos-pay-method-btn" id="pos-pay-card-btn" data-pay="card" onclick="setPOSPayMethod('card')">بطاقة</button>
+                  <button type="button" class="btn btn-sm pos-pay-method-btn" id="pos-pay-wallet-btn" data-pay="wallet" onclick="setPOSPayMethod('wallet')">محفظة</button>
                 </div>
               </div>
 
-              <!-- Action Buttons -->
-              <div style="display:flex; gap:6px; margin-top:4px;">
-                <button type="button" id="btn-pos-submit-print" class="btn btn-primary" onclick="submitPOSOrder(true)" style="flex:1; padding:9px 10px; font-size:12.5px; font-weight:900; display:flex; align-items:center; justify-content:center; gap:6px; border-radius:8px; box-shadow:0 3px 10px rgba(234,88,12,0.3); cursor:pointer;">
+              <!-- Primary Action Buttons -->
+              <div class="pos-footer-actions">
+                <button type="button" id="btn-pos-submit-print" class="btn btn-primary pos-submit-btn" onclick="submitPOSOrder(true)">
                   <svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
                   <span>حفظ وإرسال للمطبخ وطباعة</span>
                 </button>
-                <button type="button" class="btn btn-ghost" onclick="resetPOSCart(true)" style="padding:9px 10px; font-size:11.5px; font-weight:700; border:1px solid var(--border); color:var(--text-muted); border-radius:8px;" title="تفريغ الفاتورة">
-                  <span>تفريغ السلة</span>
+                <button type="button" class="btn btn-ghost pos-clear-btn" onclick="resetPOSCart(true)" title="تفريغ الفاتورة">
+                  <span>تفريغ</span>
                 </button>
               </div>
             </div>
@@ -1091,7 +1082,7 @@
           </div>
         </div>
 
-        <div id="categories-list-container" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(290px, 1fr)); gap:16px; align-items:stretch;"></div>
+        <div id="categories-list-container" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, 275px), 1fr)); gap:16px; align-items:stretch;"></div>
       </div>
     </div>
 
@@ -1197,9 +1188,18 @@
         </div>
 
 
+        <!-- Settings Quick Filter Bar -->
+        <div id="settings-quick-nav" class="settings-quick-nav" role="tablist" aria-label="أقسام إعدادات المكان">
+          <button type="button" class="settings-nav-pill active" data-settings-filter="all" onclick="filterSettingsGroup('all', this)">الكل</button>
+          <button type="button" class="settings-nav-pill" data-settings-filter="identity" onclick="filterSettingsGroup('identity', this)">الهوية والمظهر</button>
+          <button type="button" class="settings-nav-pill" data-settings-filter="operations" onclick="filterSettingsGroup('operations', this)">التواصل والتشغيل</button>
+          <button type="button" class="settings-nav-pill" data-settings-filter="marketing" onclick="filterSettingsGroup('marketing', this)">الدفع والعروض</button>
+          <button type="button" class="settings-nav-pill" data-settings-filter="logistics" onclick="filterSettingsGroup('logistics', this)">التوصيل والطاولات والفروع</button>
+        </div>
+
         <form id="settings-form">
           <!-- ── CARD 1: BRAND IDENTITY & MEDIA ─────────────────── -->
-          <div class="admin-settings-card" style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:20px; margin-bottom:20px;">
+          <div class="admin-settings-card" data-settings-group="identity">
             <div style="font-size:15px; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:8px; margin-bottom:6px;">
               <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M3 21h18M3 7v14M21 7v14M6 11v6M10 11v6M14 11v6M18 11v6M9 3h6l1 4H8z"/></svg>
               <span>1. هوية المطعم والشعار وصور الواجهة</span>
@@ -1268,11 +1268,30 @@
             </div>
           </div>
 
-          <!-- ── CARD 2: CONTACT, LOCATION & SOCIAL CHANNELS ──────── -->
-          <div class="admin-settings-card" style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:20px; margin-bottom:20px;">
+          <!-- ── CARD 2: RESTAURANT STORY (Grouped with Brand Identity) ─ -->
+          <div class="admin-settings-card" id="card-story-management" data-settings-group="identity">
+            <div class="settings-card-head">
+              <span class="settings-card-num">2</span>
+              <div>
+                <div class="settings-card-title">
+                  <svg class="icon icon-sm" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                  <span>عن المطعم وقصتنا (تظهر في الرئيسية)</span>
+                </div>
+                <p class="settings-card-sub">تظهر هذه النبذة للعملاء في تبويب "الرئيسية" لتعريف الزبائن بالمطعم وجودة المأكولات.</p>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">عن المطعم وقصتنا (نبذة تعريفية)</label>
+              <textarea id="set-about-text" class="form-input" rows="3" placeholder="نقدم لكم أشهى وألذ المأكولات المحضرة يومياً بأعلى معايير الجودة والنظافة"></textarea>
+            </div>
+          </div>
+
+          <!-- ── CARD 3: CONTACT, LOCATION & SOCIAL CHANNELS ──────── -->
+          <div class="admin-settings-card" data-settings-group="operations">
             <div style="font-size:15px; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:8px; margin-bottom:6px;">
               <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-              <span>2. بيانات التواصل، العنوان وحسابات السوشيال ميديا</span>
+              <span>3. بيانات التواصل، العنوان وحسابات السوشيال ميديا</span>
             </div>
             <p style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">
               جميع قنوات التواصل المباشر مع العملاء لاستقبال الطلبات، الاتصال الهاتفي، عنوان الفرع، وروابط منصات التواصل.
@@ -1338,11 +1357,11 @@
             </div>
           </div>
 
-          <!-- ── CARD 3: STORE OPERATIONS, HOURS & THERMAL PRINTING ── -->
-          <div class="admin-settings-card" style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:20px; margin-bottom:20px;">
+          <!-- ── CARD 4: STORE OPERATIONS, HOURS & THERMAL PRINTING ── -->
+          <div class="admin-settings-card" data-settings-group="operations">
             <div style="font-size:15px; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:8px; margin-bottom:6px;">
               <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              <span>3. تشغيل المطعم، مواعيد العمل والطباعة الحرارية</span>
+              <span>4. تشغيل المطعم، مواعيد العمل والطباعة الحرارية</span>
             </div>
             <p style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">
               التحكم في فتح وإغلاق استقبال الطلبات، أوقات العمل التقديرية، وإعدادات طابعات فواتير الكاشير والمطبخ.
@@ -1397,11 +1416,11 @@
             </div>
           </div>
 
-          <!-- ── CARD 4: DIGITAL WALLETS & CASH PAYMENTS ─────────── -->
-          <div class="admin-settings-card" id="card-wallets-management" style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:20px; margin-bottom:20px;">
+          <!-- ── CARD 5: DIGITAL WALLETS & CASH PAYMENTS ─────────── -->
+          <div class="admin-settings-card" id="card-wallets-management" data-settings-group="marketing">
             <div style="font-size:15px; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:8px; margin-bottom:6px;">
               <svg class="icon icon-sm" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-              <span>4. المحافظ الإلكترونية والدفع الذكي</span>
+              <span>5. المحافظ الإلكترونية والدفع الذكي</span>
             </div>
             <p style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">
               إعداد رقم التحويل لمحفظة فودافون كاش، إنستاباي، أو الحسابات البنكية، مع إمكانية تحفيز العملاء بخصم مخصص عند الدفع الإلكتروني.
@@ -1443,11 +1462,11 @@
             </div>
           </div>
 
-          <!-- ── CARD 5: PROMOTIONS, ANNOUNCEMENTS & DISCOUNTS ───── -->
-          <div class="admin-settings-card" id="card-promotions-management" style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:20px; margin-bottom:20px;">
+          <!-- ── CARD 6: PROMOTIONS, ANNOUNCEMENTS & DISCOUNTS ───── -->
+          <div class="admin-settings-card" id="card-promotions-management" data-settings-group="marketing">
             <div style="font-size:15px; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:8px; margin-bottom:6px;">
               <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
-              <span>5. العروض الترويجية، شريط الإعلانات وكوبونات الخصم</span>
+              <span>6. العروض الترويجية، شريط الإعلانات وكوبونات الخصم</span>
             </div>
             <p style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">
               شريط الإعلانات الترويجي أعلى صفحة المنيو، خصومات الحد الأدنى للطلب، وكوبونات التخفيض للعملاء.
@@ -1525,12 +1544,12 @@
             </div>
           </div>
 
-          <!-- ── CARD 6: DELIVERY PRICING & CUSTOM ZONES ─────────── -->
-          <div class="admin-settings-card" id="card-delivery-management" style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:20px; margin-bottom:20px;">
-            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+          <!-- ── CARD 7: DELIVERY PRICING & CUSTOM ZONES ─────────── -->
+          <div class="admin-settings-card" id="card-delivery-management" data-settings-group="logistics">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; flex-wrap:wrap; gap:8px;">
               <div style="font-size:15px; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:8px;">
                 <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/></svg>
-                <span>6. تسعير خدمة التوصيل والمناطق المخصصة</span>
+                <span>7. تسعير خدمة التوصيل والمناطق المخصصة</span>
               </div>
               <span style="font-size:11px; background:var(--primary-subtle); color:var(--primary); padding:2px 8px; border-radius:4px; font-weight:800;">كشف ذكي للعنوان</span>
             </div>
@@ -1578,24 +1597,8 @@
             </div>
           </div>
 
-          <!-- ── CARD 7: RESTAURANT STORY ───────────────────────── -->
-          <div class="admin-settings-card" id="card-story-management" style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:20px; margin-bottom:20px;">
-            <div style="font-size:15px; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-              <svg class="icon icon-sm" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              <span>7. عن المطعم وقصتنا (تظهر في الرئيسية)</span>
-            </div>
-            <p style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">
-              تظهر هذه النبذة التعريفية للعملاء في تبويب "الرئيسية" (البورتفوليو) لتعريف الزبائن بالمطعم وجودة المأكولات.
-            </p>
-
-            <div class="form-group" style="margin-bottom:0;">
-              <label class="form-label">عن المطعم وقصتنا (نبذة تعريفية)</label>
-              <textarea id="set-about-text" class="form-input" rows="3" placeholder="نقدم لكم أشهى وألذ المأكولات المحضرة يومياً بأعلى معايير الجودة والنظافة"></textarea>
-            </div>
-          </div>
-
           <!-- ── CARD 8: DINE-IN TABLES & QR STANDS ───────────────── -->
-          <div class="admin-settings-card" id="card-tables-management" style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:20px; margin-bottom:20px;">
+          <div class="admin-settings-card" id="card-tables-management" data-settings-group="logistics">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; flex-wrap:wrap; gap:8px;">
               <div style="font-size:15px; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:8px;">
                 <svg class="icon icon-sm" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
@@ -1633,7 +1636,7 @@
           </div>
 
           <!-- ── CARD 9: MULTI-BRANCH NETWORK ─────────────────────── -->
-          <div class="admin-settings-card" id="card-branches-management" style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:20px; margin-bottom:20px;">
+          <div class="admin-settings-card" id="card-branches-management" data-settings-group="logistics">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; flex-wrap:wrap; gap:8px;">
               <div style="font-size:15px; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:8px;">
                 <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/></svg>
@@ -1695,9 +1698,10 @@
             </div>
           </div>
 
-          <!-- ── CARD 10: SAVE ALL BUTTON ────────────────────────── -->
-          <div style="display:flex; justify-content:flex-start; align-items:center; margin-top:10px;">
-            <button type="submit" id="btn-save-settings" onclick="saveSettingsFromForm(); return false;" class="btn btn-primary" style="padding:13px 36px; font-size:1rem; font-weight:900; border-radius:var(--radius-sm); box-shadow:0 4px 16px rgba(234,88,12,0.35); display:inline-flex; align-items:center; gap:8px;">
+          <!-- ── CARD 10: STICKY SAVE BAR ─────────────────────────── -->
+          <div class="settings-sticky-save-bar">
+            <span class="settings-save-hint">تأكد من حفظ التغييرات لتطبيقها فوراً على المنيو ولوحة التحكم</span>
+            <button type="submit" id="btn-save-settings" onclick="saveSettingsFromForm(); return false;" class="btn btn-primary settings-save-btn">
               <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
               <span>حفظ جميع التعديلات</span>
             </button>
@@ -1827,7 +1831,7 @@
           </button>
         </div>
         <div class="form-group" style="margin-bottom:0;">
-          <label class="form-label" style="font-size:12px; margin-bottom:4px;">سعر البيع الأساسي (ج.م)</label>
+          <label class="form-label prod-field-lbl" style="font-size:12px; margin-bottom:4px;">السعر الأساسي (ج.م)</label>
           <input type="number" id="prod-price" class="form-input font-num" placeholder="120" step="0.5" required>
         </div>
       </div>
@@ -1847,17 +1851,14 @@
         </div>
       </div>
 
-      <div class="form-group" style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
-        <input type="checkbox" id="prod-featured" style="width:18px; height:18px; accent-color:var(--primary); cursor:pointer;">
-        <label for="prod-featured" style="font-size:0.88rem; font-weight:700; color:var(--text-main); cursor:pointer;">
-          إبراز هذا الصنف كاختيار رئيسي للمطعم (Hero Featured)
+      <div class="form-toggles-row">
+        <label class="form-toggle-chip" for="prod-featured">
+          <input type="checkbox" id="prod-featured">
+          <span>إبراز هذا الصنف كاختيار رئيسي (Hero)</span>
         </label>
-      </div>
-
-      <div class="form-group" style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
-        <input type="checkbox" id="prod-visible" checked style="width:18px; height:18px; accent-color:var(--primary); cursor:pointer;">
-        <label for="prod-visible" style="font-size:0.88rem; font-weight:700; color:var(--text-main); cursor:pointer;">
-          ظهور الصنف في المنيو (متاح للزبائن)
+        <label class="form-toggle-chip" for="prod-visible">
+          <input type="checkbox" id="prod-visible" checked>
+          <span>ظهور الصنف في المنيو (متاح للزبائن)</span>
         </label>
       </div>
 
@@ -1867,34 +1868,34 @@
       </div>
 
       <!-- Advanced Sizes Manager -->
-      <div style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-sm); padding:14px; margin-bottom:14px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-          <span style="font-size:0.86rem; font-weight:800; color:var(--text-main);">الأحجام والأوزان (اختياري)</span>
-          <button type="button" id="btn-add-size-row" class="btn btn-ghost btn-sm">إضافة حجم</button>
+      <div id="product-sizes-section" class="prod-subcard">
+        <div class="prod-subcard-header">
+          <span class="prod-subcard-title">الأحجام والأوزان (اختياري)</span>
+          <button type="button" id="btn-add-size-row" class="btn btn-ghost btn-sm prod-subcard-add-btn">إضافة حجم</button>
         </div>
-        <div id="prod-sizes-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+        <div id="prod-sizes-list" class="prod-subcard-list"></div>
       </div>
 
       <!-- Advanced Addons Manager -->
-      <div style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-sm); padding:14px; margin-bottom:14px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-          <span style="font-size:0.86rem; font-weight:800; color:var(--text-main);">الإضافات المدفوعة (اختياري)</span>
-          <button type="button" id="btn-add-addon-row" class="btn btn-ghost btn-sm">إضافة خيار إضافي</button>
+      <div id="product-addons-section" class="prod-subcard">
+        <div class="prod-subcard-header">
+          <span class="prod-subcard-title">الإضافات المدفوعة (اختياري)</span>
+          <button type="button" id="btn-add-addon-row" class="btn btn-ghost btn-sm prod-subcard-add-btn">إضافة خيار إضافي</button>
         </div>
-        <div id="prod-addons-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+        <div id="prod-addons-list" class="prod-subcard-list"></div>
       </div>
 
       <!-- Advanced Recipe & Raw Materials Manager -->
-      <div style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:var(--radius-sm); padding:14px; margin-bottom:14px;">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+      <div id="product-recipe-section" class="prod-subcard">
+        <div class="prod-subcard-header prod-recipe-header">
           <div>
-            <div style="font-size:0.88rem; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:6px;">
+            <div class="prod-subcard-title">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-              معيار استهلاك المواد الخام (Recipe)
+              <span>معيار استهلاك المواد الخام (Recipe)</span>
             </div>
-            <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">يتم خصم هذه الكميات من المخزون تلقائياً عند تنفيذ الطلب في المطبخ والكاشير</div>
+            <div class="prod-subcard-desc">يتم خصم هذه الكميات من المخزون تلقائياً عند تنفيذ الطلب في المطبخ والكاشير</div>
           </div>
-          <button type="button" class="btn btn-ghost btn-sm" onclick="addRecipeBaseRow()" style="border:1px solid var(--border); font-weight:700;">إضافة مكوّن</button>
+          <button type="button" class="btn btn-ghost btn-sm prod-subcard-add-btn" onclick="addRecipeBaseRow()">إضافة مكوّن</button>
         </div>
         
         <!-- Live Recipe Financial Profitability Bar -->
@@ -1963,9 +1964,9 @@
         <input type="hidden" id="prod-img-url">
       </div>
 
-      <div style="display:flex; gap:10px; margin-top:20px;">
-        <button type="submit" class="btn btn-primary" style="flex:1; padding:12px; font-weight:800;">حفظ الصنف</button>
-        <button type="button" class="btn btn-ghost" id="btn-cancel-product">إلغاء</button>
+      <div class="prod-modal-footer-actions">
+        <button type="submit" class="btn btn-primary prod-save-btn">حفظ الصنف</button>
+        <button type="button" class="btn btn-ghost prod-cancel-btn" id="btn-cancel-product">إلغاء</button>
       </div>
     </form>
   </div>
@@ -2729,23 +2730,23 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=184.0"></script>
-  <script src="js/core/sound-effects.js?v=184.0"></script>
-  <script src="js/store.js?v=184.0"></script>
-  <script src="js/admin/admin-core.js?v=184.0"></script>
-  <script src="js/admin/admin-auth.js?v=184.0"></script>
-  <script src="js/admin/kitchen-orders.js?v=184.0"></script>
-  <script src="js/admin/inventory-manager.js?v=184.0"></script>
-  <script src="js/admin/catalog-manager.js?v=184.0"></script>
-  <script src="js/admin/category-manager.js?v=184.0"></script>
-  <script src="js/admin/stories-manager.js?v=184.0"></script>
-  <script src="js/admin/backup-restore.js?v=184.0"></script>
-  <script src="js/core/qrcode.min.js?v=184.0"></script>
-  <script src="js/admin/settings-manager.js?v=184.0"></script>
-  <script src="js/admin/pos-terminal.js?v=184.0"></script>
-  <script src="js/admin/admin-push.js?v=184.0"></script>
-  <script src="js/admin.js?v=184.0"></script>
-  <script src="js/core/module-enforcer.js?v=184.0"></script>
-  <script src="js/pwa.js?v=184.0"></script>
+  <script src="js/core/demo-seed-data.js?v=186.0"></script>
+  <script src="js/core/sound-effects.js?v=186.0"></script>
+  <script src="js/store.js?v=186.0"></script>
+  <script src="js/admin/admin-core.js?v=186.0"></script>
+  <script src="js/admin/admin-auth.js?v=186.0"></script>
+  <script src="js/admin/kitchen-orders.js?v=186.0"></script>
+  <script src="js/admin/inventory-manager.js?v=186.0"></script>
+  <script src="js/admin/catalog-manager.js?v=186.0"></script>
+  <script src="js/admin/category-manager.js?v=186.0"></script>
+  <script src="js/admin/stories-manager.js?v=186.0"></script>
+  <script src="js/admin/backup-restore.js?v=186.0"></script>
+  <script src="js/core/qrcode.min.js?v=186.0"></script>
+  <script src="js/admin/settings-manager.js?v=186.0"></script>
+  <script src="js/admin/pos-terminal.js?v=186.0"></script>
+  <script src="js/admin/admin-push.js?v=186.0"></script>
+  <script src="js/admin.js?v=186.0"></script>
+  <script src="js/core/module-enforcer.js?v=186.0"></script>
+  <script src="js/pwa.js?v=186.0"></script>
 </body>
 </html>

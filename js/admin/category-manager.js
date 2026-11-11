@@ -536,9 +536,10 @@ window.openManageCategoriesModal = function() {
 window.closeManageCategoriesModal = function(triggerHistoryBack = true) {
   const modal = document.getElementById('manage-categories-modal');
   const backdrop = document.getElementById('manage-categories-modal-backdrop');
+  const wasOpen = !!(modal && (modal.classList.contains('open') || modal.classList.contains('show')));
   if (modal) modal.classList.remove('open', 'show');
   if (backdrop) backdrop.classList.remove('open', 'show');
-  if (triggerHistoryBack && window.history.state && window.history.state.adminNav === 'admin_manage_categories') {
+  if (wasOpen && triggerHistoryBack && window.history.state && window.history.state.adminNav === 'admin_manage_categories') {
     try { history.back(); } catch(e) {}
   }
 };
@@ -566,39 +567,39 @@ window.renderManageCategoriesModalList = function() {
     const isLast = (idx === cats.length - 1);
 
     return `
-      <div class="manage-cat-row" data-cat-idx="${idx}" draggable="true" style="display:flex; justify-content:space-between; align-items:center; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 14px; gap:8px;">
-        <div style="display:flex; align-items:center; gap:8px; min-width:0;">
-          <span class="cat-drag-handle" style="cursor:grab; padding:4px; display:inline-flex; align-items:center; color:var(--text-muted);" title="اضغط واسحب لتغيير ترتيب القسم">
+      <div class="manage-cat-row" data-cat-idx="${idx}" draggable="true">
+        <div class="manage-cat-main">
+          <span class="cat-drag-handle" title="اضغط واسحب لتغيير ترتيب القسم">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><circle cx="9" cy="6" r="1.5"></circle><circle cx="15" cy="6" r="1.5"></circle><circle cx="9" cy="12" r="1.5"></circle><circle cx="15" cy="12" r="1.5"></circle><circle cx="9" cy="18" r="1.5"></circle><circle cx="15" cy="18" r="1.5"></circle></svg>
           </span>
-          <span style="font-size:11px; font-weight:800; background:var(--primary-subtle); color:var(--primary); padding:2px 7px; border-radius:8px;">#${idx + 1}</span>
-          <span style="width:28px; height:28px; border-radius:6px; background:var(--primary-subtle); color:var(--primary); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+          <span class="manage-cat-order-num">#${idx + 1}</span>
+          <span class="manage-cat-folder-icon">
             <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
           </span>
-          <div style="min-width:0;">
-            <div style="font-weight:900; font-size:13.5px; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${Store.escapeHtml(cat)}</div>
-            <div style="font-size:11px; color:var(--text-muted); font-weight:700;">${countLabel}</div>
+          <div class="manage-cat-text">
+            <div class="manage-cat-title" title="${Store.escapeHtml(cat)}">${Store.escapeHtml(cat)}</div>
+            <div class="manage-cat-count">${countLabel}</div>
+          </div>
+          <div class="manage-cat-move-group">
+            <button type="button" class="btn-cat-reorder btn-cat-up" onclick="moveCategoryDirection(${idx}, -1)" ${isFirst ? 'disabled' : ''} title="تحريك لأعلى">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
+            </button>
+            <button type="button" class="btn-cat-reorder btn-cat-down" onclick="moveCategoryDirection(${idx}, 1)" ${isLast ? 'disabled' : ''} title="تحريك لأسفل">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
           </div>
         </div>
-        <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
-          <div style="display:flex; gap:3px;">
-            <button type="button" class="btn-cat-reorder btn-cat-up" onclick="moveCategoryDirection(${idx}, -1)" ${isFirst ? 'disabled' : ''} style="width:26px; height:26px; border-radius:6px; border:1px solid var(--border); background:var(--surface); display:inline-flex; align-items:center; justify-content:center; cursor:pointer;" title="تحريك لأعلى">
-              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
-            </button>
-            <button type="button" class="btn-cat-reorder btn-cat-down" onclick="moveCategoryDirection(${idx}, 1)" ${isLast ? 'disabled' : ''} style="width:26px; height:26px; border-radius:6px; border:1px solid var(--border); background:var(--surface); display:inline-flex; align-items:center; justify-content:center; cursor:pointer;" title="تحريك لأسفل">
-              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
-            </button>
-          </div>
-          <button type="button" class="btn btn-ghost btn-sm" onclick="closeManageCategoriesModal(); openReorderProductsModal('${Store.escapeHtml(cat).replace(/'/g, "\\'")}')" style="font-size:11px; font-weight:800; padding:5px 8px; border:1px solid var(--border); border-radius:6px; display:inline-flex; align-items:center; gap:4px; color:var(--primary); background:var(--surface);" title="ترتيب أصناف هذا القسم">
-            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="m21 8-4-4-4 4"/><path d="M17 4v16"/></svg>
-            <span>الأصناف</span>
+        <div class="manage-cat-actions">
+          <button type="button" class="btn btn-ghost btn-sm manage-cat-action-btn manage-cat-items-btn" onclick="closeManageCategoriesModal(); openReorderProductsModal('${Store.escapeHtml(cat).replace(/'/g, "\\'")}')" title="ترتيب أصناف هذا القسم">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="m21 8-4-4-4 4"/><path d="M17 4v16"/></svg>
+            <span>ترتيب الأصناف</span>
           </button>
-          <button type="button" class="btn btn-ghost btn-sm" onclick="closeManageCategoriesModal(); openCategoryModal(${idx});" style="font-size:11.5px; font-weight:800; padding:5px 8px; border:1px solid var(--border); border-radius:6px; display:inline-flex; align-items:center; gap:4px; background:var(--surface);" title="تعديل اسم القسم">
-            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          <button type="button" class="btn btn-ghost btn-sm manage-cat-action-btn" onclick="closeManageCategoriesModal(); openCategoryModal(${idx});" title="تعديل اسم القسم">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
             <span>تعديل</span>
           </button>
-          <button type="button" class="btn btn-danger btn-sm" onclick="deleteCategoryFastByIndex(${idx})" style="font-size:11.5px; font-weight:800; padding:5px 8px; border-radius:6px; display:inline-flex; align-items:center; gap:4px; cursor:pointer;" title="حذف القسم">
-            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+          <button type="button" class="btn btn-danger btn-sm manage-cat-action-btn" onclick="deleteCategoryFastByIndex(${idx})" title="حذف القسم">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
             <span>حذف</span>
           </button>
         </div>

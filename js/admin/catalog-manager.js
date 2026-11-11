@@ -853,6 +853,16 @@ function openProductModal(productId) {
     syncRecipeAddonsUI(null);
   }
 
+  const prodRecipeSection = document.getElementById('product-recipe-section');
+  if (prodRecipeSection) {
+    const invOff = !!(window.ModuleEnforcer && window.ModuleEnforcer.modules && window.ModuleEnforcer.modules.inventory === false);
+    if (invOff) {
+      prodRecipeSection.style.setProperty('display', 'none', 'important');
+    } else {
+      prodRecipeSection.style.removeProperty('display');
+    }
+  }
+
   if (typeof updateRecipeProfitCockpit === 'function') {
     updateRecipeProfitCockpit();
   }
@@ -869,11 +879,12 @@ function closeProductModal(triggerHistoryBack = true, force = false) {
     const confirmDiscard = window.confirm('لديك تعديلات غير محفوظة على هذا الصنف، هل أنت متأكد من الإلغاء؟');
     if (!confirmDiscard) return;
   }
+  const wasOpen = !!(adminElements.productModal && adminElements.productModal.classList.contains('open'));
   isProductModalDirty = false;
   currentEditingProductId = null;
   if (adminElements.productModal) adminElements.productModal.classList.remove('open');
   if (adminElements.productModalBackdrop) adminElements.productModalBackdrop.classList.remove('open');
-  if (triggerHistoryBack && window.history.state && window.history.state.adminNav === 'admin_product') {
+  if (wasOpen && triggerHistoryBack && window.history.state && window.history.state.adminNav === 'admin_product') {
     try { history.back(); } catch(e) {}
   }
 }
@@ -881,14 +892,11 @@ function closeProductModal(triggerHistoryBack = true, force = false) {
 function addSizeRow(name = '', price = 0) {
   if (!adminElements.prodSizesList) return;
   const div = document.createElement('div');
-  div.className = 'size-row-item';
-  div.style.display = 'flex';
-  div.style.gap = '8px';
-  div.style.alignItems = 'center';
+  div.className = 'size-row-item prod-dynamic-row';
   div.innerHTML = `
-    <input type="text" class="form-input size-name-input" placeholder="اسم الحجم (مثال: سنجل / لارج)" value="${name}" style="flex:1; padding:6px 10px; font-size:12px;">
-    <input type="number" class="form-input font-num size-price-input" placeholder="+السعر" value="${price}" step="0.5" style="width:80px; padding:6px 8px; font-size:12px;">
-    <button type="button" class="btn btn-ghost btn-sm" style="color:var(--danger); padding:4px 8px; display:inline-flex; align-items:center;" onclick="this.parentElement.remove(); syncRecipeSizesUI();"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+    <input type="text" class="form-input size-name-input" placeholder="اسم الحجم (مثال: سنجل / لارج)" value="${name}">
+    <input type="number" class="form-input font-num size-price-input" placeholder="+السعر" value="${price}" step="0.5">
+    <button type="button" class="btn btn-ghost btn-sm prod-row-remove-btn" onclick="this.parentElement.remove(); syncRecipeSizesUI();" title="حذف الحجم"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
   `;
 
   div.querySelector('.size-name-input').addEventListener('input', () => syncRecipeSizesUI());
@@ -898,14 +906,11 @@ function addSizeRow(name = '', price = 0) {
 function addAddonRow(name = '', price = 10) {
   if (!adminElements.prodAddonsList) return;
   const div = document.createElement('div');
-  div.className = 'addon-row-item';
-  div.style.display = 'flex';
-  div.style.gap = '8px';
-  div.style.alignItems = 'center';
+  div.className = 'addon-row-item prod-dynamic-row';
   div.innerHTML = `
-    <input type="text" class="form-input addon-name-input" placeholder="اسم الإضافة (مثال: جبنة زيادة)" value="${name}" style="flex:1; padding:6px 10px; font-size:12px;">
-    <input type="number" class="form-input font-num addon-price-input" placeholder="السعر" value="${price}" step="0.5" style="width:80px; padding:6px 8px; font-size:12px;">
-    <button type="button" class="btn btn-ghost btn-sm" style="color:var(--danger); padding:4px 8px; display:inline-flex; align-items:center;" onclick="this.parentElement.remove(); syncRecipeAddonsUI();"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+    <input type="text" class="form-input addon-name-input" placeholder="اسم الإضافة (مثال: جبنة زيادة)" value="${name}">
+    <input type="number" class="form-input font-num addon-price-input" placeholder="السعر" value="${price}" step="0.5">
+    <button type="button" class="btn btn-ghost btn-sm prod-row-remove-btn" onclick="this.parentElement.remove(); syncRecipeAddonsUI();" title="حذف الإضافة"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
   `;
 
   div.querySelector('.addon-name-input').addEventListener('input', () => syncRecipeAddonsUI());
@@ -1023,11 +1028,18 @@ async function saveProductForm() {
     }
   });
 
-  const recipe = {
-    base: recipeBase,
-    sizes: recipeSizes,
-    addons: recipeAddons
-  };
+  const isInventoryDisabled = !!(window.ModuleEnforcer && window.ModuleEnforcer.modules && window.ModuleEnforcer.modules.inventory === false);
+  const existingProdForRecipe = (isInventoryDisabled && currentEditingProductId && Store.getProducts)
+    ? (Store.getProducts() || []).find(p => p.id === currentEditingProductId)
+    : null;
+
+  const recipe = (isInventoryDisabled && existingProdForRecipe && existingProdForRecipe.recipe)
+    ? existingProdForRecipe.recipe
+    : {
+        base: recipeBase,
+        sizes: recipeSizes,
+        addons: recipeAddons
+      };
 
   const productData = {
     id,
@@ -1140,11 +1152,12 @@ function openReorderProductsModal(catName) {
 function closeReorderProductsModal(triggerHistoryBack = true) {
   const modal = document.getElementById('modal-reorder-products');
   const backdrop = document.getElementById('reorder-products-modal-backdrop');
+  const wasOpen = !!(modal && (modal.classList.contains('open') || modal.classList.contains('show')));
   if (modal) modal.classList.remove('open', 'show');
   if (backdrop) backdrop.classList.remove('open', 'show');
   currentReorderCategory = null;
   renderCatalog();
-  if (triggerHistoryBack && window.history.state && window.history.state.adminNav === 'admin_reorder_products') {
+  if (wasOpen && triggerHistoryBack && window.history.state && window.history.state.adminNav === 'admin_reorder_products') {
     try { history.back(); } catch(e) {}
   }
 }

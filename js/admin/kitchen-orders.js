@@ -510,9 +510,10 @@ window.closeReceiptModal = function(triggerHistoryBack = true) {
   currentReceiptImageUrl = null;
   const modal = document.getElementById('receipt-lightbox');
   const backdrop = document.getElementById('receipt-lightbox-backdrop');
+  const wasOpen = !!(modal && modal.classList.contains('open'));
   if (modal) modal.classList.remove('open');
   if (backdrop) backdrop.classList.remove('open');
-  if (triggerHistoryBack && window.history.state && window.history.state.adminNav === 'admin_receipt') {
+  if (wasOpen && triggerHistoryBack && window.history.state && window.history.state.adminNav === 'admin_receipt') {
     try { history.back(); } catch(e) {}
   }
 };
@@ -1126,6 +1127,12 @@ function isOrderInArchiveDateRange(o) {
   }
 
   if (currentArchiveDatePreset === 'shift') {
+    if (window.ModuleEnforcer && window.ModuleEnforcer.modules && window.ModuleEnforcer.modules.shifts === false) {
+      const nowFallback = new Date();
+      const tStart = new Date(nowFallback.getFullYear(), nowFallback.getMonth(), nowFallback.getDate(), 0, 0, 0, 0).getTime();
+      const tEnd = new Date(nowFallback.getFullYear(), nowFallback.getMonth(), nowFallback.getDate(), 23, 59, 59, 999).getTime();
+      return t >= tStart && t <= tEnd;
+    }
     const curShift = (typeof Store !== 'undefined' && Store.getCurrentShift) ? Store.getCurrentShift() : null;
     if (curShift) {
       if (o.shiftNumber && curShift.shiftNumber && String(o.shiftNumber) === String(curShift.shiftNumber)) {
@@ -1185,6 +1192,9 @@ function isOrderInArchiveDateRange(o) {
 }
 
 window.setArchiveDatePreset = function(preset) {
+  if (preset === 'shift' && window.ModuleEnforcer && window.ModuleEnforcer.modules && window.ModuleEnforcer.modules.shifts === false) {
+    preset = 'today';
+  }
   currentArchiveDatePreset = preset;
 
   const periodSelect = document.getElementById('archive-period-select');
@@ -1304,6 +1314,11 @@ function updateArchiveDateRangeLabel() {
   const dateOptions = { day: 'numeric', month: 'short' };
 
   if (currentArchiveDatePreset === 'shift') {
+    if (window.ModuleEnforcer && window.ModuleEnforcer.modules && window.ModuleEnforcer.modules.shifts === false) {
+      currentArchiveDatePreset = 'today';
+      label.textContent = `اليوم (${now.toLocaleDateString('ar-EG', dateOptions)})`;
+      return;
+    }
     const curShift = (typeof Store !== 'undefined' && Store.getCurrentShift) ? Store.getCurrentShift() : null;
     const num = curShift ? (curShift.shiftNumber || 1) : 1;
     label.textContent = `الوردية الحالية (#${num})`;
@@ -1462,7 +1477,7 @@ window.renderOrdersList = function(orders = null) {
         <div style="font-size:16px; font-weight:800; color:var(--text-main); margin-bottom:4px;">المطبخ جاهز ونظيف! لا توجد طلبات جارية حالياً</div>
         <div style="font-size:12.5px; color:var(--text-muted); margin-bottom:16px;">أي طلب جديد يتم إرساله من المنيو سيظهر هنا فورياً ومباشرة مع صوت رنين المطبخ.</div>
         <button type="button" class="btn btn-ghost btn-sm" onclick="switchTab('tab-archive', true)" style="font-weight:800; font-size:12px; border:1px solid var(--border);">
-          مراجعة أرشيف الفواتير والورديات ←
+          ${(window.ModuleEnforcer && window.ModuleEnforcer.modules && window.ModuleEnforcer.modules.shifts === false) ? 'مراجعة أرشيف الفواتير ←' : 'مراجعة أرشيف الفواتير والورديات ←'}
         </button>
       </div>
     `;
@@ -2032,6 +2047,9 @@ function updateKitchenShiftBadge() {
 }
 
 function openShiftCloseModal() {
+  if (window.ModuleEnforcer && window.ModuleEnforcer.modules && window.ModuleEnforcer.modules.shifts === false) {
+    return;
+  }
   const modal = document.getElementById('shift-close-modal');
   const backdrop = document.getElementById('shift-close-backdrop');
   const currency = (Store.getSettings ? Store.getSettings().currency : 'ج.م') || 'ج.م';
@@ -2730,6 +2748,9 @@ window.addEventListener('store_shift_updated', () => {
 let currentArchiveSubtab = 'invoices'; // 'invoices' | 'shifts'
 
 window.switchArchiveSubtab = function(subtab) {
+  if (subtab === 'shifts' && window.ModuleEnforcer && window.ModuleEnforcer.modules && window.ModuleEnforcer.modules.shifts === false) {
+    subtab = 'invoices';
+  }
   currentArchiveSubtab = subtab;
   const invoicesView = document.getElementById('archive-subtab-invoices-view');
   const shiftsView = document.getElementById('archive-subtab-shifts-view');
