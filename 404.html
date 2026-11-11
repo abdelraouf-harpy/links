@@ -112,6 +112,14 @@
           }
         }
 
+        var storedSlug = '';
+        try {
+          storedSlug = localStorage.getItem('harpy_admin_active_slug') ||
+                       localStorage.getItem('harpy_active_slug') ||
+                       localStorage.getItem('harpy_customer_installed_slug') ||
+                       localStorage.getItem('harpy_last_visited_slug') || '';
+        } catch(e) {}
+
         // If asking for admin (/admin, /admin/, /admin/{slug}, /admin?m=slug)
         if (segments.indexOf('admin') !== -1 || path.indexOf('/admin') !== -1) {
           var remaining = segments.filter(function(s) { return s !== 'admin' && s !== 'order' && !s.endsWith('.html'); });
@@ -152,11 +160,11 @@
           return;
         }
 
-        // If asking for order or restaurant slug in path (/saj, /king, /hermel, etc.)
+        // If asking for order/menu or restaurant slug in path (/{slug}, /order/{slug}, /menu/{slug})
         var remaining = segments.filter(function(s) { 
           return s !== 'index' && s !== 'products' && s !== 'portfolio' && !s.endsWith('.html'); 
         });
-        var filtered = remaining.filter(function(s) { return s !== 'order'; });
+        var filtered = remaining.filter(function(s) { return s !== 'order' && s !== 'menu'; });
         var slug = filtered.length > 0 ? filtered[0] : '';
         var params = new URLSearchParams(search);
         var resolvedSlug = slug || params.get('m') || storedSlug || 'king';
@@ -167,7 +175,7 @@
         // Always route cleanly to /order/?m={slug}
         window.location.replace(repoPrefix + '/order/' + queryString + hash);
       } catch (e) {
-        window.location.replace((repoPrefix || '') + '/order/?m=aloo');
+        window.location.replace((repoPrefix || '') + '/order/?m=king');
       }
     })();
   </script>
