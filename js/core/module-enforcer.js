@@ -123,6 +123,16 @@
               const lic = snap ? snap.val() : null;
               if (lic && typeof lic === 'object') {
                 this.applyLicense(lic);
+              } else if (lic === null && slug !== 'demo') {
+                fetch(`${this.fbBase}/licenses/${slug}.json?cb=${Date.now()}`, { cache: 'no-store' })
+                  .then(r => r.ok ? r.json().then(d => ({ ok: true, d })) : { ok: false })
+                  .then(res => {
+                    if (res.ok && res.d === null) {
+                      this.applyLicense({ status: 'deleted', active: false, suspended: true });
+                    } else if (res.ok && res.d && typeof res.d === 'object') {
+                      this.applyLicense(res.d);
+                    }
+                  }).catch(() => {});
               }
             });
 
@@ -214,11 +224,15 @@
       const fetchLicense = () => {
         if (typeof document !== 'undefined' && document.hidden) return;
         lastLicFetch = Date.now();
-        fetch(`${this.fbBase}/licenses/${this.currentSlug}.json?cb=${Date.now()}`)
-          .then(r => r.ok ? r.json() : null)
-          .then(lic => {
-            if (!lic) return;
-            this.applyLicense(lic);
+        fetch(`${this.fbBase}/licenses/${this.currentSlug}.json?cb=${Date.now()}`, { cache: 'no-store' })
+          .then(r => r.ok ? r.json().then(lic => ({ ok: true, lic })) : { ok: false, lic: null })
+          .then(({ ok, lic }) => {
+            if (!ok) return;
+            if (lic && typeof lic === 'object') {
+              this.applyLicense(lic);
+            } else if (lic === null && this.currentSlug !== 'demo') {
+              this.applyLicense({ status: 'deleted', active: false, suspended: true });
+            }
           })
           .catch(() => {});
       };
@@ -239,9 +253,28 @@
       if (lic.modules && typeof lic.modules === 'object') {
         this.enforce(lic.modules);
       }
-      const expTime = lic.expiresAt ? (typeof lic.expiresAt === 'number' ? (lic.expiresAt < 10000000000 ? lic.expiresAt * 1000 : lic.expiresAt) : new Date(lic.expiresAt).getTime()) : 0;
-      const isExpired = expTime > 0 && Date.now() > expTime;
-      const isSuspended = lic.active === false || lic.suspended === true || lic.status === 'suspended' || lic.status === 'expired' || isExpired;
+      let expTime = 0;
+      if (lic.expiresAt !== undefined && lic.expiresAt !== null && lic.expiresAt !== 0 && lic.expiresAt !== '0' && lic.expiresAt !== '') {
+        if (typeof lic.expiresAt === 'number') {
+          expTime = lic.expiresAt < 10000000000 ? lic.expiresAt * 1000 : lic.expiresAt;
+        } else if (/^\d+$/.test(String(lic.expiresAt).trim())) {
+          const num = Number(lic.expiresAt);
+          expTime = num < 10000000000 ? num * 1000 : num;
+        } else {
+          const parsed = new Date(lic.expiresAt).getTime();
+          expTime = isNaN(parsed) ? 0 : parsed;
+        }
+      }
+      const st = String(lic.status || '').toLowerCase();
+      const isExpired = (st === 'expired') || (expTime > 0 && Date.now() > expTime);
+      const isDeleted = (st === 'deleted');
+      const isSuspended = isDeleted || isExpired || lic.active === false || lic.suspended === true || ['suspended', 'blocked', 'inactive'].includes(st);
+      const reason = isDeleted ? 'deleted' : (isExpired ? 'expired' : (isSuspended ? 'blocked' : 'active'));
+
+      if (this.currentSlug) {
+        try { localStorage.setItem(`harpy_${this.currentSlug}_sub_status`, reason); } catch(e) {}
+      }
+
       const overlay = document.getElementById('subscription-suspended-overlay');
       const backdrop = document.getElementById('subscription-suspended-backdrop');
       if (isSuspended) {
@@ -253,6 +286,7 @@
           backdrop.classList.add('active');
           backdrop.style.setProperty('display', 'block', 'important');
         }
+        document.documentElement.classList.add('harpy-account-locked');
         document.body.classList.add('harpy-account-locked');
       } else {
         if (overlay && !overlay.dataset.expired) {
@@ -263,8 +297,15 @@
           backdrop.classList.remove('active');
           backdrop.style.removeProperty('display');
         }
+        document.documentElement.classList.remove('harpy-account-locked');
         document.body.classList.remove('harpy-account-locked');
       }
+
+      try {
+        window.dispatchEvent(new CustomEvent('harpy_subscription_status', {
+          detail: { active: !isSuspended, reason, lic }
+        }));
+      } catch(e) {}
     },
 
     enforce(modules) {
@@ -299,6 +340,8 @@
       setFlag('announcement', modules.announcementBar);
       setFlag('branches', modules.branches);
       setFlag('reviews', modules.reviews);
+      setFlag('settings', modules.settings);
+      setFlag('backup', modules.backup);
 
       // ── 2. Inject Dynamic CSS Rules for Zero-Latency DOM Suppression ──
       this.setupStyleSheet();
@@ -381,6 +424,17 @@
       }
       if (modules.reviews === false) {
         cssRules.push('#reviews-section, .reviews-section, #ratings-modal, .customer-reviews-wrap, #hero-chip-rating, .pill-rating, .highlight-rating, [data-i18n="portfolio_rating_label"] { display: none !important; }');
+      }
+      if (modules.ordering !== false) {
+        if (modules.settings === false) {
+          cssRules.push('button[data-tab="tab-settings"], #drawer-nav-settings, #tab-settings { display: none !important; }');
+        }
+        if (modules.backup === false) {
+          cssRules.push('button[data-tab="tab-backup"], #drawer-nav-backup, #tab-backup { display: none !important; }');
+        }
+        if (modules.settings === false && modules.backup === false) {
+          cssRules.push('.drawer-nav-group-title:last-of-type { display: none !important; }');
+        }
       }
       if (modules.delivery === false && modules.takeaway === false && isTablesDisabled) {
         cssRules.push('#cart-flow-fulfillment, #fulfillment-segmented-control { display: none !important; }');
@@ -695,10 +749,12 @@
         return;
       }
 
-      const type = data.type || 'info';
+      const type = data.type || data.level || 'info';
       const colors = {
         urgent: { bg: 'rgba(239, 68, 68, 0.14)', border: 'rgba(239, 68, 68, 0.4)', text: 'var(--danger, #ef4444)' },
+        danger: { bg: 'rgba(239, 68, 68, 0.14)', border: 'rgba(239, 68, 68, 0.4)', text: 'var(--danger, #ef4444)' },
         maintenance: { bg: 'rgba(245, 158, 11, 0.14)', border: 'rgba(245, 158, 11, 0.4)', text: 'var(--warning, #f59e0b)' },
+        warning: { bg: 'rgba(245, 158, 11, 0.14)', border: 'rgba(245, 158, 11, 0.4)', text: 'var(--warning, #f59e0b)' },
         feature: { bg: 'rgba(16, 185, 129, 0.14)', border: 'rgba(16, 185, 129, 0.4)', text: 'var(--success, #10b981)' },
         info: { bg: 'rgba(59, 130, 246, 0.14)', border: 'rgba(59, 130, 246, 0.4)', text: 'var(--primary, #3b82f6)' }
       }[type] || { bg: 'rgba(59, 130, 246, 0.14)', border: 'rgba(59, 130, 246, 0.4)', text: 'var(--primary, #3b82f6)' };
@@ -733,6 +789,11 @@
       banner.style.borderBottom = `1px solid ${colors.border}`;
       banner.style.color = colors.text;
 
+      const safeMsg = String(data.message || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
       banner.innerHTML = `
         <div style="display:flex; align-items:center; gap:10px; flex:1; min-width:0;">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
@@ -740,7 +801,7 @@
             <line x1="12" y1="8" x2="12" y2="12"></line>
             <line x1="12" y1="16" x2="12.01" y2="16"></line>
           </svg>
-          <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${data.message}</span>
+          <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${safeMsg}</span>
         </div>
         <button type="button" id="dismiss-broadcast-btn" style="background:transparent; border:none; color:inherit; cursor:pointer; padding:4px; display:flex; align-items:center; opacity:0.8; margin-right:8px;" aria-label="Dismiss">
           <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">

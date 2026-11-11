@@ -1,42 +1,20 @@
 {
-  "king": {
-    "slug": "king",
-    "name": "king",
-    "tagline": "أشهى المشويات، البرجر الفاخر، والبيتزا الإيطالية على أصولها",
-    "logo": "https://res.cloudinary.com/pq2pimug/image/upload/v1794005707/fekgebaclepbe4hmt4ga.jpg",
-    "cover": "https://res.cloudinary.com/pq2pimug/image/upload/v1794005719/akjpktm1dibqxpjovjxd.jpg",
-    "themeColor": "#ea580c"
+  "aloo": {
+    "slug": "aloo",
+    "name": "Aloo Burger",
+    "logo": "https://res.cloudinary.com/pq2pimug/image/upload/v1793879648/ycssznrc2i1rf8abpyu2.jpg",
+    "desc": "قائمة طعام Aloo Burger والطلب الإلكتروني المباشر"
   },
   "elmetaashy": {
     "slug": "elmetaashy",
     "name": "El Metaashy",
-    "tagline": "الجوع لما ينادي.. المتعشي هو الحل 🍔🔥",
     "logo": "https://res.cloudinary.com/pq2pimug/image/upload/v1794336402/mnl4qazblj9bhwpnocy5.jpg",
-    "cover": "https://res.cloudinary.com/pq2pimug/image/upload/v1794336487/pbyjtv1kkekete5gifky.jpg",
-    "themeColor": "#c2410c"
+    "desc": "الجوع لما ينادي.. المتعشي هو الحل 🍔🔥"
   },
-  "aloo": {
-    "slug": "aloo",
-    "name": "Aloo Burger",
-    "tagline": "أشهى ساندوتشات البرجر والوجبات السريعة على أصولها",
-    "logo": "https://res.cloudinary.com/pq2pimug/image/upload/v1793879648/ycssznrc2i1rf8abpyu2.jpg",
-    "cover": "",
-    "themeColor": "#ea580c"
-  },
-  "bazzes": {
-    "slug": "bazzes",
-    "name": "مطعم بازيز",
-    "tagline": "قائمة طعام مطعم بازيز — أشهى الأطباق والوجبات السريعة أونلاين عبر واتساب",
-    "logo": "https://harpymenu.com/assets/icons/order-icon-512.png",
-    "cover": "",
-    "themeColor": "#FF6A00"
-  },
-  "sasa": {
-    "slug": "sasa",
-    "name": "مطعم ساسا",
-    "tagline": "قائمة طعام مطعم ساسا — أشهى الوجبات والمأكولات أونلاين عبر واتساب",
-    "logo": "https://harpymenu.com/assets/icons/order-icon-512.png",
-    "cover": "",
-    "themeColor": "#FF6A00"
+  "king": {
+    "slug": "king",
+    "name": "king",
+    "logo": "https://res.cloudinary.com/pq2pimug/image/upload/v1794005707/fekgebaclepbe4hmt4ga.jpg",
+    "desc": "أشهى المشويات، البرجر الفاخر، والبيتزا الإيطالية على أصولها"
   }
 }

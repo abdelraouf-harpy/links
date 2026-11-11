@@ -10,15 +10,18 @@
         ".write": false,
         "settings": {
           ".read": true,
-          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')"
+          ".write": false,
+          "$settingKey": {
+            ".write": "($settingKey !== 'subscription' && $settingKey !== 'modules') && auth != null && ($slug === 'demo' || (root.child('licenses').child($slug).exists() && root.child('licenses').child($slug).child('active').val() === true && root.child('licenses').child($slug).child('suspended').val() !== true && root.child('licenses').child($slug).child('status').val() !== 'suspended' && root.child('licenses').child($slug).child('status').val() !== 'blocked' && root.child('licenses').child($slug).child('status').val() !== 'inactive' && root.child('licenses').child($slug).child('status').val() !== 'deleted' && root.child('licenses').child($slug).child('status').val() !== 'expired' && (!root.child('licenses').child($slug).child('expiresAt').exists() || root.child('licenses').child($slug).child('expiresAt').val() === 0 || (root.child('licenses').child($slug).child('expiresAt').isNumber() && (root.child('licenses').child($slug).child('expiresAt').val() < 10000000000 ? root.child('licenses').child($slug).child('expiresAt').val() * 1000 > now : root.child('licenses').child($slug).child('expiresAt').val() > now))))) && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')"
+          }
         },
         "categories": {
           ".read": true,
-          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')"
+          ".write": "auth != null && ($slug === 'demo' || (root.child('licenses').child($slug).exists() && root.child('licenses').child($slug).child('active').val() === true && root.child('licenses').child($slug).child('suspended').val() !== true && root.child('licenses').child($slug).child('status').val() !== 'suspended' && root.child('licenses').child($slug).child('status').val() !== 'blocked' && root.child('licenses').child($slug).child('status').val() !== 'inactive' && root.child('licenses').child($slug).child('status').val() !== 'deleted' && root.child('licenses').child($slug).child('status').val() !== 'expired' && (!root.child('licenses').child($slug).child('expiresAt').exists() || root.child('licenses').child($slug).child('expiresAt').val() === 0 || (root.child('licenses').child($slug).child('expiresAt').isNumber() && (root.child('licenses').child($slug).child('expiresAt').val() < 10000000000 ? root.child('licenses').child($slug).child('expiresAt').val() * 1000 > now : root.child('licenses').child($slug).child('expiresAt').val() > now))))) && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')"
         },
         "products": {
           ".read": true,
-          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')",
+          ".write": "auth != null && ($slug === 'demo' || (root.child('licenses').child($slug).exists() && root.child('licenses').child($slug).child('active').val() === true && root.child('licenses').child($slug).child('suspended').val() !== true && root.child('licenses').child($slug).child('status').val() !== 'suspended' && root.child('licenses').child($slug).child('status').val() !== 'blocked' && root.child('licenses').child($slug).child('status').val() !== 'inactive' && root.child('licenses').child($slug).child('status').val() !== 'deleted' && root.child('licenses').child($slug).child('status').val() !== 'expired' && (!root.child('licenses').child($slug).child('expiresAt').exists() || root.child('licenses').child($slug).child('expiresAt').val() === 0 || (root.child('licenses').child($slug).child('expiresAt').isNumber() && (root.child('licenses').child($slug).child('expiresAt').val() < 10000000000 ? root.child('licenses').child($slug).child('expiresAt').val() * 1000 > now : root.child('licenses').child($slug).child('expiresAt').val() > now))))) && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')",
           ".indexOn": [
             "category",
             "visible",
@@ -27,11 +30,11 @@
         },
         "stories": {
           ".read": true,
-          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')"
+          ".write": "auth != null && ($slug === 'demo' || (root.child('licenses').child($slug).exists() && root.child('licenses').child($slug).child('active').val() === true && root.child('licenses').child($slug).child('suspended').val() !== true && root.child('licenses').child($slug).child('status').val() !== 'suspended' && root.child('licenses').child($slug).child('status').val() !== 'blocked' && root.child('licenses').child($slug).child('status').val() !== 'inactive' && root.child('licenses').child($slug).child('status').val() !== 'deleted' && root.child('licenses').child($slug).child('status').val() !== 'expired' && (!root.child('licenses').child($slug).child('expiresAt').exists() || root.child('licenses').child($slug).child('expiresAt').val() === 0 || (root.child('licenses').child($slug).child('expiresAt').isNumber() && (root.child('licenses').child($slug).child('expiresAt').val() < 10000000000 ? root.child('licenses').child($slug).child('expiresAt').val() * 1000 > now : root.child('licenses').child($slug).child('expiresAt').val() > now))))) && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')"
         },
         "orders": {
           ".read": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')",
-          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')",
+          ".write": "auth != null && ($slug === 'demo' || (root.child('licenses').child($slug).exists() && root.child('licenses').child($slug).child('active').val() === true && root.child('licenses').child($slug).child('suspended').val() !== true && root.child('licenses').child($slug).child('status').val() !== 'suspended' && root.child('licenses').child($slug).child('status').val() !== 'blocked' && root.child('licenses').child($slug).child('status').val() !== 'inactive' && root.child('licenses').child($slug).child('status').val() !== 'deleted' && root.child('licenses').child($slug).child('status').val() !== 'expired' && (!root.child('licenses').child($slug).child('expiresAt').exists() || root.child('licenses').child($slug).child('expiresAt').val() === 0 || (root.child('licenses').child($slug).child('expiresAt').isNumber() && (root.child('licenses').child($slug).child('expiresAt').val() < 10000000000 ? root.child('licenses').child($slug).child('expiresAt').val() * 1000 > now : root.child('licenses').child($slug).child('expiresAt').val() > now))))) && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')",
           ".indexOn": [
             "status",
             "timestamp",
@@ -39,26 +42,26 @@
           ],
           "$orderId": {
             ".read": true,
-            ".write": "!data.exists() && newData.exists() || (auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com'))",
+            ".write": "($slug === 'demo' || (root.child('licenses').child($slug).exists() && root.child('licenses').child($slug).child('active').val() === true && root.child('licenses').child($slug).child('suspended').val() !== true && root.child('licenses').child($slug).child('status').val() !== 'suspended' && root.child('licenses').child($slug).child('status').val() !== 'blocked' && root.child('licenses').child($slug).child('status').val() !== 'inactive' && root.child('licenses').child($slug).child('status').val() !== 'deleted' && root.child('licenses').child($slug).child('status').val() !== 'expired' && (!root.child('licenses').child($slug).child('expiresAt').exists() || root.child('licenses').child($slug).child('expiresAt').val() === 0 || (root.child('licenses').child($slug).child('expiresAt').isNumber() && (root.child('licenses').child($slug).child('expiresAt').val() < 10000000000 ? root.child('licenses').child($slug).child('expiresAt').val() * 1000 > now : root.child('licenses').child($slug).child('expiresAt').val() > now))))) && ((!data.exists() && newData.exists()) || (auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')))",
             ".validate": "(newData.hasChildren(['orderId', 'items', 'finalTotal']) && newData.child('finalTotal').isNumber() && newData.child('finalTotal').val() >= 0) || newData.val() == null"
           }
         },
         "meta": {
           ".read": "auth != null && (auth.uid === data.child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')",
-          ".write": "auth != null && (auth.uid === data.child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')",
+          ".write": false,
           ".validate": "newData.hasChildren() || newData.val() == null"
         },
         "rawMaterials": {
           ".read": true,
-          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')"
+          ".write": "auth != null && ($slug === 'demo' || (root.child('licenses').child($slug).exists() && root.child('licenses').child($slug).child('active').val() === true && root.child('licenses').child($slug).child('suspended').val() !== true && root.child('licenses').child($slug).child('status').val() !== 'suspended' && root.child('licenses').child($slug).child('status').val() !== 'blocked' && root.child('licenses').child($slug).child('status').val() !== 'inactive' && root.child('licenses').child($slug).child('status').val() !== 'deleted' && root.child('licenses').child($slug).child('status').val() !== 'expired' && (!root.child('licenses').child($slug).child('expiresAt').exists() || root.child('licenses').child($slug).child('expiresAt').val() === 0 || (root.child('licenses').child($slug).child('expiresAt').isNumber() && (root.child('licenses').child($slug).child('expiresAt').val() < 10000000000 ? root.child('licenses').child($slug).child('expiresAt').val() * 1000 > now : root.child('licenses').child($slug).child('expiresAt').val() > now))))) && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')"
         },
         "shifts": {
           ".read": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')",
-          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')"
+          ".write": "auth != null && ($slug === 'demo' || (root.child('licenses').child($slug).exists() && root.child('licenses').child($slug).child('active').val() === true && root.child('licenses').child($slug).child('suspended').val() !== true && root.child('licenses').child($slug).child('status').val() !== 'suspended' && root.child('licenses').child($slug).child('status').val() !== 'blocked' && root.child('licenses').child($slug).child('status').val() !== 'inactive' && root.child('licenses').child($slug).child('status').val() !== 'deleted' && root.child('licenses').child($slug).child('status').val() !== 'expired' && (!root.child('licenses').child($slug).child('expiresAt').exists() || root.child('licenses').child($slug).child('expiresAt').val() === 0 || (root.child('licenses').child($slug).child('expiresAt').isNumber() && (root.child('licenses').child($slug).child('expiresAt').val() < 10000000000 ? root.child('licenses').child($slug).child('expiresAt').val() * 1000 > now : root.child('licenses').child($slug).child('expiresAt').val() > now))))) && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')"
         },
         "deletedOrderIds": {
           ".read": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')",
-          ".write": "auth != null && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')"
+          ".write": "auth != null && ($slug === 'demo' || (root.child('licenses').child($slug).exists() && root.child('licenses').child($slug).child('active').val() === true && root.child('licenses').child($slug).child('suspended').val() !== true && root.child('licenses').child($slug).child('status').val() !== 'suspended' && root.child('licenses').child($slug).child('status').val() !== 'blocked' && root.child('licenses').child($slug).child('status').val() !== 'inactive' && root.child('licenses').child($slug).child('status').val() !== 'deleted' && root.child('licenses').child($slug).child('status').val() !== 'expired' && (!root.child('licenses').child($slug).child('expiresAt').exists() || root.child('licenses').child($slug).child('expiresAt').val() === 0 || (root.child('licenses').child($slug).child('expiresAt').isNumber() && (root.child('licenses').child($slug).child('expiresAt').val() < 10000000000 ? root.child('licenses').child($slug).child('expiresAt').val() * 1000 > now : root.child('licenses').child($slug).child('expiresAt').val() > now))))) && (auth.uid === root.child('restaurants').child($slug).child('meta').child('ownerUid').val() || auth.uid === root.child('licenses').child($slug).child('ownerUid').val() || auth.token.email === $slug + '@harpymenu.com')"
         }
       }
     },
@@ -76,11 +79,23 @@
     },
     "subscriptionPlans": {
       ".read": true,
-      ".write": "auth != null"
+      ".write": false
+    },
+    "systemBroadcast": {
+      ".read": true,
+      ".write": false
+    },
+    "announcements": {
+      ".read": true,
+      ".write": false
     },
     "auditLogs": {
-      ".read": "auth != null",
-      ".write": "auth != null"
+      ".read": false,
+      ".write": false
+    },
+    "masterConfig": {
+      ".read": false,
+      ".write": false
     }
   }
 }

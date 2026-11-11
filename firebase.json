@@ -28,13 +28,43 @@
         "type": 301
       },
       {
-        "source": "/saj.html",
-        "destination": "/order.html?m=saj",
+        "source": "/aloo.html",
+        "destination": "/order.html?m=aloo",
         "type": 301
       },
       {
-        "source": "/saj-admin.html",
-        "destination": "/admin.html?m=saj",
+        "source": "/aloo-admin.html",
+        "destination": "/admin.html?m=aloo",
+        "type": 301
+      },
+      {
+        "source": "/manifest-aloo.json",
+        "destination": "/manifest.json?m=aloo",
+        "type": 301
+      },
+      {
+        "source": "/admin-manifest-aloo.json",
+        "destination": "/admin-manifest.json?m=aloo",
+        "type": 301
+      },
+      {
+        "source": "/elmetaashy.html",
+        "destination": "/order.html?m=elmetaashy",
+        "type": 301
+      },
+      {
+        "source": "/elmetaashy-admin.html",
+        "destination": "/admin.html?m=elmetaashy",
+        "type": 301
+      },
+      {
+        "source": "/manifest-elmetaashy.json",
+        "destination": "/manifest.json?m=elmetaashy",
+        "type": 301
+      },
+      {
+        "source": "/admin-manifest-elmetaashy.json",
+        "destination": "/admin-manifest.json?m=elmetaashy",
         "type": 301
       },
       {
@@ -45,16 +75,6 @@
       {
         "source": "/king-admin.html",
         "destination": "/admin.html?m=king",
-        "type": 301
-      },
-      {
-        "source": "/manifest-saj.json",
-        "destination": "/manifest.json?m=saj",
-        "type": 301
-      },
-      {
-        "source": "/admin-manifest-saj.json",
-        "destination": "/admin-manifest.json?m=saj",
         "type": 301
       },
       {

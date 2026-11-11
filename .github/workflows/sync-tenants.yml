@@ -1,0 +1,44 @@
+name: Sync Tenants & Prune Deleted Restaurants
+
+on:
+  workflow_dispatch:
+    inputs:
+      hint_slug:
+        description: "Optional tenant slug added or deleted in Master Panel"
+        required: false
+        default: ""
+  schedule:
+    - cron: "0 */6 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run dynamic tenant sync
+        env:
+          FIREBASE_MASTER_KEY: ${{ secrets.FIREBASE_MASTER_KEY }}
+          HINT_SLUG: ${{ github.event.inputs.hint_slug || '' }}
+        run: node scripts/sync-tenants.js
+
+      - name: Commit and push changes if any
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "Harpy Auto-Sync Bot"
+            git config user.email "bot@harpymenu.com"
+            git add -A
+            git commit -m "chore: sync active tenants and prune deleted static files [skip ci]"
+            git push
+          else
+            echo "No tenant changes detected."
+          fi

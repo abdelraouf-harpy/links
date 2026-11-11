@@ -597,7 +597,24 @@ window.verifyAdminCredentials = async function(enteredPassword, slug) {
   const cleanPass = enteredPassword.trim();
   slug = (slug || (typeof Store !== 'undefined' ? Store.getRestaurantSlug() : '')).toLowerCase().trim();
 
-  // 1. Instant Keychain Check (If admin authenticated on this device/session with this password)
+  // 1. Check live Firebase RTDB meta.adminPassword / settings.adminPassword first when online
+  if (typeof db !== 'undefined' && db) {
+    try {
+      const snap = await db.ref(`restaurants/${slug}/meta`).once('value');
+      const meta = snap.val() || {};
+      const realPwd = (meta.adminPassword || '').trim();
+      if (realPwd) {
+        if (cleanPass === realPwd) {
+          try { localStorage.setItem(`harpy_${slug}_meta`, JSON.stringify(meta)); } catch(e) {}
+          if (typeof Store !== 'undefined' && Store.setBranchKeychain) Store.setBranchKeychain(slug, cleanPass);
+          return true;
+        }
+        return false;
+      }
+    } catch (e) {}
+  }
+
+  // 2. Fallback Keychain / cached meta check when DB rule requires auth first
   if (typeof Store !== 'undefined' && Store.getBranchKeychain) {
     const savedPass = Store.getBranchKeychain(slug);
     if (savedPass && savedPass === cleanPass) {
@@ -605,7 +622,6 @@ window.verifyAdminCredentials = async function(enteredPassword, slug) {
     }
   }
 
-  // 2. Check local cached meta or Firebase RTDB meta.adminPassword
   if (typeof Store !== 'undefined' && Store.safeGetItem) {
     try {
       const localMeta = JSON.parse(Store.safeGetItem(`harpy_${slug}_meta`) || '{}');
@@ -614,18 +630,6 @@ window.verifyAdminCredentials = async function(enteredPassword, slug) {
         return true;
       }
     } catch(e) {}
-  }
-  if (typeof db !== 'undefined' && db) {
-    try {
-      const snap = await db.ref(`restaurants/${slug}/meta`).once('value');
-      const meta = snap.val() || {};
-      const realPwd = (meta.adminPassword || '').trim();
-      if (realPwd && cleanPass === realPwd) {
-        try { localStorage.setItem(`harpy_${slug}_meta`, JSON.stringify(meta)); } catch(e) {}
-        if (typeof Store !== 'undefined' && Store.setBranchKeychain) Store.setBranchKeychain(slug, cleanPass);
-        return true;
-      }
-    } catch (e) {}
   }
 
   // 3. Delegate to Store.verifyBranchCredentials (handles isolated tempApp and candidate emails)
@@ -725,9 +729,16 @@ function setupSubscriptionWatcher() {
   const cachedStatus = localStorage.getItem(`harpy_${slug}_sub_status`);
 
   const applyAdminStatusUI = (statusReason) => {
+    document.documentElement.classList.add('harpy-account-locked');
     document.body.classList.add('harpy-account-locked');
-    if (suspendedBackdrop) suspendedBackdrop.classList.add('active');
-    if (suspendedOverlay) suspendedOverlay.classList.add('active');
+    if (suspendedBackdrop) {
+      suspendedBackdrop.classList.add('active');
+      suspendedBackdrop.style.setProperty('display', 'block', 'important');
+    }
+    if (suspendedOverlay) {
+      suspendedOverlay.classList.add('active');
+      suspendedOverlay.style.setProperty('display', 'block', 'important');
+    }
 
     if (statusReason === 'deleted') {
       try {
@@ -780,24 +791,39 @@ function setupSubscriptionWatcher() {
   // Apply cached status immediately on page load
   if (cachedStatus === 'deleted') {
     applyAdminStatusUI('deleted');
-  } else if (cachedStatus === 'suspended' || cachedStatus === 'blocked' || cachedStatus === 'expired') {
+  } else if (cachedStatus === 'suspended' || cachedStatus === 'blocked' || cachedStatus === 'expired' || cachedStatus === 'inactive') {
     applyAdminStatusUI(cachedStatus);
   }
+
+  const unlockAdminStatusUI = () => {
+    document.documentElement.classList.remove('harpy-account-locked');
+    document.body.classList.remove('harpy-account-locked');
+    if (suspendedBackdrop) {
+      suspendedBackdrop.classList.remove('active');
+      suspendedBackdrop.style.removeProperty('display');
+    }
+    if (suspendedOverlay) {
+      suspendedOverlay.classList.remove('active');
+      suspendedOverlay.style.removeProperty('display');
+    }
+    try { localStorage.setItem(`harpy_${slug}_sub_status`, 'active'); } catch(e) {}
+  };
 
   Store.startSubscriptionWatcher((status) => {
     if (!status.active) {
       applyAdminStatusUI(status.reason);
     } else {
-      document.body.classList.remove('harpy-account-locked');
-      if (suspendedBackdrop) suspendedBackdrop.classList.remove('active');
-      if (suspendedOverlay) suspendedOverlay.classList.remove('active');
-      try { localStorage.setItem(`harpy_${slug}_sub_status`, 'active'); } catch(e) {}
+      unlockAdminStatusUI();
     }
   });
 
   window.addEventListener('harpy_subscription_status', (e) => {
-    if (e && e.detail && !e.detail.active) {
-      applyAdminStatusUI(e.detail.reason);
+    if (e && e.detail) {
+      if (!e.detail.active) {
+        applyAdminStatusUI(e.detail.reason);
+      } else {
+        unlockAdminStatusUI();
+      }
     }
   });
 }

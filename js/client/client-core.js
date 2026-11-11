@@ -1044,21 +1044,12 @@ function renderStoreInfo() {
     elements.walletNumDisplay.textContent = activeWalletNum;
   }
 
-  // Subscription Status Gate (Harpy Master SaaS Control)
-  const sub = settings.subscription;
-  const overlay = document.getElementById('subscription-suspended-overlay');
-  const backdrop = document.getElementById('subscription-suspended-backdrop');
+  // Subscription Contact Link Sync (Visibility is strictly controlled by setupSubscriptionWatcher + ModuleEnforcer)
   const contactBtn = document.getElementById('sub-suspended-contact-btn');
-
-  if (sub && (sub.status === 'suspended' || sub.status === 'expired' || sub.suspended === true || sub.active === false || (sub.expiresAt && new Date() > new Date(sub.expiresAt)))) {
-    if (overlay) overlay.style.display = 'block';
-    if (backdrop) backdrop.style.display = 'block';
-    if (contactBtn && settings.whatsappNumber) {
-      contactBtn.href = `https://wa.me/${(settings.whatsappNumber || '').replace(/\D/g, '')}`;
-    }
-  } else {
-    if (overlay) overlay.style.display = 'none';
-    if (backdrop) backdrop.style.display = 'none';
+  const slugNow = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : '';
+  const curStatusNow = slugNow ? localStorage.getItem(`harpy_${slugNow}_sub_status`) : '';
+  if (contactBtn && settings.whatsappNumber && curStatusNow !== 'deleted') {
+    contactBtn.href = `https://wa.me/${(settings.whatsappNumber || '').replace(/\D/g, '')}`;
   }
 }
 
@@ -1283,35 +1274,50 @@ function setupSubscriptionWatcher() {
   };
 
   // Apply cached suspended/deleted/blocked state immediately on page load to prevent flashing
-  if (cachedStatus === 'suspended' || cachedStatus === 'blocked' || cachedStatus === 'expired' || cachedStatus === 'deleted') {
+  if (cachedStatus === 'suspended' || cachedStatus === 'blocked' || cachedStatus === 'expired' || cachedStatus === 'deleted' || cachedStatus === 'inactive') {
     applyStatusUI(cachedStatus);
     const _slug = slug;
     fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${_slug}.json`, { cache: 'no-store' })
-      .then(r => r.ok ? r.json() : null)
-      .then(lic => {
-        if (lic && lic.status === 'active' && (!lic.expiresAt || new Date() < new Date(lic.expiresAt))) {
-          // Re-activated!
+      .then(r => r.ok ? r.json().then(lic => ({ ok: true, lic })) : { ok: false, lic: null })
+      .then(({ ok, lic }) => {
+        if (!ok) return;
+        const parseExpMs = (v) => {
+          if (!v || v === '0') return 0;
+          const n = typeof v === 'number' ? v : (/^\d+$/.test(String(v)) ? Number(v) : new Date(v).getTime());
+          if (!n || isNaN(n)) return 0;
+          return n < 10000000000 ? n * 1000 : n;
+        };
+        const expMs = lic ? parseExpMs(lic.expiresAt) : 0;
+        const isLicActive = Boolean(
+          lic &&
+          lic.active !== false &&
+          lic.suspended !== true &&
+          !['suspended', 'blocked', 'inactive', 'expired', 'deleted'].includes(String(lic.status || '').toLowerCase()) &&
+          (!expMs || Date.now() <= expMs)
+        );
+        if (isLicActive) {
+          // Re-activated by Master!
           try { localStorage.setItem(`harpy_${_slug}_sub_status`, 'active'); } catch(e) {}
+          document.documentElement.classList.remove('harpy-account-locked');
           document.body.classList.remove('harpy-account-locked');
-          if (suspendedBackdrop) suspendedBackdrop.classList.remove('active');
-          if (suspendedOverlay) suspendedOverlay.classList.remove('active');
+          if (suspendedBackdrop) {
+            suspendedBackdrop.classList.remove('active');
+            suspendedBackdrop.style.removeProperty('display');
+          }
+          if (suspendedOverlay) {
+            suspendedOverlay.classList.remove('active');
+            suspendedOverlay.style.removeProperty('display');
+          }
         } else if (lic && lic.status === 'deleted') {
           try { Store.purgeRestaurantCache(_slug); } catch(e) {}
           try { localStorage.setItem(`harpy_${_slug}_sub_status`, 'deleted'); } catch(e) {}
           applyStatusUI('deleted');
-        } else if (lic && lic.status) {
-          applyStatusUI(lic.status);
+        } else if (lic && (lic.status || expMs)) {
+          applyStatusUI(expMs && Date.now() > expMs ? 'expired' : (lic.status || 'suspended'));
         } else if (lic === null && _slug !== 'demo') {
-          // Verify with shallow settings check if restaurant was deleted
-          fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${_slug}/settings.json?shallow=true`, { cache: 'no-store' })
-            .then(sr => sr.ok ? sr.json() : null)
-            .then(sData => {
-              if (sData === null) {
-                try { Store.purgeRestaurantCache(_slug); } catch(e) {}
-                try { localStorage.setItem(`harpy_${_slug}_sub_status`, 'deleted'); } catch(e) {}
-                applyStatusUI('deleted');
-              }
-            }).catch(() => {});
+          try { Store.purgeRestaurantCache(_slug); } catch(e) {}
+          try { localStorage.setItem(`harpy_${_slug}_sub_status`, 'deleted'); } catch(e) {}
+          applyStatusUI('deleted');
         }
       })
       .catch(() => {});
@@ -1321,15 +1327,35 @@ function setupSubscriptionWatcher() {
     if (!status.active) {
       applyStatusUI(status.reason);
     } else {
+      document.documentElement.classList.remove('harpy-account-locked');
       document.body.classList.remove('harpy-account-locked');
-      if (suspendedBackdrop) suspendedBackdrop.classList.remove('active');
-      if (suspendedOverlay) suspendedOverlay.classList.remove('active');
+      if (suspendedBackdrop) {
+        suspendedBackdrop.classList.remove('active');
+        suspendedBackdrop.style.removeProperty('display');
+      }
+      if (suspendedOverlay) {
+        suspendedOverlay.classList.remove('active');
+        suspendedOverlay.style.removeProperty('display');
+      }
     }
   });
 
   window.addEventListener('harpy_subscription_status', (e) => {
-    if (e && e.detail && !e.detail.active) {
-      applyStatusUI(e.detail.reason);
+    if (e && e.detail) {
+      if (!e.detail.active) {
+        applyStatusUI(e.detail.reason);
+      } else {
+        document.documentElement.classList.remove('harpy-account-locked');
+        document.body.classList.remove('harpy-account-locked');
+        if (suspendedBackdrop) {
+          suspendedBackdrop.classList.remove('active');
+          suspendedBackdrop.style.removeProperty('display');
+        }
+        if (suspendedOverlay) {
+          suspendedOverlay.classList.remove('active');
+          suspendedOverlay.style.removeProperty('display');
+        }
+      }
     }
   });
 }
@@ -1888,7 +1914,7 @@ function renderOrdersView() {
   const emptyState = document.getElementById('orders-empty-state');
   const prevList = document.getElementById('previous-orders-list');
 
-  const slug = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : 'saj';
+  const slug = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : 'demo';
   const deletedIds = (typeof Store !== 'undefined' && Store.getDeletedOrderIds) ? Store.getDeletedOrderIds(slug) : new Set();
   
   let isLastOrderDeleted = false;

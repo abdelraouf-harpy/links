@@ -1,6 +1,6 @@
 {
   "name": "harpy-order",
-  "version": "183.0.0",
+  "version": "184.0.0",
   "description": "Harpy Order — Cloud Restaurant OS, Smart Digital QR Menu & Point of Sale",
   "scripts": {
     "sync": "node scripts/sync-tenants.js",

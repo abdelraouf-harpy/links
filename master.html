@@ -1821,6 +1821,10 @@
             <span class="svg-icon" style="width:14px;height:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></span>
             <span>كروت وروابط السوشيال</span>
           </button>
+          <button type="button" class="settings-action-btn" onclick="MasterApp.triggerGitHubSync(true)">
+            <span class="svg-icon" style="width:14px;height:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></span>
+            <span>مزامنة ملفات السيرفر</span>
+          </button>
         </div>
       </div>
 
@@ -1846,7 +1850,7 @@
         </div>
 
         <div style="display:flex; gap:8px; margin-top:12px;">
-          <button type="button" class="btn-submit" onclick="MasterApp.sendBroadcast()" style="flex:1;">
+          <button type="button" class="btn-submit" onclick="MasterApp.publishBroadcast()" style="flex:1;">
             <span>إرسال الإذاعة فوراً</span>
           </button>
           <button type="button" class="btn-cancel" onclick="MasterApp.clearBroadcast()" style="width:auto; padding:0 14px;">
@@ -2605,8 +2609,19 @@
       <input type="password" class="form-input" id="new-founder-pin" maxlength="4" placeholder="•••• (اتركه فارغاً إذا لا تريد تغييره)" style="font-family:var(--font-en); letter-spacing:4px; text-align:center;">
     </div>
 
+    <div class="form-group" style="margin-top:8px; padding-top:10px; border-top:1px dashed var(--border-light);">
+      <label class="form-label">مفتاح مزامنة GitHub التلقائية (اختياري — يُحفظ مشفراً بالسحابة):</label>
+      <input type="password" class="form-input" id="founder-github-token" placeholder="github_pat_... (لتنظيف/توليد الروابط السريعة فور الإضافة أو الحذف)" style="font-family:var(--font-en); font-size:12px;">
+      <div style="font-size:10.5px; color:var(--text-muted); margin-top:4px; line-height:1.4;">
+        عند إضافته يتم تشغيل GitHub Actions تلقائياً عند إضافة أو حذف أي مطعم لمسح/تحديث ملفاته الثابتة على السيرفر.
+      </div>
+    </div>
+
     <button class="btn-submit" onclick="MasterApp.saveFounderProfile()">
       <span>حفظ البيانات وتحديث الإعدادات</span>
+    </button>
+    <button type="button" class="btn-cancel" onclick="MasterApp.triggerGitHubSync(true)" style="margin-top:8px;">
+      <span>تشغيل مزامنة ملفات السيرفر (GitHub) الآن</span>
     </button>
     <button class="btn-cancel" onclick="MasterApp.lock()" style="color:var(--danger); margin-top:8px;">
       <span>قفل الشاشة الآن</span>
@@ -2670,15 +2685,46 @@
   <script>
     const MASTER_KEY = "r5nenhIbwtTX3BiCu0kaNOtXSC8ncr7Vk3tWaaPh";
     const BASE_RTDB = "https://harpy-order-default-rtdb.firebaseio.com";
+    const GITHUB_REPO_OWNER = "abdelraouf-harpy";
+    const GITHUB_REPO_NAME = "links";
+    const GITHUB_SYNC_WORKFLOW = "sync-tenants.yml";
+
+    async function rtdbRequest(path, method = 'GET', body = null) {
+      const cleanPath = String(path || '').replace(/^\/+/, '');
+      const sep = cleanPath.includes('?') ? '&' : '?';
+      const url = `${BASE_RTDB}/${cleanPath}${sep}auth=${MASTER_KEY}`;
+      const opts = { method };
+      if (body !== null && method !== 'GET' && method !== 'HEAD') {
+        opts.headers = { 'Content-Type': 'application/json' };
+        opts.body = JSON.stringify(body);
+      }
+      const res = await fetch(url, opts);
+      const rawText = await res.text();
+      let parsed = null;
+      if (rawText) {
+        try { parsed = JSON.parse(rawText); } catch (e) { parsed = rawText; }
+      }
+      if (!res.ok) {
+        const errMsg = (parsed && typeof parsed === 'object' && parsed.error) ? parsed.error : `HTTP ${res.status}`;
+        throw new Error(`RTDB ${method} ${cleanPath}: ${errMsg}`);
+      }
+      return parsed;
+    }
 
     // Safe Expiry Parser
     function parseExpiry(val) {
-      if (!val) return 0;
+      if (val === 0 || val === '0' || val === null || val === undefined || val === '') return 0;
       if (typeof val === 'number') {
+        if (!isFinite(val)) return 0;
         return val < 10000000000 ? val * 1000 : val;
       }
       if (typeof val === 'string') {
-        const d = new Date(val).getTime();
+        const trimmed = val.trim();
+        if (/^\d+$/.test(trimmed)) {
+          const num = Number(trimmed);
+          return num < 10000000000 ? num * 1000 : num;
+        }
+        const d = new Date(trimmed).getTime();
         return isNaN(d) ? 0 : d;
       }
       return 0;
@@ -2971,30 +3017,41 @@
 
       // --- Data Fetching ---
       async loadAllData() {
-        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
         try {
-          const [licRes, restRes, pkgRes] = await Promise.all([
-            fetch(`${BASE_RTDB}/licenses.json${authParam}`),
-            fetch(`${BASE_RTDB}/restaurants.json${authParam}`),
-            fetch(`${BASE_RTDB}/subscriptionPlans.json${authParam}`).catch(() => null)
+          const [licensesRaw, restaurantsRaw, pkgsData, cfgRaw] = await Promise.all([
+            rtdbRequest('licenses.json'),
+            rtdbRequest('restaurants.json'),
+            rtdbRequest('subscriptionPlans.json').catch(() => null),
+            rtdbRequest('masterConfig.json').catch(() => null)
           ]);
 
-          const licenses = await licRes.json() || {};
-          const restaurants = await restRes.json() || {};
+          const licenses = licensesRaw || {};
+          const restaurants = restaurantsRaw || {};
+          this.masterConfig = (cfgRaw && typeof cfgRaw === 'object') ? cfgRaw : {};
+          if (this.masterConfig.pin && /^\d{4}$/.test(String(this.masterConfig.pin))) {
+            this.correctPin = String(this.masterConfig.pin);
+            try { localStorage.setItem('harpy_master_pin', this.correctPin); } catch(e) {}
+          }
+          if (this.masterConfig.founderName) {
+            try { localStorage.setItem('harpy_master_founder_name', String(this.masterConfig.founderName)); } catch(e) {}
+          }
 
           const loadedTenants = [];
           const now = Date.now();
 
           for (const [slug, lic] of Object.entries(licenses)) {
+            if (!lic || typeof lic !== 'object') continue;
             const rest = restaurants[slug] || {};
             const settings = rest.settings || {};
+            const meta = rest.meta || {};
 
-            const expTimestamp = parseExpiry(lic.expiresAt || lic.validUntil);
-            const diffDays = Math.ceil((expTimestamp - now) / (1000 * 60 * 60 * 24));
+            const rawExp = (lic.expiresAt !== undefined && lic.expiresAt !== null) ? lic.expiresAt : lic.validUntil;
+            const expTimestamp = parseExpiry(rawExp);
+            const diffDays = expTimestamp > 0 ? Math.ceil((expTimestamp - now) / (1000 * 60 * 60 * 24)) : 0;
             const subSettings = settings.subscription || {};
-            const isExplicitExpired = lic.status === 'expired' || subSettings.status === 'expired';
-            const isTimestampExpired = expTimestamp > 0 && diffDays <= 0;
-            const isExpired = isExplicitExpired || isTimestampExpired;
+            const st = String(lic.status || '').toLowerCase();
+            const isExplicitExpired = st === 'expired' || (expTimestamp > 0 && expTimestamp <= now);
+            const isExpired = isExplicitExpired;
 
             let expiryText = '';
             if (isExpired) {
@@ -3005,11 +3062,11 @@
               expiryText = `متبقي ${diffDays} يوم`;
             }
 
-            const isSuspended = lic.active === false || lic.suspended === true || lic.status === 'suspended' || isExpired;
+            const isSuspended = lic.active === false || lic.suspended === true || ['suspended', 'blocked', 'inactive', 'deleted', 'expired'].includes(st) || isExpired;
             const active = !isSuspended;
 
-            const planName = lic.plan || subSettings.plan || (settings.subscription && settings.subscription.plan) || 'الباقة الأساسية';
-            const adminPassword = lic.adminPassword || (settings && settings.adminPassword) || (subSettings && subSettings.adminPassword) || '';
+            const planName = lic.plan || subSettings.plan || 'الباقة الأساسية';
+            const adminPassword = lic.adminPassword || (settings && settings.adminPassword) || (meta && meta.adminPassword) || (subSettings && subSettings.adminPassword) || '';
             const priceVal = (lic.monthlyPrice !== undefined && lic.monthlyPrice !== null)
               ? Number(lic.monthlyPrice)
               : ((subSettings.monthlyPrice !== undefined && subSettings.monthlyPrice !== null)
@@ -3018,31 +3075,28 @@
 
             loadedTenants.push({
               slug,
-              name: lic.restaurantName || settings.name || slug,
+              name: lic.restaurantName || settings.name || settings.storeName || slug,
               phone: lic.ownerPhone || settings.phone || '',
-              active: active,
+              active,
               suspended: isSuspended,
-              isExpired: isExpired,
+              status: isSuspended ? (isExpired ? 'expired' : (st || 'suspended')) : 'active',
+              isExpired,
+              isLifetime: expTimestamp <= 0,
               monthlyPrice: priceVal,
               plan: planName,
               billingCycle: lic.billingCycle || 'monthly',
               pricingNotes: lic.pricingNotes || '',
-              adminPassword: adminPassword,
+              adminPassword,
               expTimestamp,
               expiryText,
               diffDays,
+              sessionVersion: lic.sessionVersion || meta.sessionVersion || 0,
               logo: settings.logoUrl || settings.logo || 'assets/brand/harpy_order_emblem_transparent.png',
-              modules: settings.modules || lic.modules || {
-                pos: true,
-                inventory: true,
-                stories: true,
-                smartTables: true,
-                delivery: true,
-                takeaway: true,
-                onlinePayment: true,
-                archive: true,
-                coupons: true,
-                reviews: true
+              modules: lic.modules || settings.modules || {
+                ordering: true, pos: true, inventory: true, stories: true, smartTables: true,
+                delivery: true, takeaway: true, onlinePayment: true, archive: true,
+                coupons: true, cartDiscount: true, announcementBar: true, branches: true, reviews: true,
+                settings: true, backup: true
               }
             });
           }
@@ -3052,22 +3106,30 @@
             localStorage.setItem('harpy_master_cached_tenants', JSON.stringify(loadedTenants));
           } catch(e) {}
 
-          // Dynamic Platform Packages
-          let pkgsData = (pkgRes && pkgRes.ok) ? await pkgRes.json() : null;
-          if (!pkgsData || typeof pkgsData !== 'object' || Object.keys(pkgsData).length === 0) {
+          // Dynamic Platform Packages (never resurrect deleted packages once initialized)
+          const pkgInitFlag = Boolean(this.masterConfig.packagesInitialized) || localStorage.getItem('harpy_master_pkgs_init') === 'true';
+          if (pkgsData && typeof pkgsData === 'object' && Object.keys(pkgsData).length > 0) {
+            this.packages = Object.values(pkgsData);
+            if (!this.masterConfig.packagesInitialized) {
+              rtdbRequest('masterConfig.json', 'PATCH', { packagesInitialized: true }).catch(() => {});
+            }
+            try { localStorage.setItem('harpy_master_pkgs_init', 'true'); } catch(e) {}
+          } else if (pkgInitFlag) {
+            this.packages = [];
+          } else {
             const cachedPkgs = localStorage.getItem('harpy_master_cached_packages');
             if (cachedPkgs) {
               try { this.packages = JSON.parse(cachedPkgs); } catch(e) { this.packages = [...this.defaultPackages]; }
             } else {
               this.packages = [...this.defaultPackages];
-              try {
-                const seedObj = {};
-                this.packages.forEach(p => seedObj[p.id] = p);
-                fetch(`${BASE_RTDB}/subscriptionPlans.json${authParam}`, { method: 'PUT', body: JSON.stringify(seedObj) }).catch(() => {});
-              } catch(e) {}
+              const seedObj = {};
+              this.packages.forEach(p => seedObj[p.id] = p);
+              Promise.all([
+                rtdbRequest('subscriptionPlans.json', 'PUT', seedObj),
+                rtdbRequest('masterConfig.json', 'PATCH', { packagesInitialized: true })
+              ]).catch(() => {});
+              try { localStorage.setItem('harpy_master_pkgs_init', 'true'); } catch(e) {}
             }
-          } else {
-            this.packages = Object.values(pkgsData);
           }
           try { localStorage.setItem('harpy_master_cached_packages', JSON.stringify(this.packages)); } catch(e) {}
 
@@ -3442,36 +3504,52 @@
       },
 
       async toggleStatus(slug, activate) {
-        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
         const statusVal = activate ? 'active' : 'suspended';
+        const now = Date.now();
         const t = this.tenants.find(x => x.slug === slug);
-        
-        let newExp = t ? t.expTimestamp : 0;
-        // If unfreezing an expired restaurant, give it 30 days active automatically
-        if (activate && (!newExp || newExp <= Date.now())) {
-          newExp = Date.now() + (30 * 24 * 60 * 60 * 1000);
+        const snapshot = t ? { ...t } : null;
+
+        // Preserve Lifetime (0) when unfreezing unless timestamp actually expired in the past
+        let newExp = t ? Number(t.expTimestamp || 0) : 0;
+        const wasLifetime = t ? Boolean(t.isLifetime || newExp === 0) : false;
+        if (activate) {
+          if (wasLifetime && !(t && t.isExpired)) {
+            newExp = 0;
+          } else if (newExp <= now) {
+            newExp = now + (30 * 24 * 60 * 60 * 1000);
+          }
         }
 
         const subPayload = {
           status: statusVal,
           active: activate,
           suspended: !activate,
-          lastStatusUpdate: Date.now()
+          isLifetime: newExp === 0,
+          expiresAt: newExp,
+          validUntil: newExp,
+          lastStatusUpdate: now
         };
-        if (activate && newExp > Date.now()) {
-          subPayload.expiresAt = newExp;
-          subPayload.validUntil = newExp;
+        if (!activate) {
+          subPayload.suspendedAt = now;
+          subPayload.sessionVersion = now;
         }
 
-        // Immediately update in-memory and local cache for instant UI response
+        // Optimistic UI update (reverted cleanly if RTDB fails)
         if (t) {
           t.active = activate;
           t.suspended = !activate;
-          t.isExpired = !activate && (t.isExpired || newExp <= Date.now());
+          t.status = statusVal;
+          t.isExpired = activate ? false : (t.isExpired || (newExp > 0 && newExp <= now));
+          t.isLifetime = (newExp === 0);
           if (activate) {
             t.expTimestamp = newExp;
-            t.diffDays = Math.ceil((newExp - Date.now()) / (1000 * 60 * 60 * 24));
-            t.expiryText = `متبقي ${t.diffDays} يوم`;
+            if (newExp === 0) {
+              t.diffDays = 0;
+              t.expiryText = 'مدى الحياة';
+            } else {
+              t.diffDays = Math.ceil((newExp - now) / (1000 * 60 * 60 * 24));
+              t.expiryText = `متبقي ${t.diffDays} يوم`;
+            }
           }
           try {
             localStorage.setItem('harpy_master_cached_tenants', JSON.stringify(this.tenants));
@@ -3482,37 +3560,40 @@
         }
 
         try {
+          const settingsSubPayload = {
+            status: statusVal,
+            active: activate,
+            suspended: !activate,
+            expiresAt: newExp > 0 ? new Date(newExp).toISOString() : null,
+            lastStatusUpdate: now
+          };
+          const metaPayload = {
+            status: statusVal,
+            active: activate,
+            suspended: !activate,
+            isSuspended: !activate,
+            lastStatusUpdate: now
+          };
+          if (!activate) metaPayload.sessionVersion = now;
+
           await Promise.all([
-            fetch(`${BASE_RTDB}/licenses/${slug}.json${authParam}`, {
-              method: 'PATCH',
-              body: JSON.stringify(subPayload)
-            }),
-            fetch(`${BASE_RTDB}/restaurants/${slug}/settings/subscription.json${authParam}`, {
-              method: 'PATCH',
-              body: JSON.stringify({
-                status: statusVal,
-                active: activate,
-                suspended: !activate,
-                expiresAt: new Date(newExp).toISOString(),
-                lastStatusUpdate: Date.now()
-              })
-            }),
-            fetch(`${BASE_RTDB}/restaurants/${slug}/meta.json${authParam}`, {
-              method: 'PATCH',
-              body: JSON.stringify({
-                status: statusVal,
-                active: activate,
-                suspended: !activate,
-                lastStatusUpdate: Date.now()
-              })
-            })
+            rtdbRequest(`licenses/${slug}.json`, 'PATCH', subPayload),
+            rtdbRequest(`restaurants/${slug}/settings/subscription.json`, 'PATCH', settingsSubPayload),
+            rtdbRequest(`restaurants/${slug}/meta.json`, 'PATCH', metaPayload)
           ]);
 
           this.logAudit(activate ? 'TENANT_ACTIVATE' : 'TENANT_FREEZE', `${activate ? 'تنشيط وإلغاء تجميد' : 'تجميد وإيقاف'} حساب مطعم ${slug}`, slug);
           this.showToast(activate ? "تم تنشيط وإلغاء تجميد المطعم بنجاح" : "تم تجميد وإيقاف المطعم فوراً", "success");
-          this.loadAllData();
+          await this.loadAllData();
         } catch(e) {
-          this.showToast("فشل تحديث حالة المطعم", "error");
+          if (t && snapshot) {
+            Object.assign(t, snapshot);
+            try { localStorage.setItem('harpy_master_cached_tenants', JSON.stringify(this.tenants)); } catch(err) {}
+            this.renderUI();
+            this.renderFinanceUI();
+            this.renderWatchdogUI();
+          }
+          this.showToast("فشل تحديث حالة المطعم على السيرفر: " + (e.message || ''), "error");
         }
       },
 
@@ -3616,8 +3697,8 @@
       },
 
       async expireSubscription(slug) {
-        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
-        const expiredTimestamp = Date.now() - 1000;
+        const now = Date.now();
+        const expiredTimestamp = now - 60000;
 
         const subPayload = {
           status: 'expired',
@@ -3625,14 +3706,16 @@
           suspended: true,
           expiresAt: expiredTimestamp,
           validUntil: expiredTimestamp,
-          lastStatusUpdate: Date.now()
+          sessionVersion: now,
+          lastStatusUpdate: now
         };
 
-        // Instant optimistic UI update
         const t = this.tenants.find(x => x.slug === slug);
+        const snapshot = t ? { ...t } : null;
         if (t) {
           t.active = false;
           t.suspended = true;
+          t.status = 'expired';
           t.isExpired = true;
           t.expTimestamp = expiredTimestamp;
           t.diffDays = 0;
@@ -3647,35 +3730,35 @@
 
         try {
           await Promise.all([
-            fetch(`${BASE_RTDB}/licenses/${slug}.json${authParam}`, {
-              method: 'PATCH',
-              body: JSON.stringify(subPayload)
+            rtdbRequest(`licenses/${slug}.json`, 'PATCH', subPayload),
+            rtdbRequest(`restaurants/${slug}/settings/subscription.json`, 'PATCH', {
+              status: 'expired',
+              active: false,
+              suspended: true,
+              expiresAt: new Date(expiredTimestamp).toISOString(),
+              lastStatusUpdate: now
             }),
-            fetch(`${BASE_RTDB}/restaurants/${slug}/settings/subscription.json${authParam}`, {
-              method: 'PATCH',
-              body: JSON.stringify({
-                status: 'expired',
-                active: false,
-                suspended: true,
-                expiresAt: new Date(expiredTimestamp).toISOString(),
-                lastStatusUpdate: Date.now()
-              })
-            }),
-            fetch(`${BASE_RTDB}/restaurants/${slug}/meta.json${authParam}`, {
-              method: 'PATCH',
-              body: JSON.stringify({
-                status: 'suspended',
-                active: false,
-                suspended: true,
-                lastStatusUpdate: Date.now()
-              })
+            rtdbRequest(`restaurants/${slug}/meta.json`, 'PATCH', {
+              status: 'expired',
+              active: false,
+              suspended: true,
+              isSuspended: true,
+              sessionVersion: now,
+              lastStatusUpdate: now
             })
           ]);
 
           this.logAudit('SUB_EXPIRE', `إنهاء اشتراك وتجميد مطعم ${slug} مؤقتاً`, slug);
           this.showToast("تم إنهاء الاشتراك وتجميد المطعم مؤقتاً بنجاح", "success");
-          this.loadAllData();
+          await this.loadAllData();
         } catch(e) {
+          if (t && snapshot) {
+            Object.assign(t, snapshot);
+            try { localStorage.setItem('harpy_master_cached_tenants', JSON.stringify(this.tenants)); } catch(err) {}
+            this.renderUI();
+            this.renderFinanceUI();
+            this.renderWatchdogUI();
+          }
           this.showToast("فشل إنهاء الاشتراك وتجميد المطعم", "error");
         }
       },
@@ -3695,9 +3778,11 @@
         const amount = Number(document.getElementById('pay-modal-amount').value) || 0;
         const notes = document.getElementById('pay-modal-notes').value || 'سداد دوري وتمديد';
         const t = this.tenants.find(x => x.slug === slug);
+        const snapshot = t ? { ...t } : null;
 
         let newExp = 0;
         let daysAdded = 0;
+        const now = Date.now();
 
         if (periodVal === 'custom_days') {
           const customDays = Number(document.getElementById('pay-modal-custom-days').value);
@@ -3706,7 +3791,7 @@
             return;
           }
           daysAdded = customDays;
-          let baseExp = t && t.expTimestamp > Date.now() ? t.expTimestamp : Date.now();
+          let baseExp = t && t.expTimestamp > now ? t.expTimestamp : now;
           newExp = baseExp + (customDays * 24 * 60 * 60 * 1000);
         } else if (periodVal === 'custom_date') {
           const dateVal = document.getElementById('pay-modal-custom-date').value;
@@ -3714,16 +3799,15 @@
             this.showToast("يرجى تحديد تاريخ انتهاء الاشتراك", "error");
             return;
           }
-          newExp = new Date(dateVal).getTime() + (23 * 3600 + 59 * 60 + 59) * 1000;
-          daysAdded = Math.max(1, Math.ceil((newExp - Date.now()) / (1000 * 60 * 60 * 24)));
+          newExp = new Date(`${dateVal}T23:59:59`).getTime();
+          daysAdded = Math.max(1, Math.ceil((newExp - now) / (1000 * 60 * 60 * 24)));
         } else {
           daysAdded = Number(periodVal) || 30;
-          let baseExp = t && t.expTimestamp > Date.now() ? t.expTimestamp : Date.now();
+          let baseExp = t && t.expTimestamp > now ? t.expTimestamp : now;
           newExp = baseExp + (daysAdded * 24 * 60 * 60 * 1000);
         }
 
-        const isExpInFuture = newExp > Date.now();
-        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
+        const isExpInFuture = newExp > now;
 
         const payPayload = {
           expiresAt: newExp,
@@ -3731,19 +3815,23 @@
           active: isExpInFuture,
           suspended: !isExpInFuture,
           status: isExpInFuture ? 'active' : 'expired',
-          lastPaymentDate: Date.now(),
+          isLifetime: false,
+          lastPaymentDate: now,
           lastPaymentAmount: amount,
           lastPaymentNotes: notes,
-          lastStatusUpdate: Date.now()
+          lastStatusUpdate: now
         };
+        if (!isExpInFuture) payPayload.sessionVersion = now;
 
         // Instant optimistic UI update
         if (t) {
           t.active = isExpInFuture;
           t.suspended = !isExpInFuture;
+          t.status = isExpInFuture ? 'active' : 'expired';
           t.isExpired = !isExpInFuture;
+          t.isLifetime = false;
           t.expTimestamp = newExp;
-          t.diffDays = Math.ceil((newExp - Date.now()) / (1000 * 60 * 60 * 24));
+          t.diffDays = Math.ceil((newExp - now) / (1000 * 60 * 60 * 24));
           t.expiryText = isExpInFuture ? `متبقي ${t.diffDays} يوم` : 'منتهي الصلاحية';
           try {
             localStorage.setItem('harpy_master_cached_tenants', JSON.stringify(this.tenants));
@@ -3754,37 +3842,39 @@
         }
 
         try {
+          const metaPay = {
+            status: isExpInFuture ? 'active' : 'suspended',
+            active: isExpInFuture,
+            suspended: !isExpInFuture,
+            isSuspended: !isExpInFuture,
+            lastStatusUpdate: now
+          };
+          if (!isExpInFuture) metaPay.sessionVersion = now;
+
           await Promise.all([
-            fetch(`${BASE_RTDB}/licenses/${slug}.json${authParam}`, {
-              method: 'PATCH',
-              body: JSON.stringify(payPayload)
+            rtdbRequest(`licenses/${slug}.json`, 'PATCH', payPayload),
+            rtdbRequest(`restaurants/${slug}/settings/subscription.json`, 'PATCH', {
+              expiresAt: new Date(newExp).toISOString(),
+              status: isExpInFuture ? 'active' : 'expired',
+              active: isExpInFuture,
+              suspended: !isExpInFuture,
+              lastStatusUpdate: now
             }),
-            fetch(`${BASE_RTDB}/restaurants/${slug}/settings/subscription.json${authParam}`, {
-              method: 'PATCH',
-              body: JSON.stringify({
-                expiresAt: new Date(newExp).toISOString(),
-                status: isExpInFuture ? 'active' : 'expired',
-                active: isExpInFuture,
-                suspended: !isExpInFuture,
-                lastStatusUpdate: Date.now()
-              })
-            }),
-            fetch(`${BASE_RTDB}/restaurants/${slug}/meta.json${authParam}`, {
-              method: 'PATCH',
-              body: JSON.stringify({
-                status: isExpInFuture ? 'active' : 'suspended',
-                active: isExpInFuture,
-                suspended: !isExpInFuture,
-                lastStatusUpdate: Date.now()
-              })
-            })
+            rtdbRequest(`restaurants/${slug}/meta.json`, 'PATCH', metaPay)
           ]);
 
           this.logAudit('PAYMENT_RECORD', `تسجيل سداد ${amount} ج.م وتحديد الصلاحية (${daysAdded} يوماً) لمطعم ${slug}`, slug);
           this.closePaymentModal();
           this.showToast(isExpInFuture ? "تم توثيق السداد وتمديد الترخيص بنجاح" : "تم ضبط الاشتراك كمنتهي الصلاحية وتجميد المطعم", "success");
-          this.loadAllData();
+          await this.loadAllData();
         } catch(e) {
+          if (t && snapshot) {
+            Object.assign(t, snapshot);
+            try { localStorage.setItem('harpy_master_cached_tenants', JSON.stringify(this.tenants)); } catch(err) {}
+            this.renderUI();
+            this.renderFinanceUI();
+            this.renderWatchdogUI();
+          }
           this.showToast("فشل حفظ بيانات الاشتراك والسداد", "error");
         }
       },
@@ -3846,18 +3936,11 @@
           settings: document.getElementById('mod-toggle-settings') ? document.getElementById('mod-toggle-settings').checked : true,
           backup: document.getElementById('mod-toggle-backup') ? document.getElementById('mod-toggle-backup').checked : true
         };
-        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
 
         try {
           await Promise.all([
-            fetch(`${BASE_RTDB}/restaurants/${slug}/settings/modules.json${authParam}`, {
-              method: 'PUT',
-              body: JSON.stringify(modulesPayload)
-            }),
-            fetch(`${BASE_RTDB}/licenses/${slug}/modules.json${authParam}`, {
-              method: 'PUT',
-              body: JSON.stringify(modulesPayload)
-            })
+            rtdbRequest(`restaurants/${slug}/settings/modules.json`, 'PUT', modulesPayload),
+            rtdbRequest(`licenses/${slug}/modules.json`, 'PUT', modulesPayload)
           ]);
 
           const t = this.tenants.find(x => x.slug === slug);
@@ -3870,14 +3953,21 @@
           this.logAudit('MODULES_UPDATE', `تعديل صلاحيات ميزات مطعم ${slug}`, slug);
           this.closeModulesModal();
           this.showToast("تم حفظ وتطبيق الصلاحيات بنجاح", "success");
-          this.loadAllData();
+          await this.loadAllData();
         } catch(e) {
-          this.showToast("فشل حفظ الصلاحيات", "error");
+          this.showToast("فشل حفظ الصلاحيات على السيرفر: " + (e.message || ''), "error");
         }
       },
 
       // --- Add Tenant ---
       openAddTenantModal() {
+        const planInput = document.getElementById('new-tenant-plan');
+        const priceInput = document.getElementById('new-tenant-price');
+        if (this.packages && this.packages.length > 0 && planInput && !planInput.value) {
+          const firstPkg = this.packages[0];
+          planInput.value = firstPkg.name || 'الباقة الأساسية';
+          if (priceInput && firstPkg.price !== undefined) priceInput.value = firstPkg.price;
+        }
         this.renderAddTenantPlanCards();
         const passInput = document.getElementById('new-tenant-password');
         if (passInput && !passInput.value) {
@@ -3894,9 +3984,12 @@
       suggestSlug(name) {
         const slugInput = document.getElementById('new-tenant-slug');
         if (slugInput && !slugInput.dataset.manual) {
-          slugInput.value = name.trim().toLowerCase()
-            .replace(/[^\w\s\u0621-\u064A-]/g, '')
-            .replace(/\s+/g, '-');
+          const cleaned = String(name || '').trim().toLowerCase()
+            .replace(/[^a-z0-9\s_-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-+|-+$/g, '');
+          slugInput.value = cleaned;
         }
       },
       async handleCreateTenant(e) {
@@ -3912,6 +4005,20 @@
           return;
         }
 
+        const reservedSlugs = new Set(['admin', 'order', 'menu', 'master', 'portfolio', 'products', 'cards', 'assets', 'js', 'css', 'scripts', 'docs', 'backups', 'scratch', 'api', 'demo', 'index', '404']);
+        if (!/^[a-z0-9][a-z0-9_-]{0,48}[a-z0-9]?$/.test(slug) || reservedSlugs.has(slug)) {
+          this.showToast("المعرّف (Slug) يجب أن يكون أحرف إنجليزية أو أرقام فقط بدون مسافات أو كلمات محجوزة", "error");
+          return;
+        }
+
+        try {
+          const existingLic = await rtdbRequest(`licenses/${slug}.json`);
+          if (existingLic) {
+            this.showToast(`المعرّف "${slug}" مستخدم بالفعل لمطعم آخر! اختر معرّفاً مختلفاً.`, "error");
+            return;
+          }
+        } catch(chkErr) {}
+
         let expTimestamp = 0;
         if (durChoice === 'custom_days') {
           const cd = Number(document.getElementById('new-tenant-custom-days').value);
@@ -3926,22 +4033,24 @@
             this.showToast("يرجى تحديد تاريخ انتهاء الاشتراك", "error");
             return;
           }
-          expTimestamp = new Date(dVal).getTime() + (23 * 3600 + 59 * 60 + 59) * 1000;
+          expTimestamp = new Date(`${dVal}T23:59:59`).getTime();
         } else {
           const durationMonths = Number(durChoice) || 3;
           expTimestamp = Date.now() + (durationMonths * 30 * 24 * 60 * 60 * 1000);
         }
-        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
 
         const planSelect = document.getElementById('new-tenant-plan');
-        const planName = planSelect ? planSelect.value : 'الباقة الأساسية';
+        const planName = (planSelect && planSelect.value) ? planSelect.value : 'الباقة الأساسية';
 
-        const matchedPackage = this.packages.find(p => p.name === planName || p.id === planName);
-        const allMods = (matchedPackage && matchedPackage.modules) ? Object.assign({}, matchedPackage.modules) : {
-          ordering: true, pos: true, inventory: true, stories: true, smartTables: true,
-          delivery: true, takeaway: true, onlinePayment: true, archive: true,
-          coupons: true, cartDiscount: true, announcementBar: true, branches: true, reviews: true
-        };
+        const matchedPackage = (this.packages || []).find(p => p.name === planName || p.id === planName);
+        const allMods = (matchedPackage && matchedPackage.modules)
+          ? Object.assign({ settings: true, backup: true }, matchedPackage.modules)
+          : {
+              ordering: true, pos: true, inventory: true, stories: true, smartTables: true,
+              delivery: true, takeaway: true, onlinePayment: true, archive: true,
+              coupons: true, cartDiscount: true, announcementBar: true, branches: true, reviews: true,
+              settings: true, backup: true
+            };
 
         const password = (document.getElementById('new-tenant-password')?.value || '').trim();
         if (!password || password.length < 5) {
@@ -3973,24 +4082,27 @@
           }
         } catch(e) {}
 
+        const now = Date.now();
         const licensePayload = {
           restaurantName: name,
           ownerPhone: phone,
           adminPassword: password,
           ownerUid: ownerUid,
+          status: 'active',
           active: true,
           suspended: false,
           monthlyPrice: price,
           plan: planName,
           expiresAt: expTimestamp,
           validUntil: expTimestamp,
-          createdAt: Date.now(),
-          sessionVersion: Date.now(),
+          createdAt: now,
+          sessionVersion: now,
           modules: allMods
         };
 
         const settingsPayload = {
           name: name,
+          storeName: name,
           phone: phone,
           adminPassword: password,
           currency: "ج.م",
@@ -4009,23 +4121,28 @@
 
         const metaPayload = {
           ownerUid: ownerUid,
-          createdAt: new Date().toISOString(),
-          sessionVersion: Date.now()
+          status: 'active',
+          active: true,
+          suspended: false,
+          isSuspended: false,
+          createdAt: new Date(now).toISOString(),
+          sessionVersion: now
         };
 
         try {
           await Promise.all([
-            fetch(`${BASE_RTDB}/licenses/${slug}.json${authParam}`, { method: 'PUT', body: JSON.stringify(licensePayload) }),
-            fetch(`${BASE_RTDB}/restaurants/${slug}/settings.json${authParam}`, { method: 'PUT', body: JSON.stringify(settingsPayload) }),
-            fetch(`${BASE_RTDB}/restaurants/${slug}/meta.json${authParam}`, { method: 'PUT', body: JSON.stringify(metaPayload) })
+            rtdbRequest(`licenses/${slug}.json`, 'PUT', licensePayload),
+            rtdbRequest(`restaurants/${slug}/settings.json`, 'PUT', settingsPayload),
+            rtdbRequest(`restaurants/${slug}/meta.json`, 'PUT', metaPayload)
           ]);
 
           this.logAudit('TENANT_CREATE', `إطلاق وتأسيس مطعم جديد: ${name} (${slug})`, slug);
           this.closeAddTenantModal();
           this.showToast("تم تأسيس وإطلاق المطعم بنجاح", "success");
-          this.loadAllData();
+          await this.loadAllData();
+          this.triggerGitHubSync(false, slug);
         } catch(err) {
-          this.showToast("فشل إنشاء المطعم", "error");
+          this.showToast("فشل إنشاء المطعم على السيرفر: " + (err.message || ''), "error");
         }
       },
 
@@ -4144,18 +4261,64 @@
         });
       },
       async confirmCascadeWipe(slug) {
-        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
         try {
           await Promise.all([
-            fetch(`${BASE_RTDB}/licenses/${slug}.json${authParam}`, { method: 'DELETE' }),
-            fetch(`${BASE_RTDB}/restaurants/${slug}.json${authParam}`, { method: 'DELETE' }),
-            fetch(`${BASE_RTDB}/orders/${slug}.json${authParam}`, { method: 'DELETE' })
+            rtdbRequest(`licenses/${slug}.json`, 'DELETE'),
+            rtdbRequest(`restaurants/${slug}.json`, 'DELETE'),
+            rtdbRequest(`orders/${slug}.json`, 'DELETE')
           ]);
-          this.logAudit('CASCADE_WIPE', `حذف نهائي شامل لمطعم ${slug}`, slug);
-          this.showToast("تم مسح المطعم نهائياً من المنصة", "success");
-          this.loadAllData();
+
+          const [chkLic, chkRest] = await Promise.all([
+            rtdbRequest(`licenses/${slug}.json`),
+            rtdbRequest(`restaurants/${slug}.json`)
+          ]);
+          if (chkLic !== null || chkRest !== null) {
+            throw new Error("لا تزال بيانات متبقية على السيرفر");
+          }
+
+          // Scrub all localStorage & sessionStorage artifacts belonging to this slug
+          this.tenants = (this.tenants || []).filter(t => t.slug !== slug);
+          try {
+            localStorage.setItem('harpy_master_cached_tenants', JSON.stringify(this.tenants));
+            const prefix = `harpy_${slug}_`;
+            for (let i = localStorage.length - 1; i >= 0; i--) {
+              const k = localStorage.key(i);
+              if (k && (k.startsWith(prefix) || k === `harpy_branches_${slug}`)) {
+                localStorage.removeItem(k);
+              }
+            }
+            ['harpy_active_slug', 'harpy_admin_active_slug', 'harpy_customer_installed_slug', 'harpy_admin_installed_slug', 'harpy_last_visited_slug'].forEach(ptrKey => {
+              if (localStorage.getItem(ptrKey) === slug) localStorage.removeItem(ptrKey);
+            });
+            sessionStorage.removeItem(`harpy_auth_${slug}`);
+            if ('caches' in window) {
+              const cacheKeys = await caches.keys();
+              for (const ck of cacheKeys) {
+                const c = await caches.open(ck);
+                const reqs = await c.keys();
+                for (const req of reqs) {
+                  if (req.url.includes(`/${slug}`) || req.url.includes(`m=${slug}`) || req.url.includes(`-${slug}.`) || req.url.includes(`${slug}-admin`)) {
+                    await c.delete(req);
+                  }
+                }
+              }
+            }
+          } catch(cleanErr) {}
+
+          this.logAudit('CASCADE_WIPE', `حذف نهائي شامل لمطعم ${slug} من السحابة والكاش`, slug);
+          this.renderUI();
+          this.renderFinanceUI();
+          this.renderWatchdogUI();
+          const synced = await this.triggerGitHubSync(false, slug);
+          this.showToast(
+            synced
+              ? `تم مسح مطعم "${slug}" نهائياً وبدأت مزامنة حذف ملفات السيرفر (GitHub)`
+              : `تم مسح مطعم "${slug}" نهائياً من قاعدة البيانات والكاش بنجاح`,
+            "success"
+          );
+          await this.loadAllData();
         } catch(e) {
-          this.showToast("فشل حذف المطعم", "error");
+          this.showToast("فشل الحذف النهائي للمطعم: " + (e.message || ''), "error");
         }
       },
 
@@ -4224,19 +4387,24 @@
       async loadBroadcast() {
         const preview = document.getElementById('active-broadcast-preview');
         if (!preview) return;
-        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
         try {
-          const res = await fetch(`${BASE_RTDB}/announcements/global.json${authParam}`);
-          const data = await res.json();
-          if (data && data.message) {
+          let data = await rtdbRequest('systemBroadcast.json');
+          if (!data || !data.message) {
+            const legacy = await rtdbRequest('announcements/global.json').catch(() => null);
+            if (legacy && legacy.message && legacy.active !== false) {
+              data = legacy;
+            }
+          }
+          if (data && data.message && data.active !== false) {
+            const safeMsg = String(data.message).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
             preview.innerHTML = `
               <div style="background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.35); border-radius:12px; padding:10px 12px; margin-bottom:12px;">
                 <div style="display:flex; align-items:center; justify-content:space-between;">
                   <b style="color:var(--amber); font-size:12px;">تنبيه نشط حالياً على الشاشات:</b>
                   <button onclick="MasterApp.clearBroadcast()" style="color:var(--red); background:none; font-size:11px; cursor:pointer; font-weight:700;">إلغاء الإذاعة</button>
                 </div>
-                <div style="font-size:13px; color:var(--text-primary); font-weight:700; margin-top:4px;">${data.message}</div>
-                <div style="font-size:10px; color:var(--text-muted); margin-top:2px;">تاريخ النشر: ${new Date(data.createdAt).toLocaleString('ar-EG')}</div>
+                <div style="font-size:13px; color:var(--text-primary); font-weight:700; margin-top:4px;">${safeMsg}</div>
+                <div style="font-size:10px; color:var(--text-muted); margin-top:2px;">تاريخ النشر: ${new Date(data.createdAt || Date.now()).toLocaleString('ar-EG')}</div>
               </div>
             `;
             document.getElementById('broadcast-message-input').value = data.message;
@@ -4247,6 +4415,9 @@
           preview.innerHTML = '';
         }
       },
+      sendBroadcast() {
+        return this.publishBroadcast();
+      },
       async publishBroadcast() {
         const msg = document.getElementById('broadcast-message-input').value.trim();
         const level = document.getElementById('broadcast-level-select').value;
@@ -4254,34 +4425,38 @@
           this.showToast("يرجى كتابة نص التنبيه أولاً", "error");
           return;
         }
-        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
+        const typeMap = { danger: 'urgent', warning: 'maintenance', info: 'info' };
+        const payload = {
+          message: msg,
+          level: level,
+          type: typeMap[level] || level || 'info',
+          createdAt: Date.now(),
+          active: true
+        };
         try {
-          await fetch(`${BASE_RTDB}/announcements/global.json${authParam}`, {
-            method: 'PUT',
-            body: JSON.stringify({
-              message: msg,
-              level: level,
-              createdAt: Date.now(),
-              active: true
-            })
-          });
+          await Promise.all([
+            rtdbRequest('systemBroadcast.json', 'PUT', payload),
+            rtdbRequest('announcements/global.json', 'DELETE').catch(() => null)
+          ]);
           this.logAudit('BROADCAST_PUBLISH', `نشر إذاعة عامة: "${msg}"`);
           this.showToast("تم نشر التنبيه بنجاح في جميع الشاشات", "success");
-          this.loadBroadcast();
+          await this.loadBroadcast();
         } catch(e) {
-          this.showToast("فشل نشر التنبيه", "error");
+          this.showToast("فشل نشر التنبيه: " + (e.message || ''), "error");
         }
       },
       async clearBroadcast() {
-        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
         try {
-          await fetch(`${BASE_RTDB}/announcements/global.json${authParam}`, { method: 'DELETE' });
+          await Promise.all([
+            rtdbRequest('systemBroadcast.json', 'DELETE'),
+            rtdbRequest('announcements/global.json', 'DELETE').catch(() => null)
+          ]);
           this.logAudit('BROADCAST_CLEAR', "إلغاء الإذاعة العامة وإزالتها من الشاشات");
           this.showToast("تم إلغاء الإذاعة من الشاشات", "success");
           document.getElementById('broadcast-message-input').value = '';
-          this.loadBroadcast();
+          await this.loadBroadcast();
         } catch(e) {
-          this.showToast("فشل إلغاء الإذاعة", "error");
+          this.showToast("فشل إلغاء الإذاعة: " + (e.message || ''), "error");
         }
       },
 
@@ -4338,7 +4513,7 @@
         } catch(e) {}
       },
 
-      // --- Founder Profile & PIN ---
+      // --- Founder Profile, PIN & GitHub Auto-Sync ---
       openFounderMenu() {
         const currentName = this.getFounderName();
         const nameInput = document.getElementById('founder-input-name');
@@ -4350,6 +4525,11 @@
         const pinInput = document.getElementById('new-founder-pin');
         if (pinInput) pinInput.value = '';
 
+        const ghInput = document.getElementById('founder-github-token');
+        if (ghInput) {
+          ghInput.value = (this.masterConfig && this.masterConfig.githubToken) ? this.masterConfig.githubToken : '';
+        }
+
         document.getElementById('modal-founder').classList.add('open');
         document.getElementById('modal-founder-backdrop').classList.add('open');
       },
@@ -4357,30 +4537,87 @@
         document.getElementById('modal-founder').classList.remove('open');
         document.getElementById('modal-founder-backdrop').classList.remove('open');
       },
-      saveFounderProfile() {
+      async saveFounderProfile() {
         const nameInput = document.getElementById('founder-input-name');
         const newName = nameInput ? nameInput.value.trim() : '';
         const pinInput = document.getElementById('new-founder-pin');
         const newPin = pinInput ? pinInput.value.trim() : '';
+        const ghInput = document.getElementById('founder-github-token');
+        const ghToken = ghInput ? ghInput.value.trim() : '';
 
+        const cfgPatch = {};
         if (newName) {
           localStorage.setItem('harpy_master_founder_name', newName);
           const displayTitle = document.getElementById('founder-profile-display-title');
           if (displayTitle) displayTitle.textContent = newName;
+          cfgPatch.founderName = newName;
         }
 
         if (newPin) {
-          if (newPin.length !== 4 || isNaN(newPin)) {
-            this.showToast("يجب أن يتكون رمز PIN من 4 أرقام", "error");
+          if (newPin.length !== 4 || !/^\d{4}$/.test(newPin)) {
+            this.showToast("يجب أن يتكون رمز PIN من 4 أرقام صحيحة", "error");
             return;
           }
           this.correctPin = newPin;
           localStorage.setItem('harpy_master_pin', newPin);
+          cfgPatch.pin = newPin;
         }
 
-        this.logAudit('PROFILE_UPDATE', `تحديث بيانات مدير المنصة: ${newName || this.getFounderName()}`);
-        this.closeFounderMenu();
-        this.showToast("تم حفظ الإعدادات بنجاح", "success");
+        if (ghInput) {
+          cfgPatch.githubToken = ghToken || null;
+        }
+
+        try {
+          if (Object.keys(cfgPatch).length > 0) {
+            await rtdbRequest('masterConfig.json', 'PATCH', cfgPatch);
+            this.masterConfig = Object.assign({}, this.masterConfig || {}, cfgPatch);
+          }
+          this.logAudit('PROFILE_UPDATE', `تحديث بيانات وإعدادات مدير المنصة: ${newName || this.getFounderName()}`);
+          this.closeFounderMenu();
+          this.showToast("تم حفظ الإعدادات ومزامنتها سحابياً بنجاح", "success");
+        } catch(err) {
+          this.showToast("فشل حفظ الإعدادات في السحابة: " + (err.message || ''), "error");
+        }
+      },
+      async triggerGitHubSync(manual = false, hintSlug = '') {
+        try {
+          if (!this.masterConfig || !this.masterConfig.githubToken) {
+            const cfg = await rtdbRequest('masterConfig.json').catch(() => null);
+            if (cfg && typeof cfg === 'object') this.masterConfig = cfg;
+          }
+          const token = (this.masterConfig && this.masterConfig.githubToken) ? String(this.masterConfig.githubToken).trim() : '';
+          if (!token) {
+            if (manual) {
+              this.openFounderMenu();
+              this.showToast("أدخل مفتاح GitHub Token في إعدادات المؤسس لتشغيل المزامنة التلقائية مباشرة، أو ستعمل المزامنة المجدولة تلقائياً.", "warning");
+            }
+            return false;
+          }
+          const dispatchBody = { ref: 'main' };
+          if (hintSlug) dispatchBody.inputs = { hint_slug: String(hintSlug) };
+          const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/actions/workflows/${GITHUB_SYNC_WORKFLOW}/dispatches`, {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/vnd.github+json',
+              'Authorization': `Bearer ${token}`,
+              'X-GitHub-Api-Version': '2022-11-28',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(dispatchBody)
+          });
+          if (!res.ok) {
+            const errTxt = await res.text().catch(() => '');
+            if (manual) this.showToast(`تعذر تشغيل مزامنة GitHub (HTTP ${res.status}): تأكد من صلاحية التوكن`, "error");
+            console.warn('GitHub dispatch failed:', res.status, errTxt);
+            return false;
+          }
+          this.logAudit('GITHUB_SYNC_TRIGGER', 'تشغيل مزامنة ملفات المطاعم والروابط على GitHub');
+          if (manual) this.showToast("تم إرسال أمر المزامنة التلقائية لـ GitHub بنجاح — ستتحدث الملفات خلال دقيقة", "success");
+          return true;
+        } catch(e) {
+          if (manual) this.showToast("خطأ أثناء الاتصال بـ GitHub API", "error");
+          return false;
+        }
       },
 
       // --- Pricing & Plan Management ---
@@ -4450,11 +4687,6 @@
         this.switchTab('packages');
         const grid = document.getElementById('packages-cards-grid');
         if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      },
-
-      openFounderMenu() {
-        document.getElementById('modal-founder-backdrop').classList.add('open');
-        document.getElementById('modal-founder').classList.add('open');
       },
 
       async exportAllBackup() {
@@ -4662,41 +4894,41 @@
           return;
         }
 
-        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
         const now = Date.now();
-
         const updates = {
+          adminPassword: newPass,
+          lastPasswordUpdate: now
+        };
+        const metaUpdates = {
           adminPassword: newPass,
           lastPasswordUpdate: now
         };
         if (forceLogout) {
           updates.sessionVersion = now;
+          metaUpdates.sessionVersion = now;
         }
 
-        // Optimistic in-memory update
         const t = (this.tenants || []).find(x => x.slug === slug);
-        if (t) {
-          t.adminPassword = newPass;
-        }
+        const prevPass = t ? t.adminPassword : '';
 
         this.closeTenantSecurityModal();
 
         try {
-          const promises = [
-            fetch(`${BASE_RTDB}/licenses/${slug}.json${authParam}`, { method: 'PATCH', body: JSON.stringify(updates) }),
-            fetch(`${BASE_RTDB}/restaurants/${slug}/settings/adminPassword.json${authParam}`, { method: 'PUT', body: JSON.stringify(newPass) })
-          ];
-          if (forceLogout) {
-            promises.push(
-              fetch(`${BASE_RTDB}/restaurants/${slug}/meta/sessionVersion.json${authParam}`, { method: 'PUT', body: JSON.stringify(now) })
-            );
-          }
+          await Promise.all([
+            rtdbRequest(`licenses/${slug}.json`, 'PATCH', updates),
+            rtdbRequest(`restaurants/${slug}/settings/adminPassword.json`, 'PUT', newPass),
+            rtdbRequest(`restaurants/${slug}/meta.json`, 'PATCH', metaUpdates)
+          ]);
 
-          await Promise.all(promises);
+          if (t) {
+            t.adminPassword = newPass;
+            try { localStorage.setItem('harpy_master_cached_tenants', JSON.stringify(this.tenants)); } catch(e) {}
+          }
           this.logAudit('PASSWORD_CHANGED', `تغيير كلمة مرور مطعم ${slug} ${forceLogout ? '(مع طرد كافة الأجهزة)' : ''}`, slug);
           this.showToast(`تم تحديث كلمة المرور ${forceLogout ? 'وطرد الأجهزة بنجاح' : 'بنجاح'}`, "success");
         } catch(err) {
-          this.showToast("فشل حفظ التحديثات السحابية", "error");
+          if (t) t.adminPassword = prevPass;
+          this.showToast("فشل حفظ التحديثات السحابية: " + (err.message || ''), "error");
         }
       },
 
@@ -4781,9 +5013,10 @@
                   if (mods.ordering === false) {
                     return '<span class="package-badge" style="background:rgba(239,68,68,0.12); color:var(--red); border-color:rgba(239,68,68,0.25); font-weight:800;">عرض منيو فقط (بدون طلب)</span>';
                   }
+                  const totalMods = (MasterApp.ALL_MODULES_META || []).length || 16;
                   const enabled = (MasterApp.ALL_MODULES_META || []).filter(m => mods[m.key] !== false).length;
-                  if (enabled >= 14) {
-                    return '<span class="package-badge" style="background:var(--teal-dim); color:var(--teal); border-color:rgba(16,185,129,0.25); font-weight:800;">كافة المزايا الـ 14 كاملة</span>';
+                  if (enabled >= totalMods) {
+                    return `<span class="package-badge" style="background:var(--teal-dim); color:var(--teal); border-color:rgba(16,185,129,0.25); font-weight:800;">كافة المزايا الـ ${totalMods} كاملة</span>`;
                   }
                   return `<span class="package-badge" style="background:rgba(59,130,246,0.12); color:#2563eb; border-color:rgba(59,130,246,0.25); font-weight:800;">${enabled} ميزة مشمولة</span>`;
                 })()}
@@ -4999,21 +5232,23 @@
           this.packages.push(packageObj);
         }
 
-        try { localStorage.setItem('harpy_master_cached_packages', JSON.stringify(this.packages)); } catch(e) {}
+        try {
+          localStorage.setItem('harpy_master_cached_packages', JSON.stringify(this.packages));
+          localStorage.setItem('harpy_master_pkgs_init', 'true');
+        } catch(e) {}
         this.renderPackagesUI();
         this.renderPackageOptions();
         this.closePackageModal();
 
-        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
         try {
-          await fetch(`${BASE_RTDB}/subscriptionPlans/${id}.json${authParam}`, {
-            method: 'PUT',
-            body: JSON.stringify(packageObj)
-          });
+          await Promise.all([
+            rtdbRequest(`subscriptionPlans/${id}.json`, 'PUT', packageObj),
+            rtdbRequest('masterConfig.json', 'PATCH', { packagesInitialized: true })
+          ]);
           this.logAudit('PACKAGE_SAVED', `حفظ باقة [${name}] بسعر ${price} ج.م`, id);
           this.showToast(`تم حفظ الباقة "${name}" بنجاح`, "success");
         } catch(e) {
-          this.showToast("تم الحفظ محلياً وجارٍ المزامنة السحابية", "warning");
+          this.showToast("فشل حفظ الباقة على السيرفر: " + (e.message || ''), "error");
         }
       },
 
@@ -5028,17 +5263,22 @@
           isDanger: true,
           onConfirm: async () => {
             this.packages = this.packages.filter(x => x.id !== pkgId);
-            try { localStorage.setItem('harpy_master_cached_packages', JSON.stringify(this.packages)); } catch(e) {}
+            try {
+              localStorage.setItem('harpy_master_cached_packages', JSON.stringify(this.packages));
+              localStorage.setItem('harpy_master_pkgs_init', 'true');
+            } catch(e) {}
             this.renderPackagesUI();
             this.renderPackageOptions();
 
-            const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
             try {
-              await fetch(`${BASE_RTDB}/subscriptionPlans/${pkgId}.json${authParam}`, { method: 'DELETE' });
+              await Promise.all([
+                rtdbRequest(`subscriptionPlans/${pkgId}.json`, 'DELETE'),
+                rtdbRequest('masterConfig.json', 'PATCH', { packagesInitialized: true })
+              ]);
               this.logAudit('PACKAGE_DELETED', `حذف باقة [${p.name}]`, pkgId);
               this.showToast(`تم حذف الباقة "${p.name}"`, "success");
             } catch(e) {
-              this.showToast("فشلت المزامنة السحابية للحذف", "error");
+              this.showToast("فشلت المزامنة السحابية للحذف: " + (e.message || ''), "error");
             }
           }
         });
@@ -5115,13 +5355,13 @@
         const amount = Number(document.getElementById('pricing-amount').value);
         const cycle = document.getElementById('pricing-billing-cycle').value;
         const notes = document.getElementById('pricing-notes').value.trim();
+        const presetVal = document.getElementById('pricing-plan-preset') ? document.getElementById('pricing-plan-preset').value : 'custom';
 
         if (isNaN(amount) || amount < 0) {
           this.showToast("يرجى إدخال قيمة اشتراك صحيحة", "error");
           return;
         }
 
-        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
         const payload = {
           monthlyPrice: amount,
           plan: planName,
@@ -5130,13 +5370,19 @@
           lastPricingUpdate: Date.now()
         };
 
-        // Instant optimistic update in memory & cache (0ms)
+        const matchedPkg = presetVal !== 'custom' ? (this.packages || []).find(p => p.id === presetVal) : null;
+        if (matchedPkg && matchedPkg.modules) {
+          payload.modules = Object.assign({ settings: true, backup: true }, matchedPkg.modules);
+        }
+
         const t = this.tenants.find(x => x.slug === slug);
+        const snapshot = t ? { ...t } : null;
         if (t) {
           t.monthlyPrice = amount;
           t.plan = planName;
           t.billingCycle = cycle;
           t.pricingNotes = notes;
+          if (payload.modules) t.modules = payload.modules;
           try {
             localStorage.setItem('harpy_master_cached_tenants', JSON.stringify(this.tenants));
           } catch(e) {}
@@ -5145,27 +5391,28 @@
         }
 
         try {
-          await Promise.all([
-            fetch(`${BASE_RTDB}/licenses/${slug}.json${authParam}`, {
-              method: 'PATCH',
-              body: JSON.stringify(payload)
-            }),
-            fetch(`${BASE_RTDB}/restaurants/${slug}/settings/subscription.json${authParam}`, {
-              method: 'PATCH',
-              body: JSON.stringify(payload)
-            }),
-            fetch(`${BASE_RTDB}/restaurants/${slug}/meta.json${authParam}`, {
-              method: 'PATCH',
-              body: JSON.stringify({ monthlyPrice: amount, plan: planName })
-            })
-          ]);
+          const ops = [
+            rtdbRequest(`licenses/${slug}.json`, 'PATCH', payload),
+            rtdbRequest(`restaurants/${slug}/settings/subscription.json`, 'PATCH', payload),
+            rtdbRequest(`restaurants/${slug}/meta.json`, 'PATCH', { monthlyPrice: amount, plan: planName })
+          ];
+          if (payload.modules) {
+            ops.push(rtdbRequest(`restaurants/${slug}/settings/modules.json`, 'PUT', payload.modules));
+          }
+          await Promise.all(ops);
 
           this.logAudit('PRICING_UPDATE', `تعديل باقة وسعر اشتراك مطعم ${slug} إلى: ${amount.toLocaleString()} ج.م (${planName})`, slug);
           this.closePricingModal();
           this.showToast(`تم تحديث باقة وسعر مطعم ${t ? t.name : slug} بنجاح`, "success");
-          this.loadAllData();
+          await this.loadAllData();
         } catch(e) {
-          this.showToast("فشل حفظ التعديلات في السعر والباقة", "error");
+          if (t && snapshot) {
+            Object.assign(t, snapshot);
+            try { localStorage.setItem('harpy_master_cached_tenants', JSON.stringify(this.tenants)); } catch(err) {}
+            this.renderUI();
+            this.renderFinanceUI();
+          }
+          this.showToast("فشل حفظ التعديلات في السعر والباقة: " + (e.message || ''), "error");
         }
       },
 

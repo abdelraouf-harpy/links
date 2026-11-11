@@ -572,9 +572,9 @@ const Store = {
 
         if (storedPass && String(storedPass).trim() === cleanPassword) {
           dbPassMatch = true;
-        } else if ((activeSlug === 'king' && (cleanPassword === '123456' || cleanPassword === '12345')) ||
+        } else if (!storedPass && ((activeSlug === 'king' && (cleanPassword === '123456' || cleanPassword === '12345')) ||
                    (activeSlug === 'aloo' && cleanPassword === '12345') ||
-                   (activeSlug === 'elmetaashy' && cleanPassword === 'harpy9683')) {
+                   (activeSlug === 'elmetaashy' && cleanPassword === 'harpy9683'))) {
           dbPassMatch = true;
         }
       } catch(dbErr) {
@@ -1275,6 +1275,10 @@ const Store = {
   async pushToCloud(subPath, data) {
     const slug = this.getRestaurantSlug();
     if (!slug) return false;
+    if (slug !== 'demo' && this.isSubscriptionSuspended(slug)) {
+      console.warn(`[Store] Write blocked: restaurant "${slug}" is frozen/suspended.`);
+      return false;
+    }
     const path = subPath ? `restaurants/${slug}/${subPath}` : `restaurants/${slug}`;
     let success = false;
 
@@ -1321,6 +1325,10 @@ const Store = {
   async patchToCloud(subPath, partialData) {
     const slug = this.getRestaurantSlug();
     if (!slug || !partialData) return false;
+    if (slug !== 'demo' && this.isSubscriptionSuspended(slug)) {
+      console.warn(`[Store] Patch blocked: restaurant "${slug}" is frozen/suspended.`);
+      return false;
+    }
     const path = subPath ? `restaurants/${slug}/${subPath}` : `restaurants/${slug}`;
     let success = false;
 
@@ -1513,6 +1521,11 @@ const Store = {
     if (typeof AbortController !== 'undefined') {
       controller = new AbortController();
       timeoutId = setTimeout(() => controller.abort(), 9000);
+    }
+
+    if (slug !== 'demo' && this.isSubscriptionSuspended(slug)) {
+      console.warn(`[Store] Order blocked: restaurant "${slug}" is frozen/suspended.`);
+      return false;
     }
 
     try {
@@ -2609,6 +2622,9 @@ const Store = {
     if (this._memoryCache.settings?.subscription && !settings.subscription) {
       settings.subscription = this._memoryCache.settings.subscription;
     }
+    if (this._memoryCache.settings?.modules && !settings.modules) {
+      settings.modules = this._memoryCache.settings.modules;
+    }
     // Preserve rawMaterials inside settings to prevent form wipes
     if (!settings.rawMaterials) {
       const curMats = this.getRawMaterials();
@@ -2629,12 +2645,17 @@ const Store = {
     this.applyTheme();
     window.dispatchEvent(new Event('store_settings_updated'));
 
-    // Ultra-Fast Reliable Flow: Await cloud push so external tabs & previews immediately reflect updates
+    // Never allow admin panel saves to overwrite server-controlled subscription/modules/adminPassword
+    const cloudEditable = { ...settings };
+    delete cloudEditable.subscription;
+    delete cloudEditable.modules;
+    delete cloudEditable.adminPassword;
+
     try {
-      await this.pushToCloud('settings', settings);
+      await this.patchToCloud('settings', cloudEditable);
       this.lastSaveTimestamps.settings = Date.now();
     } catch(err) {
-      console.warn('[Store] pushToCloud settings warning:', err);
+      console.warn('[Store] patchToCloud settings warning:', err);
     } finally {
       this.saveLocks.settings = false;
     }
@@ -4257,7 +4278,11 @@ const Store = {
     this.initTheme();
 
     const isDemo = (currentSlug === 'demo');
-    await this.pushToCloud('settings', isDemo ? DEFAULT_SETTINGS : BLANK_SETTINGS);
+    const resetSettings = { ...(isDemo ? DEFAULT_SETTINGS : BLANK_SETTINGS) };
+    delete resetSettings.subscription;
+    delete resetSettings.modules;
+    delete resetSettings.adminPassword;
+    await this.patchToCloud('settings', resetSettings);
     await this.pushToCloud('categories', isDemo ? DEFAULT_CATEGORIES : []);
     await this.pushToCloud('products', isDemo ? DEFAULT_PRODUCTS : []);
     await this.pushToCloud('stories', isDemo ? DEFAULT_STORIES : []);
@@ -4309,9 +4334,29 @@ const Store = {
         }
       }
       keysToRemove.forEach(k => localStorage.removeItem(k));
+      ['harpy_active_slug', 'harpy_admin_active_slug', 'harpy_customer_installed_slug', 'harpy_admin_installed_slug', 'harpy_last_visited_slug'].forEach(ptr => {
+        if (localStorage.getItem(ptr) === targetSlug) localStorage.removeItem(ptr);
+      });
+      localStorage.removeItem(`harpy_branches_${targetSlug}`);
       sessionStorage.removeItem(`harpy_auth_${targetSlug}`);
       sessionStorage.removeItem(`harpy_admin_auth_${targetSlug}`);
-      
+
+      if (typeof caches !== 'undefined') {
+        caches.keys().then(cacheNames => {
+          cacheNames.forEach(cn => {
+            caches.open(cn).then(cache => {
+              cache.keys().then(reqs => {
+                reqs.forEach(req => {
+                  if (req.url.includes(`/${targetSlug}`) || req.url.includes(`m=${targetSlug}`) || req.url.includes(`-${targetSlug}.`) || req.url.includes(`${targetSlug}-admin`)) {
+                    cache.delete(req);
+                  }
+                });
+              });
+            });
+          });
+        }).catch(() => {});
+      }
+
       let list = this.getAllRestaurants().filter(r => r.slug !== targetSlug);
       this.safeSetItem('harpy_restaurants_list', JSON.stringify(list));
     } catch(e) {}
@@ -4319,9 +4364,10 @@ const Store = {
 
   isSubscriptionSuspended(slug) {
     const activeSlug = slug || this.getRestaurantSlug();
+    if (!activeSlug || activeSlug === 'demo') return false;
     try {
       const cached = localStorage.getItem(`harpy_${activeSlug}_sub_status`);
-      if (cached === 'suspended' || cached === 'blocked' || cached === 'expired' || cached === 'deleted') {
+      if (cached === 'suspended' || cached === 'blocked' || cached === 'inactive' || cached === 'expired' || cached === 'deleted') {
         return true;
       }
     } catch(e) {}
@@ -4343,6 +4389,24 @@ const Store = {
     let pollTimer = null;
     let lastKnownStatusHash = '';
 
+    const parseExpMs = (val) => {
+      if (val === 0 || val === '0' || val === null || val === undefined || val === '') return 0;
+      if (typeof val === 'number') {
+        if (!isFinite(val)) return 0;
+        return val < 10000000000 ? val * 1000 : val;
+      }
+      if (typeof val === 'string') {
+        const trimmed = val.trim();
+        if (/^\d+$/.test(trimmed)) {
+          const num = Number(trimmed);
+          return num < 10000000000 ? num * 1000 : num;
+        }
+        const parsed = new Date(trimmed).getTime();
+        return isNaN(parsed) ? 0 : parsed;
+      }
+      return 0;
+    };
+
     const evaluateLicense = (lic, subSettings = null, meta = null) => {
       if (isDestroyed) return;
 
@@ -4350,21 +4414,21 @@ const Store = {
       let isExpired = false;
       let isDeleted = false;
       let reason = 'active';
-      const isDemo = (slug === 'demo');
+      const hasAuthLic = Boolean(lic && typeof lic === 'object');
 
-      // Strict Guard: Only evaluate if an explicit license object is present; NEVER declare deleted on network null/transient state!
-      if (lic && typeof lic === 'object') {
-        if (lic.status === 'suspended' || lic.status === 'blocked' || lic.status === 'inactive' || lic.status === 'expired' || lic.active === false || lic.suspended === true) {
-          isBlocked = true;
-          reason = (lic.status === 'expired') ? 'expired' : 'blocked';
-        } else if (lic.status === 'deleted') {
+      if (hasAuthLic) {
+        const licStatus = String(lic.status || '').toLowerCase();
+        if (licStatus === 'deleted') {
           isDeleted = true;
           isBlocked = true;
           reason = 'deleted';
+        } else if (licStatus === 'suspended' || licStatus === 'blocked' || licStatus === 'inactive' || licStatus === 'expired' || lic.active === false || lic.suspended === true) {
+          isBlocked = true;
+          reason = (licStatus === 'expired') ? 'expired' : 'blocked';
         }
-        if (lic.expiresAt) {
-          const expTime = new Date(lic.expiresAt).getTime();
-          if (!isNaN(expTime) && Date.now() > expTime) {
+        if (lic.expiresAt !== undefined && lic.expiresAt !== null && lic.expiresAt !== 0 && lic.expiresAt !== '0') {
+          const expTime = parseExpMs(lic.expiresAt);
+          if (expTime > 0 && Date.now() > expTime) {
             isExpired = true;
             if (!isBlocked) reason = 'expired';
           }
@@ -4372,25 +4436,27 @@ const Store = {
         if (lic.modules && typeof lic.modules === 'object' && window.ModuleEnforcer && typeof window.ModuleEnforcer.enforce === 'function') {
           window.ModuleEnforcer.enforce(lic.modules);
         }
-      }
-
-      if (subSettings && typeof subSettings === 'object') {
-        if (subSettings.status === 'suspended' || subSettings.status === 'blocked' || subSettings.status === 'expired' || subSettings.active === false || subSettings.suspended === true) {
-          isBlocked = true;
-          if (reason === 'active') reason = (subSettings.status === 'expired') ? 'expired' : 'blocked';
-        } else if (subSettings.status === 'deleted') {
-          isDeleted = true;
-          reason = 'deleted';
+      } else {
+        // Fallback to subSettings/meta ONLY if licenses/{slug} object wasn't supplied
+        if (subSettings && typeof subSettings === 'object') {
+          const st = String(subSettings.status || '').toLowerCase();
+          if (st === 'deleted') {
+            isDeleted = true;
+            reason = 'deleted';
+          } else if (st === 'suspended' || st === 'blocked' || st === 'inactive' || st === 'expired' || subSettings.active === false || subSettings.suspended === true) {
+            isBlocked = true;
+            reason = (st === 'expired') ? 'expired' : 'blocked';
+          }
         }
-      }
-
-      if (meta && typeof meta === 'object') {
-        if (meta.status === 'suspended' || meta.status === 'blocked' || meta.status === 'expired' || meta.active === false || meta.suspended === true) {
-          isBlocked = true;
-          if (reason === 'active') reason = (subSettings.status === 'expired') ? 'expired' : 'blocked';
-        } else if (meta.status === 'deleted') {
-          isDeleted = true;
-          reason = 'deleted';
+        if (meta && typeof meta === 'object') {
+          const mt = String(meta.status || '').toLowerCase();
+          if (mt === 'deleted') {
+            isDeleted = true;
+            reason = 'deleted';
+          } else if (mt === 'suspended' || mt === 'blocked' || mt === 'inactive' || mt === 'expired' || meta.active === false || meta.suspended === true) {
+            isBlocked = true;
+            if (reason === 'active') reason = (mt === 'expired') ? 'expired' : 'blocked';
+          }
         }
       }
 
@@ -4407,7 +4473,7 @@ const Store = {
         try { localStorage.setItem(`harpy_${slug}_sub_status`, 'active'); } catch(e) {}
       }
 
-      const hash = `${active}_${reason}_${lic?.status || ''}`;
+      const hash = `${active}_${reason}_${lic?.status || ''}_${lic?.active !== false}_${lic?.suspended === true}`;
       if (hash !== lastKnownStatusHash) {
         lastKnownStatusHash = hash;
         if (typeof onStatusChange === 'function') {
@@ -4441,10 +4507,10 @@ const Store = {
       console.warn("[Store] Firebase license watcher init notice:", err);
     }
 
-    // 2. Smooth REST Fallback (Data-saver: skips when live WS or hidden)
+    // 2. Reliable REST Fallback (Checks deletions immediately even if tab was hidden)
     const fetchLicenseFast = async (force = false) => {
       if (isDestroyed) return;
-      if (typeof document !== 'undefined' && document.hidden) return;
+      if (!force && typeof document !== 'undefined' && document.hidden) return;
       if (!force && licRef && (Date.now() - lastLicWsTime < 180000)) return;
       try {
         const licRes = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${slug}.json`, { cache: 'no-store' }).catch(() => null);
@@ -4454,14 +4520,7 @@ const Store = {
           if (licData && typeof licData === 'object') {
             evaluateLicense(licData, null, null);
           } else if (licData === null && slug !== 'demo') {
-            // Null license: verify if settings are also null to declare permanent deletion
-            const setRes = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/settings.json?shallow=true`, { cache: 'no-store' }).catch(() => null);
-            if (setRes && setRes.ok) {
-              const setData = await setRes.json();
-              if (setData === null) {
-                evaluateLicense({ status: 'deleted', restaurantSlug: slug }, null, null);
-              }
-            }
+            evaluateLicense({ status: 'deleted', restaurantSlug: slug }, null, null);
           }
         }
       } catch (e) {}

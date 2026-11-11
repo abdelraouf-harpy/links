@@ -473,7 +473,7 @@ window.switchTab = function(targetTabId, updateHash = true) {
     window.closeAdminDrawer();
   }
 
-  // Module Enforcer Guard: If feature is disabled by Super Admin, redirect to orders
+  // Module Enforcer Guard: If feature is disabled by Super Admin, redirect safely
   if (window.ModuleEnforcer && window.ModuleEnforcer.modules) {
     const mods = window.ModuleEnforcer.modules;
     if (mods.ordering === false) {
@@ -483,10 +483,14 @@ window.switchTab = function(targetTabId, updateHash = true) {
       if (mods.settings === false || mods.settings === undefined) forbidden.push('tab-settings');
       if (mods.backup === false || mods.backup === undefined) forbidden.push('tab-backup');
       if (forbidden.includes(targetTabId)) targetTabId = 'tab-products';
-    } else if (targetTabId === 'tab-pos' && mods.pos === false) targetTabId = 'tab-orders';
-    if (targetTabId === 'tab-inventory' && mods.inventory === false) targetTabId = 'tab-products';
-    if (mods.ordering !== false && targetTabId === 'tab-archive' && mods.archive === false) targetTabId = 'tab-orders';
-    if (mods.ordering !== false && targetTabId === 'tab-stories' && mods.stories === false) targetTabId = 'tab-orders';
+    } else {
+      if (targetTabId === 'tab-pos' && mods.pos === false) targetTabId = 'tab-orders';
+      if (targetTabId === 'tab-inventory' && mods.inventory === false) targetTabId = 'tab-orders';
+      if (targetTabId === 'tab-archive' && mods.archive === false) targetTabId = 'tab-orders';
+      if (targetTabId === 'tab-stories' && mods.stories === false) targetTabId = 'tab-orders';
+      if (targetTabId === 'tab-settings' && mods.settings === false) targetTabId = 'tab-orders';
+      if (targetTabId === 'tab-backup' && mods.backup === false) targetTabId = 'tab-orders';
+    }
   }
 
   const targetPane = document.getElementById(targetTabId);
@@ -624,6 +628,13 @@ function setupTabNavigation() {
     if (forbiddenInMenuOnly.includes(initialTab)) {
       initialTab = 'tab-products';
     }
+  } else {
+    if (initialTab === 'tab-pos' && mods.pos === false) initialTab = 'tab-orders';
+    if (initialTab === 'tab-inventory' && mods.inventory === false) initialTab = 'tab-orders';
+    if (initialTab === 'tab-archive' && mods.archive === false) initialTab = 'tab-orders';
+    if (initialTab === 'tab-stories' && mods.stories === false) initialTab = 'tab-orders';
+    if (initialTab === 'tab-settings' && mods.settings === false) initialTab = 'tab-orders';
+    if (initialTab === 'tab-backup' && mods.backup === false) initialTab = 'tab-orders';
   }
 
   // Switch to initial tab immediately
