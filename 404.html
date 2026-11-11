@@ -94,6 +94,26 @@
               var k = localStorage.key(i);
               if (k && k.indexOf(p) === 0) localStorage.removeItem(k);
             }
+            localStorage.removeItem('harpy_branches_' + slug);
+            ['harpy_active_slug', 'harpy_admin_active_slug', 'harpy_customer_installed_slug', 'harpy_admin_installed_slug', 'harpy_last_visited_slug'].forEach(function(pk) {
+              if (localStorage.getItem(pk) === slug) localStorage.removeItem(pk);
+            });
+            try { sessionStorage.removeItem('harpy_auth_' + slug); } catch(se) {}
+            if ('caches' in window) {
+              caches.keys().then(function(keys) {
+                keys.forEach(function(ck) {
+                  caches.open(ck).then(function(cache) {
+                    cache.keys().then(function(reqs) {
+                      reqs.forEach(function(req) {
+                        if (req.url.indexOf('/' + slug) !== -1 || req.url.indexOf('m=' + slug) !== -1 || req.url.indexOf('-' + slug + '.') !== -1 || req.url.indexOf(slug + '-admin') !== -1) {
+                          cache.delete(req);
+                        }
+                      });
+                    });
+                  });
+                });
+              });
+            }
           }
         } catch(e) {}
         function render() {

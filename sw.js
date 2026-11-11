@@ -6,7 +6,7 @@ try {
   console.warn("[SW] OneSignal worker import notice:", e);
 }
 
-const CACHE_NAME = 'order-pwa-v184.0';
+const CACHE_NAME = 'order-pwa-v185.0';
 const IMAGE_CACHE_NAME = 'order-images-v6';
 const ASSETS_TO_CACHE = [
   './',
@@ -282,31 +282,7 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
           return networkResponse;
         }
-
-        // If server returns 404 for an HTML navigation request, fall back to cached shell
-        if (networkResponse && networkResponse.status === 404) {
-          const accept = event.request.headers.get('accept') || '';
-          if (accept.includes('text/html') || event.request.mode === 'navigate') {
-            const reqUrlLower = event.request.url.toLowerCase();
-            if (reqUrlLower.includes('master')) {
-              return caches.match('./master.html', { ignoreSearch: true }).then(r => r || networkResponse);
-            }
-            if (reqUrlLower.includes('admin')) {
-              return caches.match('./admin/index.html', { ignoreSearch: true })
-                .then(r => r || caches.match('./admin/', { ignoreSearch: true }))
-                .then(r => r || caches.match('./admin.html', { ignoreSearch: true }))
-                .then(r => r || networkResponse);
-            }
-            if (reqUrlLower.includes('order') || reqUrlLower.includes('menu') || reqUrlLower.includes('m=')) {
-              return caches.match('./order/index.html', { ignoreSearch: true })
-                .then(r => r || caches.match('./order/', { ignoreSearch: true }))
-                .then(r => r || caches.match('./order.html', { ignoreSearch: true }))
-                .then(r => r || caches.match('./menu/index.html', { ignoreSearch: true }))
-                .then(r => r || networkResponse);
-            }
-            return caches.match('./index.html', { ignoreSearch: true }).then(r => r || networkResponse);
-          }
-        }
+        // Let server 404 responses (GitHub Pages 404.html smart router / Not Found) pass through untouched when online
         return networkResponse;
       })
       .catch(() => {
