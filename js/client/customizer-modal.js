@@ -59,7 +59,7 @@ window.openCustomizer = function(productId) {
       cTimerEl.style.display = 'inline-flex';
       cTimerEl.setAttribute('data-offer-ends', String(p.offerEndsAt));
       const fmt = NicheEngine.formatCountdown(p.offerEndsAt - Date.now(), (typeof I18n !== 'undefined' ? I18n.getLanguage() : 'ar'));
-      cTimerEl.innerHTML = `<span>${p.offerLabel ? Store.escapeHtml(p.offerLabel) + ' • ' : 'عرض خاص ينتهي خلال '}</span><span class="offer-timer-digits font-num">${fmt.text}</span>`;
+      cTimerEl.innerHTML = `<svg class="offer-countdown-ico" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span class="offer-countdown-label">${p.offerLabel ? Store.escapeHtml(p.offerLabel) : 'عرض خاص ينتهي خلال'}</span><span class="offer-timer-digits font-num">${fmt.text}</span>`;
     } else {
       cTimerEl.style.display = 'none';
       cTimerEl.removeAttribute('data-offer-ends');

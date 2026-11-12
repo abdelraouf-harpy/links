@@ -538,7 +538,7 @@ function renderHeroShowcase(p, currency) {
           </div>
           <h2 class="hero-product-title">${(typeof window.getProductName === 'function' ? window.getProductName(p) : p.name)}</h2>
           <p class="hero-product-desc">${(typeof window.getProductDesc === 'function' ? window.getProductDesc(p) : (p.desc || p.description || ''))}</p>
-          ${isTimed ? `<div class="offer-countdown-pill" data-offer-ends="${p.offerEndsAt}"><span>${p.offerLabel ? Store.escapeHtml(p.offerLabel) + ' • ' : 'ينتهي خلال '}</span><span class="offer-timer-digits font-num">...</span></div>` : ''}
+          ${isTimed ? `<div class="offer-countdown-pill" data-offer-ends="${p.offerEndsAt}"><svg class="offer-countdown-ico" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span class="offer-countdown-label">${p.offerLabel ? Store.escapeHtml(p.offerLabel) : 'ينتهي خلال'}</span><span class="offer-timer-digits font-num">...</span></div>` : ''}
         </div>
         <div class="hero-product-footer">
           <div class="hero-price font-num">
@@ -581,8 +581,10 @@ function renderProductCard(p, currency, index = 0) {
   const availQty = Store.getAvailableStockQty ? Store.getAvailableStockQty(p) : null;
   const isSoldOut = (availQty !== null && availQty <= 0) || p.soldOut === true || p.available === false;
 
+  const showTimedBadge = isTimed && !isSoldOut;
+
   return `
-    <div class="food-item-card ${isSoldOut ? 'is-sold-out' : ''}" data-product-id="${p.id}" data-rendered-qty="${qty}" data-rendered-fav="${isFav ? '1' : '0'}" onclick="handleCardClick(event, '${p.id}')">
+    <div class="food-item-card ${isSoldOut ? 'is-sold-out' : ''} ${showTimedBadge ? 'has-timed-offer' : ''}" data-product-id="${p.id}" data-rendered-qty="${qty}" data-rendered-fav="${isFav ? '1' : '0'}" onclick="handleCardClick(event, '${p.id}')">
       <div class="food-item-media">
         <img src="${prodImg}" class="food-item-img ${isAlreadyLoaded ? 'loaded' : ''}" alt="" ${isAboveFold ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"'} decoding="async" onload="this.classList.add('loaded')" onerror="this.onerror=null; this.src='${fallbackImg}'; this.classList.add('loaded');">
         <div class="card-top-actions">
@@ -592,6 +594,7 @@ function renderProductCard(p, currency, index = 0) {
           </button>
         </div>
         ${isSoldOut ? `<span class="stock-out-badge">نفدت الكمية</span>` : (availQty !== null && availQty <= 5 ? `<span class="stock-low-badge font-num">متبقي ${availQty} فقط</span>` : '')}
+        ${showTimedBadge ? `<div class="offer-countdown-pill" data-offer-ends="${p.offerEndsAt}"><svg class="offer-countdown-ico" viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span class="offer-countdown-label">${p.offerLabel ? Store.escapeHtml(p.offerLabel) : 'ينتهي'}</span><span class="offer-timer-digits font-num">...</span></div>` : ''}
       </div>
 
       <div class="food-item-body">
@@ -610,7 +613,6 @@ function renderProductCard(p, currency, index = 0) {
 
         <h3 class="food-item-title">${(typeof window.getProductName === "function" ? window.getProductName(p) : (typeof window.tr === "function" ? window.tr(p.name) : p.name))}</h3>
         <p class="food-item-desc">${(typeof window.getProductDesc === "function" ? window.getProductDesc(p) : (typeof window.tr === "function" ? window.tr(p.desc || p.description || "") : (p.desc || p.description || "")))}</p>
-        ${isTimed ? `<div class="offer-countdown-pill" data-offer-ends="${p.offerEndsAt}"><span>${p.offerLabel ? Store.escapeHtml(p.offerLabel) + ' • ' : 'ينتهي خلال '}</span><span class="offer-timer-digits font-num">...</span></div>` : ''}
 
         <div class="food-item-footer">
           <div class="food-item-price font-num">

@@ -269,12 +269,10 @@
     let text = '';
     if (days > 0) {
       text = isEn
-        ? `${days}d : ${pad(hours)}h : ${pad(mins)}m : ${pad(secs)}s`
-        : `${days}ي : ${pad(hours)}س : ${pad(mins)}د : ${pad(secs)}ث`;
+        ? `${days}d ${pad(hours)}:${pad(mins)}:${pad(secs)}`
+        : `${days}ي ${pad(hours)}:${pad(mins)}:${pad(secs)}`;
     } else {
-      text = isEn
-        ? `${pad(hours)}h : ${pad(mins)}m : ${pad(secs)}s`
-        : `${pad(hours)}س : ${pad(mins)}د : ${pad(secs)}ث`;
+      text = `${pad(hours)}:${pad(mins)}:${pad(secs)}`;
     }
     return { text, isUrgent, totalSec };
   }
