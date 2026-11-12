@@ -1749,15 +1749,20 @@
 
     <!-- PANE 2: PACKAGES & PLANS -->
     <main id="pane-packages" class="tab-pane">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
         <div>
           <div style="font-size:15px; font-weight:800; color:var(--text-primary);">باقات اشتراك المنصة</div>
-          <div style="font-size:11.5px; color:var(--text-secondary); margin-top:2px;">تحكّم في أسعار ومدد ومزايا كل باقة بحرية</div>
+          <div style="font-size:11.5px; color:var(--text-secondary); margin-top:2px;">الباقات الأربع الرسمية للمطاعم والمتاجر — تحكّم في الأسعار والمدد والمزايا بحرية</div>
         </div>
-        <button type="button" onclick="MasterApp.openCreatePackageModal()" class="row-btn-primary" style="height:34px; padding:0 12px; font-weight:800; gap:6px;">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          <span>باقة جديدة</span>
-        </button>
+        <div style="display:flex; gap:6px; align-items:center;">
+          <button type="button" onclick="MasterApp.syncOfficialPackagesToCloud()" class="filter-chip" style="height:34px; padding:0 10px; font-size:11px; font-weight:700;" title="ضبط وتحديث الباقات الأربع الرسمية في قاعدة البيانات">
+            <span>مزامنة الباقات الأربع الرسمية</span>
+          </button>
+          <button type="button" onclick="MasterApp.openCreatePackageModal()" class="row-btn-primary" style="height:34px; padding:0 12px; font-weight:800; gap:6px;">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span>باقة جديدة</span>
+          </button>
+        </div>
       </div>
       <div id="packages-cards-grid" style="display:flex; flex-direction:column; gap:10px;">
         <!-- Rendered dynamically -->
@@ -2141,25 +2146,26 @@
         <div id="new-tenant-plan-cards" class="plan-cards-picker">
           <!-- Dynamically populated package cards -->
         </div>
-        <input type="hidden" id="new-tenant-plan" value="الباقة الاحترافية (Pro)">
+        <input type="hidden" id="new-tenant-plan" value="الباقة الشهرية — مرن بدون التزام">
       </div>
 
       <div class="form-group">
         <label class="form-label">قيمة الاشتراك (ج.م) *</label>
-        <input type="number" class="form-input" id="new-tenant-price" value="2000" required style="font-family:var(--font-en); text-align:left;" placeholder="أدخل أي قيمة تريدها">
+        <input type="number" class="form-input" id="new-tenant-price" value="899" required style="font-family:var(--font-en); text-align:left;" placeholder="أدخل أي قيمة تريدها">
       </div>
 
       <div class="form-group">
         <label class="form-label">مدة الاشتراك المبدئي</label>
         <div class="duration-pills-row" id="new-tenant-duration-pills">
-          <button type="button" class="duration-pill" data-val="1" onclick="MasterApp.selectNewTenantDuration('1')">شهر واحد (30 يوماً)</button>
-          <button type="button" class="duration-pill active" data-val="3" onclick="MasterApp.selectNewTenantDuration('3')">3 أشهر (90 يوماً)</button>
+          <button type="button" class="duration-pill active" data-val="1" onclick="MasterApp.selectNewTenantDuration('1')">شهر واحد (30 يوماً)</button>
+          <button type="button" class="duration-pill" data-val="3" onclick="MasterApp.selectNewTenantDuration('3')">3 أشهر (90 يوماً)</button>
           <button type="button" class="duration-pill" data-val="6" onclick="MasterApp.selectNewTenantDuration('6')">6 أشهر</button>
           <button type="button" class="duration-pill" data-val="12" onclick="MasterApp.selectNewTenantDuration('12')">سنة كاملة</button>
+          <button type="button" class="duration-pill" data-val="lifetime" onclick="MasterApp.selectNewTenantDuration('lifetime')">مدى الحياة (دائم)</button>
           <button type="button" class="duration-pill" data-val="custom_days" onclick="MasterApp.selectNewTenantDuration('custom_days')">أيام مخصصة</button>
           <button type="button" class="duration-pill" data-val="custom_date" onclick="MasterApp.selectNewTenantDuration('custom_date')">تاريخ بالتقويم</button>
         </div>
-        <input type="hidden" id="new-tenant-duration" value="3">
+        <input type="hidden" id="new-tenant-duration" value="1">
       </div>
 
       <div class="form-group" id="new-tenant-custom-days-group" style="display:none;">
@@ -2591,6 +2597,7 @@
         <option value="quarterly">ربع سنوي (كل 3 أشهر)</option>
         <option value="semi_annual">نصف سنوي (كل 6 أشهر)</option>
         <option value="annual">سنوياً</option>
+        <option value="lifetime">دفعة واحدة (مدى الحياة)</option>
         <option value="custom">مخصص / حسب الاتفاق</option>
       </select>
     </div>
@@ -2692,21 +2699,21 @@
       <label class="form-label">اختر الباقة أو الخطة المالية</label>
       <select class="form-select" id="pricing-plan-preset" onchange="MasterApp.onPricingPresetChange()">
         <option value="custom">باقة مخصصة (كتابة الاسم والسعر يدوياً)</option>
-        <option value="starter">الباقة الأساسية (Starter) — 1,000 ج.م/شهرياً</option>
-        <option value="pro">الباقة الاحترافية (Pro) — 2,000 ج.م/شهرياً</option>
-        <option value="vip">الباقة الشاملة VIP (Enterprise) — 3,500 ج.م/شهرياً</option>
-        <option value="annual">الباقة السنوية المخفضة — 15,000 ج.م/سنوياً</option>
+        <option value="monthly_899">الباقة الشهرية — 899 ج.م / 30 يوماً</option>
+        <option value="semi_annual_3200">باقة 6 شهور — 3,200 ج.م (وفر 41%)</option>
+        <option value="annual_5200">الباقة السنوية — 5,200 ج.م (وفر 52%)</option>
+        <option value="lifetime_12000">باقة مدى الحياة — 12,000 ج.م (دفعة واحدة)</option>
       </select>
     </div>
 
     <div class="form-group">
-      <label class="form-label">اسم الباقة المعروض للمطعم *</label>
-      <input type="text" class="form-input" id="pricing-plan-name" placeholder="مثال: الباقة الذهبية / باقة الفروع">
+      <label class="form-label">اسم الباقة المعروض للعميل *</label>
+      <input type="text" class="form-input" id="pricing-plan-name" placeholder="مثال: الباقة السنوية / باقة مدى الحياة">
     </div>
 
     <div class="form-group">
       <label class="form-label">قيمة الاشتراك بالجنيه (ج.م) *</label>
-      <input type="number" class="form-input" id="pricing-amount" placeholder="مثال: 2000" style="font-family:var(--font-en); text-align:left;">
+      <input type="number" class="form-input" id="pricing-amount" placeholder="مثال: 899" style="font-family:var(--font-en); text-align:left;">
     </div>
 
     <div class="form-group">
@@ -2716,6 +2723,7 @@
         <option value="quarterly">كل 3 أشهر (ربع سنوي)</option>
         <option value="semi_annual">كل 6 أشهر (نصف سنوي)</option>
         <option value="annual">سنوياً (كل 12 شهراً)</option>
+        <option value="lifetime">دفعة واحدة (مدى الحياة)</option>
         <option value="custom">مدة حرة / حسب الاتفاق</option>
       </select>
     </div>
@@ -2888,98 +2896,105 @@
       payingSlug: null,
       packages: [],
       ALL_MODULES_META: [
-        { key: 'ordering', name: 'الطلب والسلة المباشر أونلاين', desc: 'إلغاء التفعيل يحوّل الرابط إلى عرض منيو فقط بدون طلب أو دفع' },
-        { key: 'pos', name: 'الكاشير ونقاط البيع السريعة POS', desc: 'إدارة طلبات الصالة والسفري والدليفري السريع من الكاشير' },
-        { key: 'inventory', name: 'المخزون ومستويات وتنبيهات النواقص', desc: 'تتبع الكميات وخصم الخامات تلقائياً مع كل طلب' },
-        { key: 'smartTables', name: 'إدارة طاولات الصالة وتوليد QR', desc: 'أكواد QR لكل طاولة وتتبع الجلسات المفتوحة والطلبات' },
-        { key: 'delivery', name: 'التوصيل والدليفري وتسعير النطاقات', desc: 'تحديد رسوم التوصيل بحسب المناطق والخرائط وتتبع السائقين' },
-        { key: 'takeaway', name: 'الاستلام الذاتي من الفرع (Takeaway)', desc: 'إتاحة تجهيز واستلام الطلب من مقر المطعم مباشرة' },
-        { key: 'onlinePayment', name: 'المحفظة الرقمية والدفع الذكي', desc: 'الدفع بإنستاباي وفودافون كاش والمحافظ الإلكترونية' },
-        { key: 'archive', name: 'الأرشيف السحابي والفواتير المسلمة', desc: 'حفظ سجلات الفواتير المسلمة التاريخية وتصدير الإكسل والإحصائيات' },
-        { key: 'shifts', name: 'نظام الورديات وتقفيل الشيفتات (Shifts)', desc: 'إدارة وتقفيل الورديات وسجل الورديات المقفلة (إيقافه يعرض الفواتير المسلمة فقط)' },
+        { key: 'ordering', name: 'الطلب والسلة المباشر أونلاين', desc: 'إلغاء التفعيل يحوّل الرابط إلى عرض كتالوج/منيو فقط بدون طلب أو دفع' },
+        { key: 'pos', name: 'الكاشير ونقاط البيع السريعة POS', desc: 'إدارة الطلبات المباشرة والسفري والدليفري من نقطة البيع والطباعة' },
+        { key: 'inventory', name: 'المخزون والخامات والتنبيهات (COGS)', desc: 'تتبع الكميات والوصفات وخصم الخامات تلقائياً مع كل طلب' },
+        { key: 'smartTables', name: 'طاولات الصالة وأكواد QR (للمطاعم)', desc: 'أكواد QR لكل طاولة وتتبع الجلسات المفتوحة (يُغلق تلقائياً في وضع المتجر)' },
+        { key: 'delivery', name: 'التوصيل والشحن وتسعير النطاقات', desc: 'تحديد رسوم الشحن والتوصيل بحسب المناطق والخرائط' },
+        { key: 'takeaway', name: 'الاستلام الذاتي من الفرع (Pickup / Takeaway)', desc: 'إتاحة تجهيز واستلام الطلب من مقر المكان مباشرة' },
+        { key: 'onlinePayment', name: 'المحفظة الرقمية والدفع الذكي', desc: 'الدفع بإنستاباي وفودافون كاش والمحافظ الإلكترونية مع إرفاق الإيصال' },
+        { key: 'archive', name: 'الأرشيف السحابي والفواتير المسلمة', desc: 'حفظ سجلات الفواتير التاريخية وتصدير التقارير' },
+        { key: 'shifts', name: 'نظام الورديات وتقفيل الشيفتات (Shifts)', desc: 'إدارة وتقفيل الورديات وسجل العجز/الزيادة' },
         { key: 'coupons', name: 'كوبونات الخصم والبروموكود الترويجي', desc: 'إنشاء رموز خصم بنسبة مئوية أو قيمة ثابتة بحد أدنى' },
         { key: 'cartDiscount', name: 'الخصم التلقائي على إجمالي الطلب', desc: 'تطبيق خصومات شرائح السلة التلقائية' },
-        { key: 'announcementBar', name: 'شريط وبانر الإعلانات والعروض', desc: 'إظهار شريط إعلاني متحرك أو ثابت في أعلى صفحة المنيو' },
-        { key: 'stories', name: 'قصص واستوريهات المنيو التفاعلية', desc: 'عرض منتجات وعروض يومية بفيديوهات وصور على طريقة إنستغرام' },
-        { key: 'branches', name: 'شبكة الفروع المتعددة وتوجيه الطلبات', desc: 'إدارة فروع المطعم وتوجيه طلبات كل زبون للفرع الأقرب' },
-        { key: 'reviews', name: 'نظام التقييمات وآراء العملاء', desc: 'تقييم الوجبات وجودة الخدمة وجمع آراء الزبائن' },
-        { key: 'settings', name: 'إعدادات المتجر وبيانات المكان', desc: 'تمكين صاحب المطعم من تعديل بيانات المكان واللوجو وساعات العمل من الأدمن' },
-        { key: 'backup', name: 'النسخ الاحتياطي والأمان السحابي', desc: 'تنزيل نسخ احتياطية واستعادة البيانات من لوحة الإدارة' }
+        { key: 'announcementBar', name: 'شريط وبانر الإعلانات والعروض', desc: 'إظهار شريط إعلاني متحرك أو ثابت أعلى المتجر/المنيو' },
+        { key: 'stories', name: 'قصص واستوريهات العروض التفاعلية', desc: 'عرض منتجات وعروض يومية على طريقة إنستغرام' },
+        { key: 'branches', name: 'شبكة الفروع المتعددة (Multi-Branch)', desc: 'إدارة عدة فروع وتوجيه طلبات كل زبون للفرع الأقرب' },
+        { key: 'reviews', name: 'نظام التقييمات وآراء العملاء', desc: 'تقييم المنتجات والخدمة وبناء الثقة مع العملاء' },
+        { key: 'settings', name: 'إعدادات المتجر وبيانات المكان', desc: 'تمكين الإدارة من تعديل اللوجو وساعات العمل وسياسات المكان' },
+        { key: 'backup', name: 'النسخ الاحتياطي والأمان السحابي', desc: 'تنزيل نسخ احتياطية واستعادة البيانات من لوحة الإدارة' },
+        { key: 'bulkPricing', name: 'التسعير الجماعي والعروض المؤقتة بالعداد', desc: 'تعديل الأسعار جماعياً بنسبة أو مبلغ مع عروض مؤقتة وتراجع فوري' },
+        { key: 'pieceStock', name: 'جرد الكمية بالقطعة (SKU Stock)', desc: 'عرض الرصيد المتاح وتعطيل البيع تلقائياً عند نفاد الكمية (ممتاز للمتاجر)' },
+        { key: 'store24_7', name: 'وضع العمل 24 ساعة (Storefront 24/7)', desc: 'قبول طلبات الأونلاين طوال اليوم دون الإغلاق بمواعيد مطعم' },
+        { key: 'multiImageGallery', name: 'معرض الصور المتعدد للمنتج (Gallery)', desc: 'عرض عدة صور وزوايا للمنتج داخل نافذة التفاصيل' },
+        { key: 'catalogFilters', name: 'فلاتر الكتالوج والعروض (Catalog Filters)', desc: 'ترتيب المنتجات حسب السعر والأحدث والعروض المتاحة فقط' },
+        { key: 'bulkImport', name: 'الاستيراد الجماعي CSV للكتالوج', desc: 'رفع وتحديث عشرات المنتجات وأسعارها والكميات دفعة واحدة' },
+        { key: 'returnPolicy', name: 'عرض سياسة الاستبدال والاسترجاع', desc: 'إظهار ضمان وشروط الاسترجاع بوضوح للعملاء وفي السلة' },
+        { key: 'ageGate18', name: 'بوابة تأكيد العمر +18 (Age Gate)', desc: 'إقرار السن قبل تصفح متاجر السموك/الفيب والمنتجات المقيدة' },
+        { key: 'nutritionInfo', name: 'السعرات الحرارية ومعلومات الطبق', desc: 'إظهار السعرات والتحذيرات الغذائية في وضع المطاعم' },
+        { key: 'workingHoursGate', name: 'بوابة مواعيد العمل والفتح/الغلق', desc: 'منع الطلب خارج ساعات العمل المحددة (افتراضي للمطاعم)' }
       ],
       defaultPackages: [
         {
-          id: "menu_only",
-          name: "باقة المنيو الرقمي (Digital Menu Only)",
-          price: 500,
+          id: "monthly_899",
+          name: "الباقة الشهرية — مرن بدون التزام",
+          price: 899,
           durationDays: 30,
-          durationLabel: "شهر (30 يوماً)",
+          durationLabel: "شهرياً (30 يوماً) • فرع واحد",
           billingCycle: "monthly",
-          description: "عرض منيو رقمي فقط عبر QR بدون سلة أو طلبات مباشرة أو كاشير",
+          description: "المنظومة الأساسية الكاملة (0% عمولة) للمطاعم أو المتاجر • مثالية للتجربة والتشغيل الفوري",
           modules: {
-            ordering: false, pos: false, inventory: false, smartTables: true,
-            delivery: false, takeaway: false, onlinePayment: false, archive: false, shifts: false,
-            coupons: false, cartDiscount: false, announcementBar: true, stories: false,
-            branches: false, reviews: true, settings: false, backup: false
-          }
-        },
-        {
-          id: "starter",
-          name: "الباقة الأساسية (Starter)",
-          price: 1000,
-          durationDays: 30,
-          durationLabel: "شهر (30 يوماً)",
-          billingCycle: "monthly",
-          description: "تشمل منيو رقمي ذكي وكاشير محلي وطاولات QR",
-          modules: {
-            ordering: true, pos: true, inventory: false, smartTables: true,
-            delivery: true, takeaway: true, onlinePayment: false, archive: true, shifts: true,
+            ordering: true, pos: true, inventory: false, smartTables: false,
+            delivery: true, takeaway: true, onlinePayment: true, archive: true, shifts: false,
             coupons: false, cartDiscount: false, announcementBar: false, stories: false,
-            branches: false, reviews: true
+            branches: false, reviews: false, settings: true, backup: true,
+            bulkPricing: true, pieceStock: true, store24_7: true, multiImageGallery: true,
+            catalogFilters: true, bulkImport: true, returnPolicy: true,
+            ageGate18: false, nutritionInfo: false, workingHoursGate: true
           }
         },
         {
-          id: "pro",
-          name: "الباقة الاحترافية (Pro)",
-          price: 2000,
-          durationDays: 30,
-          durationLabel: "شهر (30 يوماً)",
-          billingCycle: "monthly",
-          description: "كافة مزايا السيستم والتوصيل والدفع الذكي والكاشير",
+          id: "semi_annual_3200",
+          name: "باقة 6 شهور — وفر 41%",
+          price: 3200,
+          durationDays: 180,
+          durationLabel: "6 أشهر (~533 ج.م / شهر)",
+          billingCycle: "semi_annual",
+          description: "المنظومة الأساسية الكاملة + تهيئة أولية للحساب والقائمة وأولوية في الدعم (توفير 2,194 ج.م)",
           modules: {
-            ordering: true, pos: true, inventory: true, smartTables: true,
-            delivery: true, takeaway: true, onlinePayment: true, archive: true, shifts: true,
-            coupons: true, cartDiscount: true, announcementBar: true, stories: true,
-            branches: false, reviews: true
+            ordering: true, pos: true, inventory: false, smartTables: false,
+            delivery: true, takeaway: true, onlinePayment: true, archive: true, shifts: false,
+            coupons: false, cartDiscount: false, announcementBar: false, stories: false,
+            branches: false, reviews: false, settings: true, backup: true,
+            bulkPricing: true, pieceStock: true, store24_7: true, multiImageGallery: true,
+            catalogFilters: true, bulkImport: true, returnPolicy: true,
+            ageGate18: false, nutritionInfo: false, workingHoursGate: true
           }
         },
         {
-          id: "vip",
-          name: "الباقة الشاملة VIP (Enterprise)",
-          price: 3500,
-          durationDays: 90,
-          durationLabel: "3 أشهر (90 يوماً)",
-          billingCycle: "quarterly",
-          description: "كافة المزايا الـ 14 كاملة بدون قيود مع الفروع والدعم المخصص",
-          modules: {
-            ordering: true, pos: true, inventory: true, smartTables: true,
-            delivery: true, takeaway: true, onlinePayment: true, archive: true, shifts: true,
-            coupons: true, cartDiscount: true, announcementBar: true, stories: true,
-            branches: true, reviews: true
-          }
-        },
-        {
-          id: "annual",
-          name: "الباقة السنوية المخفضة",
-          price: 15000,
+          id: "annual_5200",
+          name: "الباقة السنوية — الأكثر توفيراً وطلباً (وفر 52%)",
+          price: 5200,
           durationDays: 365,
-          durationLabel: "سنة كاملة (365 يوماً)",
+          durationLabel: "سنة كاملة (~433 ج.م شهرياً فقط)",
           billingCycle: "annual",
-          description: "وفر شهرين مع تحديثات غير محدودة وكافة المزايا الـ 14",
+          description: "المنظومة الأساسية الكاملة + إدخال القائمة والصور وتصميم ستيكر QR مجاناً + أولوية قصوى للدعم",
           modules: {
-            ordering: true, pos: true, inventory: true, smartTables: true,
-            delivery: true, takeaway: true, onlinePayment: true, archive: true, shifts: true,
-            coupons: true, cartDiscount: true, announcementBar: true, stories: true,
-            branches: true, reviews: true
+            ordering: true, pos: true, inventory: false, smartTables: false,
+            delivery: true, takeaway: true, onlinePayment: true, archive: true, shifts: false,
+            coupons: false, cartDiscount: false, announcementBar: false, stories: false,
+            branches: false, reviews: false, settings: true, backup: true,
+            bulkPricing: true, pieceStock: true, store24_7: true, multiImageGallery: true,
+            catalogFilters: true, bulkImport: true, returnPolicy: true,
+            ageGate18: false, nutritionInfo: false, workingHoursGate: true
+          }
+        },
+        {
+          id: "lifetime_12000",
+          name: "باقة مدى الحياة — امتلاك دائم",
+          price: 12000,
+          durationDays: 99999,
+          durationLabel: "دفعة واحدة • ترخيص فرع واحد",
+          billingCycle: "lifetime",
+          description: "امتلاك دائم بدون رسوم تجديد + تهيئة شاملة وتدريب ودعم وتحديثات مجانية السنة الأولى",
+          modules: {
+            ordering: true, pos: true, inventory: false, smartTables: false,
+            delivery: true, takeaway: true, onlinePayment: true, archive: true, shifts: false,
+            coupons: false, cartDiscount: false, announcementBar: false, stories: false,
+            branches: false, reviews: false, settings: true, backup: true,
+            bulkPricing: true, pieceStock: true, store24_7: true, multiImageGallery: true,
+            catalogFilters: true, bulkImport: true, returnPolicy: true,
+            ageGate18: false, nutritionInfo: false, workingHoursGate: true
           }
         }
       ],
@@ -3004,18 +3019,20 @@
           this.renderSkeleton();
         }
 
+        const LEGACY_IDS = new Set(['menu_only', 'starter', 'pro', 'vip', 'annual']);
         const cachedPkgs = localStorage.getItem('harpy_master_cached_packages');
+        let parsedCachedPkgs = null;
         if (cachedPkgs) {
-          try {
-            this.packages = JSON.parse(cachedPkgs);
-            this.renderPackagesUI();
-            this.renderPackageOptions();
-          } catch(e) {}
+          try { parsedCachedPkgs = JSON.parse(cachedPkgs); } catch(e) {}
+        }
+        if (Array.isArray(parsedCachedPkgs) && parsedCachedPkgs.length > 0 && !parsedCachedPkgs.every(p => p && LEGACY_IDS.has(p.id))) {
+          this.packages = parsedCachedPkgs;
         } else {
           this.packages = [...this.defaultPackages];
-          this.renderPackagesUI();
-          this.renderPackageOptions();
+          try { localStorage.setItem('harpy_master_cached_packages', JSON.stringify(this.packages)); } catch(e) {}
         }
+        this.renderPackagesUI();
+        this.renderPackageOptions();
 
         const isSessionUnlocked = sessionStorage.getItem('harpy_master_unlocked') === 'true';
         if (isSessionUnlocked) {
@@ -3262,27 +3279,44 @@
             localStorage.setItem('harpy_master_cached_tenants', JSON.stringify(loadedTenants));
           } catch(e) {}
 
-          // Dynamic Platform Packages (never resurrect deleted packages once initialized)
+          // Dynamic Platform Packages — upgrade legacy 2025 defaults cleanly to Official 2026 4 Tiers
+          const LEGACY_IDS = new Set(['menu_only', 'starter', 'pro', 'vip', 'annual']);
+          const isOnlyLegacySet = (list) => Array.isArray(list) && list.length > 0 && list.every(p => p && LEGACY_IDS.has(p.id));
           const pkgInitFlag = Boolean(this.masterConfig.packagesInitialized) || localStorage.getItem('harpy_master_pkgs_init') === 'true';
           if (pkgsData && typeof pkgsData === 'object' && Object.keys(pkgsData).length > 0) {
-            this.packages = Object.values(pkgsData);
-            if (!this.masterConfig.packagesInitialized) {
-              rtdbRequest('masterConfig.json', 'PATCH', { packagesInitialized: true }).catch(() => {});
+            const remotePkgs = Object.values(pkgsData);
+            if (isOnlyLegacySet(remotePkgs)) {
+              this.packages = [...this.defaultPackages];
+              const seedObj = {};
+              this.packages.forEach(p => seedObj[p.id] = p);
+              Promise.all([
+                rtdbRequest('subscriptionPlans.json', 'PUT', seedObj),
+                rtdbRequest('masterConfig.json', 'PATCH', { packagesInitialized: true, officialPackages2026: true })
+              ]).catch(() => {});
+            } else {
+              this.packages = remotePkgs;
+              if (!this.masterConfig.packagesInitialized) {
+                rtdbRequest('masterConfig.json', 'PATCH', { packagesInitialized: true }).catch(() => {});
+              }
             }
             try { localStorage.setItem('harpy_master_pkgs_init', 'true'); } catch(e) {}
           } else if (pkgInitFlag) {
             this.packages = [];
           } else {
             const cachedPkgs = localStorage.getItem('harpy_master_cached_packages');
+            let parsedCache = null;
             if (cachedPkgs) {
-              try { this.packages = JSON.parse(cachedPkgs); } catch(e) { this.packages = [...this.defaultPackages]; }
+              try { parsedCache = JSON.parse(cachedPkgs); } catch(e) {}
+            }
+            if (parsedCache && !isOnlyLegacySet(parsedCache)) {
+              this.packages = parsedCache;
             } else {
               this.packages = [...this.defaultPackages];
               const seedObj = {};
               this.packages.forEach(p => seedObj[p.id] = p);
               Promise.all([
                 rtdbRequest('subscriptionPlans.json', 'PUT', seedObj),
-                rtdbRequest('masterConfig.json', 'PATCH', { packagesInitialized: true })
+                rtdbRequest('masterConfig.json', 'PATCH', { packagesInitialized: true, officialPackages2026: true })
               ]).catch(() => {});
               try { localStorage.setItem('harpy_master_pkgs_init', 'true'); } catch(e) {}
             }
@@ -4253,7 +4287,7 @@
           : rawDomain.trim().toLowerCase();
         const phone = document.getElementById('new-tenant-phone').value.trim();
         const durChoice = document.getElementById('new-tenant-duration').value;
-        const price = Number(document.getElementById('new-tenant-price').value) || 1500;
+        const price = Number(document.getElementById('new-tenant-price').value) || 899;
 
         if (!name || !slug || !phone) {
           this.showToast("يرجى ملء جميع الحقول المطلوبة", "error");
@@ -4275,7 +4309,9 @@
         } catch(chkErr) {}
 
         let expTimestamp = 0;
-        if (durChoice === 'custom_days') {
+        if (durChoice === 'lifetime') {
+          expTimestamp = 0; // ترخيص دائم مدى الحياة
+        } else if (durChoice === 'custom_days') {
           const cd = Number(document.getElementById('new-tenant-custom-days').value);
           if (!cd || cd <= 0) {
             this.showToast("يرجى إدخال عدد أيام صحيح للاشتراك المبدئي", "error");
@@ -4290,12 +4326,12 @@
           }
           expTimestamp = new Date(`${dVal}T23:59:59`).getTime();
         } else {
-          const durationMonths = Number(durChoice) || 3;
+          const durationMonths = Number(durChoice) || 1;
           expTimestamp = Date.now() + (durationMonths * 30 * 24 * 60 * 60 * 1000);
         }
 
         const planSelect = document.getElementById('new-tenant-plan');
-        const planName = (planSelect && planSelect.value) ? planSelect.value : 'الباقة الأساسية';
+        const planName = (planSelect && planSelect.value) ? planSelect.value : 'الباقة الشهرية — مرن بدون التزام';
 
         const matchedPackage = (this.packages || []).find(p => p.name === planName || p.id === planName);
         const presetMods = (window.NicheEngine && typeof window.NicheEngine.getPresetModules === 'function')
@@ -4306,7 +4342,7 @@
               coupons: true, cartDiscount: true, announcementBar: true, branches: true, reviews: true,
               settings: true, backup: true, bulkPricing: true
             };
-        const allMods = Object.assign({}, presetMods, (matchedPackage && matchedPackage.modules) ? matchedPackage.modules : {}, { settings: true, backup: true });
+        const allMods = Object.assign({}, (matchedPackage && matchedPackage.modules) ? matchedPackage.modules : {}, presetMods, { settings: true, backup: true });
         if (bType === 'store') {
           allMods.smartTables = false;
           allMods.store24_7 = true;
@@ -4316,6 +4352,11 @@
           allMods.returnPolicy = true;
           allMods.nutritionInfo = false;
           allMods.workingHoursGate = false;
+        } else {
+          allMods.smartTables = (allMods.ordering !== false);
+          allMods.store24_7 = false;
+          allMods.pieceStock = false;
+          allMods.workingHoursGate = true;
         }
 
         const password = (document.getElementById('new-tenant-password')?.value || '').trim();
@@ -4942,22 +4983,22 @@
           return;
         }
 
-        if (val === 'starter') {
-          nameInput.value = 'الباقة الأساسية (Starter)';
-          amountInput.value = '1000';
+        if (val === 'monthly_899') {
+          nameInput.value = 'الباقة الشهرية — مرن بدون التزام';
+          amountInput.value = '899';
           cycleInput.value = 'monthly';
-        } else if (val === 'pro') {
-          nameInput.value = 'الباقة الاحترافية (Pro)';
-          amountInput.value = '2000';
-          cycleInput.value = 'monthly';
-        } else if (val === 'vip') {
-          nameInput.value = 'الباقة الشاملة VIP (Enterprise)';
-          amountInput.value = '3500';
-          cycleInput.value = 'monthly';
-        } else if (val === 'annual') {
-          nameInput.value = 'الباقة السنوية المخفضة';
-          amountInput.value = '15000';
+        } else if (val === 'semi_annual_3200') {
+          nameInput.value = 'باقة 6 شهور — وفر 41%';
+          amountInput.value = '3200';
+          cycleInput.value = 'semi_annual';
+        } else if (val === 'annual_5200') {
+          nameInput.value = 'الباقة السنوية — الأكثر توفيراً وطلباً (وفر 52%)';
+          amountInput.value = '5200';
           cycleInput.value = 'annual';
+        } else if (val === 'lifetime_12000') {
+          nameInput.value = 'باقة مدى الحياة — امتلاك دائم';
+          amountInput.value = '12000';
+          cycleInput.value = 'lifetime';
         }
       },
 
@@ -4996,18 +5037,21 @@
 
         let html = '';
         (this.packages || []).forEach((p, idx) => {
-          const isSelected = (!currentVal && idx === 0) || currentVal === p.name || (currentVal.includes('Pro') && p.id === 'pro');
+          const isSelected = (!currentVal && idx === 0) || currentVal === p.name || currentVal === p.id;
           const durBadge = p.durationLabel || `${p.durationDays || 30} يوماً`;
+          const cycleMap = { monthly: 'شهري', quarterly: 'ربع سنوي', semi_annual: 'نصف سنوي', annual: 'سنوي', lifetime: 'دفعة واحدة' };
+          const cycleTxt = cycleMap[p.billingCycle] || 'شهري';
+          const durParam = (p.durationDays >= 99999 || p.billingCycle === 'lifetime') ? 'lifetime' : (p.durationDays || 30);
 
           html += `
-            <div class="plan-card-option ${isSelected ? 'selected' : ''}" onclick="MasterApp.selectNewTenantPlan('${escapeHtml(p.name)}', ${p.price || 0}, '${p.durationDays || 30}', this)">
+            <div class="plan-card-option ${isSelected ? 'selected' : ''}" onclick="MasterApp.selectNewTenantPlan('${escapeHtml(p.name)}', ${p.price || 0}, '${durParam}', this)">
               <div style="display:flex; align-items:center; gap:10px;">
                 <div class="plan-card-opt-radio">
                   <div class="plan-card-opt-radio-dot"></div>
                 </div>
                 <div>
                   <div class="plan-card-opt-title">${escapeHtml(p.name)}</div>
-                  <div class="plan-card-opt-meta">${durBadge} • ${p.billingCycle === 'annual' ? 'سنوي' : 'شهري'}</div>
+                  <div class="plan-card-opt-meta">${durBadge} • ${cycleTxt}</div>
                 </div>
               </div>
               <div class="plan-card-opt-price">${Number(p.price || 0).toLocaleString()} <span style="font-size:10px; color:var(--text-secondary);">ج.م</span></div>
@@ -5047,7 +5091,9 @@
           priceInput.value = price;
         }
 
-        if (duration === 'custom_days' || duration === 'custom_date') {
+        if (duration === 'lifetime' || Number(duration) >= 99999) {
+          this.selectNewTenantDuration('lifetime');
+        } else if (duration === 'custom_days' || duration === 'custom_date') {
           this.selectNewTenantDuration(duration);
         } else if (duration) {
           const days = parseInt(duration, 10);
@@ -5234,6 +5280,36 @@
         }
       },
 
+      async syncOfficialPackagesToCloud() {
+        this.openConfirmModal({
+          title: 'مزامنة الباقات الأربع الرسمية 2026',
+          message: 'سيتم استبدال قائمة الباقات بالباقات الأربع الرسمية (الشهري 899، 6 شهور 3,200، السنوي 5,200، مدى الحياة 12,000) متوافقة مع المطاعم والمتاجر. المشتركون الحاليون لن يتأثروا.',
+          confirmText: 'مزامنة الباقات الأربع الآن',
+          isDanger: false,
+          onConfirm: async () => {
+            this.packages = [...this.defaultPackages];
+            try {
+              localStorage.setItem('harpy_master_cached_packages', JSON.stringify(this.packages));
+              localStorage.setItem('harpy_master_pkgs_init', 'true');
+            } catch(e) {}
+            this.renderPackagesUI();
+            this.renderPackageOptions();
+            try {
+              const seedObj = {};
+              this.packages.forEach(p => seedObj[p.id] = p);
+              await Promise.all([
+                rtdbRequest('subscriptionPlans.json', 'PUT', seedObj),
+                rtdbRequest('masterConfig.json', 'PATCH', { packagesInitialized: true, officialPackages2026: true })
+              ]);
+              this.logAudit('PACKAGES_SYNC_OFFICIAL', 'مزامنة الباقات الأربع الرسمية 2026 (899 / 3200 / 5200 / 12000)');
+              this.showToast('تمت مزامنة الباقات الأربع الرسمية على السحابة بنجاح', 'success');
+            } catch(e) {
+              this.showToast('تم التحديث محلياً، وفشلت مزامنة السحابة: ' + (e.message || ''), 'error');
+            }
+          }
+        });
+      },
+
       renderPackagesUI() {
         const countBadge = document.getElementById('fsubnav-pkg-count');
         if (countBadge) countBadge.textContent = this.packages.length || '0';
@@ -5264,7 +5340,7 @@
           }).length;
 
           let durationBadge = p.durationLabel || `${p.durationDays || 30} يوماً`;
-          if (p.durationDays === 'lifetime' || p.durationDays === 99999 || p.durationDays === 0) {
+          if (p.durationDays === 'lifetime' || p.durationDays === 99999 || p.durationDays === 0 || p.billingCycle === 'lifetime') {
             durationBadge = 'مدى الحياة';
           }
 
@@ -5272,6 +5348,7 @@
           if (p.billingCycle === 'quarterly') cycleText = 'كل 3 أشهر';
           else if (p.billingCycle === 'semi_annual') cycleText = 'كل 6 أشهر';
           else if (p.billingCycle === 'annual') cycleText = 'سنوياً';
+          else if (p.billingCycle === 'lifetime') cycleText = 'دفعة واحدة';
           else if (p.billingCycle === 'custom') cycleText = 'مخصص';
 
           return `
