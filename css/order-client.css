@@ -8173,30 +8173,42 @@ html[dir="ltr"] .preview-desc {
   justify-content: center;
   gap: 5px;
   margin-top: 6px;
-  padding: 3px 9px;
+  padding: 3px 8px;
   border-radius: 999px;
   background: rgba(249, 115, 22, 0.12);
   border: 1px solid rgba(249, 115, 22, 0.28);
   color: var(--primary, #ea580c);
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 800;
   white-space: nowrap;
   max-width: 100%;
-}
-.offer-countdown-pill .offer-countdown-ico {
-  flex-shrink: 0;
-  opacity: 0.92;
 }
 .offer-countdown-pill .offer-countdown-label {
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .offer-countdown-pill .offer-timer-digits {
+  display: inline-flex;
   direction: ltr;
   unicode-bidi: isolate;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.2px;
+  align-items: center;
+  gap: 3px;
   flex-shrink: 0;
+}
+.offer-countdown-pill .cd-seg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 19px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 5px;
+  background: rgba(234, 88, 12, 0.16);
+  color: var(--primary, #ea580c);
+  font-size: 10.5px;
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
 .offer-countdown-pill.urgent {
   background: rgba(239, 68, 68, 0.14);
@@ -8204,54 +8216,79 @@ html[dir="ltr"] .preview-desc {
   color: #ef4444;
   animation: pulseUrgentOffer 1.5s infinite;
 }
+.offer-countdown-pill.urgent .cd-seg {
+  background: rgba(239, 68, 68, 0.18);
+  color: #ef4444;
+}
 
-/* Sleek compact dark frosted bar pinned at bottom edge of product photo */
-.food-item-media .offer-countdown-pill {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  margin: 0;
-  height: 23px;
-  padding: 0 8px;
-  border-radius: 0;
-  border: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.14);
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.56) 0%, rgba(15, 23, 42, 0.9) 100%);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
+/* Seam pill positioned between product image & title/details, leaning 75% into the photo */
+.food-item-card .card-seam-timer {
+  position: relative;
+  z-index: 4;
+  order: 0;
+  align-self: center;
+  margin: -16px auto -4px;
+  height: 22px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1.5px solid var(--surface, #ffffff);
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   color: #f8fafc;
-  font-size: 10.2px;
+  font-size: 9.5px;
   font-weight: 800;
-  z-index: 3;
-  box-shadow: none;
+  gap: 4px;
+  max-width: calc(100% - 10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
 }
-.food-item-media .offer-countdown-pill .offer-countdown-ico {
-  color: #fbbf24;
+.food-item-card .card-seam-timer .offer-countdown-label {
+  color: rgba(248, 250, 252, 0.88);
+  font-size: 9px;
 }
-.food-item-media .offer-countdown-pill .offer-timer-digits {
+.food-item-card .card-seam-timer .cd-seg {
+  min-width: 17px;
+  height: 15px;
+  padding: 0 3px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.16);
   color: #fde68a;
+  font-size: 9.5px;
   font-weight: 900;
 }
-.food-item-media .offer-countdown-pill.urgent {
-  background: linear-gradient(180deg, rgba(185, 28, 28, 0.78) 0%, rgba(153, 27, 27, 0.94) 100%);
-  border-top-color: rgba(254, 202, 202, 0.28);
+.food-item-card .card-seam-timer.urgent {
+  background: rgba(185, 28, 28, 0.94);
+  border-color: var(--surface, #ffffff);
   color: #ffffff;
 }
-.food-item-media .offer-countdown-pill.urgent .offer-countdown-ico,
-.food-item-media .offer-countdown-pill.urgent .offer-timer-digits {
+.food-item-card .card-seam-timer.urgent .cd-seg {
+  background: rgba(255, 255, 255, 0.2);
   color: #ffffff;
+}
+.products-flow.view-mode-dual .food-item-card.has-timed-offer .food-item-body {
+  padding-top: 9px !important;
 }
 
-/* List view (90px thumbnail): keep only ultra-clean digits bar */
-.products-flow.view-mode-list .food-item-media .offer-countdown-pill {
-  height: 19px;
-  padding: 0 4px;
-  font-size: 9.2px;
-  gap: 3px;
+/* List view (90px side thumbnail): dock ultra-compact [HH][MM][SS] onto thumbnail bottom */
+.products-flow.view-mode-list .food-item-card .card-seam-timer {
+  position: absolute !important;
+  left: 10px !important;
+  bottom: 8px !important;
+  width: 88px !important;
+  height: 18px !important;
+  margin: 0 !important;
+  padding: 1px 4px !important;
+  border-width: 1px !important;
+  gap: 2px !important;
 }
-.products-flow.view-mode-list .food-item-media .offer-countdown-pill .offer-countdown-label {
-  display: none;
+.products-flow.view-mode-list .food-item-card .card-seam-timer .offer-countdown-label {
+  display: none !important;
+}
+.products-flow.view-mode-list .food-item-card .card-seam-timer .cd-seg {
+  min-width: 15px;
+  height: 13px;
+  font-size: 8.5px;
+  padding: 0 2px;
 }
 
 @keyframes pulseUrgentOffer {
@@ -8271,7 +8308,7 @@ html[dir="ltr"] .preview-desc {
   z-index: 3;
 }
 .food-item-card.has-timed-offer .stock-low-badge {
-  bottom: 27px;
+  bottom: 22px;
 }
 .stock-out-badge { background: rgba(220, 38, 38, 0.92); color: #fff; }
 .stock-low-badge { background: rgba(245, 158, 11, 0.92); color: #fff; }

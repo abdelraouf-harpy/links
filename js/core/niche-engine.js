@@ -258,23 +258,17 @@
   function formatCountdown(remainingMs, lang) {
     const ms = Math.max(0, Number(remainingMs || 0));
     const totalSec = Math.floor(ms / 1000);
-    const days = Math.floor(totalSec / 86400);
-    const hours = Math.floor((totalSec % 86400) / 3600);
+    const totalHours = Math.floor(totalSec / 3600);
     const mins = Math.floor((totalSec % 3600) / 60);
     const secs = totalSec % 60;
     const pad = (n) => String(n).padStart(2, '0');
-    const isEn = (lang === 'en');
     const isUrgent = ms > 0 && ms <= 7200000; // <= 2 hours
 
-    let text = '';
-    if (days > 0) {
-      text = isEn
-        ? `${days}d ${pad(hours)}:${pad(mins)}:${pad(secs)}`
-        : `${days}ي ${pad(hours)}:${pad(mins)}:${pad(secs)}`;
-    } else {
-      text = `${pad(hours)}:${pad(mins)}:${pad(secs)}`;
-    }
-    return { text, isUrgent, totalSec };
+    const h = pad(totalHours);
+    const m = pad(mins);
+    const s = pad(secs);
+    const text = `${h} ${m} ${s}`;
+    return { text, h, m, s, isUrgent, totalSec };
   }
 
   let _countdownInterval = null;
@@ -301,7 +295,16 @@
         const fmt = formatCountdown(rem, lang);
         const timerSpan = el.querySelector('.offer-timer-digits');
         if (timerSpan) {
-          timerSpan.textContent = fmt.text;
+          const hEl = timerSpan.querySelector('.cd-h');
+          const mEl = timerSpan.querySelector('.cd-m');
+          const sEl = timerSpan.querySelector('.cd-s');
+          if (hEl && mEl && sEl) {
+            if (hEl.textContent !== fmt.h) hEl.textContent = fmt.h;
+            if (mEl.textContent !== fmt.m) mEl.textContent = fmt.m;
+            if (sEl.textContent !== fmt.s) sEl.textContent = fmt.s;
+          } else {
+            timerSpan.innerHTML = `<span class="cd-seg cd-h">${fmt.h}</span><span class="cd-seg cd-m">${fmt.m}</span><span class="cd-seg cd-s">${fmt.s}</span>`;
+          }
         } else {
           el.textContent = fmt.text;
         }

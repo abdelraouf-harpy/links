@@ -538,7 +538,7 @@ function renderHeroShowcase(p, currency) {
           </div>
           <h2 class="hero-product-title">${(typeof window.getProductName === 'function' ? window.getProductName(p) : p.name)}</h2>
           <p class="hero-product-desc">${(typeof window.getProductDesc === 'function' ? window.getProductDesc(p) : (p.desc || p.description || ''))}</p>
-          ${isTimed ? `<div class="offer-countdown-pill" data-offer-ends="${p.offerEndsAt}"><svg class="offer-countdown-ico" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span class="offer-countdown-label">${p.offerLabel ? Store.escapeHtml(p.offerLabel) : 'ينتهي خلال'}</span><span class="offer-timer-digits font-num">...</span></div>` : ''}
+          ${isTimed ? `<div class="offer-countdown-pill" data-offer-ends="${p.offerEndsAt}"><span class="offer-countdown-label">${p.offerLabel ? Store.escapeHtml(p.offerLabel) : 'ينتهي خلال'}</span><span class="offer-timer-digits font-num"><span class="cd-seg cd-h">--</span><span class="cd-seg cd-m">--</span><span class="cd-seg cd-s">--</span></span></div>` : ''}
         </div>
         <div class="hero-product-footer">
           <div class="hero-price font-num">
@@ -594,8 +594,8 @@ function renderProductCard(p, currency, index = 0) {
           </button>
         </div>
         ${isSoldOut ? `<span class="stock-out-badge">نفدت الكمية</span>` : (availQty !== null && availQty <= 5 ? `<span class="stock-low-badge font-num">متبقي ${availQty} فقط</span>` : '')}
-        ${showTimedBadge ? `<div class="offer-countdown-pill" data-offer-ends="${p.offerEndsAt}"><svg class="offer-countdown-ico" viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span class="offer-countdown-label">${p.offerLabel ? Store.escapeHtml(p.offerLabel) : 'ينتهي'}</span><span class="offer-timer-digits font-num">...</span></div>` : ''}
       </div>
+      ${showTimedBadge ? `<div class="offer-countdown-pill card-seam-timer" data-offer-ends="${p.offerEndsAt}"><span class="offer-countdown-label">${p.offerLabel ? Store.escapeHtml(p.offerLabel) : 'ينتهي'}</span><span class="offer-timer-digits font-num"><span class="cd-seg cd-h">--</span><span class="cd-seg cd-m">--</span><span class="cd-seg cd-s">--</span></span></div>` : ''}
 
       <div class="food-item-body">
         <div class="item-meta-tags">
