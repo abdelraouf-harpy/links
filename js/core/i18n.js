@@ -1216,6 +1216,13 @@
         "ru": "Добавить",
         "it": "Aggiungi"
     },
+    "add_to_cart": {
+        "ar": "إضافة إلى السلة",
+        "en": "Add to Cart",
+        "fr": "Ajouter au panier",
+        "ru": "В корзину",
+        "it": "Aggiungi al carrello"
+    },
     "btn_customize": {
         "ar": "تخصيص",
         "en": "Customize",

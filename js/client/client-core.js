@@ -814,8 +814,8 @@ function renderStoreInfo() {
   const hasCustomCover = !!(settings.cover && settings.cover.trim() && settings.cover !== 'null');
   const displayCover = hasCustomCover ? settings.cover : (isStore ? '' : 'assets/portfolio/order_restaurant_showcase.jpg');
   const curLang = (typeof window.I18n !== 'undefined') ? window.I18n.getLanguage() : 'ar';
-  const rawDelivery = settings.deliveryTime || '25 - 35 دقيقة';
-  const displayDelivery = (curLang === 'en') ? rawDelivery.replace(/دقيقة|دقائق/g, 'mins') : rawDelivery;
+  const rawDelivery = settings.deliveryTime || (isStore ? 'شحن سريع خلال 24 - 48 ساعة' : '25 - 35 دقيقة');
+  const displayDelivery = (curLang === 'en') ? (isStore ? (settings.deliveryTime || 'Fast Shipping 24 - 48h') : rawDelivery.replace(/دقيقة|دقائق/g, 'mins')) : rawDelivery;
 
   if (elements.storeName) elements.storeName.textContent = displayName;
   if (elements.storeTagline) elements.storeTagline.textContent = displayTagline;

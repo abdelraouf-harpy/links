@@ -117,7 +117,7 @@
   <link rel="dns-prefetch" href="https://i.ibb.co">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
   <link rel="stylesheet" href="css/order-tokens.css?v=187.0">
-  <link rel="stylesheet" href="css/order-client.css?v=193.0">
+  <link rel="stylesheet" href="css/order-client.css?v=194.0">
   <style id="harpy-critical-layout">
     /* ═══════════════════════════════════════════════════════════
        CRITICAL DEFENSIVE INLINE SHIELD (Prevents SW Cache Mismatches)
@@ -1728,7 +1728,7 @@
           <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
           <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
         </svg>
-        <span>تصفح قائمة الطعام</span>
+        <span data-i18n="btn_browse_menu_order">تصفح قائمة الطعام</span>
       </button>
     </div>
 
@@ -1755,7 +1755,7 @@
         <div id="cart-smart-pairing" class="smart-pairing-box" style="display:none; margin-top:8px;">
           <div class="pairing-headline">
             <span class="pairing-icon"><svg class="icon icon-sm" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
-            <span>يكمل وجبتك (إضافات ومشروبات مقترحة):</span>
+            <span data-i18n="cart_smart_pairing_title">يكمل وجبتك (إضافات ومشروبات مقترحة):</span>
           </div>
           <div id="pairing-items-list" class="pairing-scroll-track"></div>
         </div>
@@ -1779,7 +1779,7 @@
           <div id="group-cust-notes" class="chef-notes-wrap">
             <div class="extras-input-bar">
               <svg class="icon icon-xs" viewBox="0 0 24 24" style="color:var(--text-muted); flex-shrink:0; margin-left:8px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-              <input type="text" id="cust-notes" class="extras-input-field" placeholder="ملاحظات خاصة للشيف (اختياري)...">
+              <input type="text" id="cust-notes" class="extras-input-field" placeholder="ملاحظات خاصة للشيف (اختياري)..." data-i18n-placeholder="cust_notes_placeholder">
             </div>
           </div>
         </div>
@@ -2077,7 +2077,7 @@
       <div class="preview-header">
         <div>
           <span class="card-badge" id="preview-badge" style="margin-bottom:6px; display:inline-block;">قسم</span>
-          <h2 class="preview-title" id="preview-title">اسم الوجبة</h2>
+          <h2 class="preview-title" id="preview-title" data-i18n="product_name">اسم الوجبة</h2>
           <div style="font-size:11.5px; color:var(--text-muted); font-weight:700; margin-top:4px;" id="preview-preptime">وقت التحضير: 15 دقيقة</div>
         </div>
         <span id="preview-category" style="display:none;"></span>
@@ -2641,12 +2641,17 @@
       <span class="nav-tab-label" data-i18n="nav_cart">السلة</span>
     </button>
 
-    <!-- Tab 3: المنيو (Menu - Center Vibrant Orange Squircle Button) -->
+    <!-- Tab 3: المنيو / المتجر (Center Vibrant Orange Squircle Button) -->
     <button type="button" class="nav-tab-btn active nav-tab-center-orange" id="nav-tab-menu" onclick="window.handleNavTabClick && window.handleNavTabClick('menu')" title="قائمة الطعام" aria-label="المنيو">
       <div class="nav-tab-icon">
-        <svg viewBox="0 0 24 24" class="icon" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <svg viewBox="0 0 24 24" class="icon icon-restaurant-nav" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M6 3v6a2 2 0 0 0 2 2v10M10 3v6a2 2 0 0 1-2 2M8 3v8"/>
           <path d="M18 3v18M18 3a3 3 0 0 0-3 3v5h3"/>
+        </svg>
+        <svg viewBox="0 0 24 24" class="icon icon-store-nav" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 0 1-8 0"/>
         </svg>
       </div>
       <span class="nav-tab-label" data-i18n="nav_menu">المنيو</span>
@@ -2741,13 +2746,13 @@
   <script src="js/core/demo-seed-data.js?v=187.0"></script>
   <script src="js/core/sound-effects.js?v=187.0"></script>
   <script src="js/core/i18n.js?v=191.0"></script>
-  <script src="js/core/niche-engine.js?v=193.0"></script>
-  <script src="js/store.js?v=190.0"></script>
+  <script src="js/core/niche-engine.js?v=194.0"></script>
+  <script src="js/store.js?v=194.0"></script>
   <script src="js/core/qrcode.min.js?v=187.0"></script>
-  <script src="js/client/client-core.js?v=191.0"></script>
-  <script src="js/client/menu-view.js?v=193.0"></script>
+  <script src="js/client/client-core.js?v=194.0"></script>
+  <script src="js/client/menu-view.js?v=194.0"></script>
   <script src="js/client/stories-viewer.js?v=191.0"></script>
-  <script src="js/client/customizer-modal.js?v=193.0"></script>
+  <script src="js/client/customizer-modal.js?v=194.0"></script>
   <script src="js/client/cart-ledger.js?v=190.0"></script>
   <script src="js/client/order-tracking.js?v=191.0"></script>
   <script src="js/app.js?v=187.0"></script>

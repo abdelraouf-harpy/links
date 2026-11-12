@@ -6,7 +6,7 @@ try {
   console.warn("[SW] OneSignal worker import notice:", e);
 }
 
-const CACHE_NAME = 'order-pwa-v193.0';
+const CACHE_NAME = 'order-pwa-v194.0';
 const IMAGE_CACHE_NAME = 'order-images-v6';
 const ASSETS_TO_CACHE = [
   './',
@@ -43,18 +43,18 @@ const ASSETS_TO_CACHE = [
   './assets/portfolio/facebook_profile_logo.png',
   './assets/portfolio/01_Logo_and_Branding/order_logo_vector.svg',
   './css/order-tokens.css?v=187.0',
-  './css/order-client.css?v=193.0',
+  './css/order-client.css?v=194.0',
   './css/order-admin.css?v=187.0',
   './css/portfolio.css?v=189.0',
-  './js/core/demo-seed-data.js?v=187.0',
+  './js/core/demo-seed-data.js?v=194.0',
   './js/core/sound-effects.js?v=187.0',
-  './js/core/i18n.js?v=191.0',
-  './js/core/niche-engine.js?v=193.0',
+  './js/core/i18n.js?v=194.0',
+  './js/core/niche-engine.js?v=194.0',
   './js/core/module-enforcer.js?v=191.0',
-  './js/store.js?v=190.0',
+  './js/store.js?v=194.0',
   './js/admin/admin-core.js?v=191.0',
-  './js/admin/admin-auth.js?v=191.0',
-  './js/admin/kitchen-orders.js?v=191.0',
+  './js/admin/admin-auth.js?v=194.0',
+  './js/admin/kitchen-orders.js?v=194.0',
   './js/admin/inventory-manager.js?v=191.0',
   './js/admin/catalog-manager.js?v=191.0',
   './js/admin/category-manager.js?v=191.0',
@@ -63,10 +63,10 @@ const ASSETS_TO_CACHE = [
   './js/admin/settings-manager.js?v=191.0',
   './js/admin/pos-terminal.js?v=191.0',
   './js/admin/admin-push.js?v=191.0',
-  './js/client/client-core.js?v=191.0',
-  './js/client/menu-view.js?v=193.0',
+  './js/client/client-core.js?v=194.0',
+  './js/client/menu-view.js?v=194.0',
   './js/client/stories-viewer.js?v=191.0',
-  './js/client/customizer-modal.js?v=193.0',
+  './js/client/customizer-modal.js?v=194.0',
   './js/client/cart-ledger.js?v=190.0',
   './js/client/order-tracking.js?v=191.0',
   './js/portfolio.js?v=8.0',

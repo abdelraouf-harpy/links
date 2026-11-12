@@ -59,6 +59,25 @@ function getCategorySvgIcon(catName) {
   if (c.includes('وجب') || c.includes('كومبو') || c.includes('meal')) {
     return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="10" y1="10" x2="10" y2="20"/></svg>';
   }
+  // ── Store E-Commerce Categories (Apparel, Watches, Shoes, Fragrances, Tech, Bags) ──
+  if (c.includes('أزياء') || c.includes('ملابس') || c.includes('fashion') || c.includes('cloth') || c.includes('هودي') || c.includes('قميص') || c.includes('تيشيرت')) {
+    return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></svg>';
+  }
+  if (c.includes('ساعة') || c.includes('ساعات') || c.includes('watch')) {
+    return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7"/><polyline points="12 9 12 12 13.5 13.5"/><path d="m16.51 17.35-.85 3.65h-7.32l-.85-3.65"/><path d="m7.49 6.65.85-3.65h7.32l.85 3.65"/></svg>';
+  }
+  if (c.includes('حذاء') || c.includes('أحذية') || c.includes('سنيكرز') || c.includes('shoe') || c.includes('sneaker')) {
+    return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 13h4l3-3h6l3 2v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M8 10V7"/><path d="M12 9V6"/></svg>';
+  }
+  if (c.includes('عطر') || c.includes('عطور') || c.includes('عناية') || c.includes('perfume') || c.includes('beauty') || c.includes('ميك اب') || c.includes('تجميل')) {
+    return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="8" width="12" height="13" rx="3"/><path d="M10 5h4v3h-4z"/><line x1="12" y1="2" x2="12" y2="5"/><path d="m16 4 1-1"/><path d="m8 4-1-1"/></svg>';
+  }
+  if (c.includes('إلكتروني') || c.includes('سماعة') || c.includes('سماعات') || c.includes('tech') || c.includes('gadget') || c.includes('موبايل') || c.includes('phone')) {
+    return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/></svg>';
+  }
+  if (c.includes('شنط') || c.includes('حقائب') || c.includes('bag') || c.includes('إكسسوار') || c.includes('accessori')) {
+    return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>';
+  }
   if (window.NicheEngine && NicheEngine.isStoreMode()) {
     return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>';
   }
@@ -600,11 +619,32 @@ function renderProductCard(p, currency, index = 0) {
       <div class="food-item-body">
         <div class="item-meta-tags">
           <div style="display:flex; align-items:center; gap:6px;">
-            <span class="item-prep-time">
-              <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              <span>${(p.prepTime ? p.prepTime.replace(/دقيقة|دقائق/g, (typeof t === "function" ? t("mins", "mins") : "mins")) : ("15 " + (typeof t === "function" ? t("mins", "mins") : "mins")))}</span>
-            </span>
-            <span style="font-size:11.5px; color:var(--text-muted);">• ${(typeof window.getProductCategory === "function" ? window.getProductCategory(p.category) : (typeof window.tr === "function" ? window.tr(p.category) : p.category))}${p.brand ? ` • ${Store.escapeHtml(p.brand)}` : ''}</span>
+            ${(function() {
+              const isStore = !!(window.NicheEngine && typeof window.NicheEngine.isStoreMode === 'function' && window.NicheEngine.isStoreMode());
+              if (isStore) {
+                if (p.prepTime && p.prepTime.trim()) {
+                  return `
+                    <span class="item-prep-time">
+                      <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                      <span>${Store.escapeHtml(p.prepTime)}</span>
+                    </span>
+                  `;
+                }
+                return '';
+              }
+              return `
+                <span class="item-prep-time">
+                  <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  <span>${(p.prepTime ? p.prepTime.replace(/دقيقة|دقائق/g, (typeof t === "function" ? t("mins", "mins") : "mins")) : ("15 " + (typeof t === "function" ? t("mins", "mins") : "mins")))}</span>
+                </span>
+              `;
+            })()}
+            <span style="font-size:11.5px; color:var(--text-muted);">${(function() {
+              const isStore = !!(window.NicheEngine && typeof window.NicheEngine.isStoreMode === 'function' && window.NicheEngine.isStoreMode());
+              const catLabel = (typeof window.getProductCategory === "function" ? window.getProductCategory(p.category) : (typeof window.tr === "function" ? window.tr(p.category) : p.category));
+              const brandLabel = p.brand ? ` • ${Store.escapeHtml(p.brand)}` : '';
+              return isStore ? `${catLabel}${brandLabel}` : `• ${catLabel}${brandLabel}`;
+            })()}</span>
           </div>
           <button class="btn-fav-inline ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); handleToggleFav('${p.id}')" title="إضافة للمفضلة">
             <svg class="icon icon-sm" viewBox="0 0 24 24" style="fill: ${isFav ? 'currentColor' : 'none'};"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
@@ -838,8 +878,19 @@ window.openQuickPreview = function(productId) {
   if (elements.previewTitle) elements.previewTitle.textContent = (typeof window.getProductName === 'function' ? window.getProductName(p) : (typeof window.tr === 'function' ? window.tr(p.name) : p.name));
   if (elements.previewCategory) elements.previewCategory.textContent = (typeof window.getProductCategory === 'function' ? window.getProductCategory(p.category) : (typeof window.tr === 'function' ? window.tr(p.category) : p.category));
   if (elements.previewPrepTime) {
-    const prep = p.prepTime || '15 دقيقة';
-    elements.previewPrepTime.textContent = prep.replace(/دقيقة|دقائق/g, (typeof t === "function" ? t("mins", "mins") : "mins"));
+    const isStore = !!(window.NicheEngine && typeof window.NicheEngine.isStoreMode === 'function' && window.NicheEngine.isStoreMode());
+    if (isStore) {
+      if (p.prepTime && p.prepTime.trim()) {
+        elements.previewPrepTime.textContent = p.prepTime;
+        elements.previewPrepTime.style.display = 'block';
+      } else {
+        elements.previewPrepTime.style.display = 'none';
+      }
+    } else {
+      const prep = p.prepTime || '15 دقيقة';
+      elements.previewPrepTime.textContent = prep.replace(/دقيقة|دقائق/g, (typeof t === "function" ? t("mins", "mins") : "mins"));
+      elements.previewPrepTime.style.display = 'block';
+    }
   }
   if (elements.previewPrice) {
     const effPrice = Store.getEffectiveProductPrice ? Store.getEffectiveProductPrice(p) : p.price;

@@ -1293,13 +1293,147 @@ const DEFAULT_ORDERS = [
   }
 ];
 
+  // ── Preset Seed Data for E-Commerce Stores (Dual-Mode SaaS) ──
+  const DEFAULT_STORE_CATEGORIES = [
+    "أزياء وملابس",
+    "ساعات وإكسسوارات",
+    "أحذية رياضية",
+    "عطور وعناية",
+    "إلكترونيات ذكية"
+  ];
+
+  const DEFAULT_STORE_PRODUCTS = [
+    {
+      "id": "sprod-hoodie-01",
+      "name": "هودي قطني فاخر أوفر سايز",
+      "name_en": "Premium Heavyweight Oversized Hoodie",
+      "category": "أزياء وملابس",
+      "category_en": "Fashion & Apparel",
+      "price": 450,
+      "originalPrice": 550,
+      "offerEndsAt": Date.now() + 86400000,
+      "offerLabel": "خصم خاص",
+      "desc": "مصنوع من قطن مصري 100% مع بطانة ناعمة وملمس حريري مريح للاستخدام اليومي.",
+      "desc_en": "100% pure Egyptian cotton with fleece lining for ultra-comfortable daily wear.",
+      "image": "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=700&q=80",
+      "images": [
+        "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=700&q=80",
+        "https://images.unsplash.com/photo-1509967419530-da38b4704bc6?auto=format&fit=crop&w=700&q=80"
+      ],
+      "badge": "الأكثر مبيعاً",
+      "stockQty": 14,
+      "brand": "Harpy Urban",
+      "prepTime": "شحن خلال 24 ساعة",
+      "sizes": [
+        { "id": "sz-m", "name": "M (متوسط)", "price": 0 },
+        { "id": "sz-l", "name": "L (كبير)", "price": 0 },
+        { "id": "sz-xl", "name": "XL (كبير جداً)", "price": 0 },
+        { "id": "sz-2xl", "name": "2XL (أوفر سايز)", "price": 30 }
+      ],
+      "addons": [
+        { "id": "add-box", "name": "تغليف هدايا فاخر مع كرت إهداء", "price": 35 }
+      ],
+      "visible": true
+    },
+    {
+      "id": "sprod-watch-02",
+      "name": "ساعة كرونوغراف ستيل كلاسيك",
+      "name_en": "Classic Steel Chronograph Watch",
+      "category": "ساعات وإكسسوارات",
+      "category_en": "Watches & Accessories",
+      "price": 720,
+      "originalPrice": 900,
+      "offerEndsAt": Date.now() + 172800000,
+      "offerLabel": "عرض مميز",
+      "desc": "هيكل من الفولاذ المقاوم للصدأ وميناء أسود فاخر مقاوم للماء حتى عمق 50 متر.",
+      "desc_en": "Stainless steel body, luxury black dial, 50m water resistant quartz chronograph.",
+      "image": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=700&q=80",
+      "images": [
+        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=700&q=80"
+      ],
+      "badge": "ضمان سنة",
+      "stockQty": 4,
+      "brand": "Chronos Luxury",
+      "prepTime": "شحن فوري",
+      "visible": true
+    },
+    {
+      "id": "sprod-shoes-03",
+      "name": "حذاء سنيكرز الترا كومفورت مرن",
+      "name_en": "Ultra Comfort Athletic Sneaker",
+      "category": "أحذية رياضية",
+      "category_en": "Footwear & Sneakers",
+      "price": 850,
+      "originalPrice": 1050,
+      "offerEndsAt": 0,
+      "desc": "نعل طبي هوائي خفيف الوزن يدعم القدمين أثناء الجري والمشي الطويل طوال اليوم.",
+      "desc_en": "Lightweight cushioned orthopedic sole engineered for high endurance and daily jogging.",
+      "image": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=700&q=80",
+      "badge": "حصري",
+      "stockQty": 8,
+      "brand": "AeroStride",
+      "prepTime": "شحن خلال 48 ساعة",
+      "sizes": [
+        { "id": "sz-41", "name": "مقاس 41", "price": 0 },
+        { "id": "sz-42", "name": "مقاس 42", "price": 0 },
+        { "id": "sz-43", "name": "مقاس 43", "price": 0 },
+        { "id": "sz-44", "name": "مقاس 44", "price": 0 }
+      ],
+      "visible": true
+    },
+    {
+      "id": "sprod-perfume-04",
+      "name": "عطر ليذر نوار المركز (100 مل)",
+      "name_en": "Leather Noir Eau De Parfum (100ml)",
+      "category": "عطور وعناية",
+      "category_en": "Fragrances & Care",
+      "price": 580,
+      "originalPrice": 720,
+      "offerEndsAt": Date.now() + 129600000,
+      "offerLabel": "تخفيض موسمي",
+      "desc": "مزيج فاخر من خشب العود والعنبر مع نفحات الجلود والبرغموت لثبات يدوم 24 ساعة.",
+      "desc_en": "Intense blend of oud wood, amber, rich leather and bergamot with 24-hour sillage.",
+      "image": "https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=700&q=80",
+      "badge": "أصلي 100%",
+      "stockQty": 6,
+      "brand": "Maison Noir",
+      "prepTime": "شحن سريع",
+      "visible": true
+    },
+    {
+      "id": "sprod-headphones-05",
+      "name": "سماعة رأس لاسلكية إلغاء الضوضاء",
+      "name_en": "Active Noise Cancelling Wireless Headphones",
+      "category": "إلكترونيات ذكية",
+      "category_en": "Smart Tech",
+      "price": 990,
+      "originalPrice": 1250,
+      "offerEndsAt": Date.now() + 259200000,
+      "offerLabel": "خصم خاص",
+      "desc": "صوت محيطي نقي مع بطارية تدوم 40 ساعة وبلوتوث 5.3 وخاصية إلغاء الضوضاء الفعالة.",
+      "desc_en": "Hi-Res spatial audio, active noise cancellation, 40-hour battery and Bluetooth 5.3.",
+      "image": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=700&q=80",
+      "badge": "ضمان سنتين",
+      "stockQty": 3,
+      "brand": "SoundWave",
+      "prepTime": "شحن فوري",
+      "sizes": [
+        { "id": "col-black", "name": "أسود ملكي", "price": 0 },
+        { "id": "col-silver", "name": "فضي مطفي", "price": 0 }
+      ],
+      "visible": true
+    }
+  ];
+
   const HARPY_DEMO_SEED = {
     DEFAULT_RAW_MATERIALS,
     DEFAULT_SETTINGS,
     DEFAULT_CATEGORIES,
     DEFAULT_PRODUCTS,
     DEFAULT_STORIES,
-    DEFAULT_ORDERS
+    DEFAULT_ORDERS,
+    DEFAULT_STORE_CATEGORIES,
+    DEFAULT_STORE_PRODUCTS
   };
 
   if (typeof window !== 'undefined') {
@@ -1310,6 +1444,8 @@ const DEFAULT_ORDERS = [
     window.DEFAULT_PRODUCTS = DEFAULT_PRODUCTS;
     window.DEFAULT_STORIES = DEFAULT_STORIES;
     window.DEFAULT_ORDERS = DEFAULT_ORDERS;
+    window.DEFAULT_STORE_CATEGORIES = DEFAULT_STORE_CATEGORIES;
+    window.DEFAULT_STORE_PRODUCTS = DEFAULT_STORE_PRODUCTS;
   }
 
   if (typeof module !== 'undefined' && module.exports) {

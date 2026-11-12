@@ -511,6 +511,11 @@ function updateAllBrandHeadings(customName = null) {
   const defaultPlaceName = isStore ? `متجر ${slug}` : `مطعم ${slug}`;
   const brandName = (customName || settings.storeName || '').trim() || defaultPlaceName;
 
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.setAttribute('data-business-type', isStore ? 'store' : 'restaurant');
+    if (document.body) document.body.setAttribute('data-business-type', isStore ? 'store' : 'restaurant');
+  }
+
   const adminStoreName = document.getElementById('admin-store-name');
   if (adminStoreName) adminStoreName.textContent = `إدارة: ${brandName}`;
 
@@ -564,16 +569,22 @@ function renderRestaurantHub() {
     shareLink.textContent = targetUrl.replace(/^https?:\/\//, '');
     shareLink.href = targetUrl;
   }
+  const isStoreHub = (settings && settings.businessType === 'store') ||
+    (window.NicheEngine && typeof window.NicheEngine.isStoreMode === 'function' && window.NicheEngine.isStoreMode());
   if (previewBtn) {
     previewBtn.href = isFile ? `../order/?m=${slug}` : targetUrl;
     previewBtn.target = '_blank';
     previewBtn.rel = 'noopener noreferrer';
+    previewBtn.title = isStoreHub ? 'معاينة المتجر الحي' : 'معاينة المنيو الحي';
+    const pLbl = previewBtn.querySelector('.preview-btn-label');
+    if (pLbl) pLbl.textContent = isStoreHub ? 'معاينة المتجر' : 'معاينة المنيو';
   }
   const drawerPreviewBtn = document.getElementById('btn-drawer-preview');
   if (drawerPreviewBtn) {
     drawerPreviewBtn.href = isFile ? `../order/?m=${slug}` : targetUrl;
     drawerPreviewBtn.target = '_blank';
     drawerPreviewBtn.rel = 'noopener noreferrer';
+    drawerPreviewBtn.title = isStoreHub ? 'معاينة المتجر الحي' : 'معاينة المنيو الحي';
   }
   const openStoreBtn = document.getElementById('btn-open-store-link');
   if (openStoreBtn) {

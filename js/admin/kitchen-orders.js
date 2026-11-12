@@ -1379,7 +1379,8 @@ window.reopenOrderToKitchen = async function(orderId) {
   renderOrdersList();
   renderInvoicesArchive();
   if (typeof updateKitchenShiftBadge === 'function') updateKitchenShiftBadge();
-  showToastNotification(`تمت إعادة الطلب ${orderId} إلى شاشة المطبخ النشطة بنجاح`, 'success');
+  const isStore = (window.NicheEngine && typeof window.NicheEngine.isStoreMode === 'function' && window.NicheEngine.isStoreMode());
+  showToastNotification(isStore ? `تمت إعادة الطلب ${orderId} إلى قائمة الطلبات النشطة بنجاح` : `تمت إعادة الطلب ${orderId} إلى شاشة المطبخ النشطة بنجاح`, 'success');
 };
 
 window.filterArchiveOrders = function(filter) {
@@ -1894,10 +1895,10 @@ window.renderInvoicesArchive = function(orders = null) {
               <span>طباعة الفاتورة</span>
             </button>
 
-            <!-- Reopen to Kitchen Button -->
-            <button type="button" class="btn btn-ghost btn-sm" onclick="reopenOrderToKitchen('${cleanId}')" style="padding:5px 9px; font-size:11px; font-weight:800; border:1px solid var(--border); color:var(--text-main); background:var(--surface-raised); display:inline-flex; align-items:center; gap:4px;" title="إعادة فتح الطلب وإرجاعه لشاشة المطبخ النشطة">
+            <!-- Reopen to Kitchen / Active Queue Button -->
+            <button type="button" class="btn btn-ghost btn-sm" onclick="reopenOrderToKitchen('${cleanId}')" style="padding:5px 9px; font-size:11px; font-weight:800; border:1px solid var(--border); color:var(--text-main); background:var(--surface-raised); display:inline-flex; align-items:center; gap:4px;" title="${(window.NicheEngine && NicheEngine.isStoreMode()) ? 'إعادة فتح الطلب وإرجاعه لقائمة الطلبات النشطة' : 'إعادة فتح الطلب وإرجاعه لشاشة المطبخ النشطة'}">
               <span>↩️</span>
-              <span>إعادة للمطبخ</span>
+              <span>${(window.NicheEngine && NicheEngine.isStoreMode()) ? 'إعادة للتجهيز' : 'إعادة للمطبخ'}</span>
             </button>
 
             <!-- Delete Button -->

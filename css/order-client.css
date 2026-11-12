@@ -5015,6 +5015,13 @@ body:has(#customizer-modal.open) .bottom-nav-bar {
   display: none !important;
 }
 
+/* Dual-Mode Bottom Nav Center Icon (Restaurant Fork/Knife vs Store Shopping Bag) */
+.icon-store-nav { display: none !important; }
+.icon-restaurant-nav { display: inline-block !important; }
+
+[data-business-type="store"] .icon-restaurant-nav { display: none !important; }
+[data-business-type="store"] .icon-store-nav { display: inline-block !important; }
+
 /* Pulsing Glow Animation for "طلباتي" Tab upon placing an order */
 @keyframes orderTabGlowAnim {
   0%, 100% {

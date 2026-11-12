@@ -932,6 +932,11 @@ const Store = {
 
         this._memoryCache.settings = mergedSettings;
         this.safeSetItem(this.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(mergedSettings));
+        if (typeof document !== 'undefined' && document.documentElement) {
+          const bType = (mergedSettings && mergedSettings.businessType === 'store') ? 'store' : 'restaurant';
+          document.documentElement.setAttribute('data-business-type', bType);
+          if (document.body) document.body.setAttribute('data-business-type', bType);
+        }
         this.applyTheme();
         hasChanges = true;
       }
@@ -2700,6 +2705,11 @@ const Store = {
     this._memoryCache.settings = settings;
     this.saveLocks.settings = true;
     this.safeSetItem(this.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(settings));
+    if (typeof document !== 'undefined' && document.documentElement) {
+      const bType = (settings && settings.businessType === 'store') ? 'store' : 'restaurant';
+      document.documentElement.setAttribute('data-business-type', bType);
+      if (document.body) document.body.setAttribute('data-business-type', bType);
+    }
     this.lastSaveTimestamps.settings = Date.now();
     // Strict isolation: No automatic restaurant registration in shared list
     this.applyTheme();
@@ -4338,15 +4348,20 @@ const Store = {
     this.initTheme();
 
     const isDemo = (currentSlug === 'demo');
-    const resetSettings = { ...(isDemo ? DEFAULT_SETTINGS : BLANK_SETTINGS) };
+    const curSettings = this.getSettings() || {};
+    const isStore = (typeof window.NicheEngine !== 'undefined' && window.NicheEngine.isStoreMode(curSettings)) || (curSettings.businessType === 'store');
+    const resetSettings = { ...(isDemo ? (isStore ? { ...DEFAULT_SETTINGS, businessType: 'store' } : DEFAULT_SETTINGS) : BLANK_SETTINGS) };
+    if (isStore) resetSettings.businessType = 'store';
     delete resetSettings.subscription;
     delete resetSettings.modules;
     delete resetSettings.adminPassword;
     await this.patchToCloud('settings', resetSettings);
-    await this.pushToCloud('categories', isDemo ? DEFAULT_CATEGORIES : []);
-    await this.pushToCloud('products', isDemo ? DEFAULT_PRODUCTS : []);
+    const seedCategories = isStore ? ((window.HARPY_DEMO_SEED && window.HARPY_DEMO_SEED.DEFAULT_STORE_CATEGORIES) || (typeof DEFAULT_STORE_CATEGORIES !== 'undefined' ? DEFAULT_STORE_CATEGORIES : [])) : DEFAULT_CATEGORIES;
+    const seedProducts = isStore ? ((window.HARPY_DEMO_SEED && window.HARPY_DEMO_SEED.DEFAULT_STORE_PRODUCTS) || (typeof DEFAULT_STORE_PRODUCTS !== 'undefined' ? DEFAULT_STORE_PRODUCTS : [])) : DEFAULT_PRODUCTS;
+    await this.pushToCloud('categories', isDemo ? seedCategories : (isStore ? seedCategories : []));
+    await this.pushToCloud('products', isDemo ? seedProducts : (isStore ? seedProducts : []));
     await this.pushToCloud('stories', isDemo ? DEFAULT_STORIES : []);
-    await this.pushToCloud('rawMaterials', isDemo ? DEFAULT_RAW_MATERIALS : []);
+    await this.pushToCloud('rawMaterials', (isDemo && !isStore) ? DEFAULT_RAW_MATERIALS : []);
 
     window.dispatchEvent(new Event('store_settings_updated'));
     window.dispatchEvent(new Event('store_categories_updated'));
