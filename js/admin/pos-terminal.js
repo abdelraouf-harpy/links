@@ -17,9 +17,19 @@ let posModalProduct = null;
 let posModalSelectedSize = null;
 let posModalSelectedAddons = [];
 
+function isStoreCashierMode() {
+  const isStore = window.NicheEngine && typeof window.NicheEngine.isStoreMode === 'function' && window.NicheEngine.isStoreMode();
+  const isTablesOff = window.ModuleEnforcer && window.ModuleEnforcer.modules && (window.ModuleEnforcer.modules.smartTables === false || window.ModuleEnforcer.modules.tables === false);
+  return !!(isStore || isTablesOff);
+}
+
 window.initPOS = function() {
+  if (isStoreCashierMode()) {
+    setPOSOrderType('takeaway');
+  } else {
+    renderPOSTables();
+  }
   renderPOSCategories();
-  renderPOSTables();
   renderPOSProducts();
   updatePOSCartUI();
   if (window.innerWidth <= 980 && typeof switchPOSMobileTab === 'function') {
@@ -102,6 +112,7 @@ window.setPOSTable = function(tblNum) {
 };
 
 window.setPOSOrderType = function(type) {
+  if (isStoreCashierMode()) type = 'takeaway';
   posOrderType = type;
   const dineInBtn = document.getElementById('pos-type-dinein-btn');
   const takeawayBtn = document.getElementById('pos-type-takeaway-btn');
@@ -633,6 +644,9 @@ window.resetPOSCart = function(ask = false) {
   if (noteInput) noteInput.value = '';
   if (takeawayInput) takeawayInput.value = '';
 
+  if (isStoreCashierMode()) {
+    setPOSOrderType('takeaway');
+  }
   updatePOSCartUI();
   if (window.innerWidth <= 980 && typeof switchPOSMobileTab === 'function') {
     switchPOSMobileTab('menu');
@@ -672,31 +686,34 @@ window.submitPOSOrder = async function(printReceipt = true) {
   const orderId = `#POS-${orderNumber}`;
   const now = new Date();
 
+  const storeCashier = isStoreCashierMode();
+  const effectiveOrderType = storeCashier ? 'takeaway' : posOrderType;
+
   const newOrder = {
     orderId: orderId,
     source: 'pos',
-    orderType: posOrderType, // 'dine_in' | 'takeaway'
+    orderType: effectiveOrderType, // 'dine_in' | 'takeaway'
     tableNumber: (function() {
-      if (posOrderType !== 'dine_in') return null;
+      if (effectiveOrderType !== 'dine_in') return null;
       const allTbls = (typeof Store !== 'undefined' && Store.getTables) ? Store.getTables() : [];
       const tObj = allTbls.find(t => String(t.id) === String(posTableNumber));
       return tObj ? tObj.name : `طاولة ${posTableNumber}`;
     })(),
-    status: 'preparing', // Direct to Kitchen Active Prep
+    status: 'preparing', // Direct to Kitchen / Fulfillment Prep
     createdAt: now.toISOString(),
     timestamp: now.getTime(),
     paymentMethod: posPayMethod,
     isPaid: true,
     customer: {
       name: (function() {
-        if (posOrderType !== 'dine_in') return (takeawayName || 'زبون سفري');
+        if (effectiveOrderType !== 'dine_in') return (takeawayName || (storeCashier ? 'عميل مباشر' : 'زبون سفري'));
         const allTbls = (typeof Store !== 'undefined' && Store.getTables) ? Store.getTables() : [];
         const tObj = allTbls.find(t => String(t.id) === String(posTableNumber));
         return tObj ? tObj.name : `طاولة ${posTableNumber}`;
       })(),
       phone: 'داخلي',
       address: (function() {
-        if (posOrderType !== 'dine_in') return 'استلام من الكاشير (سفري)';
+        if (effectiveOrderType !== 'dine_in') return (storeCashier ? 'استلام مباشر من المتجر' : 'استلام من الكاشير (سفري)');
         const allTbls = (typeof Store !== 'undefined' && Store.getTables) ? Store.getTables() : [];
         const tObj = allTbls.find(t => String(t.id) === String(posTableNumber));
         const tName = tObj ? tObj.name : `طاولة ${posTableNumber}`;
@@ -727,7 +744,12 @@ window.submitPOSOrder = async function(printReceipt = true) {
       console.warn("[POS] Depletion warning:", depErr);
     }
 
-    showToastNotification(`تم إرسال الطلب ${orderId} للمطبخ بنجاح!`, "success");
+    showToastNotification(
+      storeCashier
+        ? `تم تأكيد الطلب ${orderId} بنجاح!`
+        : `تم إرسال الطلب ${orderId} للمطبخ بنجاح!`,
+      "success"
+    );
 
     if (printReceipt) {
       setTimeout(() => {

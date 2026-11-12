@@ -154,7 +154,9 @@ function renderInventory() {
           </div>
           <div style="font-size:16px; font-weight:800; color:var(--text-main); margin-bottom:6px;">سجل المواد الخام فارغ</div>
           <div style="font-size:12.5px; color:var(--text-muted); margin-bottom:20px; max-width:340px; margin-left:auto; margin-right:auto;">
-            ابدأ بتسجيل المواد الخام التي يعتمد عليها مطبخك (الدقيق، الجبنة، اللحوم، الصوصات، كراتين التعبئة) لمراقبة الاستهلاك بدقة ومنع النواقص.
+            ${(window.NicheEngine && typeof NicheEngine.isStoreMode === 'function' && NicheEngine.isStoreMode())
+              ? 'ابدأ بتسجيل مواد التغليف والكميات والمخزون في متجرك لمراقبة الاستهلاك بدقة ومنع النواقص.'
+              : 'ابدأ بتسجيل المواد الخام التي يعتمد عليها مطبخك (الدقيق، الجبنة، اللحوم، الصوصات، كراتين التعبئة) لمراقبة الاستهلاك بدقة ومنع النواقص.'}
           </div>
           <button type="button" class="btn btn-primary" onclick="openRawMaterialModal(null)" style="padding:10px 22px; font-weight:800; font-size:0.9rem; display:inline-flex; align-items:center; gap:6px;">
             <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>

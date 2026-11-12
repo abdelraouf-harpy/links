@@ -955,8 +955,9 @@ async function deleteAdminBranch(branchId) {
   const target = branches.find(b => (b.id === branchId || b.slug === branchId));
   if (!target) return;
 
+  const isStoreBr = !!(window.NicheEngine && typeof NicheEngine.isStoreMode === 'function' && NicheEngine.isStoreMode());
   if (branches.length <= 1) {
-    showToastNotification("لا يمكن حذف الفرع الوحيد للمطعم", "warning");
+    showToastNotification(isStoreBr ? "لا يمكن حذف الفرع الوحيد للمتجر" : "لا يمكن حذف الفرع الوحيد للمطعم", "warning");
     return;
   }
 
@@ -999,10 +1000,13 @@ async function clearAllAdminBranches() {
   const currentSlug = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : '';
   const currentSettings = (typeof Store !== 'undefined' && Store.getSettings) ? Store.getSettings() : {};
 
+  const isStoreBrClr = !!(window.NicheEngine && typeof NicheEngine.isStoreMode === 'function' && NicheEngine.isStoreMode());
   if (typeof showCustomConfirm === 'function') {
     const confirmed = await showCustomConfirm({
       title: "تصفير شبكة الفروع",
-      message: "هل أنت متأكد من تصفير شبكة الفروع وإلغاء ربط جميع الفروع؟ سيتم فصل جميع المطاعم والاحتفاظ بهذا المطعم فقط كفرع مستقل.",
+      message: isStoreBrClr
+        ? "هل أنت متأكد من تصفير شبكة الفروع وإلغاء ربط جميع الفروع؟ سيتم فصل جميع المتاجر والاحتفاظ بهذا المتجر فقط كفرع مستقل."
+        : "هل أنت متأكد من تصفير شبكة الفروع وإلغاء ربط جميع الفروع؟ سيتم فصل جميع المطاعم والاحتفاظ بهذا المطعم فقط كفرع مستقل.",
       confirmText: "تصفير وفصل الفروع",
       isDanger: true
     });
@@ -1175,10 +1179,11 @@ window.openHarpyQRModal = function(mode, tableData) {
   // Update modal title
   const titleEl = document.getElementById('harpy-qr-modal-title');
   if (titleEl) {
+    const isStoreQr = !!(window.NicheEngine && typeof NicheEngine.isStoreMode === 'function' && NicheEngine.isStoreMode());
     if (currentHarpyQRMode === 'table' && currentHarpyQRTable) {
       titleEl.textContent = `ستيكر كود QR — ${currentHarpyQRTable.name || 'طاولة ' + currentHarpyQRTable.id}`;
     } else {
-      titleEl.textContent = 'ستيكر كود QR — منيو المطعم';
+      titleEl.textContent = isStoreQr ? 'ستيكر كود QR — رابط المتجر' : 'ستيكر كود QR — منيو المطعم';
     }
   }
 

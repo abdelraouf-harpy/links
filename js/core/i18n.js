@@ -2612,9 +2612,16 @@
 
     t(key, fallback = '') {
       const curLang = this.getLanguage();
+      if (typeof window !== 'undefined' && window.NicheEngine && window.NicheEngine.isStoreMode()) {
+        const nicheTerm = window.NicheEngine.getTerm(key, curLang);
+        if (nicheTerm) return nicheTerm;
+      }
       const entry = DICTIONARY[key];
-      if (!entry) return fallback || key;
-      return entry[curLang] || entry['en'] || entry['ar'] || fallback || key;
+      let res = !entry ? (fallback || key) : (entry[curLang] || entry['en'] || entry['ar'] || fallback || key);
+      if (typeof window !== 'undefined' && window.NicheEngine && window.NicheEngine.isStoreMode()) {
+        res = window.NicheEngine.adaptText(res, curLang);
+      }
+      return res;
     },
 
     applyDOMTranslations(langCode) {
@@ -2623,27 +2630,27 @@
       // 1. Regular text content
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
-        if (key && DICTIONARY[key]) {
-          const text = DICTIONARY[key][lang] || DICTIONARY[key]['en'] || DICTIONARY[key]['ar'];
-          if (text) el.textContent = text;
+        if (key && (DICTIONARY[key] || (window.NicheEngine && window.NicheEngine.isStoreMode()))) {
+          const text = this.t(key);
+          if (text && text !== key) el.textContent = text;
         }
       });
 
       // 2. Placeholders
       document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
         const key = el.getAttribute('data-i18n-placeholder');
-        if (key && DICTIONARY[key]) {
-          const text = DICTIONARY[key][lang] || DICTIONARY[key]['en'] || DICTIONARY[key]['ar'];
-          if (text) el.setAttribute('placeholder', text);
+        if (key && (DICTIONARY[key] || (window.NicheEngine && window.NicheEngine.isStoreMode()))) {
+          const text = this.t(key);
+          if (text && text !== key) el.setAttribute('placeholder', text);
         }
       });
 
       // 3. Titles / aria-labels
       document.querySelectorAll('[data-i18n-title]').forEach(el => {
         const key = el.getAttribute('data-i18n-title');
-        if (key && DICTIONARY[key]) {
-          const text = DICTIONARY[key][lang] || DICTIONARY[key]['en'] || DICTIONARY[key]['ar'];
-          if (text) {
+        if (key && (DICTIONARY[key] || (window.NicheEngine && window.NicheEngine.isStoreMode()))) {
+          const text = this.t(key);
+          if (text && text !== key) {
             el.setAttribute('title', text);
             el.setAttribute('aria-label', text);
           }
@@ -2670,6 +2677,11 @@
         } else {
           cleanLangBtn.innerHTML = '<span>العربية</span>';
         }
+      }
+
+      // 7. Re-apply Store/Niche terminology after i18n text replacement
+      if (window.NicheEngine && typeof window.NicheEngine.applyTerminology === 'function') {
+        window.NicheEngine.applyTerminology();
       }
     },
 

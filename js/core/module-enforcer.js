@@ -311,8 +311,17 @@
     enforce(modules) {
       if (!modules || typeof modules !== 'object') return;
       this.modules = Object.assign({}, this.modules, modules);
-      const modHash = JSON.stringify(this.modules);
-      if (this._lastEnforcedHash === modHash && this._hasInitiallyEnforced) return;
+      const isStoreBType = (
+        document.documentElement.getAttribute('data-business-type') === 'store' ||
+        (window.NicheEngine && typeof window.NicheEngine.isStoreMode === 'function' && window.NicheEngine.isStoreMode())
+      );
+      const modHash = JSON.stringify(this.modules) + '|' + (isStoreBType ? 'store' : 'restaurant');
+      if (this._lastEnforcedHash === modHash && this._hasInitiallyEnforced) {
+        if (isStoreBType && window.NicheEngine && typeof window.NicheEngine.applyTerminology === 'function') {
+          window.NicheEngine.applyTerminology();
+        }
+        return;
+      }
       this._lastEnforcedHash = modHash;
       this._hasInitiallyEnforced = true;
 
@@ -397,14 +406,15 @@
         cssRules.push('button[data-tab="tab-pos"], [data-nav="pos"], #drawer-nav-pos, #tab-pos { display: none !important; }');
       }
       if (modules.inventory === false) {
-        cssRules.push('button[data-tab="tab-inventory"], [data-nav="inventory"], #drawer-nav-inventory, #tab-inventory, #product-recipe-section { display: none !important; }');
+        cssRules.push('button[data-tab="tab-inventory"], [data-nav="inventory"], #drawer-nav-inventory, #tab-inventory, #product-recipe-section, [onclick*="openStockAuditModal"], div:has(> #shift-close-cogs) { display: none !important; }');
       }
       if (modules.stories === false) {
         cssRules.push('button[data-tab="tab-stories"], [data-nav="stories"], #drawer-nav-stories, #tab-stories, #card-story-management, #stories-section, .stories-container, #stories-modal, .story-bubble, .story-ring { display: none !important; }');
       }
-      const isTablesDisabled = (modules.smartTables === false || modules.tables === false);
+      const isTablesDisabled = (modules.smartTables === false || modules.tables === false || isStoreBType);
       if (isTablesDisabled) {
-        cssRules.push('#card-tables-management, #btn-add-new-table, #admin-tables-list, #fulfillment-tab-dinein, [data-type="dinein"], #dinein-table-box, #table-number-input, .table-picker-modal, #table-indicator-pill { display: none !important; }');
+        cssRules.push('#card-tables-management, #btn-add-new-table, #admin-tables-list, #fulfillment-tab-dinein, [data-type="dinein"], #dinein-table-box, #cart-table-number-group, #table-number-input, .table-picker-modal, #table-indicator-pill, #pos-type-dinein-btn, .pos-type-toggle, #pos-table-selector-wrap, .btn-filter-archive[data-archive-filter="dine_in"] { display: none !important; }');
+        cssRules.push('#pos-takeaway-wrap { display: block !important; }');
       }
       if (modules.delivery === false) {
         cssRules.push('#card-delivery-management, #fulfillment-tab-delivery, [data-type="delivery"], #delivery-address-box, #delivery-zone-select, #hero-chip-delivery, .delivery-badge, #delivery-fee-row { display: none !important; }');

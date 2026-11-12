@@ -545,6 +545,9 @@ let _lastClientToastMsg = '';
 let _lastClientToastTime = 0;
 
 function showToastNotification(message, type = 'success') {
+  if (window.NicheEngine && typeof window.NicheEngine.adaptText === 'function' && window.NicheEngine.isStoreMode()) {
+    message = window.NicheEngine.adaptText(message);
+  }
   const now = Date.now();
   if (message === _lastClientToastMsg && (now - _lastClientToastTime) < 2200) {
     return;
@@ -802,11 +805,14 @@ function renderStoreInfo() {
   const settings = Store.getSettings();
   const slug = Store.getRestaurantSlug();
   const isDemo = (slug === 'demo');
+  const isStore = (settings && settings.businessType === 'store') ||
+    (window.NicheEngine && typeof window.NicheEngine.isStoreMode === 'function' && window.NicheEngine.isStoreMode());
 
-  const displayName = settings.storeName || (isDemo ? "سوبر برجر | Super Burger" : "مطعمنا المتميز");
-  const displayTagline = settings.storeTagline || (isDemo ? "أشهى المأكولات الطازجة" : "أشهى وألذ المأكولات المحضرة يومياً");
-  const displayLogo = (settings.logo && settings.logo.trim() && settings.logo !== 'null') ? settings.logo : (isDemo ? 'assets/portfolio/logo.png' : 'assets/portfolio/logo.png');
-  const displayCover = (settings.cover && settings.cover.trim() && settings.cover !== 'null') ? settings.cover : (isDemo ? 'assets/portfolio/order_restaurant_showcase.jpg' : 'assets/portfolio/order_restaurant_showcase.jpg');
+  const displayName = settings.storeName || (isDemo ? "سوبر برجر | Super Burger" : (isStore ? "متجرنا المتميز" : "مطعمنا المتميز"));
+  const displayTagline = settings.storeTagline || (isDemo ? "أشهى المأكولات الطازجة" : (isStore ? "منتجات مختارة بأعلى جودة" : "أشهى وألذ المأكولات المحضرة يومياً"));
+  const displayLogo = (settings.logo && settings.logo.trim() && settings.logo !== 'null') ? settings.logo : 'assets/portfolio/logo.png';
+  const hasCustomCover = !!(settings.cover && settings.cover.trim() && settings.cover !== 'null');
+  const displayCover = hasCustomCover ? settings.cover : (isStore ? '' : 'assets/portfolio/order_restaurant_showcase.jpg');
   const curLang = (typeof window.I18n !== 'undefined') ? window.I18n.getLanguage() : 'ar';
   const rawDelivery = settings.deliveryTime || '25 - 35 دقيقة';
   const displayDelivery = (curLang === 'en') ? rawDelivery.replace(/دقيقة|دقائق/g, 'mins') : rawDelivery;
@@ -826,11 +832,27 @@ function renderStoreInfo() {
   if (pStoreLogo) pStoreLogo.src = displayLogo;
 
   const pCoverImg = document.getElementById('portfolio-cover-img');
-  if (pCoverImg) pCoverImg.src = displayCover;
+  if (pCoverImg) {
+    if (isStore && !hasCustomCover) {
+      pCoverImg.removeAttribute('src');
+      pCoverImg.style.display = 'none';
+      if (pCoverImg.parentElement) pCoverImg.parentElement.classList.add('store-default-cover');
+    } else {
+      pCoverImg.src = displayCover;
+      pCoverImg.style.display = '';
+      if (pCoverImg.parentElement) pCoverImg.parentElement.classList.remove('store-default-cover');
+    }
+  }
 
   const pAboutText = document.getElementById('portfolio-about-text');
   if (pAboutText) {
-    pAboutText.textContent = settings.aboutText || settings.storeTagline || (typeof window.t === 'function' ? window.t('portfolio_about_default', 'في مطعمنا بنقدملك طعم أصيل ووصفات مميزة بأجود المكونات وبدون أي تنازلات على الجودة. كل وجبة بتحكي قصة نكهة من قلب المطبخ.') : 'في مطعمنا بنقدملك طعم أصيل ووصفات مميزة بأجود المكونات وبدون أي تنازلات على الجودة. كل وجبة بتحكي قصة نكهة من قلب المطبخ.');
+    const defaultAboutAr = isStore
+      ? 'نوفر لك تشكيلة مميزة من المنتجات الأصلية المختارة بعناية بأعلى جودة وأفضل سعر مع شحن وتوصيل سريع.'
+      : 'في مطعمنا بنقدملك طعم أصيل ووصفات مميزة بأجود المكونات وبدون أي تنازلات على الجودة. كل وجبة بتحكي قصة نكهة من قلب المطبخ.';
+    const rawAbout = settings.aboutText || settings.storeTagline || (typeof window.t === 'function' ? window.t('portfolio_about_default', defaultAboutAr) : defaultAboutAr);
+    pAboutText.textContent = (isStore && window.NicheEngine && typeof window.NicheEngine.adaptText === 'function')
+      ? window.NicheEngine.adaptText(rawAbout)
+      : rawAbout;
   }
 
   const pDeliveryTime = document.getElementById('portfolio-delivery-time');
@@ -855,7 +877,7 @@ function renderStoreInfo() {
   const cleanWaNum = (settings.whatsappNumber || '').replace(/\D/g, '');
   const pWaBtn = document.getElementById('portfolio-wa-btn');
   if (pWaBtn) {
-    pWaBtn.href = `https://wa.me/${cleanWaNum}?text=${encodeURIComponent('مرحباً، أود الاستفسار عن تفاصيل المنيو والطلبات ')}`;
+    pWaBtn.href = `https://wa.me/${cleanWaNum}?text=${encodeURIComponent(isStore ? 'مرحباً، أود الاستفسار عن المنتجات والطلبات ' : 'مرحباً، أود الاستفسار عن تفاصيل المنيو والطلبات ')}`;
   }
 
   const rawPhone = settings.phone || settings.whatsappNumber || '';
@@ -1286,12 +1308,15 @@ function showOrderingPausedNotice(customMsg) {
   const iconEl = document.getElementById('ordering-paused-icon');
   const waBtn = document.getElementById('ordering-paused-wa-btn');
 
+  const isStorePaused = (s && s.businessType === 'store') || (window.NicheEngine && NicheEngine.isStoreMode());
   if (msgEl) {
     msgEl.textContent = customMsg || (s && s.orderingPausedMessage)
       ? (customMsg || s.orderingPausedMessage)
-      : 'عذراً، المطعم لا يستقبل طلبات جديدة في الوقت الحالي. يمكنك تصفح قائمة الطعام والأسعار بحرية، وسنعاود استقبال الطلبات قريباً! ';
+      : (isStorePaused
+          ? 'عذراً، المتجر لا يستقبل طلبات جديدة في الوقت الحالي. يمكنك تصفح المنتجات والأسعار بحرية، وسنعاود استقبال الطلبات قريباً!'
+          : 'عذراً، المطعم لا يستقبل طلبات جديدة في الوقت الحالي. يمكنك تصفح قائمة الطعام والأسعار بحرية، وسنعاود استقبال الطلبات قريباً! ');
   }
-  if (titleEl) titleEl.textContent = 'المطعم متوقف حالياً عن استقبال الطلبات';
+  if (titleEl) titleEl.textContent = isStorePaused ? 'المتجر متوقف حالياً عن استقبال الطلبات' : 'المطعم متوقف حالياً عن استقبال الطلبات';
   if (iconEl) iconEl.innerHTML = '<svg class="icon" viewBox="0 0 24 24" style="width:32px; height:32px;"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>';
 
   if (waBtn && s && s.whatsappNumber) {
@@ -1375,24 +1400,26 @@ function setupSubscriptionWatcher() {
         contactBtn.textContent = 'الذهاب للصفحة الرئيسية';
       }
     } else if (statusReason === 'expired') {
+      const settings = Store.getSettings();
+      const isStoreSt = (settings && settings.businessType === 'store') || (window.NicheEngine && NicheEngine.isStoreMode());
       if (iconEl) iconEl.innerHTML = '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
-      if (titleEl) titleEl.textContent = 'انتهت صلاحية اشتراك هذا المطعم';
-      if (descEl) descEl.textContent = 'قائمة هذا المطعم متوقفة مؤقتاً لانتهاء الباقة. يرجى التجديد للاستمرار.';
+      if (titleEl) titleEl.textContent = isStoreSt ? 'انتهت صلاحية اشتراك هذا المتجر' : 'انتهت صلاحية اشتراك هذا المطعم';
+      if (descEl) descEl.textContent = isStoreSt ? 'صفحة هذا المتجر متوقفة مؤقتاً لانتهاء الباقة. يرجى التجديد للاستمرار.' : 'قائمة هذا المطعم متوقفة مؤقتاً لانتهاء الباقة. يرجى التجديد للاستمرار.';
       if (contactBtn) {
-        const settings = Store.getSettings();
         const cleanWa = (settings.whatsappNumber || '').replace(/\D/g, '');
-        contactBtn.href = `https://wa.me/${cleanWa}?text=${encodeURIComponent(`مرحباً، أود الاستفسار عن تجديد اشتراك منيو ${settings.storeName || slug}`)}`;
-        contactBtn.textContent = 'تواصل مع المطعم لتجديد الاشتراك';
+        contactBtn.href = `https://wa.me/${cleanWa}?text=${encodeURIComponent(`مرحباً، أود الاستفسار عن تجديد اشتراك ${isStoreSt ? 'متجر' : 'منيو'} ${settings.storeName || slug}`)}`;
+        contactBtn.textContent = isStoreSt ? 'تواصل مع المتجر لتجديد الاشتراك' : 'تواصل مع المطعم لتجديد الاشتراك';
       }
     } else {
+      const settings = Store.getSettings();
+      const isStoreSt = (settings && settings.businessType === 'store') || (window.NicheEngine && NicheEngine.isStoreMode());
       if (iconEl) iconEl.innerHTML = '<svg class="icon" viewBox="0 0 24 24" style="width:28px; height:28px;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
       if (titleEl) titleEl.textContent = 'عفواً، الخدمة متوقفة مؤقتاً';
-      if (descEl) descEl.textContent = 'قائمة هذا المطعم غير متاحة حالياً لتلقي طلبات الأونلاين أو جاري تجديد الاشتراك.';
+      if (descEl) descEl.textContent = isStoreSt ? 'هذا المتجر غير متاح حالياً لتلقي طلبات الأونلاين أو جاري تجديد الاشتراك.' : 'قائمة هذا المطعم غير متاحة حالياً لتلقي طلبات الأونلاين أو جاري تجديد الاشتراك.';
       if (contactBtn) {
-        const settings = Store.getSettings();
         const cleanWa = (settings.whatsappNumber || '').replace(/\D/g, '');
-        contactBtn.href = `https://wa.me/${cleanWa}?text=${encodeURIComponent(`مرحباً، أود الاستفسار عن منيو ${settings.storeName || slug}`)}`;
-        contactBtn.textContent = 'تواصل مع المطعم عبر الواتساب';
+        contactBtn.href = `https://wa.me/${cleanWa}?text=${encodeURIComponent(`مرحباً، أود الاستفسار عن ${isStoreSt ? 'متجر' : 'منيو'} ${settings.storeName || slug}`)}`;
+        contactBtn.textContent = isStoreSt ? 'تواصل مع المتجر عبر الواتساب' : 'تواصل مع المطعم عبر الواتساب';
       }
     }
   };
@@ -2386,10 +2413,11 @@ function updateOrdersStepperUI(status = 'pending', order = null) {
       locBanner.style.display = 'flex';
       locText.innerHTML = `${typeof window.t === 'function' ? window.t('service_location', 'مكان الخدمة') : 'مكان الخدمة'}: <strong>${typeof window.t === 'function' ? window.t('table_number_prefix', 'طاولة رقم') : 'طاولة رقم'} ${tableNumber || '1'} (${typeof window.t === 'function' ? window.t('fulfillment_dinein', 'في الصالة') : 'في الصالة'})</strong>`;
     }
+  const isStoreStepper = !!(window.NicheEngine && typeof window.NicheEngine.isStoreMode === 'function' && window.NicheEngine.isStoreMode());
   } else if (isTakeaway) {
     if (step1Name) step1Name.textContent = (typeof window.t === 'function' ? window.t('step_takeaway_1', 'استلام الطلب') : 'استلام الطلب');
-    if (step2Name) step2Name.textContent = (typeof window.t === 'function' ? window.t('step_takeaway_2', 'تجهيز وتعليب') : 'تجهيز وتعليب');
-    if (step3Name) step3Name.textContent = (typeof window.t === 'function' ? window.t('step_takeaway_3', 'جاهز بالفرع') : 'جاهز بالفرع');
+    if (step2Name) step2Name.textContent = isStoreStepper ? 'تجهيز وتغليف' : (typeof window.t === 'function' ? window.t('step_takeaway_2', 'تجهيز وتعليب') : 'تجهيز وتعليب');
+    if (step3Name) step3Name.textContent = isStoreStepper ? 'جاهز للاستلام' : (typeof window.t === 'function' ? window.t('step_takeaway_3', 'جاهز بالفرع') : 'جاهز بالفرع');
     if (step4Name) step4Name.textContent = (typeof window.t === 'function' ? window.t('step_takeaway_4', 'تم الاستلام') : 'تم الاستلام');
 
     if (etaTitle) etaTitle.textContent = (typeof window.t === 'function') ? window.t('eta_title_takeaway', 'وقت التجهيز للاستلام') : 'وقت التجهيز للاستلام';
@@ -2397,13 +2425,13 @@ function updateOrdersStepperUI(status = 'pending', order = null) {
 
     if (locBanner && locText) {
       locBanner.style.display = 'flex';
-      locText.innerHTML = `${typeof window.t === 'function' ? window.t('pickup_location', 'مكان الاستلام') : 'مكان الاستلام'}: <strong>${typeof window.t === 'function' ? window.t('pickup_counter', 'كاونتر فرع المطعم الرئيسي مباشرة') : 'كاونتر فرع المطعم الرئيسي مباشرة'}</strong>`;
+      locText.innerHTML = `${typeof window.t === 'function' ? window.t('pickup_location', 'مكان الاستلام') : 'مكان الاستلام'}: <strong>${isStoreStepper ? 'مقر المتجر الرئيسي مباشرة' : (typeof window.t === 'function' ? window.t('pickup_counter', 'كاونتر فرع المطعم الرئيسي مباشرة') : 'كاونتر فرع المطعم الرئيسي مباشرة')}</strong>`;
     }
   } else {
     // Delivery
     if (step1Name) step1Name.textContent = (typeof window.t === 'function' ? window.t('order_stepper_step1', 'استلام الطلب') : 'استلام الطلب');
-    if (step2Name) step2Name.textContent = (typeof window.t === 'function' ? window.t('order_stepper_step2', 'في المطبخ') : 'في المطبخ');
-    if (step3Name) step3Name.textContent = (typeof window.t === 'function' ? window.t('order_stepper_step3', 'مع الكابتن') : 'مع الكابتن');
+    if (step2Name) step2Name.textContent = isStoreStepper ? 'قيد التجهيز' : (typeof window.t === 'function' ? window.t('order_stepper_step2', 'في المطبخ') : 'في المطبخ');
+    if (step3Name) step3Name.textContent = isStoreStepper ? 'تم الشحن' : (typeof window.t === 'function' ? window.t('order_stepper_step3', 'مع الكابتن') : 'مع الكابتن');
     if (step4Name) step4Name.textContent = (typeof window.t === 'function' ? window.t('order_stepper_step4', 'تم التوصيل') : 'تم التوصيل');
 
     if (etaTitle) etaTitle.textContent = (typeof window.t === 'function') ? window.t('eta_title_delivery', 'الوقت التقديري للوصول') : 'الوقت التقديري للوصول';
@@ -2432,8 +2460,8 @@ function updateOrdersStepperUI(status = 'pending', order = null) {
     if (fill) fill.style.width = '25%';
     if (descEl) {
       if (isDineIn) descEl.textContent = `تم تسجيل طلبك وتوجيهه إلى مطبخ الصالة لطاولة (${tableNumber || '1'})، جاري التأكيد.`;
-      else if (isTakeaway) descEl.textContent = 'تم تسجيل طلبك للاستلام من الفرع، وسنبدأ تحضيره طازجاً فوراً.';
-      else descEl.textContent = 'تم استلام طلبك بنجاح وهو قيد المراجعة في المطعم الآن.';
+      else if (isTakeaway) descEl.textContent = isStoreStepper ? 'تم تسجيل طلبك للاستلام من المتجر، وسنبدأ تجهيزه وتغليفه فوراً.' : 'تم تسجيل طلبك للاستلام من الفرع، وسنبدأ تحضيره طازجاً فوراً.';
+      else descEl.textContent = isStoreStepper ? 'تم استلام طلبك بنجاح وهو قيد المراجعة في المتجر الآن.' : 'تم استلام طلبك بنجاح وهو قيد المراجعة في المطعم الآن.';
     }
   } else if (status === 'preparing') {
     if (step1) { step1.classList.add('completed'); if (step1Icon) step1Icon.innerHTML = checkSvg; }
@@ -2441,8 +2469,8 @@ function updateOrdersStepperUI(status = 'pending', order = null) {
     if (fill) fill.style.width = '50%';
     if (descEl) {
       if (isDineIn) descEl.textContent = `طهاة المطعم يجهزون وجبتك الساخنة الآن لتقديمها لطاولة (${tableNumber || '1'}).`;
-      else if (isTakeaway) descEl.textContent = 'جاري تحضير طلبك وتعليبه بعناية ليكون ساخناً وجاهزاً فور وصولك للفرع.';
-      else descEl.textContent = 'طهاة المطعم يجهزون وجبتك الطازجة الآن بأعلى معايير الجودة.';
+      else if (isTakeaway) descEl.textContent = isStoreStepper ? 'جاري فحص وتغليف منتجاتك بعناية لتكون جاهزة فور وصولك للمتجر.' : 'جاري تحضير طلبك وتعليبه بعناية ليكون ساخناً وجاهزاً فور وصولك للفرع.';
+      else descEl.textContent = isStoreStepper ? 'فريق المتجر يقوم الآن بتجهيز وتغليف طلبك بأعلى جودة.' : 'طهاة المطعم يجهزون وجبتك الطازجة الآن بأعلى معايير الجودة.';
     }
   } else if (status === 'out_for_delivery') {
     if (step1) { step1.classList.add('completed'); if (step1Icon) step1Icon.innerHTML = checkSvg; }
@@ -2451,8 +2479,8 @@ function updateOrdersStepperUI(status = 'pending', order = null) {
     if (fill) fill.style.width = '75%';
     if (descEl) {
       if (isDineIn) descEl.textContent = `وجبتك جاهزة تماماً! طاقم الخدمة يقدمها الآن إلى طاولة رقم (${tableNumber || '1'}).`;
-      else if (isTakeaway) descEl.textContent = 'طلبك جاهز تماماً الآن على كاونتر الاستلام بالفرع، تفضل بالاستلام.';
-      else descEl.textContent = 'الكابتن استلم وجبتك وهو في الطريق إلى عنوانك الآن.';
+      else if (isTakeaway) descEl.textContent = isStoreStepper ? 'طلبك جاهز تماماً الآن للاستلام من المتجر، تفضل بالاستلام.' : 'طلبك جاهز تماماً الآن على كاونتر الاستلام بالفرع، تفضل بالاستلام.';
+      else descEl.textContent = isStoreStepper ? 'مندوب الشحن استلم طلبك وهو في الطريق إلى عنوانك الآن.' : 'الكابتن استلم وجبتك وهو في الطريق إلى عنوانك الآن.';
     }
   } else if (status === 'delivered') {
     if (step1) { step1.classList.add('completed'); if (step1Icon) step1Icon.innerHTML = checkSvg; }
@@ -2462,12 +2490,12 @@ function updateOrdersStepperUI(status = 'pending', order = null) {
     if (fill) fill.style.width = '100%';
     if (descEl) {
       if (isDineIn) descEl.textContent = `بالهناء والشفاء! نتمنى لك تجربة طعام رائعة في ضيافتنا، أهلاً بك دائماً.`;
-      else if (isTakeaway) descEl.textContent = 'تم تسليمك الطلب بالفرع بنجاح، بالهناء والشفاء وسعداء بزيارتك دائماً.';
-      else descEl.textContent = 'تم تسليم الطلب بنجاح إلى باب منزلك! بالهناء والشفاء، سعداء بخدمتك دائماً.';
+      else if (isTakeaway) descEl.textContent = isStoreStepper ? 'تم تسليمك الطلب بنجاح، سعداء بتسوقك معنا دائماً.' : 'تم تسليمك الطلب بالفرع بنجاح، بالهناء والشفاء وسعداء بزيارتك دائماً.';
+      else descEl.textContent = isStoreStepper ? 'تم تسليم الطلب بنجاح إلى عنوانك! سعداء بتسوقك من متجرنا دائماً.' : 'تم تسليم الطلب بنجاح إلى باب منزلك! بالهناء والشفاء، سعداء بخدمتك دائماً.';
     }
   } else if (status === 'cancelled') {
     if (fill) fill.style.width = '0%';
-    if (descEl) descEl.textContent = (typeof window.t === 'function' ? window.t('desc_cancelled') : 'تم إلغاء هذا الطلب من قِبل إدارة المطعم.');
+    if (descEl) descEl.textContent = isStoreStepper ? 'تم إلغاء هذا الطلب من قِبل إدارة المتجر.' : (typeof window.t === 'function' ? window.t('desc_cancelled') : 'تم إلغاء هذا الطلب من قِبل إدارة المطعم.');
   }
 }
 
@@ -2738,13 +2766,14 @@ function closeQrModal(updateHistory = true) {
 
 function shareMenuLink() {
   const settings = Store.getSettings();
-  const title = settings.storeName || 'منيو المطعم';
+  const isStoreShare = (settings && settings.businessType === 'store') || (window.NicheEngine && NicheEngine.isStoreMode());
+  const title = settings.storeName || (isStoreShare ? 'المتجر الإلكتروني' : 'منيو المطعم');
   const url = window.location.href;
 
   if (navigator.share) {
     navigator.share({
       title: title,
-      text: `تفضل بزيارة قائمة طعام ${title} والطلب أونلاين:`,
+      text: isStoreShare ? `تفضل بزيارة متجر ${title} والتسوق أونلاين:` : `تفضل بزيارة قائمة طعام ${title} والطلب أونلاين:`,
       url: url
     }).catch(() => {});
   } else {

@@ -8268,3 +8268,35 @@ html[dir="ltr"] .preview-desc {
   justify-content: center;
   box-shadow: 0 8px 24px rgba(239, 68, 68, 0.35);
 }
+
+/* ── Store Mode: Clean E-Commerce Cover & Suppress Restaurant Dine-In Controls ── */
+.portfolio-cover-wrap.store-default-cover {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 55%, #0f172a 100%) !important;
+  position: relative;
+}
+.portfolio-cover-wrap.store-default-cover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 75% 25%, rgba(249, 115, 22, 0.18), transparent 55%);
+  pointer-events: none;
+}
+
+[data-business-type="store"] #fulfillment-tab-dinein,
+[data-business-type="store"] [data-type="dinein"],
+[data-business-type="store"] #dinein-table-box,
+[data-business-type="store"] #cart-table-number-group,
+[data-business-type="store"] #table-number-input,
+[data-business-type="store"] .table-picker-modal,
+[data-business-type="store"] #table-indicator-pill,
+[data-business-type="store"] #pos-type-dinein-btn,
+[data-business-type="store"] .pos-type-toggle,
+[data-business-type="store"] #pos-table-selector-wrap,
+[data-business-type="store"] .btn-filter-archive[data-archive-filter="dine_in"],
+[data-business-type="store"] #card-tables-management {
+  display: none !important;
+}
+[data-business-type="store"] #pos-takeaway-wrap {
+  display: block !important;
+}
+

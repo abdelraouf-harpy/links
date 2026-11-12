@@ -498,8 +498,10 @@
       status_preparing: 'جاري التجهيز والتغليف',
       status_out_for_delivery: 'تم الشحن / مع المندوب',
       status_delivered: 'تم التسليم',
-      fulfillment_takeaway: 'استلام من الفرع',
+      fulfillment_takeaway: 'استلام من المتجر',
       fulfillment_delivery: 'شحن وتوصيل',
+      takeaway_banner_title: 'استلام مباشر من المتجر (بدون رسوم توصيل)',
+      ful_takeaway_desc: 'استلام طلبك مباشرة من مقر المتجر بدون رسوم شحن',
       add_product: 'إضافة منتج جديد',
       edit_product: 'تعديل المنتج',
       product_name: 'اسم المنتج',
@@ -509,12 +511,37 @@
       store_open_247: 'مفتوح 24 ساعة لاستقبال الطلبات',
       store_open_banner: 'نستقبل طلباتكم الآن ونشحن بسرعة وأمان',
       store_closed_now: 'متوقف مؤقتاً',
+      store_closed_title: 'المتجر متوقف حالياً عن استقبال الطلبات',
+      store_closed_msg: 'عذراً، المتجر لا يستقبل طلبات جديدة حالياً. يمكنك تصفح المنتجات والأسعار بحرية وسنعاود الاستقبال قريباً.',
       store_closed_banner: 'المتجر متوقف حالياً عن استقبال الطلبات',
       empty_cart: 'سلة التسوق فارغة',
       empty_cart_sub: 'تصفح المنتجات وأضف ما يناسبك للسلة',
-      search_placeholder: 'ابحث عن أي منتج أو قسم...',
+      cart_empty_sub: 'لم تقم بإضافة أي منتجات بعد. تصفح متجرنا واختر ما يناسبك لتبدأ طلبك.',
+      btn_browse_menu_order: 'تصفح المنتجات واطلب الآن',
+      search_placeholder: 'ابحث عن منتج، ماركة، أو قسم...',
       prep_time_placeholder: 'مثال: شحن خلال 24 ساعة',
+      customizer_title: 'تفاصيل واختيارات المنتج',
+      customizer_notes_title: 'ملاحظات خاصة على الطلب',
       customizer_notes_placeholder: 'أضف أي ملاحظات خاصة بالتغليف أو الطلب...',
+      cust_notes_placeholder: 'أي تفاصيل خاصة بالتغليف أو التوصيل (اختياري)...',
+      order_stepper_step2: 'جاري التغليف',
+      order_btn_send: 'تأكيد وإرسال الطلب للمتجر',
+      menu_language: 'لغة المتجر / Language',
+      account_whatsapp_title: 'محادثة المتجر عبر الواتساب',
+      account_wa_sub: 'تواصل مع خدمة عملاء المتجر مباشرة عبر واتساب',
+      account_qr_sub: 'عرض ومسح كود المتجر المميز',
+      account_menu_share_sub: 'إرسال رابط المتجر عبر تطبيقات التواصل',
+      account_menu_branch: 'تغيير فرع المتجر',
+      portfolio_about_title: 'عن المتجر',
+      portfolio_about_body: 'نوفر لك تشكيلة مختارة من المنتجات الأصلية بأعلى جودة وأفضل سعر، مع تجهيز وتغليف احترافي وشحن سريع لباب بيتك.',
+      orders_wa_support: 'تواصل مع المتجر عبر واتساب',
+      orders_history_hint: 'يمكنك إعادة طلب نفس المنتجات بنقرة واحدة!',
+      onboard_title: 'أهلاً بك في متجرنا!',
+      onboard_save_btn: 'حفظ ومتابعة التسوق',
+      qr_modal_title: 'رمز المتجر الرقمي (QR)',
+      qr_modal_desc: 'امسح رمز الـ QR بكاميرا الهاتف لفتح المتجر ومشاركته مع الأصدقاء فوراً',
+      qr_share_btn: 'مشاركة رابط المتجر',
+      branch_picker_desc: 'يرجى تحديد فرع المتجر القريب منك لتجهيز وتوصيل طلبك بأسرع وقت',
       splash_subtitle: 'جاري تجهيز المتجر...'
     },
     en: {
@@ -531,6 +558,8 @@
       status_delivered: 'Delivered',
       fulfillment_takeaway: 'Store Pickup',
       fulfillment_delivery: 'Shipping & Delivery',
+      takeaway_banner_title: 'Direct Store Pickup (No Delivery Fee)',
+      ful_takeaway_desc: 'Pick up your order directly from our store location',
       add_product: 'Add New Product',
       edit_product: 'Edit Product',
       product_name: 'Product Name',
@@ -540,19 +569,185 @@
       store_open_247: 'Open 24/7 for Orders',
       store_open_banner: 'We are accepting orders now with fast shipping',
       store_closed_now: 'Paused',
+      store_closed_title: 'Store is Currently Paused',
+      store_closed_msg: 'Sorry, we are not accepting new orders right now. Feel free to browse our catalog.',
       store_closed_banner: 'Store is currently paused for orders',
       empty_cart: 'Your shopping cart is empty',
       empty_cart_sub: 'Browse products and add items to your bag',
-      search_placeholder: 'Search products or categories...',
+      cart_empty_sub: 'No products added yet. Browse our catalog and choose what you need.',
+      btn_browse_menu_order: 'Browse Store & Order Now',
+      search_placeholder: 'Search products, brands, or categories...',
       prep_time_placeholder: 'e.g. Ships within 24h',
+      customizer_title: 'Product Options',
+      customizer_notes_title: 'Order & Packing Notes',
       customizer_notes_placeholder: 'Add packing or delivery notes...',
+      cust_notes_placeholder: 'Packing or delivery instructions (optional)...',
+      order_stepper_step2: 'Packing Order',
+      order_btn_send: 'Confirm & Place Order',
+      menu_language: 'Store Language / اللغة',
+      account_whatsapp_title: 'Chat with Store on WhatsApp',
+      account_wa_sub: 'Contact store support directly on WhatsApp',
+      account_qr_sub: 'View and scan our store QR code',
+      account_menu_share_sub: 'Share our store link via social apps',
+      account_menu_branch: 'Change Store Branch',
+      portfolio_about_title: 'About Our Store',
+      portfolio_about_body: 'Carefully curated authentic products at great value with secure packaging and fast delivery.',
+      orders_wa_support: 'Contact Store on WhatsApp',
+      orders_history_hint: 'Reorder the exact same items in one tap!',
+      onboard_title: 'Welcome to Our Store!',
+      onboard_save_btn: 'Save & Start Shopping',
+      qr_modal_title: 'Digital Store QR Code',
+      qr_modal_desc: 'Scan this QR code with your phone camera to open and share our store',
+      qr_share_btn: 'Share Store Link',
+      branch_picker_desc: 'Select your nearest store branch for fast shipping or pickup',
       splash_subtitle: 'Loading storefront...'
     }
   };
 
+  // Ordered longest-first replacements so phrases never partially collide
+  const AR_STORE_REPLACEMENTS = [
+    ['في مطعمنا بنقدملك طعم أصيل ووصفات مميزة بأجود المكونات وبدون أي تنازلات على الجودة. كل وجبة بتحكي قصة نكهة من قلب المطبخ.', 'نوفر لك تشكيلة مختارة من المنتجات الأصلية بأعلى جودة وأفضل سعر، مع تجهيز وتغليف احترافي وشحن سريع لباب بيتك.'],
+    ['طهاة المطعم يجهزون وجبتك الساخنة الآن لتقديمها لطاولتك.', 'فريق المتجر يراجع ويجهز طلبك الآن بعناية.'],
+    ['طهاة المطعم يجهزون وجبتك الطازجة الآن بأعلى معايير الجودة.', 'فريق المتجر يجهز ويغلف منتجاتك الآن بأعلى عناية.'],
+    ['طهاة المطعم بدأوا في تجهيز وطهي الوجبات', 'فريق المتجر بدأ في تجهيز وتغليف المنتجات'],
+    ['طلبك وصل إلى طهاة المطعم وبدأوا بتجهيزه الآن', 'طلبك وصل لفريق المتجر وبدأنا تجهيزه وتغليفه الآن'],
+    ['عذراً، المطعم لا يستقبل طلبات جديدة في الوقت الحالي. يمكنك تصفح قائمة الطعام والأسعار بحرية، وسنعاود استقبال الطلبات قريباً!', 'عذراً، المتجر لا يستقبل طلبات جديدة في الوقت الحالي. يمكنك تصفح المنتجات والأسعار بحرية، وسنعاود الاستقبال قريباً!'],
+    ['تصفح قائمة الطعام والوجبات أونلاين، واطلب مباشرة بكل سهولة عبر واتساب مع خدمة التوصيل والاستلام.', 'تصفح المنتجات والعروض أونلاين، واطلب مباشرة بكل سهولة مع خدمة الشحن والاستلام.'],
+    ['تصفح قائمة الطعام والوجبات أونلاين واطلب مباشرة عبر واتساب.', 'تصفح المنتجات أونلاين واطلب مباشرة بكل سهولة.'],
+    ['تظهر هذه النبذة للعملاء في تبويب "الرئيسية" لتعريف الزبائن بالمطعم وجودة المأكولات.', 'تظهر هذه النبذة للعملاء في تبويب "الرئيسية" لتعريف العملاء بالمتجر وجودة المنتجات.'],
+    ['لم تقم بإضافة أي وجبات بعد. تصفح قائمتنا الشهية واختر ما تشتهيه لتبدأ طلبك.', 'لم تقم بإضافة أي منتجات بعد. تصفح متجرنا واختر ما يناسبك لتبدأ طلبك.'],
+    ['شكراً لطلبك من مطعمنا ونرجو لك وجبة شهية', 'شكراً لتسوقك من متجرنا ونتمنى لك تجربة رائعة'],
+    ['بالهناء والشفاء! نتمنى لك تجربة طعام رائعة في ضيافتنا.', 'تم تسليم طلبك بنجاح! شكراً لثقتك في متجرنا.'],
+    ['ابدأ بإضافة أول صنف أو وجبة في منيو مطعمك وحدد السعر والصورة والأقسام بسهولة', 'ابدأ بإضافة أول منتج في متجرك وحدد السعر والكمية والصورة والقسم بسهولة'],
+    ['بحث سريع عن وجبة، صنف، أو مشروب', 'بحث سريع عن منتج، ماركة، أو قسم...'],
+    ['ابحث في المنيو (مثال: برجر، وجبات، صوص)', 'ابحث عن منتج، ماركة، أو قسم...'],
+    ['ملاحظة للمطبخ (اختياري: بدون بصل، شطة زيادة...)', 'ملاحظة على الطلب أو التغليف (اختياري)...'],
+    ['ملاحظات خاصة للشيف (اختياري)...', 'ملاحظات خاصة بالطلب أو التغليف (اختياري)...'],
+    ['يكمل وجبتك (إضافات ومشروبات مقترحة):', 'خيارات ومكملات مقترحة مع المنتج:'],
+    ['مكونات الطبق وملاحظات المطبخ', 'وصف ومواصفات المنتج'],
+    ['وصف ومكونات الصنف', 'وصف ومواصفات المنتج'],
+    ['اكتب تفاصيل المكونات والنكهات', 'اكتب مواصفات وتفاصيل المنتج'],
+    ['تكلفة الخامات (المطبخ)', 'تكلفة البضاعة'],
+    ['تكلفة الخامات (COGS)', 'تكلفة البضاعة'],
+    ['تكلفة استهلاك الخامات (COGS):', 'تكلفة البضاعة المباعة:'],
+    ['المطبخ جاهز ونظيف! لا توجد طلبات', 'لا توجد طلبات واردة حالياً'],
+    ['← العودة لاختيار أصناف أخرى من المنيو', '← العودة لاختيار منتجات أخرى'],
+    ['حفظ وإرسال للمطبخ وطباعة', 'تأكيد الفاتورة وطباعة'],
+    ['تم تسليم الوجبات بنجاح وتحصيل الحساب', 'تم تسليم المنتجات بنجاح وتحصيل الحساب'],
+    ['تم التسليم بالهناء والشفاء', 'تم تسليم الطلب بنجاح'],
+    ['يتم طهي وتغليف الوجبات الطازجة لك', 'يتم تجهيز وتغليف المنتجات المطلوبة لك'],
+    ['المطبخ يجهز طلبك الآن', 'جاري تجهيز وتغليف طلبك الآن'],
+    ['بدء التجهيز بالمطبخ', 'بدء التجهيز والتغليف'],
+    ['طلبات المطبخ والتجهيز', 'الطلبات الواردة والتجهيز'],
+    ['كاشير الصالة والسفري (POS)', 'كاشير المبيعات (POS)'],
+    ['كاشير الصالة والسفري', 'كاشير المبيعات المباشر'],
+    ['إدارة المنيو والأصناف', 'إدارة المنتجات والكتالوج'],
+    ['أقسام وتصنيفات المنيو', 'أقسام وتصنيفات المتجر'],
+    ['تنظيم وترتيب مجموعات الوجبات والأصناف داخل منيو المطعم', 'تنظيم وترتيب أقسام المنتجات داخل المتجر'],
+    ['ربط القصة بصنف من المنيو', 'ربط القصة بمنتج من المتجر'],
+    ['اضغط لاختيار صنف من المنيو (بدون ربط حالياً)', 'اضغط لاختيار منتج من المتجر (بدون ربط حالياً)'],
+    ['ابحث عن صنف بالاسم أو الوصف', 'ابحث عن منتج بالاسم أو الماركة'],
+    ['بحث باسم الصنف أو الوصف', 'بحث باسم المنتج أو الوصف'],
+    ['ظهور الصنف في المنيو (متاح للزبائن)', 'ظهور المنتج في المتجر (متاح للعملاء)'],
+    ['إبراز هذا الصنف كاختيار رئيسي (Hero)', 'إبراز هذا المنتج كمنتج مميز (Hero)'],
+    ['تشغيل المطعم، مواعيد العمل والطباعة الحرارية', 'تشغيل المتجر، الشحن والطباعة الحرارية'],
+    ['التحكم في فتح وإغلاق استقبال الطلبات، أوقات العمل التقديرية، وإعدادات طابعات فواتير الكاشير والمطبخ.', 'التحكم في فتح وإغلاق استقبال الطلبات، مدة الشحن، سياسة الاسترجاع، وإعدادات طابعات الفواتير.'],
+    ['إيقاف استقبال الطلبات مؤقتاً (المطعم مغلق حالياً)', 'إيقاف استقبال الطلبات مؤقتاً (المتجر متوقف حالياً)'],
+    ['المطعم متوقف حالياً عن استقبال الطلبات', 'المتجر متوقف حالياً عن استقبال الطلبات'],
+    ['إعداد المطعم في انتظار الاستكمال', 'إعداد المتجر في انتظار الاستكمال'],
+    ['يرجى ضبط اسم المطعم ورقم الواتساب لاستقبال طلبات الزبائن مباشرة:', 'يرجى ضبط اسم المتجر ورقم الواتساب لاستقبال طلبات العملاء مباشرة:'],
+    ['انتهت صلاحية اشتراك هذا المطعم', 'انتهت صلاحية اشتراك هذا المتجر'],
+    ['حساب المطعم مجمّد / موقوف مؤقتاً', 'حساب المتجر مجمّد / موقوف مؤقتاً'],
+    ['استعادة المنيو الافتراضي الأولي', 'استعادة بيانات المتجر الافتراضية'],
+    ['أشهى المشويات، البرجر الفاخر', 'براند متخصص في تقديم أفضل المنتجات'],
+    ['فروع المطاعم المتصلة', 'فروع المتجر المتصلة'],
+    ['هوية المطعم والشعار وصور الواجهة', 'هوية المتجر والشعار وصور الواجهة'],
+    ['عن المطعم وقصتنا (تظهر في الرئيسية)', 'عن المتجر وقصتنا (تظهر في الرئيسية)'],
+    ['عن المطعم وقصتنا', 'عن المتجر وقصتنا'],
+    ['سجّل فروع مطعمك المختلفة لتتيح للزبائن في الديلفري اختيار أقرب فرع', 'سجّل فروع متجرك المختلفة لتتيح للعملاء اختيار أقرب فرع'],
+    ['التوصيل والطاولات والفروع', 'الشحن والتوصيل والفروع'],
+    ['معاينة المنيو للزبائن', 'معاينة المتجر للعملاء'],
+    ['معاينة المنيو', 'معاينة المتجر'],
+    ['استلام من فرع المطعم', 'استلام من المتجر'],
+    ['استلام من كاونتر المطعم', 'استلام من مقر المتجر'],
+    ['سفري (تيك أواي)', 'استلام من المتجر'],
+    ['طلب سفري (تيك أواي) — استلام من الفرع', 'استلام مباشر من المتجر'],
+    ['إعادة للمطبخ', 'إعادة للطلبات النشطة'],
+    ['المنيو والمخزون', 'المنتجات والأقسام'],
+    ['المنيو الإلكتروني', 'المتجر الإلكتروني'],
+    ['قائمة الطعام والوجبات', 'المنتجات والكتالوج'],
+    ['قائمة الطعام والطلبات', 'المتجر والطلبات'],
+    ['قائمة الطعام', 'قائمة المنتجات'],
+    ['تصفح المنيو', 'تصفح المنتجات'],
+    ['في المطبخ', 'جاري التغليف'],
+    ['ملاحظات خاصة للشيف', 'ملاحظات خاصة للطلب'],
+    ['أهلاً بك في مطعمنا!', 'أهلاً بك في متجرنا!'],
+    ['اسم الوجبة', 'اسم المنتج'],
+    ['تخصيص الوجبة', 'تفاصيل المنتج'],
+    ['وجبتك المفضلة', 'منتجك المفضّل'],
+    ['اسم المطعم الحالي:', 'اسم المتجر الحالي:'],
+    ['اسم المطعم مطلوب', 'اسم المتجر مطلوب'],
+    ['اسم المطعم', 'اسم المتجر'],
+    ['شعار المطعم', 'شعار المتجر'],
+    ['غلاف المطعم', 'غلاف المتجر'],
+    ['عن المطعم', 'عن المتجر'],
+    ['فرع المطعم', 'فرع المتجر'],
+    ['تواصل مع المطعم', 'تواصل مع المتجر'],
+    ['محادثة المطعم', 'محادثة المتجر'],
+    ['إدارة المطعم', 'إدارة المتجر'],
+    ['المطعم مفتوح', 'المتجر متاح'],
+    ['المطعم مغلق', 'المتجر متوقف'],
+    ['فتح المنيو', 'فتح المتجر'],
+    ['نسخ رابط المنيو', 'نسخ رابط المتجر'],
+    ['كود المنيو', 'كود المتجر'],
+    ['رابط المنيو', 'رابط المتجر'],
+    ['أقسام المنيو', 'أقسام المتجر'],
+    ['صنف من المنيو', 'منتج من المتجر'],
+    ['حذف صنف من المنيو', 'حذف منتج من المتجر'],
+    ['إضافة صنف جديد', 'إضافة منتج جديد'],
+    ['تعديل الصنف', 'تعديل المنتج'],
+    ['اسم الصنف', 'اسم المنتج'],
+    ['إظهار الصنف في المنيو', 'إظهار المنتج في المتجر'],
+    ['إخفاء الصنف من المنيو', 'إخفاء المنتج من المتجر'],
+    ['صنف جديد', 'منتج جديد'],
+    ['الأصناف المختارة', 'المنتجات المختارة'],
+    ['الأصناف والأقسام', 'المنتجات والأقسام'],
+    ['الأصناف', 'المنتجات'],
+    ['الصنف', 'المنتج'],
+    ['0 صنف', '0 منتج'],
+    ['اضغط على أي صنف', 'اضغط على أي منتج'],
+    ['وجبات', 'منتجات'],
+    ['وجبة', 'منتج'],
+    ['مطبخنا', 'متجرنا'],
+    ['مطعمنا', 'متجرنا'],
+    ['مطعمك', 'متجرك'],
+    ['المطعم', 'المتجر'],
+    ['مطعم', 'متجر'],
+    ['المنيو قيد الإعداد', 'المتجر قيد الإعداد'],
+    ['لغة المنيو', 'لغة المتجر'],
+    ['المنيو', 'المتجر'],
+    ['منيو', 'المتجر'],
+    ['المطبخ', 'قسم التجهيز'],
+    ['مطبخ', 'تجهيز']
+  ];
+
+  const EN_STORE_REPLACEMENTS = [
+    ['Our Kitchen', 'Our Store'],
+    ['In Kitchen', 'Packing Order'],
+    ['Restaurant Menu', 'Online Store'],
+    ['Browse Menu', 'Browse Products'],
+    ['Menu', 'Store'],
+    ['Kitchen', 'Fulfillment'],
+    ['Meal', 'Product'],
+    ['Meals', 'Products'],
+    ['Restaurant', 'Store']
+  ];
+
   function getBusinessType(settings) {
-    const s = settings || (window.Store && typeof window.Store.getSettings === 'function' ? window.Store.getSettings() : {}) || {};
-    return (s.businessType === 'store') ? 'store' : 'restaurant';
+    const s = settings || (typeof window.Store !== 'undefined' && window.Store && typeof window.Store.getSettings === 'function' ? window.Store.getSettings() : {}) || {};
+    if (s.businessType === 'store') return 'store';
+    if (typeof document !== 'undefined' && document.documentElement && document.documentElement.getAttribute('data-business-type') === 'store') return 'store';
+    return 'restaurant';
   }
 
   function isStoreMode(settings) {
@@ -560,141 +755,135 @@
   }
 
   function getTerm(key, lang, settings) {
-    const l = lang || (window.I18n && typeof window.I18n.getLanguage === 'function' ? window.I18n.getLanguage() : 'ar');
-    if (isStoreMode(settings)) {
-      const dict = STORE_TERMINOLOGY[l === 'en' ? 'en' : 'ar'];
-      if (dict && dict[key]) return dict[key];
-    }
-    return null;
+    if (!isStoreMode(settings)) return null;
+    const isEn = (lang === 'en') || (typeof lang === 'undefined' && window.I18n && typeof window.I18n.getLanguage === 'function' && window.I18n.getLanguage() === 'en');
+    const dict = isEn ? STORE_TERMINOLOGY.en : STORE_TERMINOLOGY.ar;
+    return dict[key] || null;
   }
 
-  function getStatusLabel(status, settings, lang) {
-    const isStore = isStoreMode(settings);
-    const l = (lang === 'en') ? 'en' : 'ar';
-    if (isStore) {
-      const key = 'status_' + status;
-      if (STORE_TERMINOLOGY[l][key]) return STORE_TERMINOLOGY[l][key];
-    }
-    const restMap = {
-      ar: { pending: 'جديد', preparing: 'جاري التحضير', out_for_delivery: 'جاري التوصيل', delivered: 'تم التسليم', cancelled: 'ملغي' },
-      en: { pending: 'New', preparing: 'Preparing', out_for_delivery: 'Out for Delivery', delivered: 'Delivered', cancelled: 'Cancelled' }
-    };
-    return (restMap[l] && restMap[l][status]) || status;
+  function getStatusLabel(statusKey, lang, settings) {
+    return getTerm('status_' + statusKey, lang, settings);
   }
+
+  function adaptText(text, lang, settings) {
+    if (!text || typeof text !== 'string') return text;
+    if (!isStoreMode(settings)) return text;
+    const isEn = (lang === 'en') || (typeof lang === 'undefined' && window.I18n && typeof window.I18n.getLanguage === 'function' && window.I18n.getLanguage() === 'en');
+    const pairs = isEn ? EN_STORE_REPLACEMENTS : AR_STORE_REPLACEMENTS;
+    let out = text;
+    for (let i = 0; i < pairs.length; i++) {
+      if (out.includes(pairs[i][0])) {
+        out = out.split(pairs[i][0]).join(pairs[i][1]);
+      }
+    }
+    return out;
+  }
+
+  let _applyingTerminology = false;
+  let _termObserverAttached = false;
+  let _termTimer = null;
 
   function applyTerminology(settings) {
-    if (typeof document === 'undefined') return;
+    if (typeof document === 'undefined' || _applyingTerminology) return;
     const s = settings || (window.Store && typeof window.Store.getSettings === 'function' ? window.Store.getSettings() : {}) || {};
     const bType = getBusinessType(s);
     const isStore = (bType === 'store');
     const lang = (window.I18n && typeof window.I18n.getLanguage === 'function') ? window.I18n.getLanguage() : 'ar';
 
     document.documentElement.setAttribute('data-business-type', bType);
+    if (document.body) document.body.setAttribute('data-business-type', bType);
 
     if (!isStore) return;
 
-    // 1. Update data-i18n elements with store terminology where applicable
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-      const k = el.getAttribute('data-i18n');
-      const term = getTerm(k, lang, s);
-      if (term) el.textContent = term;
-    });
-
-    // 2. Targeted selector text adaptations (works cleanly even on static Arabic elements without breaking event listeners)
-    const replacePairs = [
-      ['قائمة الطعام', 'المنتجات'],
-      ['المنيو الإلكتروني', 'المتجر الإلكتروني'],
-      ['تصفح المنيو', 'تصفح المنتجات'],
-      ['المطبخ والطلبات', 'إدارة الطلبات والشحن'],
-      ['شاشة المطبخ', 'الطلبات الواردة'],
-      ['طلبات المطبخ', 'الطلبات الواردة'],
-      ['الوجبات والمنيو', 'المنتجات والأقسام'],
-      ['الوجبات والمشروبات', 'المنتجات'],
-      ['الوجبات', 'المنتجات'],
-      ['صنف جديد', 'منتج جديد'],
-      ['إضافة صنف جديد', 'إضافة منتج جديد'],
-      ['تعديل الصنف', 'تعديل المنتج'],
-      ['اسم الصنف', 'اسم المنتج'],
-      ['وقت التحضير', 'مدة التجهيز / الشحن'],
-      ['المطعم مغلق', 'المتجر متوقف'],
-      ['المطعم مفتوح', 'المتجر متاح'],
-      ['جاري فتح المنيو...', 'جاري فتح المتجر...'],
-      ['ابحث في المنيو', 'ابحث في المنتجات']
-    ];
-
-    const selectiveContainers = [
-      '#nav-tab-menu .nav-tab-label',
-      '#desktop-nav-menu',
-      '#drawer-nav-orders .drawer-nav-label',
-      '#drawer-nav-catalog .drawer-nav-label',
-      '.admin-tab-btn[data-tab="tab-orders"] span',
-      '.admin-tab-btn[data-tab="tab-catalog"] span',
-      '#btn-hero-browse-menu',
-      '#menu-section-title',
-      '#search-input',
-      '#prod-notes-input',
-      '#splash-subtitle',
-      '#fulfillment-tab-takeaway span',
-      '[data-type="takeaway"] span'
-    ];
-
-    // Direct safe replacements on known semantic labels
-    const searchEl = document.getElementById('search-input');
-    if (searchEl && searchEl.placeholder && searchEl.placeholder.includes('المنيو')) {
-      searchEl.placeholder = getTerm('search_placeholder', lang, s);
-    }
-    const navMenuLabel = document.querySelector('#nav-tab-menu .nav-tab-label');
-    if (navMenuLabel) navMenuLabel.textContent = getTerm('nav_menu', lang, s);
-    const deskNavMenu = document.getElementById('desktop-nav-menu');
-    if (deskNavMenu) {
-      const sp = deskNavMenu.querySelector('span') || deskNavMenu;
-      if (sp.childNodes.length === 1 && sp.childNodes[0].nodeType === 3) sp.textContent = getTerm('nav_menu', lang, s);
-    }
-
-    // Walk text nodes inside targeted UI headers & buttons (fast & non-destructive)
-    const adminOrClientLabels = document.querySelectorAll(
-      '.admin-tab-btn, .drawer-nav-btn, .section-heading, .section-title, .card-title, .btn, label.form-label, .form-toggle-chip span, .cart-empty-state h3, .cart-empty-state p, .step-title, .fulfillment-tab, .sheet-header-title'
-    );
-    adminOrClientLabels.forEach(el => {
-      el.childNodes.forEach(node => {
-        if (node.nodeType === 3 && node.nodeValue && node.nodeValue.trim()) {
-          let txt = node.nodeValue;
-          let changed = false;
-          for (let i = 0; i < replacePairs.length; i++) {
-            if (txt.includes(replacePairs[i][0])) {
-              txt = txt.split(replacePairs[i][0]).join(replacePairs[i][1]);
-              changed = true;
-            }
-          }
-          if (changed) node.nodeValue = txt;
-        }
-      });
-    });
-
-    // Replace takeaway label cleanly
-    document.querySelectorAll('#fulfillment-tab-takeaway, [data-type="takeaway"]').forEach(el => {
-      el.childNodes.forEach(n => {
-        if (n.nodeType === 3 && /تيك\s*أواي|الاستلام\s*من\s*المطعم/i.test(n.nodeValue)) {
-          n.nodeValue = ' ' + getTerm('fulfillment_takeaway', lang, s) + ' ';
-        }
-      });
-    });
-
-    // Update page <title> if it still contains "منيو" or "Harpy Order" on custom domain
+    _applyingTerminology = true;
     try {
-      const storeName = (s.storeName || s.name || '').split('|')[0].trim();
-      const onCustomDomain = !isPlatformHost(window.location.hostname);
-      if (storeName) {
-        if (document.title && (document.title.includes('منيو') || onCustomDomain)) {
-          const isAdmin = /\/admin(\/|$|\.html)/i.test(window.location.pathname || '');
-          document.title = isAdmin ? `لوحة الإدارة — ${storeName}` : `${storeName} — ${getTerm('nav_menu', lang, s)}`;
+      // 1. Update data-i18n / data-i18n-placeholder / data-i18n-title elements
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const k = el.getAttribute('data-i18n');
+        const term = getTerm(k, lang, s);
+        if (term) el.textContent = term;
+      });
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const k = el.getAttribute('data-i18n-placeholder');
+        const term = getTerm(k, lang, s);
+        if (term) el.setAttribute('placeholder', term);
+      });
+      document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        const k = el.getAttribute('data-i18n-title');
+        const term = getTerm(k, lang, s);
+        if (term) {
+          el.setAttribute('title', term);
+          el.setAttribute('aria-label', term);
         }
-      }
-    } catch (e) {}
+      });
 
-    // Swap culinary cloche icon in splash screen to clean shopping bag icon when in store mode
-    const splashLogoFallback = document.getElementById('splash-brand-bag-fallback');
-    if (splashLogoFallback) splashLogoFallback.style.display = 'inline-flex';
+      // 2. Replace restaurant showcase cover image if no custom store cover was uploaded
+      const coverImg = document.getElementById('portfolio-cover-img');
+      if (coverImg && coverImg.getAttribute('src') && coverImg.getAttribute('src').includes('order_restaurant_showcase.jpg') && !s.coverImage && !s.coverUrl) {
+        coverImg.style.display = 'none';
+        if (coverImg.parentElement) coverImg.parentElement.classList.add('store-default-cover');
+      }
+
+      // 3. Whole-DOM safe TreeWalker pass over text nodes & interactive attributes
+      if (document.body && typeof document.createTreeWalker === 'function') {
+        const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+          acceptNode(node) {
+            if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+            const p = node.parentElement;
+            if (!p) return NodeFilter.FILTER_REJECT;
+            const tag = p.tagName;
+            if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'NOSCRIPT' || tag === 'TEXTAREA') return NodeFilter.FILTER_REJECT;
+            if (p.closest('#set-store-name, #set-store-tagline, #set-about-text, .food-item-title, .food-item-desc')) return NodeFilter.FILTER_REJECT;
+            return NodeFilter.FILTER_ACCEPT;
+          }
+        });
+        let node;
+        while ((node = walker.nextNode())) {
+          const next = adaptText(node.nodeValue, lang, s);
+          if (next !== node.nodeValue) node.nodeValue = next;
+        }
+
+        // Adapt placeholder, title, alt, aria-label attributes
+        document.querySelectorAll('[placeholder], [title], [alt], [aria-label]').forEach(el => {
+          ['placeholder', 'title', 'alt', 'aria-label'].forEach(attr => {
+            const val = el.getAttribute(attr);
+            if (!val) return;
+            const adapted = adaptText(val, lang, s);
+            if (adapted !== val) el.setAttribute(attr, adapted);
+          });
+        });
+      }
+
+      // 4. Update page <title> & meta descriptions
+      try {
+        const storeName = (s.storeName || s.name || '').split('|')[0].trim();
+        const onCustomDomain = !isPlatformHost(window.location.hostname);
+        if (storeName) {
+          if (document.title && (document.title.includes('منيو') || document.title.includes('طعام') || document.title.includes('مطعم') || onCustomDomain)) {
+            const isAdmin = /\/admin(\/|$|\.html)/i.test(window.location.pathname || '');
+            document.title = isAdmin ? `لوحة إدارة ${storeName}` : `${storeName} — ${getTerm('nav_menu', lang, s)}`;
+          }
+        }
+      } catch (e) {}
+
+      const splashLogoFallback = document.getElementById('splash-brand-bag-fallback');
+      if (splashLogoFallback) splashLogoFallback.style.display = 'inline-flex';
+    } finally {
+      _applyingTerminology = false;
+    }
+
+    // 5. Watch future dynamic renders (throttled) so late modals/cards never flash restaurant words
+    if (!_termObserverAttached && document.body && typeof MutationObserver === 'function') {
+      _termObserverAttached = true;
+      const obs = new MutationObserver(() => {
+        if (_applyingTerminology) return;
+        if (_termTimer) clearTimeout(_termTimer);
+        _termTimer = setTimeout(() => {
+          applyTerminology();
+        }, 60);
+      });
+      obs.observe(document.body, { childList: true, subtree: true });
+    }
   }
 
   window.NicheEngine = {
@@ -722,6 +911,7 @@
     getBusinessType,
     isStoreMode,
     getTerm,
+    adaptText,
     getStatusLabel,
     applyTerminology
   };

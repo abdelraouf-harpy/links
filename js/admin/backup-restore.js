@@ -105,7 +105,8 @@ function setupBackupAndRestore() {
       reader.onload = async (ev) => {
         try {
           await Store.importAllDataJSON(ev.target.result);
-          showToastNotification("تم استرجاع كافة بيانات المنيو بنجاح!", "success");
+          const isStoreBkp = !!(window.NicheEngine && typeof NicheEngine.isStoreMode === 'function' && NicheEngine.isStoreMode());
+          showToastNotification(isStoreBkp ? "تم استرجاع كافة بيانات المتجر بنجاح!" : "تم استرجاع كافة بيانات المنيو بنجاح!", "success");
           loadAllDashboardData();
         } catch (err) {
           showToastNotification("حدث خطأ أثناء استرجاع الملف: " + err.message, "error");

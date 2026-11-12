@@ -104,36 +104,37 @@ window.openStatusSheet = function(orderId, passedStatus = null) {
   const fInfo = parseOrderFulfillment(currentOrder);
 
   // Dynamically update tile labels & descriptions to match fulfillment type
+  const isStore = !!(window.NicheEngine && typeof NicheEngine.isStoreMode === 'function' && NicheEngine.isStoreMode());
   const tilePending = document.querySelector('.status-option-tile[data-status="pending"]');
   if (tilePending) {
     const nameEl = tilePending.querySelector('.status-option-name');
     const descEl = tilePending.querySelector('.status-option-desc');
-    if (nameEl) nameEl.textContent = fInfo.isDineIn ? '1. استلام وتسجيل الطلب' : (fInfo.isTakeaway ? '1. استلام الطلب بالفرع' : '1. استلام وتأكيد الطلب');
-    if (descEl) descEl.textContent = fInfo.isDineIn ? `الطلب وصل لمطبخ الصالة لطاولة (${fInfo.tableNumber || '1'})` : (fInfo.isTakeaway ? 'الطلب مسجل للاستلام المباشر من الكاونتر' : 'الطلب وصل المطعم وقيد المراجعة');
+    if (nameEl) nameEl.textContent = fInfo.isDineIn ? '1. استلام وتسجيل الطلب' : (fInfo.isTakeaway ? (isStore ? '1. استلام الطلب بالمتجر' : '1. استلام الطلب بالفرع') : '1. استلام وتأكيد الطلب');
+    if (descEl) descEl.textContent = fInfo.isDineIn ? `الطلب وصل لمطبخ الصالة لطاولة (${fInfo.tableNumber || '1'})` : (fInfo.isTakeaway ? 'الطلب مسجل للاستلام المباشر من الكاشير' : (isStore ? 'الطلب وصل المتجر وقيد المراجعة' : 'الطلب وصل المطعم وقيد المراجعة'));
   }
 
   const tilePrep = document.querySelector('.status-option-tile[data-status="preparing"]');
   if (tilePrep) {
     const nameEl = tilePrep.querySelector('.status-option-name');
     const descEl = tilePrep.querySelector('.status-option-desc');
-    if (nameEl) nameEl.textContent = fInfo.isDineIn ? '2. قيد الطهي والتحضير بالمطبخ' : (fInfo.isTakeaway ? '2. تجهيز وتعليب الوجبات' : '2. قيد التجهيز في المطبخ');
-    if (descEl) descEl.textContent = fInfo.isDineIn ? 'طهاة المطعم يجهزون وجبات الطاولة الآن' : (fInfo.isTakeaway ? 'جاري تحضير وتغليف الطلب طازجاً بعناية' : 'طهاة المطعم بدأوا في تجهيز وطهي الوجبات');
+    if (nameEl) nameEl.textContent = fInfo.isDineIn ? '2. قيد الطهي والتحضير بالمطبخ' : ((fInfo.isTakeaway || isStore) ? '2. تجهيز وتغليف الطلب' : '2. قيد التجهيز في المطبخ');
+    if (descEl) descEl.textContent = fInfo.isDineIn ? 'طهاة المطعم يجهزون وجبات الطاولة الآن' : (isStore ? 'جاري فحص وتغليف المنتجات وشحنها بعناية' : (fInfo.isTakeaway ? 'جاري تحضير وتغليف الطلب طازجاً بعناية' : 'طهاة المطعم بدأوا في تجهيز وطهي الوجبات'));
   }
 
   const tileDelivery = document.querySelector('.status-option-tile[data-status="out_for_delivery"]');
   if (tileDelivery) {
     const nameEl = tileDelivery.querySelector('.status-option-name');
     const descEl = tileDelivery.querySelector('.status-option-desc');
-    if (nameEl) nameEl.textContent = fInfo.isDineIn ? `3. تقديم لطاولة ${fInfo.tableNumber || '1'}` : (fInfo.isTakeaway ? '3. جاهز للاستلام بالفرع' : '3. مع الكابتن في الطريق');
-    if (descEl) descEl.textContent = fInfo.isDineIn ? `الوجبات جاهزة ويتم تقديمها لطاولة رقم ${fInfo.tableNumber || '1'}` : (fInfo.isTakeaway ? 'الطلب جاهز على كاونتر الاستلام بانتظار العميل' : 'الكابتن استلم الطلب وهو في الطريق لعنوان العميل');
+    if (nameEl) nameEl.textContent = fInfo.isDineIn ? `3. تقديم لطاولة ${fInfo.tableNumber || '1'}` : (fInfo.isTakeaway ? (isStore ? '3. جاهز للاستلام بالمتجر' : '3. جاهز للاستلام بالفرع') : (isStore ? '3. تم الشحن وفي الطريق' : '3. مع الكابتن في الطريق'));
+    if (descEl) descEl.textContent = fInfo.isDineIn ? `الوجبات جاهزة ويتم تقديمها لطاولة رقم ${fInfo.tableNumber || '1'}` : (fInfo.isTakeaway ? 'الطلب جاهز على مكتب الاستلام بانتظار العميل' : (isStore ? 'مندوب الشحن استلم الطلب وهو في الطريق لعنوان العميل' : 'الكابتن استلم الطلب وهو في الطريق لعنوان العميل'));
   }
 
   const tileDelivered = document.querySelector('.status-option-tile[data-status="delivered"]');
   if (tileDelivered) {
     const nameEl = tileDelivered.querySelector('.status-option-name');
     const descEl = tileDelivered.querySelector('.status-option-desc');
-    if (nameEl) nameEl.textContent = fInfo.isDineIn ? '4. تم التقديم بالهناء والشفاء' : (fInfo.isTakeaway ? '4. تم الاستلام بالفرع' : '4. تم التوصيل بنجاح');
-    if (descEl) descEl.textContent = fInfo.isDineIn ? 'تم إنهاء الخدمة وتقديم الطلب بالكامل للزبون' : (fInfo.isTakeaway ? 'قام العميل باستلام طلبه بنجاح من الفرع' : 'تم تسليم الوجبات بنجاح إلى باب العميل');
+    if (nameEl) nameEl.textContent = fInfo.isDineIn ? '4. تم التقديم بالهناء والشفاء' : (fInfo.isTakeaway ? (isStore ? '4. تم الاستلام من المتجر' : '4. تم الاستلام بالفرع') : '4. تم التوصيل بنجاح');
+    if (descEl) descEl.textContent = fInfo.isDineIn ? 'تم إنهاء الخدمة وتقديم الطلب بالكامل للزبون' : (fInfo.isTakeaway ? 'قام العميل باستلام طلبه بنجاح' : (isStore ? 'تم تسليم الطلب بنجاح إلى عنوان العميل' : 'تم تسليم الوجبات بنجاح إلى باب العميل'));
   }
 
   // Highlight active tile
@@ -656,7 +657,8 @@ window.openOrderInvoiceModal = function(orderOrId) {
   currentInvoiceShift = null;
 
   const settings = Store.getSettings() || {};
-  const storeName = (order && order.storeName) || settings.storeName || settings.name || "مطعم أوردر";
+  const isStoreInv = !!(window.NicheEngine && typeof NicheEngine.isStoreMode === 'function' && NicheEngine.isStoreMode());
+  const storeName = (order && order.storeName) || settings.storeName || settings.name || (isStoreInv ? "متجر أوردر" : "مطعم أوردر");
   const currency = settings.currency || "ج.م";
   const timeStr = order.createdAt 
     ? new Date(order.createdAt).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' }) 
@@ -850,7 +852,8 @@ function executePrintReceipt(order, mode) {
   const paperSize = mode === 'standard' ? 'A4' : (settings.printerPaperSize === '58mm' ? '58mm' : '80mm');
   const is58mm = paperSize === '58mm';
   const isStandard = mode === 'standard';
-  const storeName = (order && order.storeName) || settings.storeName || settings.name || "مطعم أوردر";
+  const isStoreRec = !!(window.NicheEngine && typeof NicheEngine.isStoreMode === 'function' && NicheEngine.isStoreMode());
+  const storeName = (order && order.storeName) || settings.storeName || settings.name || (isStoreRec ? "متجر أوردر" : "مطعم أوردر");
   const currency = settings.currency || "ج.م";
   const timeStr = order.createdAt 
     ? new Date(order.createdAt).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' }) 
@@ -859,11 +862,11 @@ function executePrintReceipt(order, mode) {
   const totalDiscount = parseFloat(order.discount) || (order.discounts ? ((parseFloat(order.discounts.spendTier) || 0) + (parseFloat(order.discounts.promo) || 0) + (parseFloat(order.discounts.wallet) || 0)) : 0);
 
   const fInfo = parseOrderFulfillment(order);
+  const pickupWord = isStoreRec ? 'استلام من المتجر' : 'طلب سفري (تيك أواي) — استلام من الفرع';
+  const deliveryWord = isStoreRec ? 'شحن وتوصيل للعنوان' : 'طلب توصيل منزلي (دليفري)';
   const orderTypeTitle = fInfo.isDineIn
     ? `طلب صالة — طاولة رقم (${fInfo.tableNumber})`
-    : (fInfo.isTakeaway
-        ? `طلب سفري (تيك أواي) — استلام من الفرع`
-        : `طلب توصيل منزلي (دليفري)`);
+    : (fInfo.isTakeaway ? pickupWord : deliveryWord);
 
   let customerInfoBlock = '';
   if (fInfo.isDineIn) {
@@ -874,13 +877,13 @@ function executePrintReceipt(order, mode) {
     `;
   } else if (fInfo.isTakeaway) {
     customerInfoBlock = `
-      <div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>نوع الطلب:</strong> سفري (استلام من الفرع)</div>
+      <div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>نوع الطلب:</strong> ${isStoreRec ? 'استلام مباشر من المتجر' : 'سفري (استلام من الفرع)'}</div>
       <div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>العميل:</strong> ${esc(order.customer?.name || 'عميل نقدي')}</div>
       ${order.customer?.phone && order.customer?.phone !== 'داخلي' ? `<div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>الهاتف:</strong> ${esc(order.customer.phone)}</div>` : ''}
     `;
   } else {
     customerInfoBlock = `
-      <div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>نوع الطلب:</strong> توصيل منزلي (دليفري)</div>
+      <div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>نوع الطلب:</strong> ${deliveryWord}</div>
       <div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>العميل:</strong> ${esc(order.customer?.name || 'عميل نقدي')}</div>
       ${order.customer?.phone && order.customer?.phone !== 'داخلي' ? `<div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>الهاتف:</strong> ${esc(order.customer.phone)}</div>` : ''}
       ${order.customer?.address ? `<div style="font-size:${is58mm ? '9.5px' : '11px'}; margin-bottom:2px;"><strong>العنوان:</strong> ${esc(order.customer.address)}</div>` : ''}
@@ -1477,8 +1480,8 @@ window.renderOrdersList = function(orders = null) {
             </svg>
           </div>
         </div>
-        <div style="font-size:16px; font-weight:800; color:var(--text-main); margin-bottom:4px;">المطبخ جاهز ونظيف! لا توجد طلبات جارية حالياً</div>
-        <div style="font-size:12.5px; color:var(--text-muted); margin-bottom:16px;">أي طلب جديد يتم إرساله من المنيو سيظهر هنا فورياً ومباشرة مع صوت رنين المطبخ.</div>
+        <div style="font-size:16px; font-weight:800; color:var(--text-main); margin-bottom:4px;">${(window.NicheEngine && NicheEngine.isStoreMode()) ? 'لا توجد طلبات قيد التجهيز حالياً' : 'المطبخ جاهز ونظيف! لا توجد طلبات جارية حالياً'}</div>
+        <div style="font-size:12.5px; color:var(--text-muted); margin-bottom:16px;">${(window.NicheEngine && NicheEngine.isStoreMode()) ? 'أي طلب جديد يتم إرساله من المتجر سيظهر هنا فورياً ومباشرة مع صوت تنبيه الطلبات.' : 'أي طلب جديد يتم إرساله من المنيو سيظهر هنا فورياً ومباشرة مع صوت رنين المطبخ.'}</div>
         <button type="button" class="btn btn-ghost btn-sm" onclick="switchTab('tab-archive', true)" style="font-weight:800; font-size:12px; border:1px solid var(--border);">
           ${(window.ModuleEnforcer && window.ModuleEnforcer.modules && window.ModuleEnforcer.modules.shifts === false) ? 'مراجعة أرشيف الفواتير ←' : 'مراجعة أرشيف الفواتير والورديات ←'}
         </button>
@@ -1572,7 +1575,7 @@ window.renderOrdersList = function(orders = null) {
     `).join('');
 
     const phoneRaw = (o.customer?.phone || '').replace(/[^0-9]/g, '');
-    const waUrl = phoneRaw ? `https://wa.me/${phoneRaw.startsWith('0') ? '2' + phoneRaw : phoneRaw}?text=${encodeURIComponent(`مرحباً أستاذ ${o.customer?.name || ''}، بخصوص طلبك رقم ${safeOrderId} من المطعم`)}` : '#';
+    const waUrl = phoneRaw ? `https://wa.me/${phoneRaw.startsWith('0') ? '2' + phoneRaw : phoneRaw}?text=${encodeURIComponent(`مرحباً أستاذ ${o.customer?.name || ''}، بخصوص طلبك رقم ${safeOrderId} من ${isStoreMode ? 'المتجر' : 'المطعم'}`)}` : '#';
     const telUrl = phoneRaw ? `tel:${phoneRaw}` : '#';
     const isWalletPayment = o.paymentMethod === 'wallet';
 
@@ -1856,13 +1859,14 @@ window.renderInvoicesArchive = function(orders = null) {
       </div>
     `).join('');
 
+    const isStoreArch = !!(window.NicheEngine && NicheEngine.isStoreMode());
     const phoneRaw = (o.customer?.phone || '').replace(/[^0-9]/g, '');
     const custName = esc(o.customer?.name || 'عميل');
     const custPhone = esc(o.customer?.phone || 'بدون هاتف');
-    const custAddress = esc(o.customer?.address || 'استلام من المطعم');
+    const custAddress = esc(o.customer?.address || (isStoreArch ? 'استلام من المتجر' : 'استلام من المطعم'));
     const deliveryZone = esc(o.deliveryZone || 'السعر الموحد');
     const safeReceiptUrl = (o.receiptUrl && typeof o.receiptUrl === 'string' && (o.receiptUrl.startsWith('http') || o.receiptUrl.startsWith('data:image/'))) ? esc(o.receiptUrl) : '';
-    const waUrl = phoneRaw ? `https://wa.me/${phoneRaw.startsWith('0') ? '2' + phoneRaw : phoneRaw}?text=${encodeURIComponent(`مرحباً أستاذ ${o.customer?.name || ''}، بخصوص فاتورتك رقم ${safeOrderId} من المطعم`)}` : '#';
+    const waUrl = phoneRaw ? `https://wa.me/${phoneRaw.startsWith('0') ? '2' + phoneRaw : phoneRaw}?text=${encodeURIComponent(`مرحباً أستاذ ${o.customer?.name || ''}، بخصوص فاتورتك رقم ${safeOrderId} من ${isStoreArch ? 'المتجر' : 'المطعم'}`)}` : '#';
     const telUrl = phoneRaw ? `tel:${phoneRaw}` : '#';
     const isWalletPayment = o.paymentMethod === 'wallet';
 
@@ -2325,7 +2329,8 @@ window.openShiftInvoiceModal = function(shiftOrId) {
   currentInvoiceOrder = null;
 
   const settings = (typeof Store !== 'undefined' && Store.getSettings ? Store.getSettings() : {}) || {};
-  const storeName = settings.storeName || settings.name || "مطعم أوردر";
+  const isStoreSh = !!(window.NicheEngine && typeof NicheEngine.isStoreMode === 'function' && NicheEngine.isStoreMode());
+  const storeName = settings.storeName || settings.name || (isStoreSh ? "متجر أوردر" : "مطعم أوردر");
   const currency = settings.currency || "ج.م";
 
   const modalEl = document.getElementById('invModal');
@@ -2475,7 +2480,8 @@ function executePrintShiftReceipt(shift, mode) {
   const paperSize = mode === 'standard' ? 'A4' : (settings.printerPaperSize === '58mm' ? '58mm' : '80mm');
   const is58mm = paperSize === '58mm';
   const isStandard = mode === 'standard';
-  const storeName = settings.storeName || settings.name || "مطعم أوردر";
+  const isStoreShPrint = !!(window.NicheEngine && typeof NicheEngine.isStoreMode === 'function' && NicheEngine.isStoreMode());
+  const storeName = settings.storeName || settings.name || (isStoreShPrint ? "متجر أوردر" : "مطعم أوردر");
   const currency = settings.currency || "ج.م";
 
   const startStr = shift.openedAt ? new Date(shift.openedAt).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' }) : '-';

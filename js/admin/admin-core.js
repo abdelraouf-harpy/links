@@ -451,7 +451,18 @@ window.switchTab = function(targetTabId, updateHash = true) {
   if (!targetTabId.startsWith('tab-')) targetTabId = 'tab-' + targetTabId;
 
   const isShiftsEnabled = !(window.ModuleEnforcer && window.ModuleEnforcer.modules && window.ModuleEnforcer.modules.shifts === false);
-  const TAB_TITLES = {
+  const isStore = (window.NicheEngine && typeof window.NicheEngine.isStoreMode === 'function' && window.NicheEngine.isStoreMode());
+  const TAB_TITLES = isStore ? {
+    'tab-orders': 'الطلبات الواردة والتجهيز',
+    'tab-pos': 'كاشير المبيعات المباشرة (POS)',
+    'tab-archive': isShiftsEnabled ? 'أرشيف الفواتير والورديات' : 'أرشيف الفواتير والمبيعات',
+    'tab-products': 'إدارة المنتجات والكتالوج',
+    'tab-categories': 'أقسام وتصنيفات المتجر',
+    'tab-inventory': 'إدارة المخزون والكميات',
+    'tab-stories': 'قصص وعروض اليوم',
+    'tab-settings': 'إعدادات المتجر والنظام',
+    'tab-backup': 'النسخ الاحتياطي والأمان'
+  } : {
     'tab-orders': 'طلبات المطبخ والتجهيز',
     'tab-pos': 'كاشير الصالة والسفري (POS)',
     'tab-archive': isShiftsEnabled ? 'أرشيف الفواتير والورديات' : 'أرشيف الفواتير',
@@ -797,6 +808,9 @@ let _lastAdminToastMsg = '';
 let _lastAdminToastTime = 0;
 
 function showToastNotification(message, type = 'success') {
+  if (window.NicheEngine && typeof window.NicheEngine.adaptText === 'function' && window.NicheEngine.isStoreMode()) {
+    message = window.NicheEngine.adaptText(message);
+  }
   const now = Date.now();
   if (message === _lastAdminToastMsg && (now - _lastAdminToastTime) < 2200) {
     return;

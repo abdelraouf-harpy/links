@@ -363,11 +363,12 @@ function renderProducts(forceRebuild = false) {
           </div>
         `;
       } else {
+        const isStoreEmpty = !!(window.NicheEngine && typeof window.NicheEngine.isStoreMode === 'function' && window.NicheEngine.isStoreMode());
         elements.productsContainer.innerHTML = `
           <div class="empty-state" style="grid-column: 1 / -1; padding: 60px 20px;">
             <svg class="empty-icon" viewBox="0 0 24 24" style="width:64px;height:64px;opacity:0.3;"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-            <div class="empty-title" style="font-size:1.1rem;">المنيو قيد الإعداد</div>
-            <p style="font-size:13px; color:var(--text-muted); max-width:260px; margin: 8px auto 0;">يقوم المطعم حالياً بإضافة قائمة الأصناف. ارجع قريباً!</p>
+            <div class="empty-title" style="font-size:1.1rem;">${isStoreEmpty ? 'المنتجات قيد الإعداد' : 'المنيو قيد الإعداد'}</div>
+            <p style="font-size:13px; color:var(--text-muted); max-width:260px; margin: 8px auto 0;">${isStoreEmpty ? 'يقوم المتجر حالياً بإضافة قائمة المنتجات. تفضل بالعودة قريباً!' : 'يقوم المطعم حالياً بإضافة قائمة الأصناف. ارجع قريباً!'}</p>
           </div>
         `;
       }
@@ -863,9 +864,10 @@ function updatePreviewModalActions(productId) {
   if (!p) return;
 
   if (isOrderingDisabled()) {
+    const isStorePreview = !!(window.NicheEngine && typeof window.NicheEngine.isStoreMode === 'function' && window.NicheEngine.isStoreMode());
     elements.previewActionWrap.innerHTML = `
       <div style="display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; color:var(--text-secondary); background:rgba(255,255,255,0.06); padding:8px 16px; border-radius:20px; border:1px solid rgba(255,255,255,0.1);">
-        <span>قائمة طعام للعرض فقط</span>
+        <span>${isStorePreview ? 'كتالوج منتجات للعرض فقط' : 'قائمة طعام للعرض فقط'}</span>
       </div>
     `;
     return;

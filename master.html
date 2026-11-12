@@ -4418,6 +4418,7 @@
           adminPassword: password,
           currency: "ج.م",
           logo: "assets/brand/harpy_order_emblem_transparent.png",
+          storeTagline: bType === 'store' ? "منتجات مختارة بأعلى جودة وشحن سريع" : "",
           orderingPausedMessage: bType === 'store' ? "المتجر متوقف حالياً عن استقبال الطلبات." : "المطعم متوقف حالياً عن استقبال الطلبات.",
           workingHours: bType === 'store' ? "نستقبل الطلبات 24 ساعة يومياً" : "يومياً من 11:00 صباحاً حتى 2:00 صباحاً",
           modules: allMods,
@@ -4428,7 +4429,7 @@
             monthlyPrice: price,
             plan: planName,
             adminPassword: password,
-            expiresAt: new Date(expTimestamp).toISOString()
+            expiresAt: expTimestamp > 0 ? new Date(expTimestamp).toISOString() : null
           }
         };
 

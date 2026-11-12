@@ -334,8 +334,9 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
       ? `تحويل محفظة إلكترونية (${settings.walletName || 'كاش'})`
       : `دفع نقدي عند الاستلام (COD)`;
 
-    let fulfillmentLabel = 'توصيل دليفري';
-    if (fType === 'takeaway') fulfillmentLabel = 'استلام من الفرع (تيك أواي)';
+    const isStoreWa = !!(window.NicheEngine && typeof window.NicheEngine.isStoreMode === 'function' && window.NicheEngine.isStoreMode());
+    let fulfillmentLabel = isStoreWa ? 'شحن وتوصيل للعنوان' : 'توصيل دليفري';
+    if (fType === 'takeaway') fulfillmentLabel = isStoreWa ? 'استلام من المتجر' : 'استلام من الفرع (تيك أواي)';
     else if (fType === 'dinein') fulfillmentLabel = `طلب صالة (داخل المطعم)`;
 
     let message = `*طلب جديد من موقع ${settings.storeName}*\n`;
@@ -363,7 +364,7 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
       if (activeReceipt.startsWith('http')) {
         message += `*رابط إيصال التحويل:* ${activeReceipt}\n`;
       } else {
-        message += `*إيصال التحويل:* تم إرفاق صورة الإيصال ومحفوظة بلوحة إدارة المطعم (طلب رقم ${orderId})\n`;
+        message += `*إيصال التحويل:* تم إرفاق صورة الإيصال ومحفوظة بلوحة إدارة ${isStoreWa ? 'المتجر' : 'المطعم'} (طلب رقم ${orderId})\n`;
       }
     }
 
@@ -511,12 +512,21 @@ function initBackgroundOrderTracking() {
         const isDineIn = updatedOrder.fulfillmentType === 'dinein' || updatedOrder.orderType === 'dine_in' || String(updatedOrder.customer?.address || '').includes('صالة');
         const isTakeaway = updatedOrder.fulfillmentType === 'takeaway' || String(updatedOrder.customer?.address || '').includes('استلام');
         
+        const isStoreTrack = !!(window.NicheEngine && typeof window.NicheEngine.isStoreMode === 'function' && window.NicheEngine.isStoreMode());
         let alertText = (activeOrders.length > 1 ? `طلب ${orderId}: ` : "");
-        if (newStatus === 'pending') alertText += "تم استلام طلبك ومراجعته في المطعم";
-        else if (newStatus === 'preparing') alertText += isDineIn ? "بدأ طهاة المطعم في تحضير وجباتك الآن" : (isTakeaway ? "جاري تحضير وتغليف طلبك للاستلام من الفرع" : "بدأ طهاة المطعم في تحضير وجباتك الآن");
-        else if (newStatus === 'out_for_delivery') alertText += isDineIn ? "وجبتك جاهزة ويتم تقديمها لطاولتك الآن" : (isTakeaway ? "طلبك جاهز للاستلام على كاونتر الفرع" : "طلبك مع الكابتن وفي الطريق إليك الآن");
-        else if (newStatus === 'delivered') alertText += isDineIn ? "بالهناء والشفاء! نتمنى لك تجربة طعام مميزة" : (isTakeaway ? "تم استلام الطلب بالفرع بنجاح، بالهناء والشفاء" : "تم تسليم الطلب بنجاح، بالهناء والشفاء");
-        else if (newStatus === 'cancelled') alertText += "تم إلغاء الطلب من قِبل إدارة المطعم";
+        if (isStoreTrack) {
+          if (newStatus === 'pending') alertText += "تم استلام طلبك ومراجعته في المتجر";
+          else if (newStatus === 'preparing') alertText += "جاري فحص وتغليف طلبك للشحن الآن";
+          else if (newStatus === 'out_for_delivery') alertText += isTakeaway ? "طلبك جاهز للاستلام من المتجر الآن" : "المندوب استلم طلبك وهو في الطريق إليك الآن";
+          else if (newStatus === 'delivered') alertText += "تم تسليم طلبك بنجاح! شكراً لتسوقك معنا";
+          else if (newStatus === 'cancelled') alertText += "تم إلغاء الطلب من قِبل إدارة المتجر";
+        } else {
+          if (newStatus === 'pending') alertText += "تم استلام طلبك ومراجعته في المطعم";
+          else if (newStatus === 'preparing') alertText += isDineIn ? "بدأ طهاة المطعم في تحضير وجباتك الآن" : (isTakeaway ? "جاري تحضير وتغليف طلبك للاستلام من الفرع" : "بدأ طهاة المطعم في تحضير وجباتك الآن");
+          else if (newStatus === 'out_for_delivery') alertText += isDineIn ? "وجبتك جاهزة ويتم تقديمها لطاولتك الآن" : (isTakeaway ? "طلبك جاهز للاستلام على كاونتر الفرع" : "طلبك مع الكابتن وفي الطريق إليك الآن");
+          else if (newStatus === 'delivered') alertText += isDineIn ? "بالهناء والشفاء! نتمنى لك تجربة طعام مميزة" : (isTakeaway ? "تم استلام الطلب بالفرع بنجاح، بالهناء والشفاء" : "تم تسليم الطلب بنجاح، بالهناء والشفاء");
+          else if (newStatus === 'cancelled') alertText += "تم إلغاء الطلب من قِبل إدارة المطعم";
+        }
 
         if (newStatus === 'delivered') SoundFX.playCash();
         else SoundFX.playChime();
@@ -608,7 +618,13 @@ function notifyCustomerOrderStatus(status) {
     return;
   }
   if (Notification.permission === 'granted') {
-    const statusMessages = {
+    const isStorePush = !!(window.NicheEngine && typeof window.NicheEngine.isStoreMode === 'function' && window.NicheEngine.isStoreMode());
+    const statusMessages = isStorePush ? {
+      pending: { title: 'تم استلام طلبك بنجاح', body: 'طلبك وصل المتجر وهو قيد المراجعة والتأكيد الآن.' },
+      preparing: { title: 'جاري تجهيز وتغليف طلبك الآن', body: 'فريق المتجر يقوم بتجهيز وتغليف منتجاتك للشحن.' },
+      out_for_delivery: { title: 'تم شحن الطلب وهو في الطريق إليك', body: 'مندوب الشحن استلم الطلب وهو في طريقه إليك الآن.' },
+      delivered: { title: 'تم تسليم طلبك بنجاح', body: 'شكراً لتسوقك من متجرنا ونتمنى لك تجربة ممتازة.' }
+    } : {
       pending: { title: 'تم استلام طلبك بنجاح', body: 'طلبك وصل المطعم وهو قيد المراجعة والتأكيد الآن.' },
       preparing: { title: 'المطبخ يجهز طلبك الآن', body: 'بدأ طهاة المطعم في تجهيز وطهي وجباتك الطازجة.' },
       out_for_delivery: { title: 'الطلب في الطريق إليك', body: 'الكابتن استلم الطلب وهو في طريقه إليك الآن.' },

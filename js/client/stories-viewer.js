@@ -168,7 +168,8 @@ function loadCurrentStory() {
       // Case 3: Informational story without price
       closeStoryViewer();
       if (typeof window.showToastNotification === 'function') {
-        window.showToastNotification('تفضل بتصفح قائمة المنيو واختيار وجباتك المفضلة', 'info');
+        const isStoreSt = !!(window.NicheEngine && typeof NicheEngine.isStoreMode === 'function' && NicheEngine.isStoreMode());
+        window.showToastNotification(isStoreSt ? 'تفضل بتصفح منتجات المتجر واختيار ما يناسبك' : 'تفضل بتصفح قائمة المنيو واختيار وجباتك المفضلة', 'info');
       }
     };
   }

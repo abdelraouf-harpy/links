@@ -506,7 +506,10 @@ function setupRestaurantHub() {
 function updateAllBrandHeadings(customName = null) {
   const slug = Store.getRestaurantSlug();
   const settings = Store.getSettings();
-  const brandName = (customName || settings.storeName || '').trim() || `مطعم ${slug}`;
+  const isStore = (settings && settings.businessType === 'store') ||
+    (window.NicheEngine && typeof window.NicheEngine.isStoreMode === 'function' && window.NicheEngine.isStoreMode());
+  const defaultPlaceName = isStore ? `متجر ${slug}` : `مطعم ${slug}`;
+  const brandName = (customName || settings.storeName || '').trim() || defaultPlaceName;
 
   const adminStoreName = document.getElementById('admin-store-name');
   if (adminStoreName) adminStoreName.textContent = `إدارة: ${brandName}`;
@@ -537,7 +540,7 @@ function updateAllBrandHeadings(customName = null) {
   if (activeTitle) activeTitle.textContent = brandName;
 
   const setStoreName = document.getElementById('set-store-name');
-  if (setStoreName && !setStoreName.matches(':focus') && brandName !== `مطعم ${slug}`) {
+  if (setStoreName && !setStoreName.matches(':focus') && brandName !== defaultPlaceName && brandName !== `مطعم ${slug}` && brandName !== `متجر ${slug}`) {
     setStoreName.value = brandName;
   }
 }
@@ -605,15 +608,18 @@ function checkOnboardingSetup() {
         font-size: 0.88rem;
         line-height: 1.6;
       `;
+      const isStoreSetup = (settings && settings.businessType === 'store') ||
+        (window.NicheEngine && typeof window.NicheEngine.isStoreMode === 'function' && window.NicheEngine.isStoreMode());
+      const placeNoun = isStoreSetup ? 'المتجر' : 'المطعم';
       banner.innerHTML = `
         <svg style="width:26px;height:26px;flex-shrink:0;color:#f59e0b;margin-top:2px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
         </svg>
         <div>
-          <div style="font-weight:900; font-size:0.95rem; color:#f59e0b; margin-bottom:4px;">إعداد المطعم في انتظار الاستكمال</div>
-          <div style="font-size:0.84rem; color:var(--text-muted);">يرجى ضبط اسم المطعم ورقم الواتساب لاستقبال طلبات الزبائن مباشرة:</div>
+          <div style="font-weight:900; font-size:0.95rem; color:#f59e0b; margin-bottom:4px;">إعداد ${placeNoun} في انتظار الاستكمال</div>
+          <div style="font-size:0.84rem; color:var(--text-muted);">يرجى ضبط اسم ${placeNoun} ورقم الواتساب لاستقبال طلبات العملاء مباشرة:</div>
           <ul style="margin:6px 0 0 0; padding-right:18px; font-size:0.82rem; color:var(--text-main);">
-            ${!settings.storeName ? '<li>اسم المطعم مطلوب</li>' : ''}
+            ${!settings.storeName ? `<li>اسم ${placeNoun} مطلوب</li>` : ''}
             ${!settings.whatsappNumber ? '<li>رقم واتساب استقبال الطلبات مطلوب</li>' : ''}
           </ul>
           <div style="margin-top:10px;">
@@ -809,19 +815,26 @@ function setupSubscriptionWatcher() {
         contactBtn.textContent = 'الذهاب للصفحة الرئيسية';
       }
     } else if (statusReason === 'expired') {
+      const isStoreAuth = window.NicheEngine && typeof window.NicheEngine.isStoreMode === 'function' && window.NicheEngine.isStoreMode();
+      const placeEntity = isStoreAuth ? 'المتجر' : 'المطعم';
+      const catalogNoun = isStoreAuth ? 'المنتجات' : 'المنيو';
+      const myEntity = isStoreAuth ? 'متجري' : 'مطعمي';
       if (iconEl) iconEl.innerHTML = '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
-      if (titleEl) titleEl.textContent = 'انتهت صلاحية اشتراك هذا المطعم';
-      if (msgEl) msgEl.textContent = 'انتهت صلاحية اشتراك هذا المطعم. يرجى تجديد الباقة لاستئناف استقبال طلبات الزبائن وتعديل المنيو.';
+      if (titleEl) titleEl.textContent = `انتهت صلاحية اشتراك هذا ${placeEntity}`;
+      if (msgEl) msgEl.textContent = `انتهت صلاحية اشتراك هذا ${placeEntity}. يرجى تجديد الباقة لاستئناف استقبال طلبات العملاء وتعديل ${catalogNoun}.`;
       if (contactBtn) {
-        contactBtn.href = `https://wa.me/201019971508?text=${encodeURIComponent(`مرحباً إدارة هاربي، أود تجديد اشتراك مطعمي (${slug})`)}`;
+        contactBtn.href = `https://wa.me/201019971508?text=${encodeURIComponent(`مرحباً إدارة هاربي، أود تجديد اشتراك ${myEntity} (${slug})`)}`;
         contactBtn.textContent = 'تواصل مع الإدارة لتجديد الاشتراك';
       }
     } else {
+      const isStoreAuth = window.NicheEngine && typeof window.NicheEngine.isStoreMode === 'function' && window.NicheEngine.isStoreMode();
+      const placeEntity = isStoreAuth ? 'المتجر' : 'المطعم';
+      const myEntity = isStoreAuth ? 'متجري' : 'مطعمي';
       if (iconEl) iconEl.innerHTML = '<svg class="icon" viewBox="0 0 24 24" style="width:28px; height:28px;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
-      if (titleEl) titleEl.textContent = 'حساب المطعم مجمّد / موقوف مؤقتاً';
-      if (msgEl) msgEl.textContent = 'تم تجميد وإيقاف اشتراك هذا المطعم مؤقتاً من قبل الإدارة. يرجى التواصل لإلغاء التجميد والتفعيل.';
+      if (titleEl) titleEl.textContent = `حساب ${placeEntity} مجمّد / موقوف مؤقتاً`;
+      if (msgEl) msgEl.textContent = `تم تجميد وإيقاف اشتراك هذا ${placeEntity} مؤقتاً من قبل الإدارة. يرجى التواصل لإلغاء التجميد والتفعيل.`;
       if (contactBtn) {
-        contactBtn.href = `https://wa.me/201019971508?text=${encodeURIComponent(`مرحباً إدارة هاربي، أود تفعيل وإلغاء تجميد مطعمي (${slug})`)}`;
+        contactBtn.href = `https://wa.me/201019971508?text=${encodeURIComponent(`مرحباً إدارة هاربي، أود تفعيل وإلغاء تجميد ${myEntity} (${slug})`)}`;
         contactBtn.textContent = 'تواصل مع الإدارة للتفعيل والتجديد';
       }
     }

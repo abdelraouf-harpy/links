@@ -175,16 +175,17 @@ function renderCatalogItemsOnly() {
       return;
     }
 
+    const isStoreCatEmpty = !!(window.NicheEngine && typeof NicheEngine.isStoreMode === 'function' && NicheEngine.isStoreMode());
     adminElements.catalogContainer.innerHTML = `
       <div style="grid-column:1/-1; text-align:center; padding:45px 20px; background:var(--surface); border:1px dashed var(--border-strong); border-radius:var(--radius-md);">
-        <div style="margin-bottom:12px;"><svg class="icon" viewBox="0 0 24 24" style="width:38px; height:38px; color:var(--text-muted);"><path d="M18 2v6a3 3 0 0 1-3 3 3 3 0 0 1-3-3V2"/><path d="M15 11v11"/><path d="M5 2v13a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V2"/><path d="M7 2v6"/><path d="M8 17v5"/></svg></div>
-        <div style="font-size:16px; font-weight:800; color:var(--text-main); margin-bottom:6px;">لا توجد أصناف في المنيو بعد</div>
+        <div style="margin-bottom:12px;"><svg class="icon" viewBox="0 0 24 24" style="width:38px; height:38px; color:var(--text-muted);">${isStoreCatEmpty ? '<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>' : '<path d="M18 2v6a3 3 0 0 1-3 3 3 3 0 0 1-3-3V2"/><path d="M15 11v11"/><path d="M5 2v13a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V2"/><path d="M7 2v6"/><path d="M8 17v5"/>'}</svg></div>
+        <div style="font-size:16px; font-weight:800; color:var(--text-main); margin-bottom:6px;">${isStoreCatEmpty ? 'لا توجد منتجات في المتجر بعد' : 'لا توجد أصناف في المنيو بعد'}</div>
         <div style="font-size:12.5px; color:var(--text-muted); margin-bottom:20px; max-width:320px; margin-left:auto; margin-right:auto;">
-          ابدأ بإضافة أول صنف أو وجبة في منيو مطعمك وحدد السعر والصورة والأقسام بسهولة
+          ${isStoreCatEmpty ? 'ابدأ بإضافة أول منتج في كتالوج متجرك وحدد السعر والصورة والقسم بسهولة' : 'ابدأ بإضافة أول صنف أو وجبة في منيو مطعمك وحدد السعر والصورة والأقسام بسهولة'}
         </div>
         <button type="button" class="btn btn-primary" onclick="openProductModal(null)" style="padding:10px 22px; font-weight:800; font-size:0.9rem; display:inline-flex; align-items:center; gap:6px;">
           <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          <span>إضافة أول صنف الآن</span>
+          <span>${isStoreCatEmpty ? 'إضافة أول منتج الآن' : 'إضافة أول صنف الآن'}</span>
         </button>
       </div>
     `;
@@ -355,12 +356,13 @@ window.toggleProductVisibilityFast = async function(id, btnElement) {
 };
 
 window.deleteProductFast = async function(id) {
+  const isStoreDel = !!(window.NicheEngine && typeof NicheEngine.isStoreMode === 'function' && NicheEngine.isStoreMode());
   const p = Store.getProducts().find(item => item.id === id);
-  const name = p ? p.name : 'هذا الصنف';
+  const name = p ? p.name : (isStoreDel ? 'هذا المنتج' : 'هذا الصنف');
   const confirmed = await showCustomConfirm({
-    title: "حذف صنف من المنيو",
-    message: `هل أنت متأكد من رغبتك في حذف الصنف "<strong>${name}</strong>" نهائياً من المنيو؟`,
-    confirmText: "حذف الصنف",
+    title: isStoreDel ? "حذف منتج من المتجر" : "حذف صنف من المنيو",
+    message: isStoreDel ? `هل أنت متأكد من رغبتك في حذف المنتج "<strong>${name}</strong>" نهائياً من المتجر؟` : `هل أنت متأكد من رغبتك في حذف الصنف "<strong>${name}</strong>" نهائياً من المنيو؟`,
+    confirmText: isStoreDel ? "حذف المنتج" : "حذف الصنف",
     cancelText: "إلغاء",
     isDanger: true
   });

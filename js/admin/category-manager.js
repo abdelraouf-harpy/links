@@ -157,12 +157,13 @@ function renderCategoriesList() {
   const cats = Store.getCategories();
   const prods = Store.getProducts();
 
+  const isStoreCats = !!(window.NicheEngine && typeof NicheEngine.isStoreMode === 'function' && NicheEngine.isStoreMode());
   if (cats.length === 0) {
     adminElements.categoriesListContainer.innerHTML = `
       <div style="grid-column:1/-1; text-align:center; padding:40px 20px; background:var(--surface-raised); border:1.5px dashed var(--border); border-radius:var(--radius-md); color:var(--text-muted);">
         <div style="margin-bottom:8px;"><svg class="icon" viewBox="0 0 24 24" style="width:32px; height:32px; color:var(--text-muted);"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
         <div style="font-size:15px; font-weight:800; color:var(--text-main); margin-bottom:4px;">لا توجد أقسام مسجلة بعد</div>
-        <div style="font-size:12.5px;">أضف أول قسم في الأعلى لتبدأ تنظيم وجبات المنيو!</div>
+        <div style="font-size:12.5px;">${isStoreCats ? 'أضف أول قسم في الأعلى لتبدأ تنظيم منتجات المتجر!' : 'أضف أول قسم في الأعلى لتبدأ تنظيم وجبات المنيو!'}</div>
       </div>
     `;
     return;
@@ -273,7 +274,9 @@ window.openCategoryModal = function(index = null) {
     }
   } else {
     if (title) title.textContent = "إضافة قسم جديد";
-    if (subtitle) subtitle.textContent = "تنظيم وتصنيف الأصناف في المنيو وشاشات المطبخ والكاشير";
+    if (subtitle) subtitle.textContent = (window.NicheEngine && typeof NicheEngine.isStoreMode === 'function' && NicheEngine.isStoreMode())
+      ? "تنظيم وتصنيف المنتجات والأقسام داخل المتجر والكاشير"
+      : "تنظيم وتصنيف الأصناف في المنيو وشاشات المطبخ والكاشير";
     if (submitBtn) submitBtn.textContent = "إضافة القسم";
     if (indexInput) indexInput.value = '';
     if (nameInput) nameInput.value = '';
@@ -460,16 +463,17 @@ window.deleteCategoryFast = async function(cat) {
 
   let fallbackCat = remainingCats.length > 0 ? remainingCats[0] : "عام";
 
+  const isStoreCatDel = !!(window.NicheEngine && typeof NicheEngine.isStoreMode === 'function' && NicheEngine.isStoreMode());
   let confirmMsg = `هل أنت متأكد من رغبتك في حذف قسم "<strong>${cat}</strong>"؟`;
   if (attachedProds.length > 0) {
-    confirmMsg += `<br><span style="display:inline-block; margin-top:8px; font-size:12.5px; color:var(--text-muted); line-height:1.4;">يحتوي هذا القسم على <strong>${attachedProds.length}</strong> صنف، سيتم نقلها تلقائياً إلى قسم "<strong>${fallbackCat}</strong>" لضمان بقائها وظهورها في المنيو.</span>`;
+    confirmMsg += `<br><span style="display:inline-block; margin-top:8px; font-size:12.5px; color:var(--text-muted); line-height:1.4;">يحتوي هذا القسم على <strong>${attachedProds.length}</strong> ${isStoreCatDel ? 'منتج، سيتم نقلها تلقائياً إلى قسم' : 'صنف، سيتم نقلها تلقائياً إلى قسم'} "<strong>${fallbackCat}</strong>" لضمان بقائها وظهورها في ${isStoreCatDel ? 'المتجر' : 'المنيو'}.</span>`;
   }
 
   const confirmed = await showCustomConfirm({
-    title: "حذف قسم من المنيو",
+    title: isStoreCatDel ? "حذف قسم من المتجر" : "حذف قسم من المنيو",
     message: confirmMsg,
     icon: "",
-    confirmText: attachedProds.length > 0 ? "حذف ونقل الأصناف" : "حذف القسم",
+    confirmText: attachedProds.length > 0 ? (isStoreCatDel ? "حذف ونقل المنتجات" : "حذف ونقل الأصناف") : "حذف القسم",
     cancelText: "إلغاء",
     isDanger: true
   });

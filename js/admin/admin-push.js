@@ -136,8 +136,9 @@
 
     if (descSettings) {
       const slug = getSlug();
+      const isStorePush = !!(window.NicheEngine && typeof NicheEngine.isStoreMode === 'function' && NicheEngine.isStoreMode());
       if (isGranted) {
-        descSettings.textContent = `الهاتف متصل ومفعل بنجاح لاستقبال إشعارات الطلبات الجديدة لمطعم (${slug}) برنين واهتزاز فوري عند وصول أي أوردر.`;
+        descSettings.textContent = `الهاتف متصل ومفعل بنجاح لاستقبال إشعارات الطلبات الجديدة ل${isStorePush ? 'متجر' : 'مطعم'} (${slug}) برنين واهتزاز فوري عند وصول أي أوردر.`;
       } else if (isDenied) {
         descSettings.textContent = `الإشعارات محظورة حالياً في متصفحك. يرجى الضغط على رمز الأمان بجانب رابط الموقع في الأعلى واختيار "سماح بالاشعارات" (Allow Notifications).`;
       } else {
@@ -255,7 +256,8 @@
     }
 
     const slug = getSlug();
-    let storeName = 'المطعم';
+    const isStorePush = !!(window.NicheEngine && typeof NicheEngine.isStoreMode === 'function' && NicheEngine.isStoreMode());
+    let storeName = isStorePush ? 'المتجر' : 'المطعم';
     try {
       const settings = (typeof Store !== 'undefined' && Store.getSettings) ? Store.getSettings() : null;
       if (settings && (settings.storeName || settings.name)) {
