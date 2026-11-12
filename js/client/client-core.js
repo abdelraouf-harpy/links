@@ -346,10 +346,31 @@ async function initApp() {
   renderDiscoveryRibbon();
   renderCategories();
   renderProducts(true);
+  if (Store.syncCartWithLivePricing) {
+    try { Store.syncCartWithLivePricing(); } catch(e) {}
+  }
   updateLedgerUI();
   setupEventListeners();
   initCustomizerEvents();
   setupSubscriptionWatcher();
+  if (window.NicheEngine) {
+    NicheEngine.startCountdownLoop(() => {
+      if (Store.syncCartWithLivePricing) {
+        try { Store.syncCartWithLivePricing(); } catch(e) {}
+      }
+      if (typeof renderCategories === 'function') renderCategories();
+      if (typeof renderProducts === 'function') renderProducts(true);
+      if (typeof updateLedgerUI === 'function') updateLedgerUI();
+    });
+    if (!NicheEngine.isPlatformHost()) {
+      NicheEngine.resolveDomainSlug().then(resolved => {
+        if (resolved && resolved !== slug && !new URLSearchParams(window.location.search).get('m')) {
+          localStorage.setItem('harpy_active_slug', resolved);
+          window.location.replace(`?m=${encodeURIComponent(resolved)}${window.location.hash || ''}`);
+        }
+      }).catch(() => {});
+    }
+  }
   if (typeof window.initBackgroundOrderTracking === 'function') {
     window.initBackgroundOrderTracking();
   } else if (typeof initBackgroundOrderTracking === 'function') {
@@ -1050,6 +1071,45 @@ function renderStoreInfo() {
   const curStatusNow = slugNow ? localStorage.getItem(`harpy_${slugNow}_sub_status`) : '';
   if (contactBtn && settings.whatsappNumber && curStatusNow !== 'deleted') {
     contactBtn.href = `https://wa.me/${(settings.whatsappNumber || '').replace(/\D/g, '')}`;
+  }
+
+  // Dual-Mode Adaptive Terminology, 24/7 Store Badge, Filters, Return Policy & +18 Gate
+  if (window.NicheEngine) {
+    NicheEngine.applyTerminology(settings);
+    const normMods = NicheEngine.normalizeModules(settings.modules || {}, settings.businessType);
+
+    const isPaused = (settings.isOrderingPaused === true);
+    if (!isPaused && normMods.store24_7 === true) {
+      const lbl247 = NicheEngine.getTerm('store_open_247', curLang, settings) || (curLang === 'en' ? 'Open 24/7 for Orders' : 'متاح لاستقبال الطلبات 24 ساعة');
+      const heroStTxt = document.getElementById('hero-status-text');
+      const portStTxt = document.getElementById('portfolio-status-text');
+      if (heroStTxt) heroStTxt.textContent = lbl247;
+      if (portStTxt) portStTxt.textContent = lbl247;
+    }
+
+    const filtersBar = document.getElementById('client-catalog-filters-bar');
+    if (filtersBar) {
+      filtersBar.style.display = (normMods.catalogFilters === true) ? 'flex' : 'none';
+    }
+
+    const policyText = (settings.returnPolicyText || '').trim();
+    const policyEnabled = (normMods.returnPolicy === true) && policyText.length > 0;
+    const pPolicyCard = document.getElementById('store-return-policy-card');
+    const pPolicyTxt = document.getElementById('store-return-policy-text');
+    const cPolicyBadge = document.getElementById('cart-return-policy-badge');
+    const cPolicyTxt = document.getElementById('cart-return-policy-text');
+    if (pPolicyCard && pPolicyTxt) {
+      pPolicyCard.style.display = policyEnabled ? 'block' : 'none';
+      if (policyEnabled) pPolicyTxt.textContent = policyText;
+    }
+    if (cPolicyBadge && cPolicyTxt) {
+      cPolicyBadge.style.display = policyEnabled ? 'flex' : 'none';
+      if (policyEnabled) cPolicyTxt.textContent = policyText;
+    }
+
+    if (typeof window.checkAgeGate18 === 'function') {
+      window.checkAgeGate18(settings, normMods);
+    }
   }
 }
 
@@ -3094,3 +3154,59 @@ window.selectStoreBranch = function(slug) {
 };
 
 window.updateHeaderBranchPill = updateHeaderBranchPill;
+
+// ── +18 Age Verification Gate Controller ─────────────────────
+window.checkAgeGate18 = function(settings, normMods) {
+  const s = settings || (typeof Store !== 'undefined' && Store.getSettings ? Store.getSettings() : {});
+  const mods = normMods || (window.NicheEngine ? NicheEngine.normalizeModules(s.modules || {}, s.businessType) : (s.modules || {}));
+  const modal = document.getElementById('age-gate-modal');
+  const backdrop = document.getElementById('age-gate-backdrop');
+  if (!modal) return;
+
+  if (mods.ageGate18 !== true) {
+    modal.classList.remove('open', 'show');
+    modal.style.display = 'none';
+    if (backdrop) {
+      backdrop.classList.remove('open', 'show');
+      backdrop.style.display = 'none';
+    }
+    return;
+  }
+
+  const slug = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : 'default';
+  if (localStorage.getItem(`harpy_${slug}_age18_ok`) === '1') return;
+
+  const titleEl = document.getElementById('age-gate-title');
+  const descEl = document.getElementById('age-gate-desc');
+  if (titleEl && s.ageGateTitle) titleEl.textContent = s.ageGateTitle;
+  if (descEl && s.ageGateDesc) descEl.textContent = s.ageGateDesc;
+
+  modal.style.display = 'block';
+  modal.classList.add('open', 'show');
+  if (backdrop) {
+    backdrop.style.display = 'block';
+    backdrop.classList.add('open', 'show');
+  }
+};
+
+window.confirmAgeGate18 = function() {
+  const slug = (typeof Store !== 'undefined' && Store.getRestaurantSlug) ? Store.getRestaurantSlug() : 'default';
+  try { localStorage.setItem(`harpy_${slug}_age18_ok`, '1'); } catch(e) {}
+  const modal = document.getElementById('age-gate-modal');
+  const backdrop = document.getElementById('age-gate-backdrop');
+  if (modal) {
+    modal.classList.remove('open', 'show');
+    modal.style.display = 'none';
+  }
+  if (backdrop) {
+    backdrop.classList.remove('open', 'show');
+    backdrop.style.display = 'none';
+  }
+};
+
+window.declineAgeGate18 = function() {
+  const titleEl = document.getElementById('age-gate-title');
+  const descEl = document.getElementById('age-gate-desc');
+  if (titleEl) titleEl.textContent = 'عذراً، هذا المتجر مخصص للبالغين فقط (+18)';
+  if (descEl) descEl.textContent = 'لا يُسمح بتصفح أو طلب منتجات هذا المتجر لمن هم دون سن 18 عاماً.';
+};

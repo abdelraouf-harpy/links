@@ -2529,7 +2529,7 @@ const Store = {
         }
       }
 
-      // 4. Subdomain Resolution Fallback (e.g. saj.harpymenu.com)
+      // 4. Subdomain & Custom Domain Resolution Fallback (e.g. saj.harpymenu.com or amounsmok.com)
       if (!urlSlug && typeof window !== 'undefined' && window.location && window.location.hostname) {
         const host = window.location.hostname.toLowerCase();
         if (host.includes('harpymenu.com') && !host.startsWith('www.') && host !== 'harpymenu.com') {
@@ -2537,6 +2537,8 @@ const Store = {
           if (subdomain && subdomain !== 'www' && subdomain !== 'order' && subdomain !== 'api') {
             urlSlug = subdomain;
           }
+        } else if (window.NicheEngine && !window.NicheEngine.isPlatformHost(host)) {
+          urlSlug = window.__harpyDomainSlug || window.NicheEngine.getCachedDomainSlug(host);
         }
       }
 
@@ -4594,6 +4596,162 @@ const Store = {
         try { licRef.off('value', wsCallback); } catch(e) {}
       }
     };
+  },
+
+  // ── Effective Offer Pricing, Piece Stock & Bulk Price Snapshots ──
+  getEffectiveProductPrice(product, now) {
+    if (typeof window !== 'undefined' && window.NicheEngine) {
+      return window.NicheEngine.getEffectiveProductPrice(product, now);
+    }
+    return Number((product && product.price) || 0);
+  },
+
+  getEffectiveProductOriginalPrice(product, now) {
+    if (typeof window !== 'undefined' && window.NicheEngine) {
+      return window.NicheEngine.getEffectiveProductOriginalPrice(product, now);
+    }
+    const orig = Number((product && product.originalPrice) || 0);
+    const cur = Number((product && product.price) || 0);
+    return orig > cur ? orig : 0;
+  },
+
+  getEffectiveSizePrice(product, sizeObj, now) {
+    if (typeof window !== 'undefined' && window.NicheEngine) {
+      return window.NicheEngine.getEffectiveSizePrice(product, sizeObj, now);
+    }
+    return Number((sizeObj && sizeObj.price) || 0);
+  },
+
+  isPieceStockActive() {
+    const s = this.getSettings ? this.getSettings() : {};
+    const m = (s && s.modules) || (typeof window !== 'undefined' && window.ModuleEnforcer && window.ModuleEnforcer.modules) || {};
+    return m.pieceStock === true;
+  },
+
+  getAvailableStockQty(product) {
+    if (!product || typeof product !== 'object') return Infinity;
+    if (!this.isPieceStockActive()) return Infinity;
+    if (product.stockQty === null || product.stockQty === undefined || product.stockQty === '') return Infinity;
+    const q = Number(product.stockQty);
+    return isFinite(q) ? Math.max(0, Math.floor(q)) : Infinity;
+  },
+
+  syncCartWithLivePricing() {
+    const cart = this.getCart ? this.getCart() : [];
+    if (!Array.isArray(cart) || cart.length === 0) {
+      return { updatedCart: [], expiredOfferItems: [], outOfStockItems: [], adjustedStockItems: [], changed: false };
+    }
+    const prods = this.getProducts ? this.getProducts() : [];
+    const prodMap = new Map((prods || []).map(p => [p.id, p]));
+    const now = Date.now();
+    const expiredOfferItems = [];
+    const outOfStockItems = [];
+    const adjustedStockItems = [];
+    const updatedCart = [];
+    let changed = false;
+
+    for (const item of cart) {
+      const prodId = item.productId || item.id;
+      const p = prodMap.get(prodId);
+      if (!p) {
+        updatedCart.push(item);
+        continue;
+      }
+
+      const avail = this.getAvailableStockQty(p);
+      if (avail !== Infinity && avail <= 0) {
+        outOfStockItems.push(p.name || item.name);
+        changed = true;
+        continue;
+      }
+
+      const clone = Object.assign({}, item);
+      if (avail !== Infinity && clone.qty > avail) {
+        clone.qty = avail;
+        adjustedStockItems.push({ name: p.name || item.name, qty: avail });
+        changed = true;
+      }
+
+      const liveBase = this.getEffectiveProductPrice(p, now);
+      let liveSizePrice = 0;
+      if (clone.selectedSize && Array.isArray(p.sizes)) {
+        const matchedSize = p.sizes.find(sz => (sz.id && sz.id === clone.selectedSize.id) || sz.name === clone.selectedSize.name);
+        if (matchedSize) {
+          liveSizePrice = this.getEffectiveSizePrice(p, matchedSize, now);
+          clone.selectedSize = Object.assign({}, clone.selectedSize, { price: liveSizePrice });
+        } else {
+          liveSizePrice = Number(clone.selectedSize.price || 0);
+        }
+      }
+      const addonsTotal = Array.isArray(clone.selectedAddons)
+        ? clone.selectedAddons.reduce((s, a) => s + Number(a.price || 0), 0)
+        : 0;
+      const liveUnit = Math.round((liveBase + liveSizePrice + addonsTotal) * 100) / 100;
+
+      if (Math.abs(Number(clone.price || 0) - liveUnit) > 0.01) {
+        if (clone.appliedOfferEndsAt && now >= Number(clone.appliedOfferEndsAt)) {
+          expiredOfferItems.push(p.name || item.name);
+        }
+        clone.price = liveUnit;
+        changed = true;
+      }
+      clone.appliedOfferEndsAt = (window.NicheEngine && window.NicheEngine.isTimedOfferActive(p, now)) ? Number(p.offerEndsAt || 0) : 0;
+      updatedCart.push(clone);
+    }
+
+    if (changed && typeof this.saveCart === 'function') {
+      this.saveCart(updatedCart);
+    }
+    return { updatedCart, expiredOfferItems, outOfStockItems, adjustedStockItems, changed };
+  },
+
+  async deductPieceStockForOrder(orderItems) {
+    if (!this.isPieceStockActive()) return false;
+    if (!Array.isArray(orderItems) || orderItems.length === 0) return false;
+    const prods = this.getProducts ? this.getProducts() : [];
+    if (!Array.isArray(prods) || prods.length === 0) return false;
+
+    const qtyByProd = new Map();
+    orderItems.forEach(it => {
+      const pid = it.productId || it.id;
+      if (!pid) return;
+      qtyByProd.set(pid, (qtyByProd.get(pid) || 0) + Math.max(1, Number(it.qty || 1)));
+    });
+
+    let touched = false;
+    const nextProducts = prods.map(p => {
+      if (!p || !qtyByProd.has(p.id)) return p;
+      if (p.stockQty === null || p.stockQty === undefined || p.stockQty === '') return p;
+      const cur = Number(p.stockQty);
+      if (!isFinite(cur)) return p;
+      const nextQty = Math.max(0, Math.floor(cur - qtyByProd.get(p.id)));
+      if (nextQty !== cur) touched = true;
+      return Object.assign({}, p, { stockQty: nextQty });
+    });
+
+    if (touched && typeof this.saveProducts === 'function') {
+      await this.saveProducts(nextProducts);
+    }
+    return touched;
+  },
+
+  getBulkPriceUndoSnapshot() {
+    try {
+      const raw = localStorage.getItem(this.getKey('harpy_bulk_price_undo'));
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
+  },
+
+  saveBulkPriceUndoSnapshot(snapshot) {
+    try {
+      if (snapshot) {
+        this.safeSetItem(this.getKey('harpy_bulk_price_undo'), JSON.stringify(snapshot));
+      } else {
+        localStorage.removeItem(this.getKey('harpy_bulk_price_undo'));
+      }
+    } catch (e) {}
   }
 };
 

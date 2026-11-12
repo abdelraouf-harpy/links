@@ -4,6 +4,9 @@
 
 var activeCategoryFilter = 'all';
 var activeDiscoveryFilter = 'all';
+var activeCatalogSort = 'default';
+var filterOffersOnly = false;
+var filterInStockOnly = false;
 var searchDebounceTimer = null;
 var currentPreviewProductId = null;
 
@@ -55,6 +58,9 @@ function getCategorySvgIcon(catName) {
   }
   if (c.includes('وجب') || c.includes('كومبو') || c.includes('meal')) {
     return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="10" y1="10" x2="10" y2="20"/></svg>';
+  }
+  if (window.NicheEngine && NicheEngine.isStoreMode()) {
+    return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>';
   }
   // Default Appetizing Food Cloche / Plate SVG
   return '<svg viewBox="0 0 24 24" class="cat-svg-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v2"/><path d="M4 18h16"/><path d="M4 18a8 8 0 0 1 16 0"/><line x1="2" y1="20" x2="22" y2="20"/></svg>';
@@ -133,7 +139,11 @@ function renderCategories() {
   }
 
   const curLang = (typeof I18n !== 'undefined') ? I18n.getLanguage() : 'ar';
-  const currentSig = curLang + '_' + JSON.stringify(categories);
+  const visibleProdsForCat = Store.getProducts().filter(p => p && p.visible !== false);
+  const offersCount = (window.NicheEngine)
+    ? visibleProdsForCat.filter(p => NicheEngine.isOfferActive(p)).length
+    : 0;
+  const currentSig = curLang + '_' + offersCount + '_' + JSON.stringify(categories);
 
   // Only re-build DOM if the list of categories actually changed!
   if (lastRenderedCategoriesSignature !== currentSig) {
@@ -141,6 +151,7 @@ function renderCategories() {
     const favCount = (Store.getFavorites && typeof Store.getFavorites === 'function') ? Store.getFavorites().length : 0;
     const isAllActive = (activeCategoryFilter === 'all' && activeDiscoveryFilter === 'all');
     const isFavActive = (activeDiscoveryFilter === 'fav');
+    const isOffersActive = (!isFavActive && activeCategoryFilter === '__offers__');
 
     let html = `
       <button class="cat-card-pill cat-pill ${isAllActive ? 'active' : ''}" data-cat="all" onclick="handleCategoryFilter('all')" title="${(typeof t === "function" ? t("cat_all", "الكل") : "الكل")}">
@@ -148,6 +159,16 @@ function renderCategories() {
         <span class="cat-card-label">${(typeof t === "function" ? t("cat_all", "الكل") : "الكل")}</span>
       </button>
     `;
+
+    if (offersCount > 0) {
+      const offersLbl = (curLang === 'en') ? `Hot Offers (${offersCount})` : `العروض الحالية (${offersCount})`;
+      html += `
+        <button class="cat-card-pill cat-pill cat-pill-offers ${isOffersActive ? 'active' : ''}" data-cat="__offers__" onclick="handleCategoryFilter('__offers__')" title="${offersLbl}">
+          <div class="cat-card-icon"><svg viewBox="0 0 24 24" class="cat-svg-icon" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 15 8l6 .8-4.4 4.2 1.1 6-5.7-3-5.7 3 1.1-6L3 8.8 9 8l3-6Z"/></svg></div>
+          <span class="cat-card-label">${offersLbl}</span>
+        </button>
+      `;
+    }
 
     if (favCount > 0) {
       html += `
@@ -280,6 +301,8 @@ function renderProducts(forceRebuild = false) {
       secTitleEl.textContent = `${prefix} "${searchQuery}"`;
     } else if (activeDiscoveryFilter === 'fav') {
       secTitleEl.textContent = (typeof window.t === 'function' ? window.t('cat_fav', 'الأصناف المفضلة') : 'الأصناف المفضلة');
+    } else if (activeCategoryFilter === '__offers__') {
+      secTitleEl.textContent = (typeof window.I18n !== 'undefined' && I18n.getLanguage() === 'en') ? 'Special Timed Offers' : 'العروض والخصومات الحالية';
     } else if (activeCategoryFilter === 'all') {
       secTitleEl.textContent = (typeof window.t === 'function' ? window.t('sec_featured_items', 'الأكثر مبيعاً') : 'الأكثر مبيعاً');
     } else {
@@ -288,9 +311,15 @@ function renderProducts(forceRebuild = false) {
     }
   }
 
-  // Fast content signature to detect real product data changes
+  // Fast content signature to detect real product data & live offer expiration changes
   const curLang = (typeof I18n !== 'undefined') ? I18n.getLanguage() : 'ar';
-  const currentSig = curLang + '_' + allProds.map(p => `${p.id}_${p.price}_${p.originalPrice || 0}_${p.name}_${p.category}_${p.isFeatured ? 1 : 0}_${p.badge || ''}_${(p.sizes || []).length}_${(p.addons || []).length}`).join('|');
+  const now = Date.now();
+  const currentSig = curLang + '_' + activeCatalogSort + '_' + allProds.map(p => {
+    const eff = Store.getEffectiveProductPrice ? Store.getEffectiveProductPrice(p, now) : p.price;
+    const orig = Store.getEffectiveProductOriginalPrice ? Store.getEffectiveProductOriginalPrice(p, now) : (p.originalPrice || 0);
+    const stk = (p.stockQty !== undefined && p.stockQty !== null) ? p.stockQty : '';
+    return `${p.id}_${eff}_${orig}_${stk}_${p.name}_${p.category}_${p.isFeatured ? 1 : 0}_${p.badge || ''}_${(p.sizes || []).length}_${(p.addons || []).length}`;
+  }).join('|');
 
   const existingCards = elements.productsContainer.querySelectorAll('.food-item-card');
   const needsFullBuild = forceRebuild || existingCards.length === 0 || currentSig !== lastRenderedProductsSignature || allProds.length !== existingCards.length;
@@ -298,9 +327,19 @@ function renderProducts(forceRebuild = false) {
   if (needsFullBuild) {
     lastRenderedProductsSignature = currentSig;
 
-    // Priority Sorting: Favorited products appear at the top
+    // Priority Sorting
     let sortedProds = [...allProds];
-    if (favorites.length > 0) {
+    if (activeCatalogSort === 'price-asc') {
+      sortedProds.sort((a, b) => (Store.getEffectiveProductPrice(a, now)) - (Store.getEffectiveProductPrice(b, now)));
+    } else if (activeCatalogSort === 'price-desc') {
+      sortedProds.sort((a, b) => (Store.getEffectiveProductPrice(b, now)) - (Store.getEffectiveProductPrice(a, now)));
+    } else if (activeCatalogSort === 'offers-first') {
+      sortedProds.sort((a, b) => {
+        const aOff = (window.NicheEngine && NicheEngine.isOfferActive(a, now)) ? 1 : 0;
+        const bOff = (window.NicheEngine && NicheEngine.isOfferActive(b, now)) ? 1 : 0;
+        return bOff - aOff;
+      });
+    } else if (favorites.length > 0) {
       sortedProds.sort((a, b) => {
         const aFav = favorites.includes(a.id);
         const bFav = favorites.includes(b.id);
@@ -362,12 +401,20 @@ function renderProducts(forceRebuild = false) {
     }
 
     const isFav = favorites.includes(p.id);
+    const hasOfferNow = !!(window.NicheEngine && NicheEngine.isOfferActive(p, now));
+    const availQty = (Store.getAvailableStockQty) ? Store.getAvailableStockQty(p) : null;
     const catMatch = (activeDiscoveryFilter === 'fav')
       ? isFav
-      : (activeCategoryFilter === 'all' || p.category === activeCategoryFilter);
+      : (activeCategoryFilter === '__offers__'
+          ? hasOfferNow
+          : (activeCategoryFilter === 'all' || p.category === activeCategoryFilter));
+
+    const offersChipMatch = !filterOffersOnly || hasOfferNow;
+    const stockChipMatch = !filterInStockOnly || (availQty === null || availQty > 0);
 
     const pDesc = (p.desc || p.description || '').toLowerCase();
     const pCategory = (p.category || '').toLowerCase();
+    const pBrand = (p.brand || '').toLowerCase();
     const pBadge = (p.badge || '').toLowerCase();
     const pNameEn = (p.name_en || (typeof window.tr === 'function' ? window.tr(p.name) : '')).toLowerCase();
     const pDescEn = (p.desc_en || (typeof window.tr === 'function' ? window.tr(pDesc) : '')).toLowerCase();
@@ -379,10 +426,11 @@ function renderProducts(forceRebuild = false) {
       pDescEn.includes(searchQuery) ||
       pCategory.includes(searchQuery) ||
       pCatEn.includes(searchQuery) ||
+      pBrand.includes(searchQuery) ||
       pBadge.includes(searchQuery)
     );
 
-    if (catMatch && searchMatch) {
+    if (catMatch && offersChipMatch && stockChipMatch && searchMatch) {
       card.style.display = '';
       card.classList.remove('is-hidden');
       visibleCount++;
@@ -467,6 +515,10 @@ function renderHeroShowcase(p, currency) {
   const isFav = Store.isFavorite(p.id);
   const cart = Store.getCart();
   const cartItem = cart.find(i => (i.productId === p.id || i.id === p.id) && !i.selectedSize && (!i.selectedAddons || i.selectedAddons.length === 0));
+  const effPrice = Store.getEffectiveProductPrice ? Store.getEffectiveProductPrice(p) : p.price;
+  const effOrig = Store.getEffectiveProductOriginalPrice ? Store.getEffectiveProductOriginalPrice(p) : (p.originalPrice || 0);
+  const discPct = (window.NicheEngine) ? NicheEngine.getDiscountPercent(p) : 0;
+  const isTimed = !!(window.NicheEngine && NicheEngine.isTimedOfferActive(p));
   const qty = cartItem ? cartItem.qty : 0;
   const hasOptions = (p.sizes && p.sizes.length > 0) || (p.addons && p.addons.length > 0);
 
@@ -475,6 +527,7 @@ function renderHeroShowcase(p, currency) {
       <div class="hero-product-img-wrap">
         <img src="${p.image}" class="hero-product-img" alt="${(typeof window.getProductName === 'function' ? window.getProductName(p) : p.name)}" loading="eager" fetchpriority="high" decoding="async">
         <span class="hero-badge-tag">${(typeof window.getProductBadge === 'function' ? window.getProductBadge(p.badge || 'اختيار الشيف') : (p.badge || 'اختيار الشيف'))}</span>
+        ${discPct > 0 ? `<span class="offer-discount-badge font-num">-${discPct}%</span>` : ''}
       </div>
       <div class="hero-product-content">
         <div>
@@ -484,11 +537,12 @@ function renderHeroShowcase(p, currency) {
           </div>
           <h2 class="hero-product-title">${(typeof window.getProductName === 'function' ? window.getProductName(p) : p.name)}</h2>
           <p class="hero-product-desc">${(typeof window.getProductDesc === 'function' ? window.getProductDesc(p) : (p.desc || p.description || ''))}</p>
+          ${isTimed ? `<div class="offer-countdown-pill" data-offer-ends="${p.offerEndsAt}"><span>${p.offerLabel ? Store.escapeHtml(p.offerLabel) + ' • ' : 'ينتهي خلال '}</span><span class="offer-timer-digits font-num">...</span></div>` : ''}
         </div>
         <div class="hero-product-footer">
           <div class="hero-price font-num">
-            ${p.originalPrice && p.originalPrice > p.price ? `<span class="price-crossed" style="font-size:14px;">${p.originalPrice} ${currency}</span>` : ''}
-            ${p.price} <span>${currency}</span>
+            ${effOrig > effPrice ? `<span class="price-crossed" style="font-size:14px;">${effOrig} ${currency}</span>` : ''}
+            ${effPrice} <span>${currency}</span>
           </div>
           <div style="display:flex; align-items:center; gap:8px;">
             <button class="btn-fav-toggle ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); handleToggleFav('${p.id}')" title="إضافة للمفضلة">
@@ -519,16 +573,24 @@ function renderProductCard(p, currency, index = 0) {
   const prodImg = (p.image && p.image.trim() && p.image !== 'null') ? p.image : fallbackImg;
   const isAlreadyLoaded = existingImg && (existingImg.classList.contains('loaded') || existingImg.complete) && existingImg.getAttribute('src') === prodImg;
 
+  const effPrice = Store.getEffectiveProductPrice ? Store.getEffectiveProductPrice(p) : p.price;
+  const effOrig = Store.getEffectiveProductOriginalPrice ? Store.getEffectiveProductOriginalPrice(p) : (p.originalPrice || 0);
+  const discPct = (window.NicheEngine) ? NicheEngine.getDiscountPercent(p) : 0;
+  const isTimed = !!(window.NicheEngine && NicheEngine.isTimedOfferActive(p));
+  const availQty = Store.getAvailableStockQty ? Store.getAvailableStockQty(p) : null;
+  const isSoldOut = (availQty !== null && availQty <= 0) || p.soldOut === true || p.available === false;
+
   return `
-    <div class="food-item-card" data-product-id="${p.id}" data-rendered-qty="${qty}" data-rendered-fav="${isFav ? '1' : '0'}" onclick="handleCardClick(event, '${p.id}')">
+    <div class="food-item-card ${isSoldOut ? 'is-sold-out' : ''}" data-product-id="${p.id}" data-rendered-qty="${qty}" data-rendered-fav="${isFav ? '1' : '0'}" onclick="handleCardClick(event, '${p.id}')">
       <div class="food-item-media">
         <img src="${prodImg}" class="food-item-img ${isAlreadyLoaded ? 'loaded' : ''}" alt="" ${isAboveFold ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"'} decoding="async" onload="this.classList.add('loaded')" onerror="this.onerror=null; this.src='${fallbackImg}'; this.classList.add('loaded');">
         <div class="card-top-actions">
-          ${p.badge ? `<span class="card-badge">${(typeof window.getProductBadge === 'function' ? window.getProductBadge(p.badge) : p.badge)}</span>` : '<span></span>'}
+          ${discPct > 0 ? `<span class="offer-discount-badge font-num">-${discPct}%</span>` : (p.badge ? `<span class="card-badge">${(typeof window.getProductBadge === 'function' ? window.getProductBadge(p.badge) : p.badge)}</span>` : '<span></span>')}
           <button class="btn-fav-toggle ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); handleToggleFav('${p.id}')" title="إضافة للمفضلة">
             <svg class="icon" viewBox="0 0 24 24" style="fill: ${isFav ? 'currentColor' : 'none'};"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
           </button>
         </div>
+        ${isSoldOut ? `<span class="stock-out-badge">نفدت الكمية</span>` : (availQty !== null && availQty <= 5 ? `<span class="stock-low-badge font-num">متبقي ${availQty} فقط</span>` : '')}
       </div>
 
       <div class="food-item-body">
@@ -538,7 +600,7 @@ function renderProductCard(p, currency, index = 0) {
               <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               <span>${(p.prepTime ? p.prepTime.replace(/دقيقة|دقائق/g, (typeof t === "function" ? t("mins", "mins") : "mins")) : ("15 " + (typeof t === "function" ? t("mins", "mins") : "mins")))}</span>
             </span>
-            <span style="font-size:11.5px; color:var(--text-muted);">• ${(typeof window.getProductCategory === "function" ? window.getProductCategory(p.category) : (typeof window.tr === "function" ? window.tr(p.category) : p.category))}</span>
+            <span style="font-size:11.5px; color:var(--text-muted);">• ${(typeof window.getProductCategory === "function" ? window.getProductCategory(p.category) : (typeof window.tr === "function" ? window.tr(p.category) : p.category))}${p.brand ? ` • ${Store.escapeHtml(p.brand)}` : ''}</span>
           </div>
           <button class="btn-fav-inline ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); handleToggleFav('${p.id}')" title="إضافة للمفضلة">
             <svg class="icon icon-sm" viewBox="0 0 24 24" style="fill: ${isFav ? 'currentColor' : 'none'};"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
@@ -547,14 +609,15 @@ function renderProductCard(p, currency, index = 0) {
 
         <h3 class="food-item-title">${(typeof window.getProductName === "function" ? window.getProductName(p) : (typeof window.tr === "function" ? window.tr(p.name) : p.name))}</h3>
         <p class="food-item-desc">${(typeof window.getProductDesc === "function" ? window.getProductDesc(p) : (typeof window.tr === "function" ? window.tr(p.desc || p.description || "") : (p.desc || p.description || "")))}</p>
+        ${isTimed ? `<div class="offer-countdown-pill" data-offer-ends="${p.offerEndsAt}"><span>${p.offerLabel ? Store.escapeHtml(p.offerLabel) + ' • ' : 'ينتهي خلال '}</span><span class="offer-timer-digits font-num">...</span></div>` : ''}
 
         <div class="food-item-footer">
           <div class="food-item-price font-num">
-            ${p.originalPrice && p.originalPrice > p.price ? `<span class="price-crossed">${p.originalPrice} ${currency}</span>` : ''}
-            ${p.price} <span>${currency}</span>
+            ${effOrig > effPrice ? `<span class="price-crossed">${effOrig} ${currency}</span>` : ''}
+            ${effPrice} <span>${currency}</span>
           </div>
           <div>
-            ${(!isOrderingDisabled() && hasOptions) ? `
+            ${(!isOrderingDisabled() && hasOptions && !isSoldOut) ? `
               <button class="btn-quick-add" onclick="event.stopPropagation(); openCustomizer('${p.id}')">
                 <span>${(typeof t === "function" ? t("btn_customize", "تخصيص") : "تخصيص")}</span>
               </button>
@@ -582,6 +645,10 @@ function renderCardActionButton(product, qty) {
         <span style="font-size:11.5px; font-weight:700;">تفاصيل</span>
       </button>
     `;
+  }
+  const availQty = Store.getAvailableStockQty ? Store.getAvailableStockQty(product) : null;
+  if ((availQty !== null && availQty <= 0) || product.soldOut === true || product.available === false) {
+    return `<button class="btn-quick-add btn-sold-out-disabled" disabled onclick="event.stopPropagation()" style="opacity:0.55; cursor:not-allowed;"><span>نفدت الكمية</span></button>`;
   }
   if (qty > 0) {
     return `
@@ -643,6 +710,12 @@ window.handleQuickAddItem = function(productId, triggerElement) {
   const p = prods.find(item => item.id === productId);
   if (!p) return;
 
+  const availQty = Store.getAvailableStockQty ? Store.getAvailableStockQty(p) : null;
+  if ((availQty !== null && availQty <= 0) || p.soldOut === true || p.available === false) {
+    if (typeof showToastNotification === 'function') showToastNotification("عذراً، نفدت الكمية المتاحة لهذا المنتج", "warning");
+    return;
+  }
+
   const hasOptions = (p.sizes && p.sizes.length > 0) || (p.addons && p.addons.length > 0);
   if (hasOptions) {
     openCustomizer(productId);
@@ -650,6 +723,14 @@ window.handleQuickAddItem = function(productId, triggerElement) {
   }
 
   const cart = Store.getCart();
+  const totalInCartForProduct = cart.filter(i => (i.productId || i.id) === p.id).reduce((s, i) => s + (i.qty || 1), 0);
+  if (availQty !== null && totalInCartForProduct >= availQty) {
+    if (typeof showToastNotification === 'function') showToastNotification(`متوفر ${availQty} قطعة فقط في المخزون حالياً`, "warning");
+    return;
+  }
+
+  const effPrice = Store.getEffectiveProductPrice ? Store.getEffectiveProductPrice(p) : p.price;
+  const isTimed = !!(window.NicheEngine && NicheEngine.isTimedOfferActive(p));
   const dummyQuery = {
     productId: p.id,
     selectedSize: null,
@@ -659,14 +740,18 @@ window.handleQuickAddItem = function(productId, triggerElement) {
   const existing = findMatchingCartItem(cart, dummyQuery);
   if (existing) {
     existing.qty += 1;
+    existing.price = effPrice;
+    existing.basePrice = effPrice;
+    existing.appliedOfferEndsAt = isTimed ? p.offerEndsAt : 0;
   } else {
     cart.push({
       id: 'c_' + p.id + '_' + Date.now(),
       productId: p.id,
       name: p.name,
       name_en: p.name_en || (typeof window.tr === 'function' ? window.tr(p.name) : ''),
-      basePrice: p.price,
-      price: p.price,
+      basePrice: effPrice,
+      price: effPrice,
+      appliedOfferEndsAt: isTimed ? p.offerEndsAt : 0,
       image: p.image,
       category: p.category,
       category_en: p.category_en || (typeof window.tr === 'function' ? window.tr(p.category) : ''),
@@ -706,6 +791,18 @@ window.handleUpdateItemQty = function(cartItemId, change) {
 
   if (!existing) return;
 
+  if (change > 0 && Store.getAvailableStockQty) {
+    const prod = (Store.getProducts() || []).find(p => p.id === (existing.productId || existing.id));
+    if (prod) {
+      const avail = Store.getAvailableStockQty(prod);
+      const totalForProd = cart.filter(i => (i.productId || i.id) === prod.id).reduce((s, i) => s + (i.qty || 1), 0);
+      if (avail !== null && totalForProd >= avail) {
+        if (typeof showToastNotification === 'function') showToastNotification(`متوفر ${avail} قطعة فقط بالمخزون حالياً`, "warning");
+        return;
+      }
+    }
+  }
+
   existing.qty += change;
   if (existing.qty <= 0) {
     cart = cart.filter(i => i.id !== existing.id);
@@ -742,9 +839,11 @@ window.openQuickPreview = function(productId) {
     elements.previewPrepTime.textContent = prep.replace(/دقيقة|دقائق/g, (typeof t === "function" ? t("mins", "mins") : "mins"));
   }
   if (elements.previewPrice) {
+    const effPrice = Store.getEffectiveProductPrice ? Store.getEffectiveProductPrice(p) : p.price;
+    const effOrig = Store.getEffectiveProductOriginalPrice ? Store.getEffectiveProductOriginalPrice(p) : (p.originalPrice || 0);
     elements.previewPrice.innerHTML = `
-      ${p.originalPrice && p.originalPrice > p.price ? `<span class="price-crossed" style="font-size:13px;">${p.originalPrice} ${currency}</span>` : ''}
-      ${p.price} <span>${currency}</span>
+      ${effOrig > effPrice ? `<span class="price-crossed" style="font-size:13px;">${effOrig} ${currency}</span>` : ''}
+      ${effPrice} <span>${currency}</span>
     `;
   }
   if (elements.previewDesc) elements.previewDesc.textContent = (typeof window.getProductDesc === 'function' ? window.getProductDesc(p) : (typeof window.tr === 'function' ? window.tr(p.desc || p.description || '') : (p.desc || p.description || '')));
@@ -838,3 +937,22 @@ window.invalidateProductSignature = function() { lastRenderedProductsSignature =
 window.renderCategories = renderCategories;
 window.renderProducts = renderProducts;
 window.renderDiscoveryRibbon = renderDiscoveryRibbon;
+
+window.setCatalogSortMode = function(mode) {
+  activeCatalogSort = mode || 'default';
+  renderProducts(true);
+};
+
+window.toggleCatalogOffersFilter = function() {
+  filterOffersOnly = !filterOffersOnly;
+  const btn = document.getElementById('btn-filter-offers-only');
+  if (btn) btn.classList.toggle('active', filterOffersOnly);
+  renderProducts();
+};
+
+window.toggleCatalogInStockFilter = function() {
+  filterInStockOnly = !filterInStockOnly;
+  const btn = document.getElementById('btn-filter-instock-only');
+  if (btn) btn.classList.toggle('active', filterInStockOnly);
+  renderProducts();
+};

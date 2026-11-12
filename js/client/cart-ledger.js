@@ -274,6 +274,9 @@ function updateDeliveryFeedbackUI() {
 
 // ── Dynamic Island & Cart UI Updates ───────────────────────
 function updateLedgerUI() {
+  if (typeof Store !== 'undefined' && Store.syncCartWithLivePricing) {
+    try { Store.syncCartWithLivePricing(); } catch(e) {}
+  }
   const cart = Store.getCart();
   const settings = Store.getSettings();
   const currency = (typeof window.getCurrency === 'function') ? window.getCurrency(settings.currency) : (typeof window.t === 'function' ? window.t('currency', settings.currency || "ج.م") : (settings.currency || "ج.م"));

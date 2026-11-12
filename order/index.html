@@ -115,7 +115,7 @@
   <link rel="dns-prefetch" href="https://i.ibb.co">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
   <link rel="stylesheet" href="css/order-tokens.css?v=187.0">
-  <link rel="stylesheet" href="css/order-client.css?v=187.0">
+  <link rel="stylesheet" href="css/order-client.css?v=190.0">
   <style id="harpy-critical-layout">
     /* ═══════════════════════════════════════════════════════════
        CRITICAL DEFENSIVE INLINE SHIELD (Prevents SW Cache Mismatches)
@@ -794,6 +794,16 @@
             }
           }
         }
+        // Custom Domain cache check before generic path/localStorage fallback
+        var _cleanHost = (window.location.hostname || '').toLowerCase().replace(/^www\./, '');
+        var _platformHosts = ['harpymenu.com', 'harpy-order.web.app', 'harpy-order.firebaseapp.com', 'localhost', '127.0.0.1'];
+        var _isCustomHost = !!(_cleanHost && _platformHosts.indexOf(_cleanHost) === -1 && !_cleanHost.endsWith('.github.io') && !_cleanHost.endsWith('.web.app') && !_cleanHost.endsWith('.firebaseapp.com'));
+        if (!slug && _isCustomHost) {
+          try {
+            var _dMap = JSON.parse(localStorage.getItem('harpy_domain_map_v1') || '{}');
+            if (_dMap && _dMap[_cleanHost]) slug = _dMap[_cleanHost];
+          } catch(e) {}
+        }
         // Path-based tenant resolution: e.g. harpymenu.com/saj or harpymenu.com/order/saj
         if (!slug && window.location && window.location.pathname && window.location.protocol.startsWith('http')) {
           try {
@@ -822,6 +832,7 @@
         slug = slug.toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
         window.__harpySlug = slug;
         window.__harpyActiveSlug = slug;
+        window.__harpyIsCustomDomain = _isCustomHost;
         try {
           localStorage.setItem('harpy_active_slug', slug);
           localStorage.setItem('harpy_last_visited_slug', slug);
@@ -831,9 +842,12 @@
           var _urlParams = new URLSearchParams(window.location.search);
           var _isMenuOnly = false;
           try {
-            var _cachedSettings = JSON.parse(localStorage.getItem('harpy_' + slug + '_settings') || '{}');
+            var _cachedSettings = JSON.parse(localStorage.getItem('harpy_' + slug + '_harpy_order_settings') || localStorage.getItem('harpy_' + slug + '_settings') || '{}');
             if (_cachedSettings && _cachedSettings.modules && _cachedSettings.modules.ordering === false) {
               _isMenuOnly = true;
+            }
+            if (_cachedSettings && _cachedSettings.businessType === 'store') {
+              document.documentElement.setAttribute('data-business-type', 'store');
             }
           } catch(e) {}
           if (!_isMenuOnly && ((!_hasOnboarded && !_hasSkipped) || _urlParams.has('onboard') || _urlParams.has('lang'))) {
@@ -857,7 +871,7 @@
           return;
         }
 
-        // Clean URL Bar Synchronization: Present clean harpymenu.com/{slug} in the address bar
+        // Clean URL Bar Synchronization: Present clean harpymenu.com/{slug} or clean root / on custom domain
         try {
           if (window.history && window.history.replaceState && window.location.protocol.startsWith('http')) {
             var repoPrefix = '';
@@ -872,7 +886,9 @@
             urlParams.delete('store');
             urlParams.delete('slug');
             var remainingQuery = urlParams.toString();
-            var cleanPath = (repoPrefix ? repoPrefix : '') + '/' + encodeURIComponent(slug) + (remainingQuery ? ('?' + remainingQuery) : '') + window.location.hash;
+            var cleanPath = _isCustomHost
+              ? ('/' + (remainingQuery ? ('?' + remainingQuery) : '') + window.location.hash)
+              : ((repoPrefix ? repoPrefix : '') + '/' + encodeURIComponent(slug) + (remainingQuery ? ('?' + remainingQuery) : '') + window.location.hash);
             window.history.replaceState({ slug: slug }, '', cleanPath);
           }
         } catch(e) {}
@@ -1151,6 +1167,18 @@
       </div>
     </div>
 
+    <!-- Advanced Storefront Catalog Filters (Active when modules.catalogFilters is enabled) -->
+    <div id="client-catalog-filters-bar" class="catalog-filters-bar" style="display:none;">
+      <select id="catalog-sort-select" class="catalog-filter-select" onchange="window.setCatalogSortMode && window.setCatalogSortMode(this.value)" aria-label="ترتيب المنتجات">
+        <option value="default">الترتيب الافتراضي</option>
+        <option value="offers-first">العروض أولاً</option>
+        <option value="price-asc">السعر: من الأقل للأعلى</option>
+        <option value="price-desc">السعر: من الأعلى للأقل</option>
+      </select>
+      <button type="button" id="btn-filter-offers-only" class="catalog-filter-chip" onclick="window.toggleCatalogOffersFilter && window.toggleCatalogOffersFilter()">العروض الحالية</button>
+      <button type="button" id="btn-filter-instock-only" class="catalog-filter-chip" onclick="window.toggleCatalogInStockFilter && window.toggleCatalogInStockFilter()">المتوفر فقط</button>
+    </div>
+
     <!-- Hero / Chef's Pick Showcase -->
     <section id="hero-showcase-container" style="display:none;"></section>
 
@@ -1359,6 +1387,15 @@
             </svg>
           </a>
         </div>
+      </div>
+
+      <!-- Card 6.5: Store Return & Warranty Policy (Shown in Store Mode / when enabled) -->
+      <div id="store-return-policy-card" class="portfolio-card return-policy-card" style="display:none;">
+        <div class="portfolio-card-heading-group">
+          <h3 class="portfolio-card-title">سياسة الاسترجاع والضمان</h3>
+          <span class="portfolio-title-bar"></span>
+        </div>
+        <p id="store-return-policy-text" class="portfolio-about-desc" style="margin:0;"></p>
       </div>
 
       <!-- Card 7: Big Bottom CTA Button -->
@@ -1744,6 +1781,12 @@
             </div>
           </div>
         </div>
+
+        <!-- Return Policy Badge inside Cart -->
+        <div id="cart-return-policy-badge" class="return-policy-badge" style="display:none;">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span id="cart-return-policy-text"></span>
+        </div>
       </div>
 
       <!-- Footer for Step 1 -->
@@ -2113,6 +2156,8 @@
         <img id="customizer-img" src="" alt="Food Preview">
         <div class="customizer-base-price-chip font-num" id="customizer-base-price">0 ج.م</div>
       </div>
+      <div id="customizer-gallery-thumbs" class="customizer-gallery-thumbs" style="display:none;"></div>
+      <div id="customizer-offer-countdown" class="offer-countdown-pill" style="display:none; margin-bottom:10px;"></div>
 
       <!-- Sizes / Portions Section -->
       <div class="customizer-section" id="customizer-sizes-section">
@@ -2631,6 +2676,24 @@
     </button>
   </nav>
 
+  <!-- +18 Age Verification Gate Modal (Controlled by modules.ageGate18) -->
+  <div class="modal-backdrop age-gate-backdrop" id="age-gate-backdrop"></div>
+  <div class="modal-box age-gate-modal" id="age-gate-modal" role="dialog" aria-modal="true" style="display:none;">
+    <div class="age-gate-badge font-num">+18</div>
+    <h3 id="age-gate-title" style="margin:0 0 8px; font-size:1.18rem; font-weight:900; color:var(--text-main);">تحقق من العمر (+18 عاماً)</h3>
+    <p id="age-gate-desc" style="font-size:0.86rem; color:var(--text-muted); line-height:1.65; margin-bottom:18px;">
+      يحتوي هذا المتجر على منتجات مخصصة للبالغين فوق 18 عاماً فقط. بدخولك للمتجر تقر بأن عمرك 18 سنة أو أكثر.
+    </p>
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <button type="button" id="btn-age-gate-confirm" class="btn btn-primary" onclick="window.confirmAgeGate18 && window.confirmAgeGate18()" style="width:100%; padding:12px; font-weight:900; border-radius:12px;">
+        نعم، عمري +18 عاماً — دخول للمتجر
+      </button>
+      <button type="button" class="btn btn-ghost" onclick="window.declineAgeGate18 && window.declineAgeGate18()" style="width:100%; padding:10px; border:1px solid var(--border); font-weight:700; border-radius:12px; color:var(--text-muted);">
+        أقل من 18 عاماً (مغادرة)
+      </button>
+    </div>
+  </div>
+
   <!-- Multi-Branch Picker Modal -->
   <div class="modal-backdrop" id="branch-picker-backdrop" style="z-index:10004;" onclick="window.closeBranchPickerModal && window.closeBranchPickerModal()"></div>
   <div class="modal-box" id="branch-picker-modal" style="max-width:440px; text-align:center; padding:24px 20px; z-index:10005; border-radius:20px; width:90%;">
@@ -2676,16 +2739,17 @@
   <script src="js/core/demo-seed-data.js?v=187.0"></script>
   <script src="js/core/sound-effects.js?v=187.0"></script>
   <script src="js/core/i18n.js?v=187.0"></script>
-  <script src="js/store.js?v=187.0"></script>
+  <script src="js/core/niche-engine.js?v=190.0"></script>
+  <script src="js/store.js?v=190.0"></script>
   <script src="js/core/qrcode.min.js?v=187.0"></script>
-  <script src="js/client/client-core.js?v=187.0"></script>
-  <script src="js/client/menu-view.js?v=187.0"></script>
+  <script src="js/client/client-core.js?v=190.0"></script>
+  <script src="js/client/menu-view.js?v=190.0"></script>
   <script src="js/client/stories-viewer.js?v=187.0"></script>
-  <script src="js/client/customizer-modal.js?v=187.0"></script>
-  <script src="js/client/cart-ledger.js?v=187.0"></script>
-  <script src="js/client/order-tracking.js?v=187.0"></script>
+  <script src="js/client/customizer-modal.js?v=190.0"></script>
+  <script src="js/client/cart-ledger.js?v=190.0"></script>
+  <script src="js/client/order-tracking.js?v=190.0"></script>
   <script src="js/app.js?v=187.0"></script>
-  <script src="js/core/module-enforcer.js?v=187.0"></script>
+  <script src="js/core/module-enforcer.js?v=190.0"></script>
   <script src="js/pwa.js?v=187.0"></script>
 </body>
 </html>

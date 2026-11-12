@@ -21,11 +21,23 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
     return;
   }
 
-  const cart = Store.getCart();
-  if (cart.length === 0) {
-    showToastNotification("السلة فارغة، تصفح المنيو واختر وجباتك المفضلة", "warning");
+  const cartCheck = Store.getCart();
+  if (cartCheck.length === 0) {
+    showToastNotification("السلة فارغة، تصفح المنيو واختر منتجاتك المفضلة", "warning");
     return;
   }
+
+  // Synchronize live timed-offer expirations before computing checkout total
+  if (Store.syncCartWithLivePricing) {
+    const syncRes = Store.syncCartWithLivePricing();
+    if (syncRes && syncRes.changed) {
+      if (typeof updateLedgerUI === 'function') updateLedgerUI();
+      if (typeof renderProducts === 'function') renderProducts(true);
+      showToastNotification("انتهت صلاحية عرض مؤقت لبعض المنتجات وتم تحديث الأسعار بالسلة، يرجى المراجعة قبل التأكيد", "warning");
+      return;
+    }
+  }
+  const cart = Store.getCart();
 
   const fType = window.currentFulfillmentType || 'delivery';
   const tableNum = (document.getElementById('cust-table-number')?.value || '').trim();
@@ -225,18 +237,27 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
     timestamp: Date.now()
   };
 
-  // 0. Live Menu Product Availability & Stale Cart Check
+  // 0. Live Menu Product Availability, Piece Stock & Stale Cart Check
   const liveMenu = (typeof Store !== 'undefined' && typeof Store.getMenu === 'function') ? Store.getMenu() : [];
   if (liveMenu && liveMenu.length > 0) {
     const unavailableItems = [];
+    const insufficientStock = [];
     cart.forEach(item => {
       const prod = liveMenu.find(p => p.id === (item.productId || item.id));
       if (prod && (prod.soldOut === true || prod.available === false)) {
         unavailableItems.push(item.name || 'صنف غير متاح');
+      } else if (prod && Store.getAvailableStockQty) {
+        const avail = Store.getAvailableStockQty(prod);
+        if (avail !== null) {
+          if (avail <= 0) unavailableItems.push(item.name || 'نفدت الكمية');
+          else if ((item.qty || 1) > avail) insufficientStock.push(`${item.name} (متوفر ${avail})`);
+        }
       }
     });
-    if (unavailableItems.length > 0) {
-      const msg = `عذراً، الأصناف التالية لم تعد متوفرة حالياً: ${unavailableItems.join('، ')}. يرجى تعديل السلة.`;
+    if (unavailableItems.length > 0 || insufficientStock.length > 0) {
+      const msg = unavailableItems.length > 0
+        ? `عذراً، الأصناف التالية لم تعد متوفرة حالياً: ${unavailableItems.join('، ')}. يرجى تعديل السلة.`
+        : `الكمية المطلوبة أكبر من المتاح بالمخزون: ${insufficientStock.join('، ')}`;
       if (typeof showToastNotification === 'function') {
         showToastNotification(msg, 'warning');
       } else {
@@ -278,8 +299,12 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
   }
 
   if (isDelivered) {
+    if (Store.deductPieceStockForOrder) {
+      Store.deductPieceStockForOrder(cart).catch(() => {});
+    }
     SoundFX.playCash();
-    showToastNotification("تم إرسال واستلام طلبك بنجاح! بدأ المطعم بالتجهيز", "success");
+    const isStoreMode = !!(window.NicheEngine && NicheEngine.isStoreMode(settings));
+    showToastNotification(isStoreMode ? "تم استلام طلبك بنجاح! جاري تجهيز وشحن الطلب" : "تم إرسال واستلام طلبك بنجاح! بدأ المطعم بالتجهيز", "success");
     Store.clearCart();
     closeCartDrawer();
     goToCheckoutStep(1);

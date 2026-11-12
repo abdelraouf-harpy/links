@@ -8117,3 +8117,154 @@ html[dir="ltr"] .preview-title,
 html[dir="ltr"] .preview-desc {
   text-align: left !important;
 }
+
+/* ── Dual-Mode E-Commerce, Timed Offers, Piece Stock & Age Gate ── */
+.catalog-filters-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.catalog-filters-bar::-webkit-scrollbar { display: none; }
+.catalog-filter-select {
+  background: var(--surface, #ffffff);
+  color: var(--text-main, #0f172a);
+  border: 1px solid var(--border, rgba(15,23,42,0.12));
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  flex-shrink: 0;
+}
+.catalog-filter-chip {
+  background: var(--surface, #ffffff);
+  color: var(--text-main, #0f172a);
+  border: 1px solid var(--border, rgba(15,23,42,0.12));
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+.catalog-filter-chip.active {
+  background: var(--primary, #ea580c);
+  color: #ffffff;
+  border-color: var(--primary, #ea580c);
+}
+
+.offer-discount-badge {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 3px 8px;
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.35);
+}
+.offer-countdown-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(249, 115, 22, 0.12);
+  border: 1px solid rgba(249, 115, 22, 0.28);
+  color: var(--primary, #ea580c);
+  font-size: 11px;
+  font-weight: 800;
+}
+.offer-countdown-pill.urgent {
+  background: rgba(239, 68, 68, 0.14);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #ef4444;
+  animation: pulseUrgentOffer 1.5s infinite;
+}
+@keyframes pulseUrgentOffer {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.72; }
+}
+
+.stock-out-badge,
+.stock-low-badge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  z-index: 3;
+}
+.stock-out-badge { background: rgba(220, 38, 38, 0.92); color: #fff; }
+.stock-low-badge { background: rgba(245, 158, 11, 0.92); color: #fff; }
+.food-item-card.is-sold-out .food-item-img { filter: grayscale(0.65); opacity: 0.75; }
+
+.customizer-gallery-thumbs {
+  display: flex;
+  gap: 8px;
+  padding: 8px 0 6px;
+  overflow-x: auto;
+}
+.customizer-thumb-btn {
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  background: var(--surface-raised, #1e293b);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.customizer-thumb-btn.active { border-color: var(--primary, #ea580c); }
+.customizer-thumb-btn img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.return-policy-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  color: var(--text-main, #0f172a);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.return-policy-badge svg { color: #16a34a; flex-shrink: 0; }
+
+.age-gate-backdrop {
+  z-index: 20000 !important;
+  background: rgba(2, 6, 23, 0.88) !important;
+  backdrop-filter: blur(8px);
+}
+.age-gate-modal {
+  z-index: 20001 !important;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  padding: 26px 22px;
+  border-radius: 22px;
+}
+.age-gate-badge {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  margin: 0 auto 14px;
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  color: #fff;
+  font-size: 1.35rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.35);
+}

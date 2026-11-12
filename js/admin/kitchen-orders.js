@@ -178,9 +178,10 @@ window.selectOrderStatus = async function(newStatus) {
   if (fInfo.isDineIn) stage3Text = '3. تقديم للطاولة';
   else if (fInfo.isTakeaway) stage3Text = '3. جاهز بالفرع';
 
+  const isStoreMode = !!(window.NicheEngine && NicheEngine.isStoreMode());
   const statusBadgeMap = {
     pending: { bg: 'rgba(245, 158, 11, 0.12)', color: '#f59e0b', borderColor: 'rgba(245, 158, 11, 0.3)', text: '1. استلام الطلب' },
-    preparing: { bg: 'rgba(59, 130, 246, 0.12)', color: '#3b82f6', borderColor: 'rgba(59, 130, 246, 0.3)', text: '2. قيد التجهيز' },
+    preparing: { bg: 'rgba(59, 130, 246, 0.12)', color: '#3b82f6', borderColor: 'rgba(59, 130, 246, 0.3)', text: isStoreMode ? '2. قيد التغليف والتجهيز' : '2. قيد التجهيز' },
     out_for_delivery: { bg: 'rgba(168, 85, 247, 0.12)', color: '#a855f7', borderColor: 'rgba(168, 85, 247, 0.3)', text: stage3Text },
     delivered: { bg: 'rgba(34, 197, 94, 0.12)', color: '#22c55e', borderColor: 'rgba(34, 197, 94, 0.3)', text: '4. تم التسليم' },
     cancelled: { bg: 'rgba(239, 68, 68, 0.12)', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)', text: 'تم الإلغاء' }
@@ -606,10 +607,11 @@ function parseOrderFulfillment(o) {
   }
 
   if (isTakeaway) {
+    const isStoreMode = !!(window.NicheEngine && NicheEngine.isStoreMode());
     return {
       type: 'takeaway',
       tableNumber: null,
-      badgeText: 'استلام من الفرع (تيك أواي)',
+      badgeText: isStoreMode ? 'استلام من الفرع' : 'استلام من الفرع (تيك أواي)',
       tagClass: 'order-type-takeaway',
       isDineIn: false,
       isTakeaway: true,
@@ -620,7 +622,7 @@ function parseOrderFulfillment(o) {
   return {
     type: 'delivery',
     tableNumber: null,
-    badgeText: 'توصيل دليفري',
+    badgeText: (window.NicheEngine && NicheEngine.isStoreMode()) ? 'شحن وتوصيل' : 'توصيل دليفري',
     tagClass: 'order-type-delivery',
     isDineIn: false,
     isTakeaway: false,
@@ -1356,8 +1358,9 @@ window.filterKitchenOrders = function(filter) {
 };
 
 window.advanceOrderStatus = async function(orderId, targetStatus) {
+  const isStoreMode = !!(window.NicheEngine && NicheEngine.isStoreMode());
   const statusLabels = {
-    preparing: 'المطبخ يجهز الطلب الآن',
+    preparing: isStoreMode ? 'جاري تغليف وتجهيز الطلب الآن' : 'المطبخ يجهز الطلب الآن',
     out_for_delivery: 'تم تحديث حالة الطلب إلى المرحلة التالية',
     delivered: 'تم إنهاء الطلب ونقله لأرشيف الفواتير بنجاح'
   };
@@ -1494,9 +1497,10 @@ window.renderOrdersList = function(orders = null) {
     if (fInfo.isDineIn) stage3Text = '3. تقديم للطاولة';
     else if (fInfo.isTakeaway) stage3Text = '3. جاهز بالفرع';
 
+    const isStoreMode = !!(window.NicheEngine && NicheEngine.isStoreMode());
     const statusBadge = {
       pending: { bg: 'rgba(245, 158, 11, 0.12)', color: '#f59e0b', borderColor: 'rgba(245, 158, 11, 0.3)', text: '1. استلام الطلب' },
-      preparing: { bg: 'rgba(59, 130, 246, 0.12)', color: '#3b82f6', borderColor: 'rgba(59, 130, 246, 0.3)', text: '2. قيد التجهيز' },
+      preparing: { bg: 'rgba(59, 130, 246, 0.12)', color: '#3b82f6', borderColor: 'rgba(59, 130, 246, 0.3)', text: isStoreMode ? '2. قيد التغليف والتجهيز' : '2. قيد التجهيز' },
       out_for_delivery: { bg: 'rgba(168, 85, 247, 0.12)', color: '#a855f7', borderColor: 'rgba(168, 85, 247, 0.3)', text: stage3Text },
       delivered: { bg: 'rgba(34, 197, 94, 0.12)', color: '#22c55e', borderColor: 'rgba(34, 197, 94, 0.3)', text: '4. تم التسليم' },
       cancelled: { bg: 'rgba(239, 68, 68, 0.12)', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)', text: 'تم الإلغاء' }
@@ -1507,7 +1511,7 @@ window.renderOrdersList = function(orders = null) {
     if (status === 'pending') {
       nextActionBtnHtml = `
         <button type="button" class="btn btn-primary btn-sm" onclick="advanceOrderStatus('${safeOrderId}', 'preparing')" style="font-weight:800; padding:6px 14px; font-size:12px; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 10px rgba(234, 88, 12, 0.3);">
-          <span>${fInfo.isTakeaway ? 'بدء التجهيز والتعليب' : 'بدء التجهيز بالمطبخ'}</span>
+          <span>${(fInfo.isTakeaway || isStoreMode) ? 'بدء التجهيز والتغليف' : 'بدء التجهيز بالمطبخ'}</span>
         </button>
       `;
     } else if (status === 'preparing') {

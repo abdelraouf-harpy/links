@@ -46,6 +46,54 @@
           window.location.replace(repoPrefix + '/order/' + window.location.search + window.location.hash);
           return;
         }
+
+        // Custom Domain SaaS Auto-Router (e.g. amounsmoke.com -> tenant storefront/admin)
+        var rawHost = (window.location.hostname || '').toLowerCase().replace(/^www\./, '');
+        var platformHosts = ['harpymenu.com', 'harpy-order.web.app', 'harpy-order.firebaseapp.com', 'localhost', '127.0.0.1'];
+        var isPlatform = !rawHost || platformHosts.indexOf(rawHost) !== -1 || rawHost.endsWith('.github.io') || rawHost.endsWith('.web.app') || rawHost.endsWith('.firebaseapp.com');
+        if (!isPlatform) {
+          var isAdminReq = (segs.length >= 1 && segs[0].toLowerCase() === 'admin');
+          var targetDir = isAdminReq ? '/admin/' : '/order/';
+          var routeBySlug = function(mappedSlug) {
+            if (!mappedSlug) return false;
+            var np = new URLSearchParams(window.location.search);
+            np.set('m', mappedSlug);
+            window.location.replace(repoPrefix + targetDir + '?' + np.toString() + window.location.hash);
+            return true;
+          };
+
+          var dKey = rawHost.replace(/[.#$\[\]\/]/g, '_');
+          try {
+            var dMapRaw = localStorage.getItem('harpy_domain_map_v1');
+            var dMap = dMapRaw ? JSON.parse(dMapRaw) : null;
+            if (dMap && dMap[rawHost] && routeBySlug(dMap[rawHost])) return;
+          } catch(e) {}
+
+          document.documentElement.style.visibility = 'hidden';
+          fetch('https://harpy-order-default-rtdb.firebaseio.com/domains/' + dKey + '.json?cb=' + Date.now(), { cache: 'no-store' })
+            .then(function(r) { return r.ok ? r.json() : null; })
+            .then(function(val) {
+              var resolved = (typeof val === 'string') ? val : (val && val.slug ? val.slug : null);
+              if (resolved) {
+                try {
+                  var m = JSON.parse(localStorage.getItem('harpy_domain_map_v1') || '{}');
+                  m[rawHost] = resolved;
+                  localStorage.setItem('harpy_domain_map_v1', JSON.stringify(m));
+                } catch(e) {}
+                routeBySlug(resolved);
+                return;
+              }
+              return fetch('./js/domain-map.json?cb=' + Date.now(), { cache: 'no-store' })
+                .then(function(r2) { return r2.ok ? r2.json() : null; })
+                .then(function(map2) {
+                  var found = map2 && (map2[rawHost] || map2[dKey]);
+                  var sl2 = (typeof found === 'string') ? found : (found && found.slug ? found.slug : null);
+                  if (sl2 && routeBySlug(sl2)) return;
+                  document.documentElement.style.visibility = '';
+                });
+            })
+            .catch(function() { document.documentElement.style.visibility = ''; });
+        }
       } catch(e) {}
     })();
   </script>

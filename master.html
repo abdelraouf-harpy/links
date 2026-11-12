@@ -33,6 +33,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <script src="js/core/niche-engine.js?v=190.0"></script>
 
   <style>
     /* ==========================================================================
@@ -1724,6 +1725,14 @@
           <span>مجمد</span>
           <span id="chip-count-frozen">(0)</span>
         </button>
+        <button class="filter-chip" data-filter="restaurant" onclick="MasterApp.setFilter('restaurant')">
+          <span>مطاعم</span>
+          <span id="chip-count-restaurant">(0)</span>
+        </button>
+        <button class="filter-chip" data-filter="store" onclick="MasterApp.setFilter('store')">
+          <span>متاجر</span>
+          <span id="chip-count-store">(0)</span>
+        </button>
       </div>
     </div>
 
@@ -2064,13 +2073,37 @@
 
     <form onsubmit="MasterApp.handleCreateTenant(event)">
       <div class="form-group">
-        <label class="form-label">اسم المطعم *</label>
-        <input type="text" class="form-input" id="new-tenant-name" placeholder="مثال: مطعم سحر الشرق" required oninput="MasterApp.suggestSlug(this.value)">
+        <label class="form-label">نوع النشاط والنظام *</label>
+        <div class="duration-pills-row" id="new-tenant-type-pills" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <button type="button" class="duration-pill active" data-btype="restaurant" onclick="MasterApp.selectNewTenantBusinessType('restaurant')" style="padding:10px 8px; font-weight:800;">
+            مطعم / كافيه
+          </button>
+          <button type="button" class="duration-pill" data-btype="store" onclick="MasterApp.selectNewTenantBusinessType('store')" style="padding:10px 8px; font-weight:800;">
+            متجر إلكتروني / براند
+          </button>
+        </div>
+        <input type="hidden" id="new-tenant-business-type" value="restaurant">
+        <div id="new-tenant-type-hint" style="font-size:11px; color:var(--text-secondary); margin-top:5px;">
+          يضبط لغة العرض (منيو / مطبخ / طاولات) والمزايا الافتراضية تلقائياً حسب نوع النشاط.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">اسم المكان / البراند *</label>
+        <input type="text" class="form-input" id="new-tenant-name" placeholder="مثال: مطعم سحر الشرق أو أمون سموك" required oninput="MasterApp.suggestSlug(this.value)">
       </div>
 
       <div class="form-group">
         <label class="form-label">الرابط المخصص (Slug) *</label>
-        <input type="text" class="form-input" id="new-tenant-slug" placeholder="sahar-elsharq" required style="font-family:var(--font-en); text-align:left;">
+        <input type="text" class="form-input" id="new-tenant-slug" placeholder="amounsmok" required style="font-family:var(--font-en); text-align:left;">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">الدومين الخاص (اختياري — مثل amounsmok.com)</label>
+        <input type="text" class="form-input" id="new-tenant-domain" placeholder="اتركه فارغاً لاستخدام رابط harpymenu.com" style="font-family:var(--font-en); text-align:left;">
+        <div style="font-size:10.5px; color:var(--text-secondary); margin-top:3px;">
+          عند ربط دومين خاص، يظل المتجر والترخيص والتحكم كاملاً داخل منظومة الماستر.
+        </div>
       </div>
 
       <div class="form-group">
@@ -2206,7 +2239,24 @@
     </div>
 
     <div style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">
-      الميزة التي تلغي تفعيلها ستختفي تماماً وبدون أي أثر من لوحة إدارة المطعم وشاشات الزبائن.
+      الميزة التي تلغي تفعيلها ستختفي تماماً وبدون أي أثر من لوحة إدارة المكان وشاشات الزبائن.
+    </div>
+
+    <div style="background:rgba(59,130,246,0.06); border:1px solid rgba(59,130,246,0.22); border-radius:12px; padding:12px; margin-bottom:14px;">
+      <div class="form-group" style="margin-bottom:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; gap:8px;">
+          <label class="form-label" style="margin-bottom:0;">نوع النظام والنشاط</label>
+          <button type="button" class="quick-link-btn" onclick="MasterApp.applyBusinessTypePresetInModules()">تطبيق مزايا النوع الافتراضية</button>
+        </div>
+        <select class="form-select" id="mod-business-type">
+          <option value="restaurant">مطعم / كافيه (وضع الضيافة والمنيو)</option>
+          <option value="store">متجر إلكتروني / براند (وضع البيع والشحن)</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label" style="margin-bottom:4px;">الدومين الخاص المربوط (اختياري)</label>
+        <input type="text" class="form-input" id="mod-custom-domain" placeholder="مثال: amounsmok.com" style="font-family:var(--font-en); text-align:left;">
+      </div>
     </div>
 
     <div style="display:flex; flex-direction:column; gap:8px;">
@@ -2362,6 +2412,91 @@
           <div class="module-toggle-desc">تنزيل واستعادة النسخ الاحتياطية وتصدير البيانات من لوحة الإدارة</div>
         </div>
         <input type="checkbox" id="mod-toggle-backup" style="width:20px; height:20px; accent-color:var(--primary);">
+      </label>
+
+      <div style="margin:10px 0 4px; font-size:11.5px; font-weight:800; color:var(--primary); border-top:1px solid var(--border-light); padding-top:12px;">
+        مميزات التخصيص المتقدمة (حسب النشاط والأسعار)
+      </div>
+
+      <!-- 16. Bulk Pricing & Timed Flash Offers -->
+      <label class="module-toggle-row">
+        <div>
+          <div class="module-toggle-title">16. تعديل الأسعار الجماعي والعروض المؤقتة بمؤقت حي</div>
+          <div class="module-toggle-desc">تغيير أسعار الكل أو أقسام معينة بنسبة % أو مبلغ ثابت، إما دائم أو عرض بمؤقت عد تنازلي</div>
+        </div>
+        <input type="checkbox" id="mod-toggle-bulk-pricing" style="width:20px; height:20px; accent-color:var(--primary);">
+      </label>
+
+      <!-- 17. +18 Age Gate -->
+      <label class="module-toggle-row">
+        <div>
+          <div class="module-toggle-title">17. بوابة التحقق من العمر (+18 Age Gate)</div>
+          <div class="module-toggle-desc">شاشة تأكيد +18 عند الدخول (مناسبة لمتاجر السموكنج والفيب وما شابهها)</div>
+        </div>
+        <input type="checkbox" id="mod-toggle-age-gate" style="width:20px; height:20px; accent-color:var(--primary);">
+      </label>
+
+      <!-- 18. 24/7 Storefront Mode -->
+      <label class="module-toggle-row">
+        <div>
+          <div class="module-toggle-title">18. استقبال الطلبات 24 ساعة (24/7 Storefront)</div>
+          <div class="module-toggle-desc">المتجر يستقبل الطلبات طوال اليوم للشحن لاحقاً بدون قيود إغلاق المطبخ ليلاً</div>
+        </div>
+        <input type="checkbox" id="mod-toggle-store-24-7" style="width:20px; height:20px; accent-color:var(--primary);">
+      </label>
+
+      <!-- 19. Piece Stock Count -->
+      <label class="module-toggle-row">
+        <div>
+          <div class="module-toggle-title">19. الجرد بالقطع وعداد الكمية المتاحة (Piece Stock)</div>
+          <div class="module-toggle-desc">تحديد عدد القطع المتوفرة لكل منتج وخصمها تلقائياً مع الطلب وعرض "نفدت الكمية"</div>
+        </div>
+        <input type="checkbox" id="mod-toggle-piece-stock" style="width:20px; height:20px; accent-color:var(--primary);">
+      </label>
+
+      <!-- 20. Multi-Image Gallery -->
+      <label class="module-toggle-row">
+        <div>
+          <div class="module-toggle-title">20. معرض الصور المتعدد للمنتج (Multi-Image Gallery)</div>
+          <div class="module-toggle-desc">عرض عدة صور لكل جهاز أو منتج داخل صفحة التفاصيل مع شريط تنقل</div>
+        </div>
+        <input type="checkbox" id="mod-toggle-multi-image" style="width:20px; height:20px; accent-color:var(--primary);">
+      </label>
+
+      <!-- 21. Advanced Catalog Search & Filters -->
+      <label class="module-toggle-row">
+        <div>
+          <div class="module-toggle-title">21. البحث والفلاتر المتقدمة للكتالوج الضخم (Catalog Filters)</div>
+          <div class="module-toggle-desc">فلاتر الترتيب بالسعر، المتاح فقط، والعروض — مثالي للمتاجر ذات 200-300+ منتج</div>
+        </div>
+        <input type="checkbox" id="mod-toggle-catalog-filters" style="width:20px; height:20px; accent-color:var(--primary);">
+      </label>
+
+      <!-- 22. Bulk CSV/Excel Import -->
+      <label class="module-toggle-row">
+        <div>
+          <div class="module-toggle-title">22. استيراد وتحديث المنتجات عبر CSV / Excel</div>
+          <div class="module-toggle-desc">رفع وتحديث مئات المنتجات مرة واحدة من ملف جدول بيانات في لوحة الإدارة</div>
+        </div>
+        <input type="checkbox" id="mod-toggle-bulk-import" style="width:20px; height:20px; accent-color:var(--primary);">
+      </label>
+
+      <!-- 23. Return & Warranty Policy -->
+      <label class="module-toggle-row">
+        <div>
+          <div class="module-toggle-title">23. شارة وبطاقة سياسة الاستبدال والضمان (Return Policy)</div>
+          <div class="module-toggle-desc">عرض سياسة الاستبدال والضمان بوضوح للعملاء في المتجر والسلة</div>
+        </div>
+        <input type="checkbox" id="mod-toggle-return-policy" style="width:20px; height:20px; accent-color:var(--primary);">
+      </label>
+
+      <!-- 24. Kitchen Prep / Nutrition Info -->
+      <label class="module-toggle-row">
+        <div>
+          <div class="module-toggle-title">24. وقت التحضير ومعلومات المطبخ في البطاقات</div>
+          <div class="module-toggle-desc">إظهار وقت التحضير ومعلومات الطبخ (مناسب للمطاعم، ويُفضل إغلاقه للمتاجر)</div>
+        </div>
+        <input type="checkbox" id="mod-toggle-nutrition-info" style="width:20px; height:20px; accent-color:var(--primary);">
       </label>
     </div>
 
@@ -3083,10 +3218,26 @@
                   ? Number(subSettings.monthlyPrice)
                   : 1500);
 
+            const bType = (lic.businessType || settings.businessType || 'restaurant') === 'store' ? 'store' : 'restaurant';
+            const rawMods = lic.modules || settings.modules || {};
+            const normMods = (window.NicheEngine && typeof window.NicheEngine.normalizeModules === 'function')
+              ? window.NicheEngine.normalizeModules(rawMods, bType)
+              : Object.assign({
+                  ordering: true, pos: true, inventory: true, stories: true, smartTables: true,
+                  delivery: true, takeaway: true, onlinePayment: true, archive: true, shifts: true,
+                  coupons: true, cartDiscount: true, announcementBar: true, branches: true, reviews: true,
+                  settings: true, backup: true, bulkPricing: true
+                }, rawMods);
+            const cDomain = (window.NicheEngine && typeof window.NicheEngine.normalizeDomain === 'function')
+              ? window.NicheEngine.normalizeDomain(lic.customDomain || settings.customDomain || '')
+              : (lic.customDomain || settings.customDomain || '').trim();
+
             loadedTenants.push({
               slug,
               name: lic.restaurantName || settings.name || settings.storeName || slug,
               phone: lic.ownerPhone || settings.phone || '',
+              businessType: bType,
+              customDomain: cDomain,
               active,
               suspended: isSuspended,
               status: isSuspended ? (isExpired ? 'expired' : (st || 'suspended')) : 'active',
@@ -3102,12 +3253,7 @@
               diffDays,
               sessionVersion: lic.sessionVersion || meta.sessionVersion || 0,
               logo: settings.logoUrl || settings.logo || 'assets/brand/harpy_order_emblem_transparent.png',
-              modules: lic.modules || settings.modules || {
-                ordering: true, pos: true, inventory: true, stories: true, smartTables: true,
-                delivery: true, takeaway: true, onlinePayment: true, archive: true, shifts: true, shifts: true,
-                coupons: true, cartDiscount: true, announcementBar: true, branches: true, reviews: true,
-                settings: true, backup: true
-              }
+              modules: normMods
             });
           }
 
@@ -3157,18 +3303,30 @@
       // --- Render UI (Clean Restaurant Rows - No Meal Counts) ---
       renderUI() {
         let activeCount = 0;
-        this.tenants.forEach(t => { if (t.active) activeCount++; });
+        let restCount = 0;
+        let storeCount = 0;
+        this.tenants.forEach(t => {
+          if (t.active) activeCount++;
+          if (t.businessType === 'store') storeCount++;
+          else restCount++;
+        });
 
         const countAll = document.getElementById('chip-count-all');
         const countActive = document.getElementById('chip-count-active');
         const countFrozen = document.getElementById('chip-count-frozen');
+        const countRest = document.getElementById('chip-count-restaurant');
+        const countStore = document.getElementById('chip-count-store');
         if (countAll) countAll.textContent = `(${this.tenants.length})`;
         if (countActive) countActive.textContent = `(${activeCount})`;
         if (countFrozen) countFrozen.textContent = `(${this.tenants.length - activeCount})`;
+        if (countRest) countRest.textContent = `(${restCount})`;
+        if (countStore) countStore.textContent = `(${storeCount})`;
 
         let filtered = this.tenants.filter(t => {
           if (this.activeFilter === 'active') return t.active;
           if (this.activeFilter === 'frozen') return !t.active;
+          if (this.activeFilter === 'restaurant') return t.businessType !== 'store';
+          if (this.activeFilter === 'store') return t.businessType === 'store';
           return true;
         });
 
@@ -3177,6 +3335,7 @@
           filtered = filtered.filter(t => 
             t.name.toLowerCase().includes(q) ||
             t.slug.toLowerCase().includes(q) ||
+            (t.customDomain && t.customDomain.toLowerCase().includes(q)) ||
             t.phone.includes(q)
           );
         }
@@ -3209,6 +3368,11 @@
             tagClass = 'tag-frozen';
           }
 
+          const isStoreTenant = (t.businessType === 'store');
+          const nicheBadge = isStoreTenant
+            ? `<span class="tenant-tag" style="background:rgba(59,130,246,0.14); color:#60a5fa; border:1px solid rgba(59,130,246,0.3);">متجر إلكتروني</span>`
+            : `<span class="tenant-tag" style="background:rgba(234,88,12,0.12); color:#fb923c; border:1px solid rgba(234,88,12,0.28);">مطعم / كافيه</span>`;
+
           return `
             <div class="tenant-row ${!t.active ? 'is-frozen' : ''}" onclick="MasterApp.openActionSheet('${t.slug}')">
               <div class="tenant-avatar-box">
@@ -3219,6 +3383,7 @@
               <div class="tenant-info-box">
                 <div class="tenant-name-row">
                   <span class="tenant-name">${t.name}</span>
+                  ${nicheBadge}
                   <span class="tenant-tag ${tagClass}">${tagText}</span>
                 </div>
                 
@@ -3228,7 +3393,7 @@
                   <span class="tenant-dot-divider">•</span>
                   <span style="${t.isExpired ? 'color:var(--danger); font-weight:700;' : (isExpiring ? 'color:var(--amber); font-weight:700;' : '')}">${t.expiryText}</span>
                   <span class="tenant-dot-divider">•</span>
-                  <span style="font-family:var(--font-en); font-size:10.5px;">${t.slug}</span>
+                  <span style="font-family:var(--font-en); font-size:10.5px;">${t.customDomain ? t.customDomain : t.slug}</span>
                 </div>
               </div>
 
@@ -3275,9 +3440,9 @@
         document.getElementById('sheet-backdrop').classList.add('open');
 
         const menuPrevEl = document.getElementById('sheet-preview-menu-url');
-        if (menuPrevEl) menuPrevEl.textContent = `harpymenu.com/${t.slug}`;
+        if (menuPrevEl) menuPrevEl.textContent = t.customDomain ? t.customDomain : `harpymenu.com/${t.slug}`;
         const adminPrevEl = document.getElementById('sheet-preview-admin-url');
-        if (adminPrevEl) adminPrevEl.textContent = `harpymenu.com/admin/${t.slug}`;
+        if (adminPrevEl) adminPrevEl.textContent = t.customDomain ? `${t.customDomain}/admin` : `harpymenu.com/admin/${t.slug}`;
       },
       closeActionSheet() {
         document.getElementById('tenant-action-sheet').classList.remove('open');
@@ -3293,20 +3458,24 @@
       },
       actionSheetOpenMenu() {
         if (!this.activeSheetTenant) return;
-        const slug = this.activeSheetTenant.slug;
+        const t = this.activeSheetTenant;
         this.closeActionSheet();
+        if (t.customDomain) {
+          window.open(`https://${t.customDomain}`, '_blank');
+          return;
+        }
         const isProd = window.location.hostname.includes('harpymenu.com');
         const base = isProd ? 'https://harpymenu.com' : (window.location.origin + (window.location.pathname.includes('/links') ? '/links' : ''));
-        window.open(`${base}/${encodeURIComponent(slug)}`, '_blank');
+        window.open(`${base}/${encodeURIComponent(t.slug)}`, '_blank');
       },
       actionSheetCopyMenuLink() {
         if (!this.activeSheetTenant) return;
-        const slug = this.activeSheetTenant.slug;
+        const t = this.activeSheetTenant;
         const isProd = window.location.hostname.includes('harpymenu.com');
         const base = isProd ? 'https://harpymenu.com' : (window.location.origin + (window.location.pathname.includes('/links') ? '/links' : ''));
-        const url = `${base}/${encodeURIComponent(slug)}`;
+        const url = t.customDomain ? `https://${t.customDomain}` : `${base}/${encodeURIComponent(t.slug)}`;
         navigator.clipboard.writeText(url).then(() => {
-          this.showToast(`تم نسخ رابط المنيو: ${url}`, 'success');
+          this.showToast(`تم نسخ الرابط: ${url}`, 'success');
         }).catch(() => {
           this.showToast('تعذر النسخ التلقائي', 'error');
         });
@@ -3314,10 +3483,10 @@
       },
       actionSheetCopyAdminLink() {
         if (!this.activeSheetTenant) return;
-        const slug = this.activeSheetTenant.slug;
+        const t = this.activeSheetTenant;
         const isProd = window.location.hostname.includes('harpymenu.com');
         const base = isProd ? 'https://harpymenu.com' : (window.location.origin + (window.location.pathname.includes('/links') ? '/links' : ''));
-        const url = `${base}/admin/${encodeURIComponent(slug)}`;
+        const url = t.customDomain ? `https://${t.customDomain}/admin` : `${base}/admin/${encodeURIComponent(t.slug)}`;
         navigator.clipboard.writeText(url).then(() => {
           this.showToast(`تم نسخ رابط لوحة التحكم: ${url}`, 'success');
         }).catch(() => {
@@ -3889,35 +4058,57 @@
         }
       },
 
-      // --- 10-Module Permissions Modal ---
+      // --- 10-Module & Niche Permissions Modal ---
+      setModuleSwitchesFromObject(mods) {
+        const setChk = (id, val) => { const el = document.getElementById(id); if (el) el.checked = Boolean(val); };
+        setChk('mod-toggle-ordering', mods.ordering !== false);
+        setChk('mod-toggle-pos', mods.pos !== false);
+        setChk('mod-toggle-inventory', mods.inventory !== false);
+        setChk('mod-toggle-stories', mods.stories !== false);
+        setChk('mod-toggle-tables', mods.smartTables !== false);
+        setChk('mod-toggle-delivery', mods.delivery !== false);
+        setChk('mod-toggle-takeaway', mods.takeaway !== false);
+        setChk('mod-toggle-payments', mods.onlinePayment !== false);
+        setChk('mod-toggle-archive', mods.archive !== false);
+        setChk('mod-toggle-shifts', mods.shifts !== false);
+        setChk('mod-toggle-coupons', mods.coupons !== false);
+        setChk('mod-toggle-cart-discount', mods.cartDiscount !== false);
+        setChk('mod-toggle-announcement', mods.announcementBar !== false);
+        setChk('mod-toggle-branches', mods.branches !== false);
+        setChk('mod-toggle-reviews', mods.reviews !== false);
+        setChk('mod-toggle-settings', mods.settings !== false);
+        setChk('mod-toggle-backup', mods.backup !== false);
+        setChk('mod-toggle-bulk-pricing', mods.bulkPricing !== false);
+        setChk('mod-toggle-age-gate', mods.ageGate18 === true);
+        setChk('mod-toggle-store-24-7', mods.store24_7 === true);
+        setChk('mod-toggle-piece-stock', mods.pieceStock === true);
+        setChk('mod-toggle-multi-image', mods.multiImageGallery === true);
+        setChk('mod-toggle-catalog-filters', mods.catalogFilters === true);
+        setChk('mod-toggle-bulk-import', mods.bulkImport === true);
+        setChk('mod-toggle-return-policy', mods.returnPolicy === true);
+        setChk('mod-toggle-nutrition-info', mods.nutritionInfo !== false);
+      },
+      applyBusinessTypePresetInModules() {
+        const bType = document.getElementById('mod-business-type')?.value || 'restaurant';
+        const preset = (window.NicheEngine && typeof window.NicheEngine.getPresetModules === 'function')
+          ? window.NicheEngine.getPresetModules(bType)
+          : { ordering: true };
+        this.setModuleSwitchesFromObject(preset);
+        this.showToast(bType === 'store' ? 'تم ضبط المزايا الافتراضية لوضع المتجر الإلكتروني' : 'تم ضبط المزايا الافتراضية لوضع المطعم', 'info');
+      },
       openModulesModal(slug) {
         const t = this.tenants.find(x => x.slug === slug);
         if (!t) return;
         this.editingModulesSlug = slug;
-        document.getElementById('modules-modal-title').textContent = `صلاحيات ميزات: ${t.name}`;
+        document.getElementById('modules-modal-title').textContent = `صلاحيات ووضع النظام: ${t.name}`;
+
+        const typeSel = document.getElementById('mod-business-type');
+        if (typeSel) typeSel.value = (t.businessType === 'store') ? 'store' : 'restaurant';
+        const domInp = document.getElementById('mod-custom-domain');
+        if (domInp) domInp.value = t.customDomain || '';
 
         const mods = t.modules || {};
-        const toggleOrdering = document.getElementById('mod-toggle-ordering');
-        if (toggleOrdering) toggleOrdering.checked = mods.ordering !== false;
-        document.getElementById('mod-toggle-pos').checked = mods.pos !== false;
-        document.getElementById('mod-toggle-inventory').checked = mods.inventory !== false;
-        document.getElementById('mod-toggle-stories').checked = mods.stories !== false;
-        document.getElementById('mod-toggle-tables').checked = mods.smartTables !== false;
-        document.getElementById('mod-toggle-delivery').checked = mods.delivery !== false;
-        document.getElementById('mod-toggle-takeaway').checked = mods.takeaway !== false;
-        document.getElementById('mod-toggle-payments').checked = mods.onlinePayment !== false;
-        document.getElementById('mod-toggle-archive').checked = mods.archive !== false;
-        const elShiftsMod = document.getElementById('mod-toggle-shifts');
-        if (elShiftsMod) elShiftsMod.checked = mods.shifts !== false;
-        document.getElementById('mod-toggle-coupons').checked = mods.coupons !== false;
-        document.getElementById('mod-toggle-cart-discount').checked = mods.cartDiscount !== false;
-        document.getElementById('mod-toggle-announcement').checked = mods.announcementBar !== false;
-        document.getElementById('mod-toggle-branches').checked = mods.branches !== false;
-        document.getElementById('mod-toggle-reviews').checked = mods.reviews !== false;
-        const elSettings = document.getElementById('mod-toggle-settings');
-        if (elSettings) elSettings.checked = mods.settings !== false;
-        const elBackup = document.getElementById('mod-toggle-backup');
-        if (elBackup) elBackup.checked = mods.backup !== false;
+        this.setModuleSwitchesFromObject(mods);
 
         document.getElementById('modal-modules').classList.add('open');
         document.getElementById('modal-modules-backdrop').classList.add('open');
@@ -3930,42 +4121,71 @@
       async saveModules() {
         if (!this.editingModulesSlug) return;
         const slug = this.editingModulesSlug;
+        const t = this.tenants.find(x => x.slug === slug);
+        const oldDomain = t ? (t.customDomain || '') : '';
+        const bType = document.getElementById('mod-business-type')?.value === 'store' ? 'store' : 'restaurant';
+        const rawDomain = document.getElementById('mod-custom-domain')?.value || '';
+        const newDomain = (window.NicheEngine && typeof window.NicheEngine.normalizeDomain === 'function')
+          ? window.NicheEngine.normalizeDomain(rawDomain)
+          : rawDomain.trim().toLowerCase();
+
+        const chk = (id, defVal) => { const el = document.getElementById(id); return el ? el.checked : defVal; };
         const modulesPayload = {
-          ordering: document.getElementById('mod-toggle-ordering') ? document.getElementById('mod-toggle-ordering').checked : true,
-          pos: document.getElementById('mod-toggle-pos').checked,
-          inventory: document.getElementById('mod-toggle-inventory').checked,
-          stories: document.getElementById('mod-toggle-stories').checked,
-          smartTables: document.getElementById('mod-toggle-tables').checked,
-          delivery: document.getElementById('mod-toggle-delivery').checked,
-          takeaway: document.getElementById('mod-toggle-takeaway').checked,
-          onlinePayment: document.getElementById('mod-toggle-payments').checked,
-          archive: document.getElementById('mod-toggle-archive').checked,
-          shifts: document.getElementById('mod-toggle-shifts') ? document.getElementById('mod-toggle-shifts').checked : true,
-          coupons: document.getElementById('mod-toggle-coupons').checked,
-          cartDiscount: document.getElementById('mod-toggle-cart-discount').checked,
-          announcementBar: document.getElementById('mod-toggle-announcement').checked,
-          branches: document.getElementById('mod-toggle-branches').checked,
-          reviews: document.getElementById('mod-toggle-reviews').checked,
-          settings: document.getElementById('mod-toggle-settings') ? document.getElementById('mod-toggle-settings').checked : true,
-          backup: document.getElementById('mod-toggle-backup') ? document.getElementById('mod-toggle-backup').checked : true
+          ordering: chk('mod-toggle-ordering', true),
+          pos: chk('mod-toggle-pos', true),
+          inventory: chk('mod-toggle-inventory', true),
+          stories: chk('mod-toggle-stories', true),
+          smartTables: chk('mod-toggle-tables', true),
+          delivery: chk('mod-toggle-delivery', true),
+          takeaway: chk('mod-toggle-takeaway', true),
+          onlinePayment: chk('mod-toggle-payments', true),
+          archive: chk('mod-toggle-archive', true),
+          shifts: chk('mod-toggle-shifts', true),
+          coupons: chk('mod-toggle-coupons', true),
+          cartDiscount: chk('mod-toggle-cart-discount', true),
+          announcementBar: chk('mod-toggle-announcement', true),
+          branches: chk('mod-toggle-branches', true),
+          reviews: chk('mod-toggle-reviews', true),
+          settings: chk('mod-toggle-settings', true),
+          backup: chk('mod-toggle-backup', true),
+          bulkPricing: chk('mod-toggle-bulk-pricing', true),
+          ageGate18: chk('mod-toggle-age-gate', false),
+          store24_7: chk('mod-toggle-store-24-7', bType === 'store'),
+          pieceStock: chk('mod-toggle-piece-stock', bType === 'store'),
+          multiImageGallery: chk('mod-toggle-multi-image', bType === 'store'),
+          catalogFilters: chk('mod-toggle-catalog-filters', bType === 'store'),
+          bulkImport: chk('mod-toggle-bulk-import', bType === 'store'),
+          returnPolicy: chk('mod-toggle-return-policy', bType === 'store'),
+          nutritionInfo: chk('mod-toggle-nutrition-info', bType !== 'store'),
+          workingHoursGate: bType !== 'store' && !chk('mod-toggle-store-24-7', false)
         };
 
         try {
-          await Promise.all([
-            rtdbRequest(`restaurants/${slug}/settings/modules.json`, 'PUT', modulesPayload),
-            rtdbRequest(`licenses/${slug}/modules.json`, 'PUT', modulesPayload)
-          ]);
+          const ops = [
+            rtdbRequest(`restaurants/${slug}/settings.json`, 'PATCH', { modules: modulesPayload, businessType: bType, customDomain: newDomain }),
+            rtdbRequest(`licenses/${slug}.json`, 'PATCH', { modules: modulesPayload, businessType: bType, customDomain: newDomain })
+          ];
+          if (oldDomain && oldDomain !== newDomain && window.NicheEngine) {
+            const oldKey = window.NicheEngine.domainToFirebaseKey(oldDomain);
+            if (oldKey) ops.push(rtdbRequest(`domains/${oldKey}.json`, 'DELETE'));
+          }
+          if (newDomain && window.NicheEngine) {
+            const newKey = window.NicheEngine.domainToFirebaseKey(newDomain);
+            if (newKey) ops.push(rtdbRequest(`domains/${newKey}.json`, 'PUT', slug));
+          }
+          await Promise.all(ops);
 
-          const t = this.tenants.find(x => x.slug === slug);
           if (t) {
             t.modules = modulesPayload;
+            t.businessType = bType;
+            t.customDomain = newDomain;
             try {
               localStorage.setItem('harpy_master_cached_tenants', JSON.stringify(this.tenants));
             } catch(e) {}
           }
-          this.logAudit('MODULES_UPDATE', `تعديل صلاحيات ميزات مطعم ${slug}`, slug);
+          this.logAudit('MODULES_UPDATE', `تحديث وضع (${bType}) وصلاحيات ميزات ${slug}${newDomain ? ' [' + newDomain + ']' : ''}`, slug);
           this.closeModulesModal();
-          this.showToast("تم حفظ وتطبيق الصلاحيات بنجاح", "success");
+          this.showToast("تم حفظ وتطبيق الصلاحيات ونوع النشاط بنجاح", "success");
           await this.loadAllData();
         } catch(e) {
           this.showToast("فشل حفظ الصلاحيات على السيرفر: " + (e.message || ''), "error");
@@ -3973,7 +4193,24 @@
       },
 
       // --- Add Tenant ---
+      selectNewTenantBusinessType(bType) {
+        const cleanType = (bType === 'store') ? 'store' : 'restaurant';
+        const inp = document.getElementById('new-tenant-business-type');
+        if (inp) inp.value = cleanType;
+        document.querySelectorAll('#new-tenant-type-pills .duration-pill').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.btype === cleanType);
+        });
+        const hintEl = document.getElementById('new-tenant-type-hint');
+        if (hintEl) {
+          hintEl.textContent = cleanType === 'store'
+            ? 'وضع المتجر الإلكتروني: يعرض «المتجر والمنتجات»، يفتح العمل 24 ساعة وجرد القطع والفلاتر المتقدمة.'
+            : 'وضع المطعم والكافيه: يعرض «المنيو والمطبخ والطاولات» ومخزون المكونات وساعات العمل.';
+        }
+      },
       openAddTenantModal() {
+        this.selectNewTenantBusinessType('restaurant');
+        const domInp = document.getElementById('new-tenant-domain');
+        if (domInp) domInp.value = '';
         const planInput = document.getElementById('new-tenant-plan');
         const priceInput = document.getElementById('new-tenant-price');
         if (this.packages && this.packages.length > 0 && planInput && !planInput.value) {
@@ -4007,8 +4244,13 @@
       },
       async handleCreateTenant(e) {
         e.preventDefault();
+        const bType = (document.getElementById('new-tenant-business-type')?.value === 'store') ? 'store' : 'restaurant';
         const name = document.getElementById('new-tenant-name').value.trim();
         const slug = document.getElementById('new-tenant-slug').value.trim().toLowerCase();
+        const rawDomain = document.getElementById('new-tenant-domain')?.value || '';
+        const customDomain = (window.NicheEngine && typeof window.NicheEngine.normalizeDomain === 'function')
+          ? window.NicheEngine.normalizeDomain(rawDomain)
+          : rawDomain.trim().toLowerCase();
         const phone = document.getElementById('new-tenant-phone').value.trim();
         const durChoice = document.getElementById('new-tenant-duration').value;
         const price = Number(document.getElementById('new-tenant-price').value) || 1500;
@@ -4056,14 +4298,25 @@
         const planName = (planSelect && planSelect.value) ? planSelect.value : 'الباقة الأساسية';
 
         const matchedPackage = (this.packages || []).find(p => p.name === planName || p.id === planName);
-        const allMods = (matchedPackage && matchedPackage.modules)
-          ? Object.assign({ settings: true, backup: true }, matchedPackage.modules)
+        const presetMods = (window.NicheEngine && typeof window.NicheEngine.getPresetModules === 'function')
+          ? window.NicheEngine.getPresetModules(bType)
           : {
               ordering: true, pos: true, inventory: true, stories: true, smartTables: true,
               delivery: true, takeaway: true, onlinePayment: true, archive: true, shifts: true,
               coupons: true, cartDiscount: true, announcementBar: true, branches: true, reviews: true,
-              settings: true, backup: true
+              settings: true, backup: true, bulkPricing: true
             };
+        const allMods = Object.assign({}, presetMods, (matchedPackage && matchedPackage.modules) ? matchedPackage.modules : {}, { settings: true, backup: true });
+        if (bType === 'store') {
+          allMods.smartTables = false;
+          allMods.store24_7 = true;
+          allMods.pieceStock = true;
+          allMods.catalogFilters = true;
+          allMods.bulkImport = true;
+          allMods.returnPolicy = true;
+          allMods.nutritionInfo = false;
+          allMods.workingHoursGate = false;
+        }
 
         const password = (document.getElementById('new-tenant-password')?.value || '').trim();
         if (!password || password.length < 5) {
@@ -4099,6 +4352,8 @@
         const licensePayload = {
           restaurantName: name,
           ownerPhone: phone,
+          businessType: bType,
+          customDomain: customDomain,
           adminPassword: password,
           ownerUid: ownerUid,
           status: 'active',
@@ -4116,10 +4371,14 @@
         const settingsPayload = {
           name: name,
           storeName: name,
+          businessType: bType,
+          customDomain: customDomain,
           phone: phone,
           adminPassword: password,
           currency: "ج.م",
           logo: "assets/brand/harpy_order_emblem_transparent.png",
+          orderingPausedMessage: bType === 'store' ? "المتجر متوقف حالياً عن استقبال الطلبات." : "المطعم متوقف حالياً عن استقبال الطلبات.",
+          workingHours: bType === 'store' ? "نستقبل الطلبات 24 ساعة يومياً" : "يومياً من 11:00 صباحاً حتى 2:00 صباحاً",
           modules: allMods,
           subscription: {
             active: true,
@@ -4134,6 +4393,8 @@
 
         const metaPayload = {
           ownerUid: ownerUid,
+          businessType: bType,
+          customDomain: customDomain,
           status: 'active',
           active: true,
           suspended: false,
@@ -4143,15 +4404,20 @@
         };
 
         try {
-          await Promise.all([
+          const writeOps = [
             rtdbRequest(`licenses/${slug}.json`, 'PUT', licensePayload),
             rtdbRequest(`restaurants/${slug}/settings.json`, 'PUT', settingsPayload),
             rtdbRequest(`restaurants/${slug}/meta.json`, 'PUT', metaPayload)
-          ]);
+          ];
+          if (customDomain && window.NicheEngine) {
+            const domKey = window.NicheEngine.domainToFirebaseKey(customDomain);
+            if (domKey) writeOps.push(rtdbRequest(`domains/${domKey}.json`, 'PUT', slug));
+          }
+          await Promise.all(writeOps);
 
-          this.logAudit('TENANT_CREATE', `إطلاق وتأسيس مطعم جديد: ${name} (${slug})`, slug);
+          this.logAudit('TENANT_CREATE', `إطلاق وتأسيس ${bType === 'store' ? 'متجر إلكتروني' : 'مطعم'} جديد: ${name} (${slug})${customDomain ? ' [' + customDomain + ']' : ''}`, slug);
           this.closeAddTenantModal();
-          this.showToast("تم تأسيس وإطلاق المطعم بنجاح", "success");
+          this.showToast(bType === 'store' ? "تم تأسيس وإطلاق المتجر الإلكتروني بنجاح" : "تم تأسيس وإطلاق المطعم بنجاح", "success");
           await this.loadAllData();
           this.triggerGitHubSync(false, slug);
         } catch(err) {

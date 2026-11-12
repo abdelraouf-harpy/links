@@ -221,7 +221,13 @@ function renderCatalogItemsOnly() {
     return;
   }
 
+  if (typeof syncBulkUndoButtonVisibility === 'function') {
+    syncBulkUndoButtonVisibility();
+  }
+
   const isSpecificCat = (currentCatalogCategoryFilter && currentCatalogCategoryFilter !== 'all');
+  const now = Date.now();
+  const isPieceStockEnabled = !!(Store.isPieceStockActive && Store.isPieceStockActive());
 
   adminElements.catalogContainer.innerHTML = filtered.map((p, idx) => {
     const hasRecipe = p.recipe && (
@@ -231,6 +237,11 @@ function renderCatalogItemsOnly() {
     );
     const isFirst = (idx === 0);
     const isLast = (idx === filtered.length - 1);
+    const effPrice = (window.NicheEngine) ? NicheEngine.getEffectiveProductPrice(p, now) : (p.price || 0);
+    const effOrig = (window.NicheEngine) ? NicheEngine.getEffectiveProductOriginalPrice(p, now) : (p.originalPrice || 0);
+    const isTimedActive = !!(window.NicheEngine && NicheEngine.isTimedOfferActive(p, now));
+    const hasStockVal = (p.stockQty !== undefined && p.stockQty !== null && p.stockQty !== '');
+    const stockNum = hasStockVal ? Math.max(0, Number(p.stockQty)) : null;
 
     return `
       <div class="admin-product-card ${p.visible === false ? 'hidden-item' : ''}" data-id="${p.id}" data-prod-idx="${idx}" ${isSpecificCat ? 'draggable="true"' : ''} style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden; display:flex; flex-direction:column; position:relative;">
@@ -239,21 +250,28 @@ function renderCatalogItemsOnly() {
           ${isSpecificCat ? `<span style="position:absolute; top:8px; right:8px; background:var(--primary); color:#fff; font-size:10.5px; font-weight:800; padding:2px 7px; border-radius:10px; z-index:2; box-shadow:0 2px 4px rgba(0,0,0,0.3);" class="font-num" title="ترتيب الصنف في هذا القسم">#${idx + 1}</span>` : ''}
           ${p.badge ? `<span style="position:absolute; top:8px; ${isSpecificCat ? 'right:44px;' : 'right:8px;'} background:rgba(0,0,0,0.75); color:#fff; font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px; z-index:2;">${p.badge}</span>` : ''}
           ${p.isFeatured ? `<span style="position:absolute; top:8px; left:8px; background:var(--primary); color:#fff; font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px; z-index:2;">هيرو</span>` : ''}
+          ${isTimedActive ? `<span style="position:absolute; bottom:8px; left:8px; background:rgba(249,115,22,0.95); color:#fff; font-size:9.5px; font-weight:800; padding:2px 6px; border-radius:4px; z-index:2;" data-offer-ends="${p.offerEndsAt}">عرض مؤقت <span class="offer-timer-digits font-num">...</span></span>` : ''}
           ${hasRecipe ? `
             <span style="position:absolute; bottom:8px; right:8px; background:rgba(22,163,74,0.9); color:#fff; font-size:9.5px; font-weight:800; padding:2px 6px; border-radius:4px; display:inline-flex; align-items:center; gap:3px; z-index:2;">
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
               مربوط بالمخزون
             </span>
           ` : ''}
+          ${isPieceStockEnabled && stockNum !== null ? `
+            <span class="font-num" style="position:absolute; bottom:8px; right:8px; background:${stockNum <= 0 ? 'rgba(239,68,68,0.95)' : (stockNum <= 5 ? 'rgba(245,158,11,0.95)' : 'rgba(15,23,42,0.85)')}; color:#fff; font-size:9.5px; font-weight:800; padding:2px 6px; border-radius:4px; z-index:2;">
+              ${stockNum <= 0 ? 'نفدت الكمية' : `المخزون: ${stockNum}`}
+            </span>
+          ` : ''}
         </div>
 
         <div style="padding:12px; flex:1; display:flex; flex-direction:column; justify-content:space-between;">
           <div>
-            <div style="font-size:11px; color:var(--text-muted); margin-bottom:2px;">${p.category}</div>
+            <div style="font-size:11px; color:var(--text-muted); margin-bottom:2px;">${p.category}${p.brand ? ` • ${Store.escapeHtml(p.brand)}` : ''}</div>
             <div style="font-size:14px; font-weight:800; color:var(--text-main); line-height:1.3; margin-bottom:6px;">${p.name}</div>
-            <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
-              <input type="number" class="form-input font-num" value="${p.price}" step="0.5" style="padding:4px 8px; font-size:13px; font-weight:800; max-width:80px;" onchange="updateProductPriceFast('${p.id}', this.value)">
+            <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px; flex-wrap:wrap;">
+              <input type="number" class="form-input font-num" value="${effPrice}" step="0.5" style="padding:4px 8px; font-size:13px; font-weight:800; max-width:80px;" onchange="updateProductPriceFast('${p.id}', this.value)">
               <span class="font-num" style="font-size:12px; font-weight:700; color:var(--primary);">${currency}</span>
+              ${effOrig > effPrice ? `<span class="font-num" style="font-size:11px; color:var(--text-muted); text-decoration:line-through;">${effOrig} ${currency}</span>` : ''}
             </div>
           </div>
 
@@ -812,6 +830,23 @@ function openProductModal(productId) {
     if (adminElements.prodDesc) adminElements.prodDesc.value = p.desc || '';
     if (adminElements.prodImgUrl) adminElements.prodImgUrl.value = p.image || '';
 
+    const stockInput = document.getElementById('prod-stock-qty');
+    const brandInput = document.getElementById('prod-brand');
+    const galleryInput = document.getElementById('prod-gallery-urls');
+    const timedChk = document.getElementById('prod-timed-offer-enabled');
+    const endsAtInput = document.getElementById('prod-offer-ends-at');
+    const offerLblInput = document.getElementById('prod-offer-label');
+
+    if (stockInput) stockInput.value = (p.stockQty !== undefined && p.stockQty !== null && p.stockQty !== '') ? p.stockQty : '';
+    if (brandInput) brandInput.value = p.brand || '';
+    if (galleryInput) galleryInput.value = Array.isArray(p.images) ? p.images.join('\n') : '';
+
+    const hasFutureOffer = Number(p.offerEndsAt || 0) > Date.now();
+    if (timedChk) timedChk.checked = hasFutureOffer;
+    if (endsAtInput) endsAtInput.value = hasFutureOffer ? toLocalDatetimeInputValue(Number(p.offerEndsAt)) : '';
+    if (offerLblInput) offerLblInput.value = p.offerLabel || '';
+    toggleSingleProductOfferUI();
+
     if (p.sizes && p.sizes.length > 0) {
       p.sizes.forEach(s => addSizeRow(s.name, s.price));
     }
@@ -848,6 +883,20 @@ function openProductModal(productId) {
     if (adminElements.prodFeatured) adminElements.prodFeatured.checked = false;
     if (adminElements.prodVisible) adminElements.prodVisible.checked = true;
     if (prodImageUploader) prodImageUploader.clearPreview();
+
+    const stockInput = document.getElementById('prod-stock-qty');
+    const brandInput = document.getElementById('prod-brand');
+    const galleryInput = document.getElementById('prod-gallery-urls');
+    const timedChk = document.getElementById('prod-timed-offer-enabled');
+    const endsAtInput = document.getElementById('prod-offer-ends-at');
+    const offerLblInput = document.getElementById('prod-offer-label');
+    if (stockInput) stockInput.value = '';
+    if (brandInput) brandInput.value = '';
+    if (galleryInput) galleryInput.value = '';
+    if (timedChk) timedChk.checked = false;
+    if (endsAtInput) endsAtInput.value = '';
+    if (offerLblInput) offerLblInput.value = '';
+    toggleSingleProductOfferUI();
 
     syncRecipeSizesUI(null);
     syncRecipeAddonsUI(null);
@@ -1041,6 +1090,32 @@ async function saveProductForm() {
         addons: recipeAddons
       };
 
+  const stockQtyRaw = document.getElementById('prod-stock-qty')?.value;
+  const stockQty = (stockQtyRaw !== undefined && stockQtyRaw !== null && String(stockQtyRaw).trim() !== '')
+    ? Math.max(0, parseInt(stockQtyRaw, 10) || 0)
+    : null;
+  const brand = (document.getElementById('prod-brand')?.value || '').trim();
+  const galleryRaw = (document.getElementById('prod-gallery-urls')?.value || '').trim();
+  const images = galleryRaw
+    ? galleryRaw.split(/\r?\n/).map(s => s.trim()).filter(Boolean)
+    : [];
+
+  const timedEnabled = !!document.getElementById('prod-timed-offer-enabled')?.checked;
+  const endsAtStr = document.getElementById('prod-offer-ends-at')?.value || '';
+  const offerEndsAt = (timedEnabled && endsAtStr) ? new Date(endsAtStr).getTime() : 0;
+  const offerLabel = timedEnabled ? (document.getElementById('prod-offer-label')?.value || '').trim() : '';
+
+  if (timedEnabled) {
+    if (!offerEndsAt || isNaN(offerEndsAt) || offerEndsAt <= Date.now()) {
+      showToastNotification("يرجى تحديد تاريخ ووقت مستقبلي لانتهاء العرض المؤقت", "warning");
+      return;
+    }
+    if (!originalPrice || originalPrice <= price) {
+      showToastNotification("لإظهار خصم العرض المؤقت، أدخل «السعر الأصلي / قبل الخصم» أكبر من السعر الحالي", "warning");
+      return;
+    }
+  }
+
   const productData = {
     id,
     name,
@@ -1049,6 +1124,11 @@ async function saveProductForm() {
     category_en: categoryEn,
     price,
     originalPrice,
+    offerEndsAt: timedEnabled ? offerEndsAt : 0,
+    offerLabel: timedEnabled ? offerLabel : '',
+    stockQty,
+    brand,
+    images,
     prepTime,
     badge,
     badge_en: badgeEn,
@@ -1404,3 +1484,460 @@ window.addEventListener('beforeunload', (e) => {
     e.returnValue = '';
   }
 });
+
+// ═══════════════════════════════════════════════════════════════════
+// TIMED OFFER HELPERS, BULK PRICE ADJUSTMENT, UNDO & BULK CSV IMPORT
+// ═══════════════════════════════════════════════════════════════════
+function toLocalDatetimeInputValue(ms) {
+  const d = new Date(ms);
+  if (isNaN(d.getTime())) return '';
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+window.toggleSingleProductOfferUI = function() {
+  const chk = document.getElementById('prod-timed-offer-enabled');
+  const fields = document.getElementById('prod-timed-offer-fields');
+  if (!chk || !fields) return;
+  fields.style.display = chk.checked ? 'block' : 'none';
+  if (chk.checked) {
+    const endsInput = document.getElementById('prod-offer-ends-at');
+    if (endsInput && !endsInput.value) {
+      endsInput.value = toLocalDatetimeInputValue(Date.now() + 24 * 3600 * 1000);
+    }
+  }
+};
+
+window.setSingleProductOfferPresetHours = function(hours) {
+  const chk = document.getElementById('prod-timed-offer-enabled');
+  if (chk && !chk.checked) {
+    chk.checked = true;
+    toggleSingleProductOfferUI();
+  }
+  const endsInput = document.getElementById('prod-offer-ends-at');
+  if (endsInput) {
+    endsInput.value = toLocalDatetimeInputValue(Date.now() + (Number(hours) || 24) * 3600 * 1000);
+  }
+};
+
+// ── Bulk Price State ──
+let _bulkScope = 'all';
+let _bulkMode = 'permanent';
+let _bulkSelectedCats = new Set();
+let _bulkSelectedProductIds = new Set();
+let _bulkLastPlan = null;
+
+window.syncBulkUndoButtonVisibility = function() {
+  const btn = document.getElementById('btn-undo-bulk-price');
+  if (!btn || !Store.getBulkPriceUndoSnapshot) return;
+  const snap = Store.getBulkPriceUndoSnapshot();
+  btn.style.display = (snap && Array.isArray(snap.items) && snap.items.length > 0) ? 'inline-flex' : 'none';
+};
+
+window.openBulkPriceModal = function() {
+  const prods = Store.getProducts() || [];
+  if (prods.length === 0) {
+    showToastNotification("أضف أصنافاً أولاً قبل استخدام التعديل الجماعي للأسعار", "warning");
+    return;
+  }
+  _bulkScope = 'all';
+  _bulkMode = 'permanent';
+  _bulkSelectedCats = new Set();
+  _bulkSelectedProductIds = new Set();
+
+  const endsInput = document.getElementById('bulk-offer-ends-at');
+  if (endsInput) endsInput.value = toLocalDatetimeInputValue(Date.now() + 24 * 3600 * 1000);
+  const labelInput = document.getElementById('bulk-offer-label');
+  if (labelInput) labelInput.value = '';
+  const amtInput = document.getElementById('bulk-amount');
+  if (amtInput && !amtInput.value) amtInput.value = '10';
+
+  renderBulkCategoriesPicker();
+  renderBulkProductsPicker();
+  setBulkScope('all');
+  setBulkDurationMode('permanent');
+
+  document.getElementById('bulk-price-modal')?.classList.add('open', 'show');
+  document.getElementById('bulk-price-modal-backdrop')?.classList.add('open', 'show');
+  refreshBulkPricePreview();
+};
+
+window.closeBulkPriceModal = function() {
+  document.getElementById('bulk-price-modal')?.classList.remove('open', 'show');
+  document.getElementById('bulk-price-modal-backdrop')?.classList.remove('open', 'show');
+};
+
+function renderBulkCategoriesPicker() {
+  const wrap = document.getElementById('bulk-categories-picker');
+  if (!wrap) return;
+  const cats = Store.getCategories() || [];
+  wrap.innerHTML = cats.map(c => {
+    const active = _bulkSelectedCats.has(c);
+    return `<button type="button" class="btn btn-sm" onclick="toggleBulkCategory('${Store.escapeHtml(c).replace(/'/g, "\\'")}', this)" style="border:1.5px solid ${active ? 'var(--primary)' : 'var(--border)'}; background:${active ? 'rgba(249,115,22,0.12)' : 'transparent'}; color:var(--text-main); font-size:11.5px; font-weight:700;">${Store.escapeHtml(c)}</button>`;
+  }).join('');
+}
+
+function renderBulkProductsPicker() {
+  const wrap = document.getElementById('bulk-products-picker');
+  if (!wrap) return;
+  const prods = Store.getProducts() || [];
+  const currency = Store.getSettings().currency || 'ج.م';
+  wrap.innerHTML = prods.map(p => {
+    const checked = _bulkSelectedProductIds.has(p.id);
+    const eff = window.NicheEngine ? NicheEngine.getEffectiveProductPrice(p) : p.price;
+    return `
+      <label style="display:flex; align-items:center; justify-content:space-between; gap:8px; padding:5px 6px; border-bottom:1px solid var(--border); cursor:pointer; font-size:11.5px;">
+        <span style="display:flex; align-items:center; gap:6px;">
+          <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleBulkProduct('${p.id}', this.checked)" style="accent-color:var(--primary);">
+          <strong>${Store.escapeHtml(p.name)}</strong>
+          <span style="color:var(--text-muted);">(${Store.escapeHtml(p.category || '')})</span>
+        </span>
+        <span class="font-num" style="color:var(--primary); font-weight:800;">${eff} ${currency}</span>
+      </label>
+    `;
+  }).join('');
+}
+
+window.toggleBulkCategory = function(catName, btnEl) {
+  if (_bulkSelectedCats.has(catName)) {
+    _bulkSelectedCats.delete(catName);
+  } else {
+    _bulkSelectedCats.add(catName);
+  }
+  renderBulkCategoriesPicker();
+  refreshBulkPricePreview();
+};
+
+window.toggleBulkProduct = function(prodId, isChecked) {
+  if (isChecked) _bulkSelectedProductIds.add(prodId);
+  else _bulkSelectedProductIds.delete(prodId);
+  const cnt = document.getElementById('bulk-selected-count');
+  if (cnt) cnt.textContent = String(_bulkSelectedProductIds.size);
+  refreshBulkPricePreview();
+};
+
+window.setBulkScope = function(scope) {
+  _bulkScope = scope || 'all';
+  document.querySelectorAll('.bulk-scope-btn').forEach(btn => {
+    const isAct = btn.getAttribute('data-scope') === _bulkScope;
+    btn.classList.toggle('active', isAct);
+    btn.style.border = isAct ? '1.5px solid var(--primary)' : '1px solid var(--border)';
+    btn.style.fontWeight = isAct ? '800' : '700';
+  });
+  const catWrap = document.getElementById('bulk-categories-picker');
+  const prodWrap = document.getElementById('bulk-products-picker');
+  if (catWrap) catWrap.style.display = (_bulkScope === 'categories') ? 'flex' : 'none';
+  if (prodWrap) prodWrap.style.display = (_bulkScope === 'selected') ? 'block' : 'none';
+  refreshBulkPricePreview();
+};
+
+window.setBulkDurationMode = function(mode) {
+  _bulkMode = (mode === 'timed') ? 'timed' : 'permanent';
+  const dirEl = document.getElementById('bulk-direction');
+  if (_bulkMode === 'timed' && dirEl && dirEl.value === 'increase') {
+    dirEl.value = 'decrease';
+    showToastNotification("العروض المؤقتة للخصومات فقط — تم تحويل العملية لخصم (-)", "info");
+  }
+  document.querySelectorAll('.bulk-mode-btn').forEach(btn => {
+    const isAct = btn.getAttribute('data-mode') === _bulkMode;
+    btn.classList.toggle('active', isAct);
+    btn.style.border = isAct ? '1.5px solid var(--primary)' : '1px solid var(--border)';
+    btn.style.fontWeight = isAct ? '800' : '700';
+  });
+  const timedWrap = document.getElementById('bulk-timed-fields');
+  if (timedWrap) timedWrap.style.display = (_bulkMode === 'timed') ? 'block' : 'none';
+  refreshBulkPricePreview();
+};
+
+window.onBulkPriceOptionChange = function() {
+  const dirEl = document.getElementById('bulk-direction');
+  if (_bulkMode === 'timed' && dirEl && dirEl.value === 'increase') {
+    setBulkDurationMode('permanent');
+    return;
+  }
+  refreshBulkPricePreview();
+};
+
+window.setBulkOfferPresetHours = function(hours) {
+  setBulkDurationMode('timed');
+  const endsInput = document.getElementById('bulk-offer-ends-at');
+  if (endsInput) endsInput.value = toLocalDatetimeInputValue(Date.now() + (Number(hours) || 24) * 3600 * 1000);
+  refreshBulkPricePreview();
+};
+
+window.refreshBulkPricePreview = function() {
+  if (!window.NicheEngine || !Store.getProducts) return;
+  const direction = document.getElementById('bulk-direction')?.value || 'decrease';
+  const valueType = document.getElementById('bulk-value-type')?.value || 'percent';
+  const amount = parseFloat(document.getElementById('bulk-amount')?.value || '0') || 0;
+  const includeVariants = !!document.getElementById('bulk-include-variants')?.checked;
+  const rounding = document.getElementById('bulk-rounding')?.value || 'round1';
+  const endsStr = document.getElementById('bulk-offer-ends-at')?.value || '';
+  const offerEndsAt = (_bulkMode === 'timed' && endsStr) ? new Date(endsStr).getTime() : 0;
+  const offerLabel = document.getElementById('bulk-offer-label')?.value || '';
+
+  const plan = NicheEngine.buildBulkPricePlan(Store.getProducts(), {
+    scope: _bulkScope,
+    categoryNames: Array.from(_bulkSelectedCats),
+    productIds: Array.from(_bulkSelectedProductIds),
+    direction,
+    valueType,
+    amount,
+    rounding,
+    includeVariants,
+    mode: _bulkMode,
+    offerEndsAt,
+    offerLabel
+  });
+  _bulkLastPlan = plan;
+
+  const summary = document.getElementById('bulk-preview-summary');
+  const listEl = document.getElementById('bulk-preview-list');
+  const currency = Store.getSettings().currency || 'ج.م';
+
+  if (summary) summary.textContent = `${plan.changes.length} منتج متأثر`;
+  if (!listEl) return;
+
+  if (plan.changes.length === 0) {
+    listEl.innerHTML = `<div style="color:var(--text-muted); text-align:center; padding:12px;">اختر منتجات أو قسماً للمعاينة</div>`;
+    return;
+  }
+
+  listEl.innerHTML = plan.changes.slice(0, 40).map(ch => `
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 6px; border-radius:6px; background:var(--surface);">
+      <span style="font-weight:700; color:var(--text-main);">${Store.escapeHtml(ch.name)}${ch.changedVariants ? ` <small style="color:var(--text-muted);">(${ch.changedVariants} أحجام)</small>` : ''}</span>
+      <span class="font-num" style="display:inline-flex; gap:6px; align-items:center;">
+        <span style="text-decoration:line-through; color:var(--text-muted);">${ch.oldPrice}</span>
+        <span style="color:var(--primary); font-weight:900;">← ${ch.newPrice} ${currency}</span>
+      </span>
+    </div>
+  `).join('') + (plan.changes.length > 40 ? `<div style="text-align:center; color:var(--text-muted);">+ ${plan.changes.length - 40} صنف آخر</div>` : '');
+};
+
+window.executeBulkPriceAdjustment = async function() {
+  refreshBulkPricePreview();
+  if (!_bulkLastPlan || _bulkLastPlan.changes.length === 0) {
+    showToastNotification("لا توجد منتجات مختارة لتعديل أسعارها", "warning");
+    return;
+  }
+  const amount = parseFloat(document.getElementById('bulk-amount')?.value || '0');
+  if (!amount || amount <= 0) {
+    showToastNotification("أدخل نسبة أو مبلغاً أكبر من صفر", "warning");
+    return;
+  }
+  if (_bulkMode === 'timed') {
+    const endsStr = document.getElementById('bulk-offer-ends-at')?.value || '';
+    const offerEndsAt = endsStr ? new Date(endsStr).getTime() : 0;
+    if (!offerEndsAt || isNaN(offerEndsAt) || offerEndsAt <= Date.now()) {
+      showToastNotification("اختر وقت انتهاء مستقبلي للعرض المؤقت", "warning");
+      return;
+    }
+  }
+
+  try {
+    await Store.saveProducts(_bulkLastPlan.updatedProducts);
+    if (Store.saveBulkPriceUndoSnapshot) {
+      Store.saveBulkPriceUndoSnapshot(_bulkLastPlan.snapshot);
+    }
+    syncBulkUndoButtonVisibility();
+    closeBulkPriceModal();
+    renderCatalog();
+    showToastNotification(`تم تحديث أسعار ${_bulkLastPlan.changes.length} منتج بنجاح! يمكنك التراجع بضغطة واحدة.`, "success");
+  } catch (e) {
+    console.error("[Admin] Bulk price save error:", e);
+    showToastNotification("تعذر حفظ تعديل الأسعار: " + e.message, "error");
+  }
+};
+
+window.undoLastBulkPriceAdjustment = async function() {
+  if (!window.NicheEngine || !Store.getBulkPriceUndoSnapshot) return;
+  const snap = Store.getBulkPriceUndoSnapshot();
+  if (!snap || !Array.isArray(snap.items) || snap.items.length === 0) {
+    showToastNotification("لا يوجد تعديل جماعي سابق للتراجع عنه", "info");
+    return;
+  }
+  if (!confirm(`هل تريد استرجاع الأسعار السابقة لـ ${snap.items.length} منتج قبل آخر تعديل جماعي؟`)) return;
+  try {
+    const restored = NicheEngine.applyUndoSnapshot(Store.getProducts(), snap);
+    await Store.saveProducts(restored);
+    Store.saveBulkPriceUndoSnapshot(null);
+    syncBulkUndoButtonVisibility();
+    renderCatalog();
+    showToastNotification("تم استرجاع الأسعار السابقة بنجاح!", "success");
+  } catch (e) {
+    showToastNotification("خطأ أثناء التراجع عن الأسعار: " + e.message, "error");
+  }
+};
+
+// ── Bulk CSV Import Engine ──
+let _pendingCSVRows = [];
+
+window.openBulkImportModal = function() {
+  _pendingCSVRows = [];
+  const fileEl = document.getElementById('bulk-csv-file-input');
+  if (fileEl) fileEl.value = '';
+  const prevEl = document.getElementById('bulk-import-preview');
+  if (prevEl) prevEl.innerHTML = 'لم يتم اختيار ملف بعد.';
+  const btn = document.getElementById('btn-confirm-bulk-import');
+  if (btn) btn.disabled = true;
+  document.getElementById('bulk-import-modal')?.classList.add('open', 'show');
+  document.getElementById('bulk-import-modal-backdrop')?.classList.add('open', 'show');
+};
+
+window.closeBulkImportModal = function() {
+  document.getElementById('bulk-import-modal')?.classList.remove('open', 'show');
+  document.getElementById('bulk-import-modal-backdrop')?.classList.remove('open', 'show');
+};
+
+window.downloadSampleCSVTemplate = function() {
+  const bom = '\uFEFF';
+  const rows = [
+    'name,category,price,originalPrice,stockQty,brand,desc,image',
+    '"فوزول ستار 20000 - عنب نعناع","أجهزة ديسبوزابل",650,750,25,"Vozol","20000 سحبة شاشة سمارت","https://placehold.co/600x450/png?text=Vozol"',
+    '"جوسي تيك ليكويد 60 مل","نكهات وإي-ليكويد",420,,15,"JusyTech","نكهة توت أزرق مثلج 3 مج نيكوتين","https://placehold.co/600x450/png?text=Liquid"'
+  ];
+  const blob = new Blob([bom + rows.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'harpy-products-template.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+
+function parseCSVLine(line) {
+  const res = [];
+  let cur = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        cur += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (c === ',' && !inQuotes) {
+      res.push(cur.trim());
+      cur = '';
+    } else {
+      cur += c;
+    }
+  }
+  res.push(cur.trim());
+  return res;
+}
+
+window.handleBulkCSVFile = function(event) {
+  const file = event && event.target && event.target.files ? event.target.files[0] : null;
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const raw = String(reader.result || '').replace(/^\uFEFF/, '');
+    const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    if (lines.length < 2) {
+      showToastNotification("الملف فارغ أو لا يحتوي على صفوف بيانات", "warning");
+      return;
+    }
+    const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase());
+    const idxName = headers.indexOf('name');
+    const idxCat = headers.indexOf('category');
+    const idxPrice = headers.indexOf('price');
+    const idxOrig = headers.indexOf('originalprice');
+    const idxStock = headers.indexOf('stockqty');
+    const idxBrand = headers.indexOf('brand');
+    const idxDesc = headers.indexOf('desc');
+    const idxImg = headers.indexOf('image');
+
+    if (idxName === -1 || idxPrice === -1) {
+      showToastNotification("الملف يجب أن يحتوي على عمودي name و price على الأقل", "error");
+      return;
+    }
+
+    _pendingCSVRows = [];
+    for (let i = 1; i < lines.length; i++) {
+      const cols = parseCSVLine(lines[i]);
+      const name = (cols[idxName] || '').trim();
+      const price = parseFloat(cols[idxPrice] || '0');
+      if (!name || isNaN(price) || price <= 0) continue;
+      const stockRaw = idxStock >= 0 ? (cols[idxStock] || '').trim() : '';
+      _pendingCSVRows.push({
+        name,
+        category: idxCat >= 0 && cols[idxCat] ? cols[idxCat].trim() : 'عام',
+        price,
+        originalPrice: idxOrig >= 0 ? (parseFloat(cols[idxOrig]) || 0) : 0,
+        stockQty: stockRaw !== '' ? Math.max(0, parseInt(stockRaw, 10) || 0) : null,
+        brand: idxBrand >= 0 ? (cols[idxBrand] || '').trim() : '',
+        desc: idxDesc >= 0 ? (cols[idxDesc] || '').trim() : '',
+        image: idxImg >= 0 && cols[idxImg] ? cols[idxImg].trim() : 'https://placehold.co/600x450/1e293b/ffffff?text=Product'
+      });
+    }
+
+    const prevEl = document.getElementById('bulk-import-preview');
+    const btn = document.getElementById('btn-confirm-bulk-import');
+    if (prevEl) {
+      prevEl.innerHTML = _pendingCSVRows.length > 0
+        ? `<div style="color:#16a34a; font-weight:800;">تمت قراءة ${_pendingCSVRows.length} منتج بنجاح وجاهز للاستيراد/التحديث (بالاسم).</div>`
+        : `<div style="color:var(--danger); font-weight:800;">لم يتم العثور على صفوف صالحة.</div>`;
+    }
+    if (btn) btn.disabled = (_pendingCSVRows.length === 0);
+  };
+  reader.readAsText(file, 'UTF-8');
+};
+
+window.executeBulkCSVImport = async function() {
+  if (!_pendingCSVRows || _pendingCSVRows.length === 0) return;
+  const existing = (Store.getProducts() || []).slice();
+  const cats = (Store.getCategories() || []).slice();
+  const catSet = new Set(cats);
+  const byName = new Map(existing.map((p, idx) => [String(p.name || '').trim().toLowerCase(), idx]));
+
+  let added = 0;
+  let updated = 0;
+  _pendingCSVRows.forEach(row => {
+    if (row.category && !catSet.has(row.category)) {
+      catSet.add(row.category);
+      cats.push(row.category);
+    }
+    const key = row.name.toLowerCase();
+    if (byName.has(key)) {
+      const idx = byName.get(key);
+      existing[idx] = Object.assign({}, existing[idx], {
+        category: row.category || existing[idx].category,
+        price: row.price,
+        originalPrice: row.originalPrice,
+        stockQty: row.stockQty,
+        brand: row.brand || existing[idx].brand || '',
+        desc: row.desc || existing[idx].desc || '',
+        image: row.image || existing[idx].image
+      });
+      updated++;
+    } else {
+      existing.push({
+        id: 'prod-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+        name: row.name,
+        category: row.category,
+        price: row.price,
+        originalPrice: row.originalPrice,
+        stockQty: row.stockQty,
+        brand: row.brand,
+        desc: row.desc,
+        image: row.image,
+        sizes: [],
+        addons: [],
+        visible: true
+      });
+      added++;
+    }
+  });
+
+  try {
+    await Store.saveCategories(cats);
+    await Store.saveProducts(existing);
+    closeBulkImportModal();
+    renderCatalog();
+    showToastNotification(`تم الاستيراد بنجاح: ${added} منتج جديد، ${updated} تم تحديثه!`, "success");
+  } catch (e) {
+    showToastNotification("خطأ أثناء استيراد الملف: " + e.message, "error");
+  }
+};

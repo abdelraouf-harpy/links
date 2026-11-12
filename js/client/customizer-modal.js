@@ -27,24 +27,62 @@ window.openCustomizer = function(productId) {
   if (elements.customizerTitle) elements.customizerTitle.textContent = (typeof window.getProductName === 'function' ? window.getProductName(p) : (typeof window.tr === 'function' ? window.tr(p.name) : p.name));
   if (elements.customizerDesc) elements.customizerDesc.textContent = (typeof window.getProductDesc === 'function' ? window.getProductDesc(p) : (typeof window.tr === 'function' ? window.tr(p.desc || p.description || '') : (p.desc || p.description || '')));
   if (elements.customizerImg) elements.customizerImg.src = p.image;
-  if (elements.customizerBasePrice) elements.customizerBasePrice.textContent = `${p.price} ${currency}`;
+  const effBasePrice = (Store.getEffectiveProductPrice) ? Store.getEffectiveProductPrice(p) : p.price;
+  if (elements.customizerBasePrice) elements.customizerBasePrice.textContent = `${effBasePrice} ${currency}`;
   if (elements.customizerNotes) elements.customizerNotes.value = '';
   if (elements.customizerQtyVal) elements.customizerQtyVal.textContent = '1';
+
+  // Multi-Image Gallery Strip (when multiImageGallery is enabled and product has extra images)
+  const thumbsWrap = document.getElementById('customizer-gallery-thumbs');
+  if (thumbsWrap) {
+    const mods = (window.ModuleEnforcer && window.ModuleEnforcer.modules) ? window.ModuleEnforcer.modules : {};
+    const extraImgs = Array.isArray(p.images) ? p.images.filter(Boolean) : [];
+    const allImgs = [p.image, ...extraImgs.filter(u => u && u !== p.image)].filter(Boolean);
+    if (mods.multiImageGallery !== false && allImgs.length > 1) {
+      thumbsWrap.style.display = 'flex';
+      thumbsWrap.innerHTML = allImgs.map((u, idx) => `
+        <button type="button" class="customizer-thumb-btn ${idx === 0 ? 'active' : ''}" onclick="window.selectCustomizerGalleryImage('${u.replace(/'/g, "\\'")}', this)">
+          <img src="${u}" alt="" loading="lazy">
+        </button>
+      `).join('');
+    } else {
+      thumbsWrap.style.display = 'none';
+      thumbsWrap.innerHTML = '';
+    }
+  }
+
+  // Timed Flash Offer Countdown Badge in Customizer
+  const cTimerEl = document.getElementById('customizer-offer-countdown');
+  if (cTimerEl) {
+    const isTimed = !!(window.NicheEngine && NicheEngine.isTimedOfferActive(p));
+    if (isTimed) {
+      cTimerEl.style.display = 'inline-flex';
+      cTimerEl.setAttribute('data-offer-ends', String(p.offerEndsAt));
+      const fmt = NicheEngine.formatCountdown(p.offerEndsAt - Date.now(), (typeof I18n !== 'undefined' ? I18n.getLanguage() : 'ar'));
+      cTimerEl.innerHTML = `<span>${p.offerLabel ? Store.escapeHtml(p.offerLabel) + ' • ' : 'عرض خاص ينتهي خلال '}</span><span class="offer-timer-digits font-num">${fmt.text}</span>`;
+    } else {
+      cTimerEl.style.display = 'none';
+      cTimerEl.removeAttribute('data-offer-ends');
+    }
+  }
 
   // Render Sizes
   if (p.sizes && p.sizes.length > 0) {
     if (elements.customizerSizesSection) elements.customizerSizesSection.style.display = 'block';
     if (elements.customizerSizesList) {
       const basePriceLabel = (typeof t === 'function' ? t('val_base_price', 'السعر الأساسي') : 'السعر الأساسي');
-      elements.customizerSizesList.innerHTML = p.sizes.map((s, idx) => `
+      elements.customizerSizesList.innerHTML = p.sizes.map((s, idx) => {
+        const effSzPrice = (Store.getEffectiveSizePrice) ? Store.getEffectiveSizePrice(p, s) : (s.price || 0);
+        return `
         <div class="customizer-option-card ${idx === 0 ? 'selected' : ''}" onclick="selectCustomizerSize('${s.id || s.name || idx}')" data-size-id="${s.id || ''}" data-size-name="${s.name || ''}" data-size-idx="${idx}">
           <div class="option-left-wrap">
             <div class="custom-radio-circle"></div>
             <span class="option-name">${(typeof window.getSizeName === 'function' ? window.getSizeName(s) : (typeof window.tr === 'function' ? window.tr(s.name) : s.name))}</span>
           </div>
-          <span class="option-price-extra font-num">${s.price > 0 ? `+${s.price} ${currency}` : basePriceLabel}</span>
+          <span class="option-price-extra font-num">${effSzPrice > 0 ? `+${effSzPrice} ${currency}` : basePriceLabel}</span>
         </div>
-      `).join('');
+      `;
+      }).join('');
     }
   } else {
     if (elements.customizerSizesSection) elements.customizerSizesSection.style.display = 'none';
@@ -116,10 +154,11 @@ function calculateCustomizerTotal() {
   if (!customizerProduct) return;
   const s = Store.getSettings ? Store.getSettings() : {};
   const currency = (typeof window.getCurrency === 'function') ? window.getCurrency(s.currency) : (typeof window.t === 'function' ? window.t('currency', s.currency || "ج.م") : (s.currency || "ج.م"));
-  let unitPrice = customizerProduct.price;
+  let unitPrice = (Store.getEffectiveProductPrice) ? Store.getEffectiveProductPrice(customizerProduct) : customizerProduct.price;
 
-  if (customizerSelectedSize && customizerSelectedSize.price) {
-    unitPrice += customizerSelectedSize.price;
+  if (customizerSelectedSize) {
+    const effSz = (Store.getEffectiveSizePrice) ? Store.getEffectiveSizePrice(customizerProduct, customizerSelectedSize) : (customizerSelectedSize.price || 0);
+    unitPrice += effSz;
   }
 
   customizerSelectedAddons.forEach(a => {
@@ -158,6 +197,13 @@ function initCustomizerEvents() {
 
   if (elements.btnCustomizerQtyPlus) {
     elements.btnCustomizerQtyPlus.addEventListener('click', () => {
+      if (customizerProduct && Store.getAvailableStockQty) {
+        const avail = Store.getAvailableStockQty(customizerProduct);
+        if (avail !== null && customizerQty >= avail) {
+          if (typeof showToastNotification === 'function') showToastNotification(`متوفر ${avail} قطعة فقط بالمخزون حالياً`, "warning");
+          return;
+        }
+      }
       customizerQty++;
       if (elements.customizerQtyVal) elements.customizerQtyVal.textContent = customizerQty;
       calculateCustomizerTotal();
@@ -170,13 +216,22 @@ function initCustomizerEvents() {
       if (checkOrderingPaused()) return;
       if (!customizerProduct) return;
 
-      let unitPrice = customizerProduct.price;
-      if (customizerSelectedSize && customizerSelectedSize.price) {
-        unitPrice += customizerSelectedSize.price;
-      }
+      const effBase = (Store.getEffectiveProductPrice) ? Store.getEffectiveProductPrice(customizerProduct) : customizerProduct.price;
+      const effSz = (customizerSelectedSize && Store.getEffectiveSizePrice) ? Store.getEffectiveSizePrice(customizerProduct, customizerSelectedSize) : (customizerSelectedSize ? (customizerSelectedSize.price || 0) : 0);
+      const isTimed = !!(window.NicheEngine && NicheEngine.isTimedOfferActive(customizerProduct));
+
+      let unitPrice = effBase + effSz;
       customizerSelectedAddons.forEach(a => {
         unitPrice += (a.price || 0);
       });
+
+      const avail = Store.getAvailableStockQty ? Store.getAvailableStockQty(customizerProduct) : null;
+      const cartNow = Store.getCart();
+      const inCartAlready = cartNow.filter(i => (i.productId || i.id) === customizerProduct.id).reduce((s, i) => s + (i.qty || 1), 0);
+      if (avail !== null && (inCartAlready + customizerQty) > avail) {
+        if (typeof showToastNotification === 'function') showToastNotification(`متوفر ${avail} قطعة فقط بالمخزون (لديك ${inCartAlready} بالسلة)`, "warning");
+        return;
+      }
 
       const notes = (elements.customizerNotes && elements.customizerNotes.value || '').trim();
 
@@ -185,13 +240,15 @@ function initCustomizerEvents() {
         productId: customizerProduct.id,
         name: customizerProduct.name,
         name_en: customizerProduct.name_en || (typeof window.tr === 'function' ? window.tr(customizerProduct.name) : ''),
-        basePrice: customizerProduct.price,
+        basePrice: effBase,
         price: unitPrice,
+        appliedOfferEndsAt: isTimed ? customizerProduct.offerEndsAt : 0,
         image: customizerProduct.image,
         category: customizerProduct.category,
         category_en: customizerProduct.category_en || (typeof window.tr === 'function' ? window.tr(customizerProduct.category) : ''),
         selectedSize: customizerSelectedSize ? { 
           ...customizerSelectedSize,
+          price: effSz,
           name_en: customizerSelectedSize.name_en || (typeof window.tr === 'function' ? window.tr(customizerSelectedSize.name) : '')
         } : null,
         selectedAddons: customizerSelectedAddons.map(a => ({ 
@@ -206,6 +263,9 @@ function initCustomizerEvents() {
       const existing = findMatchingCartItem(cart, cartItem);
       if (existing) {
         existing.qty += cartItem.qty;
+        existing.price = unitPrice;
+        existing.basePrice = effBase;
+        existing.appliedOfferEndsAt = isTimed ? customizerProduct.offerEndsAt : 0;
       } else {
         cart.push(cartItem);
       }
@@ -218,6 +278,12 @@ function initCustomizerEvents() {
     });
   }
 }
+
+window.selectCustomizerGalleryImage = function(url, btnEl) {
+  if (elements.customizerImg && url) elements.customizerImg.src = url;
+  document.querySelectorAll('.customizer-thumb-btn').forEach(b => b.classList.remove('active'));
+  if (btnEl) btnEl.classList.add('active');
+};
 
 function closeCustomizer(triggerHistoryBack = true) {
   customizerProduct = null;

@@ -847,6 +847,12 @@ function loadAllDashboardData() {
 
   try {
     const currentSettings = Store.getSettings();
+    if (window.NicheEngine) {
+      NicheEngine.applyTerminology(currentSettings);
+      NicheEngine.startCountdownLoop(() => {
+        if (typeof renderCatalog === 'function') renderCatalog();
+      });
+    }
     if (typeof window.updatePwaBranding === 'function') {
       window.updatePwaBranding(currentSettings);
     }

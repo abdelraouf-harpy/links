@@ -343,6 +343,16 @@
       setFlag('reviews', modules.reviews);
       setFlag('settings', modules.settings);
       setFlag('backup', modules.backup);
+      setFlag('bulk-pricing', modules.bulkPricing !== false);
+      setFlag('age-gate', modules.ageGate18 === true);
+      setFlag('store-24-7', modules.store24_7 === true);
+      setFlag('piece-stock', modules.pieceStock === true);
+      setFlag('multi-image', modules.multiImageGallery === true);
+      setFlag('catalog-filters', modules.catalogFilters === true);
+      setFlag('bulk-import', modules.bulkImport === true);
+      setFlag('return-policy', modules.returnPolicy === true);
+      setFlag('nutrition-info', modules.nutritionInfo !== false);
+      setFlag('working-hours-gate', modules.workingHoursGate !== false);
 
       // ── 2. Inject Dynamic CSS Rules for Zero-Latency DOM Suppression ──
       this.setupStyleSheet();
@@ -442,6 +452,30 @@
       }
       if (modules.delivery === false && modules.takeaway === false && isTablesDisabled) {
         cssRules.push('#cart-flow-fulfillment, #fulfillment-segmented-control { display: none !important; }');
+      }
+      if (modules.bulkPricing === false) {
+        cssRules.push('#btn-open-bulk-price, #btn-undo-bulk-price, #prod-timed-offer-section, .prod-timed-offer-wrap { display: none !important; }');
+      }
+      if (modules.bulkImport !== true) {
+        cssRules.push('#btn-open-bulk-import { display: none !important; }');
+      }
+      if (modules.pieceStock !== true) {
+        cssRules.push('#prod-piece-stock-wrap, .prod-piece-stock-badge { display: none !important; }');
+      }
+      if (modules.multiImageGallery !== true) {
+        cssRules.push('#prod-gallery-wrap, #customizer-gallery-thumbs { display: none !important; }');
+      }
+      if (modules.catalogFilters !== true) {
+        cssRules.push('#client-catalog-filters-bar { display: none !important; }');
+      }
+      if (modules.returnPolicy !== true) {
+        cssRules.push('#store-return-policy-card, #cart-return-policy-badge, #settings-return-policy-wrap { display: none !important; }');
+      }
+      if (modules.ageGate18 !== true) {
+        cssRules.push('#settings-age-gate-wrap { display: none !important; }');
+      }
+      if (modules.nutritionInfo === false) {
+        cssRules.push('.item-prep-time, .hero-meta-row .meta-chip:nth-child(2), #prod-preptime-wrap { display: none !important; }');
       }
 
       if (this.styleElement) {
@@ -754,7 +788,15 @@
         reviewBoxes.forEach(el => el.style.removeProperty('display'));
       }
 
-      // ── 4. Dispatch Instant Notification to Client Engines ──
+      // ── 4. Niche Adaptive Terminology Sync ──
+      if (window.NicheEngine && typeof window.NicheEngine.applyTerminology === 'function') {
+        try {
+          const st = (window.Store && typeof window.Store.getSettings === 'function') ? window.Store.getSettings() : {};
+          window.NicheEngine.applyTerminology(st);
+        } catch(e) {}
+      }
+
+      // ── 5. Dispatch Instant Notification to Client Engines ──
       window.dispatchEvent(new CustomEvent('harpy_modules_changed', { detail: this.modules }));
     },
 

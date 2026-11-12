@@ -389,8 +389,9 @@ async function run() {
     console.log(`[PRUNED] Deleted tenant "${slug}" (${removed} artifact(s) removed)`);
   }
 
-  // Synchronize active tenants
+  // Synchronize active tenants & custom domains map
   const registry = {};
+  const domainMap = {};
   const activeSlugs = Object.keys(activeLicenses).sort();
   if (activeSlugs.length === 0) {
     console.error('Safety abort: zero active licenses resolved; refusing to wipe registry.');
@@ -402,15 +403,20 @@ async function run() {
     const setRes = await fetchJson(`restaurants/${slug}/settings.json`);
     const settings = (setRes.ok && setRes.data && typeof setRes.data === 'object') ? setRes.data : {};
 
+    const businessType = (settings.businessType === 'store' || lic.businessType === 'store') ? 'store' : 'restaurant';
     const name = settings.storeName || settings.name || lic.restaurantName || slug;
-    const desc = settings.storeTagline || settings.tagline || settings.description || `قائمة طعام ${name} والطلب الإلكتروني المباشر`;
+    const desc = settings.storeTagline || settings.tagline || settings.description || (businessType === 'store' ? `متجر ${name} الإلكتروني والطلب المباشر` : `قائمة طعام ${name} والطلب الإلكتروني المباشر`);
     const logoUrl = normalizeAbsoluteUrl(
       settings.logoUrl || settings.logo || 'https://harpymenu.com/assets/brand/og_banner.png',
       'https://harpymenu.com/assets/brand/og_banner.png'
     );
     const themeColor = (settings.siteColors && settings.siteColors.primary) || '#ea580c';
+    const rawCustomDomain = String(settings.customDomain || lic.customDomain || '').toLowerCase().trim().replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/.*$/, '');
+    if (rawCustomDomain && rawCustomDomain.includes('.')) {
+      domainMap[rawCustomDomain] = slug;
+    }
 
-    registry[slug] = { slug, name, logo: logoUrl, desc };
+    registry[slug] = { slug, name, logo: logoUrl, desc, businessType, customDomain: rawCustomDomain || '' };
 
     // Root manifests
     fs.writeFileSync(
@@ -453,10 +459,15 @@ async function run() {
     console.log(`[SYNCED] ${slug} -> "${name}"`);
   }
 
-  // Write js/tenant-registry.json, update 404.html & firebase.json
+  // Write js/tenant-registry.json, js/domain-map.json, update 404.html & firebase.json
   fs.writeFileSync(
     path.join(ROOT_DIR, 'js', 'tenant-registry.json'),
     JSON.stringify(registry, null, 2) + '\n',
+    'utf8'
+  );
+  fs.writeFileSync(
+    path.join(ROOT_DIR, 'js', 'domain-map.json'),
+    JSON.stringify(domainMap, null, 2) + '\n',
     'utf8'
   );
   update404Registry(registry);

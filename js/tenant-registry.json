@@ -3,18 +3,24 @@
     "slug": "aloo",
     "name": "Aloo Burger",
     "logo": "https://res.cloudinary.com/pq2pimug/image/upload/v1793879648/ycssznrc2i1rf8abpyu2.jpg",
-    "desc": "قائمة طعام Aloo Burger والطلب الإلكتروني المباشر"
+    "desc": "قائمة طعام Aloo Burger والطلب الإلكتروني المباشر",
+    "businessType": "restaurant",
+    "customDomain": ""
   },
   "elmetaashy": {
     "slug": "elmetaashy",
     "name": "El Metaashy",
     "logo": "https://res.cloudinary.com/pq2pimug/image/upload/v1794336402/mnl4qazblj9bhwpnocy5.jpg",
-    "desc": "الجوع لما ينادي.. المتعشي هو الحل 🍔🔥"
+    "desc": "الجوع لما ينادي.. المتعشي هو الحل 🍔🔥",
+    "businessType": "restaurant",
+    "customDomain": ""
   },
   "king": {
     "slug": "king",
     "name": "king",
     "logo": "https://res.cloudinary.com/pq2pimug/image/upload/v1794005707/fekgebaclepbe4hmt4ga.jpg",
-    "desc": "أشهى المشويات، البرجر الفاخر، والبيتزا الإيطالية على أصولها"
+    "desc": "أشهى المشويات، البرجر الفاخر، والبيتزا الإيطالية على أصولها",
+    "businessType": "restaurant",
+    "customDomain": ""
   }
 }

@@ -257,6 +257,24 @@ function loadSettingsIntoForm() {
   updateThemePresetCardsUI(s.themePreset);
   renderAdminTablesList();
   renderAdminBranchesList();
+
+  const retPolEl = document.getElementById('set-return-policy-text');
+  if (retPolEl) retPolEl.value = s.returnPolicyText || '';
+  const ageTitleEl = document.getElementById('set-age-gate-title');
+  if (ageTitleEl) ageTitleEl.value = s.ageGateTitle || '';
+  const ageDescEl = document.getElementById('set-age-gate-desc');
+  if (ageDescEl) ageDescEl.value = s.ageGateDesc || '';
+  const domBadge = document.getElementById('settings-custom-domain-badge');
+  if (domBadge) {
+    if (s.customDomain) {
+      domBadge.style.display = 'block';
+      domBadge.textContent = `الدومين الخاص المرتبط بالمتجر: ${s.customDomain}`;
+    } else {
+      domBadge.style.display = 'none';
+    }
+  }
+  if (window.NicheEngine) NicheEngine.applyTerminology(s);
+
   if (typeof window.updateAdminBranchDrawerSwitcher === 'function') {
     try { window.updateAdminBranchDrawerSwitcher(); } catch(e) {}
   }
@@ -420,7 +438,11 @@ async function saveSettingsFromForm() {
       enableSpendTierDiscount: adminElements.setEnableSpendTier?.checked === true,
       spendTierMinAmount: parseFloat(adminElements.setSpendMinAmount?.value) || 0,
       spendTierDiscountType: adminElements.setSpendDiscountType?.value || 'percent',
-      spendTierDiscountValue: parseFloat(adminElements.setSpendDiscountVal?.value) || 0
+      spendTierDiscountValue: parseFloat(adminElements.setSpendDiscountVal?.value) || 0,
+
+      returnPolicyText: (document.getElementById('set-return-policy-text')?.value || '').trim(),
+      ageGateTitle: (document.getElementById('set-age-gate-title')?.value || '').trim(),
+      ageGateDesc: (document.getElementById('set-age-gate-desc')?.value || '').trim()
     };
 
     // Ensure legacy security keys are never stored in public settings

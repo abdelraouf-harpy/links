@@ -89,6 +89,10 @@
       ".read": true,
       ".write": false
     },
+    "domains": {
+      ".read": true,
+      ".write": false
+    },
     "auditLogs": {
       ".read": false,
       ".write": false
