@@ -3901,7 +3901,7 @@ html[dir="ltr"] .cart-drawer.open {
   border-radius: 12px;
   background: transparent;
   border: none;
-  color: var(--surface-raised);
+  color: var(--text-main);
   font-size: 13px;
   font-weight: 700;
   font-family: inherit;
@@ -4221,7 +4221,7 @@ body.has-active-dinein-table #header-branch-pill {
 }
 
 [data-theme="dark"] .menu-header-store-name {
-  color: var(--surface-raised);
+  color: var(--text-main);
 }
 
 [data-theme="dark"] .menu-header-store-tagline {
@@ -5469,12 +5469,12 @@ html[dir="ltr"] .customer-onboard-modal .input-luxury-field,
 }
 [data-theme="dark"] .btn-close-onboard:hover {
   background: var(--overlay-light);
-  color: var(--surface-hover);
+  color: var(--text-main);
 }
 [data-theme="dark"] .onboard-lang-btn {
   background: var(--overlay-light);
   border-color: var(--text-on-primary);
-  color: var(--border);
+  color: var(--text-muted);
 }
 [data-theme="dark"] .onboard-lang-btn.active {
   background: var(--primary-subtle);
@@ -6071,7 +6071,7 @@ html[dir="ltr"] .customer-onboard-modal .input-luxury-field,
 .portfolio-card-tagline {
   font-size: 0.92rem;
   font-weight: 800;
-  color: var(--surface-raised);
+  color: var(--text-main);
   margin: 0;
   line-height: 1.35;
 }
@@ -6189,7 +6189,7 @@ html[dir="ltr"] .customer-onboard-modal .input-luxury-field,
 .highlight-title {
   font-size: 11px;
   font-weight: 800;
-  color: var(--surface-raised);
+  color: var(--text-main);
 }
 
 .highlight-sub {
@@ -6310,7 +6310,7 @@ html[dir="ltr"] .customer-onboard-modal .input-luxury-field,
 }
 
 .location-pin-icon {
-  color: var(--surface-raised);
+  color: var(--primary);
   display: flex;
   align-items: center;
 }
@@ -6318,7 +6318,7 @@ html[dir="ltr"] .customer-onboard-modal .input-luxury-field,
 .location-address-name {
   font-size: 0.86rem;
   font-weight: 700;
-  color: var(--surface-raised);
+  color: var(--text-main);
 }
 
 .location-left-arrow {
@@ -6370,11 +6370,11 @@ html[dir="ltr"] .customer-onboard-modal .input-luxury-field,
 .social-header-title {
   font-size: 0.86rem;
   font-weight: 800;
-  color: var(--surface-raised);
+  color: var(--text-main);
 }
 
 [data-theme="dark"] .social-header-title {
-  color: var(--surface-raised);
+  color: var(--text-main);
 }
 
 [data-theme="dark"] .social-decor-line {
@@ -6514,7 +6514,7 @@ html[dir="ltr"] .customer-onboard-modal .input-luxury-field,
 [data-theme="dark"] .location-address-name,
 [data-theme="dark"] .social-header-title,
 [data-theme="dark"] .social-circle-label {
-  color: var(--surface-raised);
+  color: var(--text-main);
 }
 
 [data-theme="dark"] .portfolio-about-desc,
@@ -6551,7 +6551,7 @@ html[dir="ltr"] .customer-onboard-modal .input-luxury-field,
 
 
 [data-theme="dark"] .location-pin-icon {
-  color: var(--surface-raised);
+  color: var(--primary);
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -7011,6 +7011,10 @@ html[dir="ltr"] .customer-onboard-modal .input-luxury-field,
   font-size: 0.88rem;
   color: var(--text-muted);
   margin: 0;
+  direction: ltr !important;
+  unicode-bidi: isolate !important;
+  display: inline-block;
+  text-align: right;
 }
 
 .btn-clean-edit {
@@ -7859,9 +7863,9 @@ html[dir="ltr"] .menu-arrow {
 }
 
 .clean-profile-name {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  word-break: break-word;
+  line-height: 1.3;
+  unicode-bidi: plaintext;
 }
 
 .btn-clean-edit {
