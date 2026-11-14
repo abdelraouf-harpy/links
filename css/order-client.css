@@ -531,7 +531,7 @@
 }
 [data-theme="dark"] .cat-card-pill {
   background: var(--surface) !important;
-  border-color: var(--text-on-primary) !important;
+  border-color: var(--border) !important;
   color: var(--text-body) !important;
 }
 [data-theme="dark"] .cat-card-pill .cat-card-icon {
@@ -1392,7 +1392,7 @@ html[dir="ltr"] .cart-drawer.open {
 .step-segment-text {
   font-size: 11px;
   font-weight: 700;
-  color: var(--text-faint);
+  color: var(--text-muted);
   transition: color 0.2s ease;
   line-height: 1.2;
 }
@@ -2141,7 +2141,7 @@ html[dir="ltr"] .cart-drawer.open {
 }
 .dropzone-desc {
   font-size: 0.76rem;
-  color: var(--text-faint);
+  color: var(--text-muted);
 }
 
 .receipt-preview-image {
@@ -2720,7 +2720,7 @@ html[dir="ltr"] .cart-drawer.open {
 }
 
 [data-theme="dark"] .products-flow.view-mode-dual .food-item-desc {
-  color: var(--text-muted, var(--text-muted)) !important;
+  color: var(--text-body) !important;
 }
 
 [data-theme="light"] .products-flow.view-mode-dual .food-item-desc {
@@ -4239,12 +4239,13 @@ body.has-active-dinein-table #header-branch-pill {
 }
 
 [data-theme="dark"] .menu-header-store-tagline {
-  color: var(--text-faint);
+  color: var(--text-muted);
 }
 
 [data-theme="dark"] .menu-meta-pill.pill-dark {
-  background: var(--text-main);
-  border-color: var(--text-on-primary);
+  background: var(--surface-raised);
+  border-color: var(--border);
+  color: var(--text-main);
 }
 
 [data-theme="dark"] .menu-meta-pill.pill-status.open {
@@ -4854,7 +4855,7 @@ body.harpy-account-locked {
 .food-item-card.skeleton-card {
   pointer-events: none !important;
   cursor: default !important;
-  border-color: var(--text-on-primary) !important;
+  border-color: var(--border) !important;
 }
 .skeleton-shimmer {
   position: relative;
@@ -4954,7 +4955,7 @@ body:has(#customizer-modal.open) .bottom-nav-bar {
   -webkit-tap-highlight-color: transparent;
 }
 [data-theme="dark"] .nav-tab-btn {
-  color: var(--text-faint);
+  color: var(--text-body);
 }
 [data-theme="light"] .nav-tab-btn {
   color: var(--text-body);
@@ -5171,7 +5172,7 @@ body:has(#customizer-modal.open) .bottom-nav-bar {
   }
   [data-theme="dark"] .desktop-header-nav {
     background: var(--surface);
-    border-color: var(--text-on-primary);
+    border-color: var(--border);
     box-shadow: 0 2px 10px var(--overlay-dark);
   }
   .desktop-nav-link {
@@ -5192,7 +5193,7 @@ body:has(#customizer-modal.open) .bottom-nav-bar {
     user-select: none;
   }
   [data-theme="dark"] .desktop-nav-link {
-    color: var(--text-faint);
+    color: var(--text-body);
   }
   .desktop-nav-link:hover {
     color: var(--primary);
@@ -5476,11 +5477,11 @@ html[dir="ltr"] .customer-onboard-modal .input-luxury-field,
 }
 [data-theme="dark"] .customer-onboard-modal {
   background: var(--surface);
-  border-color: var(--text-on-primary);
+  border-color: var(--border);
   box-shadow: 0 24px 60px var(--overlay-dark);
 }
 [data-theme="dark"] .btn-close-onboard {
-  border-color: var(--text-on-primary);
+  border-color: var(--border);
   background: var(--overlay-light);
   color: var(--text-faint);
 }
@@ -5489,8 +5490,8 @@ html[dir="ltr"] .customer-onboard-modal .input-luxury-field,
   color: var(--text-main);
 }
 [data-theme="dark"] .onboard-lang-btn {
-  background: var(--overlay-light);
-  border-color: var(--text-on-primary);
+  background: var(--surface-raised);
+  border-color: var(--border);
   color: var(--text-muted);
 }
 [data-theme="dark"] .onboard-lang-btn.active {
@@ -6339,7 +6340,7 @@ html[dir="ltr"] .customer-onboard-modal .input-luxury-field,
 }
 
 .location-left-arrow {
-  color: var(--text-faint);
+  color: var(--text-muted);
   display: flex;
   align-items: center;
 }
@@ -6520,7 +6521,7 @@ html[dir="ltr"] .customer-onboard-modal .input-luxury-field,
 
 [data-theme="dark"] .portfolio-card {
   background: var(--surface);
-  border-color: var(--text-on-primary);
+  border-color: var(--border);
   box-shadow: 0 4px 16px var(--overlay-dark);
 }
 
@@ -6534,10 +6535,12 @@ html[dir="ltr"] .customer-onboard-modal .input-luxury-field,
   color: var(--text-main);
 }
 
-[data-theme="dark"] .portfolio-about-desc,
+[data-theme="dark"] .portfolio-about-desc {
+  color: var(--text-body);
+}
 [data-theme="dark"] .stat-sub-label,
 [data-theme="dark"] .highlight-sub {
-  color: var(--text-faint);
+  color: var(--text-muted);
 }
 
 [data-theme="dark"] .portfolio-tagline-icon-badge,
@@ -6549,13 +6552,13 @@ html[dir="ltr"] .customer-onboard-modal .input-luxury-field,
 [data-theme="dark"] .portfolio-tagline-stats-row .portfolio-quick-stat-item:first-child,
 [data-theme="dark"] .portfolio-tagline-stats-row,
 [data-theme="dark"] .portfolio-highlight-col:not(:last-child) {
-  border-color: var(--text-on-primary);
+  border-color: var(--border);
 }
 
 [data-theme="dark"] .btn-whatsapp {
-  background: var(--surface);
-  border-color: var(--success);
-  color: var(--text-on-primary);
+  background: #14532D;
+  border-color: #22C55E;
+  color: #F0FDF4;
 }
 
 [data-theme="dark"] .btn-whatsapp .action-btn-main {
@@ -7351,13 +7354,13 @@ html[dir="ltr"] .customer-onboard-modal .input-luxury-field,
 }
 
 [data-theme="dark"] .harpy-confirm-modal {
-  background: var(--surface, var(--text-main));
-  border-color: var(--text-on-primary);
+  background: var(--surface);
+  border-color: var(--border);
   box-shadow: 0 25px 60px -10px var(--overlay-dark);
 }
 [data-theme="dark"] .btn-harpy-confirm-cancel {
-  background: var(--overlay-light);
-  border-color: var(--text-on-primary);
+  background: var(--surface-raised);
+  border-color: var(--border);
   color: var(--text-muted);
 }
 [data-theme="dark"] .btn-harpy-confirm-cancel:active {
@@ -8336,8 +8339,8 @@ html[dir="ltr"] .preview-desc {
 .food-item-card.has-timed-offer .stock-low-badge {
   bottom: 22px;
 }
-.stock-out-badge { background: var(--danger-subtle); color: var(--text-on-primary); }
-.stock-low-badge { background: var(--warning-subtle); color: var(--text-on-primary); }
+.stock-out-badge { background: var(--danger-subtle); color: var(--danger); border: 1px solid var(--danger); font-weight: 800; }
+.stock-low-badge { background: var(--warning-subtle); color: var(--warning); border: 1px solid var(--warning); font-weight: 800; }
 .food-item-card.is-sold-out .food-item-img { filter: grayscale(0.65); opacity: 0.75; }
 
 .customizer-gallery-thumbs {
@@ -8434,3 +8437,17 @@ html[dir="ltr"] .preview-desc {
   display: block !important;
 }
 
+
+
+/* Account Clean View Container Elevation & Surfaces (Light & Dark Parity) */
+.account-clean-profile,
+.clean-settings-list,
+.clean-edit-form {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 18px !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+.clean-settings-list .clean-setting-row:last-child {
+  border-bottom: none !important;
+}

@@ -704,7 +704,7 @@ window.openOrderInvoiceModal = function(orderOrId) {
     `;
   }
   if (order.customer?.notes) {
-    customerInfoBlock += `<div style="font-size:12px; margin-top:3px; color:#b45309;"><strong>ملاحظات:</strong> ${esc(order.customer.notes)}</div>`;
+    customerInfoBlock += `<div style="font-size:12px; margin-top:3px; color:var(--warning);"><strong>ملاحظات:</strong> ${esc(order.customer.notes)}</div>`;
   }
 
   // Items Rows (ZERO emojis)
@@ -1663,8 +1663,8 @@ window.renderOrdersList = function(orders = null) {
               ` : ''}
 
               ${o.customer?.notes ? `
-                <div style="font-size:11.5px; color:var(--warning); background:var(--warning-subtle); border:1px dashed var(--border); padding:6px 10px; border-radius:6px; margin-top:4px; word-break:break-word;">
-                  <span style="font-weight:800;">ملاحظات: </span>
+                <div style="font-size:11.5px; color:var(--text-main); background:var(--warning-subtle); border:1px dashed var(--warning); padding:6px 10px; border-radius:6px; margin-top:4px; word-break:break-word;">
+                  <span style="font-weight:800; color:var(--warning);">ملاحظات: </span>
                   ${esc(o.customer.notes)}
                 </div>
               ` : ''}

@@ -467,7 +467,7 @@ window.updatePOSCartUI = function() {
             <div style="font-size:10px; color:var(--accent-wa);">+ ${it.selectedAddons.map(a => a.name).join('، ')}</div>
           ` : ''}
           ${it.notes ? `
-            <div style="font-size:10px; color:#f59e0b;">${it.notes}</div>
+            <div style="font-size:10px; color:var(--warning);">${it.notes}</div>
           ` : ''}
           <div class="font-num" style="font-size:11.5px; font-weight:800; color:var(--primary); margin-top:2px;">
             ${(it.price * it.qty).toFixed(0)} ${currency}
