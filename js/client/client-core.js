@@ -471,7 +471,7 @@ async function initApp() {
       const isCloudReady = typeof Store !== 'undefined' && Store.isCloudDataLoaded && Store.isCloudDataLoaded();
       if (!isCloudReady && elements.productsContainer) {
         elements.productsContainer.innerHTML = `
-          <div class="weak-network-fallback-card" style="grid-column: 1 / -1; text-align: center; padding: 45px 20px; background: var(--surface-raised, rgba(255,255,255,0.03)); border: 1px dashed var(--border); border-radius: 16px; margin: 15px 0;">
+          <div class="weak-network-fallback-card" style="grid-column: 1 / -1; text-align: center; padding: 45px 20px; background: var(--surface-raised); border: 1px dashed var(--border); border-radius: 16px; margin: 15px 0;">
             <div style="display:flex; justify-content:center; margin-bottom: 12px;"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"></line><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path><path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg></div>
             <h3 style="font-size: 1.05rem; margin-bottom: 6px; color: var(--text-main); font-weight:800;">الاتصال بالإنترنت ضعيف أو بطيء</h3>
             <p style="font-size: 13px; color: var(--text-muted); max-width: 280px; margin: 0 auto 16px; line-height: 1.5;">جارٍ محاولة الاتصال وتحديث قائمة الطعام تلقائياً. يمكنك الضغط أدناه لإعادة المحاولة.</p>
@@ -638,7 +638,7 @@ window.handleThemeToggle = function() {
 
   const metaTheme = document.querySelector('meta[name="theme-color"]');
   if (metaTheme) {
-    metaTheme.setAttribute('content', newMode === 'dark' ? '#070B13' : '#FFFFFF');
+    metaTheme.setAttribute('content', newMode === 'dark' ? '#12100E' : '#FAF7F2');
   }
 
   const s = (typeof Store !== 'undefined' && Store.getSettings) ? Store.getSettings() : {};
@@ -1389,8 +1389,8 @@ function setupSubscriptionWatcher() {
       } catch(e) {}
       if (iconEl) {
         iconEl.innerHTML = '<svg class="icon" viewBox="0 0 24 24" style="width:32px; height:32px; stroke-width:1.8;"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>';
-        iconEl.style.background = 'rgba(148, 163, 184, 0.12)';
-        iconEl.style.color = 'var(--text-muted, #94a3b8)';
+        iconEl.style.background = 'var(--surface-raised)';
+        iconEl.style.color = 'var(--text-muted)';
       }
       if (titleEl) titleEl.textContent = 'الرابط غير صحيح أو غير متوفر';
       if (descEl) descEl.textContent = 'عذراً، هذا الرابط غير موجود أو لم يعد متوفراً حالياً. يرجى التأكد من كتابة العنوان بشكل سليم أو إعادة مسح كود QR الصحيح.';
@@ -1749,7 +1749,7 @@ window.openLanguagePickerModal = function() {
               <div style="font-size:11px; color:var(--text-muted); line-height:1.2; margin-top:2px;">${l.englishName}</div>
             </div>
           </div>
-          ${isSelected ? `<span style="font-size:11px; font-weight:800; color:var(--primary); background:rgba(234,88,12,0.12); padding:3px 8px; border-radius:6px;">${l.code === 'ar' ? 'النشطة' : 'Active'}</span>` : ''}
+          ${isSelected ? `<span style="font-size:11px; font-weight:800; color:var(--primary); background:var(--primary-subtle); padding:3px 8px; border-radius:6px;">${l.code === 'ar' ? 'النشطة' : 'Active'}</span>` : ''}
         </button>
       `;
     }).join('');
@@ -2139,7 +2139,7 @@ function renderOrdersView() {
         const itName = esc(typeof window.getProductName === 'function' ? window.getProductName(it) : (typeof window.tr === 'function' ? window.tr(it.name) : it.name));
         const itSize = it.selectedSize ? `[${esc(typeof window.getSizeName === 'function' ? window.getSizeName(it.selectedSize) : (typeof window.tr === 'function' ? window.tr(it.selectedSize.name) : it.selectedSize.name))}]` : '';
         return `
-        <div style="display:flex; justify-content:space-between; align-items:center; font-size:12.5px; padding:4px 0; border-bottom:1px dashed var(--border-subtle, rgba(0,0,0,0.06));">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:12.5px; padding:4px 0; border-bottom:1px dashed var(--border);">
           <span><b style="color:var(--primary); font-weight:800;">${esc(it.qty)}x</b> ${itName} ${itSize}</span>
           <span class="font-num" style="font-weight:700;">${((it.price || 0) * it.qty).toFixed(2)} ${currency}</span>
         </div>
@@ -2187,34 +2187,34 @@ function renderOrdersView() {
         const st = order.status || 'pending';
         let stBadge = (typeof window.t === 'function' ? window.t('order_status_pending', 'قيد المراجعة') : 'قيد المراجعة');
         let stColor = 'var(--primary)';
-        let stBg = 'var(--primary-subtle, rgba(234,88,12,0.12))';
+        let stBg = 'var(--status-preparing-subtle, var(--warning-subtle))';
         if (st === 'preparing') {
           stBadge = (typeof window.t === 'function' ? window.t('order_status_preparing', 'جاري التجهيز') : 'جاري التجهيز');
-          stColor = '#d97706';
-          stBg = 'rgba(217, 119, 6, 0.12)';
+          stColor = 'var(--status-preparing)';
+          stBg = 'var(--status-preparing-subtle, var(--warning-subtle))';
         } else if (st === 'out_for_delivery') {
           stBadge = (order.fulfillmentType === 'takeaway' || order.orderType === 'takeaway') ? (typeof window.t === 'function' ? window.t('order_status_ready', 'جاهز للاستلام') : 'جاهز للاستلام') : (typeof window.t === 'function' ? window.t('order_status_out', 'في الطريق') : 'في الطريق');
-          stColor = '#2563eb';
-          stBg = 'rgba(37, 99, 235, 0.12)';
+          stColor = 'var(--info)';
+          stBg = 'var(--info-subtle)';
         } else if (st === 'delivered') {
           stBadge = (typeof window.t === 'function' ? window.t('order_status_delivered', 'تم التسليم') : 'تم التسليم');
-          stColor = '#16a34a';
-          stBg = 'rgba(22, 163, 74, 0.12)';
+          stColor = 'var(--success)';
+          stBg = 'var(--success-subtle)';
         } else if (st === 'cancelled') {
           stBadge = (typeof window.t === 'function' ? window.t('order_status_cancelled', 'ملغي') : 'ملغي');
-          stColor = '#dc2626';
-          stBg = 'rgba(220, 38, 38, 0.12)';
+          stColor = 'var(--danger)';
+          stBg = 'var(--danger-subtle)';
         }
 
         return `
-          <div class="previous-order-card" style="background:var(--surface-raised, #ffffff); border:1px solid var(--border-strong, rgba(0,0,0,0.08)); border-radius:14px; padding:12px 14px; margin-bottom:12px; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+          <div class="previous-order-card" style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:14px; padding:12px 14px; margin-bottom:12px; box-shadow:var(--shadow-sm);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
               <div>
                 <strong class="font-num" style="color:var(--text-main); font-size:13.5px;">${esc(safeOrderId)}</strong>
                 <span style="font-size:11px; color:var(--text-muted); margin-right:6px;">${dateStr}</span>
               </div>
               <div style="display:flex; gap:6px; align-items:center;">
-                <span style="font-size:10.5px; padding:2px 7px; border-radius:6px; background:rgba(0,0,0,0.05); color:var(--text-muted); font-weight:700;">${fulfillmentBadge}</span>
+                <span style="font-size:10.5px; padding:2px 7px; border-radius:6px; background:var(--surface-hover); color:var(--text-muted); font-weight:700;">${fulfillmentBadge}</span>
                 <span style="font-size:10.5px; padding:2px 7px; border-radius:6px; background:${stBg}; color:${stColor}; font-weight:800;">${stBadge}</span>
                 <button type="button" class="btn-delete-history-order" onclick="window.deleteCustomerHistoryOrder && window.deleteCustomerHistoryOrder('${cleanId}')" title="مسح الطلب من السجل" aria-label="مسح الطلب">
                   <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -2222,7 +2222,7 @@ function renderOrdersView() {
               </div>
             </div>
             <p style="font-size:12px; color:var(--text-body); margin:6px 0 10px 0; line-height:1.4; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${itemsSummary}</p>
-            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-subtle, rgba(0,0,0,0.05)); padding-top:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:8px;">
               <span class="font-num" style="font-weight:800; font-size:13px; color:var(--text-main);">${(parseFloat(order.finalTotal) || 0).toFixed(2)} ${currency}</span>
               <button type="button" class="btn btn-primary btn-sm" onclick="window.reorderPreviousOrder && window.reorderPreviousOrder('${cleanId}')" style="font-size:11.5px; padding:5px 12px; border-radius:8px;">
                 <span>${typeof window.t === 'function' ? window.t('btn_reorder', 'إعادة الطلب') : 'إعادة الطلب'}</span>
@@ -2259,7 +2259,7 @@ window.showHarpyConfirmModal = function({
     if (msgEl) msgEl.innerHTML = message;
     if (acceptBtn) {
       acceptBtn.textContent = confirmText;
-      acceptBtn.style.background = isDanger ? '#ef4444' : 'var(--primary, #ea580c)';
+      acceptBtn.style.background = isDanger ? 'var(--danger)' : 'var(--primary)';
       acceptBtn.onclick = () => window.closeHarpyConfirmModal(true);
     }
 

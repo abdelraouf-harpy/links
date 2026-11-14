@@ -116,8 +116,8 @@
   <link rel="preconnect" href="https://i.ibb.co" crossorigin>
   <link rel="dns-prefetch" href="https://i.ibb.co">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/order-tokens.css?v=187.0">
-  <link rel="stylesheet" href="css/order-client.css?v=194.0">
+  <link rel="stylesheet" href="css/order-tokens.css?v=196.0">
+  <link rel="stylesheet" href="css/order-client.css?v=196.0">
   <style id="harpy-critical-layout">
     /* ═══════════════════════════════════════════════════════════
        CRITICAL DEFENSIVE INLINE SHIELD (Prevents SW Cache Mismatches)
@@ -126,14 +126,14 @@
     
     /* Platform Footer Brand Badge (Guaranteed Inline Shield) */
     .ho-system-footer-badge { display: flex !important; justify-content: center !important; align-items: center !important; text-align: center !important; width: 100% !important; padding: 16px 12px 20px !important; margin: auto 0 0 0 !important; direction: ltr !important; box-sizing: border-box !important; }
-    .ho-system-badge-link { display: inline-flex !important; flex-direction: row !important; align-items: center !important; justify-content: center !important; gap: 6px !important; padding: 4px 12px !important; border-radius: 9999px !important; text-decoration: none !important; border: 1px solid rgba(12,28,54,0.08) !important; background: rgba(12,28,54,0.03) !important; direction: ltr !important; opacity: 0.82 !important; transition: all 0.2s ease !important; }
-    [data-theme="dark"] .ho-system-badge-link { background: rgba(255,255,255,0.04) !important; border-color: rgba(255,255,255,0.08) !important; }
-    .ho-system-badge-link:hover, .ho-system-badge-link:active { background: rgba(234,88,12,0.08) !important; border-color: rgba(234,88,12,0.25) !important; opacity: 1 !important; transform: translateY(-1px) !important; text-decoration: none !important; }
+    .ho-system-badge-link { display: inline-flex !important; flex-direction: row !important; align-items: center !important; justify-content: center !important; gap: 6px !important; padding: 4px 12px !important; border-radius: 9999px !important; text-decoration: none !important; border: 1px solid var(--border) !important; background: var(--surface-raised) !important; direction: ltr !important; opacity: 0.82 !important; transition: all 0.2s ease !important; }
+    [data-theme="dark"] .ho-system-badge-link { background: var(--surface-raised) !important; border-color: var(--border) !important; }
+    .ho-system-badge-link:hover, .ho-system-badge-link:active { background: var(--primary-subtle) !important; border-color: var(--border) !important; opacity: 1 !important; transform: translateY(-1px) !important; text-decoration: none !important; }
     .ho-badge-icon { width: 32px !important; height: 32px !important; object-fit: contain !important; display: block !important; border: none !important; }
-    .ho-badge-text { font-family: 'Plus Jakarta Sans', 'Cairo', -apple-system, sans-serif !important; font-size: 0.98rem !important; font-weight: 900 !important; line-height: 1 !important; display: inline-flex !important; align-items: baseline !important; text-decoration: none !important; color: var(--text-main, #1e293b) !important; }
-    [data-theme="dark"] .ho-badge-text, [data-theme="dark"] .ho-badge-word-harpy { color: #ffffff !important; }
-    .ho-badge-word-harpy { color: var(--text-main, #1e293b) !important; text-decoration: none !important; }
-    .ho-badge-accent { color: #ea580c !important; font-weight: 900 !important; margin-left: 3px !important; text-decoration: none !important; }
+    .ho-badge-text { font-family: 'Plus Jakarta Sans', 'Cairo', -apple-system, sans-serif !important; font-size: 0.98rem !important; font-weight: 900 !important; line-height: 1 !important; display: inline-flex !important; align-items: baseline !important; text-decoration: none !important; color: var(--text-main) !important; }
+    [data-theme="dark"] .ho-badge-text, [data-theme="dark"] .ho-badge-word-harpy { color: var(--text-main) !important; }
+    .ho-badge-word-harpy { color: var(--text-main) !important; text-decoration: none !important; }
+    .ho-badge-accent { color: var(--primary) !important; font-weight: 900 !important; margin-left: 3px !important; text-decoration: none !important; }
     html, body {
       margin: 0;
       padding: 0;
@@ -290,46 +290,45 @@
       white-space: nowrap;
       flex-shrink: 0;
     }
-    .menu-meta-pill.pill-dark { background: var(--surface-raised); color: var(--text-main);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+    .menu-meta-pill.pill-dark {
+      background: var(--surface-raised);
+      color: var(--text-main);
+      border: 1px solid var(--border);
     }
     .menu-meta-pill.pill-status.open {
-      background: rgba(34, 197, 94, 0.16);
-      color: #15803d;
-      border: 1px solid rgba(34, 197, 94, 0.38);
+      background: var(--success-subtle);
+      color: var(--success);
+      border: 1px solid var(--success-subtle);
     }
     .menu-meta-pill.pill-status.closed {
-      background: rgba(239, 68, 68, 0.16);
-      color: #dc2626;
-      border: 1px solid rgba(239, 68, 68, 0.38);
+      background: var(--danger-subtle);
+      color: var(--danger);
+      border: 1px solid var(--danger-subtle);
     }
     .menu-meta-pill .status-pulse-dot {
       width: 5.5px;
       height: 5.5px;
       border-radius: 50%;
-      background: #16a34a;
-      box-shadow: 0 0 6px rgba(22, 163, 74, 0.6);
+      background: var(--success);
       display: inline-block;
       flex-shrink: 0;
     }
     .menu-meta-pill.pill-status.closed .status-pulse-dot {
-      background: #dc2626;
-      box-shadow: 0 0 6px rgba(220, 38, 38, 0.6);
+      background: var(--danger);
     }
 
-    /* Portfolio Live Status Chip (Translucent Green) */
+    /* Portfolio Live Status Chip */
     .portfolio-live-chip {
       display: inline-flex;
       align-items: center;
       gap: 5px;
       padding: 2.5px 9px;
-      border-radius: 999px;
+      border-radius: var(--radius-full);
       font-size: 10.5px;
       font-weight: 800;
-      background: rgba(34, 197, 94, 0.16);
-      color: #15803d;
-      border: 1px solid rgba(34, 197, 94, 0.38);
-      box-shadow: 0 2px 6px rgba(34, 197, 94, 0.10);
+      background: var(--success-subtle);
+      color: var(--success);
+      border: 1px solid var(--success-subtle);
       width: fit-content;
       line-height: 1.2;
     }
@@ -337,72 +336,31 @@
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background: #16a34a;
-      box-shadow: 0 0 6px rgba(22, 163, 74, 0.6);
+      background: var(--success);
       display: inline-block;
       flex-shrink: 0;
     }
     .portfolio-live-chip.closed {
-      background: rgba(239, 68, 68, 0.16);
-      color: #dc2626;
-      border: 1px solid rgba(239, 68, 68, 0.38);
-      box-shadow: 0 2px 6px rgba(239, 68, 68, 0.10);
+      background: var(--danger-subtle);
+      color: var(--danger);
+      border: 1px solid var(--danger-subtle);
     }
     .portfolio-live-chip.closed .status-pulse-dot {
-      background: #dc2626;
-      box-shadow: 0 0 6px rgba(220, 38, 38, 0.6);
+      background: var(--danger);
     }
 
     [data-theme="dark"] .menu-compact-header {
-      background: var(--bg, #0B0F17);
+      background: var(--bg);
     }
     [data-theme="dark"] .menu-header-store-name {
-      color: #F9FAFB;
+      color: var(--text-main);
     }
     [data-theme="dark"] .menu-header-store-tagline {
-      color: #9CA3AF;
+      color: var(--text-muted);
     }
     [data-theme="dark"] .menu-meta-pill.pill-dark {
-      background: #1E293B;
-      border-color: rgba(255, 255, 255, 0.12);
-    }
-    [data-theme="dark"] .menu-meta-pill.pill-status.open {
-      background: rgba(34, 197, 94, 0.22);
-      color: #4ade80;
-      border-color: rgba(74, 222, 128, 0.40);
-    }
-    [data-theme="dark"] .menu-meta-pill.pill-status.open .status-pulse-dot {
-      background: #4ade80;
-      box-shadow: 0 0 6px #4ade80;
-    }
-    [data-theme="dark"] .menu-meta-pill.pill-status.closed {
-      background: rgba(239, 68, 68, 0.22);
-      color: #f87171;
-      border-color: rgba(248, 113, 113, 0.40);
-    }
-    [data-theme="dark"] .menu-meta-pill.pill-status.closed .status-pulse-dot {
-      background: #f87171;
-      box-shadow: 0 0 6px #f87171;
-    }
-    [data-theme="dark"] .portfolio-live-chip {
-      background: rgba(34, 197, 94, 0.22);
-      color: #4ade80;
-      border-color: rgba(74, 222, 128, 0.40);
-      box-shadow: 0 2px 6px rgba(34, 197, 94, 0.15);
-    }
-    [data-theme="dark"] .portfolio-live-chip .status-pulse-dot {
-      background: #4ade80;
-      box-shadow: 0 0 6px #4ade80;
-    }
-    [data-theme="dark"] .portfolio-live-chip.closed {
-      background: rgba(239, 68, 68, 0.22);
-      color: #f87171;
-      border-color: rgba(248, 113, 113, 0.40);
-      box-shadow: 0 2px 6px rgba(239, 68, 68, 0.15);
-    }
-    [data-theme="dark"] .portfolio-live-chip.closed .status-pulse-dot {
-      background: #f87171;
-      box-shadow: 0 0 6px #f87171;
+      background: var(--surface-raised);
+      border-color: var(--border);
     }
 
     @media (max-width: 380px) {
@@ -448,22 +406,22 @@
       box-shadow: none !important;
     }
     [data-theme="dark"] .main-content-sheet {
-      background: var(--bg, #070B13) !important;
+      background: var(--bg) !important;
     }
     [data-theme="light"] .main-content-sheet {
-      background: var(--bg, #F8FAFC) !important;
+      background: var(--bg) !important;
     }
     [data-theme="dark"] .menu-compact-header {
-      background: var(--bg, #070B13) !important;
+      background: var(--bg) !important;
     }
     [data-theme="light"] .menu-compact-header {
-      background: var(--bg, #F8FAFC) !important;
+      background: var(--bg) !important;
     }
 
     /* 4. Clean Promo Announcement Bar */
     .promo-announcement-bar {
-      background: linear-gradient(135deg, rgba(255, 106, 0, 0.10) 0%, rgba(255, 69, 0, 0.05) 100%);
-      border: 1px solid rgba(255, 106, 0, 0.28);
+      background: var(--primary-subtle);
+      border: 1px solid var(--border);
       border-radius: 9999px;
       padding: 5px 12px;
       margin: 4px 0 6px 0;
@@ -471,7 +429,7 @@
       align-items: center;
       gap: 8px;
       box-sizing: border-box;
-      box-shadow: 0 4px 16px rgba(255, 106, 0, 0.06);
+      box-shadow: var(--shadow-sm);
     }
     .promo-announcement-icon {
       display: none !important;
@@ -561,17 +519,17 @@
       max-width: 100% !important;
       height: calc(64px + env(safe-area-inset-bottom, 0px)) !important;
       padding: 0 6px env(safe-area-inset-bottom, 0px) 6px !important;
-      background: rgba(255, 255, 255, 0.98) !important;
+      background: var(--surface) !important;
       backdrop-filter: blur(20px) !important;
       -webkit-backdrop-filter: blur(20px) !important;
-      border-top: 1px solid var(--border, #E2E8F0) !important;
-      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06) !important;
+      border-top: 1px solid var(--border) !important;
+      box-shadow: var(--shadow-md) !important;
       z-index: 1260 !important;
     }
     [data-theme="dark"] .bottom-nav-bar {
-      background: rgba(11, 15, 23, 0.98) !important;
-      border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
-      box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.6) !important;
+      background: var(--surface) !important;
+      border-top: 1px solid var(--border) !important;
+      box-shadow: var(--shadow-md) !important;
     }
     @media (max-width: 991px) {
       .cart-drawer {
@@ -615,11 +573,11 @@
       padding: 0 16px env(safe-area-inset-bottom, 0px) 16px !important;
       border-radius: 0 !important;
       margin: 0 !important;
-      background: rgba(255, 255, 255, 0.98) !important;
+      background: var(--surface) !important;
       backdrop-filter: blur(20px) !important;
       -webkit-backdrop-filter: blur(20px) !important;
       border-top: 1px solid var(--border) !important;
-      box-shadow: 0 -2px 14px rgba(0, 0, 0, 0.05) !important;
+      box-shadow: var(--shadow-sm) !important;
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
@@ -627,9 +585,9 @@
       z-index: 1260 !important;
     }
     [data-theme="dark"] [data-mod-ordering="false"] .bottom-nav-bar {
-      background: rgba(11, 15, 23, 0.98) !important;
-      border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
-      box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.5) !important;
+      background: var(--surface) !important;
+      border-top: 1px solid var(--border) !important;
+      box-shadow: var(--shadow-sm) !important;
     }
     [data-mod-ordering="false"] .bottom-nav-bar .nav-tab-btn {
       flex: 1 1 0 !important;
@@ -646,16 +604,16 @@
       align-items: center !important;
       justify-content: center !important;
       gap: 8px !important;
-      background: var(--surface-raised, #f1f5f9) !important;
-      color: var(--text-muted, #64748b) !important;
+      background: var(--surface-raised) !important;
+      color: var(--text-muted) !important;
       box-shadow: none !important;
       transform: none !important;
       cursor: pointer !important;
       border: none !important;
     }
     [data-theme="dark"] [data-mod-ordering="false"] .bottom-nav-bar .nav-tab-btn {
-      background: rgba(255, 255, 255, 0.07) !important;
-      color: #94a3b8 !important;
+      background: var(--surface-raised) !important;
+      color: var(--text-muted) !important;
     }
     [data-mod-ordering="false"] .bottom-nav-bar .nav-tab-btn .nav-tab-icon {
       width: 18px !important;
@@ -679,15 +637,15 @@
       line-height: 1 !important;
     }
     [data-mod-ordering="false"] .bottom-nav-bar .nav-tab-btn.active {
-      background: linear-gradient(135deg, #FF6A00 0%, #EA580C 100%) !important;
-      color: #FFFFFF !important;
-      box-shadow: 0 4px 14px rgba(234, 88, 12, 0.36) !important;
+      background: var(--primary) !important;
+      color: var(--text-on-primary) !important;
+      box-shadow: var(--shadow-sm) !important;
     }
     [data-mod-ordering="false"] .bottom-nav-bar .nav-tab-btn.active .nav-tab-icon svg {
-      stroke: #FFFFFF !important;
+      stroke: var(--text-on-primary) !important;
     }
     [data-mod-ordering="false"] .bottom-nav-bar .nav-tab-btn.active .nav-tab-label {
-      color: #FFFFFF !important;
+      color: var(--text-on-primary) !important;
       font-weight: 800 !important;
     }
   </style>
@@ -1067,7 +1025,7 @@
       <div class="menu-header-meta-chips">
         <!-- Rating Badge -->
         <span class="menu-meta-pill pill-dark pill-rating" id="hero-chip-rating" title="تقييم المطعم">
-          <svg class="pill-icon-star" viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="pill-icon-star" viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="var(--warning)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
           </svg>
           <span class="font-num">4.8</span>
@@ -1184,10 +1142,10 @@
 
     <!-- Platform Footer Brand Stamp -->
         <div class="ho-system-footer-badge" style="display:flex!important;justify-content:center!important;align-items:center!important;text-align:center!important;width:100%!important;padding:16px 12px 20px!important;margin:auto 0 0 0!important;direction:ltr!important;box-sizing:border-box!important;clear:both!important;">
-      <a href="https://harpymenu.com" target="_blank" rel="noopener noreferrer" class="ho-system-badge-link" style="display:inline-flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:6px!important;padding:4px 12px!important;border-radius:9999px!important;text-decoration:none!important;border:1px solid rgba(12,28,54,0.08)!important;background:rgba(12,28,54,0.03)!important;direction:ltr!important;font-family:'Plus Jakarta Sans','Cairo',-apple-system,sans-serif!important;opacity:0.82!important;" title="Harpy Order">
+      <a href="https://harpymenu.com" target="_blank" rel="noopener noreferrer" class="ho-system-badge-link" style="display:inline-flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:6px!important;padding:4px 12px!important;border-radius:9999px!important;text-decoration:none!important;border:1px solid var(--border)!important;background:var(--surface-raised)!important;direction:ltr!important;font-family:'Plus Jakarta Sans','Cairo',-apple-system,sans-serif!important;opacity:0.82!important;" title="Harpy Order">
         <img src="assets/brand/harpy_order_emblem_transparent.png" alt="Harpy Order" class="ho-badge-icon" width="18" height="18" style="width:18px!important;height:18px!important;object-fit:contain!important;display:block!important;flex-shrink:0!important;border:none!important;">
         <span class="ho-badge-text" style="font-size:0.76rem!important;font-weight:700!important;letter-spacing:-0.01em!important;line-height:1!important;display:inline-flex!important;align-items:baseline!important;text-decoration:none!important;font-family:'Plus Jakarta Sans','Cairo',-apple-system,sans-serif!important;">
-          <span class="ho-badge-word-harpy" style="color:var(--text-main,#1e293b)!important;text-decoration:none!important;">Harpy</span><span class="ho-badge-accent" style="color:#ea580c!important;font-weight:800!important;margin-left:2px!important;text-decoration:none!important;">Order</span>
+          <span class="ho-badge-word-harpy" style="color:var(--text-main)!important;text-decoration:none!important;">Harpy</span><span class="ho-badge-accent" style="color:var(--primary)!important;font-weight:800!important;margin-left:2px!important;text-decoration:none!important;">Order</span>
         </span>
       </a>
     </div>
@@ -1251,7 +1209,7 @@
           <!-- Col Right (RTL): Rating -->
           <div class="portfolio-quick-stat-item">
             <div class="stat-top-val">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--warning)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
               <span class="font-num">4.8</span>
             </div>
             <span class="stat-sub-label" data-i18n="portfolio_rating_label">تقييم العملاء</span>
@@ -1260,7 +1218,7 @@
           <!-- Col Left (RTL): Expected Delivery Time -->
           <div class="portfolio-quick-stat-item">
             <div class="stat-top-val">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#EA580C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               <span id="portfolio-delivery-time" class="font-num">25 - 35 دقيقة</span>
             </div>
             <span class="stat-sub-label" data-i18n="portfolio_eta_label">الوقت المتوقع للتوصيل</span>
@@ -1404,10 +1362,10 @@
 
       <!-- Platform Footer Brand Stamp -->
           <div class="ho-system-footer-badge" style="display:flex!important;justify-content:center!important;align-items:center!important;text-align:center!important;width:100%!important;padding:16px 12px 20px!important;margin:auto 0 0 0!important;direction:ltr!important;box-sizing:border-box!important;clear:both!important;">
-      <a href="https://harpymenu.com" target="_blank" rel="noopener noreferrer" class="ho-system-badge-link" style="display:inline-flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:6px!important;padding:4px 12px!important;border-radius:9999px!important;text-decoration:none!important;border:1px solid rgba(12,28,54,0.08)!important;background:rgba(12,28,54,0.03)!important;direction:ltr!important;font-family:'Plus Jakarta Sans','Cairo',-apple-system,sans-serif!important;opacity:0.82!important;" title="Harpy Order">
+      <a href="https://harpymenu.com" target="_blank" rel="noopener noreferrer" class="ho-system-badge-link" style="display:inline-flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:6px!important;padding:4px 12px!important;border-radius:9999px!important;text-decoration:none!important;border:1px solid var(--border)!important;background:var(--surface-raised)!important;direction:ltr!important;font-family:'Plus Jakarta Sans','Cairo',-apple-system,sans-serif!important;opacity:0.82!important;" title="Harpy Order">
         <img src="assets/brand/harpy_order_emblem_transparent.png" alt="Harpy Order" class="ho-badge-icon" width="18" height="18" style="width:18px!important;height:18px!important;object-fit:contain!important;display:block!important;flex-shrink:0!important;border:none!important;">
         <span class="ho-badge-text" style="font-size:0.76rem!important;font-weight:700!important;letter-spacing:-0.01em!important;line-height:1!important;display:inline-flex!important;align-items:baseline!important;text-decoration:none!important;font-family:'Plus Jakarta Sans','Cairo',-apple-system,sans-serif!important;">
-          <span class="ho-badge-word-harpy" style="color:var(--text-main,#1e293b)!important;text-decoration:none!important;">Harpy</span><span class="ho-badge-accent" style="color:#ea580c!important;font-weight:800!important;margin-left:2px!important;text-decoration:none!important;">Order</span>
+          <span class="ho-badge-word-harpy" style="color:var(--text-main)!important;text-decoration:none!important;">Harpy</span><span class="ho-badge-accent" style="color:var(--primary)!important;font-weight:800!important;margin-left:2px!important;text-decoration:none!important;">Order</span>
         </span>
       </a>
     </div>
@@ -1442,7 +1400,7 @@
       <div id="active-order-tracking-card" class="active-tracker-card" style="display:none;">
         <div class="tracker-card-top">
           <div class="tracker-order-id-wrap">
-            <span class="tracker-badge-live"><span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:#22c55e; margin-left:6px; box-shadow:0 0 8px #22c55e;"></span><span data-i18n="orders_badge_live">طلبك قيد التنفيذ</span></span>
+            <span class="tracker-badge-live"><span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--accent-wa); margin-left:6px; box-shadow:0 0 8px var(--accent-wa);"></span><span data-i18n="orders_badge_live">طلبك قيد التنفيذ</span></span>
             <span class="tracker-id-num font-num" id="orders-active-id">#ORD-0000</span>
           </div>
           <div style="display:flex; align-items:center; gap:8px;">
@@ -1545,10 +1503,10 @@
 
       <!-- Platform Footer Brand Stamp -->
           <div class="ho-system-footer-badge" style="display:flex!important;justify-content:center!important;align-items:center!important;text-align:center!important;width:100%!important;padding:16px 12px 20px!important;margin:auto 0 0 0!important;direction:ltr!important;box-sizing:border-box!important;clear:both!important;">
-      <a href="https://harpymenu.com" target="_blank" rel="noopener noreferrer" class="ho-system-badge-link" style="display:inline-flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:6px!important;padding:4px 12px!important;border-radius:9999px!important;text-decoration:none!important;border:1px solid rgba(12,28,54,0.08)!important;background:rgba(12,28,54,0.03)!important;direction:ltr!important;font-family:'Plus Jakarta Sans','Cairo',-apple-system,sans-serif!important;opacity:0.82!important;" title="Harpy Order">
+      <a href="https://harpymenu.com" target="_blank" rel="noopener noreferrer" class="ho-system-badge-link" style="display:inline-flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:6px!important;padding:4px 12px!important;border-radius:9999px!important;text-decoration:none!important;border:1px solid var(--border)!important;background:var(--surface-raised)!important;direction:ltr!important;font-family:'Plus Jakarta Sans','Cairo',-apple-system,sans-serif!important;opacity:0.82!important;" title="Harpy Order">
         <img src="assets/brand/harpy_order_emblem_transparent.png" alt="Harpy Order" class="ho-badge-icon" width="18" height="18" style="width:18px!important;height:18px!important;object-fit:contain!important;display:block!important;flex-shrink:0!important;border:none!important;">
         <span class="ho-badge-text" style="font-size:0.76rem!important;font-weight:700!important;letter-spacing:-0.01em!important;line-height:1!important;display:inline-flex!important;align-items:baseline!important;text-decoration:none!important;font-family:'Plus Jakarta Sans','Cairo',-apple-system,sans-serif!important;">
-          <span class="ho-badge-word-harpy" style="color:var(--text-main,#1e293b)!important;text-decoration:none!important;">Harpy</span><span class="ho-badge-accent" style="color:#ea580c!important;font-weight:800!important;margin-left:2px!important;text-decoration:none!important;">Order</span>
+          <span class="ho-badge-word-harpy" style="color:var(--text-main)!important;text-decoration:none!important;">Harpy</span><span class="ho-badge-accent" style="color:var(--primary)!important;font-weight:800!important;margin-left:2px!important;text-decoration:none!important;">Order</span>
         </span>
       </a>
     </div>
@@ -1680,10 +1638,10 @@
 
       <!-- Platform Footer Brand Stamp -->
           <div class="ho-system-footer-badge" style="display:flex!important;justify-content:center!important;align-items:center!important;text-align:center!important;width:100%!important;padding:16px 12px 20px!important;margin:auto 0 0 0!important;direction:ltr!important;box-sizing:border-box!important;clear:both!important;">
-      <a href="https://harpymenu.com" target="_blank" rel="noopener noreferrer" class="ho-system-badge-link" style="display:inline-flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:6px!important;padding:4px 12px!important;border-radius:9999px!important;text-decoration:none!important;border:1px solid rgba(12,28,54,0.08)!important;background:rgba(12,28,54,0.03)!important;direction:ltr!important;font-family:'Plus Jakarta Sans','Cairo',-apple-system,sans-serif!important;opacity:0.82!important;" title="Harpy Order">
+      <a href="https://harpymenu.com" target="_blank" rel="noopener noreferrer" class="ho-system-badge-link" style="display:inline-flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:6px!important;padding:4px 12px!important;border-radius:9999px!important;text-decoration:none!important;border:1px solid var(--border)!important;background:var(--surface-raised)!important;direction:ltr!important;font-family:'Plus Jakarta Sans','Cairo',-apple-system,sans-serif!important;opacity:0.82!important;" title="Harpy Order">
         <img src="assets/brand/harpy_order_emblem_transparent.png" alt="Harpy Order" class="ho-badge-icon" width="18" height="18" style="width:18px!important;height:18px!important;object-fit:contain!important;display:block!important;flex-shrink:0!important;border:none!important;">
         <span class="ho-badge-text" style="font-size:0.76rem!important;font-weight:700!important;letter-spacing:-0.01em!important;line-height:1!important;display:inline-flex!important;align-items:baseline!important;text-decoration:none!important;font-family:'Plus Jakarta Sans','Cairo',-apple-system,sans-serif!important;">
-          <span class="ho-badge-word-harpy" style="color:var(--text-main,#1e293b)!important;text-decoration:none!important;">Harpy</span><span class="ho-badge-accent" style="color:#ea580c!important;font-weight:800!important;margin-left:2px!important;text-decoration:none!important;">Order</span>
+          <span class="ho-badge-word-harpy" style="color:var(--text-main)!important;text-decoration:none!important;">Harpy</span><span class="ho-badge-accent" style="color:var(--primary)!important;font-weight:800!important;margin-left:2px!important;text-decoration:none!important;">Order</span>
         </span>
       </a>
     </div>
@@ -1759,7 +1717,7 @@
               <input type="text" id="promo-code-input" class="extras-input-field font-num" placeholder="كود الخصم (مثال: PROMO10)">
               <button type="button" id="btn-apply-promo" class="extras-btn-apply">تطبيق</button>
             </div>
-            <div id="promo-applied-badge" style="display:none; background:var(--accent-wa-subtle); border:1px solid rgba(22,163,74,0.3); border-radius:8px; padding:6px 12px; font-size:12px; font-weight:700; color:var(--accent-wa); justify-content:space-between; align-items:center; margin-top:6px;">
+            <div id="promo-applied-badge" style="display:none; background:var(--accent-wa-subtle); border:1px solid var(--accent-wa-subtle); border-radius:8px; padding:6px 12px; font-size:12px; font-weight:700; color:var(--accent-wa); justify-content:space-between; align-items:center; margin-top:6px;">
               <span id="promo-applied-text">تم تطبيق كود الخصم</span>
               <button type="button" id="btn-remove-promo" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:12px; font-weight:800;">إلغاء</button>
             </div>
@@ -1798,7 +1756,7 @@
             <span class="ledger-summary-val font-num" id="cart-total-price-s1" style="font-size:1.15rem; font-weight:900; color:var(--primary);">0 <span>ج.م</span></span>
           </div>
         </div>
-        <button type="button" class="btn-primary-action" id="btn-proceed-to-payment" onclick="window.goToCheckoutStep(2)" style="margin-top:6px; background:linear-gradient(135deg, var(--primary), #c2410c); color:#fff; width:100%; padding:11px 16px; min-height:44px; border-radius:10px; border:none; font-size:0.95rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 3px 12px rgba(234,88,12,0.3); transition:all 0.15s ease;">
+        <button type="button" class="btn-primary-action" id="btn-proceed-to-payment" onclick="window.goToCheckoutStep(2)" style="margin-top:6px; background:var(--primary); color:var(--text-on-primary); width:100%; padding:11px 16px; min-height:44px; border-radius:10px; border:none; font-size:0.95rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:var(--shadow-sm); transition:all 0.15s ease;">
           <span data-i18n="cart_proceed_step2">متابعة لاختيار الاستلام والدفع</span>
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1);"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </button>
@@ -2004,7 +1962,7 @@
               <div class="dropzone-text-wrap">
                 <div class="dropzone-title" style="display:flex; align-items:center; justify-content:center; gap:6px; flex-wrap:wrap;">
                   <span data-i18n="receipt_dropzone_title">إرفاق إيصال / سكرين شوت التحويل</span>
-                  <span style="font-size:10.5px; background:rgba(239,68,68,0.15); color:var(--danger); border:1px solid rgba(239,68,68,0.3); padding:1px 6px; border-radius:4px; font-weight:800;" data-i18n="receipt_required_tag">مطلوب لتأكيد الدفع</span>
+                  <span style="font-size:10.5px; background:var(--danger-subtle); color:var(--danger); border:1px solid var(--border); padding:1px 6px; border-radius:4px; font-weight:800;" data-i18n="receipt_required_tag">مطلوب لتأكيد الدفع</span>
                 </div>
                 <div class="dropzone-desc" data-i18n="receipt_dropzone_desc">انقر هنا لرفع أو تصوير إيصال فودافون كاش / إنستاباي</div>
               </div>
@@ -2048,7 +2006,7 @@
           </div>
         </div>
 
-        <button type="button" class="btn-confirm-order-direct" id="btn-confirm-order-direct" style="margin-top:6px; background:linear-gradient(135deg, var(--primary), #c2410c); color:#fff; width:100%; padding:11px 16px; min-height:44px; border-radius:10px; border:none; font-size:0.95rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 3px 12px rgba(234,88,12,0.3); transition:all 0.15s ease;">
+        <button type="button" class="btn-confirm-order-direct" id="btn-confirm-order-direct" style="margin-top:6px; background:var(--primary); color:var(--text-on-primary); width:100%; padding:11px 16px; min-height:44px; border-radius:10px; border:none; font-size:0.95rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:var(--shadow-sm); transition:all 0.15s ease;">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
           <span data-i18n="btn_checkout">تأكيد وإرسال الطلب</span>
         </button>
@@ -2061,7 +2019,7 @@
   <div class="preview-modal" id="preview-modal">
     <div class="preview-img-wrap">
       <img id="preview-img" src="" alt="Preview" class="preview-img">
-      <button class="btn-close" id="btn-close-preview" style="position:absolute; top:12px; left:12px; background:rgba(17,14,12,0.85); color:#fff;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+      <button class="btn-close" id="btn-close-preview" style="position:absolute; top:12px; left:12px; background:var(--surface); color:var(--text-main); border:1px solid var(--border);"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     </div>
     <div class="preview-body">
       <div class="preview-header">
@@ -2293,7 +2251,7 @@
   <!-- Subscription Suspended Overlay -->
   <div id="subscription-suspended-backdrop" class="harpy-lock-backdrop"></div>
   <div id="subscription-suspended-overlay" class="harpy-lock-modal">
-    <div id="sub-suspended-icon" style="width:68px; height:68px; border-radius:50%; background:rgba(239, 68, 68, 0.12); color:var(--danger); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:32px;">
+    <div id="sub-suspended-icon" style="width:68px; height:68px; border-radius:50%; background:var(--danger-subtle); color:var(--danger); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:32px;">
       <svg class="icon" viewBox="0 0 24 24" style="width:32px; height:32px; stroke-width:2;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     </div>
     <h3 id="sub-suspended-title" style="font-size:1.22rem; font-weight:900; color:var(--text-main); margin-bottom:8px;" data-i18n="sub_suspended_title">عفواً، الخدمة متوقفة مؤقتاً</h3>
@@ -2309,11 +2267,11 @@
   <div id="ordering-paused-backdrop" class="modal-backdrop" onclick="window.closeOrderingPausedNotice && window.closeOrderingPausedNotice()"></div>
   <div id="ordering-paused-modal" class="harpy-lock-modal" style="text-align:center; position:relative;" role="dialog" aria-modal="true">
     <button type="button" class="btn-close" onclick="window.closeOrderingPausedNotice && window.closeOrderingPausedNotice()" style="position:absolute; top:12px; left:12px;" aria-label="إغلاق"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
-    <div id="ordering-paused-icon" style="width:68px; height:68px; border-radius:50%; background:rgba(239,68,68,0.12); color:var(--danger,#ef4444); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:32px;">
+    <div id="ordering-paused-icon" style="width:68px; height:68px; border-radius:50%; background:var(--danger-subtle); color:var(--danger); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:32px;">
       <svg class="icon" viewBox="0 0 24 24" style="width:32px; height:32px; stroke-width:2;"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
     </div>
     <h3 id="ordering-paused-title" style="font-size:1.2rem; font-weight:900; color:var(--text-main); margin-bottom:8px;" data-i18n="store_closed_title">المطعم متوقف حالياً عن استقبال الطلبات</h3>
-    <p id="ordering-paused-modal-msg" style="font-size:0.88rem; color:var(--text-muted); line-height:1.7; margin-bottom:20px; background:var(--surface-raised,rgba(0,0,0,0.04)); padding:12px 14px; border-radius:12px; border:1px dashed var(--border);">
+    <p id="ordering-paused-modal-msg" style="font-size:0.88rem; color:var(--text-muted); line-height:1.7; margin-bottom:20px; background:var(--surface-raised); padding:12px 14px; border-radius:12px; border:1px dashed var(--border);">
       عذراً، المطعم لا يستقبل طلبات جديدة في الوقت الحالي. يمكنك تصفح قائمة الطعام والأسعار بحرية، وسنعاود استقبال الطلبات قريباً!
     </p>
     <div style="display:flex; flex-direction:column; gap:8px;">
@@ -2460,7 +2418,7 @@
       <div class="account-menu-list">
         <!-- 1. Track / Recall Last Order -->
         <div class="account-menu-item" onclick="if(window.openLastOrderTracker) window.openLastOrderTracker(); window.closeMyAccountDrawer && window.closeMyAccountDrawer();">
-          <div class="account-menu-icon" style="background:rgba(234,88,12,0.12); color:var(--primary);">
+          <div class="account-menu-icon" style="background:var(--primary-subtle); color:var(--primary);">
             <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/></svg>
           </div>
           <div class="account-menu-text">
@@ -2472,7 +2430,7 @@
 
         <!-- 2. Favorites Filter -->
         <div class="account-menu-item" onclick="if(window.handleCategoryFilter) window.handleCategoryFilter('fav'); window.closeMyAccountDrawer && window.closeMyAccountDrawer();">
-          <div class="account-menu-icon" style="background:rgba(239,68,68,0.12); color:var(--danger,#ef4444);">
+          <div class="account-menu-icon" style="background:var(--danger-subtle); color:var(--danger);">
             <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
           </div>
           <div class="account-menu-text">
@@ -2484,7 +2442,7 @@
 
         <!-- 3. Store WhatsApp Link -->
         <a id="account-whatsapp-link" href="#" target="_blank" class="account-menu-item" style="text-decoration:none;">
-          <div class="account-menu-icon" style="background:rgba(34,197,94,0.12); color:#22c55e;">
+          <div class="account-menu-icon" style="background:var(--accent-wa-subtle); color:var(--accent-wa);">
             <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
           </div>
           <div class="account-menu-text">
@@ -2496,7 +2454,7 @@
 
         <!-- 4. Theme Switcher -->
         <div class="account-menu-item" onclick="if(window.handleThemeToggle) window.handleThemeToggle();">
-          <div class="account-menu-icon" style="background:rgba(168,85,247,0.12); color:#a855f7;">
+          <div class="account-menu-icon" style="background:var(--status-ready-bg); color:var(--status-ready);">
             <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
           </div>
           <div class="account-menu-text">
@@ -2508,7 +2466,7 @@
 
         <!-- 5. Sound Toggle -->
         <div class="account-menu-item" onclick="if(window.handleSoundToggle) window.handleSoundToggle();">
-          <div class="account-menu-icon" style="background:rgba(59,130,246,0.12); color:#3b82f6;">
+          <div class="account-menu-icon" style="background:var(--info-subtle); color:var(--info);">
             <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
           </div>
           <div class="account-menu-text">
@@ -2520,7 +2478,7 @@
 
         <!-- 6. Language Switcher -->
         <div class="account-menu-item" onclick="if(window.openLanguagePickerModal) window.openLanguagePickerModal();">
-          <div class="account-menu-icon" style="background:rgba(14,165,233,0.12); color:#0ea5e9;">
+          <div class="account-menu-icon" style="background:var(--status-pending-bg); color:var(--status-pending);">
             <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
           </div>
           <div class="account-menu-text">
@@ -2532,7 +2490,7 @@
 
         <!-- Branch Switcher (if multi-branch) -->
         <div id="account-branch-item" class="account-menu-item" style="display:none;" onclick="if(window.openBranchPickerFromHeader) window.openBranchPickerFromHeader(); window.closeMyAccountDrawer && window.closeMyAccountDrawer();">
-          <div class="account-menu-icon" style="background:rgba(234,88,12,0.12); color:var(--primary);">
+          <div class="account-menu-icon" style="background:var(--primary-subtle); color:var(--primary);">
             <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
           </div>
           <div class="account-menu-text">
@@ -2544,7 +2502,7 @@
 
         <!-- 6. PWA Install App Item -->
         <div id="account-install-item" class="account-menu-item" style="display:none;" onclick="if(window.triggerPWAInstall) window.triggerPWAInstall(); window.closeMyAccountDrawer && window.closeMyAccountDrawer();">
-          <div class="account-menu-icon" style="background:rgba(234,88,12,0.15); color:var(--primary);">
+          <div class="account-menu-icon" style="background:var(--primary-subtle); color:var(--primary);">
             <svg class="icon icon-sm" viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
           </div>
           <div class="account-menu-text">
@@ -2572,17 +2530,17 @@
 
     <div class="qr-modal-body" style="padding:16px 18px 20px;">
       <!-- Canvas Preview Container -->
-      <div id="client-harpy-qr-wrap" style="position:relative; width:100%; max-width:280px; margin:0 auto 12px; border-radius:16px; overflow:hidden; box-shadow:0 10px 28px rgba(0,0,0,0.22); aspect-ratio:1/1; background:#ffffff; border:1px solid rgba(0,0,0,0.06);">
-        <div id="client-harpy-loading" style="position:absolute; inset:0; background:rgba(255,255,255,0.88); display:none; flex-direction:column; align-items:center; justify-content:center; gap:8px; z-index:5;">
-          <div class="spinner-ring" style="width:32px; height:32px; border:3px solid var(--accent, #ea580c); border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite;"></div>
-          <span style="font-size:11px; font-weight:800; color:var(--text-main, #0f172a);">جاري تجهيز كود المنيو...</span>
+      <div id="client-harpy-qr-wrap" style="position:relative; width:100%; max-width:280px; margin:0 auto 12px; border-radius:16px; overflow:hidden; box-shadow:var(--shadow-lg); aspect-ratio:1/1; background:var(--surface); border:1px solid var(--border);">
+        <div id="client-harpy-loading" style="position:absolute; inset:0; background:var(--surface); display:none; flex-direction:column; align-items:center; justify-content:center; gap:8px; z-index:5;">
+          <div class="spinner-ring" style="width:32px; height:32px; border:3px solid var(--primary); border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite;"></div>
+          <span style="font-size:11px; font-weight:800; color:var(--text-main);">جاري تجهيز كود المنيو...</span>
         </div>
         <canvas id="client-harpy-canvas" width="1254" height="1254" style="width:100%; height:100%; display:block; object-fit:contain;"></canvas>
         <div id="client-harpy-hidden-gen" style="display:none;"></div>
       </div>
 
       <!-- Menu Direct Link Row with Copy Button -->
-      <div class="client-qr-link-box" style="display:flex; align-items:center; justify-content:space-between; background:var(--surface-raised, rgba(0,0,0,0.04)); border:1px solid var(--border); border-radius:10px; padding:6px 10px; margin-bottom:14px; gap:8px;">
+      <div class="client-qr-link-box" style="display:flex; align-items:center; justify-content:space-between; background:var(--surface-raised); border:1px solid var(--border); border-radius:10px; padding:6px 10px; margin-bottom:14px; gap:8px;">
         <span id="client-qr-link-text" style="direction:ltr; font-size:11.5px; font-weight:700; color:var(--text-main); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; text-align:left;"></span>
         <button type="button" onclick="window.copyMenuLink && window.copyMenuLink()" class="btn-copy-inline" style="margin:0; padding:4px 8px; font-size:11px;">
           <span id="copy-menu-link-text">نسخ</span>
@@ -2634,11 +2592,11 @@
     <!-- Tab 3: المنيو / المتجر (Center Vibrant Orange Squircle Button) -->
     <button type="button" class="nav-tab-btn active nav-tab-center-orange" id="nav-tab-menu" onclick="window.handleNavTabClick && window.handleNavTabClick('menu')" title="قائمة الطعام" aria-label="المنيو">
       <div class="nav-tab-icon">
-        <svg viewBox="0 0 24 24" class="icon icon-restaurant-nav" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <svg viewBox="0 0 24 24" class="icon icon-restaurant-nav" fill="none" stroke="var(--text-on-primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M6 3v6a2 2 0 0 0 2 2v10M10 3v6a2 2 0 0 1-2 2M8 3v8"/>
           <path d="M18 3v18M18 3a3 3 0 0 0-3 3v5h3"/>
         </svg>
-        <svg viewBox="0 0 24 24" class="icon icon-store-nav" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <svg viewBox="0 0 24 24" class="icon icon-store-nav" fill="none" stroke="var(--text-on-primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
           <line x1="3" y1="6" x2="21" y2="6"/>
           <path d="M16 10a4 4 0 0 1-8 0"/>
@@ -2716,7 +2674,7 @@
   <div class="modal-box lang-picker-modal" id="lang-picker-modal" style="max-width:400px; text-align:center; padding:22px 18px; z-index:10007; border-radius:20px; width:90%;">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border);">
       <div style="display:flex; align-items:center; gap:8px;">
-        <span style="width:32px; height:32px; border-radius:50%; background:rgba(14,165,233,0.12); color:#0ea5e9; display:flex; align-items:center; justify-content:center;">
+        <span style="width:32px; height:32px; border-radius:50%; background:var(--info-subtle); color:var(--info); display:flex; align-items:center; justify-content:center;">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
         </span>
         <span style="font-size:14px; font-weight:900; color:var(--text-main);" data-i18n="menu_language">لغة المنيو / Language</span>
@@ -2733,20 +2691,20 @@
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=187.0"></script>
-  <script src="js/core/sound-effects.js?v=187.0"></script>
-  <script src="js/core/i18n.js?v=191.0"></script>
-  <script src="js/core/niche-engine.js?v=194.0"></script>
-  <script src="js/store.js?v=194.0"></script>
-  <script src="js/core/qrcode.min.js?v=187.0"></script>
-  <script src="js/client/client-core.js?v=194.0"></script>
-  <script src="js/client/menu-view.js?v=194.0"></script>
-  <script src="js/client/stories-viewer.js?v=191.0"></script>
-  <script src="js/client/customizer-modal.js?v=194.0"></script>
-  <script src="js/client/cart-ledger.js?v=190.0"></script>
-  <script src="js/client/order-tracking.js?v=191.0"></script>
-  <script src="js/app.js?v=187.0"></script>
-  <script src="js/core/module-enforcer.js?v=191.0"></script>
-  <script src="js/pwa.js?v=187.0"></script>
+  <script src="js/core/demo-seed-data.js?v=196.0"></script>
+  <script src="js/core/sound-effects.js?v=196.0"></script>
+  <script src="js/core/i18n.js?v=196.0"></script>
+  <script src="js/core/niche-engine.js?v=196.0"></script>
+  <script src="js/store.js?v=196.0"></script>
+  <script src="js/core/qrcode.min.js?v=196.0"></script>
+  <script src="js/client/client-core.js?v=196.0"></script>
+  <script src="js/client/menu-view.js?v=196.0"></script>
+  <script src="js/client/stories-viewer.js?v=196.0"></script>
+  <script src="js/client/customizer-modal.js?v=196.0"></script>
+  <script src="js/client/cart-ledger.js?v=196.0"></script>
+  <script src="js/client/order-tracking.js?v=196.0"></script>
+  <script src="js/app.js?v=196.0"></script>
+  <script src="js/core/module-enforcer.js?v=196.0"></script>
+  <script src="js/pwa.js?v=196.0"></script>
 </body>
 </html>

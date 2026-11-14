@@ -107,17 +107,17 @@
   <!-- Android & Modern PWA Meta -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="application-name" content="Admin">
-  <meta name="theme-color" id="meta-theme-color" content="#FFFFFF">
-  <meta name="navigation-bar-color" content="#FFFFFF">
+  <meta name="theme-color" id="meta-theme-color" content="#FAF7F2">
+  <meta name="navigation-bar-color" content="#FAF7F2">
   
   <!-- Apple iOS / iPadOS PWA Meta -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Admin">
 
-  <link rel="stylesheet" href="css/order-tokens.css?v=187.0">
-  <link rel="stylesheet" href="css/order-client.css?v=194.0">
-  <link rel="stylesheet" href="css/order-admin.css?v=187.0">
+  <link rel="stylesheet" href="css/order-tokens.css?v=196.0">
+  <link rel="stylesheet" href="css/order-client.css?v=196.0">
+  <link rel="stylesheet" href="css/order-admin.css?v=196.0">
 
   <script>
     // Instant zero-delay theme toggle available immediately on page paint
@@ -594,7 +594,7 @@
         <label class="form-label" style="font-size:12px; margin-bottom:6px; font-weight:800;">كلمة مرور لوحة التحكم</label>
         <input type="password" id="admin-password-input" class="form-input font-num" placeholder="أدخل كلمة المرور" autocomplete="current-password" required autofocus>
       </div>
-      <div id="login-error-msg" style="display:none; color:var(--danger); font-size:0.82rem; margin-bottom:12px; font-weight:700; text-align:center; background:rgba(239,68,68,0.1); padding:8px; border-radius:6px;"></div>
+      <div id="login-error-msg" style="display:none; color:var(--danger); font-size:0.82rem; margin-bottom:12px; font-weight:700; text-align:center; background:var(--danger-subtle); padding:8px; border-radius:6px;"></div>
       <button type="submit" id="btn-login" class="btn btn-primary" style="width:100%; padding:12px; font-size:0.95rem; font-weight:800;">
         دخول لوحة التحكم
       </button>
@@ -625,11 +625,11 @@
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
               <span>إدارة الأقسام</span>
             </button>
-            <button id="btn-open-bulk-price" type="button" class="btn btn-ghost" onclick="openBulkPriceModal()" style="border:1.5px solid rgba(249,115,22,0.45); color:var(--primary); font-weight:800; font-size:12px; padding:8px 13px; border-radius:var(--radius-sm); display:inline-flex; align-items:center; gap:6px; cursor:pointer;" title="تعديل الأسعار الجماعي أو إطلاق عرض بمؤقت">
+            <button id="btn-open-bulk-price" type="button" class="btn btn-ghost" onclick="openBulkPriceModal()" style="border:1.5px solid var(--border); color:var(--primary); font-weight:800; font-size:12px; padding:8px 13px; border-radius:var(--radius-sm); display:inline-flex; align-items:center; gap:6px; cursor:pointer;" title="تعديل الأسعار الجماعي أو إطلاق عرض بمؤقت">
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
               <span>الأسعار والعروض الجماعية</span>
             </button>
-            <button id="btn-undo-bulk-price" type="button" class="btn btn-ghost" onclick="undoLastBulkPriceAdjustment()" style="display:none; border:1.5px solid rgba(239,68,68,0.4); color:var(--danger); font-weight:800; font-size:12px; padding:8px 12px; border-radius:var(--radius-sm); align-items:center; gap:5px; cursor:pointer;" title="التراجع عن آخر تعديل جماعي للأسعار">
+            <button id="btn-undo-bulk-price" type="button" class="btn btn-ghost" onclick="undoLastBulkPriceAdjustment()" style="display:none; border:1.5px solid var(--border); color:var(--danger); font-weight:800; font-size:12px; padding:8px 12px; border-radius:var(--radius-sm); align-items:center; gap:5px; cursor:pointer;" title="التراجع عن آخر تعديل جماعي للأسعار">
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
               <span>تراجع عن الأسعار</span>
             </button>
@@ -684,15 +684,15 @@
         <div style="display:flex; gap:6px; align-items:center; margin-bottom:18px; overflow-x:auto; padding-bottom:2px;">
           <button type="button" class="btn btn-sm btn-filter-inventory active" data-inventory-filter="all" onclick="filterInventory('all')" style="display:inline-flex; align-items:center; gap:6px;">
             <span>عرض الكل</span>
-            <span id="inv-filter-badge-all" class="font-num" style="background:rgba(255,255,255,0.18); font-size:11px; padding:1px 6px; border-radius:10px;">0</span>
+            <span id="inv-filter-badge-all" class="font-num" style="background:var(--surface-raised); color:var(--text-main); font-size:11px; padding:1px 6px; border-radius:10px;">0</span>
           </button>
           <button type="button" class="btn btn-sm btn-filter-inventory" data-inventory-filter="safe" onclick="filterInventory('safe')" style="display:inline-flex; align-items:center; gap:6px;">
             <span>متوفر بأمان</span>
-            <span id="inv-filter-badge-safe" class="font-num" style="background:rgba(34,197,94,0.18); color:#16a34a; font-size:11px; padding:1px 6px; border-radius:10px;">0</span>
+            <span id="inv-filter-badge-safe" class="font-num" style="background:var(--success-subtle); color:var(--success); font-size:11px; padding:1px 6px; border-radius:10px;">0</span>
           </button>
           <button type="button" class="btn btn-sm btn-filter-inventory" data-inventory-filter="low" onclick="filterInventory('low')" style="display:inline-flex; align-items:center; gap:6px;">
             <span>قارب على النفاد</span>
-            <span id="inv-filter-badge-low" class="font-num" style="background:rgba(245,158,11,0.18); color:#d97706; font-size:11px; padding:1px 6px; border-radius:10px;">0</span>
+            <span id="inv-filter-badge-low" class="font-num" style="background:var(--warning-subtle); color:var(--warning); font-size:11px; padding:1px 6px; border-radius:10px;">0</span>
           </button>
         </div>
 
@@ -865,13 +865,13 @@
           <div style="display:flex; align-items:center; gap:8px;">
             <svg class="icon" viewBox="0 0 24 24" style="width:24px; height:24px;"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
             <div>
-              <div id="pos-mobile-items-text" style="font-size:12.5px; font-weight:900; color:#fff;">0 صنف بالفاتورة</div>
-              <div style="font-size:10px; color:rgba(255,255,255,0.85);">اضغط للمراجعة والدفع</div>
+              <div id="pos-mobile-items-text" style="font-size:12.5px; font-weight:900; color:var(--text-on-primary);">0 صنف بالفاتورة</div>
+              <div style="font-size:10px; color:var(--text-on-primary); opacity:0.85;">اضغط للمراجعة والدفع</div>
             </div>
           </div>
           <div style="display:flex; align-items:center; gap:10px;">
-            <span id="pos-mobile-total-price" class="font-num" style="font-size:16px; font-weight:900; color:#fff;">0 ج.م</span>
-            <span style="background:rgba(255,255,255,0.25); padding:4px 10px; border-radius:6px; font-size:11.5px; font-weight:800; color:#fff;">مراجعة الفاتورة ←</span>
+            <span id="pos-mobile-total-price" class="font-num" style="font-size:16px; font-weight:900; color:var(--text-on-primary);">0 ج.م</span>
+            <span style="background:var(--primary-subtle); padding:4px 10px; border-radius:6px; font-size:11.5px; font-weight:800; color:var(--text-on-primary);">مراجعة الفاتورة ←</span>
           </div>
         </div>
       </div>
@@ -1045,7 +1045,7 @@
           <!-- Current Active Shift Banner -->
           <div class="archive-active-shift-banner">
             <div style="display:flex; align-items:center; gap:10px;">
-              <span style="width:10px; height:10px; border-radius:50%; background:#22c55e; display:inline-block; box-shadow:0 0 8px rgba(34,197,94,0.6);"></span>
+              <span style="width:10px; height:10px; border-radius:50%; background:var(--success); display:inline-block; box-shadow:var(--shadow-sm);"></span>
               <div>
                 <div id="archive-current-shift-title" style="font-size:14px; font-weight:800; color:var(--text-main);">الوردية الحالية (#1) — جارية الآن</div>
                 <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">
@@ -1163,7 +1163,7 @@
             <div style="font-size:13px; font-weight:800; color:var(--danger);">منطقة الخطر (Factory Reset)</div>
             <div style="font-size:11.5px; color:var(--text-muted);">مسح كافة التعديلات واستعادة المنيو الافتراضي الأولي</div>
           </div>
-          <button id="btn-factory-reset" class="btn btn-ghost" style="color:var(--danger); border:1px solid rgba(239, 68, 68, 0.3);">
+          <button id="btn-factory-reset" class="btn btn-ghost" style="color:var(--danger); border:1px solid var(--border);">
             إعادة تعيين المصنع
           </button>
         </div>
@@ -1189,7 +1189,7 @@
                 <div class="tenant-link-row">
                   <span class="tenant-link-label">رابط المتجر / المنيو للعملاء:</span>
                   <a id="tenant-share-link" href="#" target="_blank" class="tenant-share-link font-num"></a>
-                  <span id="settings-custom-domain-badge" style="display:none; font-size:11px; font-weight:800; padding:2px 8px; border-radius:999px; background:rgba(59,130,246,0.14); color:#60a5fa; border:1px solid rgba(59,130,246,0.3); font-family:var(--font-en);"></span>
+                  <span id="settings-custom-domain-badge" style="display:none; font-size:11px; font-weight:800; padding:2px 8px; border-radius:999px; background:var(--info-subtle); color:var(--info); border:1px solid var(--border); font-family:var(--font-en);"></span>
                   <button type="button" id="btn-copy-restaurant-link" class="btn-copy-inline" title="نسخ رابط المنيو" aria-label="نسخ رابط المنيو">
                   <svg class="icon icon-xs" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                   <span id="copy-store-link-text">نسخ</span>
@@ -1401,7 +1401,7 @@
                     يتيح للعملاء تصفح المنيو، وعند محاولة الطلب تظهر رسالة التوقف ومواعيد العمل.
                   </div>
                 </div>
-                <input type="checkbox" id="set-ordering-paused" style="width:22px; height:22px; accent-color:var(--danger, #ef4444); cursor:pointer;">
+                <input type="checkbox" id="set-ordering-paused" style="width:22px; height:22px; accent-color:var(--danger); cursor:pointer;">
               </div>
               <div id="set-paused-msg-group" class="form-group" style="margin-bottom:0;">
                 <label class="form-label" style="font-size:11px;">رسالة الإغلاق التوضيحية للزبائن</label>
@@ -1419,7 +1419,7 @@
               <label class="form-label">سياسة الاستبدال والاسترجاع والضمان (تظهر للعميل بالمتجر والسلة)</label>
               <textarea id="set-return-policy" class="form-input" rows="2" placeholder="مثال: استبدال أو استرجاع خلال 14 يوماً بحالة الشراء الأصلية مع الفاتورة."></textarea>
             </div>
-            <div id="settings-age-gate-wrap" style="background:rgba(245,158,11,0.07); border:1px solid rgba(245,158,11,0.28); border-radius:var(--radius-xs); padding:14px; margin-bottom:16px;">
+            <div id="settings-age-gate-wrap" style="background:var(--warning-subtle); border:1px solid var(--border); border-radius:var(--radius-xs); padding:14px; margin-bottom:16px;">
               <div style="font-size:0.88rem; font-weight:800; color:var(--text-main); margin-bottom:8px;">بوابة التحقق من العمر (+18 Age Gate)</div>
               <div class="form-group" style="margin-bottom:8px;">
                 <label class="form-label" style="font-size:11px;">عنوان البوابة</label>
@@ -1646,7 +1646,7 @@
               </div>
               <div style="display:flex; align-items:center; gap:6px;">
                 <span id="tables-count-badge" style="font-size:11.5px; background:var(--primary-subtle); color:var(--primary); padding:3px 10px; border-radius:20px; font-weight:800;">0 طاولات مسجلة</span>
-                <button type="button" id="btn-clear-all-tables" class="btn btn-ghost btn-sm" onclick="clearAllAdminTables()" style="display:none; color:var(--danger, #ef4444); border:1px solid rgba(239,68,68,0.25); font-size:11px; padding:2px 8px; border-radius:6px; font-weight:700;">مسح الكل</button>
+                <button type="button" id="btn-clear-all-tables" class="btn btn-ghost btn-sm" onclick="clearAllAdminTables()" style="display:none; color:var(--danger); border:1px solid var(--border); font-size:11px; padding:2px 8px; border-radius:6px; font-weight:700;">مسح الكل</button>
               </div>
             </div>
             <p style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">
@@ -1683,7 +1683,7 @@
                 <span>9. شبكة الفروع وإدارتها (Multi-Branch)</span>
               </div>
               <div style="display:flex; align-items:center; gap:8px;">
-                <button type="button" class="btn btn-ghost" onclick="clearAllAdminBranches()" style="font-size:11px; font-weight:700; color:var(--danger, #ef4444); border:1px solid var(--border); padding:3px 10px; border-radius:6px; cursor:pointer;" title="تصفير وحذف جميع الفروع المتصلة والبدء من جديد">تصفير الفروع</button>
+                <button type="button" class="btn btn-ghost" onclick="clearAllAdminBranches()" style="font-size:11px; font-weight:700; color:var(--danger); border:1px solid var(--border); padding:3px 10px; border-radius:6px; cursor:pointer;" title="تصفير وحذف جميع الفروع المتصلة والبدء من جديد">تصفير الفروع</button>
                 <span id="branches-count-badge" style="font-size:11.5px; background:var(--primary-subtle); color:var(--primary); padding:3px 10px; border-radius:20px; font-weight:800;">1 فرع مسجل</span>
               </div>
             </div>
@@ -1704,15 +1704,15 @@
               </div>
               <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px; margin-bottom:12px;">
                 <div class="form-group" style="margin-bottom:0;">
-                  <label class="form-label" style="font-size:11px;">اسم الفرع <span style="color:var(--danger, #ef4444);">*</span></label>
+                  <label class="form-label" style="font-size:11px;">اسم الفرع <span style="color:var(--danger);">*</span></label>
                   <input type="text" id="new-branch-name-input" class="form-input" placeholder="مثال: فرع سوبر برجر">
                 </div>
                 <div class="form-group" style="margin-bottom:0;">
-                  <label class="form-label" style="font-size:11px;">معرّف الفرع (Slug بالإنجليزية) <span style="color:var(--danger, #ef4444);">*</span></label>
+                  <label class="form-label" style="font-size:11px;">معرّف الفرع (Slug بالإنجليزية) <span style="color:var(--danger);">*</span></label>
                   <input type="text" id="new-branch-slug-input" class="form-input font-num" placeholder="مثال: super-burger">
                 </div>
                 <div class="form-group" style="margin-bottom:0;">
-                  <label class="form-label" style="font-size:11px;">كلمة مرور أمان الفرع (PIN/Password) <span style="color:var(--danger, #ef4444);">*</span></label>
+                  <label class="form-label" style="font-size:11px;">كلمة مرور أمان الفرع (PIN/Password) <span style="color:var(--danger);">*</span></label>
                   <div style="position:relative;">
                     <input type="password" id="new-branch-password-input" class="form-input font-num" placeholder="كلمة مرور لوحة تحكم الفرع" autocomplete="new-password" style="padding-left:36px;">
                     <button type="button" onclick="toggleBranchPassVisibility()" style="position:absolute; left:8px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; padding:2px;" title="إظهار/إخفاء">
@@ -1751,10 +1751,10 @@
 
         <!-- Platform Footer Brand Stamp -->
     <div class="ho-system-footer-badge" style="display:flex!important;justify-content:center!important;align-items:center!important;text-align:center!important;width:100%!important;padding:16px 12px 20px!important;margin:auto 0 0 0!important;direction:ltr!important;box-sizing:border-box!important;clear:both!important;">
-      <a href="https://harpymenu.com" target="_blank" rel="noopener noreferrer" class="ho-system-badge-link" style="display:inline-flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:6px!important;padding:4px 12px!important;border-radius:9999px!important;text-decoration:none!important;border:1px solid rgba(12,28,54,0.08)!important;background:rgba(12,28,54,0.03)!important;direction:ltr!important;font-family:'Plus Jakarta Sans','Cairo',-apple-system,sans-serif!important;opacity:0.82!important;" title="Harpy Order">
+      <a href="https://harpymenu.com" target="_blank" rel="noopener noreferrer" class="ho-system-badge-link" style="display:inline-flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:6px!important;padding:4px 12px!important;border-radius:9999px!important;text-decoration:none!important;border:1px solid var(--border)!important;background:var(--surface-raised)!important;direction:ltr!important;font-family:'Plus Jakarta Sans','Cairo',-apple-system,sans-serif!important;opacity:0.82!important;" title="Harpy Order">
         <img src="assets/brand/harpy_order_emblem_transparent.png" alt="Harpy Order" class="ho-badge-icon" width="18" height="18" style="width:18px!important;height:18px!important;object-fit:contain!important;display:block!important;flex-shrink:0!important;border:none!important;">
         <span class="ho-badge-text" style="font-size:0.76rem!important;font-weight:700!important;letter-spacing:-0.01em!important;line-height:1!important;display:inline-flex!important;align-items:baseline!important;text-decoration:none!important;font-family:'Plus Jakarta Sans','Cairo',-apple-system,sans-serif!important;">
-          <span class="ho-badge-word-harpy" style="color:var(--text-main,#1e293b)!important;text-decoration:none!important;">Harpy</span><span class="ho-badge-accent" style="color:#ea580c!important;font-weight:800!important;margin-left:2px!important;text-decoration:none!important;">Order</span>
+          <span class="ho-badge-word-harpy" style="color:var(--text-main)!important;text-decoration:none!important;">Harpy</span><span class="ho-badge-accent" style="color:var(--primary)!important;font-weight:800!important;margin-left:2px!important;text-decoration:none!important;">Order</span>
         </span>
       </a>
     </div>
@@ -1768,11 +1768,11 @@
       <button type="button" class="btn-close" onclick="closeTableQRModal()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     </div>
     
-    <div id="table-qr-card-preview" style="background:#ffffff; border:1px solid #e2e8f0; border-radius:16px; padding:20px; box-shadow:0 8px 24px rgba(0,0,0,0.06); display:inline-block; margin-bottom:16px; min-width:240px;">
-      <div id="table-qr-brand-name" style="font-size:14px; font-weight:800; color:#1e293b; margin-bottom:12px;">اسم المطعم</div>
+    <div id="table-qr-card-preview" style="background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:20px; box-shadow:var(--shadow-sm); display:inline-block; margin-bottom:16px; min-width:240px;">
+      <div id="table-qr-brand-name" style="font-size:14px; font-weight:800; color:var(--text-main); margin-bottom:12px;">اسم المطعم</div>
       <div id="table-qr-canvas-holder" style="display:flex; justify-content:center; align-items:center; min-height:190px; min-width:190px; margin:0 auto;"></div>
-      <div id="table-qr-badge-label" style="margin-top:12px; font-size:14px; font-weight:900; color:#ea580c; background:#fff7ed; padding:4px 16px; border-radius:20px; display:inline-block; border:1px solid #fed7aa;">طاولة 1</div>
-      <div style="font-size:11px; color:#64748b; margin-top:8px;">امسح الكود لفتح المنيو والطلب مباشرة</div>
+      <div id="table-qr-badge-label" style="margin-top:12px; font-size:14px; font-weight:900; color:var(--primary); background:var(--primary-subtle); padding:4px 16px; border-radius:20px; display:inline-block; border:1px solid var(--border);">طاولة 1</div>
+      <div style="font-size:11px; color:var(--text-muted); margin-top:8px;">امسح الكود لفتح المنيو والطلب مباشرة</div>
     </div>
 
     <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
@@ -1809,18 +1809,18 @@
     </div>
 
     <!-- Live Preview Canvas -->
-    <div id="harpy-qr-preview-wrapper" style="position:relative; width:100%; max-width:320px; margin:0 auto 14px; border-radius:20px; overflow:hidden; box-shadow:0 10px 28px rgba(0,0,0,0.12); border:1px solid rgba(0,0,0,0.06); aspect-ratio:1/1; background:#ffffff; display:flex; align-items:center; justify-content:center;">
-      <div id="harpy-qr-loading" style="display:none; position:absolute; inset:0; background:rgba(255,255,255,0.88); border-radius:20px; z-index:10; flex-direction:column; align-items:center; justify-content:center; gap:8px;">
-        <div class="spinner-ring" style="width:36px; height:36px; border:3px solid var(--accent, #ea580c); border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite;"></div>
-        <span style="font-size:12px; font-weight:800; color:var(--text-main, #0f172a);">جاري تجهيز وتوليد الستيكر</span>
+    <div id="harpy-qr-preview-wrapper" style="position:relative; width:100%; max-width:320px; margin:0 auto 14px; border-radius:20px; overflow:hidden; box-shadow:var(--shadow-md); border:1px solid var(--border); aspect-ratio:1/1; background:var(--surface); display:flex; align-items:center; justify-content:center;">
+      <div id="harpy-qr-loading" style="display:none; position:absolute; inset:0; background:var(--surface); border-radius:20px; z-index:10; flex-direction:column; align-items:center; justify-content:center; gap:8px;">
+        <div class="spinner-ring" style="width:36px; height:36px; border:3px solid var(--primary); border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite;"></div>
+        <span style="font-size:12px; font-weight:800; color:var(--text-main);">جاري تجهيز وتوليد الستيكر</span>
       </div>
       <canvas id="harpy-qr-canvas" width="1254" height="1254" style="width:100%; height:100%; display:block; object-fit:contain;"></canvas>
       <div id="harpy-qr-hidden-gen" style="display:none;"></div>
     </div>
 
     <!-- Target Direct Link Card with 1-Click Copy -->
-    <div class="harpy-qr-url-row" style="display:flex; align-items:center; justify-content:space-between; background:var(--surface-raised, #182234); border:1px solid var(--border-strong, #334155); border-radius:10px; padding:8px 12px; margin-bottom:14px; gap:8px;">
-      <span id="harpy-qr-encoded-url" style="direction:ltr; font-size:12px; font-weight:700; color:var(--text-main, #f8fafc); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; text-align:left;"></span>
+    <div class="harpy-qr-url-row" style="display:flex; align-items:center; justify-content:space-between; background:var(--surface-raised); border:1px solid var(--border); border-radius:10px; padding:8px 12px; margin-bottom:14px; gap:8px;">
+      <span id="harpy-qr-encoded-url" style="direction:ltr; font-size:12px; font-weight:700; color:var(--text-main); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; text-align:left;"></span>
       <button type="button" onclick="copyHarpyQRUrl()" class="btn-copy-inline" style="margin:0; padding:4px 10px; font-size:11.5px;" title="نسخ الرابط">
         <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
         <span>نسخ</span>
@@ -1829,12 +1829,12 @@
 
     <!-- Actions Toolbar: 2 Balanced Buttons -->
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; justify-content:center;">
-      <button type="button" id="btn-download-harpy-sticker" class="btn btn-primary" onclick="downloadHarpyQRSticker()" style="padding:10px 14px; font-weight:800; font-size:13px; display:inline-flex; align-items:center; justify-content:center; gap:6px; border-radius:10px; background:linear-gradient(135deg, #ea580c 0%, #f97316 100%); border:none; box-shadow:0 4px 14px rgba(234, 88, 12, 0.35);">
+      <button type="button" id="btn-download-harpy-sticker" class="btn btn-primary" onclick="downloadHarpyQRSticker()" style="padding:10px 14px; font-weight:800; font-size:13px; display:inline-flex; align-items:center; justify-content:center; gap:6px; border-radius:10px; background:var(--primary); border:none; box-shadow:var(--shadow-sm);">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
         <span>تحميل PNG</span>
       </button>
 
-      <button type="button" id="btn-print-harpy-sticker" class="btn btn-secondary" onclick="printHarpyQRSticker()" style="padding:10px 14px; font-weight:800; font-size:13px; display:inline-flex; align-items:center; justify-content:center; gap:6px; border-radius:10px; border:1px solid var(--border-strong, #334155);">
+      <button type="button" id="btn-print-harpy-sticker" class="btn btn-secondary" onclick="printHarpyQRSticker()" style="padding:10px 14px; font-weight:800; font-size:13px; display:inline-flex; align-items:center; justify-content:center; gap:6px; border-radius:10px; border:1px solid var(--border);">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
         <span>طباعة الستيكر</span>
       </button>
@@ -1891,12 +1891,12 @@
       </div>
 
       <!-- Timed Flash Offer Section -->
-      <div id="prod-timed-offer-section" class="prod-timed-offer-wrap" style="background:rgba(249,115,22,0.06); border:1px solid rgba(249,115,22,0.24); border-radius:10px; padding:10px 12px; margin-bottom:10px;">
+      <div id="prod-timed-offer-section" class="prod-timed-offer-wrap" style="background:var(--primary-subtle); border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:10px;">
         <label style="display:flex; align-items:center; justify-content:space-between; gap:8px; cursor:pointer; font-size:12px; font-weight:800; color:var(--primary);">
           <span>عرض خاص بمؤقت زمني ينتهي تلقائياً (يعرض مؤقت تنازلي للعميل)</span>
           <input type="checkbox" id="prod-timed-offer-enabled" onchange="toggleSingleProductOfferUI()" style="width:18px; height:18px; accent-color:var(--primary);">
         </label>
-        <div id="prod-timed-offer-fields" style="display:none; margin-top:10px; padding-top:10px; border-top:1px dashed rgba(249,115,22,0.25);">
+        <div id="prod-timed-offer-fields" style="display:none; margin-top:10px; padding-top:10px; border-top:1px dashed var(--border);">
           <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px;">
             <button type="button" class="btn btn-ghost btn-sm font-num" onclick="setSingleProductOfferPresetHours(6)" style="font-size:11px; padding:3px 8px; border:1px solid var(--border);">6 ساعات</button>
             <button type="button" class="btn btn-ghost btn-sm font-num" onclick="setSingleProductOfferPresetHours(12)" style="font-size:11px; padding:3px 8px; border:1px solid var(--border);">12 ساعة</button>
@@ -1992,11 +1992,11 @@
             </div>
             <div>
               <div style="font-size:11px; color:var(--text-muted); font-weight:700;">صافي المكسب</div>
-              <div id="recipe-live-profit" class="font-num" style="font-size:15px; font-weight:900; color:#16a34a; margin-top:2px;">0.00 ج.م</div>
+              <div id="recipe-live-profit" class="font-num" style="font-size:15px; font-weight:900; color:var(--success); margin-top:2px;">0.00 ج.م</div>
             </div>
             <div style="text-align:left;">
               <div style="font-size:11px; color:var(--text-muted); font-weight:700; margin-bottom:3px;">هامش الربح</div>
-              <span id="recipe-live-margin-badge" style="font-size:11px; font-weight:800; padding:3px 8px; border-radius:6px; background:rgba(34,197,94,0.15); color:#16a34a; display:inline-block;">0%</span>
+              <span id="recipe-live-margin-badge" style="font-size:11px; font-weight:800; padding:3px 8px; border-radius:6px; background:var(--success-subtle); color:var(--success); display:inline-block;">0%</span>
             </div>
           </div>
           <!-- Quick Smart Pricing Suggester -->
@@ -2152,7 +2152,7 @@
     <div class="status-options-grid">
       <!-- Stage 1 -->
       <button type="button" class="status-option-tile" data-status="pending" onclick="selectOrderStatus('pending')">
-        <div class="status-option-icon" style="background:rgba(245,158,11,0.15); color:#f59e0b;"><svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div>
+        <div class="status-option-icon" style="background:var(--status-pending-bg); color:var(--status-pending);"><svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div>
         <div class="status-option-info">
           <div class="status-option-name">1. تم استلام الطلب (قيد المراجعة)</div>
           <div class="status-option-desc">الطلب وصل المطعم وفي انتظار البدء والتأكيد</div>
@@ -2162,7 +2162,7 @@
 
       <!-- Stage 2 -->
       <button type="button" class="status-option-tile" data-status="preparing" onclick="selectOrderStatus('preparing')">
-        <div class="status-option-icon" style="background:rgba(59,130,246,0.15); color:#3b82f6;"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M18 2v6a3 3 0 0 1-3 3 3 3 0 0 1-3-3V2"/><path d="M15 11v11"/><path d="M5 2v13a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V2"/><path d="M7 2v6"/><path d="M8 17v5"/></svg></div>
+        <div class="status-option-icon" style="background:var(--status-preparing-bg); color:var(--status-preparing);"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M18 2v6a3 3 0 0 1-3 3 3 3 0 0 1-3-3V2"/><path d="M15 11v11"/><path d="M5 2v13a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V2"/><path d="M7 2v6"/><path d="M8 17v5"/></svg></div>
         <div class="status-option-info">
           <div class="status-option-name">2. المطبخ يجهز طلبك الآن</div>
           <div class="status-option-desc">طهاة المطعم بدأوا في تجهيز وطهي الوجبات</div>
@@ -2172,7 +2172,7 @@
 
       <!-- Stage 3 -->
       <button type="button" class="status-option-tile" data-status="out_for_delivery" onclick="selectOrderStatus('out_for_delivery')">
-        <div class="status-option-icon" style="background:rgba(168,85,247,0.15); color:#a855f7;"><svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/></svg></div>
+        <div class="status-option-icon" style="background:var(--status-ready-bg); color:var(--status-ready);"><svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/></svg></div>
         <div class="status-option-info">
           <div class="status-option-name">3. الطلب في الطريق إليك</div>
           <div class="status-option-desc">الكابتن استلم الأوردر وهو في طريقه لعنوان العميل</div>
@@ -2182,7 +2182,7 @@
 
       <!-- Stage 4 -->
       <button type="button" class="status-option-tile" data-status="delivered" onclick="selectOrderStatus('delivered')">
-        <div class="status-option-icon" style="background:rgba(34,197,94,0.15); color:#22c55e;"><svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="status-option-icon" style="background:var(--status-delivered-bg); color:var(--status-delivered);"><svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
         <div class="status-option-info">
           <div class="status-option-name">4. تم التسليم بالهناء والشفاء</div>
           <div class="status-option-desc">تم تسليم الوجبات بنجاح وتحصيل الحساب</div>
@@ -2192,7 +2192,7 @@
 
       <!-- Cancel Stage -->
       <button type="button" class="status-option-tile cancel-tile" data-status="cancelled" onclick="selectOrderStatus('cancelled')">
-        <div class="status-option-icon" style="background:rgba(239,68,68,0.15); color:#ef4444;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div>
+        <div class="status-option-icon" style="background:var(--status-cancelled-bg); color:var(--status-cancelled);"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div>
         <div class="status-option-info">
           <div class="status-option-name" style="color:var(--danger);">إلغاء الطلب</div>
           <div class="status-option-desc">إيقاف تجهيز هذا الطلب</div>
@@ -2230,7 +2230,7 @@
   <!-- ═══ LUXURY BRANDED CONFIRMATION MODAL ═════════════════ -->
   <div id="custom-confirm-backdrop" class="status-sheet-backdrop" onclick="closeCustomConfirm(false)"></div>
   <div id="custom-confirm-modal" class="custom-confirm-dialog">
-    <div id="custom-confirm-icon" style="width: 52px; height: 52px; border-radius: 50%; background: rgba(239, 68, 68, 0.15); color: #ef4444; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;">
+    <div id="custom-confirm-icon" style="width: 52px; height: 52px; border-radius: 50%; background: var(--danger-subtle); color: var(--danger); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;">
       <svg class="icon" viewBox="0 0 24 24" style="width:26px; height:26px;"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/></svg>
     </div>
     <h3 id="custom-confirm-title" style="margin: 0 0 8px 0; font-size: 1.1rem; font-weight: 900; color: var(--text-main); text-align: center;">
@@ -2240,7 +2240,7 @@
       هل أنت متأكد من رغبتك في حذف هذا العنصر نهائياً؟
     </div>
     <div style="display: flex; gap: 10px;">
-      <button type="button" id="btn-custom-confirm-accept" class="btn btn-danger" style="flex: 1; padding: 12px; font-weight: 800; font-size: 0.88rem; border-radius: var(--radius-sm); background: var(--danger); color: #fff; border: none; cursor: pointer;">
+      <button type="button" id="btn-custom-confirm-accept" class="btn btn-danger" style="flex: 1; padding: 12px; font-weight: 800; font-size: 0.88rem; border-radius: var(--radius-sm); background: var(--danger); color: var(--text-on-danger); border: none; cursor: pointer;">
         تأكيد الحذف
       </button>
       <button type="button" class="btn btn-ghost" onclick="closeCustomConfirm(false)" style="flex: 1; padding: 12px; font-weight: 700; font-size: 0.88rem; border-radius: var(--radius-sm); border: 1px solid var(--border); cursor: pointer;">
@@ -2252,7 +2252,7 @@
   <!-- Secure Password Confirmation Modal for Archive Deletion -->
   <div class="modal-backdrop" id="archive-pwd-backdrop" onclick="closeArchivePwdModal()"></div>
   <div class="modal-box" id="archive-pwd-modal" style="max-width:390px; text-align:center;">
-    <div style="width:58px; height:58px; border-radius:50%; background:rgba(239, 68, 68, 0.12); color:var(--danger); display:flex; align-items:center; justify-content:center; margin:0 auto 14px;">
+    <div style="width:58px; height:58px; border-radius:50%; background:var(--danger-subtle); color:var(--danger); display:flex; align-items:center; justify-content:center; margin:0 auto 14px;">
       <svg class="icon" viewBox="0 0 24 24" style="width:28px; height:28px;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     </div>
     <h3 style="font-size:1.18rem; font-weight:900; color:var(--text-main); margin-bottom:6px;">تأكيد كلمة المرور للحذف</h3>
@@ -2265,7 +2265,7 @@
         <label class="form-label" style="font-size:11px; margin-bottom:4px;">كلمة مرور الحساب</label>
         <input type="password" id="archive-delete-password-input" class="form-input font-num" placeholder="••••••••" required autocomplete="current-password">
       </div>
-      <div id="archive-pwd-error-msg" style="display:none; color:var(--danger); font-size:0.82rem; margin-bottom:12px; font-weight:700; text-align:center; background:rgba(239,68,68,0.1); padding:8px; border-radius:6px;">
+      <div id="archive-pwd-error-msg" style="display:none; color:var(--danger); font-size:0.82rem; margin-bottom:12px; font-weight:700; text-align:center; background:var(--danger-subtle); padding:8px; border-radius:6px;">
         كلمة المرور غير صحيحة! تم منع حذف الفاتورة.
       </div>
       <div style="display:flex; gap:10px;">
@@ -2282,7 +2282,7 @@
   <!-- Secure Password Confirmation Modal for Factory Reset -->
   <div class="modal-backdrop" id="factory-reset-pwd-backdrop" onclick="closeFactoryResetPwdModal()"></div>
   <div class="modal-box" id="factory-reset-pwd-modal" style="max-width:400px; text-align:center;">
-    <div style="width:58px; height:58px; border-radius:50%; background:rgba(239, 68, 68, 0.12); color:var(--danger); display:flex; align-items:center; justify-content:center; margin:0 auto 14px;">
+    <div style="width:58px; height:58px; border-radius:50%; background:var(--danger-subtle); color:var(--danger); display:flex; align-items:center; justify-content:center; margin:0 auto 14px;">
       <svg class="icon" viewBox="0 0 24 24" style="width:28px; height:28px;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
     </div>
     <h3 style="font-size:1.18rem; font-weight:900; color:var(--text-main); margin-bottom:6px;">تأكيد استعادة إعدادات المصنع</h3>
@@ -2295,7 +2295,7 @@
         <label class="form-label" style="font-size:11px; margin-bottom:4px;">كلمة مرور الإدارة</label>
         <input type="password" id="factory-reset-password-input" class="form-input font-num" placeholder="••••••••" required autocomplete="current-password">
       </div>
-      <div id="factory-reset-pwd-error-msg" style="display:none; color:var(--danger); font-size:0.82rem; margin-bottom:12px; font-weight:700; text-align:center; background:rgba(239,68,68,0.1); padding:8px; border-radius:6px;">
+      <div id="factory-reset-pwd-error-msg" style="display:none; color:var(--danger); font-size:0.82rem; margin-bottom:12px; font-weight:700; text-align:center; background:var(--danger-subtle); padding:8px; border-radius:6px;">
         كلمة المرور غير صحيحة! تم منع استعادة المصنع.
       </div>
       <div style="display:flex; gap:10px;">
@@ -2502,7 +2502,7 @@
   <!-- Subscription Suspended Overlay for Admin -->
   <div id="subscription-suspended-backdrop" class="harpy-lock-backdrop"></div>
   <div id="subscription-suspended-overlay" class="harpy-lock-modal">
-    <div id="admin-sub-suspended-icon" style="width:68px; height:68px; border-radius:50%; background:rgba(239,68,68,0.12); color:var(--danger); display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+    <div id="admin-sub-suspended-icon" style="width:68px; height:68px; border-radius:50%; background:var(--danger-subtle); color:var(--danger); display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
       <svg class="icon" viewBox="0 0 24 24" style="width:32px; height:32px; stroke-width:2;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     </div>
     <h3 id="admin-sub-suspended-title" style="font-size:1.22rem; font-weight:900; color:var(--text-main); margin-bottom:8px;">حساب المطعم مجمّد / موقوف مؤقتاً</h3>
@@ -2530,7 +2530,7 @@
       <div class="inv-body" id="invModalBody">
         <!-- Rendered dynamically via openOrderInvoiceModal() -->
       </div>
-      <div style="background:var(--surface-raised, #182234); border:1px solid var(--border-strong, #334155); border-radius:8px; padding:7px 12px; margin:0 18px 10px; font-size:11.5px; color:var(--text-muted); display:flex; align-items:center; gap:8px;">
+      <div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:8px; padding:7px 12px; margin:0 18px 10px; font-size:11.5px; color:var(--text-muted); display:flex; align-items:center; gap:8px;">
         <span style="display:inline-flex; align-items:center; color:var(--primary);"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span>
         <span>لأفضل نتيجة: اختر طابعة الفواتير (مثل <strong>POS-80</strong>) واضبط الهوامش على <strong>بلا (None)</strong>.</span>
       </div>
@@ -2712,11 +2712,11 @@
         </div>
         <div style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:10px 8px;">
           <div style="font-size:10.5px; color:var(--text-muted); font-weight:700;">تكلفة الخامات (المطبخ)</div>
-          <div id="shift-close-cogs" class="font-num" style="font-size:16px; font-weight:900; color:#ef4444; margin-top:2px;">0 ج.م</div>
+          <div id="shift-close-cogs" class="font-num" style="font-size:16px; font-weight:900; color:var(--danger); margin-top:2px;">0 ج.م</div>
         </div>
-        <div style="background:var(--surface); border:1px solid rgba(34,197,94,0.3); border-radius:8px; padding:10px 8px;">
-          <div style="font-size:10.5px; color:#16a34a; font-weight:800;">صافي الربح التقديري</div>
-          <div id="shift-close-net-profit" class="font-num" style="font-size:16px; font-weight:900; color:#16a34a; margin-top:2px;">+0 ج.م</div>
+        <div style="background:var(--surface); border:1px solid var(--success-subtle); border-radius:8px; padding:10px 8px;">
+          <div style="font-size:10.5px; color:var(--success); font-weight:800;">صافي الربح التقديري</div>
+          <div id="shift-close-net-profit" class="font-num" style="font-size:16px; font-weight:900; color:var(--success); margin-top:2px;">+0 ج.م</div>
         </div>
       </div>
       <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; font-size:11px; color:var(--text-muted); padding-top:8px; border-top:1px dashed var(--border);">
@@ -2932,24 +2932,24 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=187.0"></script>
-  <script src="js/core/sound-effects.js?v=187.0"></script>
-  <script src="js/core/niche-engine.js?v=194.0"></script>
-  <script src="js/store.js?v=190.0"></script>
-  <script src="js/admin/admin-core.js?v=191.0"></script>
-  <script src="js/admin/admin-auth.js?v=191.0"></script>
-  <script src="js/admin/kitchen-orders.js?v=191.0"></script>
-  <script src="js/admin/inventory-manager.js?v=191.0"></script>
-  <script src="js/admin/catalog-manager.js?v=191.0"></script>
-  <script src="js/admin/category-manager.js?v=191.0"></script>
-  <script src="js/admin/stories-manager.js?v=187.0"></script>
-  <script src="js/admin/backup-restore.js?v=191.0"></script>
-  <script src="js/core/qrcode.min.js?v=187.0"></script>
-  <script src="js/admin/settings-manager.js?v=191.0"></script>
-  <script src="js/admin/pos-terminal.js?v=191.0"></script>
-  <script src="js/admin/admin-push.js?v=191.0"></script>
-  <script src="js/admin.js?v=187.0"></script>
-  <script src="js/core/module-enforcer.js?v=191.0"></script>
-  <script src="js/pwa.js?v=187.0"></script>
+  <script src="js/core/demo-seed-data.js?v=196.0"></script>
+  <script src="js/core/sound-effects.js?v=196.0"></script>
+  <script src="js/core/niche-engine.js?v=196.0"></script>
+  <script src="js/store.js?v=196.0"></script>
+  <script src="js/admin/admin-core.js?v=196.0"></script>
+  <script src="js/admin/admin-auth.js?v=196.0"></script>
+  <script src="js/admin/kitchen-orders.js?v=196.0"></script>
+  <script src="js/admin/inventory-manager.js?v=196.0"></script>
+  <script src="js/admin/catalog-manager.js?v=196.0"></script>
+  <script src="js/admin/category-manager.js?v=196.0"></script>
+  <script src="js/admin/stories-manager.js?v=196.0"></script>
+  <script src="js/admin/backup-restore.js?v=196.0"></script>
+  <script src="js/core/qrcode.min.js?v=196.0"></script>
+  <script src="js/admin/settings-manager.js?v=196.0"></script>
+  <script src="js/admin/pos-terminal.js?v=196.0"></script>
+  <script src="js/admin/admin-push.js?v=196.0"></script>
+  <script src="js/admin.js?v=196.0"></script>
+  <script src="js/core/module-enforcer.js?v=196.0"></script>
+  <script src="js/pwa.js?v=196.0"></script>
 </body>
 </html>

@@ -59,7 +59,9 @@ const THEME_PRESETS = {
     headerBg: "#12100E",
     textMain: "#FAF6F0",
     textBody: "#D6CDC2",
-    primary: "#E8590C",
+    primary: "#C2410C",
+    primaryText: "#FB923C",
+    textOnPrimary: "#FFFFFF",
     border: "rgba(255, 245, 235, 0.08)"
   },
   cream: {
@@ -72,7 +74,9 @@ const THEME_PRESETS = {
     headerBg: "#FFFFFF",
     textMain: "#1C1713",
     textBody: "#453B32",
-    primary: "#C2410C",
+    primary: "#BE3D0B",
+    primaryText: "#BE3D0B",
+    textOnPrimary: "#FFFFFF",
     border: "#E8E0D5"
   },
   midnight: {
@@ -86,6 +90,8 @@ const THEME_PRESETS = {
     textMain: "#FAF6F0",
     textBody: "#D4D4D8",
     primary: "#D97706",
+    primaryText: "#FBBF24",
+    textOnPrimary: "#0E0E0F",
     border: "rgba(217, 119, 6, 0.18)"
   },
   sunset: {
@@ -98,7 +104,9 @@ const THEME_PRESETS = {
     headerBg: "#150F0B",
     textMain: "#FFF8F2",
     textBody: "#E8D8CB",
-    primary: "#F97316",
+    primary: "#C2410C",
+    primaryText: "#FB923C",
+    textOnPrimary: "#FFFFFF",
     border: "rgba(249, 115, 22, 0.16)"
   },
   olive: {
@@ -111,8 +119,10 @@ const THEME_PRESETS = {
     headerBg: "#0F1410",
     textMain: "#F2F8F4",
     textBody: "#CBDED2",
-    primary: "#15803D",
-    border: "rgba(21, 128, 61, 0.18)"
+    primary: "#22C55E",
+    primaryText: "#4ADE80",
+    textOnPrimary: "#0F1410",
+    border: "rgba(34, 197, 94, 0.18)"
   },
   indigo: {
     id: "indigo",
@@ -125,6 +135,8 @@ const THEME_PRESETS = {
     textMain: "#FFF9F4",
     textBody: "#E2D5C8",
     primary: "#D97706",
+    primaryText: "#FBBF24",
+    textOnPrimary: "#120E0A",
     border: "rgba(217, 119, 6, 0.18)"
   },
   bistro: {
@@ -138,6 +150,8 @@ const THEME_PRESETS = {
     textMain: "#FFF9F4",
     textBody: "#E2D5C8",
     primary: "#D97706",
+    primaryText: "#FBBF24",
+    textOnPrimary: "#120E0A",
     border: "rgba(217, 119, 6, 0.18)"
   },
   bordeaux: {
@@ -150,7 +164,9 @@ const THEME_PRESETS = {
     headerBg: "#140A0E",
     textMain: "#FFF5F8",
     textBody: "#ECC8D2",
-    primary: "#E11D48",
+    primary: "#BE123C",
+    primaryText: "#FB7185",
+    textOnPrimary: "#FFFFFF",
     border: "rgba(190, 18, 60, 0.20)"
   }
 };
@@ -3134,16 +3150,25 @@ const Store = {
     });
 
     let primaryColor = s.siteColors?.primary;
-    if (!primaryColor || primaryColor === '#ea580c' || primaryColor === '#c2410c') {
+    const normPrimary = (primaryColor || '').toLowerCase();
+    const isLegacyOrange = !primaryColor || normPrimary === '#ea580c' || normPrimary === '#c2410c' || normPrimary === '#ff6a00' || normPrimary === '#ee5d00' || normPrimary === '#f97316' || normPrimary === '#e8590c' || normPrimary === '#be3d0b';
+    if (isLegacyOrange) {
       if (mode === 'dark') {
-        primaryColor = THEME_PRESETS[preset]?.primary || '#E8590C';
+        primaryColor = THEME_PRESETS[preset]?.primary || '#C2410C';
       } else {
-        primaryColor = '#C2410C';
+        primaryColor = '#BE3D0B';
       }
     }
     root.style.setProperty('--primary', primaryColor);
     root.style.setProperty('--primary-hover', primaryColor);
     root.style.setProperty('--border-focus', primaryColor);
+
+    // Synchronize semantic text-on-primary & primary-text for full WCAG AA compliance
+    const presetCfg = THEME_PRESETS[preset] || THEME_PRESETS.charcoal;
+    const textOnPrimary = presetCfg?.textOnPrimary || '#FFFFFF';
+    const primaryText = presetCfg?.primaryText || (mode === 'light' ? '#BE3D0B' : '#FB923C');
+    root.style.setProperty('--text-on-primary', textOnPrimary);
+    root.style.setProperty('--primary-text', primaryText);
 
     // Dynamic clean RGBA derivations for subtle and glow
     let primaryGlow = `${primaryColor}44`;
@@ -3175,6 +3200,13 @@ const Store = {
       if (c.surfaceRaised === '#F8FAFC' || c.surfaceRaised === '#f3ede2') c.surfaceRaised = '#FAF7F2';
       if (c.textMain === '#0F172A' || c.textMain === '#18130f') c.textMain = '#1C1713';
       if (c.textBody === '#334155' || c.textBody === '#3d332a') c.textBody = '#453B32';
+
+      if (c.primary) {
+        const cp = c.primary.toLowerCase();
+        if (cp === '#ea580c' || cp === '#ff6a00' || cp === '#ee5d00' || cp === '#f97316' || cp === '#c2410c' || cp === '#be3d0b') {
+          c.primary = (mode === 'dark') ? '#C2410C' : '#BE3D0B';
+        }
+      }
 
       let isDarkPalette = true;
       if (c.id === 'cream' || c.bg === '#F8FAFC') {

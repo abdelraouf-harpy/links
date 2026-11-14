@@ -85,8 +85,8 @@
         100% { transform: translateX(-50%) translateY(-24px) scale(0.96); opacity: 0; }
       }
       @keyframes harpyPulseGlow {
-        0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 10px #f97316; }
-        50% { opacity: 0.55; transform: scale(0.88); box-shadow: 0 0 4px #ea580c; }
+        0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 10px var(--primary); }
+        50% { opacity: 0.55; transform: scale(0.88); box-shadow: 0 0 4px var(--primary); }
       }
     `;
     document.head.appendChild(style);
@@ -131,14 +131,14 @@
         : cleanPrimary;
 
       const metaTheme = document.querySelector('meta[name="theme-color"]');
-      if (metaTheme) metaTheme.setAttribute('content', isNight ? '#070B13' : '#FFFFFF');
+      if (metaTheme) metaTheme.setAttribute('content', isNight ? '#12100E' : '#FAF7F2');
       let metaNav = document.querySelector('meta[name="navigation-bar-color"]');
       if (!metaNav) {
         metaNav = document.createElement('meta');
         metaNav.setAttribute('name', 'navigation-bar-color');
         document.head.appendChild(metaNav);
       }
-      metaNav.setAttribute('content', isNight ? '#070B13' : '#FFFFFF');
+      metaNav.setAttribute('content', isNight ? '#12100E' : '#FAF7F2');
 
       const manifestObj = {
         id: isAdmin ? (`/admin/?m=${slug}`) : (`/order/?m=${slug}`),
@@ -148,8 +148,8 @@
         start_url: isAdmin ? `./admin/?m=${slug}` : `./order/?m=${slug}`,
         scope: isAdmin ? `./admin/` : `./order/`,
         display: "standalone",
-        background_color: isNight ? "#070B13" : "#FFFFFF",
-        theme_color: isNight ? "#070B13" : "#FFFFFF",
+        background_color: isNight ? "#12100E" : "#FAF7F2",
+        theme_color: isNight ? "#12100E" : "#FAF7F2",
         orientation: "portrait",
         icons: [
           {
@@ -290,7 +290,7 @@
   updatePwaBranding();
 
   // ── 2. Clean Update Engine (Handles Code Updates & Live Store Name Updates) ───
-  const CURRENT_PWA_BUILD = 'v183.0';
+  const CURRENT_PWA_BUILD = 'v195.0';
 
   function isUpdateAlreadyHandled() {
     try {
@@ -338,7 +338,7 @@
 
     const backdrop = document.createElement('div');
     backdrop.id = 'harpy-pwa-update-backdrop';
-    backdrop.style.cssText = 'position: fixed; inset: 0; z-index: 999998; background: rgba(0,0,0,0.55); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); opacity: 0; transition: opacity 0.3s ease;';
+    backdrop.style.cssText = 'position: fixed; inset: 0; z-index: 999998; background: var(--overlay-backdrop); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); opacity: 0; transition: opacity 0.3s ease;';
 
     const card = document.createElement('div');
     card.id = 'harpy-pwa-update-modal';
@@ -350,12 +350,12 @@
       z-index: 999999;
       width: calc(100% - 24px);
       max-width: 440px;
-      background: linear-gradient(145deg, rgba(28,24,21,0.98), rgba(18,14,12,0.99));
-      border: 1.5px solid rgba(234, 88, 12, 0.65);
+      background: var(--surface); border: 1px solid var(--border-strong);
+      border: 1.5px solid var(--border);
       border-radius: 20px;
       padding: 18px 20px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.75), 0 0 30px rgba(234,88,12,0.3);
-      color: #ffffff;
+      box-shadow: var(--shadow-lg);
+      color: var(--text-main);
       direction: rtl;
       font-family: inherit;
       box-sizing: border-box;
@@ -364,30 +364,30 @@
 
     card.innerHTML = `
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-        <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(234,88,12,0.18); border:1px solid rgba(234,88,12,0.4); padding:4px 11px; border-radius:20px; font-size:12px; font-weight:800; color:#fb923c;">
-          <span style="width:7px; height:7px; border-radius:50%; background:#f97316; display:inline-block; animation: harpyPulseGlow 1.5s infinite;"></span>
+        <div style="display:inline-flex; align-items:center; gap:6px; background:var(--primary-subtle); border:1px solid var(--border); padding:4px 11px; border-radius:20px; font-size:12px; font-weight:800; color:var(--primary-text);">
+          <span style="width:7px; height:7px; border-radius:50%; background:var(--primary); display:inline-block;"></span>
           ${isNameChange ? 'تحديث هوية التطبيق' : 'تحديث جديد متوفر'}
         </div>
-        <button id="btn-update-card-close" style="background:transparent; border:none; color:#a8a29e; cursor:pointer; font-size:17px; width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:8px;" title="إغلاق"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+        <button id="btn-update-card-close" style="background:transparent; border:none; color:var(--text-muted); cursor:pointer; font-size:17px; width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:8px;" title="إغلاق"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
       <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
-        <div style="position:relative; width:48px; height:48px; border-radius:14px; overflow:hidden; flex-shrink:0; background:#120e0c; border:1.5px solid rgba(249,115,22,0.45); box-shadow:0 4px 14px rgba(0,0,0,0.45);">
+        <div style="position:relative; width:48px; height:48px; border-radius:14px; overflow:hidden; flex-shrink:0; background:var(--surface-raised); border:1.5px solid var(--border); box-shadow:var(--shadow-sm);">
           <img src="${displayLogo}" alt="${cleanPrimary}" style="width:100%; height:100%; object-fit:cover; display:block;" onerror="this.src='${fallbackIcon}'">
         </div>
         <div style="flex:1; min-width:0;">
-          <div style="font-size:14.5px; font-weight:800; color:#ffffff; line-height:1.35; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+          <div style="font-size:14.5px; font-weight:800; color:var(--text-main); line-height:1.35; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
             ${headline}
           </div>
-          <div style="font-size:11.8px; color:#d6d3d1; font-weight:500; margin-top:3px; line-height:1.4;">
+          <div style="font-size:11.8px; color:var(--text-body); font-weight:500; margin-top:3px; line-height:1.4;">
             ${subText}
           </div>
         </div>
       </div>
       <div style="display:flex; align-items:center; gap:8px;">
-        <button id="btn-update-apply-now" style="flex:1; background:linear-gradient(135deg, #ea580c, #f97316); color:#fff; border:none; border-radius:12px; padding:11px 16px; font-size:13px; font-weight:800; cursor:pointer; font-family:inherit; box-shadow:0 4px 16px rgba(234,88,12,0.38); display:flex; align-items:center; justify-content:center; gap:6px;">
+        <button id="btn-update-apply-now" style="flex:1; background:var(--primary); color:var(--text-on-primary); border:none; border-radius:12px; padding:11px 16px; font-size:13px; font-weight:800; cursor:pointer; font-family:inherit; box-shadow:var(--shadow-sm); display:flex; align-items:center; justify-content:center; gap:6px;">
           <span>${btnText}</span>
         </button>
-        <button id="btn-update-dismiss" style="background:rgba(255,255,255,0.06); color:#a8a29e; border:1px solid rgba(255,255,255,0.12); border-radius:12px; padding:11px 16px; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit;">
+        <button id="btn-update-dismiss" style="background:var(--surface-raised); color:var(--text-muted); border:1px solid var(--border); border-radius:12px; padding:11px 16px; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit;">
           لاحقاً
         </button>
       </div>
@@ -441,8 +441,8 @@
         start_url: isAdmin ? `./admin/?m=${activeSlug}` : `./order/?m=${activeSlug}`,
         scope: isAdmin ? `./admin/` : `./order/`,
         display: "standalone",
-        background_color: isNight ? "#070B13" : "#FFFFFF",
-        theme_color: isNight ? "#070B13" : "#FFFFFF",
+        background_color: isNight ? "#12100E" : "#FAF7F2",
+        theme_color: isNight ? "#12100E" : "#FAF7F2",
         orientation: "portrait",
         icons: [
           { src: appIcon, sizes: "512x512", type: "image/png", purpose: "any" },
@@ -585,8 +585,16 @@
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       // Register strictly-scoped SW for each app independently (No cross-purging)
-      const swUrl = './sw.js?v=187.0';
+      const swUrl = './sw.js?v=195.0';
       const targetScope = isAdmin ? './admin/' : './order/';
+
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true;
+          window.location.reload();
+        }
+      });
       navigator.serviceWorker.register(swUrl, { scope: targetScope })
         .then(reg => {
           window.__swRegistration = reg;
@@ -704,7 +712,7 @@
 
     const backdrop = document.createElement('div');
     backdrop.id = 'harpy-pwa-install-backdrop';
-    backdrop.style.cssText = 'position: fixed; inset: 0; z-index: 999998; background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); opacity: 0; transition: opacity 0.3s ease;';
+    backdrop.style.cssText = 'position: fixed; inset: 0; z-index: 999998; background: var(--overlay-backdrop); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); opacity: 0; transition: opacity 0.3s ease;';
 
     const card = document.createElement('div');
     card.id = 'harpy-pwa-install-modal';
@@ -716,12 +724,12 @@
       z-index: 999999;
       width: calc(100% - 32px);
       max-width: 430px;
-      background: linear-gradient(145deg, #1c1815, #120e0c);
-      border: 1.5px solid rgba(234, 88, 12, 0.65);
+      background: var(--surface);
+      border: 1.5px solid var(--border);
       border-radius: 22px;
       padding: 24px 20px;
-      box-shadow: 0 25px 60px rgba(0,0,0,0.8), 0 0 35px rgba(234,88,12,0.35);
-      color: #ffffff;
+      box-shadow: var(--shadow-lg);
+      color: var(--text-main);
       direction: rtl;
       font-family: inherit;
       box-sizing: border-box;
@@ -730,27 +738,27 @@
     `;
 
     card.innerHTML = `
-      <div style="display:inline-flex; align-items:center; gap:8px; background:rgba(234,88,12,0.18); border:1px solid rgba(234,88,12,0.45); padding:6px 14px; border-radius:30px; font-size:12.5px; font-weight:800; color:#fb923c; margin-bottom:16px;">
-        <span style="width:8px; height:8px; border-radius:50%; background:#f97316; display:inline-block; animation: harpyPulseGlow 1.5s infinite;"></span>
+      <div style="display:inline-flex; align-items:center; gap:8px; background:var(--primary-subtle); border:1px solid var(--border); padding:6px 14px; border-radius:30px; font-size:12.5px; font-weight:800; color:var(--primary-text); margin-bottom:16px;">
+        <span style="width:8px; height:8px; border-radius:50%; background:var(--primary); display:inline-block; animation: harpyPulseGlow 1.5s infinite;"></span>
         تم حفظ هوية المطعم بنجاح!
       </div>
 
-      <div style="position:relative; width:84px; height:84px; border-radius:22px; overflow:hidden; margin:0 auto 14px auto; background:#120e0c; border:2.5px solid rgba(249,115,22,0.6); box-shadow:0 8px 25px rgba(0,0,0,0.6);">
+      <div style="position:relative; width:84px; height:84px; border-radius:22px; overflow:hidden; margin:0 auto 14px auto; background:var(--surface-raised); border:2.5px solid var(--border); box-shadow:var(--shadow-md);">
         <img src="${targetLogo}" alt="${displayTitle}" style="width:100%; height:100%; object-fit:cover; display:block;" onerror="this.src='${fallbackIcon}'">
       </div>
 
-      <h3 style="font-size:19px; font-weight:900; color:#ffffff; margin:0 0 6px 0; line-height:1.3;">
+      <h3 style="font-size:19px; font-weight:900; color:var(--text-main); margin:0 0 6px 0; line-height:1.3;">
         ${displayTitle}
       </h3>
-      <p style="font-size:13px; color:#d6d3d1; margin:0 0 20px 0; line-height:1.5;">
-        يمكنك الآن تثبيت ${isAdmin ? 'لوحة التحكم' : 'تطبيق المنيو'} كـ <strong style="color:#f97316;">Application مستقل</strong> على هاتفك أو جهازك لسرعة الوصول وإدارة الطلبات 
+      <p style="font-size:13px; color:var(--text-body); margin:0 0 20px 0; line-height:1.5;">
+        يمكنك الآن تثبيت ${isAdmin ? 'لوحة التحكم' : 'تطبيق المنيو'} كـ <strong style="color:var(--primary-text);">Application مستقل</strong> على هاتفك أو جهازك لسرعة الوصول وإدارة الطلبات 
       </p>
 
       <div style="display:flex; flex-direction:column; gap:10px;">
-        <button id="btn-modal-install-now" style="width:100%; background:linear-gradient(135deg, #ea580c, #f97316); color:#fff; border:none; border-radius:14px; padding:13px 18px; font-size:14.5px; font-weight:800; cursor:pointer; font-family:inherit; box-shadow:0 6px 22px rgba(234,88,12,0.45); display:flex; align-items:center; justify-content:center; gap:8px;">
+        <button id="btn-modal-install-now" style="width:100%; background:var(--primary); color:var(--text-on-primary); border:none; border-radius:14px; padding:13px 18px; font-size:14.5px; font-weight:800; cursor:pointer; font-family:inherit; box-shadow:var(--shadow-sm); display:flex; align-items:center; justify-content:center; gap:8px;">
           <span>تثبيت التطبيق الآن</span>
         </button>
-        <button id="btn-modal-install-dismiss" style="width:100%; background:rgba(255,255,255,0.06); color:#a8a29e; border:1px solid rgba(255,255,255,0.12); border-radius:14px; padding:11px 16px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit;">
+        <button id="btn-modal-install-dismiss" style="width:100%; background:var(--surface-raised); color:var(--text-muted); border:1px solid var(--border); border-radius:14px; padding:11px 16px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit;">
           لاحقاً
         </button>
       </div>
@@ -849,7 +857,7 @@
 
   function showToast(msg) {
     const toast = document.createElement('div');
-    toast.style.cssText = 'position: fixed; top: 24px; left: 50%; transform: translateX(-50%); z-index: 100000; background: #1e1814; color: #fff; border: 1px solid #ea580c; padding: 12px 20px; border-radius: 12px; font-size: 13px; font-weight: 700; direction: rtl; box-shadow: 0 10px 30px rgba(0,0,0,0.5);';
+    toast.style.cssText = 'position: fixed; top: 24px; left: 50%; transform: translateX(-50%); z-index: 100000; background: var(--surface); color: var(--text-main); border: 1px solid var(--border); padding: 12px 20px; border-radius: 12px; font-size: 13px; font-weight: 700; direction: rtl; box-shadow: var(--shadow-md);';
     toast.textContent = msg;
     document.body.appendChild(toast);
     setTimeout(() => {

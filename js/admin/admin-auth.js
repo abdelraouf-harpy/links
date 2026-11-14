@@ -607,8 +607,8 @@ function checkOnboardingSetup() {
       const banner = document.createElement('div');
       banner.id = 'onboarding-setup-banner';
       banner.style.cssText = `
-        background: rgba(245, 158, 11, 0.08);
-        border: 1px solid rgba(245, 158, 11, 0.25);
+        background: var(--warning-subtle);
+        border: 1px solid var(--border);
         color: var(--text-main);
         padding: 16px 20px;
         border-radius: var(--radius-md, 12px);
@@ -623,11 +623,11 @@ function checkOnboardingSetup() {
         (window.NicheEngine && typeof window.NicheEngine.isStoreMode === 'function' && window.NicheEngine.isStoreMode());
       const placeNoun = isStoreSetup ? 'المتجر' : 'المطعم';
       banner.innerHTML = `
-        <svg style="width:26px;height:26px;flex-shrink:0;color:#f59e0b;margin-top:2px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg style="width:26px;height:26px;flex-shrink:0;color:var(--warning);margin-top:2px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
         </svg>
         <div>
-          <div style="font-weight:900; font-size:0.95rem; color:#f59e0b; margin-bottom:4px;">إعداد ${placeNoun} في انتظار الاستكمال</div>
+          <div style="font-weight:900; font-size:0.95rem; color:var(--warning); margin-bottom:4px;">إعداد ${placeNoun} في انتظار الاستكمال</div>
           <div style="font-size:0.84rem; color:var(--text-muted);">يرجى ضبط اسم ${placeNoun} ورقم الواتساب لاستقبال طلبات العملاء مباشرة:</div>
           <ul style="margin:6px 0 0 0; padding-right:18px; font-size:0.82rem; color:var(--text-main);">
             ${!settings.storeName ? `<li>اسم ${placeNoun} مطلوب</li>` : ''}
@@ -815,8 +815,8 @@ function setupSubscriptionWatcher() {
       } catch(e) {}
       if (iconEl) {
         iconEl.innerHTML = '<svg class="icon" viewBox="0 0 24 24" style="width:32px; height:32px; stroke-width:1.8;"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>';
-        iconEl.style.background = 'rgba(148, 163, 184, 0.12)';
-        iconEl.style.color = 'var(--text-muted, #94a3b8)';
+        iconEl.style.background = 'var(--surface-raised)';
+        iconEl.style.color = 'var(--text-muted)';
       }
       if (titleEl) titleEl.textContent = 'حساب غير متوفر (404)';
       if (msgEl) msgEl.textContent = 'عذراً، هذا الرابط غير مرتبط بأي حساب نشط على المنصة. يرجى التحقق من صحة الرابط أو تسجيل الدخول من اللوحة المركزية.';

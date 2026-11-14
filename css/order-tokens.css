@@ -15,52 +15,53 @@
 
   --border: rgba(255, 245, 235, 0.08);
   --border-strong: rgba(255, 245, 235, 0.16);
-  --border-focus: #E8590C;
+  --border-focus: #C2410C;
 
-  /* Primary Accent - Warm Woodfired Flame Orange */
-  --primary: #E8590C;
-  --primary-hover: #FF7D1A;
-  --primary-subtle: rgba(232, 89, 12, 0.14);
-  --primary-glow: rgba(232, 89, 12, 0.18);
+  /* Primary Accent - Warm Woodfired Terracotta */
+  --primary: #C2410C;
+  --primary-hover: #A83D03;
+  --primary-text: #FB923C;
+  --primary-subtle: rgba(194, 65, 12, 0.14);
+  --primary-glow: rgba(194, 65, 12, 0.18);
   --text-on-primary: #FFFFFF;
 
-  /* Functional Status Accents */
-  --accent-wa: #15803D;
-  --accent-wa-subtle: rgba(21, 128, 61, 0.14);
-  --success: #15803D;
-  --success-subtle: rgba(21, 128, 61, 0.14);
+  /* Functional Status Accents (Calibrated for Dark Backgrounds >= 4.5:1) */
+  --accent-wa: #22C55E;
+  --accent-wa-subtle: rgba(34, 197, 94, 0.14);
+  --success: #34D399;
+  --success-subtle: rgba(52, 211, 153, 0.14);
   --text-on-success: #FFFFFF;
-  --danger: #E53E3E;
-  --danger-subtle: rgba(197, 48, 48, 0.14);
-  --text-on-danger: #FFFFFF;
-  --warning: #B45309;
-  --warning-subtle: rgba(180, 83, 9, 0.14);
-  --text-on-warning: #FFFFFF;
-  --amber: #B45309;
-  --amber-subtle: rgba(180, 83, 9, 0.14);
-  --info: #2563EB;
-  --info-subtle: rgba(37, 99, 235, 0.14);
-  --text-on-info: #FFFFFF;
-  --favorite: #E11D48;
-  --favorite-subtle: rgba(225, 29, 72, 0.14);
+  --danger: #FCA5A5;
+  --danger-subtle: rgba(252, 165, 165, 0.14);
+  --text-on-danger: #12100E;
+  --warning: #FBBF24;
+  --warning-subtle: rgba(251, 191, 36, 0.14);
+  --text-on-warning: #12100E;
+  --amber: #FBBF24;
+  --amber-subtle: rgba(251, 191, 36, 0.14);
+  --info: #38BDF8;
+  --info-subtle: rgba(56, 189, 248, 0.14);
+  --text-on-info: #12100E;
+  --favorite: #FB7185;
+  --favorite-subtle: rgba(251, 113, 133, 0.14);
 
-  /* Kitchen & Order Status Lifecycle Tokens */
-  --status-pending: #B45309;
-  --status-pending-bg: rgba(180, 83, 9, 0.14);
-  --status-preparing: #E8590C;
-  --status-preparing-bg: rgba(232, 89, 12, 0.14);
-  --status-ready: #2563EB;
-  --status-ready-bg: rgba(37, 99, 235, 0.14);
-  --status-delivered: #15803D;
-  --status-delivered-bg: rgba(21, 128, 61, 0.14);
-  --status-cancelled: #E53E3E;
-  --status-cancelled-bg: rgba(197, 48, 48, 0.14);
+  /* Kitchen & Order Status Lifecycle Tokens (Decoupled from Brand Primary, Color-Blind Safe) */
+  --status-pending: #38BDF8;
+  --status-pending-bg: rgba(56, 189, 248, 0.14);
+  --status-preparing: #FBBF24;
+  --status-preparing-bg: rgba(251, 191, 36, 0.14);
+  --status-ready: #A5B4FC;
+  --status-ready-bg: rgba(165, 180, 252, 0.14);
+  --status-delivered: #34D399;
+  --status-delivered-bg: rgba(52, 211, 153, 0.14);
+  --status-cancelled: #FCA5A5;
+  --status-cancelled-bg: rgba(252, 165, 165, 0.14);
 
   /* Typography - Warm Ivory Cream (Eliminating harsh 100% blue-white glare) */
   --text-main: #FAF6F0;
   --text-body: #D6CDC2;
-  --text-muted: #9E9182;
-  --text-faint: #6E6458;
+  --text-muted: #9E9284;
+  --text-faint: #7D6F61;
 
   /* Geometry */
   --radius-xs: 8px;
@@ -75,6 +76,10 @@
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
   --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.40);
   --shadow-lg: 0 14px 40px rgba(0, 0, 0, 0.55);
+  --overlay-backdrop: rgba(0, 0, 0, 0.65);
+  --overlay-card: rgba(255, 255, 255, 0.08);
+  --overlay-dark: rgba(0, 0, 0, 0.45);
+  --overlay-light: rgba(255, 255, 255, 0.16);
 }
 
 body, .food-item-card, .cat-pill, .cat-card-pill, .discovery-chip, .search-input, .cart-drawer, .modal-box, .menu-compact-header, .main-content-sheet, .search-input-field, .view-controls-compact {
@@ -92,56 +97,61 @@ body, .food-item-card, .cat-pill, .cat-card-pill, .discovery-chip, .search-input
 
   --border: #E8E0D5;
   --border-strong: #D4C8B8;
-  --border-focus: #C2410C;
+  --border-focus: #BE3D0B;
 
   --text-main: #1C1713;
   --text-body: #453B32;
-  --text-muted: #736557;
-  --text-faint: #9C8E80;
+  --text-muted: #615549;
+  --text-faint: #7D6F61;
 
-  /* Primary Brand - Rich Woodfired Terracotta (WCAG AA Compliant 4.70:1 against white text) */
-  --primary: #C2410C;
-  --primary-hover: #A83D03;
-  --primary-subtle: rgba(200, 75, 6, 0.08);
-  --primary-glow: rgba(200, 75, 6, 0.14);
+  /* Primary Brand - Rich Woodfired Terracotta (WCAG AA Compliant >= 4.5:1 across all surfaces) */
+  --primary: #BE3D0B;
+  --primary-hover: #9A3412;
+  --primary-text: #BE3D0B;
+  --primary-subtle: rgba(190, 61, 11, 0.08);
+  --primary-glow: rgba(190, 61, 11, 0.14);
   --text-on-primary: #FFFFFF;
 
-  /* Functional Status Accents */
-  --accent-wa: #15803D;
-  --accent-wa-subtle: rgba(21, 128, 61, 0.10);
-  --success: #15803D;
-  --success-subtle: rgba(21, 128, 61, 0.10);
+  /* Functional Status Accents (Calibrated for Light Backgrounds >= 4.5:1) */
+  --accent-wa: #166534;
+  --accent-wa-subtle: rgba(22, 101, 52, 0.10);
+  --success: #166534;
+  --success-subtle: rgba(22, 101, 52, 0.10);
   --text-on-success: #FFFFFF;
-  --danger: #E53E3E;
-  --danger-subtle: rgba(197, 48, 48, 0.10);
+  --danger: #B91C1C;
+  --danger-subtle: rgba(185, 28, 28, 0.10);
   --text-on-danger: #FFFFFF;
-  --warning: #B45309;
-  --warning-subtle: rgba(180, 83, 9, 0.10);
+  --warning: #92400E;
+  --warning-subtle: rgba(146, 64, 14, 0.10);
   --text-on-warning: #FFFFFF;
-  --amber: #B45309;
-  --amber-subtle: rgba(180, 83, 9, 0.10);
-  --info: #2563EB;
-  --info-subtle: rgba(37, 99, 235, 0.10);
+  --amber: #92400E;
+  --amber-subtle: rgba(146, 64, 14, 0.10);
+  --info: #0369A1;
+  --info-subtle: rgba(3, 105, 161, 0.10);
   --text-on-info: #FFFFFF;
-  --favorite: #E11D48;
-  --favorite-subtle: rgba(225, 29, 72, 0.10);
+  --favorite: #BE123C;
+  --favorite-subtle: rgba(190, 18, 60, 0.10);
 
-  /* Kitchen & Order Status Lifecycle Tokens */
-  --status-pending: #B45309;
-  --status-pending-bg: rgba(180, 83, 9, 0.10);
-  --status-preparing: #C2410C;
-  --status-preparing-bg: rgba(200, 75, 6, 0.10);
-  --status-ready: #2563EB;
-  --status-ready-bg: rgba(37, 99, 235, 0.10);
-  --status-delivered: #15803D;
-  --status-delivered-bg: rgba(21, 128, 61, 0.10);
-  --status-cancelled: #E53E3E;
-  --status-cancelled-bg: rgba(197, 48, 48, 0.10);
+  /* Kitchen & Order Status Lifecycle Tokens (Distinct from Brand Primary, Red/Green Color Blind Safe) */
+  --status-pending: #0369A1;
+  --status-pending-bg: rgba(3, 105, 161, 0.10);
+  --status-preparing: #92400E;
+  --status-preparing-bg: rgba(146, 64, 14, 0.10);
+  --status-ready: #4338CA;
+  --status-ready-bg: rgba(67, 56, 202, 0.10);
+  --status-delivered: #166534;
+  --status-delivered-bg: rgba(22, 101, 52, 0.10);
+  --status-cancelled: #B91C1C;
+  --status-cancelled-bg: rgba(185, 28, 28, 0.10);
 
   /* Natural Ambient Light Shadows */
   --shadow-sm: 0 2px 8px rgba(28, 23, 19, 0.05);
   --shadow-md: 0 6px 18px rgba(28, 23, 19, 0.08);
   --shadow-lg: 0 16px 36px rgba(28, 23, 19, 0.10);
+  --overlay-backdrop: rgba(28, 23, 19, 0.50);
+  --overlay-card: rgba(28, 23, 19, 0.05);
+  --overlay-dark: rgba(28, 23, 19, 0.35);
+  --overlay-light: rgba(255, 255, 255, 0.70);
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -161,14 +171,15 @@ body[data-theme-preset="cream"]:not([data-theme="dark"]) {
   --header-bg: #FFFFFF;
   --text-main: #1C1713;
   --text-body: #453B32;
-  --text-muted: #736557;
-  --primary: #C2410C;
-  --primary-hover: #A83D03;
-  --primary-subtle: rgba(200, 75, 6, 0.08);
-  --primary-glow: rgba(200, 75, 6, 0.14);
+  --text-muted: #615549;
+  --primary: #BE3D0B;
+  --primary-hover: #9A3412;
+  --primary-text: #BE3D0B;
+  --primary-subtle: rgba(190, 61, 11, 0.08);
+  --primary-glow: rgba(190, 61, 11, 0.14);
   --border: #E8E0D5;
   --border-strong: #D4C8B8;
-  --border-focus: #C2410C;
+  --border-focus: #BE3D0B;
   --text-on-primary: #FFFFFF;
 }
 
@@ -186,14 +197,15 @@ body[data-theme-preset="charcoal"]:not([data-theme="light"]) {
   --header-bg: #12100E;
   --text-main: #FAF6F0;
   --text-body: #D6CDC2;
-  --text-muted: #9E9182;
-  --primary: #E8590C;
-  --primary-hover: #FF7D1A;
-  --primary-subtle: rgba(232, 89, 12, 0.14);
-  --primary-glow: rgba(232, 89, 12, 0.18);
+  --text-muted: #9E9284;
+  --primary: #C2410C;
+  --primary-hover: #A83D03;
+  --primary-text: #FB923C;
+  --primary-subtle: rgba(194, 65, 12, 0.14);
+  --primary-glow: rgba(194, 65, 12, 0.18);
   --border: rgba(255, 245, 235, 0.08);
   --border-strong: rgba(255, 245, 235, 0.16);
-  --border-focus: #E8590C;
+  --border-focus: #C2410C;
   --text-on-primary: #FFFFFF;
 }
 
@@ -213,12 +225,13 @@ body[data-theme-preset="midnight"]:not([data-theme="light"]) {
   --text-muted: #A1A1AA;
   --primary: #D97706;
   --primary-hover: #B45309;
+  --primary-text: #FBBF24;
   --primary-subtle: rgba(217, 119, 6, 0.14);
   --primary-glow: rgba(217, 119, 6, 0.18);
   --border: rgba(217, 119, 6, 0.18);
   --border-strong: rgba(217, 119, 6, 0.32);
   --border-focus: #D97706;
-  --text-on-primary: #FFFFFF;
+  --text-on-primary: #0E0E0F;
 }
 
 /* 2c. sunset: Warm Terracotta, Smoked Burger & Grills */
@@ -235,13 +248,14 @@ body[data-theme-preset="sunset"]:not([data-theme="light"]) {
   --text-main: #FFF8F2;
   --text-body: #E8D8CB;
   --text-muted: #BAA290;
-  --primary: #F97316;
-  --primary-hover: #EA580C;
-  --primary-subtle: rgba(249, 115, 22, 0.14);
-  --primary-glow: rgba(249, 115, 22, 0.18);
-  --border: rgba(249, 115, 22, 0.16);
-  --border-strong: rgba(249, 115, 22, 0.30);
-  --border-focus: #F97316;
+  --primary: #C2410C;
+  --primary-hover: #A83D03;
+  --primary-text: #FB923C;
+  --primary-subtle: rgba(194, 65, 12, 0.14);
+  --primary-glow: rgba(194, 65, 12, 0.18);
+  --border: rgba(194, 65, 12, 0.16);
+  --border-strong: rgba(194, 65, 12, 0.30);
+  --border-focus: #C2410C;
   --text-on-primary: #FFFFFF;
 }
 
@@ -259,14 +273,15 @@ body[data-theme-preset="olive"]:not([data-theme="light"]) {
   --text-main: #F2F8F4;
   --text-body: #CBDED2;
   --text-muted: #9AB6A3;
-  --primary: #15803D;
-  --primary-hover: #166534;
-  --primary-subtle: rgba(21, 128, 61, 0.14);
-  --primary-glow: rgba(21, 128, 61, 0.18);
-  --border: rgba(21, 128, 61, 0.18);
-  --border-strong: rgba(21, 128, 61, 0.32);
-  --border-focus: #15803D;
-  --text-on-primary: #FFFFFF;
+  --primary: #22C55E;
+  --primary-hover: #16A34A;
+  --primary-text: #4ADE80;
+  --primary-subtle: rgba(34, 197, 94, 0.14);
+  --primary-glow: rgba(34, 197, 94, 0.18);
+  --border: rgba(34, 197, 94, 0.18);
+  --border-strong: rgba(34, 197, 94, 0.32);
+  --border-focus: #22C55E;
+  --text-on-primary: #0F1410;
 }
 
 /* 2e. bistro (Replaced cold blue indigo): Warm Caramel Brass & Artisan Café */
@@ -287,12 +302,13 @@ body[data-theme-preset="indigo"] {
   --text-muted: #B09F8E;
   --primary: #D97706;
   --primary-hover: #B45309;
+  --primary-text: #FBBF24;
   --primary-subtle: rgba(217, 119, 6, 0.14);
   --primary-glow: rgba(217, 119, 6, 0.18);
   --border: rgba(217, 119, 6, 0.18);
   --border-strong: rgba(217, 119, 6, 0.32);
   --border-focus: #D97706;
-  --text-on-primary: #FFFFFF;
+  --text-on-primary: #120E0A;
 }
 
 /* 2f. bordeaux: Fine Dining, Wine Cellar & Rich Smoked BBQ */
@@ -309,8 +325,9 @@ body[data-theme-preset="bordeaux"]:not([data-theme="light"]) {
   --text-main: #FFF5F8;
   --text-body: #ECC8D2;
   --text-muted: #C49BA7;
-  --primary: #E11D48;
-  --primary-hover: #BE123C;
+  --primary: #BE123C;
+  --primary-hover: #9F1239;
+  --primary-text: #FB7185;
   --primary-subtle: rgba(190, 18, 60, 0.14);
   --primary-glow: rgba(190, 18, 60, 0.18);
   --border: rgba(190, 18, 60, 0.20);

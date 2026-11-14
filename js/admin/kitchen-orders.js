@@ -181,11 +181,11 @@ window.selectOrderStatus = async function(newStatus) {
 
   const isStoreMode = !!(window.NicheEngine && NicheEngine.isStoreMode());
   const statusBadgeMap = {
-    pending: { bg: 'rgba(245, 158, 11, 0.12)', color: '#f59e0b', borderColor: 'rgba(245, 158, 11, 0.3)', text: '1. استلام الطلب' },
-    preparing: { bg: 'rgba(59, 130, 246, 0.12)', color: '#3b82f6', borderColor: 'rgba(59, 130, 246, 0.3)', text: isStoreMode ? '2. قيد التغليف والتجهيز' : '2. قيد التجهيز' },
-    out_for_delivery: { bg: 'rgba(168, 85, 247, 0.12)', color: '#a855f7', borderColor: 'rgba(168, 85, 247, 0.3)', text: stage3Text },
-    delivered: { bg: 'rgba(34, 197, 94, 0.12)', color: '#22c55e', borderColor: 'rgba(34, 197, 94, 0.3)', text: '4. تم التسليم' },
-    cancelled: { bg: 'rgba(239, 68, 68, 0.12)', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)', text: 'تم الإلغاء' }
+    pending: { bg: 'var(--status-pending-bg)', color: 'var(--status-pending)', borderColor: 'var(--status-pending)', text: '1. استلام الطلب', icon: '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' },
+    preparing: { bg: 'var(--status-preparing-bg)', color: 'var(--status-preparing)', borderColor: 'var(--status-preparing)', text: isStoreMode ? '2. قيد التغليف والتجهيز' : '2. قيد التجهيز', icon: '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>' },
+    out_for_delivery: { bg: 'var(--status-ready-bg)', color: 'var(--status-ready)', borderColor: 'var(--status-ready)', text: stage3Text, icon: '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>' },
+    delivered: { bg: 'var(--status-delivered-bg)', color: 'var(--status-delivered)', borderColor: 'var(--status-delivered)', text: '4. تم التسليم', icon: '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>' },
+    cancelled: { bg: 'var(--status-cancelled-bg)', color: 'var(--status-cancelled)', borderColor: 'var(--status-cancelled)', text: 'تم الإلغاء', icon: '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>' }
   };
   const badgeInfo = statusBadgeMap[newStatus] || statusBadgeMap.pending;
 
@@ -196,7 +196,7 @@ window.selectOrderStatus = async function(newStatus) {
       triggerBtn.style.background = badgeInfo.bg;
       triggerBtn.style.color = badgeInfo.color;
       triggerBtn.style.borderColor = badgeInfo.borderColor;
-      triggerBtn.innerHTML = `<span>${badgeInfo.text}</span><span style="font-size:10px; margin-right:2px; opacity:0.8;">▾</span>`;
+      triggerBtn.innerHTML = `<span style="display:inline-flex; align-items:center; gap:4px;">${badgeInfo.icon}<span>${badgeInfo.text}</span></span><span style="font-size:10px; margin-right:2px; opacity:0.8;">▾</span>`;
       triggerBtn.setAttribute('onclick', `openStatusSheet('${orderId}', '${newStatus}')`);
     }
   }
@@ -1474,8 +1474,8 @@ window.renderOrdersList = function(orders = null) {
     adminElements.adminOrdersContainer.innerHTML = `
       <div style="text-align:center; padding:45px 20px; color:var(--text-muted); background:var(--surface); border:1px dashed var(--border); border-radius:var(--radius-md);">
         <div style="margin-bottom:16px; display:flex; justify-content:center;">
-          <div style="width:76px; height:76px; border-radius:50%; background:linear-gradient(135deg, rgba(234, 88, 12, 0.12), rgba(245, 158, 11, 0.06)); border:1.5px solid rgba(234, 88, 12, 0.25); display:flex; align-items:center; justify-content:center; box-shadow:0 8px 24px -6px rgba(234, 88, 12, 0.18);">
-            <svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="#ea580c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <div style="width:76px; height:76px; border-radius:50%; background:var(--primary-subtle); border:1.5px solid var(--border); display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-sm);">
+            <svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="var(--primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/>
               <line x1="6" y1="17" x2="18" y2="17"/>
             </svg>
@@ -1503,37 +1503,37 @@ window.renderOrdersList = function(orders = null) {
 
     const isStoreMode = !!(window.NicheEngine && NicheEngine.isStoreMode());
     const statusBadge = {
-      pending: { bg: 'rgba(245, 158, 11, 0.12)', color: '#f59e0b', borderColor: 'rgba(245, 158, 11, 0.3)', text: '1. استلام الطلب' },
-      preparing: { bg: 'rgba(59, 130, 246, 0.12)', color: '#3b82f6', borderColor: 'rgba(59, 130, 246, 0.3)', text: isStoreMode ? '2. قيد التغليف والتجهيز' : '2. قيد التجهيز' },
-      out_for_delivery: { bg: 'rgba(168, 85, 247, 0.12)', color: '#a855f7', borderColor: 'rgba(168, 85, 247, 0.3)', text: stage3Text },
-      delivered: { bg: 'rgba(34, 197, 94, 0.12)', color: '#22c55e', borderColor: 'rgba(34, 197, 94, 0.3)', text: '4. تم التسليم' },
-      cancelled: { bg: 'rgba(239, 68, 68, 0.12)', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)', text: 'تم الإلغاء' }
-    }[status] || { bg: 'rgba(245, 158, 11, 0.12)', color: '#f59e0b', borderColor: 'rgba(245, 158, 11, 0.3)', text: '1. استلام الطلب' };
+      pending: { bg: 'var(--status-pending-bg)', color: 'var(--status-pending)', borderColor: 'var(--status-pending)', text: '1. استلام الطلب', icon: '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' },
+      preparing: { bg: 'var(--status-preparing-bg)', color: 'var(--status-preparing)', borderColor: 'var(--status-preparing)', text: isStoreMode ? '2. قيد التغليف والتجهيز' : '2. قيد التجهيز', icon: '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>' },
+      out_for_delivery: { bg: 'var(--status-ready-bg)', color: 'var(--status-ready)', borderColor: 'var(--status-ready)', text: stage3Text, icon: '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>' },
+      delivered: { bg: 'var(--status-delivered-bg)', color: 'var(--status-delivered)', borderColor: 'var(--status-delivered)', text: '4. تم التسليم', icon: '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>' },
+      cancelled: { bg: 'var(--status-cancelled-bg)', color: 'var(--status-cancelled)', borderColor: 'var(--status-cancelled)', text: 'تم الإلغاء', icon: '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>' }
+    }[status] || { bg: 'var(--status-pending-bg)', color: 'var(--status-pending)', borderColor: 'var(--status-pending)', text: '1. استلام الطلب', icon: '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' };
 
     // 1-Click Fast Workflow Progression Action Button
     let nextActionBtnHtml = '';
     if (status === 'pending') {
       nextActionBtnHtml = `
-        <button type="button" class="btn btn-primary btn-sm" onclick="advanceOrderStatus('${safeOrderId}', 'preparing')" style="font-weight:800; padding:6px 14px; font-size:12px; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 10px rgba(234, 88, 12, 0.3);">
+        <button type="button" class="btn btn-primary btn-sm" onclick="advanceOrderStatus('${safeOrderId}', 'preparing')" style="font-weight:800; padding:6px 14px; font-size:12px; display:inline-flex; align-items:center; gap:6px; box-shadow:var(--shadow-sm);">
           <span>${(fInfo.isTakeaway || isStoreMode) ? 'بدء التجهيز والتغليف' : 'بدء التجهيز بالمطبخ'}</span>
         </button>
       `;
     } else if (status === 'preparing') {
       if (fInfo.isDineIn) {
         nextActionBtnHtml = `
-          <button type="button" class="btn btn-sm" onclick="advanceOrderStatus('${safeOrderId}', 'out_for_delivery')" style="background:#a855f7; color:#fff; font-weight:800; padding:6px 14px; font-size:12px; border:none; border-radius:var(--radius-xs); display:inline-flex; align-items:center; gap:6px; cursor:pointer; box-shadow:0 2px 12px rgba(168, 85, 247, 0.35);">
+          <button type="button" class="btn btn-sm" onclick="advanceOrderStatus('${safeOrderId}', 'out_for_delivery')" style="background:var(--status-ready); color:var(--text-on-primary); font-weight:800; padding:6px 14px; font-size:12px; border:none; border-radius:var(--radius-xs); display:inline-flex; align-items:center; gap:6px; cursor:pointer; box-shadow:var(--shadow-sm);">
             <span>جاهز للتقديم لطاولة ${fInfo.tableNumber}</span>
           </button>
         `;
       } else if (fInfo.isTakeaway) {
         nextActionBtnHtml = `
-          <button type="button" class="btn btn-sm" onclick="advanceOrderStatus('${safeOrderId}', 'out_for_delivery')" style="background:#a855f7; color:#fff; font-weight:800; padding:6px 14px; font-size:12px; border:none; border-radius:var(--radius-xs); display:inline-flex; align-items:center; gap:6px; cursor:pointer; box-shadow:0 2px 12px rgba(168, 85, 247, 0.35);">
+          <button type="button" class="btn btn-sm" onclick="advanceOrderStatus('${safeOrderId}', 'out_for_delivery')" style="background:var(--status-ready); color:var(--text-on-primary); font-weight:800; padding:6px 14px; font-size:12px; border:none; border-radius:var(--radius-xs); display:inline-flex; align-items:center; gap:6px; cursor:pointer; box-shadow:var(--shadow-sm);">
             <span>جاهز للاستلام بالفرع (على الكاونتر)</span>
           </button>
         `;
       } else {
         nextActionBtnHtml = `
-          <button type="button" class="btn btn-sm" onclick="advanceOrderStatus('${safeOrderId}', 'out_for_delivery')" style="background:#a855f7; color:#fff; font-weight:800; padding:6px 14px; font-size:12px; border:none; border-radius:var(--radius-xs); display:inline-flex; align-items:center; gap:6px; cursor:pointer; box-shadow:0 2px 10px rgba(168, 85, 247, 0.3);">
+          <button type="button" class="btn btn-sm" onclick="advanceOrderStatus('${safeOrderId}', 'out_for_delivery')" style="background:var(--status-ready); color:var(--text-on-primary); font-weight:800; padding:6px 14px; font-size:12px; border:none; border-radius:var(--radius-xs); display:inline-flex; align-items:center; gap:6px; cursor:pointer; box-shadow:var(--shadow-sm);">
             <span>إرسال للتوصيل (مع الكابتن)</span>
           </button>
         `;
@@ -1544,7 +1544,7 @@ window.renderOrdersList = function(orders = null) {
       else if (fInfo.isTakeaway) label = 'تم تسليم الطلب بالفرع (نقل للأرشيف)';
 
       nextActionBtnHtml = `
-        <button type="button" class="btn btn-sm" onclick="advanceOrderStatus('${safeOrderId}', 'delivered')" style="background:#16a34a; color:#fff; font-weight:800; padding:6px 14px; font-size:12px; border:none; border-radius:var(--radius-xs); display:inline-flex; align-items:center; gap:6px; cursor:pointer; box-shadow:0 2px 12px rgba(22, 163, 74, 0.35);">
+        <button type="button" class="btn btn-sm" onclick="advanceOrderStatus('${safeOrderId}', 'delivered')" style="background:var(--status-delivered); color:var(--text-on-primary); font-weight:800; padding:6px 14px; font-size:12px; border:none; border-radius:var(--radius-xs); display:inline-flex; align-items:center; gap:6px; cursor:pointer; box-shadow:var(--shadow-sm);">
           <span>${label}</span>
         </button>
       `;
@@ -1564,7 +1564,7 @@ window.renderOrdersList = function(orders = null) {
             </div>
           ` : ''}
           ${it.notes ? `
-            <div style="font-size:11px; color:#f59e0b; margin-top:3px; background:rgba(245, 158, 11, 0.08); padding:2px 6px; border-radius:4px;">
+            <div style="font-size:11px; color:var(--warning); margin-top:3px; background:var(--warning-subtle); padding:2px 6px; border-radius:4px;">
               ملاحظة: ${esc(it.notes)}
             </div>
           ` : ''}
@@ -1604,7 +1604,8 @@ window.renderOrdersList = function(orders = null) {
             </button>
 
             <!-- Custom Status Sheet Trigger -->
-            <button type="button" class="order-status-trigger-btn font-num" style="background:${statusBadge.bg}; color:${statusBadge.color}; border:1px solid ${statusBadge.borderColor};" onclick="openStatusSheet('${safeOrderId}', '${status}')">
+            <button type="button" class="order-status-trigger-btn font-num" style="background:${statusBadge.bg}; color:${statusBadge.color}; border:1px solid ${statusBadge.borderColor}; display:inline-flex; align-items:center; gap:4px;" onclick="openStatusSheet('${safeOrderId}', '${status}')">
+              ${statusBadge.icon}
               <span>${statusBadge.text}</span>
               <span style="font-size:10px; margin-right:2px; opacity:0.8;">▾</span>
             </button>
@@ -1662,7 +1663,7 @@ window.renderOrdersList = function(orders = null) {
               ` : ''}
 
               ${o.customer?.notes ? `
-                <div style="font-size:11.5px; color:#f59e0b; background:rgba(245, 158, 11, 0.08); border:1px dashed rgba(245, 158, 11, 0.3); padding:6px 10px; border-radius:6px; margin-top:4px; word-break:break-word;">
+                <div style="font-size:11.5px; color:var(--warning); background:var(--warning-subtle); border:1px dashed var(--border); padding:6px 10px; border-radius:6px; margin-top:4px; word-break:break-word;">
                   <span style="font-weight:800;">ملاحظات: </span>
                   ${esc(o.customer.notes)}
                 </div>
@@ -1672,7 +1673,7 @@ window.renderOrdersList = function(orders = null) {
             <!-- Payment Info Badge -->
             <div style="margin-top:10px; padding-top:8px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
               <span style="font-size:11.5px; font-weight:800; color:var(--text-muted);">طريقة الدفع:</span>
-              <span style="font-size:11.5px; font-weight:800; padding:3px 8px; border-radius:6px; ${isWalletPayment ? 'background:rgba(59, 130, 246, 0.12); color:#3b82f6;' : 'background:rgba(34, 197, 94, 0.12); color:#22c55e;'}">
+              <span style="font-size:11.5px; font-weight:800; padding:3px 8px; border-radius:6px; ${isWalletPayment ? 'background:var(--info-subtle); color:var(--info);' : 'background:var(--success-subtle); color:var(--success);'}">
                 ${isWalletPayment ? 'فودافون كاش / إنستاباي' : 'نقداً عند الاستلام (COD)'}
               </span>
             </div>
@@ -1766,7 +1767,7 @@ window.renderInvoicesArchive = function(orders = null) {
   if (statCogsEl) statCogsEl.innerHTML = formatArchiveVal(deliveredCogs);
   if (statProfitEl) {
     statProfitEl.innerHTML = formatArchiveVal(netProfit, true);
-    statProfitEl.style.color = netProfit >= 0 ? '#16a34a' : 'var(--danger, #ef4444)';
+    statProfitEl.style.color = netProfit >= 0 ? 'var(--success)' : 'var(--danger)';
   }
 
     // Update shifts badge in header
@@ -1872,7 +1873,7 @@ window.renderInvoicesArchive = function(orders = null) {
     const isWalletPayment = o.paymentMethod === 'wallet';
 
     return `
-      <div class="order-card-pro" data-order-id="${safeOrderId}" style="opacity:${isDelivered ? '1' : '0.85'}; border-color:${isDelivered ? 'rgba(34, 197, 94, 0.25)' : 'rgba(239, 68, 68, 0.25)'};">
+      <div class="order-card-pro" data-order-id="${safeOrderId}" style="opacity:${isDelivered ? '1' : '0.85'}; border-color:${isDelivered ? 'var(--success-subtle)' : 'var(--danger-subtle)'};">
         
         <!-- Header: Order ID, Time, Archive Badge, Reprint & Reopen Actions -->
         <div class="order-card-header-row">
@@ -1883,7 +1884,7 @@ window.renderInvoicesArchive = function(orders = null) {
               <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               ${timeStr}
             </span>
-            <span style="font-size:11px; font-weight:800; padding:2px 8px; border-radius:6px; ${isDelivered ? 'background:rgba(34, 197, 94, 0.12); color:#22c55e; border:1px solid rgba(34, 197, 94, 0.3);' : 'background:rgba(239, 68, 68, 0.12); color:#ef4444; border:1px solid rgba(239, 68, 68, 0.3);'}">
+            <span style="font-size:11px; font-weight:800; padding:2px 8px; border-radius:6px; ${isDelivered ? 'background:var(--success-subtle); color:var(--success); border:1px solid var(--success-subtle);' : 'background:var(--danger-subtle); color:var(--danger); border:1px solid var(--danger-subtle);'}">
               ${isDelivered ? 'تم التسليم بنجاح' : 'ملغي'}
             </span>
           </div>
@@ -1977,7 +1978,7 @@ window.renderInvoicesArchive = function(orders = null) {
 
             <div style="margin-top:8px; padding-top:6px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
               <span style="font-size:12px; font-weight:800; color:var(--text-muted);">إجمالي الفاتورة:</span>
-              <span class="font-num" style="font-size:16px; font-weight:900; color:${isDelivered ? '#16a34a' : 'var(--danger)'};">
+              <span class="font-num" style="font-size:16px; font-weight:900; color:${isDelivered ? 'var(--success)' : 'var(--danger)'};">
                 ${(parseFloat(o.finalTotal) || 0).toFixed(2)} ${currency}
               </span>
             </div>
@@ -2130,7 +2131,7 @@ function openShiftCloseModal() {
   if (cogsEl) cogsEl.textContent = `${totalCogs.toFixed(0)} ${currency}`;
   if (profitEl) {
     profitEl.textContent = `${netProfit >= 0 ? '+' : ''}${netProfit.toFixed(0)} ${currency}`;
-    profitEl.style.color = netProfit >= 0 ? '#16a34a' : 'var(--danger, #ef4444)';
+    profitEl.style.color = netProfit >= 0 ? 'var(--success)' : 'var(--danger)';
   }
   if (marginEl) marginEl.textContent = `${marginPct}%`;
   if (countEl) countEl.textContent = `${deliveredOrders.length} طلب`;
@@ -2181,16 +2182,16 @@ function checkShiftCashDiscrepancy(val) {
 
   diffBadge.style.display = 'block';
   if (diff === 0) {
-    diffBadge.style.background = 'rgba(34,197,94,0.15)';
-    diffBadge.style.color = '#16a34a';
+    diffBadge.style.background = 'var(--success-subtle)';
+    diffBadge.style.color = 'var(--success)';
     diffBadge.textContent = 'الكاش في الدرج مطابق للسيستم تماماً';
   } else if (diff < 0) {
-    diffBadge.style.background = 'rgba(239,68,68,0.15)';
-    diffBadge.style.color = '#ef4444';
+    diffBadge.style.background = 'var(--danger-subtle)';
+    diffBadge.style.color = 'var(--danger)';
     diffBadge.textContent = `عجز في كاش الدرج: ${diff.toFixed(0)} ${currency} (المتوقع ${currentShiftExpectedCash.toFixed(0)} ${currency})`;
   } else {
-    diffBadge.style.background = 'rgba(59,130,246,0.15)';
-    diffBadge.style.color = '#3b82f6';
+    diffBadge.style.background = 'var(--info-subtle)';
+    diffBadge.style.color = 'var(--info)';
     diffBadge.textContent = `زيادة في كاش الدرج: +${diff.toFixed(0)} ${currency} (المتوقع ${currentShiftExpectedCash.toFixed(0)} ${currency})`;
   }
 }
@@ -2295,7 +2296,7 @@ function renderShiftsHistoryList() {
           </div>
           <div style="font-size:11px; margin-top:4px;">
             المبيعات: <strong class="font-num">${rev.toFixed(0)} ${currency}</strong> |
-            صافي الربح: <strong class="font-num" style="color:#16a34a;">+${profit.toFixed(0)} ${currency}</strong>
+            صافي الربح: <strong class="font-num" style="color:var(--success);">+${profit.toFixed(0)} ${currency}</strong>
           </div>
         </div>
         <button type="button" class="btn btn-ghost btn-sm" onclick="printHistoricalShiftReport('${s.id}')" style="border:1px solid var(--border); font-size:11px; font-weight:800; padding:4px 10px; display:inline-flex; align-items:center; gap:5px;" title="طباعة إيصال هذه الوردية">
@@ -2362,19 +2363,19 @@ window.openShiftInvoiceModal = function(shiftOrId) {
     const diff = actCash - expCash;
     if (diff === 0) {
       discrepancyBadge = `
-        <div style="font-size:12px; font-weight:800; color:#16a34a; background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.3); border-radius:6px; padding:6px 10px; text-align:center; margin:6px 0;">
+        <div style="font-size:12px; font-weight:800; color:var(--success); background:var(--success-subtle); border:1px solid var(--border); border-radius:6px; padding:6px 10px; text-align:center; margin:6px 0;">
           حالة الدرج: مطابق 100% (0 عجز / زيادة)
         </div>
       `;
     } else if (diff < 0) {
       discrepancyBadge = `
-        <div style="font-size:12px; font-weight:800; color:#ef4444; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); border-radius:6px; padding:6px 10px; text-align:center; margin:6px 0;">
+        <div style="font-size:12px; font-weight:800; color:var(--danger); background:var(--danger-subtle); border:1px solid var(--border); border-radius:6px; padding:6px 10px; text-align:center; margin:6px 0;">
           عجز في درج الكاش: ${diff.toFixed(0)} ${currency}
         </div>
       `;
     } else {
       discrepancyBadge = `
-        <div style="font-size:12px; font-weight:800; color:#3b82f6; background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.3); border-radius:6px; padding:6px 10px; text-align:center; margin:6px 0;">
+        <div style="font-size:12px; font-weight:800; color:var(--info); background:var(--info-subtle); border:1px solid var(--border); border-radius:6px; padding:6px 10px; text-align:center; margin:6px 0;">
           زيادة في درج الكاش: +${diff.toFixed(0)} ${currency}
         </div>
       `;
@@ -2780,7 +2781,7 @@ window.switchArchiveSubtab = function(subtab) {
     if (btnShifts) {
       btnShifts.classList.add('active');
       btnShifts.style.background = 'var(--primary)';
-      btnShifts.style.color = '#fff';
+      btnShifts.style.color = 'var(--text-on-primary)';
       btnShifts.style.border = 'none';
     }
     renderClosedShiftsArchive();
@@ -2790,7 +2791,7 @@ window.switchArchiveSubtab = function(subtab) {
     if (btnInvoices) {
       btnInvoices.classList.add('active');
       btnInvoices.style.background = 'var(--primary)';
-      btnInvoices.style.color = '#fff';
+      btnInvoices.style.color = 'var(--text-on-primary)';
       btnInvoices.style.border = 'none';
     }
     if (btnShifts) {
@@ -2911,11 +2912,11 @@ window.renderClosedShiftsArchive = function() {
           </div>
           <div>
             <div style="font-size:10.5px; color:var(--text-muted); font-weight:700;">تكلفة الخامات</div>
-            <div class="font-num" style="font-size:15px; font-weight:900; color:#ef4444; margin-top:2px;">${cogs.toFixed(0)} ${currency}</div>
+            <div class="font-num" style="font-size:15px; font-weight:900; color:var(--danger); margin-top:2px;">${cogs.toFixed(0)} ${currency}</div>
           </div>
           <div>
             <div style="font-size:10.5px; color:var(--text-muted); font-weight:700;">صافي الربح</div>
-            <div class="font-num" style="font-size:15px; font-weight:900; color:#16a34a; margin-top:2px;">+${profit.toFixed(0)} ${currency} (${margin}%)</div>
+            <div class="font-num" style="font-size:15px; font-weight:900; color:var(--success); margin-top:2px;">+${profit.toFixed(0)} ${currency} (${margin}%)</div>
           </div>
           <div>
             <div style="font-size:10.5px; color:var(--text-muted); font-weight:700;">الطلبات والدرج</div>

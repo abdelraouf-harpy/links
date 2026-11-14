@@ -182,17 +182,17 @@ function renderInventory() {
     const isLow = !isOut && stock <= minAlert;
     
     // Status visual
-    let statusBadge = `<span style="background:rgba(34,197,94,0.15); color:#16a34a; font-size:11px; font-weight:800; padding:2px 8px; border-radius:6px; display:inline-flex; align-items:center; gap:4px;"><span style="width:6px; height:6px; border-radius:50%; background:#22c55e;"></span>متوفر</span>`;
+    let statusBadge = `<span style="background:var(--success-subtle); color:var(--success); font-size:11px; font-weight:800; padding:2px 8px; border-radius:6px; display:inline-flex; align-items:center; gap:4px;"><span style="width:6px; height:6px; border-radius:50%; background:var(--success);"></span>متوفر</span>`;
     if (isOut) {
-      statusBadge = `<span style="background:rgba(239,68,68,0.15); color:#ef4444; font-size:11px; font-weight:800; padding:2px 8px; border-radius:6px; display:inline-flex; align-items:center; gap:4px;"><span style="width:6px; height:6px; border-radius:50%; background:#ef4444;"></span>نفد من المخزون</span>`;
+      statusBadge = `<span style="background:var(--danger-subtle); color:var(--danger); font-size:11px; font-weight:800; padding:2px 8px; border-radius:6px; display:inline-flex; align-items:center; gap:4px;"><span style="width:6px; height:6px; border-radius:50%; background:var(--danger);"></span>نفد من المخزون</span>`;
     } else if (isLow) {
-      statusBadge = `<span style="background:rgba(245,158,11,0.15); color:#d97706; font-size:11px; font-weight:800; padding:2px 8px; border-radius:6px; display:inline-flex; align-items:center; gap:4px;"><span style="width:6px; height:6px; border-radius:50%; background:#f59e0b;"></span>قارب على النفاد</span>`;
+      statusBadge = `<span style="background:var(--warning-subtle); color:var(--warning); font-size:11px; font-weight:800; padding:2px 8px; border-radius:6px; display:inline-flex; align-items:center; gap:4px;"><span style="width:6px; height:6px; border-radius:50%; background:var(--warning);"></span>قارب على النفاد</span>`;
     }
 
     // Gauge calculation: realistic stock gauge
     const maxCap = Math.max(parseFloat(m.maxStock) || 0, (minAlert * 3), stock, 1);
     const pct = isOut ? 0 : Math.min(100, Math.max(4, (stock / maxCap) * 100));
-    const barColor = isOut ? '#ef4444' : (isLow ? '#f59e0b' : '#22c55e');
+    const barColor = isOut ? 'var(--danger)' : (isLow ? 'var(--warning)' : 'var(--success)');
 
     return `
       <div class="inv-material-card" data-id="${m.id}" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-sm); padding:16px; display:flex; flex-direction:column; justify-content:space-between; position:relative;">
@@ -232,7 +232,7 @@ function renderInventory() {
             <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
             <span>تعديل</span>
           </button>
-          <button type="button" class="btn btn-sm btn-ghost" onclick="deleteRawMaterialFast('${m.id}')" title="حذف المادة الخام" aria-label="حذف المادة الخام" style="width:32px; height:32px; min-width:32px; padding:0; display:inline-flex; align-items:center; justify-content:center; color:var(--danger); border:1px solid rgba(239,68,68,0.3); border-radius:var(--radius-xs);">
+          <button type="button" class="btn btn-sm btn-ghost" onclick="deleteRawMaterialFast('${m.id}')" title="حذف المادة الخام" aria-label="حذف المادة الخام" style="width:32px; height:32px; min-width:32px; padding:0; display:inline-flex; align-items:center; justify-content:center; color:var(--danger); border:1px solid var(--danger-subtle); border-radius:var(--radius-xs);">
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
           </button>
         </div>
@@ -532,20 +532,20 @@ function handleStockAuditRowChange(matId) {
   const moneyDiff = Math.round(diff * unitCost * 10) / 10;
 
   if (diff === 0) {
-    diffBadge.style.background = 'rgba(34,197,94,0.15)';
-    diffBadge.style.borderColor = 'rgba(34,197,94,0.3)';
-    diffBadge.style.color = '#16a34a';
+    diffBadge.style.background = 'var(--success-subtle)';
+    diffBadge.style.borderColor = 'var(--success)';
+    diffBadge.style.color = 'var(--success)';
     diffBadge.textContent = 'مطابق تماماً';
   } else if (diff < 0) {
-    diffBadge.style.background = 'rgba(239,68,68,0.15)';
-    diffBadge.style.borderColor = 'rgba(239,68,68,0.3)';
-    diffBadge.style.color = '#ef4444';
+    diffBadge.style.background = 'var(--danger-subtle)';
+    diffBadge.style.borderColor = 'var(--danger)';
+    diffBadge.style.color = 'var(--danger)';
     const moneyStr = unitCost > 0 ? ` (${moneyDiff} ${currency})` : '';
     diffBadge.textContent = `عجز: ${diff} ${unitLabel}${moneyStr}`;
   } else {
-    diffBadge.style.background = 'rgba(59,130,246,0.15)';
-    diffBadge.style.borderColor = 'rgba(59,130,246,0.3)';
-    diffBadge.style.color = '#3b82f6';
+    diffBadge.style.background = 'var(--info-subtle)';
+    diffBadge.style.borderColor = 'var(--info)';
+    diffBadge.style.color = 'var(--info)';
     const moneyStr = unitCost > 0 ? ` (+${moneyDiff} ${currency})` : '';
     diffBadge.textContent = `زيادة: +${diff} ${unitLabel}${moneyStr}`;
   }
@@ -588,13 +588,13 @@ function updateStockAuditSummary() {
 
   if (netMoneyDiff === 0 && deficitCount === 0 && surplusCount === 0) {
     summaryEl.textContent = `تم جرد ${filledCount} مادة: جميع الكميات مطابقة 100%`;
-    summaryEl.style.color = '#16a34a';
+    summaryEl.style.color = 'var(--success)';
   } else if (netMoneyDiff < 0) {
     summaryEl.textContent = `تم جرد ${filledCount} مادة: إجمالي عجز المخزون ${netMoneyDiff.toFixed(1)} ${currency} (${deficitCount} أصناف عجز)`;
-    summaryEl.style.color = '#ef4444';
+    summaryEl.style.color = 'var(--danger)';
   } else {
     summaryEl.textContent = `تم جرد ${filledCount} مادة: إجمالي زيادة المخزون +${netMoneyDiff.toFixed(1)} ${currency}`;
-    summaryEl.style.color = '#3b82f6';
+    summaryEl.style.color = 'var(--info)';
   }
 }
 

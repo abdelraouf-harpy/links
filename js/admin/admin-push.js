@@ -106,7 +106,7 @@
     }
 
     if (dotKitchen) {
-      dotKitchen.style.background = isGranted ? '#10b981' : (isDenied ? '#ef4444' : 'rgba(255,255,255,0.25)');
+      dotKitchen.style.background = isGranted ? 'var(--success)' : (isDenied ? 'var(--danger)' : 'var(--border)');
     }
 
     // Settings Tab Elements
@@ -118,19 +118,19 @@
     if (badgeSettings) {
       if (isGranted) {
         badgeSettings.textContent = 'مفعلة على هذا الهاتف';
-        badgeSettings.style.background = 'rgba(34, 197, 94, 0.15)';
-        badgeSettings.style.color = '#22c55e';
-        badgeSettings.style.border = '1px solid rgba(34, 197, 94, 0.35)';
+        badgeSettings.style.background = 'var(--success-subtle)';
+        badgeSettings.style.color = 'var(--success)';
+        badgeSettings.style.border = '1px solid var(--border)';
       } else if (isDenied) {
         badgeSettings.textContent = 'محظورة في إعدادات المتصفح';
-        badgeSettings.style.background = 'rgba(239, 68, 68, 0.15)';
-        badgeSettings.style.color = '#ef4444';
-        badgeSettings.style.border = '1px solid rgba(239, 68, 68, 0.35)';
+        badgeSettings.style.background = 'var(--danger-subtle)';
+        badgeSettings.style.color = 'var(--danger)';
+        badgeSettings.style.border = '1px solid var(--border)';
       } else {
         badgeSettings.textContent = 'غير مفعلة بعد';
-        badgeSettings.style.background = 'rgba(245, 158, 11, 0.15)';
-        badgeSettings.style.color = '#f59e0b';
-        badgeSettings.style.border = '1px solid rgba(245, 158, 11, 0.35)';
+        badgeSettings.style.background = 'var(--warning-subtle)';
+        badgeSettings.style.color = 'var(--warning)';
+        badgeSettings.style.border = '1px solid var(--warning-subtle)';
       }
     }
 
@@ -149,12 +149,12 @@
     if (btnSettings) {
       if (isGranted) {
         btnSettings.innerHTML = `
-          <svg class="icon icon-sm" viewBox="0 0 24 24" style="color:#22c55e;"><polyline points="20 6 9 17 4 12"/></svg>
+          <svg class="icon icon-sm" viewBox="0 0 24 24" style="color:var(--success);"><polyline points="20 6 9 17 4 12"/></svg>
           <span>الإشعارات مفعلة بنجاح</span>
         `;
         btnSettings.className = 'btn btn-ghost btn-sm';
-        btnSettings.style.color = '#22c55e';
-        btnSettings.style.borderColor = 'rgba(34,197,94,0.4)';
+        btnSettings.style.color = 'var(--success)';
+        btnSettings.style.borderColor = 'var(--success-subtle)';
       } else {
         btnSettings.innerHTML = `
           <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>

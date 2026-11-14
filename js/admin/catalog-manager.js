@@ -133,9 +133,9 @@ function renderCatalogCategoryRail() {
   const prods = Store.getProducts();
 
   let html = `
-    <button type="button" class="btn btn-sm btn-cat-chip ${currentCatalogCategoryFilter === 'all' ? 'active' : ''}" onclick="setCatalogCategoryFilter('all')" style="border-radius:999px; padding:6px 14px; font-weight:800; font-size:12px; white-space:nowrap; border:1px solid var(--border); background:${currentCatalogCategoryFilter === 'all' ? 'var(--primary)' : 'var(--surface)'}; color:${currentCatalogCategoryFilter === 'all' ? '#fff' : 'var(--text-main)'}; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+    <button type="button" class="btn btn-sm btn-cat-chip ${currentCatalogCategoryFilter === 'all' ? 'active' : ''}" onclick="setCatalogCategoryFilter('all')" style="border-radius:999px; padding:6px 14px; font-weight:800; font-size:12px; white-space:nowrap; border:1px solid var(--border); background:${currentCatalogCategoryFilter === 'all' ? 'var(--primary)' : 'var(--surface)'}; color:${currentCatalogCategoryFilter === 'all' ? 'var(--text-on-primary)' : 'var(--text-main)'}; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
       <span>كل الأصناف</span>
-      <span style="font-size:10px; background:${currentCatalogCategoryFilter === 'all' ? 'rgba(255,255,255,0.25)' : 'var(--surface-raised)'}; padding:1px 6px; border-radius:10px;">${prods.length}</span>
+      <span style="font-size:10px; background:${currentCatalogCategoryFilter === 'all' ? 'var(--primary-subtle)' : 'var(--surface-raised)'}; padding:1px 6px; border-radius:10px;">${prods.length}</span>
     </button>
   `;
 
@@ -143,9 +143,9 @@ function renderCatalogCategoryRail() {
     const count = prods.filter(p => p && p.category === c).length;
     const isActive = currentCatalogCategoryFilter === c;
     html += `
-      <button type="button" class="btn btn-sm btn-cat-chip ${isActive ? 'active' : ''}" onclick="setCatalogCategoryFilter(decodeURIComponent('${encodeURIComponent(c)}'))" style="border-radius:999px; padding:6px 14px; font-weight:800; font-size:12px; white-space:nowrap; border:1px solid var(--border); background:${isActive ? 'var(--primary)' : 'var(--surface)'}; color:${isActive ? '#fff' : 'var(--text-main)'}; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+      <button type="button" class="btn btn-sm btn-cat-chip ${isActive ? 'active' : ''}" onclick="setCatalogCategoryFilter(decodeURIComponent('${encodeURIComponent(c)}'))" style="border-radius:999px; padding:6px 14px; font-weight:800; font-size:12px; white-space:nowrap; border:1px solid var(--border); background:${isActive ? 'var(--primary)' : 'var(--surface)'}; color:${isActive ? 'var(--text-on-primary)' : 'var(--text-main)'}; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
         <span>${Store.escapeHtml(c)}</span>
-        <span style="font-size:10px; background:${isActive ? 'rgba(255,255,255,0.25)' : 'var(--surface-raised)'}; padding:1px 6px; border-radius:10px;">${count}</span>
+        <span style="font-size:10px; background:${isActive ? 'var(--primary-subtle)' : 'var(--surface-raised)'}; padding:1px 6px; border-radius:10px;">${count}</span>
       </button>
     `;
   });
@@ -248,18 +248,18 @@ function renderCatalogItemsOnly() {
       <div class="admin-product-card ${p.visible === false ? 'hidden-item' : ''}" data-id="${p.id}" data-prod-idx="${idx}" ${isSpecificCat ? 'draggable="true"' : ''} style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden; display:flex; flex-direction:column; position:relative;">
         <div style="position:relative; width:100%; height:140px; background:var(--bg);">
           <img src="${p.image}" alt="${p.name}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover;">
-          ${isSpecificCat ? `<span style="position:absolute; top:8px; right:8px; background:var(--primary); color:#fff; font-size:10.5px; font-weight:800; padding:2px 7px; border-radius:10px; z-index:2; box-shadow:0 2px 4px rgba(0,0,0,0.3);" class="font-num" title="ترتيب الصنف في هذا القسم">#${idx + 1}</span>` : ''}
-          ${p.badge ? `<span style="position:absolute; top:8px; ${isSpecificCat ? 'right:44px;' : 'right:8px;'} background:rgba(0,0,0,0.75); color:#fff; font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px; z-index:2;">${p.badge}</span>` : ''}
-          ${p.isFeatured ? `<span style="position:absolute; top:8px; left:8px; background:var(--primary); color:#fff; font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px; z-index:2;">هيرو</span>` : ''}
-          ${isTimedActive ? `<span style="position:absolute; bottom:8px; left:8px; background:rgba(249,115,22,0.95); color:#fff; font-size:9.5px; font-weight:800; padding:2px 6px; border-radius:4px; z-index:2;" data-offer-ends="${p.offerEndsAt}">عرض مؤقت <span class="offer-timer-digits font-num">...</span></span>` : ''}
+          ${isSpecificCat ? `<span style="position:absolute; top:8px; right:8px; background:var(--primary); color:var(--text-on-primary); font-size:10.5px; font-weight:800; padding:2px 7px; border-radius:10px; z-index:2; box-shadow:var(--shadow-sm);" class="font-num" title="ترتيب الصنف في هذا القسم">#${idx + 1}</span>` : ''}
+          ${p.badge ? `<span style="position:absolute; top:8px; ${isSpecificCat ? 'right:44px;' : 'right:8px;'} background:var(--surface); color:var(--text-main); border:1px solid var(--border); font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px; z-index:2;">${p.badge}</span>` : ''}
+          ${p.isFeatured ? `<span style="position:absolute; top:8px; left:8px; background:var(--primary); color:var(--text-on-primary); font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px; z-index:2;">هيرو</span>` : ''}
+          ${isTimedActive ? `<span style="position:absolute; bottom:8px; left:8px; background:var(--status-preparing); color:var(--text-on-warning); font-size:9.5px; font-weight:800; padding:2px 6px; border-radius:4px; z-index:2;" data-offer-ends="${p.offerEndsAt}">عرض مؤقت <span class="offer-timer-digits font-num">...</span></span>` : ''}
           ${hasRecipe ? `
-            <span style="position:absolute; bottom:8px; right:8px; background:rgba(22,163,74,0.9); color:#fff; font-size:9.5px; font-weight:800; padding:2px 6px; border-radius:4px; display:inline-flex; align-items:center; gap:3px; z-index:2;">
+            <span style="position:absolute; bottom:8px; right:8px; background:var(--success); color:var(--text-on-success); font-size:9.5px; font-weight:800; padding:2px 6px; border-radius:4px; display:inline-flex; align-items:center; gap:3px; z-index:2;">
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
               مربوط بالمخزون
             </span>
           ` : ''}
           ${isPieceStockEnabled && stockNum !== null ? `
-            <span class="font-num" style="position:absolute; bottom:8px; right:8px; background:${stockNum <= 0 ? 'rgba(239,68,68,0.95)' : (stockNum <= 5 ? 'rgba(245,158,11,0.95)' : 'rgba(15,23,42,0.85)')}; color:#fff; font-size:9.5px; font-weight:800; padding:2px 6px; border-radius:4px; z-index:2;">
+            <span class="font-num" style="position:absolute; bottom:8px; right:8px; background:${stockNum <= 0 ? 'var(--danger)' : (stockNum <= 5 ? 'var(--warning)' : 'var(--surface-raised)')}; color:${stockNum <= 5 ? 'var(--text-on-danger)' : 'var(--text-main)'}; font-size:9.5px; font-weight:800; padding:2px 6px; border-radius:4px; z-index:2; border:1px solid var(--border);">
               ${stockNum <= 0 ? 'نفدت الكمية' : `المخزون: ${stockNum}`}
             </span>
           ` : ''}
@@ -1575,7 +1575,7 @@ function renderBulkCategoriesPicker() {
   const cats = Store.getCategories() || [];
   wrap.innerHTML = cats.map(c => {
     const active = _bulkSelectedCats.has(c);
-    return `<button type="button" class="btn btn-sm" onclick="toggleBulkCategory('${Store.escapeHtml(c).replace(/'/g, "\\'")}', this)" style="border:1.5px solid ${active ? 'var(--primary)' : 'var(--border)'}; background:${active ? 'rgba(249,115,22,0.12)' : 'transparent'}; color:var(--text-main); font-size:11.5px; font-weight:700;">${Store.escapeHtml(c)}</button>`;
+    return `<button type="button" class="btn btn-sm" onclick="toggleBulkCategory('${Store.escapeHtml(c).replace(/'/g, "\\'")}', this)" style="border:1.5px solid ${active ? 'var(--primary)' : 'var(--border)'}; background:${active ? 'var(--primary-subtle)' : 'transparent'}; color:var(--text-main); font-size:11.5px; font-weight:700;">${Store.escapeHtml(c)}</button>`;
   }).join('');
 }
 
@@ -1879,7 +1879,7 @@ window.handleBulkCSVFile = function(event) {
     const btn = document.getElementById('btn-confirm-bulk-import');
     if (prevEl) {
       prevEl.innerHTML = _pendingCSVRows.length > 0
-        ? `<div style="color:#16a34a; font-weight:800;">تمت قراءة ${_pendingCSVRows.length} منتج بنجاح وجاهز للاستيراد/التحديث (بالاسم).</div>`
+        ? `<div style="color:var(--success); font-weight:800;">تمت قراءة ${_pendingCSVRows.length} منتج بنجاح وجاهز للاستيراد/التحديث (بالاسم).</div>`
         : `<div style="color:var(--danger); font-weight:800;">لم يتم العثور على صفوف صالحة.</div>`;
     }
     if (btn) btn.disabled = (_pendingCSVRows.length === 0);
