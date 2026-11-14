@@ -1203,10 +1203,10 @@ function updatePromoMarqueeSpeed(forceRestart = false) {
     track.appendChild(clone);
   }
 
-  // Constant pixel speed regardless of text length, screen size, or RTL/LTR language
-  const SPEED_PX_PER_SEC = 48;
+  // Constant comfortable reading pace (~24px/sec) regardless of text length, screen size, or RTL/LTR language
+  const SPEED_PX_PER_SEC = 24;
   const halfDistance = Math.max(track.scrollWidth / 2, singleW * halfCount, vw);
-  const durationSec = Math.max(5.5, +(halfDistance / SPEED_PX_PER_SEC).toFixed(2));
+  const durationSec = Math.max(22, +(halfDistance / SPEED_PX_PER_SEC).toFixed(2));
   const prevDur = track.dataset.marqueeDuration || '';
 
   track.style.setProperty('--marquee-duration', durationSec + 's');
@@ -1228,6 +1228,12 @@ if (typeof window !== 'undefined' && !window.__harpyMarqueeResizeBound) {
     clearTimeout(_marqueeResizeTimer);
     _marqueeResizeTimer = setTimeout(() => updatePromoMarqueeSpeed(false), 180);
   }, { passive: true });
+
+  if (typeof document !== 'undefined' && document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => {
+      requestAnimationFrame(() => updatePromoMarqueeSpeed(false));
+    });
+  }
 }
 
 function renderAnnouncement() {
@@ -1969,12 +1975,30 @@ function renderCleanProfileUI() {
   const defaultUserSvg = `<svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px; height:22px;"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
 
   if (profile && profile.name) {
-    if (nameEl) nameEl.textContent = profile.name;
-    if (phoneEl) phoneEl.textContent = profile.phone;
-    if (avatarChar) avatarChar.textContent = profile.name.trim().charAt(0) || 'ع';
+    if (nameEl) {
+      nameEl.textContent = profile.name;
+      nameEl.style.textAlign = 'start';
+    }
+    if (phoneEl) {
+      phoneEl.textContent = profile.phone || '';
+      phoneEl.style.direction = 'ltr';
+      phoneEl.style.unicodeBidi = 'isolate';
+      phoneEl.style.textAlign = 'start';
+    }
+    if (avatarChar) {
+      const initial = (profile.name.trim().charAt(0) || 'ع').toUpperCase();
+      avatarChar.textContent = initial;
+    }
   } else {
-    if (nameEl) nameEl.textContent = (typeof window.t === 'function' ? window.t('val_guest_user', 'عميلنا العزيز') : 'عميلنا العزيز');
-    if (phoneEl) phoneEl.textContent = (typeof window.t === 'function' ? window.t('val_guest_hint', 'انقر على تعديل لحفظ اسمك ورقمك وعنوانك') : 'انقر على تعديل لحفظ اسمك ورقمك وعنوانك');
+    if (nameEl) {
+      nameEl.textContent = (typeof window.t === 'function' ? window.t('val_guest_user', 'عميلنا العزيز') : 'عميلنا العزيز');
+      nameEl.style.textAlign = 'start';
+    }
+    if (phoneEl) {
+      phoneEl.textContent = (typeof window.t === 'function' ? window.t('val_guest_hint', 'انقر على تعديل لحفظ اسمك ورقمك وعنوانك') : 'انقر على تعديل لحفظ اسمك ورقمك وعنوانك');
+      phoneEl.style.direction = 'rtl';
+      phoneEl.style.textAlign = 'start';
+    }
     if (avatarChar) avatarChar.innerHTML = defaultUserSvg;
   }
 
@@ -2130,18 +2154,24 @@ function renderOrdersView() {
     }
 
     // Update 4-stage stepper
-    updateOrdersStepperUI(lastOrder.status || 'pending', lastOrder);
+    try {
+      updateOrdersStepperUI(lastOrder.status || 'pending', lastOrder);
+    } catch (eStepper) {
+      console.warn('[OrdersView] Stepper UI render notice:', eStepper);
+    }
 
     // Items list
     const itemsList = document.getElementById('orders-active-items-list');
-    if (itemsList && lastOrder.items) {
+    if (itemsList && Array.isArray(lastOrder.items) && lastOrder.items.length > 0) {
       itemsList.innerHTML = lastOrder.items.map(it => {
         const itName = esc(typeof window.getProductName === 'function' ? window.getProductName(it) : (typeof window.tr === 'function' ? window.tr(it.name) : it.name));
         const itSize = it.selectedSize ? `[${esc(typeof window.getSizeName === 'function' ? window.getSizeName(it.selectedSize) : (typeof window.tr === 'function' ? window.tr(it.selectedSize.name) : it.selectedSize.name))}]` : '';
+        const itemPrice = parseFloat(it.price || 0) || 0;
+        const itemQty = parseInt(it.qty || 1, 10) || 1;
         return `
         <div style="display:flex; justify-content:space-between; align-items:center; font-size:12.5px; padding:4px 0; border-bottom:1px dashed var(--border);">
-          <span><b style="color:var(--primary); font-weight:800;">${esc(it.qty)}x</b> ${itName} ${itSize}</span>
-          <span class="font-num" style="font-weight:700;">${((it.price || 0) * it.qty).toFixed(2)} ${currency}</span>
+          <span><b style="color:var(--primary); font-weight:800;">${esc(itemQty)}x</b> ${itName} ${itSize}</span>
+          <span class="font-num" style="font-weight:700;">${(itemPrice * itemQty).toFixed(2)} ${currency}</span>
         </div>
       `;
       }).join('');
@@ -2150,7 +2180,9 @@ function renderOrdersView() {
     // Total
     const totalEl = document.getElementById('orders-active-total');
     if (totalEl) {
-      totalEl.textContent = `${(parseFloat(lastOrder.finalTotal) || 0).toFixed(2)} ${currency}`;
+      const fallbackSum = (lastOrder.items || []).reduce((sum, it) => sum + ((parseFloat(it.price || 0) || 0) * (parseInt(it.qty || 1, 10) || 1)), 0);
+      const computedTotal = parseFloat(lastOrder.finalTotal) || parseFloat(lastOrder.total) || fallbackSum || 0;
+      totalEl.textContent = `${computedTotal.toFixed(2)} ${currency}`;
     }
 
     // Direct WhatsApp & Phone contact
@@ -2398,6 +2430,7 @@ function updateOrdersStepperUI(status = 'pending', order = null) {
   const isDineIn = rawType === 'dinein' || rawType === 'dine_in' || addr.includes('صالة') || addr.includes('طاولة');
   const isTakeaway = !isDineIn && (rawType === 'takeaway' || addr.includes('استلام') || addr.includes('تيك أواي') || addr.includes('سفري'));
   const isDelivery = !isDineIn && !isTakeaway;
+  const isStoreStepper = !!(window.NicheEngine && typeof window.NicheEngine.isStoreMode === 'function' && window.NicheEngine.isStoreMode());
 
   // 1. Stage names tailored to fulfillment
   if (isDineIn) {
@@ -2413,7 +2446,6 @@ function updateOrdersStepperUI(status = 'pending', order = null) {
       locBanner.style.display = 'flex';
       locText.innerHTML = `${typeof window.t === 'function' ? window.t('service_location', 'مكان الخدمة') : 'مكان الخدمة'}: <strong>${typeof window.t === 'function' ? window.t('table_number_prefix', 'طاولة رقم') : 'طاولة رقم'} ${tableNumber || '1'} (${typeof window.t === 'function' ? window.t('fulfillment_dinein', 'في الصالة') : 'في الصالة'})</strong>`;
     }
-  const isStoreStepper = !!(window.NicheEngine && typeof window.NicheEngine.isStoreMode === 'function' && window.NicheEngine.isStoreMode());
   } else if (isTakeaway) {
     if (step1Name) step1Name.textContent = (typeof window.t === 'function' ? window.t('step_takeaway_1', 'استلام الطلب') : 'استلام الطلب');
     if (step2Name) step2Name.textContent = isStoreStepper ? 'تجهيز وتغليف' : (typeof window.t === 'function' ? window.t('step_takeaway_2', 'تجهيز وتعليب') : 'تجهيز وتعليب');
@@ -2421,7 +2453,7 @@ function updateOrdersStepperUI(status = 'pending', order = null) {
     if (step4Name) step4Name.textContent = (typeof window.t === 'function' ? window.t('step_takeaway_4', 'تم الاستلام') : 'تم الاستلام');
 
     if (etaTitle) etaTitle.textContent = (typeof window.t === 'function') ? window.t('eta_title_takeaway', 'وقت التجهيز للاستلام') : 'وقت التجهيز للاستلام';
-    if (etaEl) etaEl.textContent = `15 - 20 ${typeof window.t === 'function' ? window.t('mins', 'دقيقة') : 'دقيقة'}`;;
+    if (etaEl) etaEl.textContent = `15 - 20 ${typeof window.t === 'function' ? window.t('mins', 'دقيقة') : 'دقيقة'}`;
 
     if (locBanner && locText) {
       locBanner.style.display = 'flex';
@@ -2439,7 +2471,8 @@ function updateOrdersStepperUI(status = 'pending', order = null) {
 
     if (locBanner && locText) {
       locBanner.style.display = 'flex';
-      locText.innerHTML = `${typeof window.t === 'function' ? window.t('delivery_address_label', 'عنوان التوصيل') : 'عنوان التوصيل'}: <strong>${order?.customer?.address || (typeof window.t === 'function' ? window.t('default_address', 'العنوان المسجل للطلب') : 'العنوان المسجل للطلب')}</strong>`;
+      const userAddr = order?.customer?.address || order?.address || '';
+      locText.innerHTML = `${typeof window.t === 'function' ? window.t('delivery_address_label', 'عنوان التوصيل') : 'عنوان التوصيل'}: <strong>${userAddr || (typeof window.t === 'function' ? window.t('default_address', 'العنوان المسجل للطلب') : 'العنوان المسجل للطلب')}</strong>`;
     }
   }
 
