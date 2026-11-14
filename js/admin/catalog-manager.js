@@ -281,7 +281,7 @@ function renderCatalogItemsOnly() {
               <button class="btn btn-ghost btn-sm btn-admin-action btn-visibility-toggle ${p.visible === false ? 'btn-hidden-state' : ''}" onclick="toggleProductVisibilityFast('${p.id}', this)" title="${p.visible === false ? 'إظهار الصنف في المنيو' : 'إخفاء الصنف من المنيو'}" style="display:inline-flex; align-items:center; gap:5px; font-weight:700; font-size:12px; padding:5px 9px;">
                 ${p.visible === false 
                   ? `<svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-muted);"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg><span>مخفي</span>`
-                  : `<svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#22c55e;"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg><span>ظاهر</span>`
+                  : `<svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--success);"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg><span>ظاهر</span>`
                 }
               </button>
               ${isSpecificCat ? `
@@ -348,7 +348,7 @@ window.toggleProductVisibilityFast = async function(id, btnElement) {
     btn.classList.toggle('btn-hidden-state', !newVis);
     btn.title = newVis ? 'إخفاء الصنف من المنيو' : 'إظهار الصنف في المنيو';
     btn.innerHTML = newVis 
-      ? `<svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#22c55e;"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg><span>ظاهر</span>`
+      ? `<svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--success);"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg><span>ظاهر</span>`
       : `<svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-muted);"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg><span>مخفي</span>`;
   }
 
@@ -474,34 +474,34 @@ function updateRecipeProfitCockpit() {
   if (priceVal > 0 || totalCost > 0) {
     if (netProfit >= 0) {
       profitEl.textContent = `+${netProfit.toFixed(2)} ${currency}`;
-      profitEl.style.color = '#16a34a';
+      profitEl.style.color = 'var(--success)';
     } else {
       profitEl.textContent = `${netProfit.toFixed(2)} ${currency}`;
-      profitEl.style.color = 'var(--danger, #ef4444)';
+      profitEl.style.color = 'var(--danger)';
     }
 
     if (netProfit < 0) {
-      badgeEl.style.background = 'rgba(239,68,68,0.15)';
-      badgeEl.style.color = '#ef4444';
+      badgeEl.style.background = 'var(--danger-subtle)';
+      badgeEl.style.color = 'var(--danger)';
       badgeEl.textContent = `${marginPct}% (خسارة)`;
     } else if (marginPct < 30) {
-      badgeEl.style.background = 'rgba(245,158,11,0.15)';
-      badgeEl.style.color = '#d97706';
+      badgeEl.style.background = 'var(--warning-subtle)';
+      badgeEl.style.color = 'var(--warning)';
       badgeEl.textContent = `${marginPct}% (منخفض)`;
     } else if (marginPct >= 50) {
-      badgeEl.style.background = 'rgba(22,163,74,0.15)';
-      badgeEl.style.color = '#16a34a';
+      badgeEl.style.background = 'var(--success-subtle)';
+      badgeEl.style.color = 'var(--success)';
       badgeEl.textContent = `${marginPct}% (ممتاز)`;
     } else {
-      badgeEl.style.background = 'rgba(22,163,74,0.15)';
-      badgeEl.style.color = '#16a34a';
+      badgeEl.style.background = 'var(--success-subtle)';
+      badgeEl.style.color = 'var(--success)';
       badgeEl.textContent = `${marginPct}% (متزن)`;
     }
   } else {
     profitEl.textContent = `0.00 ${currency}`;
     profitEl.style.color = 'var(--text-main)';
-    badgeEl.style.background = 'rgba(22,163,74,0.15)';
-    badgeEl.style.color = '#16a34a';
+    badgeEl.style.background = 'var(--success-subtle)';
+    badgeEl.style.color = 'var(--success)';
     badgeEl.textContent = `0%`;
   }
 

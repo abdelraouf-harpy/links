@@ -191,7 +191,7 @@
 }
 .theme-preset-card.active {
   border-color: var(--primary) !important;
-  box-shadow: 0 0 0 2px var(--primary-glow);
+  box-shadow: 0 0 0 2px var(--border-focus);
   background: var(--surface-raised);
 }
 
@@ -269,7 +269,7 @@
   justify-content: center;
   margin: 0 auto 16px;
   border: 1px solid rgba(194, 65, 12, 0.25);
-  box-shadow: 0 4px 16px var(--primary-glow);
+  box-shadow: var(--shadow-sm);
 }
 
 
@@ -388,7 +388,7 @@
 
 /* ── Chef Harpy QR Sticker Trigger Button ── */
 .btn-harpy-qr-trigger {
-  background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
+  background: var(--primary);
   color: #ffffff !important;
   border: 1px solid rgba(255, 255, 255, 0.15);
   font-weight: 800;
@@ -399,13 +399,13 @@
   align-items: center;
   gap: 6px;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.28);
+  box-shadow: var(--shadow-sm);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   text-decoration: none;
 }
 .btn-harpy-qr-trigger:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(234, 88, 12, 0.42);
+  box-shadow: var(--shadow-md);
   filter: brightness(1.06);
 }
 .btn-harpy-qr-trigger:active {
@@ -430,14 +430,14 @@
   white-space: nowrap;
 }
 .btn-tenant-qr {
-  background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
+  background: var(--primary);
   color: #ffffff !important;
   border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.3);
+  box-shadow: var(--shadow-sm);
 }
 .btn-tenant-qr:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(234, 88, 12, 0.45);
+  box-shadow: var(--shadow-md);
   filter: brightness(1.06);
 }
 .btn-tenant-open {
@@ -447,12 +447,12 @@
 }
 .btn-tenant-open:hover {
   background: var(--surface-hover, #233149);
-  border-color: var(--border-focus, #ea580c);
+  border-color: var(--border-focus);
   transform: translateY(-1px);
 }
 .btn-copy-inline {
   background: rgba(234, 88, 12, 0.1);
-  color: var(--accent, #ea580c);
+  color: var(--primary);
   border: 1px solid rgba(234, 88, 12, 0.25);
   border-radius: 6px;
   padding: 3px 8px;
@@ -467,7 +467,7 @@
   margin-right: 6px;
 }
 .btn-copy-inline:hover {
-  background: var(--accent, #ea580c);
+  background: var(--primary);
   color: #ffffff;
 }
 
@@ -530,7 +530,7 @@
   color: #ffffff;
   border-color: var(--primary);
   font-weight: 800;
-  box-shadow: 0 4px 12px var(--primary-glow);
+  box-shadow: var(--shadow-sm);
 }
 .admin-tab-btn.active svg {
   color: #ffffff;
@@ -1264,7 +1264,7 @@ html.admin-unlocked #login-modal-backdrop {
 .pos-mobile-tab-btn.active {
   background: var(--primary);
   color: #fff;
-  box-shadow: 0 3px 12px var(--primary-glow);
+  box-shadow: var(--shadow-sm);
 }
 .pos-badge-bubble {
   background: rgba(255, 255, 255, 0.25);
@@ -1509,7 +1509,7 @@ html.admin-unlocked #login-modal-backdrop {
   background: var(--primary);
   color: #fff;
   border-color: var(--primary);
-  box-shadow: 0 2px 10px rgba(234, 88, 12, 0.35);
+  box-shadow: var(--shadow-sm);
 }
 
 .pos-products-grid {
@@ -1645,7 +1645,7 @@ html.admin-unlocked #login-modal-backdrop {
   transition: all 0.2s ease;
 }
 .pos-type-btn.active {
-  background: linear-gradient(135deg, #ea580c, #f97316);
+  background: var(--primary);
   color: #fff;
   box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3);
 }
@@ -1829,7 +1829,7 @@ html.admin-unlocked #login-modal-backdrop {
   background: var(--primary);
   border-color: var(--primary);
   color: #fff;
-  box-shadow: 0 3px 12px rgba(234, 88, 12, 0.35);
+  box-shadow: var(--shadow-sm);
 }
 
 /* POS Cash Calculator Box */
@@ -1919,11 +1919,11 @@ html.admin-unlocked #login-modal-backdrop {
   bottom: max(18px, env(safe-area-inset-bottom, 18px));
   left: 16px;
   right: 16px;
-  background: linear-gradient(135deg, #ea580c, #c2410c);
+  background: var(--primary);
   color: #fff;
   padding: 12px 16px;
   border-radius: 14px;
-  box-shadow: 0 8px 24px rgba(234, 88, 12, 0.45);
+  box-shadow: var(--shadow-lg);
   z-index: 9999;
   justify-content: space-between;
   align-items: center;
@@ -2172,7 +2172,7 @@ html.admin-unlocked #login-modal-backdrop {
 }
 .inv-btn-print:hover {
   opacity: 0.9;
-  box-shadow: 0 3px 10px rgba(234, 88, 12, 0.35);
+  box-shadow: var(--shadow-sm);
 }
 .inv-btn-pdf {
   flex: 1;
@@ -3148,7 +3148,7 @@ html.admin-unlocked #login-modal-backdrop {
   background: var(--primary);
   color: #ffffff;
   border: none;
-  box-shadow: 0 3px 12px var(--primary-glow);
+  box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
 }
 .btn-admin-install-header {
@@ -3160,10 +3160,10 @@ html.admin-unlocked #login-modal-backdrop {
   font-weight: 800;
   border-radius: 10px;
   cursor: pointer;
-  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+  background: var(--primary);
   color: #ffffff;
   border: 1px solid rgba(255,255,255,0.15);
-  box-shadow: 0 3px 12px rgba(234,88,12,0.35);
+  box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
 }
 .btn-admin-install-header:hover {
@@ -3396,7 +3396,7 @@ html[dir="ltr"] .admin-drawer.open {
   background: var(--primary);
   color: #ffffff !important;
   font-weight: 800;
-  box-shadow: 0 4px 14px var(--primary-glow);
+  box-shadow: var(--shadow-sm);
 }
 .admin-drawer-nav .admin-tab-btn.active svg {
   color: #ffffff !important;
@@ -3611,10 +3611,10 @@ html[dir="ltr"] .admin-drawer.open {
 }
 .btn-cat-chip:hover {
   transform: translateY(-1px);
-  border-color: var(--primary-glow);
+  border-color: var(--border-focus);
 }
 .btn-cat-chip.active {
-  box-shadow: 0 4px 12px var(--primary-glow);
+  box-shadow: var(--shadow-sm);
 }
 
 .inv-material-card {
@@ -3687,7 +3687,7 @@ html[dir="ltr"] .admin-drawer.open {
   background: var(--primary);
   color: #ffffff !important;
   font-weight: 800;
-  box-shadow: 0 2px 8px rgba(255, 107, 0, 0.32);
+  box-shadow: var(--shadow-sm);
 }
 .segmented-btn svg {
   width: 14px;
@@ -3729,7 +3729,7 @@ html[dir="ltr"] .admin-drawer.open {
   color: #ffffff !important;
   border-color: var(--primary);
   font-weight: 800;
-  box-shadow: 0 2px 8px rgba(255, 107, 0, 0.3);
+  box-shadow: var(--shadow-sm);
 }
 
 /* ── 3. Custom Trigger Select Button (Category & Recipe) ──── */
@@ -5255,7 +5255,7 @@ html.admin-locked #tab-settings .settings-sticky-save-bar,
   font-size: 14.5px;
   font-weight: 900;
   border-radius: 12px;
-  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.3);
+  box-shadow: var(--shadow-sm);
   display: inline-flex;
   align-items: center;
   justify-content: center;

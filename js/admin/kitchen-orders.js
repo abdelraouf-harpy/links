@@ -2836,7 +2836,7 @@ window.renderClosedShiftsArchive = function() {
   if (revEl) revEl.innerHTML = formatShiftVal(totalRev);
   if (profitEl) {
     profitEl.innerHTML = formatShiftVal(totalProfit, true);
-    profitEl.style.color = totalProfit >= 0 ? '#16a34a' : 'var(--danger, #ef4444)';
+    profitEl.style.color = totalProfit >= 0 ? 'var(--success)' : 'var(--danger)';
   }
 
   if (history.length === 0) {
@@ -2872,11 +2872,11 @@ window.renderClosedShiftsArchive = function() {
 
     let cashStatusBadge = '';
     if (cashDiff === 0) {
-      cashStatusBadge = `<span style="font-size:11px; font-weight:800; color:#16a34a; background:rgba(34,197,94,0.12); padding:2px 8px; border-radius:6px;">الدرج مطابق</span>`;
+      cashStatusBadge = `<span style="font-size:11px; font-weight:800; color:var(--success); background:var(--success-subtle); padding:2px 8px; border-radius:6px;">الدرج مطابق</span>`;
     } else if (cashDiff < 0) {
-      cashStatusBadge = `<span style="font-size:11px; font-weight:800; color:#ef4444; background:rgba(239,68,68,0.12); padding:2px 8px; border-radius:6px;">عجز درج: ${cashDiff.toFixed(0)} ${currency}</span>`;
+      cashStatusBadge = `<span style="font-size:11px; font-weight:800; color:var(--danger); background:var(--danger-subtle); padding:2px 8px; border-radius:6px;">عجز درج: ${cashDiff.toFixed(0)} ${currency}</span>`;
     } else {
-      cashStatusBadge = `<span style="font-size:11px; font-weight:800; color:#3b82f6; background:rgba(59,130,246,0.12); padding:2px 8px; border-radius:6px;">زيادة درج: +${cashDiff.toFixed(0)} ${currency}</span>`;
+      cashStatusBadge = `<span style="font-size:11px; font-weight:800; color:var(--info); background:var(--info-subtle); padding:2px 8px; border-radius:6px;">زيادة درج: +${cashDiff.toFixed(0)} ${currency}</span>`;
     }
 
     return `
@@ -2993,7 +2993,7 @@ function updateHeaderShiftCockpit() {
   if (shiftRevEl) shiftRevEl.textContent = `${totalRev.toFixed(0)} ${currency}`;
   if (shiftProfitEl) {
     shiftProfitEl.textContent = `${netProfit >= 0 ? '+' : ''}${netProfit.toFixed(0)} ${currency}`;
-    shiftProfitEl.style.color = netProfit >= 0 ? '#16a34a' : 'var(--danger, #ef4444)';
+    shiftProfitEl.style.color = netProfit >= 0 ? 'var(--success)' : 'var(--danger)';
   }
 
   if (drawerShiftNum) drawerShiftNum.textContent = `الوردية #${curShift.shiftNumber || 1} (نشطة)`;

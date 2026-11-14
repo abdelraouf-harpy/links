@@ -100,8 +100,8 @@
   <!-- Android & Modern PWA Meta -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="application-name" content="Order">
-  <meta name="theme-color" id="meta-theme-color" content="#FFFFFF">
-  <meta name="navigation-bar-color" content="#FFFFFF">
+  <meta name="theme-color" id="meta-theme-color" content="#FAF7F2">
+  <meta name="navigation-bar-color" content="#FAF7F2">
   
   <!-- Apple iOS / iPadOS PWA Meta -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -236,9 +236,7 @@
       height: 42px;
       min-width: 42px;
       border-radius: 50%;
-      border: 2px solid #EA580C;
-      background: #111827;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      border: 2px solid var(--primary); background: var(--surface); box-shadow: var(--shadow-sm);
       overflow: hidden;
       display: flex;
       align-items: center;
@@ -259,20 +257,14 @@
       min-width: 0;
       flex: 1 1 auto;
     }
-    .menu-header-store-name {
-      font-size: 1.05rem;
-      font-weight: 900;
-      color: #111827;
+    .menu-header-store-name { font-size: 1.05rem; font-weight: 900; color: var(--text-main);
       margin: 0;
       line-height: 1.2;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .menu-header-store-tagline {
-      font-size: 10.5px;
-      font-weight: 600;
-      color: #6B7280;
+    .menu-header-store-tagline { font-size: 10.5px; font-weight: 600; color: var(--text-muted);
       margin: 0;
       line-height: 1.2;
       white-space: nowrap;
@@ -298,9 +290,7 @@
       white-space: nowrap;
       flex-shrink: 0;
     }
-    .menu-meta-pill.pill-dark {
-      background: #1F2937;
-      color: #FFFFFF;
+    .menu-meta-pill.pill-dark { background: var(--surface-raised); color: var(--text-main);
       border: 1px solid rgba(255, 255, 255, 0.08);
     }
     .menu-meta-pill.pill-status.open {

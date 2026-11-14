@@ -51,94 +51,107 @@ const STORAGE_KEYS = {
 const THEME_PRESETS = {
   charcoal: {
     id: "charcoal",
-    name: "الأسود الليلي العصري (ليلي أساسي)",
-    badge: "كحلي مسائي وأسود ملكي",
-    bg: "#070B13",
-    surface: "#0E1726",
-    surfaceRaised: "#142034",
-    headerBg: "#070B13",
-    textMain: "#ffffff",
-    textBody: "#e2e8f0",
-    primary: "#FF6A00",
-    border: "rgba(255, 255, 255, 0.08)"
+    name: "الأسود والقهوة الليلي (ليلي دافئ أساسي)",
+    badge: "إسبريسو ملكي وفحم دافئ",
+    bg: "#12100E",
+    surface: "#1B1714",
+    surfaceRaised: "#26201B",
+    headerBg: "#12100E",
+    textMain: "#FAF6F0",
+    textBody: "#D6CDC2",
+    primary: "#E8590C",
+    border: "rgba(255, 245, 235, 0.08)"
   },
   cream: {
     id: "cream",
-    name: "النهاري الناصع العصري (نهاري أساسي)",
-    badge: "أبيض ناصع ومقاهي",
-    bg: "#F8FAFC",
-    surface: "#ffffff",
-    surfaceRaised: "#F8FAFC",
-    headerBg: "#ffffff",
-    textMain: "#0F172A",
-    textBody: "#334155",
-    primary: "#FF6A00",
-    border: "#E2E8F0"
+    name: "الكتان والبيكري الدافئ (نهاري أساسي)",
+    badge: "عاجي ومخبوزات دافئة",
+    bg: "#FAF7F2",
+    surface: "#FFFFFF",
+    surfaceRaised: "#FAF7F2",
+    headerBg: "#FFFFFF",
+    textMain: "#1C1713",
+    textBody: "#453B32",
+    primary: "#C2410C",
+    border: "#E8E0D5"
   },
   midnight: {
     id: "midnight",
     name: "الأسود والذهب الملكي",
     badge: "فخامة لاونج وستيك",
-    bg: "#0d0d0e",
-    surface: "#18181b",
-    surfaceRaised: "#242428",
-    headerBg: "#0d0d0e",
-    textMain: "#ffffff",
-    textBody: "#d4d4d8",
-    primary: "#d97706",
-    border: "rgba(217, 119, 6, 0.20)"
+    bg: "#0E0E0F",
+    surface: "#1C1C1E",
+    surfaceRaised: "#28282C",
+    headerBg: "#0E0E0F",
+    textMain: "#FAF6F0",
+    textBody: "#D4D4D8",
+    primary: "#D97706",
+    border: "rgba(217, 119, 6, 0.18)"
   },
   sunset: {
     id: "sunset",
     name: "البرتقالي الناري الحيوي",
-    badge: "برجر وفاست فود",
-    bg: "#140e0a",
-    surface: "#221812",
-    surfaceRaised: "#2e2119",
-    headerBg: "#140e0a",
-    textMain: "#fffaf5",
-    textBody: "#e8d8cb",
-    primary: "#f97316",
+    badge: "برجر ومشاوي فاخرة",
+    bg: "#150F0B",
+    surface: "#241A13",
+    surfaceRaised: "#30231A",
+    headerBg: "#150F0B",
+    textMain: "#FFF8F2",
+    textBody: "#E8D8CB",
+    primary: "#F97316",
     border: "rgba(249, 115, 22, 0.16)"
   },
   olive: {
     id: "olive",
     name: "الزيتوني الريفي والطبيعي",
-    badge: "طبيعي ومزارع خضراء",
-    bg: "#0d1410",
-    surface: "#18241d",
-    surfaceRaised: "#223329",
-    headerBg: "#0d1410",
-    textMain: "#f0f7f2",
-    textBody: "#c8ded0",
-    primary: "#16a34a",
-    border: "rgba(225, 163, 74, 0.16)"
+    badge: "مزارع وأعشاب ريفية",
+    bg: "#0F1410",
+    surface: "#1A241D",
+    surfaceRaised: "#243329",
+    headerBg: "#0F1410",
+    textMain: "#F2F8F4",
+    textBody: "#CBDED2",
+    primary: "#15803D",
+    border: "rgba(21, 128, 61, 0.18)"
   },
   indigo: {
     id: "indigo",
-    name: "الأزرق النيلي والبحري",
-    badge: "سي فود وشبابي عصري",
-    bg: "#0b1120",
-    surface: "#141d33",
-    surfaceRaised: "#1c2847",
-    headerBg: "#0b1120",
-    textMain: "#f8faff",
-    textBody: "#cbd8f0",
-    primary: "#3b82f6",
-    border: "rgba(59, 130, 246, 0.16)"
+    name: "بيسترو وكافيه نحاسي دافئ",
+    badge: "كراميل دافئ ونحاس بيكري",
+    bg: "#120E0A",
+    surface: "#221B14",
+    surfaceRaised: "#2E241B",
+    headerBg: "#120E0A",
+    textMain: "#FFF9F4",
+    textBody: "#E2D5C8",
+    primary: "#D97706",
+    border: "rgba(217, 119, 6, 0.18)"
+  },
+  bistro: {
+    id: "bistro",
+    name: "بيسترو وكافيه نحاسي دافئ",
+    badge: "كراميل دافئ ونحاس بيكري",
+    bg: "#120E0A",
+    surface: "#221B14",
+    surfaceRaised: "#2E241B",
+    headerBg: "#120E0A",
+    textMain: "#FFF9F4",
+    textBody: "#E2D5C8",
+    primary: "#D97706",
+    border: "rgba(217, 119, 6, 0.18)"
   },
   bordeaux: {
     id: "bordeaux",
     name: "العنابي والمشويات الفاخرة",
     badge: "مشويات وشاعري دافئ",
-    bg: "#140a0e",
-    surface: "#24141a",
-    surfaceRaised: "#321b24",
-    headerBg: "#140a0e",
-    textMain: "#fff5f7",
-    textBody: "#ecc8d0",
-    primary: "#e11d48",
-    border: "rgba(225, 29, 72, 0.16)"
+    bg: "#140A0E",
+    surface: "#24141B",
+    surfaceRaised: "#321B25",
+    headerBg: "#140A0E",
+    textMain: "#FFF5F8",
+    textBody: "#ECC8D2",
+    primary: "#E11D48",
+    border: "rgba(190, 18, 60, 0.20)"
   }
 };
 if (typeof window !== 'undefined') window.THEME_PRESETS = THEME_PRESETS;
@@ -3096,7 +3109,7 @@ const Store = {
 
     const metaTheme = document.querySelector('meta[name="theme-color"]');
     if (metaTheme) {
-      metaTheme.setAttribute('content', mode === 'dark' ? '#070B13' : '#FFFFFF');
+      metaTheme.setAttribute('content', mode === 'dark' ? '#12100E' : '#FAF7F2');
     }
 
     let preset;
@@ -3122,10 +3135,10 @@ const Store = {
 
     let primaryColor = s.siteColors?.primary;
     if (!primaryColor || primaryColor === '#ea580c' || primaryColor === '#c2410c') {
-      if (mode === 'dark' && THEME_PRESETS[preset]?.primary) {
-        primaryColor = THEME_PRESETS[preset].primary;
+      if (mode === 'dark') {
+        primaryColor = THEME_PRESETS[preset]?.primary || '#E8590C';
       } else {
-        primaryColor = '#FF6A00';
+        primaryColor = '#C2410C';
       }
     }
     root.style.setProperty('--primary', primaryColor);
@@ -3150,19 +3163,18 @@ const Store = {
     if (s.siteColors) {
       const c = { ...s.siteColors };
 
-      // Upgrade legacy brown/charcoal palette to modern obsidian mockup palette
-      if (c.bg === '#120e0c') c.bg = '#070B13';
-      if (c.surface === '#1e1814') c.surface = '#0E1726';
-      if (c.surfaceRaised === '#28201a') c.surfaceRaised = '#142034';
-      if (c.headerBg === '#120e0c') c.headerBg = '#070B13';
-      if (c.textMain === '#faf6f0') c.textMain = '#ffffff';
-      if (c.textBody === '#d4c9ba') c.textBody = '#e2e8f0';
+      // Upgrade legacy/cold palettes to warm food-centric palettes
+      if (c.bg === '#070B13' || c.bg === '#120e0c') c.bg = '#12100E';
+      if (c.surface === '#0E1726' || c.surface === '#1e1814') c.surface = '#1B1714';
+      if (c.surfaceRaised === '#142034' || c.surfaceRaised === '#28201a') c.surfaceRaised = '#26201B';
+      if (c.headerBg === '#070B13' || c.headerBg === '#120e0c') c.headerBg = '#12100E';
+      if (c.textMain === '#ffffff' || c.textMain === '#faf6f0') c.textMain = '#FAF6F0';
+      if (c.textBody === '#e2e8f0' || c.textBody === '#d4c9ba') c.textBody = '#D6CDC2';
 
-      // Upgrade legacy warm cream to crisp modern daylight
-      if (c.bg === '#f8f6f0') c.bg = '#F8FAFC';
-      if (c.surfaceRaised === '#f3ede2') c.surfaceRaised = '#F8FAFC';
-      if (c.textMain === '#18130f') c.textMain = '#0F172A';
-      if (c.textBody === '#3d332a') c.textBody = '#334155';
+      if (c.bg === '#F8FAFC' || c.bg === '#f8f6f0') c.bg = '#FAF7F2';
+      if (c.surfaceRaised === '#F8FAFC' || c.surfaceRaised === '#f3ede2') c.surfaceRaised = '#FAF7F2';
+      if (c.textMain === '#0F172A' || c.textMain === '#18130f') c.textMain = '#1C1713';
+      if (c.textBody === '#334155' || c.textBody === '#3d332a') c.textBody = '#453B32';
 
       let isDarkPalette = true;
       if (c.id === 'cream' || c.bg === '#F8FAFC') {
