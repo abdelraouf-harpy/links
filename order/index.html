@@ -116,8 +116,8 @@
   <link rel="preconnect" href="https://i.ibb.co" crossorigin>
   <link rel="dns-prefetch" href="https://i.ibb.co">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/order-tokens.css?v=197.0">
-  <link rel="stylesheet" href="css/order-client.css?v=197.0">
+  <link rel="stylesheet" href="css/order-tokens.css?v=198.0">
+  <link rel="stylesheet" href="css/order-client.css?v=198.0">
   <style id="harpy-critical-layout">
     /* ═══════════════════════════════════════════════════════════
        CRITICAL DEFENSIVE INLINE SHIELD (Prevents SW Cache Mismatches)
@@ -156,6 +156,27 @@
     }
 
     /* ── Mobile Edge-to-Edge Fluid Layout (Zero Gaps & Zero Wide Borders) ── */
+    /* Global Stories Highlights Strip (Always Horizontal Flex Row on Desktop & Mobile) */
+    .stories-strip-section {
+      width: 100% !important;
+      margin-bottom: 8px !important;
+      overflow: hidden !important;
+    }
+    .stories-track {
+      display: flex !important;
+      flex-direction: row !important;
+      flex-wrap: nowrap !important;
+      align-items: center !important;
+      gap: 12px !important;
+      overflow-x: auto !important;
+      padding: 6px 4px 8px 4px !important;
+      scroll-padding: 0 10px !important;
+      scrollbar-width: none !important;
+      -webkit-overflow-scrolling: touch !important;
+    }
+    .stories-track::-webkit-scrollbar {
+      display: none !important;
+    }
     @media (max-width: 768px) {
       .main-content-sheet > .container {
         padding-left: 8px !important;
@@ -168,16 +189,9 @@
         max-width: none !important;
         padding: 0 !important;
         margin-bottom: 6px !important;
-        overflow: hidden !important;
       }
       .stories-track {
-        display: flex !important;
-        gap: 10px !important;
-        overflow-x: auto !important;
         padding: 4px 10px 6px 10px !important;
-        scroll-padding: 0 10px !important;
-        scrollbar-width: none !important;
-        -webkit-overflow-scrolling: touch !important;
       }
       .category-strip {
         margin-left: -8px !important;
@@ -1019,6 +1033,14 @@
           </svg>
           <span>عن المطعم</span>
         </button>
+        <!-- Tab 5: حسابي (Desktop Account Nav Tab - Placed Alongside Main Sections) -->
+        <button type="button" class="desktop-nav-link" id="desktop-nav-account" onclick="window.handleNavTabClick && window.handleNavTabClick('account')" title="حسابي" aria-label="حسابي">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="7" r="4"/>
+            <path d="M5.5 21a6.5 6.5 0 0 1 13 0"/>
+          </svg>
+          <span data-i18n="nav_account">حسابي</span>
+        </button>
       </nav>
 
       <!-- Left Side (RTL): 3 Meta Badges (Rating, Delivery, Status) -->
@@ -1052,14 +1074,7 @@
           <span id="header-branch-pill-arrow" style="font-size:9px; opacity:0.75;">▼</span>
         </button>
 
-        <!-- Customer Profile / Account Pill on Desktop ("حسابي") -->
-        <button type="button" id="desktop-account-pill" class="menu-meta-pill pill-dark pill-account" onclick="window.handleNavTabClick && window.handleNavTabClick('account')" title="حسابي ومعلوماتي" aria-label="حسابي">
-          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="7" r="4"/>
-            <path d="M5.5 21a6.5 6.5 0 0 1 13 0"/>
-          </svg>
-          <span id="desktop-account-pill-label" data-i18n="nav_account">حسابي</span>
-        </button>
+        
       </div>
     </header>
 
@@ -2691,20 +2706,20 @@
   <!-- Firebase App & Realtime Database SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=197.0"></script>
-  <script src="js/core/sound-effects.js?v=197.0"></script>
-  <script src="js/core/i18n.js?v=197.0"></script>
-  <script src="js/core/niche-engine.js?v=197.0"></script>
-  <script src="js/store.js?v=197.0"></script>
-  <script src="js/core/qrcode.min.js?v=197.0"></script>
-  <script src="js/client/client-core.js?v=197.0"></script>
-  <script src="js/client/menu-view.js?v=197.0"></script>
-  <script src="js/client/stories-viewer.js?v=197.0"></script>
-  <script src="js/client/customizer-modal.js?v=197.0"></script>
-  <script src="js/client/cart-ledger.js?v=197.0"></script>
-  <script src="js/client/order-tracking.js?v=197.0"></script>
-  <script src="js/app.js?v=197.0"></script>
-  <script src="js/core/module-enforcer.js?v=197.0"></script>
-  <script src="js/pwa.js?v=197.0"></script>
+  <script src="js/core/demo-seed-data.js?v=198.0"></script>
+  <script src="js/core/sound-effects.js?v=198.0"></script>
+  <script src="js/core/i18n.js?v=198.0"></script>
+  <script src="js/core/niche-engine.js?v=198.0"></script>
+  <script src="js/store.js?v=198.0"></script>
+  <script src="js/core/qrcode.min.js?v=198.0"></script>
+  <script src="js/client/client-core.js?v=198.0"></script>
+  <script src="js/client/menu-view.js?v=198.0"></script>
+  <script src="js/client/stories-viewer.js?v=198.0"></script>
+  <script src="js/client/customizer-modal.js?v=198.0"></script>
+  <script src="js/client/cart-ledger.js?v=198.0"></script>
+  <script src="js/client/order-tracking.js?v=198.0"></script>
+  <script src="js/app.js?v=198.0"></script>
+  <script src="js/core/module-enforcer.js?v=198.0"></script>
+  <script src="js/pwa.js?v=198.0"></script>
 </body>
 </html>

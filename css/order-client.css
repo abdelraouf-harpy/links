@@ -2357,6 +2357,27 @@ html[dir="ltr"] .cart-drawer.open {
 
 
 /* ── Stories & Category Strips (Full Bleed Edge-to-Edge Fluid Layout) ── */
+/* Universal Stories Highlights Strip (Always Horizontal Flex Row on Desktop & Mobile) */
+.stories-strip-section {
+  width: 100% !important;
+  margin-bottom: 8px !important;
+  overflow: hidden !important;
+}
+.stories-track {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 12px !important;
+  overflow-x: auto !important;
+  padding: 6px 4px 8px 4px !important;
+  scroll-padding: 0 10px !important;
+  scrollbar-width: none !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+.stories-track::-webkit-scrollbar {
+  display: none !important;
+}
 @media (max-width: 768px) {
   .main-content-sheet > .container {
     padding-left: 8px !important;
@@ -2369,16 +2390,9 @@ html[dir="ltr"] .cart-drawer.open {
     max-width: none !important;
     padding: 0 !important;
     margin-bottom: 6px !important;
-    overflow: hidden !important;
   }
   .stories-track {
-    display: flex !important;
-    gap: 10px !important;
-    overflow-x: auto !important;
     padding: 4px 10px 6px 10px !important;
-    scroll-padding: 0 10px !important;
-    scrollbar-width: none !important;
-    -webkit-overflow-scrolling: touch !important;
   }
   .category-strip {
     margin-left: -8px !important;
@@ -5108,6 +5122,9 @@ body:has(#customizer-modal.open) .bottom-nav-bar {
 }
 #desktop-account-pill {
   display: none !important;
+}
+@media (min-width: 992px) {
+  #desktop-account-pill { display: none !important; }
 }
 
 @media (min-width: 992px) {

@@ -12,7 +12,7 @@ const path = require('path');
 const ROOT_DIR = path.resolve(__dirname, '..');
 const RTDB_BASE = 'https://harpy-order-default-rtdb.firebaseio.com';
 const MASTER_KEY = (process.env.FIREBASE_MASTER_KEY || '').trim();
-const ASSET_VERSION = '195.0';
+const ASSET_VERSION = '198.0';
 
 const RESERVED_SLUGS = new Set([
   'admin', 'order', 'menu', 'cards', 'assets', 'js', 'css', 'scripts',
