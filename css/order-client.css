@@ -2577,28 +2577,28 @@ html[dir="ltr"] .cart-drawer.open {
 
 [data-theme="dark"] .products-flow.view-mode-dual .food-item-card {
   background: var(--surface) !important;
-  border: 1px solid var(--overlay-light) !important;
-  box-shadow: 0 4px 18px var(--overlay-dark) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow-sm) !important;
 }
 
 [data-theme="light"] .products-flow.view-mode-dual .food-item-card {
   background: var(--surface) !important;
   border: 1px solid var(--border) !important;
-  box-shadow: 0 4px 16px var(--overlay-backdrop) !important;
+  box-shadow: var(--shadow-sm) !important;
 }
 
 .products-flow.view-mode-dual .food-item-card:hover {
-  transform: translateY(-3px) !important;
+  transform: translateY(-2px) !important;
 }
 
 [data-theme="dark"] .products-flow.view-mode-dual .food-item-card:hover {
   border-color: var(--primary-subtle) !important;
-  box-shadow: 0 8px 24px var(--overlay-dark), 0 0 12px var(--primary-subtle) !important;
+  box-shadow: var(--shadow-md) !important;
 }
 
 [data-theme="light"] .products-flow.view-mode-dual .food-item-card:hover {
   border-color: var(--primary-subtle) !important;
-  box-shadow: 0 8px 24px var(--overlay-backdrop) !important;
+  box-shadow: var(--shadow-md) !important;
 }
 
 .products-flow.view-mode-dual .food-item-media {
@@ -5822,8 +5822,8 @@ html[dir="ltr"] .customer-onboard-modal .input-luxury-field,
   padding: 16px;
   background: var(--surface);
   border-radius: 20px;
-  box-shadow: 0 8px 28px var(--overlay-dark);
-  border: 1px solid var(--overlay-dark);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border);
   margin-bottom: 16px;
 }
 .qr-code-img {
@@ -6047,10 +6047,10 @@ html[dir="ltr"] .customer-onboard-modal .input-luxury-field,
 
 .portfolio-card {
   background: var(--surface);
-  border-radius: 14px;
-  border: 1px solid var(--overlay-dark);
-  box-shadow: 0 2px 6px var(--overlay-dark);
-  padding: 10px 12px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  padding: 12px 14px;
   box-sizing: border-box;
 }
 
@@ -6497,13 +6497,13 @@ html[dir="ltr"] .customer-onboard-modal .input-luxury-field,
 
 /* ── Dark Mode Adaptations for Portfolio ───────────────── */
 [data-theme="dark"] .portfolio-screen-container {
-  background: var(--surface);
+  background: var(--bg);
 }
 
 [data-theme="dark"] .portfolio-card {
   background: var(--surface);
   border-color: var(--border);
-  box-shadow: 0 4px 16px var(--overlay-dark);
+  box-shadow: var(--shadow-sm);
 }
 
 [data-theme="dark"] .portfolio-card-tagline,
@@ -6606,7 +6606,7 @@ html[dir="ltr"] .customer-onboard-modal .input-luxury-field,
   border: 1px solid var(--border);
   border-radius: 22px;
   padding: 18px;
-  box-shadow: 0 8px 24px var(--overlay-dark);
+  box-shadow: var(--shadow-md);
   margin-bottom: 22px;
 }
 
@@ -7925,13 +7925,13 @@ html[dir="ltr"] .menu-arrow {
 .clean-edit-form {
   border-radius: 18px;
   padding: 16px;
-  box-shadow: 0 6px 20px var(--overlay-backdrop);
+  box-shadow: var(--shadow-sm);
 }
 
 .clean-settings-list {
   border-radius: 18px;
   overflow: hidden;
-  box-shadow: 0 6px 20px var(--overlay-backdrop);
+  box-shadow: var(--shadow-sm);
 }
 
 .clean-setting-row {

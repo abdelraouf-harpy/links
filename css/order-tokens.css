@@ -5,63 +5,63 @@
 
 :root,
 :root[data-theme="dark"] {
-  /* Warm Roasted Espresso Night Palette (Dining Atmosphere - Food-Centric Warmth) */
-  --bg: #12100E;
-  --bg-subtle: #181512;
-  --surface: #1B1714;
-  --surface-raised: #26201B;
-  --surface-hover: #332B24;
-  --header-bg: #12100E;
+  /* Deep Modern OLED Night Dining Palette (Comfortable, Sleek, Warm) */
+  --bg: #121212;
+  --bg-subtle: #181818;
+  --surface: #1E1E1E;
+  --surface-raised: #262626;
+  --surface-hover: #303030;
+  --header-bg: #121212;
 
-  --border: rgba(255, 245, 235, 0.08);
-  --border-strong: rgba(255, 245, 235, 0.16);
-  --border-focus: #C2410C;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --border-focus: #F97316;
 
-  /* Primary Accent - Warm Woodfired Terracotta */
-  --primary: #C2410C;
-  --primary-hover: #A83D03;
+  /* Primary Accent - Warm Luminous Orange */
+  --primary: #F97316;
+  --primary-hover: #EA580C;
   --primary-text: #FB923C;
-  --primary-subtle: rgba(194, 65, 12, 0.14);
-  --primary-glow: rgba(194, 65, 12, 0.18);
+  --primary-subtle: rgba(249, 115, 22, 0.14);
+  --primary-glow: rgba(249, 115, 22, 0.20);
   --text-on-primary: #FFFFFF;
 
-  /* Functional Status Accents (Calibrated for Dark Backgrounds >= 4.5:1) */
+  /* Functional Status Accents */
   --accent-wa: #22C55E;
   --accent-wa-subtle: rgba(34, 197, 94, 0.14);
-  --success: #34D399;
-  --success-subtle: rgba(52, 211, 153, 0.14);
+  --success: #22C55E;
+  --success-subtle: rgba(34, 197, 94, 0.14);
   --text-on-success: #FFFFFF;
-  --danger: #FCA5A5;
-  --danger-subtle: rgba(252, 165, 165, 0.14);
-  --text-on-danger: #12100E;
+  --danger: #F87171;
+  --danger-subtle: rgba(248, 113, 113, 0.14);
+  --text-on-danger: #121212;
   --warning: #FBBF24;
   --warning-subtle: rgba(251, 191, 36, 0.14);
-  --text-on-warning: #12100E;
+  --text-on-warning: #121212;
   --amber: #FBBF24;
   --amber-subtle: rgba(251, 191, 36, 0.14);
   --info: #38BDF8;
   --info-subtle: rgba(56, 189, 248, 0.14);
-  --text-on-info: #12100E;
+  --text-on-info: #121212;
   --favorite: #FB7185;
   --favorite-subtle: rgba(251, 113, 133, 0.14);
 
-  /* Kitchen & Order Status Lifecycle Tokens (Decoupled from Brand Primary, Color-Blind Safe) */
+  /* Kitchen & Order Status Lifecycle Tokens */
   --status-pending: #38BDF8;
   --status-pending-bg: rgba(56, 189, 248, 0.14);
   --status-preparing: #FBBF24;
   --status-preparing-bg: rgba(251, 191, 36, 0.14);
-  --status-ready: #A5B4FC;
-  --status-ready-bg: rgba(165, 180, 252, 0.14);
-  --status-delivered: #34D399;
-  --status-delivered-bg: rgba(52, 211, 153, 0.14);
-  --status-cancelled: #FCA5A5;
-  --status-cancelled-bg: rgba(252, 165, 165, 0.14);
+  --status-ready: #818CF8;
+  --status-ready-bg: rgba(129, 140, 248, 0.14);
+  --status-delivered: #22C55E;
+  --status-delivered-bg: rgba(34, 197, 94, 0.14);
+  --status-cancelled: #F87171;
+  --status-cancelled-bg: rgba(248, 113, 113, 0.14);
 
-  /* Typography - Warm Ivory Cream (Eliminating harsh 100% blue-white glare) */
-  --text-main: #FAF6F0;
-  --text-body: #D6CDC2;
-  --text-muted: #9E9284;
-  --text-faint: #7D6F61;
+  /* Typography */
+  --text-main: #FFFFFF;
+  --text-body: #D4D4D8;
+  --text-muted: #A1A1AA;
+  --text-faint: #71717A;
 
   /* Geometry */
   --radius-xs: 8px;
@@ -70,142 +70,142 @@
   --radius-lg: 20px;
   --radius-full: 9999px;
 
-  /* Transitions & Natural Soft Shadows */
+  /* Transitions & Ambient Shadows */
   --tr-fast: all 0.18s ease;
   --tr-smooth: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
-  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.40);
-  --shadow-lg: 0 14px 40px rgba(0, 0, 0, 0.55);
-  --overlay-backdrop: rgba(0, 0, 0, 0.65);
-  --overlay-card: rgba(255, 255, 255, 0.08);
-  --overlay-dark: rgba(0, 0, 0, 0.45);
-  --overlay-light: rgba(255, 255, 255, 0.16);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.40);
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.50);
+  --shadow-lg: 0 14px 40px rgba(0, 0, 0, 0.60);
+  --overlay-backdrop: rgba(0, 0, 0, 0.70);
+  --overlay-card: rgba(255, 255, 255, 0.06);
+  --overlay-dark: rgba(0, 0, 0, 0.40);
+  --overlay-light: rgba(255, 255, 255, 0.12);
 }
 
 body, .food-item-card, .cat-pill, .cat-card-pill, .discovery-chip, .search-input, .cart-drawer, .modal-box, .menu-compact-header, .main-content-sheet, .search-input-field, .view-controls-compact {
   transition: background-color 0.22s ease, color 0.22s ease, border-color 0.22s ease;
 }
 
-/* Light Theme Mode (Crisp Warm Linen & Porcelain White - Food-Centric Daylight) */
+/* Light Theme Mode (Clean, Radiant Porcelain White & Appetizing Restaurant Palette) */
 :root[data-theme="light"] {
-  --bg: #FAF7F2;
-  --bg-subtle: #F4EFEB;
+  --bg: #FFFFFF;
+  --bg-subtle: #F8F9FA;
   --surface: #FFFFFF;
-  --surface-raised: #FAF7F2;
-  --surface-hover: #F2ECE4;
+  --surface-raised: #FFFFFF;
+  --surface-hover: #F8F9FA;
   --header-bg: #FFFFFF;
 
-  --border: #E8E0D5;
-  --border-strong: #D4C8B8;
-  --border-focus: #BE3D0B;
+  --border: rgba(0, 0, 0, 0.07);
+  --border-strong: rgba(0, 0, 0, 0.12);
+  --border-focus: #EA580C;
 
-  --text-main: #1C1713;
-  --text-body: #453B32;
-  --text-muted: #615549;
-  --text-faint: #7D6F61;
+  --text-main: #18181B;
+  --text-body: #3F3F46;
+  --text-muted: #71717A;
+  --text-faint: #A1A1AA;
 
-  /* Primary Brand - Rich Woodfired Terracotta (WCAG AA Compliant >= 4.5:1 across all surfaces) */
-  --primary: #BE3D0B;
-  --primary-hover: #9A3412;
-  --primary-text: #BE3D0B;
-  --primary-subtle: rgba(190, 61, 11, 0.08);
-  --primary-glow: rgba(190, 61, 11, 0.14);
+  /* Primary Brand - Vibrant Appetizing Flame Orange */
+  --primary: #EA580C;
+  --primary-hover: #C2410C;
+  --primary-text: #C2410C;
+  --primary-subtle: rgba(234, 88, 12, 0.08);
+  --primary-glow: rgba(234, 88, 12, 0.16);
   --text-on-primary: #FFFFFF;
 
-  /* Functional Status Accents (Calibrated for Light Backgrounds >= 4.5:1) */
-  --accent-wa: #166534;
-  --accent-wa-subtle: rgba(22, 101, 52, 0.10);
-  --success: #166534;
-  --success-subtle: rgba(22, 101, 52, 0.10);
+  /* Functional Status Accents */
+  --accent-wa: #22C55E;
+  --accent-wa-subtle: rgba(34, 197, 94, 0.10);
+  --success: #16A34A;
+  --success-subtle: rgba(22, 163, 74, 0.10);
   --text-on-success: #FFFFFF;
-  --danger: #B91C1C;
-  --danger-subtle: rgba(185, 28, 28, 0.10);
+  --danger: #DC2626;
+  --danger-subtle: rgba(220, 38, 38, 0.10);
   --text-on-danger: #FFFFFF;
-  --warning: #92400E;
-  --warning-subtle: rgba(146, 64, 14, 0.10);
+  --warning: #D97706;
+  --warning-subtle: rgba(217, 119, 6, 0.10);
   --text-on-warning: #FFFFFF;
-  --amber: #92400E;
-  --amber-subtle: rgba(146, 64, 14, 0.10);
-  --info: #0369A1;
-  --info-subtle: rgba(3, 105, 161, 0.10);
+  --amber: #D97706;
+  --amber-subtle: rgba(217, 119, 6, 0.10);
+  --info: #0284C7;
+  --info-subtle: rgba(2, 132, 199, 0.10);
   --text-on-info: #FFFFFF;
-  --favorite: #BE123C;
-  --favorite-subtle: rgba(190, 18, 60, 0.10);
+  --favorite: #E11D48;
+  --favorite-subtle: rgba(225, 29, 72, 0.10);
 
-  /* Kitchen & Order Status Lifecycle Tokens (Distinct from Brand Primary, Red/Green Color Blind Safe) */
-  --status-pending: #0369A1;
-  --status-pending-bg: rgba(3, 105, 161, 0.10);
-  --status-preparing: #92400E;
-  --status-preparing-bg: rgba(146, 64, 14, 0.10);
-  --status-ready: #4338CA;
-  --status-ready-bg: rgba(67, 56, 202, 0.10);
-  --status-delivered: #166534;
-  --status-delivered-bg: rgba(22, 101, 52, 0.10);
-  --status-cancelled: #B91C1C;
-  --status-cancelled-bg: rgba(185, 28, 28, 0.10);
+  /* Kitchen & Order Status Lifecycle Tokens */
+  --status-pending: #0284C7;
+  --status-pending-bg: rgba(2, 132, 199, 0.10);
+  --status-preparing: #D97706;
+  --status-preparing-bg: rgba(217, 119, 6, 0.10);
+  --status-ready: #4F46E5;
+  --status-ready-bg: rgba(79, 70, 229, 0.10);
+  --status-delivered: #16A34A;
+  --status-delivered-bg: rgba(22, 163, 74, 0.10);
+  --status-cancelled: #DC2626;
+  --status-cancelled-bg: rgba(220, 38, 38, 0.10);
 
-  /* Natural Ambient Light Shadows */
-  --shadow-sm: 0 2px 8px rgba(28, 23, 19, 0.05);
-  --shadow-md: 0 6px 18px rgba(28, 23, 19, 0.08);
-  --shadow-lg: 0 16px 36px rgba(28, 23, 19, 0.10);
-  --overlay-backdrop: rgba(28, 23, 19, 0.50);
-  --overlay-card: rgba(28, 23, 19, 0.05);
-  --overlay-dark: rgba(28, 23, 19, 0.35);
-  --overlay-light: rgba(255, 255, 255, 0.70);
+  /* Natural Ambient Light Shadows (Feather-light, modern) */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.08);
+  --overlay-backdrop: rgba(0, 0, 0, 0.50);
+  --overlay-card: rgba(0, 0, 0, 0.03);
+  --overlay-dark: rgba(0, 0, 0, 0.08);
+  --overlay-light: rgba(255, 255, 255, 0.85);
 }
 
 /* ═══════════════════════════════════════════════════════════
    HARPY PRO: 7 WARM RESTAURANT THEME PRESETS (100% WCAG AA)
    ═══════════════════════════════════════════════════════════ */
 
-/* 1. Day Mode Base Preset: cream (Warm Ivory Linen & Bakery Cream) */
+/* 1. Day Mode Base Preset: cream (Porcelain White & Vibrant Appetizing Orange) */
 :root[data-theme="light"][data-theme-preset="cream"],
 body[data-theme="light"][data-theme-preset="cream"],
 :root[data-theme-preset="cream"]:not([data-theme="dark"]),
 body[data-theme-preset="cream"]:not([data-theme="dark"]) {
-  --bg: #FAF7F2;
-  --bg-subtle: #F4EFEB;
+  --bg: #FFFFFF;
+  --bg-subtle: #F8F9FA;
   --surface: #FFFFFF;
-  --surface-raised: #FAF7F2;
-  --surface-hover: #F2ECE4;
+  --surface-raised: #FFFFFF;
+  --surface-hover: #F8F9FA;
   --header-bg: #FFFFFF;
-  --text-main: #1C1713;
-  --text-body: #453B32;
-  --text-muted: #615549;
-  --primary: #BE3D0B;
-  --primary-hover: #9A3412;
-  --primary-text: #BE3D0B;
-  --primary-subtle: rgba(190, 61, 11, 0.08);
-  --primary-glow: rgba(190, 61, 11, 0.14);
-  --border: #E8E0D5;
-  --border-strong: #D4C8B8;
-  --border-focus: #BE3D0B;
+  --text-main: #18181B;
+  --text-body: #3F3F46;
+  --text-muted: #71717A;
+  --primary: #EA580C;
+  --primary-hover: #C2410C;
+  --primary-text: #C2410C;
+  --primary-subtle: rgba(234, 88, 12, 0.08);
+  --primary-glow: rgba(234, 88, 12, 0.16);
+  --border: rgba(0, 0, 0, 0.07);
+  --border-strong: rgba(0, 0, 0, 0.12);
+  --border-focus: #EA580C;
   --text-on-primary: #FFFFFF;
 }
 
 /* 2. Night Mode Presets */
-/* 2a. charcoal: Warm Roasted Espresso Charcoal (Default Night Dining) */
+/* 2a. charcoal: Warm Roasted Charcoal (Default Night Dining) */
 :root[data-theme="dark"][data-theme-preset="charcoal"],
 body[data-theme="dark"][data-theme-preset="charcoal"],
 :root[data-theme-preset="charcoal"]:not([data-theme="light"]),
 body[data-theme-preset="charcoal"]:not([data-theme="light"]) {
-  --bg: #12100E;
-  --bg-subtle: #181512;
-  --surface: #1B1714;
-  --surface-raised: #26201B;
-  --surface-hover: #332B24;
-  --header-bg: #12100E;
-  --text-main: #FAF6F0;
-  --text-body: #D6CDC2;
-  --text-muted: #9E9284;
-  --primary: #C2410C;
-  --primary-hover: #A83D03;
+  --bg: #121212;
+  --bg-subtle: #181818;
+  --surface: #1E1E1E;
+  --surface-raised: #262626;
+  --surface-hover: #303030;
+  --header-bg: #121212;
+  --text-main: #FFFFFF;
+  --text-body: #D4D4D8;
+  --text-muted: #A1A1AA;
+  --primary: #F97316;
+  --primary-hover: #EA580C;
   --primary-text: #FB923C;
-  --primary-subtle: rgba(194, 65, 12, 0.14);
-  --primary-glow: rgba(194, 65, 12, 0.18);
-  --border: rgba(255, 245, 235, 0.08);
-  --border-strong: rgba(255, 245, 235, 0.16);
-  --border-focus: #C2410C;
+  --primary-subtle: rgba(249, 115, 22, 0.14);
+  --primary-glow: rgba(249, 115, 22, 0.20);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --border-focus: #F97316;
   --text-on-primary: #FFFFFF;
 }
 
