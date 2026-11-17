@@ -617,7 +617,9 @@ const Store = {
     }
 
     if (dbPassMatch) {
-      const sessionVersion = (licData && licData.meta && licData.meta.sessionVersion) || (licData && licData.sessionVersion) || Date.now();
+      const rawLicVersion = Number(licData && licData.sessionVersion) || 0;
+      const rawMetaVersion = Number(licData && licData.meta && licData.meta.sessionVersion) || 0;
+      const sessionVersion = Math.max(rawLicVersion, rawMetaVersion, Date.now());
       const uid = (licData && licData.ownerUid) || `tenant_${activeSlug}`;
       const session = {
         email: `${activeSlug}@harpymenu.com`,
@@ -728,6 +730,7 @@ const Store = {
             uid: userCred.user.uid, 
             authenticated: true, 
             slug: slug || cleanId, 
+            sessionVersion: Date.now(),
             timestamp: Date.now() 
           };
           this.safeSetItem(`harpy_admin_auth_${slug}`, JSON.stringify(session));

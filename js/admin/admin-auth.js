@@ -195,8 +195,10 @@ function setupAuth() {
       if (!session || !session.sessionVersion) return;
 
       db.ref(`restaurants/${slug}/meta/sessionVersion`).on('value', (snap) => {
-        const liveVersion = snap.val();
-        if (liveVersion && session.sessionVersion && liveVersion > session.sessionVersion) {
+        const liveVersion = Number(snap.val()) || 0;
+        const curVersion = Number(session.sessionVersion) || 0;
+        // Require at least 10s difference to eliminate sub-second registration timestamp drift
+        if (liveVersion > 0 && curVersion > 0 && liveVersion > (curVersion + 10000)) {
           db.ref(`restaurants/${slug}/meta/sessionVersion`).off();
           showToastNotification("تم تغيير كلمة مرور هذا المطعم وتم إنهاء جلستك من كافة الأجهزة.", "error");
           setTimeout(async () => {
