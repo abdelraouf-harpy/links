@@ -1,12 +1,4 @@
 {
-  "aloo": {
-    "slug": "aloo",
-    "name": "Aloo Burger",
-    "logo": "https://res.cloudinary.com/pq2pimug/image/upload/v1793879648/ycssznrc2i1rf8abpyu2.jpg",
-    "desc": "قائمة طعام Aloo Burger والطلب الإلكتروني المباشر",
-    "businessType": "restaurant",
-    "customDomain": ""
-  },
   "elmetaashy": {
     "slug": "elmetaashy",
     "name": "El Metaashy",

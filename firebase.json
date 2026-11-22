@@ -28,26 +28,6 @@
         "type": 301
       },
       {
-        "source": "/aloo.html",
-        "destination": "/order.html?m=aloo",
-        "type": 301
-      },
-      {
-        "source": "/aloo-admin.html",
-        "destination": "/admin.html?m=aloo",
-        "type": 301
-      },
-      {
-        "source": "/manifest-aloo.json",
-        "destination": "/manifest.json?m=aloo",
-        "type": 301
-      },
-      {
-        "source": "/admin-manifest-aloo.json",
-        "destination": "/admin-manifest.json?m=aloo",
-        "type": 301
-      },
-      {
         "source": "/elmetaashy.html",
         "destination": "/order.html?m=elmetaashy",
         "type": 301
