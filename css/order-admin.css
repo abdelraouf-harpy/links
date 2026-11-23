@@ -2094,7 +2094,7 @@ html.admin-unlocked #login-modal-backdrop {
   box-shadow: 0 25px 60px var(--overlay-dark);
   color: var(--text-main);
   box-sizing: border-box;
-  font-family: 'Tajawal', 'Cairo', 'Segoe UI', Tahoma, Arial, sans-serif;
+  font-family: 'Tajawal', 'Segoe UI', Tahoma, Arial, sans-serif;
   animation: invPopIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   flex-direction: column;
