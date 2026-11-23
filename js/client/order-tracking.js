@@ -317,7 +317,7 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
     }
     SoundFX.playCash();
     const isStoreMode = !!(window.NicheEngine && NicheEngine.isStoreMode(settings));
-    showToastNotification(isStoreMode ? "تم استلام طلبك بنجاح! جاري تجهيز وشحن الطلب" : "تم إرسال واستلام طلبك بنجاح! بدأ المطعم بالتجهيز", "success");
+    showToastNotification(isStoreMode ? "تم استلام طلبك بنجاح! جاري التجهيز" : "تم استلام طلبك بنجاح! بدأ التجهيز", "success");
     Store.clearCart();
     closeCartDrawer();
     goToCheckoutStep(1);

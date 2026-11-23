@@ -4343,9 +4343,9 @@ const Store = {
             if (!o) return false;
             const cid = String(o.orderId || o.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
             return !delIds.has(cid) && !delIds.has(o.orderId) && !delIds.has(o.id);
-          });
+          }).slice(0, 1);
         }
-        return list;
+        return list.slice(0, 1);
       }
       return [];
     } catch {
@@ -4362,7 +4362,7 @@ const Store = {
     } else {
       history.unshift(orderData);
     }
-    const trimmed = history.slice(0, 20);
+    const trimmed = history.slice(0, 1);
     this.safeSetItem(this.getKey('harpy_order_history'), JSON.stringify(trimmed));
   },
 

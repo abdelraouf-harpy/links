@@ -115,7 +115,8 @@ function renderLastOrderRecall() {
   const lastOrder = Store.getLastOrder();
   if (elements.lastOrderBanner) elements.lastOrderBanner.style.display = 'none';
 
-  if (lastOrder && !lastOrder.archived && lastOrder.items && lastOrder.items.length > 0 && lastOrder.orderId) {
+  const isTerminal = lastOrder && (lastOrder.status === 'delivered' || lastOrder.status === 'cancelled');
+  if (lastOrder && !lastOrder.archived && !isTerminal && lastOrder.items && lastOrder.items.length > 0 && lastOrder.orderId) {
     if (typeof triggerOrdersTabPulse === 'function') {
       triggerOrdersTabPulse();
     }
@@ -310,7 +311,7 @@ function updateLedgerUI() {
       spendTierProgress = Math.min(100, Math.round((subtotal / minSpend) * 100));
       if (elements.spendTierCard) {
         elements.spendTierCard.style.display = 'block';
-        if (elements.spendTierMsg) elements.spendTierMsg.textContent = `أضف بـ ${remaining.toFixed(0)} ${currency} أخرى لتحصل على خصم ${tierValue}${isPercent ? '%' : ' ' + currency}`;
+        if (elements.spendTierMsg) elements.spendTierMsg.textContent = `أضف ${remaining.toFixed(0)} ${currency} لتحصل على خصم ${tierValue}${isPercent ? '%' : ' ' + currency}`;
         if (elements.spendTierPercent) elements.spendTierPercent.textContent = `متبقي ${remaining.toFixed(0)} ${currency}`;
         if (elements.spendTierFill) elements.spendTierFill.style.width = `${spendTierProgress}%`;
       }

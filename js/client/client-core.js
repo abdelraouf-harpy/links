@@ -2110,13 +2110,27 @@ function renderOrdersView() {
     }
   }
 
-  const cleanHistory = (history || []).filter(h => {
+  // Terminal status check: delivered or cancelled orders are moved to previous history, not active tracker
+  const isTerminalStatus = lastOrder && (lastOrder.status === 'delivered' || lastOrder.status === 'cancelled');
+
+  if (lastOrder && isTerminalStatus && !isLastOrderDeleted) {
+    if (typeof Store !== 'undefined' && typeof Store.addOrderToHistory === 'function') {
+      Store.addOrderToHistory(lastOrder);
+    }
+  }
+
+  const currentHistory = (typeof Store !== 'undefined' && Store.getOrderHistory) ? Store.getOrderHistory() : (history || []);
+
+  let cleanHistory = (currentHistory || []).filter(h => {
     if (!h) return false;
     const hCid = String(h.orderId || h.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
     return !deletedIds.has(hCid) && !deletedIds.has(h.orderId) && !deletedIds.has(h.id);
   });
 
-  const hasActiveOrder = !!(!isLastOrderDeleted && lastOrder && !lastOrder.archived && lastOrder.items && lastOrder.items.length > 0);
+  // Keep strictly only 1 single latest order in previous orders history
+  cleanHistory = cleanHistory.slice(0, 1);
+
+  const hasActiveOrder = !!(!isLastOrderDeleted && lastOrder && !lastOrder.archived && !isTerminalStatus && lastOrder.items && lastOrder.items.length > 0);
   const hasHistory = (cleanHistory && cleanHistory.length > 0);
 
   if (!hasActiveOrder && !hasHistory) {
@@ -2240,14 +2254,14 @@ function renderOrdersView() {
 
         return `
           <div class="previous-order-card" style="background:var(--surface-raised); border:1px solid var(--border-strong); border-radius:14px; padding:12px 14px; margin-bottom:12px; box-shadow:var(--shadow-sm);">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-              <div>
-                <strong class="font-num" style="color:var(--text-main); font-size:13.5px;">${esc(safeOrderId)}</strong>
-                <span style="font-size:11px; color:var(--text-muted); margin-right:6px;">${dateStr}</span>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:8px;">
+              <div style="display:flex; flex-direction:column; gap:2px; min-width:0;">
+                <strong class="font-num" style="color:var(--text-main); font-size:13.5px; font-weight:800;">${esc(safeOrderId)}</strong>
+                <span style="font-size:11px; color:var(--text-muted);">${dateStr}</span>
               </div>
-              <div style="display:flex; gap:6px; align-items:center;">
-                <span style="font-size:10.5px; padding:2px 7px; border-radius:6px; background:var(--surface-hover); color:var(--text-muted); font-weight:700;">${fulfillmentBadge}</span>
-                <span style="font-size:10.5px; padding:2px 7px; border-radius:6px; background:${stBg}; color:${stColor}; font-weight:800;">${stBadge}</span>
+              <div class="previous-order-badges" style="display:flex; gap:6px; align-items:center; flex-shrink:0;">
+                <span class="previous-order-badge" style="background:var(--surface-hover); color:var(--text-muted);">${fulfillmentBadge}</span>
+                <span class="previous-order-badge" style="background:${stBg}; color:${stColor}; font-weight:800;">${stBadge}</span>
                 <button type="button" class="btn-delete-history-order" onclick="window.deleteCustomerHistoryOrder && window.deleteCustomerHistoryOrder('${cleanId}')" title="مسح الطلب من السجل" aria-label="مسح الطلب">
                   <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
@@ -2256,7 +2270,7 @@ function renderOrdersView() {
             <p style="font-size:12px; color:var(--text-body); margin:6px 0 10px 0; line-height:1.4; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${itemsSummary}</p>
             <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:8px;">
               <span class="font-num" style="font-weight:800; font-size:13px; color:var(--text-main);">${(parseFloat(order.finalTotal) || 0).toFixed(2)} ${currency}</span>
-              <button type="button" class="btn btn-primary btn-sm" onclick="window.reorderPreviousOrder && window.reorderPreviousOrder('${cleanId}')" style="font-size:11.5px; padding:5px 12px; border-radius:8px;">
+              <button type="button" class="btn btn-primary btn-reorder-action" onclick="window.reorderPreviousOrder && window.reorderPreviousOrder('${cleanId}')">
                 <span>${typeof window.t === 'function' ? window.t('btn_reorder', 'إعادة الطلب') : 'إعادة الطلب'}</span>
               </button>
             </div>
