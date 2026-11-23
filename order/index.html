@@ -116,8 +116,8 @@
   <link rel="preconnect" href="https://i.ibb.co" crossorigin>
   <link rel="dns-prefetch" href="https://i.ibb.co">
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/order-tokens.css?v=202.1">
-  <link rel="stylesheet" href="css/order-client.css?v=202.1">
+  <link rel="stylesheet" href="css/order-tokens.css?v=202.2">
+  <link rel="stylesheet" href="css/order-client.css?v=202.2">
   <style id="harpy-critical-layout">
     /* ═══════════════════════════════════════════════════════════
        CRITICAL DEFENSIVE INLINE SHIELD (Prevents SW Cache Mismatches)
@@ -504,6 +504,34 @@
     .products-flow.view-mode-dual .food-item-body {
       order: 1 !important;
       padding: 10px 10px !important;
+    }
+    .products-flow.view-mode-dual .food-item-title {
+      font-size: 0.92rem !important;
+      font-weight: 750 !important;
+      line-height: 1.4 !important;
+      margin: 0 0 6px 0 !important;
+      padding-top: 3.5px !important;
+      display: -webkit-box !important;
+      -webkit-line-clamp: 2 !important;
+      -webkit-box-orient: vertical !important;
+      overflow: hidden !important;
+      white-space: normal !important;
+      letter-spacing: 0 !important;
+      min-height: calc(2 * 1.4em + 3.5px) !important;
+    }
+    .products-flow.view-mode-dual .btn-quick-add {
+      height: 31px !important;
+      min-height: 31px !important;
+      padding: 0 12px !important;
+      font-size: 0.77rem !important;
+      font-weight: 750 !important;
+      border-radius: 999px !important;
+      letter-spacing: 0 !important;
+    }
+    .products-flow.view-mode-dual .btn-quick-add span {
+      display: inline-block !important;
+      transform: translateY(1.5px) !important;
+      line-height: 1 !important;
     }
 
     /* 7. Critical Modal & Bottom-Nav Stacking Defense */

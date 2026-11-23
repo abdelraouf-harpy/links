@@ -880,7 +880,8 @@
   font-weight: 800;
   color: var(--text-main);
   margin-bottom: 8px;
-  line-height: 1.35;
+  line-height: 1.4;
+  padding-top: 2px;
   cursor: pointer;
   transition: color 0.2s ease;
 }
@@ -2695,17 +2696,18 @@ html[dir="ltr"] .cart-drawer.open {
 }
 
 .products-flow.view-mode-dual .food-item-title {
-  font-size: 0.94rem !important;
+  font-size: 0.92rem !important;
   font-weight: 750 !important;
-  line-height: 1.3 !important;
-  margin: 0 0 4px 0 !important;
+  line-height: 1.4 !important;
+  margin: 0 0 6px 0 !important;
+  padding-top: 3.5px !important;
   display: -webkit-box !important;
   -webkit-line-clamp: 2 !important;
   -webkit-box-orient: vertical !important;
   overflow: hidden !important;
   white-space: normal !important;
   letter-spacing: 0 !important;
-  min-height: 2.6em !important;
+  min-height: calc(2 * 1.4em + 3.5px) !important;
 }
 
 [data-theme="dark"] .products-flow.view-mode-dual .food-item-title {
@@ -2790,11 +2792,11 @@ html[dir="ltr"] .cart-drawer.open {
   border: none !important;
   color: var(--text-on-primary) !important;
   border-radius: 999px !important;
-  padding: 7px 15px !important;
-  font-size: 0.82rem !important;
-  font-weight: 800 !important;
-  min-height: 36px !important;
-  height: 36px !important;
+  padding: 0 12px !important;
+  font-size: 0.77rem !important;
+  font-weight: 750 !important;
+  min-height: 31px !important;
+  height: 31px !important;
   line-height: 1 !important;
   white-space: nowrap !important;
   cursor: pointer !important;
@@ -2811,6 +2813,12 @@ html[dir="ltr"] .cart-drawer.open {
   letter-spacing: 0 !important;
   -webkit-tap-highlight-color: transparent !important;
   outline: none !important;
+}
+
+.products-flow.view-mode-dual .btn-quick-add span {
+  display: inline-block !important;
+  transform: translateY(1.5px) !important;
+  line-height: 1 !important;
 }
 
 .products-flow.view-mode-dual .btn-quick-add::after {
