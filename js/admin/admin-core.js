@@ -567,7 +567,7 @@ window.switchTab = function(targetTabId, updateHash = true) {
     } else if (targetTabId === 'tab-pos') {
       if (typeof initPOS === 'function') initPOS();
     } else if (targetTabId === 'tab-orders') {
-      if (typeof renderOrdersList === 'function') renderOrdersList(Store.getOrders());
+      if (typeof renderOrdersList === 'function') renderOrdersList(Store.getLiveOrders());
     } else if (targetTabId === 'tab-archive') {
       if (typeof renderInvoicesArchive === 'function') renderInvoicesArchive(Store.getOrders());
     } else if (targetTabId === 'tab-categories') {
@@ -713,12 +713,14 @@ function bindDeviceImageUploader({
 
   const origPromptHtml = prompt ? prompt.innerHTML : '';
 
+  let currentPendingFile = null;
+
   const showPreview = (src) => {
     if (previewImg && previewWrap && prompt) {
       previewImg.src = src;
       previewWrap.style.display = 'block';
       prompt.style.display = 'none';
-      if (hiddenUrl) hiddenUrl.value = src;
+      if (hiddenUrl) hiddenUrl.value = (src && src.startsWith('http')) ? src : '';
       if (directUrlInput && (src.startsWith('http://') || src.startsWith('https://'))) {
         directUrlInput.value = src;
       }
@@ -726,6 +728,7 @@ function bindDeviceImageUploader({
   };
 
   const clearPreview = () => {
+    currentPendingFile = null;
     if (previewImg && previewWrap && prompt) {
       previewImg.src = '';
       previewWrap.style.display = 'none';
@@ -737,29 +740,78 @@ function bindDeviceImageUploader({
     }
   };
 
-  fileInput.addEventListener('change', async (e) => {
-    const file = e.target.files[0];
+  const processAndUploadFile = async (file) => {
     if (!file) return;
-    if (prompt) prompt.innerHTML = '<span style="font-size:12px; color:var(--primary); font-weight:800;">جاري معالجة وضغط الصورة</span>';
+    currentPendingFile = file;
+
+    // Show instant local preview while uploading (never store raw local URL in hidden input)
+    let localPreviewUrl = '';
     try {
-      const compressed = await Store.uploadImage(file);
-      if (compressed) {
-        showPreview(compressed);
-        if (directUrlInput && !compressed.startsWith('http')) directUrlInput.value = '';
+      localPreviewUrl = URL.createObjectURL(file);
+      if (previewImg) previewImg.src = localPreviewUrl;
+      if (previewWrap) previewWrap.style.display = 'block';
+      if (prompt) prompt.style.display = 'none';
+    } catch(e) {}
+
+    // Ensure hidden input is cleared until verified cloud upload completes
+    if (hiddenUrl) hiddenUrl.value = '';
+
+    const statusEl = document.createElement('div');
+    statusEl.id = 'upload-status-indicator-' + fileInputId;
+    statusEl.style.cssText = 'font-size:11.5px; font-weight:800; color:var(--primary); margin-top:6px; display:flex; align-items:center; justify-content:center; gap:6px;';
+    statusEl.innerHTML = '<span class="spinner" style="display:inline-block; width:12px; height:12px; border:2px solid var(--primary); border-top-color:transparent; border-radius:50%; animation:spin 0.6s linear infinite;"></span><span>جاري رفع الصورة إلى السحابة...</span>';
+    
+    const existingStatus = document.getElementById('upload-status-indicator-' + fileInputId);
+    if (existingStatus) existingStatus.remove();
+    if (previewWrap) previewWrap.appendChild(statusEl);
+
+    try {
+      const cdnUrl = await Store.uploadImage(file);
+      if (cdnUrl && (cdnUrl.startsWith('https://') || cdnUrl.startsWith('http://'))) {
+        if (hiddenUrl) hiddenUrl.value = cdnUrl;
+        if (directUrlInput) directUrlInput.value = cdnUrl;
+        if (previewImg) previewImg.src = cdnUrl;
+        statusEl.style.color = '#10b981';
+        statusEl.innerHTML = '<span>✓ تم رفع وتأمين الصورة بنجاح</span>';
+        setTimeout(() => { if (statusEl && statusEl.parentNode) statusEl.remove(); }, 2500);
       } else {
-        clearPreview();
+        throw new Error('لم يكتمل الرفع إلى السحابة بنجاح');
       }
     } catch (err) {
-      console.warn('[Uploader] Error:', err);
-      clearPreview();
+      console.warn('[Uploader] Cloud upload failed:', err);
+      if (hiddenUrl) hiddenUrl.value = '';
+      statusEl.style.color = '#ef4444';
+      statusEl.innerHTML = `<span>✕ تعذر الرفع للسحابة.</span> <button type="button" class="btn btn-sm btn-ghost" style="color:var(--primary); font-size:11px; font-weight:800; text-decoration:underline; cursor:pointer; padding:0 4px;" onclick="window.__retryUpload_${fileInputId.replace(/[^a-zA-Z0-9_]/g, '')}()">إعادة المحاولة</button>`;
+      if (typeof showToastNotification === 'function') {
+        showToastNotification("تعذر رفع الصورة إلى السحابة. تحقق من الاتصال بالإنترنت واضغط إعادة المحاولة.", "warning");
+      }
     }
+  };
+
+  // Global retry hook for this specific dropzone instance
+  const safeId = fileInputId.replace(/[^a-zA-Z0-9_]/g, '');
+  window['__retryUpload_' + safeId] = () => {
+    if (currentPendingFile) {
+      processAndUploadFile(currentPendingFile);
+    }
+  };
+
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) processAndUploadFile(file);
   });
 
   if (directUrlInput) {
     directUrlInput.addEventListener('input', (e) => {
       const val = (e.target.value || '').trim();
-      if (val && (val.startsWith('http://') || val.startsWith('https://') || val.startsWith('data:image/'))) {
+      if (val && (val.startsWith('http://') || val.startsWith('https://'))) {
         showPreview(val);
+      } else if (val && val.startsWith('data:image/')) {
+        if (typeof showToastNotification === 'function') {
+          showToastNotification("لا يُسمح بإدخال صور Base64. يرجى إدخال رابط HTTPS معتمد أو رفع ملف الصورة.", "error");
+        }
+        directUrlInput.value = '';
+        clearPreview();
       } else if (!val) {
         clearPreview();
       }
@@ -780,24 +832,12 @@ function bindDeviceImageUploader({
   dropzone.addEventListener('dragleave', () => {
     dropzone.style.borderColor = '';
   });
-  dropzone.addEventListener('drop', async (e) => {
+  dropzone.addEventListener('drop', (e) => {
     e.preventDefault();
     dropzone.style.borderColor = '';
     const file = e.dataTransfer.files[0];
     if (file && file.type.startsWith('image/')) {
-      if (prompt) prompt.innerHTML = '<span style="font-size:12px; color:var(--primary); font-weight:800;">جاري معالجة وضغط الصورة</span>';
-      try {
-        const compressed = await Store.uploadImage(file);
-        if (compressed) {
-          showPreview(compressed);
-          if (directUrlInput && !compressed.startsWith('http')) directUrlInput.value = '';
-        } else {
-          clearPreview();
-        }
-      } catch (err) {
-        console.warn('[Uploader] Error:', err);
-        clearPreview();
-      }
+      processAndUploadFile(file);
     }
   });
 
@@ -848,7 +888,7 @@ function showToastNotification(message, type = 'success') {
 // Global Dashboard Data Orchestrator
 function loadAllDashboardData() {
   try { if (typeof renderRestaurantHub === 'function') renderRestaurantHub(); } catch(e) { console.error("[loadAllDashboardData] renderRestaurantHub:", e); }
-  try { if (typeof renderOrdersList === 'function') renderOrdersList(Store.getOrders()); } catch(e) { console.error("[loadAllDashboardData] renderOrdersList:", e); }
+  try { if (typeof renderOrdersList === 'function') renderOrdersList(Store.getLiveOrders()); } catch(e) { console.error("[loadAllDashboardData] renderOrdersList:", e); }
   try { if (typeof renderInvoicesArchive === 'function') renderInvoicesArchive(Store.getOrders()); } catch(e) { console.error("[loadAllDashboardData] renderInvoicesArchive:", e); }
   try { if (typeof renderCatalog === 'function') renderCatalog(); } catch(e) { console.error("[loadAllDashboardData] renderCatalog:", e); }
   try { if (typeof renderCategoriesList === 'function') renderCategoriesList(); } catch(e) { console.error("[loadAllDashboardData] renderCategoriesList:", e); }

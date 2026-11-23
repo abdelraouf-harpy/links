@@ -795,7 +795,7 @@ window.handleQuickAddItem = function(productId, triggerElement) {
       basePrice: effPrice,
       price: effPrice,
       appliedOfferEndsAt: isTimed ? p.offerEndsAt : 0,
-      image: p.image,
+      image: (p.image && typeof p.image === 'string' && !p.image.startsWith('data:')) ? p.image : '',
       category: p.category,
       category_en: p.category_en || (typeof window.tr === 'function' ? window.tr(p.category) : ''),
       selectedSize: null,

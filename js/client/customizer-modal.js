@@ -243,7 +243,7 @@ function initCustomizerEvents() {
         basePrice: effBase,
         price: unitPrice,
         appliedOfferEndsAt: isTimed ? customizerProduct.offerEndsAt : 0,
-        image: customizerProduct.image,
+        image: (customizerProduct.image && typeof customizerProduct.image === 'string' && !customizerProduct.image.startsWith('data:')) ? customizerProduct.image : '',
         category: customizerProduct.category,
         category_en: customizerProduct.category_en || (typeof window.tr === 'function' ? window.tr(customizerProduct.category) : ''),
         selectedSize: customizerSelectedSize ? { 

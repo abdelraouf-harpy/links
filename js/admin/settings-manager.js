@@ -398,6 +398,20 @@ async function saveSettingsFromForm() {
       }
     }
 
+    let cleanCover = (document.getElementById('set-cover-url')?.value || '').trim();
+    if (!cleanCover && document.getElementById('set-cover-url-direct')) {
+      cleanCover = (document.getElementById('set-cover-url-direct').value || '').trim();
+    }
+
+    if (cleanLogo && cleanLogo.startsWith('data:')) {
+      showToastNotification("تعذر حفظ الإعدادات: شعار المطعم لم يكتمل رفعه للسحابة بنجاح. يرجى الضغط على «إعادة المحاولة» أو اختيار رابط سحابي.", "error");
+      return;
+    }
+    if (cleanCover && cleanCover.startsWith('data:')) {
+      showToastNotification("تعذر حفظ الإعدادات: صورة الغلاف لم يكتمل رفعها للسحابة بنجاح. يرجى الضغط على «إعادة المحاولة» أو اختيار رابط سحابي.", "error");
+      return;
+    }
+
     const updated = {
       ...current,
       storeName: (adminElements.setStoreName?.value || '').trim(),
@@ -407,7 +421,7 @@ async function saveSettingsFromForm() {
       walletNumber: (adminElements.setWalletNumber?.value || '').trim(),
       walletName: (adminElements.setWalletName?.value || '').trim(),
       logo: cleanLogo,
-      cover: (document.getElementById('set-cover-url')?.value || '').trim(),
+      cover: cleanCover,
 
       deliveryTime: (adminElements.setDeliveryTime?.value || '').trim() || '25 - 35 دقيقة',
       showAnnouncement: adminElements.setShowAnnouncement?.checked === true,

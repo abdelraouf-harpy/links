@@ -1118,6 +1118,15 @@ async function saveProductForm() {
     }
   }
 
+  if (image && image.startsWith('data:')) {
+    showToastNotification("تعذر حفظ الصنف: الصورة لم يتم رفعها للسحابة بنجاح بعد. يرجى الضغط على «إعادة المحاولة» أو اختيار رابط سحابي.", "error");
+    return;
+  }
+  if (images && images.some(img => typeof img === 'string' && img.startsWith('data:'))) {
+    showToastNotification("تعذر حفظ الصنف: معرض الصور يحتوي على نص صورة محلي Base64 غير مسموح به.", "error");
+    return;
+  }
+
   const productData = {
     id,
     name,

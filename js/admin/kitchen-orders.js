@@ -1202,6 +1202,23 @@ window.setArchiveDatePreset = function(preset) {
   }
   currentArchiveDatePreset = preset;
 
+  // Strictly fetch historical orders on demand for preset buttons (week, month, all)
+  // 'custom' is deliberately excluded here to avoid duplicate triggers with applyCustomArchiveDateRange()
+  if (['week', 'month', 'all'].includes(preset)) {
+    const slug = typeof Store !== 'undefined' ? Store.getRestaurantSlug() : null;
+    if (slug && typeof Store.loadHistoricalOrders === 'function') {
+      let fromIso = null;
+      if (preset === 'week') {
+        fromIso = new Date(Date.now() - 7 * 86400000).toISOString();
+      } else if (preset === 'month') {
+        fromIso = new Date(Date.now() - 31 * 86400000).toISOString();
+      }
+      Store.loadHistoricalOrders(slug, { fromIso }).then((orders) => {
+        renderInvoicesArchive(orders);
+      });
+    }
+  }
+
   const periodSelect = document.getElementById('archive-period-select');
   if (periodSelect && periodSelect.value !== preset) {
     periodSelect.value = preset;
@@ -1308,6 +1325,15 @@ window.applyCustomArchiveDateRange = function() {
 
   updateArchiveDateRangeLabel();
   renderInvoicesArchive();
+
+  // Handle custom date historical fetch strictly when user provides start date
+  if (archiveCustomStartDate) {
+    const fromIso = new Date(archiveCustomStartDate + 'T00:00:00.000Z').toISOString();
+    const slug = typeof Store !== 'undefined' ? Store.getRestaurantSlug() : null;
+    if (slug && typeof Store.loadHistoricalOrders === 'function') {
+      Store.loadHistoricalOrders(slug, { fromIso }).then((orders) => renderInvoicesArchive(orders));
+    }
+  }
   showToastNotification("تم تطبيق فلترة الفترة المحددة", "success");
 };
 
@@ -1400,7 +1426,7 @@ window.handleArchiveSearch = function(query) {
 window.renderOrdersList = function(orders = null) {
   if (!adminElements.adminOrdersContainer) return;
   if (orders === null || orders === undefined) {
-    orders = Store.getOrders();
+    orders = (typeof Store !== 'undefined' && Store.getLiveOrders) ? Store.getLiveOrders() : Store.getOrders();
   }
   // Defensive filter: Guarantee zero ghost, dummy, or corrupted orders render in kitchen
   orders = (orders || []).filter(o => {
@@ -1996,9 +2022,12 @@ window.showAdminOrderNotification = showAdminOrderNotification;
 
 // Instant Reactive Repaint on Store Orders Update Event
 window.addEventListener('store_orders_updated', (e) => {
-  const orders = (e && e.detail) ? e.detail : (typeof Store !== 'undefined' ? Store.getOrders() : null);
-  if (typeof window.renderOrdersList === 'function') window.renderOrdersList(orders);
-  if (typeof window.renderInvoicesArchive === 'function') window.renderInvoicesArchive(orders);
+  if (typeof window.renderOrdersList === 'function') {
+    window.renderOrdersList(typeof Store !== 'undefined' && Store.getLiveOrders ? Store.getLiveOrders() : null);
+  }
+  if (typeof window.renderInvoicesArchive === 'function') {
+    window.renderInvoicesArchive(typeof Store !== 'undefined' ? Store.getOrders() : null);
+  }
 });
 
 function initArchiveDateInputs() {
@@ -2056,17 +2085,26 @@ function updateKitchenShiftBadge() {
   if (lbl) lbl.textContent = `الوردية #${num}`;
 }
 
-function openShiftCloseModal() {
+async function openShiftCloseModal() {
   if (window.ModuleEnforcer && window.ModuleEnforcer.modules && window.ModuleEnforcer.modules.shifts === false) {
     return;
   }
   const modal = document.getElementById('shift-close-modal');
   const backdrop = document.getElementById('shift-close-backdrop');
   const currency = (Store.getSettings ? Store.getSettings().currency : 'ج.م') || 'ج.م';
-  const orders = Store.getOrders() || [];
   const curShift = Store.getCurrentShift ? Store.getCurrentShift() : { shiftNumber: 1, openedAt: new Date().toISOString() };
-
   const shiftStartMs = new Date(curShift.openedAt).getTime();
+
+  // If shift was opened older than the 48-hour live window, load historical orders for full accuracy
+  const isShiftOlderThanWindow = shiftStartMs < (Date.now() - 48 * 60 * 60 * 1000);
+  if (isShiftOlderThanWindow && typeof Store !== 'undefined' && typeof Store.loadHistoricalOrders === 'function') {
+    const slug = Store.getRestaurantSlug();
+    if (slug) {
+      await Store.loadHistoricalOrders(slug, { fromIso: new Date(shiftStartMs).toISOString() });
+    }
+  }
+
+  const orders = Store.getOrders() || [];
   const durationMs = Math.max(0, Date.now() - shiftStartMs);
 
   // Delivered orders since shift opened
@@ -2971,8 +3009,11 @@ function updateHeaderShiftCockpit() {
   if (!shiftNumEl && !shiftRevEl && !shiftProfitEl && !drawerShiftNum && !archiveShiftTitle) return;
 
   const currency = (Store.getSettings ? Store.getSettings().currency : 'ج.م') || 'ج.م';
-  const orders = Store.getOrders() || [];
   const shiftStartMs = new Date(curShift.openedAt).getTime();
+  const isShiftOlderThanWindow = shiftStartMs < (Date.now() - 48 * 60 * 60 * 1000);
+  const orders = isShiftOlderThanWindow 
+    ? (Store.getOrders() || []) 
+    : ((typeof Store !== 'undefined' && Store.getLiveOrders) ? Store.getLiveOrders() : (Store.getOrders() || []));
 
   let totalRev = 0;
   let totalCogs = 0;

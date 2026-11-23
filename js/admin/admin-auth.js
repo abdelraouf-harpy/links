@@ -173,9 +173,9 @@ function setupAuth() {
     });
 
     // Subscribe to real-time incoming orders
-    ordersUnsubscribe = Store.syncOrdersFromCloud(slug, (orders) => {
-      renderOrdersList(orders);
-      renderInvoicesArchive(orders);
+    ordersUnsubscribe = Store.syncOrdersFromCloud(slug, (liveOrders, archiveOrders) => {
+      renderOrdersList(liveOrders);
+      renderInvoicesArchive(archiveOrders || liveOrders);
     });
 
     listenToSessionRevocation();
@@ -331,9 +331,9 @@ function setupAuth() {
         // Authenticated credentials now ready: sync secured raw materials from cloud
         syncRawMaterialsCloud(user);
         if (typeof ordersUnsubscribe !== 'function') {
-          ordersUnsubscribe = Store.syncOrdersFromCloud(slug, (orders) => {
-            renderOrdersList(orders);
-            renderInvoicesArchive(orders);
+          ordersUnsubscribe = Store.syncOrdersFromCloud(slug, (liveOrders, archiveOrders) => {
+            renderOrdersList(liveOrders);
+            renderInvoicesArchive(archiveOrders || liveOrders);
           });
         }
       }

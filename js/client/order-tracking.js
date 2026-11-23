@@ -147,11 +147,11 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
           }
         } catch (e) {
           console.warn("[Checkout] Receipt upload fallback:", e);
-          try {
-            const compressed = await Store.compressImage(file, 900, 900, 0.78);
-            window.uploadedReceiptUrl = compressed;
-            uploadedReceiptUrl = compressed;
-          } catch(e2) {}
+          window.uploadedReceiptUrl = null;
+          uploadedReceiptUrl = null;
+          if (typeof showToastNotification === 'function') {
+            showToastNotification("تعذر رفع صورة الإيصال إلى السحابة، يرجى إعادة المحاولة والتأكد من الاتصال", "error");
+          }
         }
       }
     }
@@ -217,7 +217,18 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
     fulfillmentType: fType,
     orderType: (fType === 'dinein' ? 'dine_in' : fType),
     tableNumber: fType === 'dinein' ? tableNum : null,
-    items: cart,
+    items: cart.map(item => {
+      const clean = { ...item };
+      // Strictly prevent Base64 images from entering the order database
+      if (clean.image) {
+        if (typeof clean.image === 'string' && (clean.image.startsWith('https://') || clean.image.startsWith('http://'))) {
+          // retain clean lightweight URL
+        } else {
+          delete clean.image;
+        }
+      }
+      return clean;
+    }),
     customer: { name, phone, address: formattedAddress, notes },
     subtotal,
     discount: totalDiscounts,
@@ -231,7 +242,9 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
     deliveryZone: deliveryZone,
     finalTotal,
     paymentMethod: selectedPaymentMethod,
-    receiptUrl: window.uploadedReceiptUrl || uploadedReceiptUrl || null,
+    receiptUrl: (window.uploadedReceiptUrl && typeof window.uploadedReceiptUrl === 'string' && window.uploadedReceiptUrl.startsWith('http')) 
+      ? window.uploadedReceiptUrl 
+      : ((uploadedReceiptUrl && typeof uploadedReceiptUrl === 'string' && uploadedReceiptUrl.startsWith('http')) ? uploadedReceiptUrl : null),
     status: 'pending',
     createdAt: new Date().toISOString(),
     timestamp: Date.now()

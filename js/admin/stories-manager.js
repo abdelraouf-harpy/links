@@ -138,6 +138,11 @@ async function saveStoryForm() {
     return;
   }
 
+  if (image && image.startsWith('data:')) {
+    showToastNotification("تعذر حفظ القصة: الصورة لم يتم رفعها للسحابة بنجاح بعد. يرجى الضغط على «إعادة المحاولة» أو اختيار رابط سحابي.", "error");
+    return;
+  }
+
   const storyData = { id, title, tagline, badge, productId, price, desc, image };
 
   if (submitBtn) {

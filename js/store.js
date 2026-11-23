@@ -554,8 +554,9 @@ const Store = {
       }
     }
 
-    // 4. Instant, reliable zero-hang return of compressed data
-    return compressedData;
+    // 4. STRICT ZERO-BASE64 GUARD: Never return raw Base64 dataURL to avoid corrupting database payloads
+    console.error('[Store] Cloud image upload failed. Returning null to prevent Base64 leakage.');
+    return null;
   },
 
   // ── Multi-Tenant Admin Authentication Engine ─────────────
@@ -1487,6 +1488,13 @@ const Store = {
     return this.addDeletedOrderId(slug, orderId);
   },
 
+  getLiveOrders() {
+    if (this._memoryCache && this._memoryCache.liveOrders) {
+      return this._memoryCache.liveOrders;
+    }
+    return this.getOrders();
+  },
+
   getOrders(forceRefresh = false) {
     const slug = this.getRestaurantSlug();
     const deletedIds = this.getDeletedOrderIds(slug);
@@ -1824,23 +1832,46 @@ const Store = {
     let pollTimer = null;
     let lastKnownOrdersHash = '';
 
+    // 1. Anchored Session Cutoff: Fixed throughout this dashboard session so rolling window never drifts
+    const sessionCutoffIso = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+
+    // 2. Strict Partitioning: Window & Active live orders are kept isolated from historical archive
+    this._liveWindowOrders = this._liveWindowOrders || {};
+    this._activeOrdersCache = this._activeOrdersCache || {};
+    this._historicalOrders = this._historicalOrders || {};
+
+    // 3. Coalesced Dispatch: Combines updates from dual listeners to ensure a single chime & zero flicker
+    let dispatchTimer = null;
+    const scheduleMergedDispatch = () => {
+      if (isDestroyed) return;
+      if (dispatchTimer) clearTimeout(dispatchTimer);
+      dispatchTimer = setTimeout(() => {
+        if (isDestroyed) return;
+        // Live data strictly contains recent 48h + active orders (used exclusively by Kitchen & POS)
+        const liveData = { ...(this._activeOrdersCache || {}), ...(this._liveWindowOrders || {}) };
+        // Combined data includes historical orders (used exclusively by Invoices Archive & Reports)
+        const combinedData = { ...(this._historicalOrders || {}), ...liveData };
+        handleOrdersPayload(liveData, combinedData);
+      }, 25);
+    };
+
     // Initialize with cached orders hash to prevent redundant table wipe on startup
     try {
       const curOrders = this.getOrders();
       if (curOrders && curOrders.length > 0) {
         lastKnownOrdersHash = JSON.stringify(curOrders.map(o => ({ id: o.orderId, st: o.status, t: o.timestampUpdated || o.timestamp })));
         if (typeof onOrdersUpdate === 'function') {
-          onOrdersUpdate(curOrders);
+          onOrdersUpdate(curOrders, curOrders);
         }
       }
     } catch(e) {}
 
-    const handleOrdersPayload = (data) => {
-      if (isDestroyed || !data) return;
+    const processOrdersObject = (data) => {
+      if (!data) return [];
       const now = Date.now();
       const deletedIds = this.getDeletedOrderIds(slug);
       const entries = Object.entries(data);
-      const ordersList = entries.map(([fbKey, o]) => {
+      return entries.map(([fbKey, o]) => {
         if (!o || typeof o !== 'object') return null;
 
         // Auto-clean: Purge any corrupt, ghost, dummy, or test probe records from cloud RTDB
@@ -1874,20 +1905,32 @@ const Store = {
           status: finalStatus
         };
       }).filter(Boolean).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+    };
 
-      const hash = JSON.stringify(ordersList.map(o => ({ id: o.orderId, st: o.status, t: o.timestampUpdated || o.timestamp })));
+    const handleOrdersPayload = (liveData, combinedData) => {
+      if (isDestroyed) return;
+      const liveOrdersList = processOrdersObject(liveData || {});
+      const archiveOrdersList = processOrdersObject(combinedData || liveData || {});
+
+      this._memoryCache.liveOrders = liveOrdersList;
+      this._memoryCache.orders = archiveOrdersList;
+
+      const hash = JSON.stringify(liveOrdersList.map(o => ({ id: o.orderId, st: o.status, t: o.timestampUpdated || o.timestamp })));
       if (hash !== lastKnownOrdersHash) {
         lastKnownOrdersHash = hash;
-        this.saveOrders(ordersList);
+        // CRITICAL: Save ONLY the lightweight live window to localStorage (NEVER historical orders)
+        this.saveOrders(liveOrdersList);
         if (typeof onOrdersUpdate === 'function') {
-          onOrdersUpdate(ordersList);
+          onOrdersUpdate(liveOrdersList, archiveOrdersList);
         }
       }
     };
 
     // 1. WebSocket Realtime Channel (Sub-50ms when active)
     let ordersRef = null;
+    let activeOrdersRef = null;
     let wsCallback = null;
+    let activeCallback = null;
     let deletedRef = null;
     let deletedCallback = null;
     let lastWsSnapshotTime = 0;
@@ -1905,14 +1948,20 @@ const Store = {
       if (ordersRef && wsCallback) {
         try { ordersRef.off('value', wsCallback); } catch(e) {}
       }
+      if (activeOrdersRef && activeCallback) {
+        try { activeOrdersRef.off('value', activeCallback); } catch(e) {}
+      }
       if (deletedRef && deletedCallback) {
         try { deletedRef.off('value', deletedCallback); } catch(e) {}
       }
       try {
-        ordersRef = db.ref(`restaurants/${slug}/orders`);
+        // Query A: Rolling 48-Hour Window (Covers all recent orders)
+        ordersRef = db.ref(`restaurants/${slug}/orders`).orderByChild('createdAt').startAt(sessionCutoffIso);
         wsCallback = snapshot => {
           lastWsSnapshotTime = Date.now();
-          handleOrdersPayload(snapshot.val() || {});
+          // Direct replacement: Deleted or expired orders are wiped cleanly from snapshot
+          this._liveWindowOrders = snapshot.val() || {};
+          scheduleMergedDispatch();
         };
         ordersRef.on('value', wsCallback, err => {
           console.warn("[Store] Orders WS listener notice:", err ? (err.message || err.code || err) : err);
@@ -1927,7 +1976,31 @@ const Store = {
             }
           }
         });
-        this.activeListeners.orders = { ref: ordersRef, callback: wsCallback };
+
+        // =========================================================================
+        // QUERY B: ACTIVE ORDERS GUARD
+        // -------------------------------------------------------------------------
+        // System Order Lifecycle Statuses:
+        //   1. 'cancelled'         (Alphabetically starts with 'c' -> Archived)
+        //   2. 'delivered'         (Alphabetically starts with 'd' -> Archived)
+        //   3. 'out_for_delivery'  (Alphabetically starts with 'o' -> ACTIVE)
+        //   4. 'pending'           (Alphabetically starts with 'pe' -> ACTIVE)
+        //   5. 'preparing'         (Alphabetically starts with 'pr' -> ACTIVE)
+        //
+        // Range query from 'out_for_delivery' to 'preparing\uf8ff' precisely captures
+        // all 3 active statuses across the entire restaurant history without loading
+        // delivered/cancelled orders.
+        // NOTE: If any new active status is ever introduced in the future, it must
+        // be positioned or included within this query boundary.
+        // =========================================================================
+        activeOrdersRef = db.ref(`restaurants/${slug}/orders`).orderByChild('status').startAt('out_for_delivery').endAt('preparing\uf8ff');
+        activeCallback = snapshot => {
+          this._activeOrdersCache = snapshot.val() || {};
+          scheduleMergedDispatch();
+        };
+        activeOrdersRef.on('value', activeCallback);
+
+        this.activeListeners.orders = { ref: ordersRef, callback: wsCallback, activeRef: activeOrdersRef, activeCb: activeCallback };
 
         // Synchronize cloud tombstones across all connected devices in real time
         deletedRef = db.ref(`restaurants/${slug}/deletedOrderIds`);
@@ -1956,7 +2029,7 @@ const Store = {
               });
               if (filtered.length !== cur.length) {
                 this.saveOrders(filtered);
-                if (typeof onOrdersUpdate === 'function') onOrdersUpdate(filtered);
+                if (typeof onOrdersUpdate === 'function') onOrdersUpdate(filtered, filtered);
               }
             }
           }
@@ -1991,14 +2064,17 @@ const Store = {
           // Without an active auth token, secured RTDB orders endpoint will reject; avoid unnecessary 401 spam
           return;
         }
-        const res = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${encodeURIComponent(slug)}/orders.json?${authParam}`, {
+        // REST Fallback uses the exact same anchored session cutoff
+        const queryUrl = `https://harpy-order-default-rtdb.firebaseio.com/restaurants/${encodeURIComponent(slug)}/orders.json?${authParam}&orderBy=%22createdAt%22&startAt=${encodeURIComponent(JSON.stringify(sessionCutoffIso))}`;
+        const res = await fetch(queryUrl, {
           cache: 'no-store'
         });
         if (res.ok) {
           const data = await res.json();
           if (data && typeof data === 'object') {
             console.log(`[Store Orders REST] Success: received ${Object.keys(data).length} orders for ${slug}`);
-            handleOrdersPayload(data);
+            this._liveWindowOrders = data;
+            scheduleMergedDispatch();
           }
         } else {
           console.warn(`[Store Orders REST] Failed: HTTP ${res.status} for ${slug}`);
@@ -2049,6 +2125,7 @@ const Store = {
 
     return () => {
       isDestroyed = true;
+      if (dispatchTimer) clearTimeout(dispatchTimer);
       if (pollTimer) clearInterval(pollTimer);
       if (authUnsubscribe) { try { authUnsubscribe(); } catch(e) {} }
       if (typeof document !== 'undefined') {
@@ -2057,10 +2134,66 @@ const Store = {
       if (ordersRef && wsCallback) {
         try { ordersRef.off('value', wsCallback); } catch(e) {}
       }
+      if (activeOrdersRef && activeCallback) {
+        try { activeOrdersRef.off('value', activeCallback); } catch(e) {}
+      }
       if (deletedRef && deletedCallback) {
         try { deletedRef.off('value', deletedCallback); } catch(e) {}
       }
     };
+  },
+
+  // On-demand loader for historical invoices and reports (invoked strictly when user chooses older periods)
+  async loadHistoricalOrders(slug, options = {}) {
+    if (!slug || !db) return [];
+    
+    // Cache check: If 'all' was already fetched, or requested window is covered, return memory cache immediately
+    const reqIso = options.fromIso || 'all';
+    if (this._historicalFromIso === 'all' || (reqIso !== 'all' && this._historicalFromIso && reqIso >= this._historicalFromIso)) {
+      if (this._memoryCache.orders && this._memoryCache.orders.length > 0) {
+        return this._memoryCache.orders;
+      }
+    }
+
+    // Race condition guard: Monotonic request ID ignores responses from overtaken requests
+    this._historicalRequestId = (this._historicalRequestId || 0) + 1;
+    const currentRequestId = this._historicalRequestId;
+
+    try {
+      const ordersRoot = db.ref(`restaurants/${slug}/orders`);
+      let snap;
+      if (options.fromIso) {
+        snap = await ordersRoot.orderByChild('createdAt').startAt(options.fromIso).once('value');
+      } else {
+        snap = await ordersRoot.once('value');
+      }
+
+      // Discard stale response if a newer historical query was triggered in parallel
+      if (currentRequestId !== this._historicalRequestId) {
+        return this._memoryCache.orders || [];
+      }
+
+      this._historicalFromIso = options.fromIso || 'all';
+      this._historicalOrders = snap.val() || {};
+
+      // Combine with latest live state (live orders take precedence over historical)
+      const liveData = { ...(this._activeOrdersCache || {}), ...(this._liveWindowOrders || {}) };
+      const combined = { ...this._historicalOrders, ...liveData };
+      const deletedIds = this.getDeletedOrderIds(slug);
+      const fullArchive = Object.entries(combined).map(([k, v]) => {
+        if (!v || typeof v !== 'object') return null;
+        const cid = String(v.orderId || v.id || k).replace(/[^a-zA-Z0-9_-]/g, '');
+        if (deletedIds.has(cid) || deletedIds.has(k)) return null;
+        return { ...v, _fbKey: k, orderId: v.orderId || k };
+      }).filter(Boolean).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+      this._memoryCache.orders = fullArchive;
+      window.dispatchEvent(new CustomEvent('store_orders_updated', { detail: fullArchive }));
+      return fullArchive;
+    } catch (e) {
+      console.warn("[Store] Failed to load historical orders:", e);
+      return this._memoryCache.orders || [];
+    }
   },
 
   async updateOrderStatus(orderId, newStatus) {

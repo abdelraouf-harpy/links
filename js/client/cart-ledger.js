@@ -951,44 +951,21 @@ function setupEventListeners() {
           throw new Error("فشل رفع الصورة للسحابة");
         }
       } catch (err) {
-        console.warn("[Receipt] Cloud upload fallback to local canvas compression:", err);
-        try {
-          const compressed = await Store.compressImage(file, 900, 900, 0.78);
-          if (compressed) {
-            window.uploadedReceiptUrl = compressed;
-            uploadedReceiptUrl = compressed;
-            if (elements.receiptPreview) elements.receiptPreview.src = compressed;
-            if (elements.receiptPreviewWrap) elements.receiptPreviewWrap.style.display = 'block';
-            if (elements.dropzonePrompt) elements.dropzonePrompt.style.display = 'none';
+        console.warn("[Receipt] Cloud upload failed:", err);
+        window.uploadedReceiptUrl = null;
+        uploadedReceiptUrl = null;
+        if (elements.receiptPreview) elements.receiptPreview.src = '';
+        if (elements.receiptPreviewWrap) elements.receiptPreviewWrap.style.display = 'none';
+        if (elements.dropzonePrompt) elements.dropzonePrompt.style.display = 'flex';
+        if (elements.receiptInput) elements.receiptInput.value = '';
 
-            if (elements.receiptStatus) {
-              elements.receiptStatus.textContent = "تم تجهيز الإيصال بنجاح";
-              elements.receiptStatus.className = "upload-status-chip success";
-            }
-          } else {
-            throw new Error("فشل ضغط الصورة");
-          }
-        } catch (compErr) {
-          console.warn("[Receipt] Canvas fallback error:", compErr);
-          const r2 = new FileReader();
-          r2.onload = (ev) => {
-            window.uploadedReceiptUrl = ev.target.result;
-            uploadedReceiptUrl = ev.target.result;
-            if (elements.receiptPreview) elements.receiptPreview.src = ev.target.result;
-            if (elements.receiptPreviewWrap) elements.receiptPreviewWrap.style.display = 'block';
-            if (elements.dropzonePrompt) elements.dropzonePrompt.style.display = 'none';
-            if (elements.receiptStatus) {
-              elements.receiptStatus.textContent = "تم تجهيز الإيصال بنجاح";
-              elements.receiptStatus.className = "upload-status-chip success";
-            }
-          };
-          r2.onerror = () => {
-            if (elements.receiptStatus) {
-              elements.receiptStatus.textContent = "تعذر قراءة الصورة، يرجى المحاولة ثانية";
-              elements.receiptStatus.className = "upload-status-chip error";
-            }
-          };
-          r2.readAsDataURL(file);
+        if (elements.receiptStatus) {
+          elements.receiptStatus.textContent = "تعذر رفع الإيصال إلى السحابة، يرجى إعادة المحاولة";
+          elements.receiptStatus.className = "upload-status-chip error";
+          elements.receiptStatus.style.display = "inline-block";
+        }
+        if (typeof showToastNotification === 'function') {
+          showToastNotification("تعذر رفع صورة الإيصال إلى السحابة، يرجى المحاولة مرة أخرى والتأكد من جودة الاتصال", "error");
         }
       }
     });
