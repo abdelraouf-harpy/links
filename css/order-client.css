@@ -8012,12 +8012,21 @@ html[dir="ltr"] .menu-arrow {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  background: var(--bg-app, var(--overlay-backdrop));
-  color: var(--text-muted);
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--surface-raised, #F1F5F9);
+  border: 1px solid var(--border);
+  color: var(--text-main, #0F172A);
   flex-shrink: 0;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+.clean-setting-row:hover .row-arrow,
+.clean-setting-row:active .row-arrow {
+  background: var(--primary-subtle);
+  border-color: var(--primary);
+  color: var(--primary);
 }
 
 @media (max-width: 640px) {
@@ -8284,41 +8293,48 @@ html[dir="ltr"] .preview-desc {
   align-self: center;
   margin: -16px auto -4px;
   height: 22px;
-  padding: 2px 7px;
+  padding: 2px 8px;
   border-radius: 999px;
-  border1.5px solid var(--surface, var(--border));
-  background: var(--overlay-backdrop);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  color: var(--bg);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(15, 20, 28, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #FFFFFF;
   font-size: 9.5px;
   font-weight: 800;
   gap: 4px;
   max-width: calc(100% - 10px);
-  box-shadow: 0 2px 8px var(--overlay-dark);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }
 .food-item-card .card-seam-timer .offer-countdown-label {
-  color: var(--text-body);
-  font-size: 9px;
+  color: #FFFFFF !important;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 .food-item-card .card-seam-timer .cd-seg {
   min-width: 17px;
   height: 15px;
   padding: 0 3px;
   border-radius: 4px;
-  background: var(--overlay-light);
-  color: var(--warning);
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--primary, #FF5A1F);
   font-size: 9.5px;
   font-weight: 900;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 }
 .food-item-card .card-seam-timer.urgent {
-  background: var(--danger-subtle);
-  bordervar(--surface, var(--border));
-  color: var(--text-on-primary);
+  background: rgba(220, 38, 38, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #FFFFFF;
+}
+.food-item-card .card-seam-timer.urgent .offer-countdown-label {
+  color: #FFFFFF !important;
 }
 .food-item-card .card-seam-timer.urgent .cd-seg {
-  background: var(--overlay-light);
-  color: var(--text-on-primary);
+  background: #FFFFFF;
+  color: #DC2626;
 }
 .products-flow.view-mode-dual .food-item-card.has-timed-offer .food-item-body {
   padding-top: 9px !important;

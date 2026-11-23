@@ -1267,8 +1267,8 @@ html.admin-unlocked #login-modal-backdrop {
   box-shadow: var(--shadow-sm);
 }
 .pos-badge-bubble {
-  background: var(--overlay-light);
-  color: var(--text-on-primary);
+  background: #FFFFFF;
+  color: var(--primary);
   padding: 1px 7px;
   border-radius: 10px;
   font-size: 11px;
@@ -1277,10 +1277,11 @@ html.admin-unlocked #login-modal-backdrop {
   align-items: center;
   justify-content: center;
   min-width: 18px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 .pos-mobile-tab-btn:not(.active) .pos-badge-bubble {
   background: var(--primary);
-  color: var(--text-on-primary);
+  color: var(--text-on-primary, #FFFFFF);
 }
 
 .pos-back-to-menu-btn {
@@ -2093,7 +2094,7 @@ html.admin-unlocked #login-modal-backdrop {
   box-shadow: 0 25px 60px var(--overlay-dark);
   color: var(--text-main);
   box-sizing: border-box;
-  font-family: 'Cairo', 'Segoe UI', Tahoma, Arial, sans-serif;
+  font-family: 'Tajawal', 'Cairo', 'Segoe UI', Tahoma, Arial, sans-serif;
   animation: invPopIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   flex-direction: column;
@@ -4122,14 +4123,19 @@ html[dir="ltr"] .admin-drawer.open {
   border-radius: 10px;
   font-size: 11px;
   font-weight: 900;
-  background: var(--surface-raised, var(--overlay-light));
-  color: var(--text-muted);
+  background: var(--surface-raised, rgba(0, 0, 0, 0.06));
+  color: var(--text-main, #0F172A);
+  border: 1px solid var(--border);
   line-height: 1;
   margin-inline-start: 5px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: all 0.15s ease;
 }
 .btn-filter-kitchen.active .kitchen-filter-badge {
-  background: var(--overlay-light);
-  color: var(--text-on-primary);
+  background: #FFFFFF !important;
+  color: var(--primary, #FF5A1F) !important;
+  border: none !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2) !important;
 }
 
 /* ══════════════════════════════════════════════════════════════

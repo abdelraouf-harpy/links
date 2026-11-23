@@ -233,7 +233,7 @@ function setupAuth() {
     const storeSettings = Store.getSettings ? Store.getSettings(slug) : null;
     const storeName = (storeSettings && (storeSettings.storeName || storeSettings.name)) 
       ? (storeSettings.storeName || storeSettings.name) 
-      : (slug === 'king' ? 'مطعم كينج' : slug);
+      : (window.__harpyInitialStoreName || (slug === 'king' ? 'مطعم كينج' : slug));
     if (modalTitle) modalTitle.textContent = `إدارة: ${storeName}`;
     if (modalSub) modalSub.textContent = 'أدخل كلمة مرور الإدارة للدخول المباشر إلى لوحة التحكم';
     if (adminElements.adminEmailInput && !adminElements.adminEmailInput.value) {
@@ -370,11 +370,19 @@ function setupAuth() {
     }
   });
 
+  const normalizeArabicDigits = (str) => {
+    if (!str) return '';
+    return String(str)
+      .replace(/[٠-٩]/g, d => '0123456789'['٠١٢٣٤٥٦٧٨٩'.indexOf(d)])
+      .replace(/[۰-۹]/g, d => '0123456789'['۰۱۲۳۴۵۶۷۸۹'.indexOf(d)]);
+  };
+
   // Handle Login Submission
   const handleLoginSubmit = async (e) => {
     if (e) e.preventDefault();
-    const identifier = (adminElements.adminEmailInput?.value || '').trim();
-    const password = (adminElements.adminPasswordInput?.value || '').trim();
+    const identifier = (adminElements.adminEmailInput?.value || slug || '').trim();
+    const rawPassword = (adminElements.adminPasswordInput?.value || '').trim();
+    const password = normalizeArabicDigits(rawPassword);
 
     if (!password) {
       if (adminElements.loginErrorMsg) {
@@ -395,7 +403,7 @@ function setupAuth() {
     try {
       await Promise.race([
         Store.loginAdmin(identifier || slug, password),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 6000))
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 10000))
       ]);
       if (typeof Store.setBranchKeychain === 'function') {
         Store.setBranchKeychain(slug, password);

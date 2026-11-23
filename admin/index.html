@@ -92,7 +92,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Cairo:wght@600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
   
   <!-- Favicons & High-Res App Icons -->
   <link rel="icon" type="image/png" href="assets/brand/favicon.png">
@@ -115,9 +115,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Admin">
 
-  <link rel="stylesheet" href="css/order-tokens.css?v=201.0">
-  <link rel="stylesheet" href="css/order-client.css?v=201.0">
-  <link rel="stylesheet" href="css/order-admin.css?v=201.0">
+  <link rel="stylesheet" href="css/order-tokens.css?v=202.0">
+  <link rel="stylesheet" href="css/order-client.css?v=202.0">
+  <link rel="stylesheet" href="css/order-admin.css?v=202.0">
 
   <script>
     // Instant zero-delay theme toggle available immediately on page paint
@@ -165,9 +165,12 @@
           var pParts = window.location.pathname.split('/').filter(Boolean);
           var admIdx = pParts.indexOf('admin');
           if (admIdx !== -1 && pParts.length > admIdx + 1) {
-            var cand = pParts[admIdx + 1].toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
-            if (cand && !cand.endsWith('.html') && cand !== 'index') {
-              slug = cand;
+            var rawCand = pParts[admIdx + 1].toLowerCase().trim();
+            if (rawCand && !rawCand.endsWith('.html') && rawCand !== 'index') {
+              var cand = rawCand.replace(/[^a-z0-9_-]/g, '');
+              if (cand && cand !== 'index' && cand !== 'indexhtml') {
+                slug = cand;
+              }
             }
           }
         }
@@ -204,6 +207,21 @@
           localStorage.setItem('harpy_admin_active_slug', slug);
           localStorage.setItem('harpy_admin_installed_slug', slug);
         } catch(e) {}
+
+        // Resolve instant cached store name for zero-flicker UI
+        var initialStoreName = '';
+        try {
+          var cachedSetRaw = localStorage.getItem('harpy_' + slug + '_settings') || localStorage.getItem('harpy_order_settings');
+          if (cachedSetRaw) {
+            var cs = JSON.parse(cachedSetRaw);
+            initialStoreName = cs.storeName || cs.restaurantName || cs.name || '';
+          }
+        } catch(e) {}
+        if (!initialStoreName) {
+          if (slug === 'king') initialStoreName = 'مطعم كينج';
+          else initialStoreName = slug;
+        }
+        window.__harpyInitialStoreName = initialStoreName;
 
         var oldManifest = document.querySelector('link[rel="manifest"]');
         if (oldManifest) oldManifest.remove();
@@ -361,7 +379,7 @@
           if (settings && typeof settings === 'object') {
             if (!settings.storeName && settings.restaurantName) settings.storeName = settings.restaurantName;
             if (!settings.whatsappNumber && settings.phone) settings.whatsappNumber = settings.phone;
-            var rName = settings.storeName || settings.restaurantName || (slug === 'king' ? 'مطعم كينج' : slug);
+            var rName = settings.storeName || settings.restaurantName || window.__harpyInitialStoreName || (slug === 'king' ? 'مطعم كينج' : slug);
             var modalTitle = document.getElementById('login-modal-restaurant-name');
             if (modalTitle) modalTitle.textContent = 'إدارة: ' + rName;
             document.title = 'إدارة: ' + rName;
@@ -585,11 +603,29 @@
     <div class="login-icon-bubble">
       <svg class="icon icon-lg" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     </div>
-    <h2 id="login-modal-restaurant-name" style="font-size:1.15rem; font-weight:900; margin-bottom:6px; color:var(--text-main);">تسجيل دخول لوحة التحكم</h2>
+    <h2 id="login-modal-restaurant-name" style="font-size:1.15rem; font-weight:900; margin-bottom:6px; color:var(--text-main);">تسجيل الدخول</h2>
     <p id="login-modal-subtitle" style="font-size:0.84rem; color:var(--text-muted); margin-bottom:16px; line-height:1.5;">أدخل كلمة مرور إدارة المطعم للوصول المباشر</p>
+    <script>
+      (function() {
+        try {
+          var h2 = document.getElementById('login-modal-restaurant-name');
+          var s = window.__harpySlug || 'king';
+          var name = window.__harpyInitialStoreName || (s === 'king' ? 'مطعم كينج' : s);
+          if (h2) h2.textContent = 'إدارة: ' + name;
+        } catch(e) {}
+      })();
+    </script>
     
     <form id="admin-login-form" autocomplete="off" onsubmit="return false;" style="text-align:right;">
       <input type="hidden" id="admin-email-input" value="">
+      <script>
+        (function() {
+          try {
+            var inp = document.getElementById('admin-email-input');
+            if (inp) inp.value = window.__harpySlug || 'king';
+          } catch(e) {}
+        })();
+      </script>
       <div class="form-group" style="margin-bottom:14px;">
         <label class="form-label" style="font-size:12px; margin-bottom:6px; font-weight:800;">كلمة مرور لوحة التحكم</label>
         <input type="password" id="admin-password-input" class="form-input font-num" placeholder="أدخل كلمة المرور" autocomplete="current-password" required autofocus>
@@ -1751,9 +1787,9 @@
 
         <!-- Platform Footer Brand Stamp -->
     <div class="ho-system-footer-badge" style="display:flex!important;justify-content:center!important;align-items:center!important;text-align:center!important;width:100%!important;padding:16px 12px 20px!important;margin:auto 0 0 0!important;direction:ltr!important;box-sizing:border-box!important;clear:both!important;">
-      <a href="https://harpymenu.com" target="_blank" rel="noopener noreferrer" class="ho-system-badge-link" style="display:inline-flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:6px!important;padding:4px 12px!important;border-radius:9999px!important;text-decoration:none!important;border:1px solid var(--border)!important;background:var(--surface-raised)!important;direction:ltr!important;font-family:'Plus Jakarta Sans','Cairo',-apple-system,sans-serif!important;opacity:0.82!important;" title="Harpy Order">
+      <a href="https://harpymenu.com" target="_blank" rel="noopener noreferrer" class="ho-system-badge-link" style="display:inline-flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:6px!important;padding:4px 12px!important;border-radius:9999px!important;text-decoration:none!important;border:1px solid var(--border)!important;background:var(--surface-raised)!important;direction:ltr!important;font-family:'Plus Jakarta Sans','Tajawal','Cairo',-apple-system,sans-serif!important;opacity:0.82!important;" title="Harpy Order">
         <img src="assets/brand/harpy_order_emblem_transparent.png" alt="Harpy Order" class="ho-badge-icon" width="18" height="18" style="width:18px!important;height:18px!important;object-fit:contain!important;display:block!important;flex-shrink:0!important;border:none!important;">
-        <span class="ho-badge-text" style="font-size:0.76rem!important;font-weight:700!important;letter-spacing:-0.01em!important;line-height:1!important;display:inline-flex!important;align-items:baseline!important;text-decoration:none!important;font-family:'Plus Jakarta Sans','Cairo',-apple-system,sans-serif!important;">
+        <span class="ho-badge-text" style="font-size:0.76rem!important;font-weight:700!important;letter-spacing:-0.01em!important;line-height:1!important;display:inline-flex!important;align-items:baseline!important;text-decoration:none!important;font-family:'Plus Jakarta Sans','Tajawal','Cairo',-apple-system,sans-serif!important;">
           <span class="ho-badge-word-harpy" style="color:var(--text-main)!important;text-decoration:none!important;">Harpy</span><span class="ho-badge-accent" style="color:var(--primary)!important;font-weight:800!important;margin-left:2px!important;text-decoration:none!important;">Order</span>
         </span>
       </a>

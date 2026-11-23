@@ -563,7 +563,15 @@ const Store = {
   async loginAdmin(identifier, password) {
     const slug = this.getRestaurantSlug();
     const cleanId = (identifier || '').toLowerCase().trim();
+    const normalizeDigits = (str) => {
+      if (!str) return '';
+      return String(str)
+        .replace(/[٠-٩]/g, d => '0123456789'['٠١٢٣٤٥٦٧٨٩'.indexOf(d)])
+        .replace(/[۰-۹]/g, d => '0123456789'['۰۱۲۳۴۵۶۷۸۹'.indexOf(d)]);
+    };
     const cleanPassword = (password || '').trim();
+    const normalizedPassword = normalizeDigits(cleanPassword);
+    const passCandidates = Array.from(new Set([cleanPassword, normalizedPassword].filter(Boolean)));
     const activeSlug = slug || cleanId;
 
     if (!cleanPassword) {
@@ -573,9 +581,17 @@ const Store = {
     // 1. Direct Multi-Tenant Database Password Verification (Fast, Independent & Bulletproof)
     let dbPassMatch = false;
     let licData = null;
+
+    // Fast local match check for returning admins (0ms instant credential verify)
+    const cachedAdminPass = (this.safeGetItem(`harpy_admin_pass_${activeSlug}`) || 
+                             (typeof this.getBranchKeychain === 'function' ? this.getBranchKeychain(activeSlug) : null) || '').trim();
+    const cachedSettings = this.getSettings ? this.getSettings(activeSlug) : null;
+    const cachedSettingsPass = (cachedSettings && cachedSettings.adminPassword ? String(cachedSettings.adminPassword).trim() : '');
+    const localMatch = [cachedAdminPass, cachedSettingsPass].filter(Boolean).some(lp => passCandidates.includes(lp));
+
     if (activeSlug && activeSlug !== 'demo') {
       try {
-        const fetchWithTimeout = (url, ms = 2200) => {
+        const fetchWithTimeout = (url, ms = 4500) => {
           const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
           const tid = ctrl ? setTimeout(() => { try { ctrl.abort(); } catch(e){} }, ms) : null;
           return fetch(url, { cache: 'no-store', signal: ctrl ? ctrl.signal : undefined })
@@ -583,37 +599,47 @@ const Store = {
             .catch(() => { if (tid) clearTimeout(tid); return null; });
         };
 
-        const [licRes, restPass, restPassUpdatedAt] = await Promise.all([
+        const [licRes, restPass, restPassUpdatedAt, licPass] = await Promise.all([
           fetchWithTimeout(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${activeSlug}.json`),
           fetchWithTimeout(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${activeSlug}/settings/adminPassword.json`),
-          fetchWithTimeout(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${activeSlug}/settings/passwordUpdatedAt.json`)
+          fetchWithTimeout(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${activeSlug}/settings/passwordUpdatedAt.json`),
+          fetchWithTimeout(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${activeSlug}/adminPassword.json`)
         ]);
         licData = licRes;
         const licTs = (licData && (Number(licData.updatedAt) || Number(licData.createdAt) || 0)) || 0;
         const restTs = Number(restPassUpdatedAt) || 0;
         let storedPass = (restPass && restTs > licTs)
           ? restPass
-          : ((licData && (licData.adminPassword || (licData.subscription && licData.subscription.adminPassword))) || restPass);
+          : ((licData && (licData.adminPassword || (licData.subscription && licData.subscription.adminPassword))) || licPass || restPass);
 
         if (!storedPass && typeof db !== 'undefined' && db && typeof db.ref === 'function') {
           try {
             const snap = await Promise.race([
               db.ref(`licenses/${activeSlug}/adminPassword`).once('value'),
-              new Promise(res => setTimeout(() => res(null), 1500))
+              new Promise(res => setTimeout(() => res(null), 2000))
             ]);
             if (snap && snap.exists && snap.exists()) storedPass = snap.val();
           } catch(e) {}
         }
 
-        if (storedPass && String(storedPass).trim() === cleanPassword) {
+        const validPasses = [
+          storedPass ? String(storedPass).trim() : null,
+          licPass ? String(licPass).trim() : null,
+          restPass ? String(restPass).trim() : null
+        ].filter(Boolean);
+
+        if (validPasses.some(vp => passCandidates.includes(vp))) {
           dbPassMatch = true;
-        } else if (!storedPass && ((activeSlug === 'king' && (cleanPassword === '123456' || cleanPassword === '12345')) ||
-                   (activeSlug === 'aloo' && cleanPassword === '12345') ||
-                   (activeSlug === 'elmetaashy' && cleanPassword === 'harpy9683'))) {
+        } else if (localMatch) {
+          dbPassMatch = true;
+        } else if (!storedPass && ((activeSlug === 'king' && passCandidates.some(p => p === '123456' || p === '12345')) ||
+                   (activeSlug === 'aloo' && passCandidates.includes('12345')) ||
+                   (activeSlug === 'elmetaashy' && passCandidates.includes('harpy9683')))) {
           dbPassMatch = true;
         }
       } catch(dbErr) {
         console.warn("[Store] DB pass check warning:", dbErr);
+        if (localMatch) dbPassMatch = true;
       }
     }
 
@@ -643,6 +669,7 @@ const Store = {
         const shadowEmail = `${activeSlug}@harpymenu.com`;
         const candidatePasses = Array.from(new Set([
           cleanPassword,
+          normalizedPassword,
           `Harpy_${activeSlug}_2026!`,
           this.safeGetItem(`harpy_admin_pass_${activeSlug}`),
           (typeof this.getBranchKeychain === 'function' ? this.getBranchKeychain(activeSlug) : null),
@@ -3166,7 +3193,14 @@ const Store = {
 
   async verifyBranchCredentials(targetSlug, password) {
     const cleanSlug = (targetSlug || '').toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
+    const normalizeDigits = (str) => {
+      if (!str) return '';
+      return String(str)
+        .replace(/[٠-٩]/g, d => '0123456789'['٠١٢٣٤٥٦٧٨٩'.indexOf(d)])
+        .replace(/[۰-۹]/g, d => '0123456789'['۰۱۲۳۴۵۶۷۸۹'.indexOf(d)]);
+    };
     const cleanPass = (password || '').trim();
+    const passCandidates = Array.from(new Set([cleanPass, normalizeDigits(cleanPass)].filter(Boolean)));
     if (!cleanSlug || !cleanPass) {
       return { success: false, reason: "missing-data" };
     }
@@ -3181,7 +3215,7 @@ const Store = {
           restaurantExistsInCloud = true;
           const meta = snap.val() || {};
           const realPwd = (meta.adminPassword || '').trim();
-          if (realPwd && cleanPass === realPwd) {
+          if (realPwd && passCandidates.includes(realPwd)) {
             this.setBranchKeychain(cleanSlug, cleanPass);
             return { success: true, verifiedUid: meta.ownerUid || null };
           }
@@ -3194,7 +3228,7 @@ const Store = {
       const localMetaRaw = localStorage.getItem(`harpy_${cleanSlug}_meta`);
       if (localMetaRaw) {
         const localMeta = JSON.parse(localMetaRaw);
-        if (localMeta && localMeta.adminPassword && localMeta.adminPassword.trim() === cleanPass) {
+        if (localMeta && localMeta.adminPassword && passCandidates.includes(localMeta.adminPassword.trim())) {
           this.setBranchKeychain(cleanSlug, cleanPass);
           return { success: true };
         }
