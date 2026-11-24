@@ -115,9 +115,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Admin">
 
-  <link rel="stylesheet" href="css/order-tokens.css?v=202.6">
-  <link rel="stylesheet" href="css/order-client.css?v=202.6">
-  <link rel="stylesheet" href="css/order-admin.css?v=202.6">
+  <link rel="stylesheet" href="css/order-tokens.css?v=202.7">
+  <link rel="stylesheet" href="css/order-client.css?v=202.7">
+  <link rel="stylesheet" href="css/order-admin.css?v=202.7">
 
   <script>
     // Instant zero-delay theme toggle available immediately on page paint
@@ -1940,14 +1940,14 @@
             <button type="button" class="btn btn-ghost btn-sm font-num" onclick="setSingleProductOfferPresetHours(72)" style="font-size:11px; padding:3px 8px; border:1px solid var(--border);">3 أيام</button>
             <button type="button" class="btn btn-ghost btn-sm font-num" onclick="setSingleProductOfferPresetHours(168)" style="font-size:11px; padding:3px 8px; border:1px solid var(--border);">أسبوع</button>
           </div>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-            <div class="form-group" style="margin-bottom:0;">
-              <label class="form-label" style="font-size:11px; margin-bottom:3px;">ينتهي العرض في</label>
-              <input type="datetime-local" id="prod-offer-ends-at" class="form-input font-num" style="font-size:11.5px;">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; align-items:start;">
+            <div class="form-group" style="margin-bottom:0; display:flex; flex-direction:column;">
+              <label class="form-label" style="font-size:11px; margin-bottom:4px; height:24px; display:flex; align-items:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">ينتهي العرض في</label>
+              <input type="datetime-local" id="prod-offer-ends-at" class="form-input font-num" style="height:42px; font-size:11.5px; padding:6px 10px; box-sizing:border-box;">
             </div>
-            <div class="form-group" style="margin-bottom:0;">
-              <label class="form-label" style="font-size:11px; margin-bottom:3px;">عنوان العرض (اختياري)</label>
-              <input type="text" id="prod-offer-label" class="form-input" placeholder="مثال: عرض الويك إند">
+            <div class="form-group" style="margin-bottom:0; display:flex; flex-direction:column;">
+              <label class="form-label" style="font-size:11px; margin-bottom:4px; height:24px; display:flex; align-items:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">عنوان العرض (اختياري)</label>
+              <input type="text" id="prod-offer-label" class="form-input" placeholder="مثال: عرض الويك إند" style="height:42px; font-size:11.5px; padding:6px 10px; box-sizing:border-box;">
             </div>
           </div>
           <div style="font-size:10.5px; color:var(--text-muted); margin-top:6px;">
@@ -2910,14 +2910,14 @@
             <button type="button" class="btn btn-ghost btn-sm font-num" onclick="setBulkOfferPresetHours(72)" style="font-size:11px; padding:3px 8px; border:1px solid var(--border);">3 أيام</button>
             <button type="button" class="btn btn-ghost btn-sm font-num" onclick="setBulkOfferPresetHours(168)" style="font-size:11px; padding:3px 8px; border:1px solid var(--border);">أسبوع</button>
           </div>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-            <div>
-              <label class="form-label" style="font-size:11px; margin-bottom:3px;">ينتهي العرض في</label>
-              <input type="datetime-local" id="bulk-offer-ends-at" class="form-input font-num" style="font-size:11.5px;" oninput="refreshBulkPricePreview()">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; align-items:start;">
+            <div class="form-group" style="margin-bottom:0; display:flex; flex-direction:column;">
+              <label class="form-label" style="font-size:11px; margin-bottom:4px; height:24px; display:flex; align-items:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">ينتهي العرض في</label>
+              <input type="datetime-local" id="bulk-offer-ends-at" class="form-input font-num" style="height:42px; font-size:11.5px; padding:6px 10px; box-sizing:border-box;" oninput="refreshBulkPricePreview()">
             </div>
-            <div>
-              <label class="form-label" style="font-size:11px; margin-bottom:3px;">اسم العرض (اختياري)</label>
-              <input type="text" id="bulk-offer-label" class="form-input" placeholder="مثال: عروض الويك إند">
+            <div class="form-group" style="margin-bottom:0; display:flex; flex-direction:column;">
+              <label class="form-label" style="font-size:11px; margin-bottom:4px; height:24px; display:flex; align-items:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">اسم العرض (اختياري)</label>
+              <input type="text" id="bulk-offer-label" class="form-input" placeholder="مثال: عروض الويك إند" style="height:42px; font-size:11.5px; padding:6px 10px; box-sizing:border-box;">
             </div>
           </div>
         </div>
@@ -2968,24 +2968,24 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=202.6"></script>
-  <script src="js/core/sound-effects.js?v=202.6"></script>
-  <script src="js/core/niche-engine.js?v=202.6"></script>
-  <script src="js/store.js?v=202.6"></script>
-  <script src="js/admin/admin-core.js?v=202.6"></script>
-  <script src="js/admin/admin-auth.js?v=202.6"></script>
-  <script src="js/admin/kitchen-orders.js?v=202.6"></script>
-  <script src="js/admin/inventory-manager.js?v=202.6"></script>
-  <script src="js/admin/catalog-manager.js?v=202.6"></script>
-  <script src="js/admin/category-manager.js?v=202.6"></script>
-  <script src="js/admin/stories-manager.js?v=202.6"></script>
-  <script src="js/admin/backup-restore.js?v=202.6"></script>
-  <script src="js/core/qrcode.min.js?v=202.6"></script>
-  <script src="js/admin/settings-manager.js?v=202.6"></script>
-  <script src="js/admin/pos-terminal.js?v=202.6"></script>
-  <script src="js/admin/admin-push.js?v=202.6"></script>
-  <script src="js/admin.js?v=202.6"></script>
-  <script src="js/core/module-enforcer.js?v=202.6"></script>
-  <script src="js/pwa.js?v=202.6"></script>
+  <script src="js/core/demo-seed-data.js?v=202.7"></script>
+  <script src="js/core/sound-effects.js?v=202.7"></script>
+  <script src="js/core/niche-engine.js?v=202.7"></script>
+  <script src="js/store.js?v=202.7"></script>
+  <script src="js/admin/admin-core.js?v=202.7"></script>
+  <script src="js/admin/admin-auth.js?v=202.7"></script>
+  <script src="js/admin/kitchen-orders.js?v=202.7"></script>
+  <script src="js/admin/inventory-manager.js?v=202.7"></script>
+  <script src="js/admin/catalog-manager.js?v=202.7"></script>
+  <script src="js/admin/category-manager.js?v=202.7"></script>
+  <script src="js/admin/stories-manager.js?v=202.7"></script>
+  <script src="js/admin/backup-restore.js?v=202.7"></script>
+  <script src="js/core/qrcode.min.js?v=202.7"></script>
+  <script src="js/admin/settings-manager.js?v=202.7"></script>
+  <script src="js/admin/pos-terminal.js?v=202.7"></script>
+  <script src="js/admin/admin-push.js?v=202.7"></script>
+  <script src="js/admin.js?v=202.7"></script>
+  <script src="js/core/module-enforcer.js?v=202.7"></script>
+  <script src="js/pwa.js?v=202.7"></script>
 </body>
 </html>

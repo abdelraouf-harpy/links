@@ -303,7 +303,7 @@
             if (mEl.textContent !== fmt.m) mEl.textContent = fmt.m;
             if (sEl.textContent !== fmt.s) sEl.textContent = fmt.s;
           } else {
-            timerSpan.innerHTML = `<span class="cd-seg cd-h">${fmt.h}</span><span class="cd-seg cd-m">${fmt.m}</span><span class="cd-seg cd-s">${fmt.s}</span>`;
+            timerSpan.innerHTML = `<span class="cd-seg cd-h">${fmt.h}</span><span class="cd-sep">:</span><span class="cd-seg cd-m">${fmt.m}</span><span class="cd-sep">:</span><span class="cd-seg cd-s">${fmt.s}</span>`;
           }
         } else {
           el.textContent = fmt.text;

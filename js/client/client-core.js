@@ -214,6 +214,12 @@ function handlePopStateNavigation(event) {
       window.__harpySuppressPopstateCartClose = false;
       return;
     }
+    // If popped state is still a cart step, ensure drawer stays open!
+    if (event.state && event.state.harpyNav && typeof event.state.harpyNav === 'string' && event.state.harpyNav.startsWith('cart_step')) {
+      const targetStep = event.state.step || 1;
+      goToCheckoutStep(targetStep, false);
+      return;
+    }
     if (currentCheckoutStep === 3) {
       goToCheckoutStep(2, false);
       return;

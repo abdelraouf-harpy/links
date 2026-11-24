@@ -5299,4 +5299,78 @@ html.admin-locked #tab-settings .settings-sticky-save-bar,
   }
 }
 
+/* ═══════════════════════════════════════════════════════════
+   ADMIN TIMED OFFER COUNTDOWN BADGE ON PRODUCT CARDS
+   ═══════════════════════════════════════════════════════════ */
+.admin-offer-timer-pill {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  background: rgba(22, 22, 26, 0.94);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 122, 0, 0.6);
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 2.5px 6px;
+  border-radius: 6px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.admin-offer-timer-pill .admin-offer-timer-label {
+  color: #FFA500;
+  font-size: 9px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.admin-offer-timer-pill .offer-timer-digits {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  direction: ltr;
+}
+
+.admin-offer-timer-pill .cd-seg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 17px;
+  height: 15px;
+  padding: 0 3px;
+  border-radius: 4px;
+  background: rgba(255, 122, 0, 0.25);
+  color: #FFB347;
+  font-size: 9.5px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.admin-offer-timer-pill .cd-sep {
+  color: #FFA500;
+  font-weight: 900;
+  font-size: 9px;
+  line-height: 1;
+}
+
+.admin-offer-timer-pill.urgent {
+  border-color: rgba(239, 68, 68, 0.7);
+}
+
+.admin-offer-timer-pill.urgent .cd-seg {
+  background: rgba(239, 68, 68, 0.35);
+  color: #FF8080;
+}
+
+.admin-offer-timer-pill.urgent .admin-offer-timer-label,
+.admin-offer-timer-pill.urgent .cd-sep {
+  color: #FF6B6B;
+}
+
+
 

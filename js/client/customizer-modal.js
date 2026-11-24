@@ -7,15 +7,17 @@ let customizerProduct = null;
 let customizerSelectedSize = null;
 let customizerSelectedAddons = [];
 let customizerQty = 1;
+let customizerOpenedFromCart = false;
 
 
 // ── Advanced Item Customizer Modal ─────────────────────────
-window.openCustomizer = function(productId) {
+window.openCustomizer = function(productId, options = {}) {
   if (typeof checkOrderingPaused === 'function' && checkOrderingPaused()) return;
   const prods = Store.getProducts();
   const p = prods.find(item => item.id === productId);
   if (!p) return;
 
+  customizerOpenedFromCart = !!(options && options.fromCart) || !!(elements.cartDrawer && elements.cartDrawer.classList.contains('open'));
   customizerProduct = p;
   customizerSelectedSize = p.sizes && p.sizes.length > 0 ? p.sizes[0] : null;
   customizerSelectedAddons = [];
@@ -111,7 +113,7 @@ window.openCustomizer = function(productId) {
   if (elements.customizerBackdrop) elements.customizerBackdrop.classList.add('open');
   if (elements.customizerModal) elements.customizerModal.classList.add('open');
   document.body.classList.add('customizer-open');
-  pushNavState('customizer', { productId });
+  pushNavState('customizer', { productId, fromCart: customizerOpenedFromCart });
   SoundFX.playPop();
 };
 
@@ -272,9 +274,19 @@ function initCustomizerEvents() {
       Store.saveCart(cart);
 
       SoundFX.playPop();
+      const wasFromCart = customizerOpenedFromCart;
+      const addedProdName = customizerProduct ? (typeof window.getProductName === 'function' ? window.getProductName(customizerProduct) : (typeof window.tr === 'function' ? window.tr(customizerProduct.name) : customizerProduct.name)) : '';
       closeCustomizer();
       updateLedgerUI();
+      if (wasFromCart && elements.cartDrawer) {
+        elements.cartDrawer.classList.add('open');
+        if (elements.cartDrawerBackdrop) elements.cartDrawerBackdrop.classList.add('open');
+        document.body.classList.add('cart-drawer-open');
+      }
       renderProducts();
+      if (wasFromCart && addedProdName && typeof showToastNotification === 'function') {
+        showToastNotification(`تمت إضافة "${addedProdName}" إلى السلة`, "success");
+      }
     });
   }
 }
@@ -289,16 +301,27 @@ let isClosingCustomizer = false;
 function closeCustomizer(triggerHistoryBack = true) {
   if (isClosingCustomizer) return;
   isClosingCustomizer = true;
+  const wasFromCart = customizerOpenedFromCart;
   customizerProduct = null;
   if (elements.customizerBackdrop) elements.customizerBackdrop.classList.remove('open');
   if (elements.customizerModal) elements.customizerModal.classList.remove('open');
   document.body.classList.remove('customizer-open');
+
+  if (wasFromCart && elements.cartDrawer) {
+    elements.cartDrawer.classList.add('open');
+    if (elements.cartDrawerBackdrop) elements.cartDrawerBackdrop.classList.add('open');
+    document.body.classList.add('cart-drawer-open');
+  }
+
   if (triggerHistoryBack && window.history.state && window.history.state.harpyNav === 'customizer') {
     window.__harpySuppressPopstateCartClose = true;
     try { history.back(); } catch(e) {}
-    setTimeout(() => { window.__harpySuppressPopstateCartClose = false; }, 350);
+    setTimeout(() => { window.__harpySuppressPopstateCartClose = false; }, 450);
   }
-  setTimeout(() => { isClosingCustomizer = false; }, 150);
+  setTimeout(() => { 
+    isClosingCustomizer = false; 
+    customizerOpenedFromCart = false;
+  }, 150);
 }
 
 

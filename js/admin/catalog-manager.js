@@ -251,7 +251,12 @@ function renderCatalogItemsOnly() {
           ${isSpecificCat ? `<span style="position:absolute; top:8px; right:8px; background:var(--primary); color:var(--text-on-primary); font-size:10.5px; font-weight:800; padding:2px 7px; border-radius:10px; z-index:2; box-shadow:var(--shadow-sm);" class="font-num" title="ترتيب الصنف في هذا القسم">#${idx + 1}</span>` : ''}
           ${p.badge ? `<span style="position:absolute; top:8px; ${isSpecificCat ? 'right:44px;' : 'right:8px;'} background:var(--surface); color:var(--text-main); border:1px solid var(--border); font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px; z-index:2;">${p.badge}</span>` : ''}
           ${p.isFeatured ? `<span style="position:absolute; top:8px; left:8px; background:var(--primary); color:var(--text-on-primary); font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px; z-index:2;">هيرو</span>` : ''}
-          ${isTimedActive ? `<span style="position:absolute; bottom:8px; left:8px; background:var(--status-preparing); color:var(--text-on-warning); font-size:9.5px; font-weight:800; padding:2px 6px; border-radius:4px; z-index:2;" data-offer-ends="${p.offerEndsAt}">عرض مؤقت <span class="offer-timer-digits font-num">...</span></span>` : ''}
+          ${isTimedActive ? `
+            <div class="admin-offer-timer-pill" data-offer-ends="${p.offerEndsAt}">
+              <span class="admin-offer-timer-label">عرض مؤقت</span>
+              <span class="offer-timer-digits font-num"><span class="cd-seg cd-h">--</span><span class="cd-sep">:</span><span class="cd-seg cd-m">--</span><span class="cd-sep">:</span><span class="cd-seg cd-s">--</span></span>
+            </div>
+          ` : ''}
           ${hasRecipe ? `
             <span style="position:absolute; bottom:8px; right:8px; background:var(--success); color:var(--text-on-success); font-size:9.5px; font-weight:800; padding:2px 6px; border-radius:4px; display:inline-flex; align-items:center; gap:3px; z-index:2;">
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>

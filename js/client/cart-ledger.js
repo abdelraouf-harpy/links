@@ -169,17 +169,48 @@ function renderSmartPairing(cart, prods, currency) {
   }
 
   elements.cartSmartPairing.style.display = 'block';
-  elements.pairingItemsList.innerHTML = suggestions.map(p => `
-    <div class="pairing-chip-card" onclick="handlePairingAddItem('${p.id}', event)">
-      <img src="${p.image}" class="pairing-thumb" alt="${p.name}">
-      <div>
-        <div class="pairing-title">${esc(typeof window.getProductName === 'function' ? window.getProductName(p) : (typeof window.tr === 'function' ? window.tr(p.name) : p.name))}</div>
-        <div class="pairing-price font-num">${p.price} ${currency}</div>
+  elements.pairingItemsList.innerHTML = suggestions.map(p => {
+    const hasOptions = !!((p.sizes && p.sizes.length > 0) || (p.addons && p.addons.length > 0));
+    const clickHandler = hasOptions ? `handlePairingItemClick('${p.id}', event)` : `handlePairingAddItem('${p.id}', event)`;
+    const title = esc(typeof window.getProductName === 'function' ? window.getProductName(p) : (typeof window.tr === 'function' ? window.tr(p.name) : p.name));
+    return `
+      <div class="pairing-chip-card" onclick="${clickHandler}">
+        <img src="${p.image}" class="pairing-thumb" alt="${title}">
+        <div>
+          <div class="pairing-title">${title}</div>
+          <div class="pairing-price font-num">${p.price} ${currency}</div>
+        </div>
+        <button type="button" class="pairing-btn-add" title="${hasOptions ? 'خيارات وإضافة' : 'إضافة'}" onclick="${clickHandler}">+</button>
       </div>
-      <button type="button" class="pairing-btn-add" title="إضافة" onclick="handlePairingAddItem('${p.id}', event)">+</button>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
+
+window.handlePairingItemClick = function(productId, event) {
+  if (event) {
+    try { event.stopPropagation(); } catch(e) {}
+  }
+  if (typeof isOrderingDisabled === 'function' && isOrderingDisabled()) return;
+  if (typeof checkOrderingPaused === 'function' && checkOrderingPaused()) return;
+
+  const prods = Store.getProducts ? Store.getProducts() : [];
+  const p = prods.find(item => item.id === productId);
+  if (!p) return;
+
+  const availQty = Store.getAvailableStockQty ? Store.getAvailableStockQty(p) : null;
+  if ((availQty !== null && availQty <= 0) || p.soldOut === true || p.available === false) {
+    if (typeof showToastNotification === 'function') showToastNotification("عذراً، نفدت الكمية المتاحة لهذا المنتج", "warning");
+    return;
+  }
+
+  const hasOptions = !!((p.sizes && p.sizes.length > 0) || (p.addons && p.addons.length > 0));
+  if (hasOptions && typeof window.openCustomizer === 'function') {
+    window.openCustomizer(p.id, { fromCart: true });
+    return;
+  }
+
+  window.handlePairingAddItem(productId, event);
+};
 
 window.handlePairingAddItem = function(productId, event) {
   if (event) {
@@ -1241,6 +1272,7 @@ window.toggleCustomerProfileEdit = function(openEdit) {
 window.renderLastOrderRecall = renderLastOrderRecall;
 window.handleReorderClick = handleReorderClick;
 window.renderSmartPairing = renderSmartPairing;
+window.handlePairingItemClick = handlePairingItemClick;
 window.normalizeArabic = normalizeArabic;
 window.matchKeywordInAddress = matchKeywordInAddress;
 window.detectDeliveryZone = detectDeliveryZone;
