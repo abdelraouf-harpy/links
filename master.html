@@ -4196,7 +4196,7 @@
 
         try {
           const ops = [
-            rtdbRequest(`restaurants/${slug}/settings.json`, 'PATCH', { modules: modulesPayload, businessType: bType, customDomain: newDomain }),
+            rtdbRequest(`restaurants/${slug}/settings.json`, 'PATCH', { modules: modulesPayload, businessType: bType, customDomain: newDomain, updatedAt: Date.now() }),
             rtdbRequest(`licenses/${slug}.json`, 'PATCH', { modules: modulesPayload, businessType: bType, customDomain: newDomain })
           ];
           if (oldDomain && oldDomain !== newDomain && window.NicheEngine) {
@@ -4422,6 +4422,7 @@
           orderingPausedMessage: bType === 'store' ? "المتجر متوقف حالياً عن استقبال الطلبات." : "المطعم متوقف حالياً عن استقبال الطلبات.",
           workingHours: bType === 'store' ? "نستقبل الطلبات 24 ساعة يومياً" : "يومياً من 11:00 صباحاً حتى 2:00 صباحاً",
           modules: allMods,
+          updatedAt: now,
           subscription: {
             active: true,
             suspended: false,
@@ -4560,7 +4561,8 @@
           const srcData = await srcRes.json() || {};
           await Promise.all([
             fetch(`${BASE_RTDB}/restaurants/${targetSlug}/categories.json${authParam}`, { method: 'PUT', body: JSON.stringify(srcData.categories || {}) }),
-            fetch(`${BASE_RTDB}/restaurants/${targetSlug}/products.json${authParam}`, { method: 'PUT', body: JSON.stringify(srcData.products || {}) })
+            fetch(`${BASE_RTDB}/restaurants/${targetSlug}/products.json${authParam}`, { method: 'PUT', body: JSON.stringify(srcData.products || {}) }),
+            fetch(`${BASE_RTDB}/restaurants/${targetSlug}/settings/updatedAt.json${authParam}`, { method: 'PUT', body: JSON.stringify(Date.now()) })
           ]);
           this.logAudit('MENU_CLONE', `استنساخ منيو من ${sourceSlug} إلى ${targetSlug}`, targetSlug);
           this.showToast(`تم استنساخ المنيو بنجاح إلى ${targetSlug}`, "success");

@@ -1105,11 +1105,20 @@ const Store = {
     return hasChanges;
   },
 
-  syncFromCloud(slug, onUpdate) {
+  syncFromCloud(slug, onUpdate, options = {}) {
     if (!slug) return () => {};
     const isDemo = (slug === 'demo');
+    const isAdmin = !!(options.isAdmin || (typeof window !== 'undefined' && window.__harpyIsAdmin));
     let isDestroyed = false;
     let lastKnownDataHash = '';
+
+    const currentAgg = {
+      settings: this.getSettings ? this.getSettings() : (isDemo ? DEFAULT_SETTINGS : null),
+      categories: this.getCategories ? this.getCategories() : (isDemo ? DEFAULT_CATEGORIES : null),
+      products: this.getProducts ? this.getProducts() : (isDemo ? DEFAULT_PRODUCTS : null),
+      stories: this.getStories ? this.getStories() : (isDemo ? DEFAULT_STORIES : null),
+      rawMaterials: this.getRawMaterials ? this.getRawMaterials() : (isDemo ? DEFAULT_RAW_MATERIALS : null)
+    };
 
     // Initialize with current local cache hash to prevent initial re-render flicker
     try {
@@ -1166,120 +1175,185 @@ const Store = {
       }
     };
 
-    // 1. WebSocket Channel (Primary - Decoupled Public Endpoints)
     let subRefs = null;
     let subCallbacks = null;
-    try {
-      if (this.activeListeners.restaurant) {
-        if (typeof this.activeListeners.restaurant.offAll === 'function') {
-          this.activeListeners.restaurant.offAll();
-        } else if (this.activeListeners.restaurant.ref) {
-          try { this.activeListeners.restaurant.ref.off('value', this.activeListeners.restaurant.callback); } catch(e) {}
-        }
-        this.activeListeners.restaurant = null;
-      }
-      if (db) {
-        subRefs = {
-          settings: db.ref(`restaurants/${slug}/settings`),
-          categories: db.ref(`restaurants/${slug}/categories`),
-          products: db.ref(`restaurants/${slug}/products`),
-          stories: db.ref(`restaurants/${slug}/stories`),
-          settingsRawMaterials: db.ref(`restaurants/${slug}/settings/rawMaterials`)
-        };
+    let cleanupClientPolling = null;
 
-        const currentAgg = {
-          settings: this.getSettings ? this.getSettings() : (isDemo ? DEFAULT_SETTINGS : null),
-          categories: this.getCategories ? this.getCategories() : (isDemo ? DEFAULT_CATEGORIES : null),
-          products: this.getProducts ? this.getProducts() : (isDemo ? DEFAULT_PRODUCTS : null),
-          stories: this.getStories ? this.getStories() : (isDemo ? DEFAULT_STORIES : null),
-          rawMaterials: this.getRawMaterials ? this.getRawMaterials() : (isDemo ? DEFAULT_RAW_MATERIALS : null)
-        };
+    if (!isAdmin && !isDemo) {
+      // Client Mode: Zero persistent WebSockets! Ultra-lightweight (13 bytes) heartbeat & visibility polling
+      let localCachedSettings = null;
+      try {
+        const rawS = localStorage.getItem(this.getKey(STORAGE_KEYS.SETTINGS));
+        if (rawS) localCachedSettings = JSON.parse(rawS);
+      } catch(e) {}
+      let lastRemoteUpdatedTs = localCachedSettings ? (localCachedSettings.updatedAt || null) : null;
 
-        let batchProcessTimer = null;
-        const scheduleBatchProcess = () => {
-          if (batchProcessTimer) clearTimeout(batchProcessTimer);
-          batchProcessTimer = setTimeout(() => {
-            if (!isDestroyed) {
-              processSnapshotData(currentAgg);
-            }
-          }, 45);
-        };
-
-        subCallbacks = {};
-        Object.keys(subRefs).forEach(k => {
-          subCallbacks[k] = snap => {
-            let val = snap ? snap.val() : null;
-            if (isDemo) {
-              if (k === 'products' && (!val || (Array.isArray(val) && val.length === 0))) val = DEFAULT_PRODUCTS;
-              if (k === 'categories' && (!val || (Array.isArray(val) && val.length === 0))) val = DEFAULT_CATEGORIES;
-              if (k === 'stories' && (!val || (typeof val === 'object' && Object.keys(val).length === 0))) val = DEFAULT_STORIES;
-              if (k === 'settings' && (!val || (typeof val === 'object' && Object.keys(val).length === 0))) val = DEFAULT_SETTINGS;
-            }
-            if (k === 'settingsRawMaterials') {
-              if (val) {
-                currentAgg.rawMaterials = val;
-                scheduleBatchProcess();
+      const checkVersionAndRefresh = () => {
+        if (isDestroyed) return;
+        try {
+          const fbBase = `https://harpy-order-default-rtdb.firebaseio.com/restaurants/${encodeURIComponent(slug)}`;
+          fetch(`${fbBase}/settings/updatedAt.json`, { cache: 'no-store' })
+            .then(r => r.ok ? r.json() : null)
+            .then(remoteTs => {
+              if (isDestroyed || !remoteTs) return;
+              // If remote timestamp changed or was not set in cache: refresh menu data via 4 endpoints
+              if (lastRemoteUpdatedTs === null || Number(remoteTs) !== Number(lastRemoteUpdatedTs)) {
+                lastRemoteUpdatedTs = remoteTs;
+                const fOpt = { cache: 'no-store' };
+                Promise.all([
+                  fetch(`${fbBase}/settings.json`, fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
+                  fetch(`${fbBase}/categories.json`, fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
+                  fetch(`${fbBase}/products.json`, fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
+                  fetch(`${fbBase}/stories.json`, fOpt).then(r => r.ok ? r.json() : null).catch(() => null)
+                ]).then(([s, c, p, st]) => {
+                  if (!isDestroyed && (s || c || p || st)) {
+                    processSnapshotData({
+                      settings: s || currentAgg.settings,
+                      categories: c || currentAgg.categories,
+                      products: p || currentAgg.products,
+                      stories: st || currentAgg.stories
+                    });
+                  }
+                }).catch(e => console.warn('[Store] Client version update fetch error:', e));
               }
-              return;
-            }
-            if (k === 'settings' && val && val.rawMaterials) {
-              currentAgg.rawMaterials = val.rawMaterials;
-            }
-            currentAgg[k] = val;
-            scheduleBatchProcess();
-          };
-          subRefs[k].on('value', subCallbacks[k], err => {
-            console.warn(`[Store] Cloud sync read error for ${k}:`, err);
-          });
-        });
+            })
+            .catch(err => {
+              console.warn('[Store] Version check error:', err);
+            });
+        } catch(err) {
+          console.warn('[Store] checkVersionAndRefresh exception:', err);
+        }
+      };
 
-        // Auth-Aware Realtime Raw Materials Subscriptions
-        const attachRawMaterialsSub = () => {
-          if (!db || isDestroyed) return;
-          const user = (window.firebase && firebase.auth && firebase.auth().currentUser) || null;
-          if (!user && !isDemo) return;
-          try {
-            if (subRefs.rawMaterials && subCallbacks.rawMaterials) {
-              try { subRefs.rawMaterials.off('value', subCallbacks.rawMaterials); } catch(e) {}
-            }
-            subRefs.rawMaterials = db.ref(`restaurants/${slug}/rawMaterials`);
-            subCallbacks.rawMaterials = snap => {
-              let val = snap ? snap.val() : null;
-              if (isDemo && (!val || (Array.isArray(val) && val.length === 0))) val = DEFAULT_RAW_MATERIALS;
-              if (val) {
-                currentAgg.rawMaterials = val;
+      const onVisibilityChange = () => {
+        if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+          checkVersionAndRefresh();
+        }
+      };
+
+      if (typeof document !== 'undefined') {
+        document.addEventListener('visibilitychange', onVisibilityChange);
+      }
+      const heartbeatInterval = setInterval(checkVersionAndRefresh, 3 * 60 * 1000); // 3 mins
+
+      // Check immediately on startup for returning customers with cache to detect stale menu instantly
+      if (lastRemoteUpdatedTs !== null) {
+        setTimeout(checkVersionAndRefresh, 100);
+      }
+
+      cleanupClientPolling = () => {
+        if (typeof document !== 'undefined') {
+          document.removeEventListener('visibilitychange', onVisibilityChange);
+        }
+        clearInterval(heartbeatInterval);
+      };
+      this.activeListeners.restaurant = { offAll: cleanupClientPolling };
+    } else {
+      // Admin Mode / Demo: Full Granular Realtime WebSockets
+      try {
+        if (this.activeListeners.restaurant) {
+          if (typeof this.activeListeners.restaurant.offAll === 'function') {
+            this.activeListeners.restaurant.offAll();
+          } else if (this.activeListeners.restaurant.ref) {
+            try { this.activeListeners.restaurant.ref.off('value', this.activeListeners.restaurant.callback); } catch(e) {}
+          }
+          this.activeListeners.restaurant = null;
+        }
+        if (db) {
+          subRefs = {
+            settings: db.ref(`restaurants/${slug}/settings`),
+            categories: db.ref(`restaurants/${slug}/categories`),
+            products: db.ref(`restaurants/${slug}/products`),
+            stories: db.ref(`restaurants/${slug}/stories`),
+            settingsRawMaterials: db.ref(`restaurants/${slug}/settings/rawMaterials`)
+          };
+
+          let batchProcessTimer = null;
+          const scheduleBatchProcess = () => {
+            if (batchProcessTimer) clearTimeout(batchProcessTimer);
+            batchProcessTimer = setTimeout(() => {
+              if (!isDestroyed) {
                 processSnapshotData(currentAgg);
               }
-            };
-            subRefs.rawMaterials.on('value', subCallbacks.rawMaterials, err => {
-              console.warn("[Store] Cloud sync rawMaterials notice:", err ? (err.message || err) : err);
-            });
-          } catch(e) {}
-        };
+            }, 45);
+          };
 
-        if (isDemo || (window.firebase && firebase.auth && firebase.auth().currentUser)) {
-          attachRawMaterialsSub();
-        }
-        if (window.firebase && firebase.auth) {
-          try {
-            firebase.auth().onAuthStateChanged(u => {
-              if (u && !isDestroyed) {
-                attachRawMaterialsSub();
-              }
-            });
-          } catch(e) {}
-        }
-
-        const offAllFn = () => {
+          subCallbacks = {};
           Object.keys(subRefs).forEach(k => {
-            try { subRefs[k].off('value', subCallbacks[k]); } catch(e) {}
+            subCallbacks[k] = snap => {
+              let val = snap ? snap.val() : null;
+              if (isDemo) {
+                if (k === 'products' && (!val || (Array.isArray(val) && val.length === 0))) val = DEFAULT_PRODUCTS;
+                if (k === 'categories' && (!val || (Array.isArray(val) && val.length === 0))) val = DEFAULT_CATEGORIES;
+                if (k === 'stories' && (!val || (typeof val === 'object' && Object.keys(val).length === 0))) val = DEFAULT_STORIES;
+                if (k === 'settings' && (!val || (typeof val === 'object' && Object.keys(val).length === 0))) val = DEFAULT_SETTINGS;
+              }
+              if (k === 'settingsRawMaterials') {
+                if (val) {
+                  currentAgg.rawMaterials = val;
+                  scheduleBatchProcess();
+                }
+                return;
+              }
+              if (k === 'settings' && val && val.rawMaterials) {
+                currentAgg.rawMaterials = val.rawMaterials;
+              }
+              currentAgg[k] = val;
+              scheduleBatchProcess();
+            };
+            subRefs[k].on('value', subCallbacks[k], err => {
+              console.warn(`[Store] Cloud sync read error for ${k}:`, err);
+            });
           });
-        };
 
-        this.activeListeners.restaurant = { subRefs, subCallbacks, offAll: offAllFn };
+          // Auth-Aware Realtime Raw Materials Subscriptions
+          const attachRawMaterialsSub = () => {
+            if (!db || isDestroyed) return;
+            const user = (window.firebase && firebase.auth && firebase.auth().currentUser) || null;
+            if (!user && !isDemo) return;
+            try {
+              if (subRefs.rawMaterials && subCallbacks.rawMaterials) {
+                try { subRefs.rawMaterials.off('value', subCallbacks.rawMaterials); } catch(e) {}
+              }
+              subRefs.rawMaterials = db.ref(`restaurants/${slug}/rawMaterials`);
+              subCallbacks.rawMaterials = snap => {
+                let val = snap ? snap.val() : null;
+                if (isDemo && (!val || (Array.isArray(val) && val.length === 0))) val = DEFAULT_RAW_MATERIALS;
+                if (val) {
+                  currentAgg.rawMaterials = val;
+                  processSnapshotData(currentAgg);
+                }
+              };
+              subRefs.rawMaterials.on('value', subCallbacks.rawMaterials, err => {
+                console.warn("[Store] Cloud sync rawMaterials notice:", err ? (err.message || err) : err);
+              });
+            } catch(e) {}
+          };
+
+          if (isDemo || (window.firebase && firebase.auth && firebase.auth().currentUser)) {
+            attachRawMaterialsSub();
+          }
+          if (window.firebase && firebase.auth) {
+            try {
+              firebase.auth().onAuthStateChanged(u => {
+                if (u && !isDestroyed) {
+                  attachRawMaterialsSub();
+                }
+              });
+            } catch(e) {}
+          }
+
+          const offAllFn = () => {
+            Object.keys(subRefs).forEach(k => {
+              try { subRefs[k].off('value', subCallbacks[k]); } catch(e) {}
+            });
+          };
+
+          this.activeListeners.restaurant = { subRefs, subCallbacks, offAll: offAllFn };
+        }
+      } catch (err) {
+        console.warn("[Store] Cloud sync init error:", err);
       }
-    } catch (err) {
-      console.warn("[Store] Cloud sync init error:", err);
     }
 
     // 2. High-Speed REST Initial Accelerator (Reuses preload promise to eliminate redundant network fetches)
@@ -1371,6 +1445,9 @@ const Store = {
   },
 
   async pushToCloud(subPath, data) {
+    if (subPath === 'settings') {
+      throw new Error("[Store Security Violation] pushToCloud('settings') is strictly forbidden. Use patchToCloud('settings', ...) to prevent overwriting modules/subscription.");
+    }
     const slug = this.getRestaurantSlug();
     if (!slug) return false;
     if (slug !== 'demo' && this.isSubscriptionSuspended(slug)) {
@@ -1379,10 +1456,15 @@ const Store = {
     }
     const path = subPath ? `restaurants/${slug}/${subPath}` : `restaurants/${slug}`;
     let success = false;
+    const nowTs = Date.now();
 
     if (db) {
       try {
-        await db.ref(path).set(data);
+        // Atomic Multi-Path write: Updates target data + settings/updatedAt simultaneously
+        const updates = {};
+        updates[path] = data;
+        updates[`restaurants/${slug}/settings/updatedAt`] = nowTs;
+        await db.ref().update(updates);
         success = true;
       } catch (err) {
         console.warn(`[Store] Cloud SDK push error for ${subPath}:`, err);
@@ -1411,6 +1493,11 @@ const Store = {
         if (tid) clearTimeout(tid);
         if (res && res.ok) {
           success = true;
+          // Also update settings/updatedAt via REST
+          fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/settings/updatedAt.json${authParam}`, {
+            method: 'PUT',
+            body: JSON.stringify(nowTs)
+          }).catch(() => {});
         }
       } catch (e) {
         console.warn(`[Store] REST cloud push error for ${subPath}:`, e);
@@ -1429,10 +1516,24 @@ const Store = {
     }
     const path = subPath ? `restaurants/${slug}/${subPath}` : `restaurants/${slug}`;
     let success = false;
+    const nowTs = Date.now();
 
     if (db) {
       try {
-        await db.ref(path).update(partialData);
+        // Deep Multi-Path atomic update: writes individual paths so sibling keys (like modules/subscription) are never wiped!
+        const updates = {};
+        if (subPath) {
+          Object.keys(partialData).forEach(k => {
+            updates[`restaurants/${slug}/${subPath}/${k}`] = partialData[k];
+          });
+          updates[`restaurants/${slug}/settings/updatedAt`] = nowTs;
+        } else {
+          Object.keys(partialData).forEach(k => {
+            updates[`restaurants/${slug}/${k}`] = partialData[k];
+          });
+          updates[`restaurants/${slug}/settings/updatedAt`] = nowTs;
+        }
+        await db.ref().update(updates);
         success = true;
       } catch (err) {
         console.warn(`[Store] Cloud SDK patch error for ${subPath}:`, err);
@@ -1447,14 +1548,21 @@ const Store = {
           if (token) authParam = `?auth=${token}`;
         } catch(e) {}
       }
+      const dataToPatch = (subPath === 'settings') ? { ...partialData, updatedAt: nowTs } : partialData;
       const res = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/${path}.json${authParam}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(partialData),
+        body: JSON.stringify(dataToPatch),
         keepalive: true
       });
       if (res && res.ok) {
         success = true;
+        if (subPath !== 'settings') {
+          fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/settings/updatedAt.json${authParam}`, {
+            method: 'PUT',
+            body: JSON.stringify(nowTs)
+          }).catch(() => {});
+        }
       }
     } catch (e) {
       console.warn(`[Store] REST cloud patch error for ${subPath}:`, e);

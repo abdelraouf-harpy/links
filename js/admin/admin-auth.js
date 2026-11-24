@@ -170,7 +170,7 @@ function setupAuth() {
           window.updatePwaBranding(curSettings);
         }
       }
-    });
+    }, { isAdmin: true });
 
     // Subscribe to real-time incoming orders
     ordersUnsubscribe = Store.syncOrdersFromCloud(slug, (liveOrders, archiveOrders) => {
