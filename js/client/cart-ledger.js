@@ -170,16 +170,102 @@ function renderSmartPairing(cart, prods, currency) {
 
   elements.cartSmartPairing.style.display = 'block';
   elements.pairingItemsList.innerHTML = suggestions.map(p => `
-    <div class="pairing-chip-card" onclick="handleQuickAddItem('${p.id}')">
+    <div class="pairing-chip-card" onclick="handlePairingAddItem('${p.id}', event)">
       <img src="${p.image}" class="pairing-thumb" alt="${p.name}">
       <div>
         <div class="pairing-title">${esc(typeof window.getProductName === 'function' ? window.getProductName(p) : (typeof window.tr === 'function' ? window.tr(p.name) : p.name))}</div>
         <div class="pairing-price font-num">${p.price} ${currency}</div>
       </div>
-      <button class="pairing-btn-add" title="إضافة">+</button>
+      <button type="button" class="pairing-btn-add" title="إضافة" onclick="handlePairingAddItem('${p.id}', event)">+</button>
     </div>
   `).join('');
 }
+
+window.handlePairingAddItem = function(productId, event) {
+  if (event) {
+    try { event.stopPropagation(); } catch(e) {}
+  }
+  if (typeof isOrderingDisabled === 'function' && isOrderingDisabled()) return;
+  if (typeof checkOrderingPaused === 'function' && checkOrderingPaused()) return;
+
+  const prods = Store.getProducts ? Store.getProducts() : [];
+  const p = prods.find(item => item.id === productId);
+  if (!p) return;
+
+  const availQty = Store.getAvailableStockQty ? Store.getAvailableStockQty(p) : null;
+  if ((availQty !== null && availQty <= 0) || p.soldOut === true || p.available === false) {
+    if (typeof showToastNotification === 'function') showToastNotification("عذراً، نفدت الكمية المتاحة لهذا المنتج", "warning");
+    return;
+  }
+
+  const cart = Store.getCart ? Store.getCart() : [];
+  const totalInCartForProduct = cart.filter(i => (i.productId || i.id) === p.id).reduce((s, i) => s + (i.qty || 1), 0);
+  if (availQty !== null && totalInCartForProduct >= availQty) {
+    if (typeof showToastNotification === 'function') showToastNotification(`متوفر ${availQty} قطعة فقط في المخزون حالياً`, "warning");
+    return;
+  }
+
+  // Use default size if product has sizes, or base product
+  let defaultSize = null;
+  let effSzPrice = 0;
+  if (p.sizes && p.sizes.length > 0) {
+    defaultSize = p.sizes[0];
+    effSzPrice = (Store.getEffectiveSizePrice) ? Store.getEffectiveSizePrice(p, defaultSize) : (defaultSize.price || 0);
+  }
+
+  const effBasePrice = (Store.getEffectiveProductPrice) ? Store.getEffectiveProductPrice(p) : p.price;
+  const unitPrice = effBasePrice + effSzPrice;
+  const isTimed = !!(window.NicheEngine && NicheEngine.isTimedOfferActive(p));
+
+  const targetItem = {
+    productId: p.id,
+    selectedSize: defaultSize ? {
+      ...defaultSize,
+      price: effSzPrice,
+      name_en: defaultSize.name_en || (typeof window.tr === 'function' ? window.tr(defaultSize.name) : '')
+    } : null,
+    selectedAddons: [],
+    notes: ''
+  };
+
+  const matcher = (typeof window.findMatchingCartItem === 'function') ? window.findMatchingCartItem : (typeof findMatchingCartItem === 'function' ? findMatchingCartItem : null);
+  const existing = matcher ? matcher(cart, targetItem) : cart.find(i => (i.productId || i.id) === p.id && !i.selectedSize && (!i.selectedAddons || i.selectedAddons.length === 0));
+
+  if (existing) {
+    existing.qty += 1;
+    existing.price = unitPrice;
+    existing.basePrice = effBasePrice;
+    existing.appliedOfferEndsAt = isTimed ? p.offerEndsAt : 0;
+  } else {
+    cart.push({
+      id: 'c_' + p.id + '_' + Date.now(),
+      productId: p.id,
+      name: p.name,
+      name_en: p.name_en || (typeof window.tr === 'function' ? window.tr(p.name) : ''),
+      basePrice: effBasePrice,
+      price: unitPrice,
+      appliedOfferEndsAt: isTimed ? p.offerEndsAt : 0,
+      image: (p.image && typeof p.image === 'string' && !p.image.startsWith('data:')) ? p.image : '',
+      category: p.category,
+      category_en: p.category_en || (typeof window.tr === 'function' ? window.tr(p.category) : ''),
+      selectedSize: targetItem.selectedSize,
+      selectedAddons: [],
+      notes: '',
+      qty: 1
+    });
+  }
+
+  Store.saveCart(cart);
+  if (typeof SoundFX !== 'undefined' && SoundFX.playPop) SoundFX.playPop();
+
+  // Instant update in place inside cart drawer without closing drawer or opening modals
+  updateLedgerUI();
+  if (typeof renderProducts === 'function') renderProducts();
+  if (typeof showToastNotification === 'function') {
+    const pName = typeof window.getProductName === 'function' ? window.getProductName(p) : (typeof window.tr === 'function' ? window.tr(p.name) : p.name);
+    showToastNotification(`تمت إضافة "${pName}" إلى السلة`, "success");
+  }
+};
 
 // ── Smart Delivery Zone & Address Keyword Matching Engine ──
 function normalizeArabic(text) {

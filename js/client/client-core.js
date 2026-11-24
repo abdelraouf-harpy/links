@@ -210,6 +210,10 @@ function handlePopStateNavigation(event) {
   }
   // 5. Cart Drawer & Multi-Step Checkout
   if (elements.cartDrawer && elements.cartDrawer.classList.contains('open')) {
+    if (window.__harpySuppressPopstateCartClose) {
+      window.__harpySuppressPopstateCartClose = false;
+      return;
+    }
     if (currentCheckoutStep === 3) {
       goToCheckoutStep(2, false);
       return;

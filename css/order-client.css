@@ -881,8 +881,8 @@
   font-weight: 800;
   color: var(--text-main);
   margin-bottom: 8px;
-  line-height: 1.4;
-  padding-top: 2px;
+  line-height: 1.45;
+  padding: 2px 0;
   cursor: pointer;
   transition: color 0.2s ease;
 }
@@ -2717,9 +2717,9 @@ html[dir="ltr"] .cart-drawer.open {
 .products-flow.view-mode-dual .food-item-title {
   font-size: 0.92rem !important;
   font-weight: 750 !important;
-  line-height: 1.35 !important;
+  line-height: 1.45 !important;
   margin: 0 0 3px 0 !important;
-  padding-top: 2.5px !important;
+  padding: 2px 0 3px 0 !important;
   display: -webkit-box !important;
   -webkit-line-clamp: 2 !important;
   -webkit-box-orient: vertical !important;
@@ -2810,12 +2810,12 @@ html[dir="ltr"] .cart-drawer.open {
   border: none !important;
   color: var(--text-on-primary) !important;
   border-radius: 999px !important;
-  padding: 0 12px !important;
+  padding: 0 11px !important;
   font-size: 0.77rem !important;
   font-weight: 750 !important;
-  min-height: 31px !important;
-  height: 31px !important;
-  line-height: 1 !important;
+  min-height: 32px !important;
+  height: 32px !important;
+  line-height: 1.25 !important;
   white-space: nowrap !important;
   cursor: pointer !important;
   box-shadow: 0 2px 6px var(--primary-subtle) !important;
@@ -2834,9 +2834,10 @@ html[dir="ltr"] .cart-drawer.open {
 }
 
 .products-flow.view-mode-dual .btn-quick-add span {
-  display: inline-block !important;
-  transform: translateY(1.5px) !important;
-  line-height: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1.25 !important;
 }
 
 .products-flow.view-mode-dual .btn-quick-add::after {
@@ -3074,7 +3075,8 @@ html[dir="ltr"] .cart-drawer.open {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.25;
+  line-height: 1.35;
+  padding: 2px 0;
 }
 
 .products-flow.view-mode-list .food-item-desc {
@@ -3165,56 +3167,67 @@ html[dir="ltr"] .cart-drawer.open {
 .pairing-chip-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-xs);
-  padding: 4px 8px;
+  border-radius: 12px;
+  padding: 6px 10px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex-shrink: 0;
   cursor: pointer;
   transition: var(--tr-fast);
-  height: 38px;
+  min-height: 44px;
+  box-sizing: border-box;
 }
 .pairing-chip-card:hover {
   border-color: var(--primary);
   background: var(--surface-hover);
 }
 .pairing-thumb {
-  width: 26px;
-  height: 26px;
-  border-radius: 5px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   object-fit: cover;
   flex-shrink: 0;
 }
 .pairing-title {
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 700;
+  line-height: 1.35;
   color: var(--text-main);
   white-space: nowrap;
-  max-width: 115px;
+  max-width: 130px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .pairing-price {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
   color: var(--primary);
   white-space: nowrap;
+  line-height: 1.3;
 }
 .pairing-btn-add {
   background: var(--primary-subtle);
   color: var(--primary);
   border: none;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-weight: 800;
-  font-size: 12px;
+  font-weight: 900;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
   cursor: pointer;
   flex-shrink: 0;
+  transition: var(--tr-fast);
+}
+.pairing-btn-add:hover {
+  background: var(--primary);
+  color: var(--text-on-primary);
+  transform: scale(1.08);
 }
 
 /* ── Fullscreen Story Viewer Modal ── */
@@ -4773,7 +4786,8 @@ html[dir="ltr"] .promo-marquee-track {
   font-weight: 800 !important;
   color: var(--text-main) !important;
   margin: 0 0 3px 0 !important;
-  line-height: 1.3 !important;
+  line-height: 1.4 !important;
+  padding: 1px 0 !important;
 }
 .products-flow.view-mode-list .food-item-desc {
   font-size: 0.76rem !important;

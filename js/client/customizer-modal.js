@@ -285,14 +285,20 @@ window.selectCustomizerGalleryImage = function(url, btnEl) {
   if (btnEl) btnEl.classList.add('active');
 };
 
+let isClosingCustomizer = false;
 function closeCustomizer(triggerHistoryBack = true) {
+  if (isClosingCustomizer) return;
+  isClosingCustomizer = true;
   customizerProduct = null;
   if (elements.customizerBackdrop) elements.customizerBackdrop.classList.remove('open');
   if (elements.customizerModal) elements.customizerModal.classList.remove('open');
   document.body.classList.remove('customizer-open');
   if (triggerHistoryBack && window.history.state && window.history.state.harpyNav === 'customizer') {
+    window.__harpySuppressPopstateCartClose = true;
     try { history.back(); } catch(e) {}
+    setTimeout(() => { window.__harpySuppressPopstateCartClose = false; }, 350);
   }
+  setTimeout(() => { isClosingCustomizer = false; }, 150);
 }
 
 

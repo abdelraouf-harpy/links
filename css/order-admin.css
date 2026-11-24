@@ -59,7 +59,9 @@
   background: var(--surface-raised);
   border: 1.5px solid var(--border-strong);
   border-radius: var(--radius-sm);
-  padding: 12px 15px;
+  padding: 9px 14px;
+  min-height: 44px;
+  line-height: 1.5;
   font-family: inherit;
   font-size: 0.94rem;
   font-weight: 600;
@@ -1090,8 +1092,8 @@ html.admin-unlocked #login-modal-backdrop {
 .kitchen-quick-toggles-bar {
   display: grid !important;
   grid-template-columns: 1fr 1fr !important;
-  gap: 10px !important;
-  max-width: 440px !important;
+  gap: 8px !important;
+  max-width: 460px !important;
   width: 100% !important;
   margin: 0 auto 16px auto !important;
   padding: 0 4px !important;
@@ -1102,9 +1104,9 @@ html.admin-unlocked #login-modal-backdrop {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 6px !important;
-  padding: 8px 10px !important;
-  font-size: 12px !important;
+  gap: 5px !important;
+  padding: 7px 8px !important;
+  font-size: 11.5px !important;
   font-weight: 800 !important;
   font-family: inherit !important;
   border-radius: 24px !important;
@@ -1116,8 +1118,6 @@ html.admin-unlocked #login-modal-backdrop {
   user-select: none !important;
   box-shadow: 0 2px 8px var(--overlay-dark) !important;
   white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
   width: 100% !important;
   box-sizing: border-box !important;
   min-height: 38px !important;
@@ -1131,16 +1131,15 @@ html.admin-unlocked #login-modal-backdrop {
 }
 
 .kitchen-quick-toggles-bar .btn-quick-toggle svg {
-  width: 15px !important;
-  height: 15px !important;
+  width: 14px !important;
+  height: 14px !important;
   flex-shrink: 0 !important;
 }
 
 .kitchen-quick-toggles-bar .btn-quick-toggle span:first-of-type {
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
   white-space: nowrap !important;
-  letter-spacing: 0.2px !important;
+  letter-spacing: normal !important;
+  line-height: 1.3 !important;
 }
 
 .kitchen-quick-toggles-bar .wake-lock-dot,
@@ -3114,7 +3113,8 @@ html.admin-unlocked #login-modal-backdrop {
   font-size: 1.05rem;
   font-weight: 800;
   color: var(--text-main);
-  line-height: 1.2;
+  line-height: 1.35;
+  padding: 2px 0;
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -3474,7 +3474,8 @@ html[dir="ltr"] .admin-drawer.open {
   }
   .admin-modern-header .brand-text h1 {
     font-size: 0.96rem;
-    line-height: 1.25;
+    line-height: 1.35;
+    padding: 2px 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -5200,7 +5201,9 @@ html[dir="ltr"] .admin-drawer.open {
 }
 
 #tab-settings .admin-settings-card .form-input {
-  min-height: 42px;
+  min-height: 46px;
+  padding: 10px 14px;
+  line-height: 1.5;
   border-radius: 10px;
 }
 
