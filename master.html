@@ -1645,31 +1645,13 @@
     <h1 class="lock-title">Harpy Order</h1>
     <p class="lock-subtitle">منظومة الإدارة المركزية والتحكم للمؤسس</p>
 
-    <div class="pin-dots-container">
-      <div class="pin-dot" id="dot-1"></div>
-      <div class="pin-dot" id="dot-2"></div>
-      <div class="pin-dot" id="dot-3"></div>
-      <div class="pin-dot" id="dot-4"></div>
-    </div>
-
-    <div class="keypad-grid">
-      <button class="key-btn" onclick="MasterApp.pressPin('1')">1</button>
-      <button class="key-btn" onclick="MasterApp.pressPin('2')">2</button>
-      <button class="key-btn" onclick="MasterApp.pressPin('3')">3</button>
-      <button class="key-btn" onclick="MasterApp.pressPin('4')">4</button>
-      <button class="key-btn" onclick="MasterApp.pressPin('5')">5</button>
-      <button class="key-btn" onclick="MasterApp.pressPin('6')">6</button>
-      <button class="key-btn" onclick="MasterApp.pressPin('7')">7</button>
-      <button class="key-btn" onclick="MasterApp.pressPin('8')">8</button>
-      <button class="key-btn" onclick="MasterApp.pressPin('9')">9</button>
-      <button class="key-btn action-key" onclick="MasterApp.clearPin()">مسح</button>
-      <button class="key-btn" onclick="MasterApp.pressPin('0')">0</button>
-      <button class="key-btn action-key" onclick="MasterApp.backspacePin()" aria-label="حذف">
-        <span class="svg-icon" style="width:20px;height:20px;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path><line x1="18" y1="9" x2="12" y2="15"></line><line x1="12" y1="9" x2="18" y2="15"></line></svg>
-        </span>
+    <form id="master-login-form" onsubmit="MasterApp.loginMaster(event)" style="width:100%; max-width:310px; display:flex; flex-direction:column; gap:12px;">
+      <input type="password" class="form-input" id="master-password-input" autocomplete="current-password" placeholder="أدخل كلمة مرور القيادة المركزية" style="text-align:center; font-size:14px; font-weight:700; height:48px; border-radius:14px;">
+      <div id="master-login-error" style="display:none; color:var(--danger); font-size:12px; font-weight:700; text-align:center;"></div>
+      <button type="submit" class="btn-submit" id="btn-master-login" style="height:46px; border-radius:14px;">
+        <span>دخول لوحة القيادة</span>
       </button>
-    </div>
+    </form>
   </div>
 
   <!-- ========================================================================
@@ -2756,14 +2738,9 @@
       <input type="text" class="form-input" id="founder-input-name" placeholder="اكتب اسمك أو لقبك هنا">
     </div>
 
-    <div class="form-group">
-      <label class="form-label">تغيير رمز الحماية PIN (4 أرقام):</label>
-      <input type="password" class="form-input" id="new-founder-pin" maxlength="4" placeholder="•••• (اتركه فارغاً إذا لا تريد تغييره)" style="font-family:var(--font-en); letter-spacing:4px; text-align:center;">
-    </div>
-
     <div class="form-group" style="margin-top:8px; padding-top:10px; border-top:1px dashed var(--border-light);">
-      <label class="form-label">مفتاح مزامنة GitHub التلقائية (اختياري — يُحفظ مشفراً بالسحابة):</label>
-      <input type="password" class="form-input" id="founder-github-token" placeholder="github_pat_... (لتنظيف/توليد الروابط السريعة فور الإضافة أو الحذف)" style="font-family:var(--font-en); font-size:12px;">
+      <label class="form-label">مفتاح مزامنة GitHub التلقائية (اختياري — يُحفظ على السيرفر فقط):</label>
+      <input type="password" class="form-input" id="founder-github-token" placeholder="github_pat_... (اتركه فارغاً للإبقاء على المفتاح المحفوظ)" style="font-family:var(--font-en); font-size:12px;">
       <div style="font-size:10.5px; color:var(--text-muted); margin-top:4px; line-height:1.4;">
         عند إضافته يتم تشغيل GitHub Actions تلقائياً عند إضافة أو حذف أي مطعم لمسح/تحديث ملفاته الثابتة على السيرفر.
       </div>
@@ -2774,6 +2751,9 @@
     </button>
     <button type="button" class="btn-cancel" onclick="MasterApp.triggerGitHubSync(true)" style="margin-top:8px;">
       <span>تشغيل مزامنة ملفات السيرفر (GitHub) الآن</span>
+    </button>
+    <button type="button" class="btn-cancel" onclick="MasterApp.logoutAllMasterDevices()" style="color:var(--danger); margin-top:8px;">
+      <span>إنهاء جميع الجلسات المفتوحة وقفل الشاشة</span>
     </button>
     <button class="btn-cancel" onclick="MasterApp.lock()" style="color:var(--danger); margin-top:8px;">
       <span>قفل الشاشة الآن</span>
@@ -2835,32 +2815,53 @@
        JAVASCRIPT ARCHITECTURE (MASTER APP ENGINE)
        ======================================================================== -->
   <script>
-    const MASTER_KEY = "r5nenhIbwtTX3BiCu0kaNOtXSC8ncr7Vk3tWaaPh";
-    const BASE_RTDB = "https://harpy-order-default-rtdb.firebaseio.com";
+    const HARPY_API_BASE = (window.__HARPY_API_BASE || 'https://api.harpymenu.com').replace(/\/+$/, '');
     const GITHUB_REPO_OWNER = "abdelraouf-harpy";
     const GITHUB_REPO_NAME = "links";
     const GITHUB_SYNC_WORKFLOW = "sync-tenants.yml";
 
-    async function rtdbRequest(path, method = 'GET', body = null) {
-      const cleanPath = String(path || '').replace(/^\/+/, '');
-      const sep = cleanPath.includes('?') ? '&' : '?';
-      const url = `${BASE_RTDB}/${cleanPath}${sep}auth=${MASTER_KEY}`;
-      const opts = { method };
+    function getMasterToken() {
+      try { return sessionStorage.getItem('harpy_master_token') || ''; } catch (e) { return ''; }
+    }
+
+    async function masterApiRequest(endpoint, method = 'GET', body = null, requireAuth = true) {
+      const headers = {};
+      if (requireAuth) {
+        const token = getMasterToken();
+        if (!token) {
+          if (typeof MasterApp !== 'undefined' && MasterApp.lock) MasterApp.lock();
+          throw new Error('يرجى تسجيل الدخول إلى القيادة المركزية أولاً');
+        }
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      const opts = { method, headers };
       if (body !== null && method !== 'GET' && method !== 'HEAD') {
-        opts.headers = { 'Content-Type': 'application/json' };
+        headers['Content-Type'] = 'application/json';
         opts.body = JSON.stringify(body);
       }
-      const res = await fetch(url, opts);
+      const res = await fetch(`${HARPY_API_BASE}${endpoint}`, opts);
       const rawText = await res.text();
       let parsed = null;
       if (rawText) {
-        try { parsed = JSON.parse(rawText); } catch (e) { parsed = rawText; }
+        try { parsed = JSON.parse(rawText); } catch (e) { parsed = { error: rawText }; }
+      }
+      if (res.status === 401 && requireAuth) {
+        if (typeof MasterApp !== 'undefined' && MasterApp.lock) MasterApp.lock();
       }
       if (!res.ok) {
-        const errMsg = (parsed && typeof parsed === 'object' && parsed.error) ? parsed.error : `HTTP ${res.status}`;
-        throw new Error(`RTDB ${method} ${cleanPath}: ${errMsg}`);
+        throw new Error((parsed && parsed.error) || `API HTTP ${res.status}`);
       }
       return parsed;
+    }
+
+    async function rtdbRequest(path, method = 'GET', body = null) {
+      const cleanPath = String(path || '').replace(/^\/+/, '');
+      const res = await masterApiRequest('/api/master/rtdb', 'POST', {
+        path: cleanPath,
+        method: method,
+        data: body !== undefined ? body : null
+      });
+      return res ? res.data : null;
     }
 
     // Safe Expiry Parser
@@ -2883,8 +2884,6 @@
     }
 
     const MasterApp = {
-      correctPin: localStorage.getItem('harpy_master_pin') || '1234',
-      currentPin: '',
       isUnlocked: false,
       currentTab: 'tenants',
       currentTheme: localStorage.getItem('harpy_master_theme') || 'light',
@@ -3034,13 +3033,18 @@
         this.renderPackagesUI();
         this.renderPackageOptions();
 
-        const isSessionUnlocked = sessionStorage.getItem('harpy_master_unlocked') === 'true';
-        if (isSessionUnlocked) {
-          this.unlockScreen();
+        try { localStorage.removeItem('harpy_master_pin'); } catch(e) {}
+        const existingToken = getMasterToken();
+        if (existingToken) {
+          masterApiRequest('/api/master/session', 'GET')
+            .then(() => {
+              this.unlockScreen();
+              this.loadAllData();
+            })
+            .catch(() => {
+              this.lock();
+            });
         }
-
-        // Fresh background sync
-        this.loadAllData();
       },
 
       renderSkeleton() {
@@ -3097,41 +3101,35 @@
         }
       },
 
-      // --- PIN Logic ---
-      pressPin(digit) {
-        if (this.currentPin.length < 4) {
-          this.currentPin += digit;
-          this.updatePinDots();
-          if (this.currentPin.length === 4) {
-            setTimeout(() => this.verifyPin(), 80);
-          }
+      // --- Server-Verified Master Auth ---
+      async loginMaster(e) {
+        if (e) e.preventDefault();
+        const inp = document.getElementById('master-password-input');
+        const errEl = document.getElementById('master-login-error');
+        const btn = document.getElementById('btn-master-login');
+        const password = inp ? inp.value.trim() : '';
+        if (!password) {
+          if (errEl) { errEl.textContent = 'يرجى إدخال كلمة المرور'; errEl.style.display = 'block'; }
+          return;
         }
-      },
-      clearPin() {
-        this.currentPin = '';
-        this.updatePinDots();
-      },
-      backspacePin() {
-        this.currentPin = this.currentPin.slice(0, -1);
-        this.updatePinDots();
-      },
-      updatePinDots() {
-        for (let i = 1; i <= 4; i++) {
-          const dot = document.getElementById(`dot-${i}`);
-          if (dot) {
-            if (i <= this.currentPin.length) dot.classList.add('filled');
-            else dot.classList.remove('filled');
-          }
-        }
-      },
-      verifyPin() {
-        if (this.currentPin === this.correctPin) {
-          sessionStorage.setItem('harpy_master_unlocked', 'true');
+        if (errEl) errEl.style.display = 'none';
+        if (btn) btn.disabled = true;
+        try {
+          const res = await masterApiRequest('/api/master/login', 'POST', { password }, false);
+          if (!res || !res.token) throw new Error('فشل التحقق من الجلسة');
+          sessionStorage.setItem('harpy_master_token', res.token);
+          if (inp) inp.value = '';
           this.unlockScreen();
-          this.showToast("تم فتح النظام بنجاح", "success");
-        } else {
-          this.showToast("رمز PIN غير صحيح", "error");
-          this.clearPin();
+          this.showToast("تم فتح القيادة المركزية بأمان", "success");
+          await this.loadAllData();
+        } catch (err) {
+          if (errEl) {
+            errEl.textContent = err.message || 'كلمة مرور القيادة المركزية غير صحيحة';
+            errEl.style.display = 'block';
+          }
+          this.showToast(err.message || "كلمة المرور غير صحيحة", "error");
+        } finally {
+          if (btn) btn.disabled = false;
         }
       },
       unlockScreen() {
@@ -3141,11 +3139,25 @@
       },
       lock() {
         this.isUnlocked = false;
-        sessionStorage.removeItem('harpy_master_unlocked');
-        this.clearPin();
+        try {
+          sessionStorage.removeItem('harpy_master_token');
+          sessionStorage.removeItem('harpy_master_unlocked');
+          localStorage.removeItem('harpy_master_cached_tenants');
+        } catch(e) {}
+        const inp = document.getElementById('master-password-input');
+        if (inp) inp.value = '';
+        const errEl = document.getElementById('master-login-error');
+        if (errEl) errEl.style.display = 'none';
         const lockEl = document.getElementById('lock-screen');
         if (lockEl) lockEl.classList.remove('hidden');
         this.closeFounderMenu();
+      },
+      async logoutAllMasterDevices() {
+        try {
+          await masterApiRequest('/api/master/logout-all', 'POST', {});
+          this.showToast("تم إنهاء كافة جلسات القيادة المركزية على جميع الأجهزة", "success");
+        } catch (e) {}
+        this.lock();
       },
 
       // --- Navigation Tabs ---
@@ -3192,10 +3204,6 @@
           const restaurants = restaurantsRaw || {};
           const tenantPrivate = (privRaw && typeof privRaw === 'object') ? privRaw : {};
           this.masterConfig = (cfgRaw && typeof cfgRaw === 'object') ? cfgRaw : {};
-          if (this.masterConfig.pin && /^\d{4}$/.test(String(this.masterConfig.pin))) {
-            this.correctPin = String(this.masterConfig.pin);
-            try { localStorage.setItem('harpy_master_pin', this.correctPin); } catch(e) {}
-          }
           if (this.masterConfig.founderName) {
             try { localStorage.setItem('harpy_master_founder_name', String(this.masterConfig.founderName)); } catch(e) {}
           }
@@ -4377,113 +4385,19 @@
           return;
         }
 
-        let ownerUid = null;
         try {
-          const authKey = "AIzaSyAhDjUmVBnoRCp6bDSeqrmVgakAQ2pu0ww";
-          const suRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${authKey}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: `${slug}@harpymenu.com`, password: password, returnSecureToken: true })
+          await masterApiRequest('/api/master/tenants', 'POST', {
+            slug,
+            name,
+            phone,
+            businessType: bType,
+            customDomain,
+            password,
+            planName,
+            price,
+            expTimestamp,
+            modules: allMods
           });
-          const suData = await suRes.json();
-          if (suData && suData.localId) {
-            ownerUid = suData.localId;
-          } else {
-            for (const tryPass of [password, `Harpy_${slug}_2026!`]) {
-              const siRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${authKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: `${slug}@harpymenu.com`, password: tryPass, returnSecureToken: true })
-              });
-              const siData = await siRes.json();
-              if (siData && siData.localId) {
-                ownerUid = siData.localId;
-                if (tryPass !== password && siData.idToken) {
-                  await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:update?key=${authKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ idToken: siData.idToken, password: password, returnSecureToken: true })
-                  }).catch(() => {});
-                }
-                break;
-              }
-            }
-          }
-        } catch(e) {}
-
-        const now = Date.now();
-        const licensePayload = {
-          restaurantName: name,
-          businessType: bType,
-          customDomain: customDomain,
-          status: 'active',
-          active: true,
-          suspended: false,
-          plan: planName,
-          expiresAt: expTimestamp,
-          validUntil: expTimestamp,
-          createdAt: now,
-          sessionVersion: now,
-          modules: allMods
-        };
-
-        const tenantPrivatePayload = {
-          adminPassword: password,
-          ownerPhone: phone,
-          ownerUid: ownerUid,
-          monthlyPrice: price,
-          plan: planName,
-          billingCycle: 'monthly',
-          createdAt: now,
-          lastPasswordUpdate: now
-        };
-
-        const settingsPayload = {
-          name: name,
-          storeName: name,
-          businessType: bType,
-          customDomain: customDomain,
-          phone: phone,
-          currency: "ج.م",
-          logo: "assets/brand/harpy_order_emblem_transparent.png",
-          storeTagline: bType === 'store' ? "منتجات مختارة بأعلى جودة وشحن سريع" : "",
-          orderingPausedMessage: bType === 'store' ? "المتجر متوقف حالياً عن استقبال الطلبات." : "المطعم متوقف حالياً عن استقبال الطلبات.",
-          workingHours: bType === 'store' ? "نستقبل الطلبات 24 ساعة يومياً" : "يومياً من 11:00 صباحاً حتى 2:00 صباحاً",
-          modules: allMods,
-          updatedAt: now,
-          subscription: {
-            active: true,
-            suspended: false,
-            status: 'active',
-            plan: planName,
-            expiresAt: expTimestamp > 0 ? new Date(expTimestamp).toISOString() : null
-          }
-        };
-
-        const metaPayload = {
-          ownerUid: ownerUid,
-          businessType: bType,
-          customDomain: customDomain,
-          status: 'active',
-          active: true,
-          suspended: false,
-          isSuspended: false,
-          createdAt: new Date(now).toISOString(),
-          sessionVersion: now
-        };
-
-        try {
-          const writeOps = [
-            rtdbRequest(`licenses/${slug}.json`, 'PUT', licensePayload),
-            rtdbRequest(`tenantPrivate/${slug}.json`, 'PUT', tenantPrivatePayload),
-            rtdbRequest(`restaurants/${slug}/settings.json`, 'PUT', settingsPayload),
-            rtdbRequest(`restaurants/${slug}/meta.json`, 'PUT', metaPayload)
-          ];
-          if (customDomain && window.NicheEngine) {
-            const domKey = window.NicheEngine.domainToFirebaseKey(customDomain);
-            if (domKey) writeOps.push(rtdbRequest(`domains/${domKey}.json`, 'PUT', slug));
-          }
-          await Promise.all(writeOps);
 
           this.logAudit('TENANT_CREATE', `إطلاق وتأسيس ${bType === 'store' ? 'متجر إلكتروني' : 'مطعم'} جديد: ${name} (${slug})${customDomain ? ' [' + customDomain + ']' : ''}`, slug);
           this.closeAddTenantModal();
@@ -4497,10 +4411,8 @@
 
       // --- Backup & Delete ---
       async exportBackup(slug) {
-        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
         try {
-          const res = await fetch(`${BASE_RTDB}/restaurants/${slug}.json${authParam}`);
-          const data = await res.json();
+          const data = await rtdbRequest(`restaurants/${slug}.json`);
           const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
@@ -4582,14 +4494,12 @@
       },
 
       async confirmCloneMenu(sourceSlug, targetSlug) {
-        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
         try {
-          const srcRes = await fetch(`${BASE_RTDB}/restaurants/${sourceSlug}.json${authParam}`);
-          const srcData = await srcRes.json() || {};
+          const srcData = (await rtdbRequest(`restaurants/${sourceSlug}.json`)) || {};
           await Promise.all([
-            fetch(`${BASE_RTDB}/restaurants/${targetSlug}/categories.json${authParam}`, { method: 'PUT', body: JSON.stringify(srcData.categories || {}) }),
-            fetch(`${BASE_RTDB}/restaurants/${targetSlug}/products.json${authParam}`, { method: 'PUT', body: JSON.stringify(srcData.products || {}) }),
-            fetch(`${BASE_RTDB}/restaurants/${targetSlug}/settings/updatedAt.json${authParam}`, { method: 'PUT', body: JSON.stringify(Date.now()) })
+            rtdbRequest(`restaurants/${targetSlug}/categories.json`, 'PUT', srcData.categories || {}),
+            rtdbRequest(`restaurants/${targetSlug}/products.json`, 'PUT', srcData.products || {}),
+            rtdbRequest(`restaurants/${targetSlug}/settings/updatedAt.json`, 'PUT', Date.now())
           ]);
           this.logAudit('MENU_CLONE', `استنساخ منيو من ${sourceSlug} إلى ${targetSlug}`, targetSlug);
           this.showToast(`تم استنساخ المنيو بنجاح إلى ${targetSlug}`, "success");
@@ -4815,10 +4725,8 @@
       async loadAuditLogs() {
         const container = document.getElementById('audit-logs-container');
         if (!container) return;
-        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
         try {
-          const res = await fetch(`${BASE_RTDB}/auditLogs.json${authParam}`);
-          const raw = await res.json() || {};
+          const raw = (await rtdbRequest('auditLogs.json')) || {};
           const logs = Object.values(raw).sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
 
           if (logs.length === 0) {
@@ -4855,16 +4763,12 @@
           actor: this.getFounderName(),
           timestamp: Date.now()
         };
-        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
         try {
-          await fetch(`${BASE_RTDB}/auditLogs.json${authParam}`, {
-            method: 'POST',
-            body: JSON.stringify(payload)
-          });
+          await rtdbRequest('auditLogs.json', 'POST', payload);
         } catch(e) {}
       },
 
-      // --- Founder Profile, PIN & GitHub Auto-Sync ---
+      // --- Founder Profile & GitHub Auto-Sync ---
       openFounderMenu() {
         const currentName = this.getFounderName();
         const nameInput = document.getElementById('founder-input-name');
@@ -4873,12 +4777,12 @@
         const displayTitle = document.getElementById('founder-profile-display-title');
         if (displayTitle) displayTitle.textContent = currentName;
 
-        const pinInput = document.getElementById('new-founder-pin');
-        if (pinInput) pinInput.value = '';
-
         const ghInput = document.getElementById('founder-github-token');
         if (ghInput) {
-          ghInput.value = (this.masterConfig && this.masterConfig.githubToken) ? this.masterConfig.githubToken : '';
+          ghInput.value = '';
+          ghInput.placeholder = (this.masterConfig && this.masterConfig.hasGithubToken)
+            ? 'مفتاح محفوظ على السيرفر (اتركه فارغاً للإبقاء عليه)'
+            : 'github_pat_... (اختياري)';
         }
 
         document.getElementById('modal-founder').classList.add('open');
@@ -4891,8 +4795,6 @@
       async saveFounderProfile() {
         const nameInput = document.getElementById('founder-input-name');
         const newName = nameInput ? nameInput.value.trim() : '';
-        const pinInput = document.getElementById('new-founder-pin');
-        const newPin = pinInput ? pinInput.value.trim() : '';
         const ghInput = document.getElementById('founder-github-token');
         const ghToken = ghInput ? ghInput.value.trim() : '';
 
@@ -4904,24 +4806,19 @@
           cfgPatch.founderName = newName;
         }
 
-        if (newPin) {
-          if (newPin.length !== 4 || !/^\d{4}$/.test(newPin)) {
-            this.showToast("يجب أن يتكون رمز PIN من 4 أرقام صحيحة", "error");
-            return;
-          }
-          this.correctPin = newPin;
-          localStorage.setItem('harpy_master_pin', newPin);
-          cfgPatch.pin = newPin;
-        }
-
-        if (ghInput) {
-          cfgPatch.githubToken = ghToken || null;
+        if (ghToken) {
+          cfgPatch.githubToken = ghToken;
         }
 
         try {
           if (Object.keys(cfgPatch).length > 0) {
             await rtdbRequest('masterConfig.json', 'PATCH', cfgPatch);
-            this.masterConfig = Object.assign({}, this.masterConfig || {}, cfgPatch);
+            const safeMeta = { ...cfgPatch };
+            if (safeMeta.githubToken) {
+              delete safeMeta.githubToken;
+              safeMeta.hasGithubToken = true;
+            }
+            this.masterConfig = Object.assign({}, this.masterConfig || {}, safeMeta);
           }
           this.logAudit('PROFILE_UPDATE', `تحديث بيانات وإعدادات مدير المنصة: ${newName || this.getFounderName()}`);
           this.closeFounderMenu();
@@ -4932,41 +4829,23 @@
       },
       async triggerGitHubSync(manual = false, hintSlug = '') {
         try {
-          if (!this.masterConfig || !this.masterConfig.githubToken) {
-            const cfg = await rtdbRequest('masterConfig.json').catch(() => null);
-            if (cfg && typeof cfg === 'object') this.masterConfig = cfg;
-          }
-          const token = (this.masterConfig && this.masterConfig.githubToken) ? String(this.masterConfig.githubToken).trim() : '';
-          if (!token) {
+          const res = await masterApiRequest('/api/master/github-sync', 'POST', { hintSlug });
+          if (!res || !res.ok) {
             if (manual) {
-              this.openFounderMenu();
-              this.showToast("أدخل مفتاح GitHub Token في إعدادات المؤسس لتشغيل المزامنة التلقائية مباشرة، أو ستعمل المزامنة المجدولة تلقائياً.", "warning");
+              if (res && res.reason === 'missing_token') {
+                this.openFounderMenu();
+                this.showToast("أدخل مفتاح GitHub Token في إعدادات المؤسس أو أضفه في Cloudflare Secrets لتشغيل المزامنة الفورية.", "warning");
+              } else {
+                this.showToast("تعذر تشغيل مزامنة GitHub — تأكد من صلاحية التوكن", "error");
+              }
             }
-            return false;
-          }
-          const dispatchBody = { ref: 'main' };
-          if (hintSlug) dispatchBody.inputs = { hint_slug: String(hintSlug) };
-          const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/actions/workflows/${GITHUB_SYNC_WORKFLOW}/dispatches`, {
-            method: 'POST',
-            headers: {
-              'Accept': 'application/vnd.github+json',
-              'Authorization': `Bearer ${token}`,
-              'X-GitHub-Api-Version': '2022-11-28',
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(dispatchBody)
-          });
-          if (!res.ok) {
-            const errTxt = await res.text().catch(() => '');
-            if (manual) this.showToast(`تعذر تشغيل مزامنة GitHub (HTTP ${res.status}): تأكد من صلاحية التوكن`, "error");
-            console.warn('GitHub dispatch failed:', res.status, errTxt);
             return false;
           }
           this.logAudit('GITHUB_SYNC_TRIGGER', 'تشغيل مزامنة ملفات المطاعم والروابط على GitHub');
           if (manual) this.showToast("تم إرسال أمر المزامنة التلقائية لـ GitHub بنجاح — ستتحدث الملفات خلال دقيقة", "success");
           return true;
         } catch(e) {
-          if (manual) this.showToast("خطأ أثناء الاتصال بـ GitHub API", "error");
+          if (manual) this.showToast("خطأ أثناء الاتصال بخدمة المزامنة", "error");
           return false;
         }
       },
@@ -5041,10 +4920,8 @@
       },
 
       async exportAllBackup() {
-        const authParam = MASTER_KEY ? `?auth=${MASTER_KEY}` : '';
         try {
-          const res = await fetch(`${BASE_RTDB}/.json${authParam}`);
-          const data = await res.json();
+          const data = await rtdbRequest('.json');
           const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
@@ -5257,53 +5134,15 @@
         this.closeTenantSecurityModal();
 
         try {
-          // 1. Update Firebase Auth password first so tenant dashboard login remains in sync
-          const authKey = "AIzaSyAhDjUmVBnoRCp6bDSeqrmVgakAQ2pu0ww";
-          const tryPasses = Array.from(new Set([prevPass, `Harpy_${slug}_2026!`, '123456'].filter(Boolean)));
-          let authUpdated = false;
-          for (const tp of tryPasses) {
-            try {
-              const siRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${authKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: `${slug}@harpymenu.com`, password: tp, returnSecureToken: true })
-              });
-              const siData = await siRes.json();
-              if (siData && siData.idToken) {
-                const upRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:update?key=${authKey}`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ idToken: siData.idToken, password: newPass, returnSecureToken: true })
-                });
-                if (upRes.ok) {
-                  authUpdated = true;
-                  break;
-                }
-              }
-            } catch(authErr) {}
-          }
-          if (!authUpdated) {
-            throw new Error("تعذر مزامنة كلمة المرور مع خدمة المصادقة السحابية");
-          }
-
-          // 2. Store new password strictly in private tenantPrivate node (never public settings/licenses)
-          const ops = [
-            rtdbRequest(`tenantPrivate/${slug}.json`, 'PATCH', {
-              adminPassword: newPass,
-              lastPasswordUpdate: now
-            }),
-            rtdbRequest(`restaurants/${slug}/settings/adminPassword.json`, 'DELETE').catch(() => null),
-            rtdbRequest(`restaurants/${slug}/settings/subscription/adminPassword.json`, 'DELETE').catch(() => null),
-            rtdbRequest(`licenses/${slug}/adminPassword.json`, 'DELETE').catch(() => null)
-          ];
-          if (forceLogout) {
-            ops.push(rtdbRequest(`licenses/${slug}.json`, 'PATCH', { sessionVersion: now, lastPasswordUpdate: now }));
-            ops.push(rtdbRequest(`restaurants/${slug}/meta.json`, 'PATCH', { sessionVersion: now, lastPasswordUpdate: now }));
-          }
-          await Promise.all(ops);
+          const res = await masterApiRequest(`/api/master/tenants/${encodeURIComponent(slug)}/password`, 'POST', {
+            newPassword: newPass,
+            prevPasswords: prevPass ? [prevPass] : [],
+            forceLogout: Boolean(forceLogout)
+          });
 
           if (t) {
             t.adminPassword = newPass;
+            if (res && res.sessionVersion) t.sessionVersion = res.sessionVersion;
             try { localStorage.setItem('harpy_master_cached_tenants', JSON.stringify(this.tenants)); } catch(e) {}
           }
           this.logAudit('PASSWORD_CHANGED', `تغيير كلمة مرور مطعم ${slug} ${forceLogout ? '(مع طرد كافة الأجهزة)' : ''}`, slug);

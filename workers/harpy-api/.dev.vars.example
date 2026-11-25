@@ -1,0 +1,17 @@
+# Copy to .dev.vars for local `wrangler dev`, NEVER commit `.dev.vars`!
+# In production, set each value with: `npx wrangler secret put <NAME>`
+
+MASTER_ADMIN_SECRET=replace-with-strong-master-password
+JWT_SIGNING_SECRET=replace-with-64-char-random-hex-secret
+ONESIGNAL_REST_KEY=replace-with-rotated-onesignal-rest-api-key
+FIREBASE_WEB_API_KEY=replace-with-firebase-web-api-key
+
+# Recommended for Step 5 after disabling public signup & revoking legacy MASTER_KEY:
+# Paste minified single-line JSON of your Firebase Service Account:
+FIREBASE_SERVICE_ACCOUNT_JSON=
+
+# Temporary fallback until FIREBASE_SERVICE_ACCOUNT_JSON is set (revoke once migrated):
+FIREBASE_MASTER_KEY=
+
+# Optional GitHub PAT with `actions:write` on abdelraouf-harpy/links:
+GITHUB_SYNC_TOKEN=

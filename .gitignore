@@ -32,6 +32,10 @@ temp_*
 .firebase/
 .tempmediaStorage
 .tempmediaStorage/
+workers/**/.wrangler/
+workers/**/.dev.vars
+workers/**/node_modules/
+workers/**/package-lock.json
 __pycache__/
 *.pyc
 
