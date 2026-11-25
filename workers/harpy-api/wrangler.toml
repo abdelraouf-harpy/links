@@ -3,10 +3,9 @@ main = "src/index.js"
 compatibility_date = "2025-11-01"
 workers_dev = true
 
-# Route under harpymenu.com once ready:
-# routes = [
-#   { pattern = "api.harpymenu.com", custom_domain = true }
-# ]
+routes = [
+  { pattern = "api.harpymenu.com", custom_domain = true }
+]
 
 [vars]
 FIREBASE_PROJECT_ID = "harpy-order"

@@ -8,5 +8,8 @@
     "test": "node test/verify_worker.mjs",
     "dev": "npx wrangler dev",
     "deploy": "npx wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.168.0"
   }
 }
