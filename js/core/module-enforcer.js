@@ -14,6 +14,15 @@
     dbListenersAttached: false,
     styleElement: null,
 
+    isAdminSurface() {
+      if (typeof window === 'undefined') return false;
+      return !!(
+        window.__harpyIsAdmin ||
+        /\/admin(\/|$|\.html)/i.test(window.location.pathname || '') ||
+        document.querySelector('.admin-drawer-nav')
+      );
+    },
+
     init() {
       // 1. Identify active restaurant slug
       this.currentSlug = this.detectSlug();
@@ -25,19 +34,34 @@
       // 3. Setup injected dynamic stylesheet
       this.setupStyleSheet();
 
-      // 4. Attach Real-Time Listeners (Firebase WebSocket + SSE Stream)
-      this.initRealtimeListeners();
+      // 4. Real-Time WebSockets/SSE ONLY for Admin Dashboard (Client stays at 0 persistent connections)
+      if (this.isAdminSurface()) {
+        this.initRealtimeListeners();
+      } else {
+        this.initClientModulesFetch();
+      }
 
       // 5. Watch local store events
       this.watchLocalEvents();
 
       // 6. Global Broadcast Receiver for Admin screens
-      if (window.location.pathname.includes('/admin') || document.querySelector('.admin-drawer-nav')) {
+      if (this.isAdminSurface()) {
         this.initBroadcastReceiver();
       }
 
-      // 7. License & Subscription Status Gate
+      // 7. License & Subscription Status Gate (Lightweight REST + visibility polling)
       this.checkSubscriptionGate();
+    },
+
+    initClientModulesFetch() {
+      if (!this.currentSlug || this.currentSlug === 'demo') return;
+      const slug = this.currentSlug;
+      fetch(`${this.fbBase}/restaurants/${slug}/settings/modules.json?cb=${Date.now()}`, { cache: 'no-store' })
+        .then(r => r.ok ? r.json() : null)
+        .then(mods => {
+          if (mods && typeof mods === 'object') this.enforce(mods);
+        })
+        .catch(() => {});
     },
 
     detectSlug() {
@@ -89,7 +113,7 @@
     },
 
     initRealtimeListeners() {
-      if (!this.currentSlug || this.currentSlug === 'demo') return;
+      if (!this.currentSlug || this.currentSlug === 'demo' || !this.isAdminSurface()) return;
       const slug = this.currentSlug;
 
       // ── Method A: Firebase RTDB WebSocket (Sub-50ms latency) ──

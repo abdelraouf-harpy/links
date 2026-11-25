@@ -888,7 +888,7 @@ function setupSubscriptionWatcher() {
     } else {
       unlockAdminStatusUI();
     }
-  });
+  }, { isAdmin: true });
 
   window.addEventListener('harpy_subscription_status', (e) => {
     if (e && e.detail) {

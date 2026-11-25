@@ -1593,6 +1593,27 @@ const Store = {
     return new Set();
   },
 
+  async _authedRestRequest(path, method = 'DELETE', body = undefined) {
+    try {
+      let idToken = '';
+      if (typeof window !== 'undefined' && window.firebase && firebase.auth && firebase.auth().currentUser) {
+        try { idToken = await firebase.auth().currentUser.getIdToken(); } catch(e) {}
+      }
+      if (!idToken) return false;
+      const cleanPath = String(path || '').replace(/^\/+/, '');
+      const sep = cleanPath.includes('?') ? '&' : '?';
+      const opts = { method, keepalive: true };
+      if (body !== undefined) {
+        opts.headers = { 'Content-Type': 'application/json' };
+        opts.body = JSON.stringify(body);
+      }
+      const res = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/${cleanPath}${sep}auth=${encodeURIComponent(idToken)}`, opts);
+      return !!(res && res.ok);
+    } catch(e) {
+      return false;
+    }
+  },
+
   addDeletedOrderId(slug = null, orderId) {
     const s = slug || this.getRestaurantSlug();
     if (!s || !orderId) return;
@@ -1607,15 +1628,11 @@ const Store = {
 
     // Synchronize tombstone to cloud so all devices inherit the permanent deletion
     try {
+      const ts = Date.now();
       if (db) {
-        db.ref(`restaurants/${s}/deletedOrderIds/${cleanId}`).set(Date.now());
+        db.ref(`restaurants/${s}/deletedOrderIds/${cleanId}`).set(ts);
       }
-      fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${s}/deletedOrderIds/${cleanId}.json`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(Date.now()),
-        keepalive: true
-      }).catch(() => {});
+      this._authedRestRequest(`restaurants/${s}/deletedOrderIds/${cleanId}.json`, 'PUT', ts).catch(() => {});
     } catch(e) {}
   },
 
@@ -2014,7 +2031,7 @@ const Store = {
         const isGhost = (!o.items || !Array.isArray(o.items) || o.items.length === 0) && (!o.finalTotal || o.finalTotal <= 0) && (!o.customer || (!o.customer.name && !o.customer.phone));
         if (fbKey === 'undefined' || isTestOrProbe || isGhost) {
           if (db) { try { db.ref(`restaurants/${slug}/orders/${fbKey}`).remove(); } catch(e) {} }
-          try { fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders/${fbKey}.json`, { method: 'DELETE', keepalive: true }).catch(() => {}); } catch(e) {}
+          this._authedRestRequest(`restaurants/${slug}/orders/${fbKey}.json`, 'DELETE').catch(() => {});
           return null;
         }
 
@@ -2024,7 +2041,7 @@ const Store = {
         // If order was marked as deleted, ensure cloud is cleaned and NEVER let it enter the UI
         if (deletedIds.has(cid) || deletedIds.has(resolvedId) || deletedIds.has(fbKey) || (o.id && deletedIds.has(o.id))) {
           if (db) { try { db.ref(`restaurants/${slug}/orders/${fbKey}`).remove(); } catch(e) {} }
-          try { fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders/${fbKey}.json`, { method: 'DELETE', keepalive: true }).catch(() => {}); } catch(e) {}
+          this._authedRestRequest(`restaurants/${slug}/orders/${fbKey}.json`, 'DELETE').catch(() => {});
           return null;
         }
 
@@ -2691,35 +2708,10 @@ const Store = {
       }
     }, 800);
 
-    // 4. WebSocket Listener (Primary Cloud)
-    let orderRef = null;
-    let wsCallback = null;
-    try {
-      if (db) {
-        orderRef = db.ref(`restaurants/${slug}/orders/${cleanId}`);
-        wsCallback = snap => {
-          const val = snap.val();
-          if (!val) {
-            // Order was deleted in cloud!
-            const delIds = this.getDeletedOrderIds(slug);
-            delIds.add(cleanId);
-            delIds.add(orderId);
-            this.safeSetItem(`harpy_${slug}_deleted_order_ids`, JSON.stringify(Array.from(delIds)));
-            this.saveLastOrder(null);
-            if (typeof onUpdate === 'function') {
-              onUpdate({ status: 'deleted', deleted: true, orderId: orderId });
-            }
-            return;
-          }
-          handleOrderPayload(val);
-        };
-        orderRef.on('value', wsCallback);
-      }
-    } catch (e) {}
-
-    // 5. Cloud REST Tracker Pulse (3.5s fallback)
-    const fetchOrderFast = async () => {
+    // 4. Zero-WebSocket Cloud REST Tracker Pulse (10s when tab is visible + instant on visibility return)
+    const fetchOrderFast = async (force = false) => {
       if (isDestroyed) return;
+      if (!force && typeof document !== 'undefined' && document.hidden) return;
       try {
         const res = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${slug}/orders/${cleanId}.json`, {
           cache: 'no-store'
@@ -2742,8 +2734,17 @@ const Store = {
       } catch (e) {}
     };
 
-    fetchOrderFast();
-    pollTimer = setInterval(fetchOrderFast, 3500);
+    const onOrderVisibilityChange = () => {
+      if (typeof document !== 'undefined' && !document.hidden && !isDestroyed) {
+        fetchOrderFast(true);
+      }
+    };
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', onOrderVisibilityChange);
+    }
+
+    fetchOrderFast(true);
+    pollTimer = setInterval(fetchOrderFast, 10000);
 
     return () => {
       isDestroyed = true;
@@ -2751,8 +2752,8 @@ const Store = {
       if (localPollTimer) clearInterval(localPollTimer);
       window.removeEventListener('storage', storageHandler);
       window.removeEventListener('harpy_order_status_updated', customEventHandler);
-      if (orderRef && wsCallback) {
-        try { orderRef.off('value', wsCallback); } catch(e) {}
+      if (typeof document !== 'undefined') {
+        try { document.removeEventListener('visibilitychange', onOrderVisibilityChange); } catch(e) {}
       }
     };
   },
@@ -4771,10 +4772,12 @@ const Store = {
     return false;
   },
 
-  startSubscriptionWatcher(onStatusChange) {
+  startSubscriptionWatcher(onStatusChange, options = {}) {
     if (this.activeListeners.license) {
       try {
-        this.activeListeners.license.ref.off('value', this.activeListeners.license.callback);
+        if (this.activeListeners.license.ref && this.activeListeners.license.callback) {
+          this.activeListeners.license.ref.off('value', this.activeListeners.license.callback);
+        }
       } catch(e) {}
       this.activeListeners.license = null;
     }
@@ -4782,9 +4785,19 @@ const Store = {
     const slug = this.getRestaurantSlug();
     if (!slug) return () => {};
 
+    const isAdmin = !!(
+      (options && options.isAdmin) ||
+      (typeof window !== 'undefined' && (
+        window.__harpyIsAdmin ||
+        /\/admin(\/|$|\.html)/i.test(window.location.pathname || '') ||
+        document.querySelector('.admin-drawer-nav')
+      ))
+    );
+
     let isDestroyed = false;
     let pollTimer = null;
     let lastKnownStatusHash = '';
+    let lastLicFetchTime = 0;
 
     const parseExpMs = (val) => {
       if (val === 0 || val === '0' || val === null || val === undefined || val === '') return 0;
@@ -4879,36 +4892,39 @@ const Store = {
       }
     };
 
-    // 1. WebSocket Listener (Primary, sub-50ms instant)
+    // 1. WebSocket Listener (Admin Dashboard ONLY - Client stays at 0 persistent WebSockets)
     let licRef = null;
     let wsCallback = null;
     let lastLicWsTime = 0;
-    try {
-      if (db) {
-        licRef = db.ref(`licenses/${slug}`);
-        wsCallback = snap => {
-          const val = snap ? snap.val() : null;
-          if (val && typeof val === 'object') {
-            lastLicWsTime = Date.now();
-            evaluateLicense(val);
-          } else if (val === null && slug !== 'demo') {
-            fetchLicenseFast(true);
-          }
-        };
-        licRef.on('value', wsCallback, err => {
-          console.warn("[Store] License WS notice:", err);
-        });
-        this.activeListeners.license = { ref: licRef, callback: wsCallback };
+    if (isAdmin) {
+      try {
+        if (db) {
+          licRef = db.ref(`licenses/${slug}`);
+          wsCallback = snap => {
+            const val = snap ? snap.val() : null;
+            if (val && typeof val === 'object') {
+              lastLicWsTime = Date.now();
+              evaluateLicense(val);
+            } else if (val === null && slug !== 'demo') {
+              fetchLicenseFast(true);
+            }
+          };
+          licRef.on('value', wsCallback, err => {
+            console.warn("[Store] License WS notice:", err);
+          });
+          this.activeListeners.license = { ref: licRef, callback: wsCallback };
+        }
+      } catch (err) {
+        console.warn("[Store] Firebase license watcher init notice:", err);
       }
-    } catch (err) {
-      console.warn("[Store] Firebase license watcher init notice:", err);
     }
 
-    // 2. Reliable REST Fallback (Checks deletions immediately even if tab was hidden)
+    // 2. Reliable Lightweight REST Check (Primary for Client, Fallback for Admin)
     const fetchLicenseFast = async (force = false) => {
       if (isDestroyed) return;
       if (!force && typeof document !== 'undefined' && document.hidden) return;
       if (!force && licRef && (Date.now() - lastLicWsTime < 180000)) return;
+      lastLicFetchTime = Date.now();
       try {
         const licRes = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${slug}.json`, { cache: 'no-store' }).catch(() => null);
 
@@ -4923,12 +4939,24 @@ const Store = {
       } catch (e) {}
     };
 
+    const onLicVisibilityChange = () => {
+      if (typeof document !== 'undefined' && !document.hidden && !isDestroyed && (Date.now() - lastLicFetchTime > 60000)) {
+        fetchLicenseFast(true);
+      }
+    };
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', onLicVisibilityChange);
+    }
+
     fetchLicenseFast(true);
     pollTimer = setInterval(fetchLicenseFast, 180000);
 
     return () => {
       isDestroyed = true;
       if (pollTimer) clearInterval(pollTimer);
+      if (typeof document !== 'undefined') {
+        try { document.removeEventListener('visibilitychange', onLicVisibilityChange); } catch(e) {}
+      }
       if (licRef && wsCallback) {
         try { licRef.off('value', wsCallback); } catch(e) {}
       }
