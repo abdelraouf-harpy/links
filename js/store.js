@@ -578,158 +578,43 @@ const Store = {
       throw new Error("auth/missing-password");
     }
 
-    // 1. Direct Multi-Tenant Database Password Verification (Fast, Independent & Bulletproof)
-    let dbPassMatch = false;
-    let licData = null;
-
-    // Fast local match check for returning admins (0ms instant credential verify)
-    const cachedAdminPass = (this.safeGetItem(`harpy_admin_pass_${activeSlug}`) || 
-                             (typeof this.getBranchKeychain === 'function' ? this.getBranchKeychain(activeSlug) : null) || '').trim();
-    const cachedSettings = this.getSettings ? this.getSettings(activeSlug) : null;
-    const cachedSettingsPass = (cachedSettings && cachedSettings.adminPassword ? String(cachedSettings.adminPassword).trim() : '');
-    const localMatch = [cachedAdminPass, cachedSettingsPass].filter(Boolean).some(lp => passCandidates.includes(lp));
-
-    if (activeSlug && activeSlug !== 'demo') {
-      try {
-        const fetchWithTimeout = (url, ms = 4500) => {
-          const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
-          const tid = ctrl ? setTimeout(() => { try { ctrl.abort(); } catch(e){} }, ms) : null;
-          return fetch(url, { cache: 'no-store', signal: ctrl ? ctrl.signal : undefined })
-            .then(r => { if (tid) clearTimeout(tid); return r.ok ? r.json() : null; })
-            .catch(() => { if (tid) clearTimeout(tid); return null; });
+    // 1. Demo mode local authentication
+    if (activeSlug === 'demo') {
+      if (passCandidates.includes('123456')) {
+        const session = {
+          email: 'demo@harpymenu.com',
+          uid: 'tenant_demo',
+          authenticated: true,
+          slug: 'demo',
+          sessionVersion: Date.now(),
+          timestamp: Date.now()
         };
-
-        const [licRes, restPass, restPassUpdatedAt, licPass] = await Promise.all([
-          fetchWithTimeout(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${activeSlug}.json`),
-          fetchWithTimeout(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${activeSlug}/settings/adminPassword.json`),
-          fetchWithTimeout(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${activeSlug}/settings/passwordUpdatedAt.json`),
-          fetchWithTimeout(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${activeSlug}/adminPassword.json`)
-        ]);
-        licData = licRes;
-        const licTs = (licData && (Number(licData.updatedAt) || Number(licData.createdAt) || 0)) || 0;
-        const restTs = Number(restPassUpdatedAt) || 0;
-        let storedPass = (restPass && restTs > licTs)
-          ? restPass
-          : ((licData && (licData.adminPassword || (licData.subscription && licData.subscription.adminPassword))) || licPass || restPass);
-
-        if (!storedPass && typeof db !== 'undefined' && db && typeof db.ref === 'function') {
-          try {
-            const snap = await Promise.race([
-              db.ref(`licenses/${activeSlug}/adminPassword`).once('value'),
-              new Promise(res => setTimeout(() => res(null), 2000))
-            ]);
-            if (snap && snap.exists && snap.exists()) storedPass = snap.val();
-          } catch(e) {}
-        }
-
-        const validPasses = [
-          storedPass ? String(storedPass).trim() : null,
-          licPass ? String(licPass).trim() : null,
-          restPass ? String(restPass).trim() : null
-        ].filter(Boolean);
-
-        if (validPasses.some(vp => passCandidates.includes(vp))) {
-          dbPassMatch = true;
-        } else if (localMatch) {
-          dbPassMatch = true;
-        } else if (!storedPass && ((activeSlug === 'king' && passCandidates.some(p => p === '123456' || p === '12345')) ||
-                   (activeSlug === 'aloo' && passCandidates.includes('12345')) ||
-                   (activeSlug === 'elmetaashy' && passCandidates.includes('harpy9683')))) {
-          dbPassMatch = true;
-        }
-      } catch(dbErr) {
-        console.warn("[Store] DB pass check warning:", dbErr);
-        if (localMatch) dbPassMatch = true;
+        this.safeSetItem('harpy_admin_auth_demo', JSON.stringify(session));
+        sessionStorage.setItem('harpy_auth_demo', JSON.stringify(session));
+        this.safeSetItem('harpy_admin_active_slug', 'demo');
+        if (this.setBranchKeychain) this.setBranchKeychain('demo', normalizedPassword || cleanPassword);
+        return { user: { email: 'demo@harpymenu.com', uid: 'tenant_demo' } };
       }
+      throw new Error("auth/invalid-credentials");
     }
 
-    if (dbPassMatch) {
-      const rawLicVersion = Number(licData && licData.sessionVersion) || 0;
-      const rawMetaVersion = Number(licData && licData.meta && licData.meta.sessionVersion) || 0;
-      const sessionVersion = Math.max(rawLicVersion, rawMetaVersion, Date.now());
-      const uid = (licData && licData.ownerUid) || `tenant_${activeSlug}`;
-      const session = {
-        email: `${activeSlug}@harpymenu.com`,
-        uid: uid,
-        authenticated: true,
-        slug: activeSlug,
-        sessionVersion: sessionVersion,
-        timestamp: Date.now()
-      };
-      this.safeSetItem(`harpy_admin_auth_${activeSlug}`, JSON.stringify(session));
-      sessionStorage.setItem(`harpy_auth_${activeSlug}`, JSON.stringify(session));
-      this.safeSetItem('harpy_admin_active_slug', activeSlug);
-      if (typeof this.setRestaurantSlug === 'function' && activeSlug !== slug) {
-        this.setRestaurantSlug(activeSlug);
-      }
-      if (this.setBranchKeychain) this.setBranchKeychain(activeSlug, cleanPassword);
+    // 2. Direct Firebase Auth Authentication (zero public RTDB password reads)
+    const fetchWithTimeout = (url, ms = 2800) => {
+      const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+      const tid = ctrl ? setTimeout(() => { try { ctrl.abort(); } catch(e){} }, ms) : null;
+      return fetch(url, { cache: 'no-store', signal: ctrl ? ctrl.signal : undefined })
+        .then(r => { if (tid) clearTimeout(tid); return r.ok ? r.json() : null; })
+        .catch(() => { if (tid) clearTimeout(tid); return null; });
+    };
 
-      // Background shadow auth for cloud write permissions with cross-tenant isolation
-      if (auth) {
-        const shadowEmail = `${activeSlug}@harpymenu.com`;
-        const candidatePasses = Array.from(new Set([
-          cleanPassword,
-          normalizedPassword,
-          `Harpy_${activeSlug}_2026!`,
-          this.safeGetItem(`harpy_admin_pass_${activeSlug}`),
-          (typeof this.getBranchKeychain === 'function' ? this.getBranchKeychain(activeSlug) : null),
-          licData && licData.adminPassword,
-          licData && licData.meta && licData.meta.accessPassword,
-          licData && licData.meta && licData.meta.adminPassword,
-          (activeSlug === 'king' ? '123456' : null),
-          (activeSlug === 'aloo' ? '12345' : null),
-          (activeSlug === 'elmetaashy' ? 'harpy9683' : null)
-        ].filter(Boolean)));
+    const licPromise = activeSlug
+      ? fetchWithTimeout(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${encodeURIComponent(activeSlug)}.json`)
+      : Promise.resolve(null);
 
-        if (typeof window !== 'undefined') window.__harpyAuthTransitionSlug = activeSlug;
-        const doShadowAuth = async () => {
-          if (auth.currentUser && auth.currentUser.email && auth.currentUser.email.toLowerCase() !== shadowEmail.toLowerCase()) {
-            try { await auth.signOut(); } catch(soErr) {}
-          }
-          if (firebase.auth && firebase.auth.Auth && firebase.auth.Auth.Persistence) {
-            try { await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); } catch(pErr) {}
-          }
-          for (const sp of candidatePasses) {
-            try {
-              const res = await auth.signInWithEmailAndPassword(shadowEmail, sp);
-              if (res && res.user) {
-                if (sp !== cleanPassword && cleanPassword.length >= 6) {
-                  try { await res.user.updatePassword(cleanPassword); } catch(uErr) {}
-                }
-                this.safeSetItem(`harpy_admin_pass_${activeSlug}`, cleanPassword);
-                return res;
-              }
-            } catch(shadowErr) {}
-          }
-          try {
-            const res = await auth.createUserWithEmailAndPassword(shadowEmail, cleanPassword || `Harpy_${activeSlug}_2026!`);
-            if (res && res.user) {
-              this.safeSetItem(`harpy_admin_pass_${activeSlug}`, cleanPassword || `Harpy_${activeSlug}_2026!`);
-              return res;
-            }
-          } catch(createErr) {}
-          return null;
-        };
+    let lastAuthError = null;
+    let sawNetworkError = false;
+    let sawRateLimit = false;
 
-        // Await shadow auth with safety timeout so Firebase Auth currentUser is ready for writes
-        try {
-          await Promise.race([
-            doShadowAuth(),
-            new Promise((resolve) => setTimeout(resolve, 4500))
-          ]);
-        } catch(err) {
-          console.warn("[Store] Background shadow auth note:", err);
-        } finally {
-          if (typeof window !== 'undefined' && window.__harpyAuthTransitionSlug === activeSlug) {
-            window.__harpyAuthTransitionSlug = null;
-          }
-        }
-      }
-
-      return { user: { email: `${activeSlug}@harpymenu.com`, uid: uid } };
-    }
-
-    // 2. Direct Firebase Auth attempt with candidate emails (e.g. custom credentials or saj/king legacy sessions)
     if (auth) {
       const candidateEmails = [];
       if (cleanId.includes('@')) {
@@ -739,36 +624,106 @@ const Store = {
           candidateEmails.push('staging_test@harpymenu.com');
           candidateEmails.push('test@harpymenu.com');
         }
-        if (cleanId) candidateEmails.push(`${cleanId}@harpymenu.com`);
-        if (slug && slug !== cleanId) candidateEmails.push(`${slug}@harpymenu.com`);
+        if (slug) candidateEmails.push(`${slug}@harpymenu.com`);
+        if (cleanId && cleanId !== slug) candidateEmails.push(`${cleanId}@harpymenu.com`);
       }
 
-      for (const email of candidateEmails) {
-        try {
-          if (firebase.auth && firebase.auth.Auth && firebase.auth.Auth.Persistence) {
-            try { await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); } catch(pErr) {}
-          }
-          const authAttempt = auth.signInWithEmailAndPassword(email, cleanPassword);
-          const userCred = await Promise.race([
-            authAttempt,
-            new Promise((_, reject) => setTimeout(() => reject(new Error('auth/timeout')), 2500))
-          ]);
-          const session = { 
-            email: email, 
-            uid: userCred.user.uid, 
-            authenticated: true, 
-            slug: slug || cleanId, 
-            sessionVersion: Date.now(),
-            timestamp: Date.now() 
-          };
-          this.safeSetItem(`harpy_admin_auth_${slug}`, JSON.stringify(session));
-          sessionStorage.setItem(`harpy_auth_${slug}`, JSON.stringify(session));
-          this.safeSetItem('harpy_admin_active_slug', slug);
-          if (this.setBranchKeychain) this.setBranchKeychain(slug, cleanPassword);
-          return userCred;
-        } catch (authErr) {
-          console.warn(`[Store] Firebase Auth attempt for ${email}:`, authErr.code || authErr.message);
+      if (typeof window !== 'undefined') window.__harpyAuthTransitionSlug = activeSlug;
+      try {
+        if (auth.currentUser && candidateEmails.length > 0 && !candidateEmails.includes((auth.currentUser.email || '').toLowerCase())) {
+          try { await auth.signOut(); } catch(soErr) {}
         }
+        if (firebase.auth && firebase.auth.Auth && firebase.auth.Auth.Persistence) {
+          try { await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); } catch(pErr) {}
+        }
+
+        for (const email of candidateEmails) {
+          for (const pwd of passCandidates) {
+            try {
+              const userCred = await Promise.race([
+                auth.signInWithEmailAndPassword(email, pwd),
+                new Promise((_, reject) => setTimeout(() => reject(Object.assign(new Error('auth/timeout'), { code: 'auth/timeout' })), 6000))
+              ]);
+              if (userCred && userCred.user) {
+                const licData = await licPromise.catch(() => null);
+                let metaVersion = 0;
+                try {
+                  const idToken = await userCred.user.getIdToken();
+                  if (idToken && activeSlug) {
+                    const mv = await fetchWithTimeout(`https://harpy-order-default-rtdb.firebaseio.com/restaurants/${encodeURIComponent(activeSlug)}/meta/sessionVersion.json?auth=${encodeURIComponent(idToken)}`, 2200);
+                    metaVersion = Number(mv) || 0;
+                  }
+                } catch(mvErr) {}
+
+                const rawLicVersion = Number(licData && licData.sessionVersion) || 0;
+                const sessionVersion = Math.max(rawLicVersion, metaVersion, Date.now());
+                const session = {
+                  email: userCred.user.email || email,
+                  uid: userCred.user.uid,
+                  authenticated: true,
+                  slug: activeSlug,
+                  sessionVersion: sessionVersion,
+                  timestamp: Date.now()
+                };
+                this.safeSetItem(`harpy_admin_auth_${activeSlug}`, JSON.stringify(session));
+                sessionStorage.setItem(`harpy_auth_${activeSlug}`, JSON.stringify(session));
+                this.safeSetItem('harpy_admin_active_slug', activeSlug);
+                this.safeSetItem(`harpy_admin_pass_${activeSlug}`, pwd);
+                if (typeof this.setRestaurantSlug === 'function' && activeSlug !== slug) {
+                  this.setRestaurantSlug(activeSlug);
+                }
+                if (this.setBranchKeychain) this.setBranchKeychain(activeSlug, pwd);
+                return userCred;
+              }
+            } catch (authErr) {
+              lastAuthError = authErr;
+              const code = (authErr && (authErr.code || authErr.message)) || '';
+              if (code === 'auth/too-many-requests') {
+                sawRateLimit = true;
+                break;
+              }
+              if (code === 'auth/network-request-failed' || code === 'auth/timeout' || authErr?.message === 'auth/timeout') {
+                sawNetworkError = true;
+              }
+              console.warn(`[Store] Firebase Auth attempt for ${email}:`, code);
+            }
+          }
+          if (sawRateLimit) break;
+        }
+      } finally {
+        if (typeof window !== 'undefined' && window.__harpyAuthTransitionSlug === activeSlug) {
+          window.__harpyAuthTransitionSlug = null;
+        }
+      }
+    } else {
+      sawNetworkError = true;
+    }
+
+    if (sawRateLimit) {
+      throw lastAuthError || Object.assign(new Error("auth/too-many-requests"), { code: "auth/too-many-requests" });
+    }
+
+    // 3. Offline-only fallback for returning admins when network/Firebase is unreachable
+    const isOffline = (typeof navigator !== 'undefined' && navigator.onLine === false) || sawNetworkError;
+    if (isOffline) {
+      const cachedAdminPass = (this.safeGetItem(`harpy_admin_pass_${activeSlug}`) ||
+                               (typeof this.getBranchKeychain === 'function' ? this.getBranchKeychain(activeSlug) : null) || '').trim();
+      if (cachedAdminPass && passCandidates.includes(cachedAdminPass)) {
+        const session = {
+          email: `${activeSlug}@harpymenu.com`,
+          uid: `offline_${activeSlug}`,
+          authenticated: true,
+          slug: activeSlug,
+          sessionVersion: Date.now(),
+          timestamp: Date.now()
+        };
+        this.safeSetItem(`harpy_admin_auth_${activeSlug}`, JSON.stringify(session));
+        sessionStorage.setItem(`harpy_auth_${activeSlug}`, JSON.stringify(session));
+        this.safeSetItem('harpy_admin_active_slug', activeSlug);
+        return { user: { email: session.email, uid: session.uid } };
+      }
+      if (sawNetworkError) {
+        throw Object.assign(new Error("auth/timeout"), { code: "auth/timeout" });
       }
     }
 
@@ -778,35 +733,40 @@ const Store = {
   async changeAdminPassword(newPassword, logoutAllDevices = false) {
     const slug = this.getRestaurantSlug();
     const cleanPassword = (newPassword || '').trim();
-    if (!cleanPassword || cleanPassword.length < 5) {
-      throw new Error("كلمة المرور يجب ألا تقل عن 5 أحرف أو أرقام");
+    if (!cleanPassword || cleanPassword.length < 6) {
+      throw new Error("كلمة المرور يجب ألا تقل عن 6 أحرف أو أرقام");
     }
 
-    if (!db) {
-      throw new Error("قاعدة البيانات السحابية غير متصلة حالياً");
+    if (!auth) {
+      throw new Error("خدمة المصادقة السحابية غير متصلة حالياً");
     }
 
-    // 1. Update Firebase Auth User Password directly when matching tenant user is signed in
-    if (auth && auth.currentUser && auth.currentUser.email && auth.currentUser.email.toLowerCase() === `${slug}@harpymenu.com`) {
-      try {
-        await auth.currentUser.updatePassword(cleanPassword);
-      } catch(upErr) {
-        console.warn('[Store] Firebase Auth password update warning:', upErr);
+    let user = await this.ensureFirebaseAuth(slug);
+    if (!user || !auth.currentUser) {
+      throw new Error("يرجى تسجيل الدخول أولاً لتحديث كلمة المرور");
+    }
+
+    try {
+      await auth.currentUser.updatePassword(cleanPassword);
+    } catch (upErr) {
+      if (upErr && upErr.code === 'auth/requires-recent-login') {
+        const prevPass = this.safeGetItem(`harpy_admin_pass_${slug}`) || (this.getBranchKeychain ? this.getBranchKeychain(slug) : null);
+        if (prevPass && auth.currentUser.email) {
+          await auth.signInWithEmailAndPassword(auth.currentUser.email, prevPass);
+          await auth.currentUser.updatePassword(cleanPassword);
+        } else {
+          throw upErr;
+        }
+      } else {
+        throw upErr;
       }
     }
+
     this.safeSetItem(`harpy_admin_pass_${slug}`, cleanPassword);
     if (this.setBranchKeychain) this.setBranchKeychain(slug, cleanPassword);
 
-    // 2. Persist updated password and timestamp in writable tenant settings node
-    const nowTs = Date.now();
-    const updates = {
-      lastPasswordChange: new Date().toISOString()
-    };
-
     if (logoutAllDevices) {
-      const newVersion = nowTs;
-      updates.sessionVersion = newVersion;
-      // Keep this current device session valid with the new version
+      const newVersion = Date.now();
       const localAuth = this.safeGetItem(`harpy_admin_auth_${slug}`);
       if (localAuth) {
         try {
@@ -817,15 +777,6 @@ const Store = {
         } catch(e) {}
       }
     }
-
-    await db.ref(`restaurants/${slug}/settings`).update({
-      adminPassword: cleanPassword,
-      passwordUpdatedAt: nowTs,
-      lastPasswordChange: updates.lastPasswordChange
-    });
-    try {
-      await db.ref(`restaurants/${slug}/meta`).update(updates);
-    } catch(metaErr) {}
     return true;
   },
 
@@ -903,10 +854,7 @@ const Store = {
     const savedPass = this.safeGetItem(`harpy_admin_pass_${activeSlug}`) || (typeof this.getBranchKeychain === 'function' ? this.getBranchKeychain(activeSlug) : null);
     const candidatePasses = Array.from(new Set([
       savedPass,
-      `Harpy_${activeSlug}_2026!`,
-      (activeSlug === 'king' ? '123456' : null),
-      (activeSlug === 'aloo' ? '12345' : null),
-      (activeSlug === 'elmetaashy' ? 'harpy9683' : null)
+      `Harpy_${activeSlug}_2026!`
     ].filter(Boolean)));
 
     const email = `${activeSlug}@harpymenu.com`;
@@ -1264,8 +1212,7 @@ const Store = {
             settings: db.ref(`restaurants/${slug}/settings`),
             categories: db.ref(`restaurants/${slug}/categories`),
             products: db.ref(`restaurants/${slug}/products`),
-            stories: db.ref(`restaurants/${slug}/stories`),
-            settingsRawMaterials: db.ref(`restaurants/${slug}/settings/rawMaterials`)
+            stories: db.ref(`restaurants/${slug}/stories`)
           };
 
           let batchProcessTimer = null;
@@ -1287,16 +1234,6 @@ const Store = {
                 if (k === 'categories' && (!val || (Array.isArray(val) && val.length === 0))) val = DEFAULT_CATEGORIES;
                 if (k === 'stories' && (!val || (typeof val === 'object' && Object.keys(val).length === 0))) val = DEFAULT_STORIES;
                 if (k === 'settings' && (!val || (typeof val === 'object' && Object.keys(val).length === 0))) val = DEFAULT_SETTINGS;
-              }
-              if (k === 'settingsRawMaterials') {
-                if (val) {
-                  currentAgg.rawMaterials = val;
-                  scheduleBatchProcess();
-                }
-                return;
-              }
-              if (k === 'settings' && val && val.rawMaterials) {
-                currentAgg.rawMaterials = val.rawMaterials;
               }
               currentAgg[k] = val;
               scheduleBatchProcess();
@@ -1402,7 +1339,7 @@ const Store = {
           fetchRestWithTimeout(`${baseUrl}/categories.json${authParam}`),
           fetchRestWithTimeout(`${baseUrl}/products.json${authParam}`),
           fetchRestWithTimeout(`${baseUrl}/stories.json${authParam}`),
-          fetchRestWithTimeout(`${baseUrl}/rawMaterials.json${authParam}`)
+          (idToken || isDemo) ? fetchRestWithTimeout(`${baseUrl}/rawMaterials.json${authParam}`) : Promise.resolve(null)
         ]);
 
         let settings = sRes && sRes.ok ? await sRes.json().catch(() => null) : null;
@@ -2765,17 +2702,7 @@ const Store = {
     }
     if (!db) return { isOwner: false, mismatchConfirmed: false };
     try {
-      // 1. Try checking licenses node first
-      try {
-        const licSnap = await db.ref(`licenses/${slug}/ownerUid`).once('value');
-        const licUid = licSnap.val();
-        if (licUid && licUid === userUid) return { isOwner: true, mismatchConfirmed: false };
-        if (licUid && licUid !== userUid) {
-          return { isOwner: false, mismatchConfirmed: true, ownerUid: licUid };
-        }
-      } catch(licErr) {}
-
-      // 2. Check meta node
+      // Check owner-protected meta node directly (licenses/{slug} no longer carries ownerUid PII)
       const metaRef = db.ref(`restaurants/${slug}/meta`);
       const snap = await metaRef.once('value');
       if (!snap.exists()) {
@@ -2991,18 +2918,11 @@ const Store = {
     if (this._memoryCache.settings?.modules && !settings.modules) {
       settings.modules = this._memoryCache.settings.modules;
     }
-    // Preserve rawMaterials inside settings to prevent form wipes
-    if (!settings.rawMaterials) {
-      const curMats = this.getRawMaterials();
-      if (curMats && curMats.length > 0) {
-        settings.rawMaterials = curMats;
-      } else if (this._memoryCache.settings?.rawMaterials) {
-        settings.rawMaterials = this._memoryCache.settings.rawMaterials;
-      }
-    }
-    // Security: never persist legacy adminPin or third-party api keys in public settings node
+    // Never persist legacy adminPin, secrets, or secured rawMaterials in public settings node
     delete settings.adminPin;
     delete settings.imgbbApiKey;
+    delete settings.adminPassword;
+    delete settings.rawMaterials;
     this._memoryCache.settings = settings;
     this.saveLocks.settings = true;
     this.safeSetItem(this.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(settings));
@@ -3016,11 +2936,18 @@ const Store = {
     this.applyTheme();
     window.dispatchEvent(new Event('store_settings_updated'));
 
-    // Never allow admin panel saves to overwrite server-controlled subscription/modules/adminPassword
+    // Never allow admin panel saves to overwrite server-controlled or private fields
     const cloudEditable = { ...settings };
     delete cloudEditable.subscription;
     delete cloudEditable.modules;
     delete cloudEditable.adminPassword;
+    delete cloudEditable.rawMaterials;
+    delete cloudEditable.ownerPhone;
+    delete cloudEditable.ownerEmail;
+    delete cloudEditable.ownerUid;
+    delete cloudEditable.lastPaymentAmount;
+    delete cloudEditable.passwordUpdatedAt;
+    delete cloudEditable.lastPasswordChange;
 
     try {
       await this.patchToCloud('settings', cloudEditable);
@@ -3316,35 +3243,16 @@ const Store = {
 
     let restaurantExistsInCloud = false;
 
-    // 1. Check meta.adminPassword in Firebase RTDB
-    if (typeof db !== 'undefined' && db) {
-      try {
-        const snap = await db.ref(`restaurants/${cleanSlug}/meta`).once('value');
-        if (snap.exists()) {
-          restaurantExistsInCloud = true;
-          const meta = snap.val() || {};
-          const realPwd = (meta.adminPassword || '').trim();
-          if (realPwd && passCandidates.includes(realPwd)) {
-            this.setBranchKeychain(cleanSlug, cleanPass);
-            return { success: true, verifiedUid: meta.ownerUid || null };
-          }
-        }
-      } catch(e) {}
-    }
-
-    // 2. Check local cached meta
+    // 1. Check public license existence so an existing tenant is never treated as new
     try {
-      const localMetaRaw = localStorage.getItem(`harpy_${cleanSlug}_meta`);
-      if (localMetaRaw) {
-        const localMeta = JSON.parse(localMetaRaw);
-        if (localMeta && localMeta.adminPassword && passCandidates.includes(localMeta.adminPassword.trim())) {
-          this.setBranchKeychain(cleanSlug, cleanPass);
-          return { success: true };
-        }
+      const licRes = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${encodeURIComponent(cleanSlug)}/status.json`, { cache: 'no-store' }).catch(() => null);
+      if (licRes && licRes.ok) {
+        const licVal = await licRes.json().catch(() => null);
+        if (licVal !== null) restaurantExistsInCloud = true;
       }
     } catch(e) {}
 
-    // 3. Check Firebase Auth with candidate emails
+    // 2. Verify via isolated Firebase Auth instance with Arabic/English digit normalization
     if (typeof firebase !== 'undefined' && firebase.initializeApp && firebase.auth) {
       let tempApp = null;
       try {
@@ -3358,22 +3266,27 @@ const Store = {
         if (authRaw) {
           try { targetEmail = JSON.parse(authRaw).email || targetEmail; } catch(e) {}
         }
-        const candidateEmails = [targetEmail, `${cleanSlug}@harpymenu.com`];
+        const candidateEmails = Array.from(new Set([targetEmail, `${cleanSlug}@harpymenu.com`]));
 
         for (const email of candidateEmails) {
-          try {
-            const userCred = await tempAuth.signInWithEmailAndPassword(email, cleanPass);
-            if (userCred && userCred.user) {
-              this.setBranchKeychain(cleanSlug, cleanPass);
-              try { await tempApp.delete(); } catch(delErr) {}
-              return { success: true, verifiedUid: userCred.user.uid };
-            }
-          } catch(err) {
-            if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-login-credentials' || err.code === 'auth/invalid-credential') {
-              try { await tempApp.delete(); } catch(delErr) {}
-              return { success: false, reason: "invalid-password" };
+          for (const pwd of passCandidates) {
+            try {
+              const userCred = await tempAuth.signInWithEmailAndPassword(email, pwd);
+              if (userCred && userCred.user) {
+                this.setBranchKeychain(cleanSlug, pwd);
+                try { await tempApp.delete(); } catch(delErr) {}
+                return { success: true, verifiedUid: userCred.user.uid };
+              }
+            } catch(err) {
+              if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-login-credentials' || err.code === 'auth/invalid-credential') {
+                restaurantExistsInCloud = true;
+              }
             }
           }
+        }
+        if (restaurantExistsInCloud) {
+          try { await tempApp.delete(); } catch(delErr) {}
+          return { success: false, reason: "invalid-password" };
         }
       } catch(e) {
       } finally {
@@ -3839,18 +3752,9 @@ const Store = {
     if (slug) this.safeSetItem(`harpy_${slug}_raw_materials`, JSON.stringify(materials));
     this.lastSaveTimestamps.rawMaterials = Date.now();
 
-    // Dual-write: Mirror to settings.rawMaterials for zero-auth public discovery across devices
-    try {
-      const curSettings = this.getSettings() || {};
-      curSettings.rawMaterials = materials;
-      this._memoryCache.settings = curSettings;
-      this.safeSetItem(this.getKey(STORAGE_KEYS.SETTINGS), JSON.stringify(curSettings));
-      if (slug) this.safeSetItem(`harpy_${slug}_settings`, JSON.stringify(curSettings));
-    } catch(e) {}
-
     window.dispatchEvent(new Event('store_raw_materials_updated'));
 
-    // Ultra-Fast Optimistic Flow: Push to cloud across both nodes
+    // Push ONLY to auth-protected top-level rawMaterials node (never mirror to public settings)
     this.pushToCloud('rawMaterials', materials).then(() => {
       this.lastSaveTimestamps.rawMaterials = Date.now();
       this.saveLocks.rawMaterials = false;
@@ -4678,6 +4582,7 @@ const Store = {
     delete resetSettings.subscription;
     delete resetSettings.modules;
     delete resetSettings.adminPassword;
+    delete resetSettings.rawMaterials;
     await this.patchToCloud('settings', resetSettings);
     const seedCategories = isStore ? ((window.HARPY_DEMO_SEED && window.HARPY_DEMO_SEED.DEFAULT_STORE_CATEGORIES) || (typeof DEFAULT_STORE_CATEGORIES !== 'undefined' ? DEFAULT_STORE_CATEGORIES : [])) : DEFAULT_CATEGORIES;
     const seedProducts = isStore ? ((window.HARPY_DEMO_SEED && window.HARPY_DEMO_SEED.DEFAULT_STORE_PRODUCTS) || (typeof DEFAULT_STORE_PRODUCTS !== 'undefined' ? DEFAULT_STORE_PRODUCTS : [])) : DEFAULT_PRODUCTS;

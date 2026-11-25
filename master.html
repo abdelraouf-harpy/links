@@ -3180,15 +3180,17 @@
       // --- Data Fetching ---
       async loadAllData() {
         try {
-          const [licensesRaw, restaurantsRaw, pkgsData, cfgRaw] = await Promise.all([
+          const [licensesRaw, restaurantsRaw, pkgsData, cfgRaw, privRaw] = await Promise.all([
             rtdbRequest('licenses.json'),
             rtdbRequest('restaurants.json'),
             rtdbRequest('subscriptionPlans.json').catch(() => null),
-            rtdbRequest('masterConfig.json').catch(() => null)
+            rtdbRequest('masterConfig.json').catch(() => null),
+            rtdbRequest('tenantPrivate.json').catch(() => null)
           ]);
 
           const licenses = licensesRaw || {};
           const restaurants = restaurantsRaw || {};
+          const tenantPrivate = (privRaw && typeof privRaw === 'object') ? privRaw : {};
           this.masterConfig = (cfgRaw && typeof cfgRaw === 'object') ? cfgRaw : {};
           if (this.masterConfig.pin && /^\d{4}$/.test(String(this.masterConfig.pin))) {
             this.correctPin = String(this.masterConfig.pin);
@@ -3206,6 +3208,7 @@
             const rest = restaurants[slug] || {};
             const settings = rest.settings || {};
             const meta = rest.meta || {};
+            const priv = tenantPrivate[slug] || {};
 
             const rawExp = (lic.expiresAt !== undefined && lic.expiresAt !== null) ? lic.expiresAt : lic.validUntil;
             const expTimestamp = parseExpiry(rawExp);
@@ -3228,12 +3231,14 @@
             const active = !isSuspended;
 
             const planName = lic.plan || subSettings.plan || 'الباقة الأساسية';
-            const adminPassword = lic.adminPassword || (settings && settings.adminPassword) || (meta && meta.adminPassword) || (subSettings && subSettings.adminPassword) || '';
-            const priceVal = (lic.monthlyPrice !== undefined && lic.monthlyPrice !== null)
-              ? Number(lic.monthlyPrice)
-              : ((subSettings.monthlyPrice !== undefined && subSettings.monthlyPrice !== null)
-                  ? Number(subSettings.monthlyPrice)
-                  : 1500);
+            const adminPassword = priv.adminPassword || lic.adminPassword || (settings && settings.adminPassword) || (meta && meta.adminPassword) || (subSettings && subSettings.adminPassword) || '';
+            const priceVal = (priv.monthlyPrice !== undefined && priv.monthlyPrice !== null)
+              ? Number(priv.monthlyPrice)
+              : ((lic.monthlyPrice !== undefined && lic.monthlyPrice !== null)
+                  ? Number(lic.monthlyPrice)
+                  : ((subSettings.monthlyPrice !== undefined && subSettings.monthlyPrice !== null)
+                      ? Number(subSettings.monthlyPrice)
+                      : 1500));
 
             const bType = (lic.businessType || settings.businessType || 'restaurant') === 'store' ? 'store' : 'restaurant';
             const rawMods = lic.modules || settings.modules || {};
@@ -3252,7 +3257,7 @@
             loadedTenants.push({
               slug,
               name: lic.restaurantName || settings.name || settings.storeName || slug,
-              phone: lic.ownerPhone || settings.phone || '',
+              phone: priv.ownerPhone || meta.ownerPhone || lic.ownerPhone || settings.phone || '',
               businessType: bType,
               customDomain: cDomain,
               active,
@@ -3262,8 +3267,8 @@
               isLifetime: expTimestamp <= 0,
               monthlyPrice: priceVal,
               plan: planName,
-              billingCycle: lic.billingCycle || 'monthly',
-              pricingNotes: lic.pricingNotes || '',
+              billingCycle: priv.billingCycle || lic.billingCycle || 'monthly',
+              pricingNotes: priv.pricingNotes || lic.pricingNotes || '',
               adminPassword,
               expTimestamp,
               expiryText,
@@ -3683,6 +3688,7 @@
 
       // --- Admin SSO Bridge ---
       launchAdmin(slug) {
+        const t = (this.tenants || []).find(x => x.slug === slug);
         const sessionPayload = {
           role: "superadmin",
           restaurantId: slug,
@@ -3708,6 +3714,9 @@
           authMethod: "harpy_master_sso",
           timestamp: Date.now()
         }));
+        if (t && t.adminPassword) {
+          try { localStorage.setItem(`harpy_admin_pass_${slug}`, t.adminPassword); } catch(e) {}
+        }
         localStorage.setItem('harpy_admin_active_slug', slug);
         localStorage.setItem(`harpy_active_tenant`, slug);
         this.logAudit('ADMIN_SSO', `دخول مباشر للوحة إدارة مطعم ${slug}`, slug);
@@ -4029,12 +4038,14 @@
           suspended: !isExpInFuture,
           status: isExpInFuture ? 'active' : 'expired',
           isLifetime: false,
-          lastPaymentDate: now,
-          lastPaymentAmount: amount,
-          lastPaymentNotes: notes,
           lastStatusUpdate: now
         };
         if (!isExpInFuture) payPayload.sessionVersion = now;
+        const privPayPayload = {
+          lastPaymentDate: now,
+          lastPaymentAmount: amount,
+          lastPaymentNotes: notes
+        };
 
         // Instant optimistic UI update
         if (t) {
@@ -4066,6 +4077,7 @@
 
           await Promise.all([
             rtdbRequest(`licenses/${slug}.json`, 'PATCH', payPayload),
+            rtdbRequest(`tenantPrivate/${slug}.json`, 'PATCH', privPayPayload),
             rtdbRequest(`restaurants/${slug}/settings/subscription.json`, 'PATCH', {
               expiresAt: new Date(newExp).toISOString(),
               status: isExpInFuture ? 'active' : 'expired',
@@ -4360,8 +4372,8 @@
         }
 
         const password = (document.getElementById('new-tenant-password')?.value || '').trim();
-        if (!password || password.length < 5) {
-          this.showToast("يرجى إدخال كلمة مرور للمطعم لا تقل عن 5 أحرف", "error");
+        if (!password || password.length < 6) {
+          this.showToast("يرجى إدخال كلمة مرور للمطعم لا تقل عن 6 أحرف أو أرقام", "error");
           return;
         }
 
@@ -4371,20 +4383,30 @@
           const suRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${authKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: `${slug}@harpymenu.com`, password: `Harpy_${slug}_2026!`, returnSecureToken: true })
+            body: JSON.stringify({ email: `${slug}@harpymenu.com`, password: password, returnSecureToken: true })
           });
           const suData = await suRes.json();
           if (suData && suData.localId) {
             ownerUid = suData.localId;
           } else {
-            const siRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${authKey}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email: `${slug}@harpymenu.com`, password: `Harpy_${slug}_2026!`, returnSecureToken: true })
-            });
-            const siData = await siRes.json();
-            if (siData && siData.localId) {
-              ownerUid = siData.localId;
+            for (const tryPass of [password, `Harpy_${slug}_2026!`]) {
+              const siRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${authKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: `${slug}@harpymenu.com`, password: tryPass, returnSecureToken: true })
+              });
+              const siData = await siRes.json();
+              if (siData && siData.localId) {
+                ownerUid = siData.localId;
+                if (tryPass !== password && siData.idToken) {
+                  await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:update?key=${authKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ idToken: siData.idToken, password: password, returnSecureToken: true })
+                  }).catch(() => {});
+                }
+                break;
+              }
             }
           }
         } catch(e) {}
@@ -4392,15 +4414,11 @@
         const now = Date.now();
         const licensePayload = {
           restaurantName: name,
-          ownerPhone: phone,
           businessType: bType,
           customDomain: customDomain,
-          adminPassword: password,
-          ownerUid: ownerUid,
           status: 'active',
           active: true,
           suspended: false,
-          monthlyPrice: price,
           plan: planName,
           expiresAt: expTimestamp,
           validUntil: expTimestamp,
@@ -4409,13 +4427,23 @@
           modules: allMods
         };
 
+        const tenantPrivatePayload = {
+          adminPassword: password,
+          ownerPhone: phone,
+          ownerUid: ownerUid,
+          monthlyPrice: price,
+          plan: planName,
+          billingCycle: 'monthly',
+          createdAt: now,
+          lastPasswordUpdate: now
+        };
+
         const settingsPayload = {
           name: name,
           storeName: name,
           businessType: bType,
           customDomain: customDomain,
           phone: phone,
-          adminPassword: password,
           currency: "ج.م",
           logo: "assets/brand/harpy_order_emblem_transparent.png",
           storeTagline: bType === 'store' ? "منتجات مختارة بأعلى جودة وشحن سريع" : "",
@@ -4427,9 +4455,7 @@
             active: true,
             suspended: false,
             status: 'active',
-            monthlyPrice: price,
             plan: planName,
-            adminPassword: password,
             expiresAt: expTimestamp > 0 ? new Date(expTimestamp).toISOString() : null
           }
         };
@@ -4449,6 +4475,7 @@
         try {
           const writeOps = [
             rtdbRequest(`licenses/${slug}.json`, 'PUT', licensePayload),
+            rtdbRequest(`tenantPrivate/${slug}.json`, 'PUT', tenantPrivatePayload),
             rtdbRequest(`restaurants/${slug}/settings.json`, 'PUT', settingsPayload),
             rtdbRequest(`restaurants/${slug}/meta.json`, 'PUT', metaPayload)
           ];
@@ -4587,6 +4614,7 @@
         try {
           await Promise.all([
             rtdbRequest(`licenses/${slug}.json`, 'DELETE'),
+            rtdbRequest(`tenantPrivate/${slug}.json`, 'DELETE'),
             rtdbRequest(`restaurants/${slug}.json`, 'DELETE'),
             rtdbRequest(`orders/${slug}.json`, 'DELETE')
           ]);
@@ -5217,36 +5245,62 @@
         const newPass = document.getElementById('security-new-password')?.value.trim();
         const forceLogout = document.getElementById('security-force-logout')?.checked;
 
-        if (!newPass || newPass.length < 5) {
-          this.showToast("يرجى إدخال كلمة مرور جديدة لا تقل عن 5 أحرف أو أرقام", "error");
+        if (!newPass || newPass.length < 6) {
+          this.showToast("يرجى إدخال كلمة مرور جديدة لا تقل عن 6 أحرف أو أرقام", "error");
           return;
         }
 
         const now = Date.now();
-        const updates = {
-          adminPassword: newPass,
-          lastPasswordUpdate: now
-        };
-        const metaUpdates = {
-          adminPassword: newPass,
-          lastPasswordUpdate: now
-        };
-        if (forceLogout) {
-          updates.sessionVersion = now;
-          metaUpdates.sessionVersion = now;
-        }
-
         const t = (this.tenants || []).find(x => x.slug === slug);
         const prevPass = t ? t.adminPassword : '';
 
         this.closeTenantSecurityModal();
 
         try {
-          await Promise.all([
-            rtdbRequest(`licenses/${slug}.json`, 'PATCH', updates),
-            rtdbRequest(`restaurants/${slug}/settings/adminPassword.json`, 'PUT', newPass),
-            rtdbRequest(`restaurants/${slug}/meta.json`, 'PATCH', metaUpdates)
-          ]);
+          // 1. Update Firebase Auth password first so tenant dashboard login remains in sync
+          const authKey = "AIzaSyAhDjUmVBnoRCp6bDSeqrmVgakAQ2pu0ww";
+          const tryPasses = Array.from(new Set([prevPass, `Harpy_${slug}_2026!`, '123456'].filter(Boolean)));
+          let authUpdated = false;
+          for (const tp of tryPasses) {
+            try {
+              const siRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${authKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: `${slug}@harpymenu.com`, password: tp, returnSecureToken: true })
+              });
+              const siData = await siRes.json();
+              if (siData && siData.idToken) {
+                const upRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:update?key=${authKey}`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ idToken: siData.idToken, password: newPass, returnSecureToken: true })
+                });
+                if (upRes.ok) {
+                  authUpdated = true;
+                  break;
+                }
+              }
+            } catch(authErr) {}
+          }
+          if (!authUpdated) {
+            throw new Error("تعذر مزامنة كلمة المرور مع خدمة المصادقة السحابية");
+          }
+
+          // 2. Store new password strictly in private tenantPrivate node (never public settings/licenses)
+          const ops = [
+            rtdbRequest(`tenantPrivate/${slug}.json`, 'PATCH', {
+              adminPassword: newPass,
+              lastPasswordUpdate: now
+            }),
+            rtdbRequest(`restaurants/${slug}/settings/adminPassword.json`, 'DELETE').catch(() => null),
+            rtdbRequest(`restaurants/${slug}/settings/subscription/adminPassword.json`, 'DELETE').catch(() => null),
+            rtdbRequest(`licenses/${slug}/adminPassword.json`, 'DELETE').catch(() => null)
+          ];
+          if (forceLogout) {
+            ops.push(rtdbRequest(`licenses/${slug}.json`, 'PATCH', { sessionVersion: now, lastPasswordUpdate: now }));
+            ops.push(rtdbRequest(`restaurants/${slug}/meta.json`, 'PATCH', { sessionVersion: now, lastPasswordUpdate: now }));
+          }
+          await Promise.all(ops);
 
           if (t) {
             t.adminPassword = newPass;
@@ -5722,6 +5776,10 @@
         }
 
         const payload = {
+          plan: planName,
+          lastPricingUpdate: Date.now()
+        };
+        const privPricingPayload = {
           monthlyPrice: amount,
           plan: planName,
           billingCycle: cycle,
@@ -5752,8 +5810,9 @@
         try {
           const ops = [
             rtdbRequest(`licenses/${slug}.json`, 'PATCH', payload),
+            rtdbRequest(`tenantPrivate/${slug}.json`, 'PATCH', privPricingPayload),
             rtdbRequest(`restaurants/${slug}/settings/subscription.json`, 'PATCH', payload),
-            rtdbRequest(`restaurants/${slug}/meta.json`, 'PATCH', { monthlyPrice: amount, plan: planName })
+            rtdbRequest(`restaurants/${slug}/meta.json`, 'PATCH', { plan: planName })
           ];
           if (payload.modules) {
             ops.push(rtdbRequest(`restaurants/${slug}/settings/modules.json`, 'PUT', payload.modules));
