@@ -11,18 +11,7 @@ function setupAuth() {
   const syncRawMaterialsCloud = async (user) => {
     if (!slug || slug === 'demo') return;
     try {
-      if (db) {
-        // 1. Direct realtime fetch from public settings/rawMaterials node
-        db.ref(`restaurants/${slug}/settings/rawMaterials`).once('value').then(snap => {
-          const val = snap.val();
-          if (val && (Array.isArray(val) ? val.length > 0 : Object.keys(val).length > 0)) {
-            Store.applySnapshotData({ rawMaterials: val });
-            if (typeof renderInventory === 'function') renderInventory();
-            if (typeof renderCatalog === 'function') renderCatalog();
-          }
-        }).catch(() => {});
-
-        // 2. Direct realtime fetch from top-level rawMaterials node
+      if (db && ((user && user.uid) || (window.firebase && firebase.auth && firebase.auth().currentUser))) {
         db.ref(`restaurants/${slug}/rawMaterials`).once('value').then(snap => {
           const val = snap.val();
           if (val && (Array.isArray(val) ? val.length > 0 : Object.keys(val).length > 0)) {
@@ -34,18 +23,6 @@ function setupAuth() {
       }
 
       const fbBase = 'https://harpy-order-default-rtdb.firebaseio.com/restaurants/' + encodeURIComponent(slug);
-
-      // Public fast REST fetch without auth token barrier
-      fetch(`${fbBase}/settings/rawMaterials.json`, { cache: 'no-store' })
-        .then(r => r.ok ? r.json() : null)
-        .then(data => {
-          if (data && (Array.isArray(data) ? data.length > 0 : Object.keys(data).length > 0)) {
-            Store.applySnapshotData({ rawMaterials: data });
-            if (typeof renderInventory === 'function') renderInventory();
-            if (typeof renderCatalog === 'function') renderCatalog();
-          }
-        }).catch(() => {});
-
       let idToken = '';
       if (user && typeof user.getIdToken === 'function') {
         try { idToken = await user.getIdToken(); } catch(e) {}
@@ -103,11 +80,10 @@ function setupAuth() {
           fetch(fbBase + '/categories.json' + authParam, fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
           fetch(fbBase + '/products.json' + authParam, fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
           fetch(fbBase + '/stories.json' + authParam, fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
-          fetch(fbBase + '/settings/rawMaterials.json', fOpt).then(r => r.ok ? r.json() : null).catch(() => null),
-          fetch(fbBase + '/rawMaterials.json' + authParam, fOpt).then(r => r.ok ? r.json() : null).catch(() => null)
+          idToken ? fetch(fbBase + '/rawMaterials.json' + authParam, fOpt).then(r => r.ok ? r.json() : null).catch(() => null) : Promise.resolve(null)
         ]);
         const s = results[0], c = results[1], p = results[2], st = results[3];
-        const rm = results[4] || results[5] || (s && s.rawMaterials);
+        const rm = results[4];
         if (s || c || p || rm) {
           Store.applySnapshotData({ settings: s, categories: c, products: p, stories: st, rawMaterials: rm });
           if (window.ModuleEnforcer && typeof window.ModuleEnforcer.enforce === 'function') {
@@ -661,54 +637,17 @@ function checkOnboardingSetup() {
 window.verifyAdminCredentials = async function(enteredPassword, slug) {
   if (!enteredPassword) return false;
   const cleanPass = enteredPassword.trim();
+  const normDigits = (str) => String(str || '')
+    .replace(/[٠-٩]/g, d => '0123456789'['٠١٢٣٤٥٦٧٨٩'.indexOf(d)])
+    .replace(/[۰-۹]/g, d => '0123456789'['۰۱۲۳۴۵۶۷۸۹'.indexOf(d)]);
+  const passCandidates = Array.from(new Set([cleanPass, normDigits(cleanPass)].filter(Boolean)));
   slug = (slug || (typeof Store !== 'undefined' ? Store.getRestaurantSlug() : '')).toLowerCase().trim();
 
-  // 1. Check live Firebase RTDB meta.adminPassword / settings.adminPassword first when online
-  if (typeof db !== 'undefined' && db) {
-    try {
-      const snap = await db.ref(`restaurants/${slug}/meta`).once('value');
-      const meta = snap.val() || {};
-      const realPwd = (meta.adminPassword || '').trim();
-      if (realPwd) {
-        if (cleanPass === realPwd) {
-          try { localStorage.setItem(`harpy_${slug}_meta`, JSON.stringify(meta)); } catch(e) {}
-          if (typeof Store !== 'undefined' && Store.setBranchKeychain) Store.setBranchKeychain(slug, cleanPass);
-          return true;
-        }
-        return false;
-      }
-    } catch (e) {}
+  if (slug === 'demo') {
+    return passCandidates.includes('123456');
   }
 
-  // 2. Fallback Keychain / cached meta check when DB rule requires auth first
-  if (typeof Store !== 'undefined' && Store.getBranchKeychain) {
-    const savedPass = Store.getBranchKeychain(slug);
-    if (savedPass && savedPass === cleanPass) {
-      return true;
-    }
-  }
-
-  if (typeof Store !== 'undefined' && Store.safeGetItem) {
-    try {
-      const localMeta = JSON.parse(Store.safeGetItem(`harpy_${slug}_meta`) || '{}');
-      if (localMeta && localMeta.adminPassword && localMeta.adminPassword.trim() === cleanPass) {
-        if (Store.setBranchKeychain) Store.setBranchKeychain(slug, cleanPass);
-        return true;
-      }
-    } catch(e) {}
-  }
-
-  // 3. Delegate to Store.verifyBranchCredentials (handles isolated tempApp and candidate emails)
-  if (typeof Store !== 'undefined' && Store.verifyBranchCredentials) {
-    try {
-      const res = await Store.verifyBranchCredentials(slug, cleanPass);
-      if (res && res.success) {
-        return true;
-      }
-    } catch (err) {}
-  }
-
-  // 4. Candidate emails check via isolated Firebase Auth
+  // 1. Primary verification via isolated Firebase Auth instance (server-validated, zero public secrets)
   const candidateEmails = [];
   if (typeof auth !== 'undefined' && auth && auth.currentUser && auth.currentUser.email) {
     candidateEmails.push(auth.currentUser.email);
@@ -722,6 +661,9 @@ window.verifyAdminCredentials = async function(enteredPassword, slug) {
   }
   candidateEmails.push(`${slug}@harpymenu.com`);
   candidateEmails.push(`${slug}@${slug}.com`);
+  const uniqueEmails = Array.from(new Set(candidateEmails));
+
+  let sawNetworkErr = false;
 
   if (typeof firebase !== 'undefined' && firebase.initializeApp && firebase.auth) {
     let tempApp = null;
@@ -736,49 +678,41 @@ window.verifyAdminCredentials = async function(enteredPassword, slug) {
       tempApp = firebase.initializeApp(cfg, tempName);
       const tempAuth = tempApp.auth();
 
-      for (const email of candidateEmails) {
-        try {
-          const userCred = await tempAuth.signInWithEmailAndPassword(email, cleanPass);
-          if (userCred && userCred.user) {
-            if (typeof Store !== 'undefined' && Store.setBranchKeychain) {
-              Store.setBranchKeychain(slug, cleanPass);
+      for (const email of uniqueEmails) {
+        for (const pwd of passCandidates) {
+          try {
+            const userCred = await tempAuth.signInWithEmailAndPassword(email, pwd);
+            if (userCred && userCred.user) {
+              if (typeof Store !== 'undefined' && Store.setBranchKeychain) {
+                Store.setBranchKeychain(slug, pwd);
+              }
+              try { await tempApp.delete(); } catch(delErr) {}
+              return true;
             }
-            try { await tempApp.delete(); } catch(delErr) {}
-            return true;
+          } catch(authErr) {
+            if (authErr && (authErr.code === 'auth/network-request-failed' || authErr.code === 'auth/timeout')) {
+              sawNetworkErr = true;
+            }
           }
-        } catch(authErr) {}
+        }
       }
       try { await tempApp.delete(); } catch(delErr) {}
     } catch(e) {
+      sawNetworkErr = true;
       if (tempApp) { try { await tempApp.delete(); } catch(delErr) {} }
     }
+  } else {
+    sawNetworkErr = true;
   }
 
-  // 5. Fallback if auth is ready on main instance
-  if (typeof auth !== 'undefined' && auth) {
-    for (const email of candidateEmails) {
-      try {
-        await auth.signInWithEmailAndPassword(email, cleanPass);
-        if (typeof Store !== 'undefined' && Store.setBranchKeychain) {
-          Store.setBranchKeychain(slug, cleanPass);
-        }
-        return true;
-      } catch(e) {}
-    }
-  }
-
-  // 6. Database Password Verification Fallback
-  try {
-    const licRes = await fetch(`https://harpy-order-default-rtdb.firebaseio.com/licenses/${slug}.json`, { cache: 'no-store' }).catch(() => null);
-    const lic = licRes && licRes.ok ? await licRes.json() : null;
-    const storedPass = lic ? (lic.adminPassword || (lic.subscription && lic.subscription.adminPassword)) : null;
-    if (storedPass && String(storedPass).trim() === cleanPass) {
-      if (typeof Store !== 'undefined' && Store.setBranchKeychain) {
-        Store.setBranchKeychain(slug, cleanPass);
-      }
+  // 2. Offline-only fallback from local keychain when network/Firebase is unreachable
+  const isOffline = (typeof navigator !== 'undefined' && navigator.onLine === false) || sawNetworkErr;
+  if (isOffline && typeof Store !== 'undefined' && Store.getBranchKeychain) {
+    const savedPass = Store.getBranchKeychain(slug);
+    if (savedPass && passCandidates.includes(savedPass)) {
       return true;
     }
-  } catch(e) {}
+  }
 
   return false;
 };
