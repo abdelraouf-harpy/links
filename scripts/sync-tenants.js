@@ -12,7 +12,7 @@ const path = require('path');
 const ROOT_DIR = path.resolve(__dirname, '..');
 const RTDB_BASE = 'https://harpy-order-default-rtdb.firebaseio.com';
 const MASTER_KEY = (process.env.FIREBASE_MASTER_KEY || '').trim();
-const ASSET_VERSION = '202.4';
+const ASSET_VERSION = '202.7';
 
 const RESERVED_SLUGS = new Set([
   'admin', 'order', 'menu', 'cards', 'assets', 'js', 'css', 'scripts',
@@ -136,12 +136,15 @@ function discoverCandidateSlugs() {
   return Array.from(candidates);
 }
 
-function buildManifest(slug, name, logoUrl, isAdmin) {
+function buildManifest(slug, name, logoUrl, isAdmin, businessType = 'restaurant') {
+  const isStore = businessType === 'store';
   return {
     id: isAdmin ? `/admin/?m=${slug}` : `/order/?m=${slug}`,
-    name: isAdmin ? `${name} | لوحة الإدارة` : `${name} | قائمة الطعام`,
+    name: isAdmin ? `${name} | لوحة الإدارة` : `${name} | ${isStore ? 'المتجر الإلكتروني' : 'قائمة الطعام'}`,
     short_name: isAdmin ? `إدارة ${name}` : name,
-    description: isAdmin ? `لوحة إدارة ${name} وتجهيز الطلبات` : `قائمة طعام ${name} والطلب الإلكتروني المباشر`,
+    description: isAdmin
+      ? `لوحة إدارة ${name} ${isStore ? 'والطلبات والمبيعات' : 'وتجهيز الطلبات'}`
+      : `${isStore ? 'متجر' : 'قائمة طعام'} ${name} والطلب الإلكتروني المباشر`,
     start_url: isAdmin ? `./admin/?m=${slug}` : `./order/?m=${slug}`,
     scope: isAdmin ? './admin/' : './order/',
     display: 'standalone',
@@ -156,11 +159,16 @@ function buildManifest(slug, name, logoUrl, isAdmin) {
   };
 }
 
-function buildMenuEntryHtml(slug, name, desc, logoUrl, themeColor, manifestHref) {
+function buildMenuEntryHtml(slug, name, desc, logoUrl, themeColor, manifestHref, businessType = 'restaurant') {
   const safeName = escapeHtml(name);
   const safeDesc = escapeHtml(desc);
   const safeLogo = escapeHtml(logoUrl);
-  const title = `منيو ${safeName} — قائمة الطعام والطلبات`;
+  const isStore = businessType === 'store';
+  const title = isStore
+    ? `متجر ${safeName} — تسوق المنتجات والطلبات`
+    : `منيو ${safeName} — قائمة الطعام والطلبات`;
+  const ogType = isStore ? 'website' : 'restaurant.menu';
+  const loadingText = isStore ? `جاري فتح متجر ${safeName}...` : `جاري فتح قائمة طعام ${safeName}...`;
   return `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -171,7 +179,7 @@ function buildMenuEntryHtml(slug, name, desc, logoUrl, themeColor, manifestHref)
   <meta name="description" content="${safeDesc}">
 
   <!-- Open Graph / WhatsApp / Facebook / Telegram Social Preview -->
-  <meta property="og:type" content="restaurant.menu">
+  <meta property="og:type" content="${ogType}">
   <meta property="og:site_name" content="${safeName}">
   <meta property="og:title" content="${title}">
   <meta property="og:description" content="${safeDesc}">
@@ -209,7 +217,7 @@ function buildMenuEntryHtml(slug, name, desc, logoUrl, themeColor, manifestHref)
 </head>
 <body style="background:#070B13; color:#FAFAFA; font-family:'Tajawal',system-ui,sans-serif; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; margin:0; text-align:center;">
   <div style="width:44px; height:44px; border:3px solid rgba(234,88,12,0.2); border-top-color:#ea580c; border-radius:50%; animation:spin 0.8s linear infinite; margin-bottom:16px;"></div>
-  <p style="font-weight:700; font-size:15px; margin:0 0 10px 0;">جاري فتح قائمة طعام ${safeName}...</p>
+  <p style="font-weight:700; font-size:15px; margin:0 0 10px 0;">${loadingText}</p>
   <a href="/order/?m=${slug}" style="color:#ea580c; font-size:13px; text-decoration:none; font-weight:600;">اضغط هنا إذا لم يتم التحويل تلقائياً</a>
   <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
 </body>
@@ -217,11 +225,14 @@ function buildMenuEntryHtml(slug, name, desc, logoUrl, themeColor, manifestHref)
 `;
 }
 
-function buildAdminEntryHtml(slug, name, logoUrl, themeColor, manifestHref) {
+function buildAdminEntryHtml(slug, name, logoUrl, themeColor, manifestHref, businessType = 'restaurant') {
   const safeName = escapeHtml(name);
   const safeLogo = escapeHtml(logoUrl);
+  const isStore = businessType === 'store';
   const title = `لوحة إدارة ${safeName} — Harpy Admin`;
-  const desc = `لوحة التحكم السحابية لإدارة طلبات ${safeName} المباشرة، قوائم الطعام، المطبخ وإحصائيات المبيعات.`;
+  const desc = isStore
+    ? `لوحة التحكم السحابية لإدارة طلبات ${safeName} المباشرة، المنتجات، المبيعات وإحصائيات المتجر.`
+    : `لوحة التحكم السحابية لإدارة طلبات ${safeName} المباشرة، قوائم الطعام، المطبخ وإحصائيات المبيعات.`;
   return `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -421,12 +432,12 @@ async function run() {
     // Root manifests
     fs.writeFileSync(
       path.join(ROOT_DIR, `manifest-${slug}.json`),
-      JSON.stringify(buildManifest(slug, name, logoUrl, false), null, 2),
+      JSON.stringify(buildManifest(slug, name, logoUrl, false, businessType), null, 2),
       'utf8'
     );
     fs.writeFileSync(
       path.join(ROOT_DIR, `admin-manifest-${slug}.json`),
-      JSON.stringify(buildManifest(slug, name, logoUrl, true), null, 2),
+      JSON.stringify(buildManifest(slug, name, logoUrl, true, businessType), null, 2),
       'utf8'
     );
 
@@ -434,25 +445,25 @@ async function run() {
     fs.mkdirSync(path.join(ROOT_DIR, slug), { recursive: true });
     fs.writeFileSync(
       path.join(ROOT_DIR, slug, 'index.html'),
-      buildMenuEntryHtml(slug, name, desc, logoUrl, themeColor, `/manifest-${slug}.json`),
+      buildMenuEntryHtml(slug, name, desc, logoUrl, themeColor, `/manifest-${slug}.json`, businessType),
       'utf8'
     );
     fs.mkdirSync(path.join(ROOT_DIR, 'admin', slug), { recursive: true });
     fs.writeFileSync(
       path.join(ROOT_DIR, 'admin', slug, 'index.html'),
-      buildAdminEntryHtml(slug, name, logoUrl, themeColor, `/admin-manifest-${slug}.json`),
+      buildAdminEntryHtml(slug, name, logoUrl, themeColor, `/admin-manifest-${slug}.json`, businessType),
       'utf8'
     );
 
     // Legacy root .html entrypoints
     fs.writeFileSync(
       path.join(ROOT_DIR, `${slug}.html`),
-      buildMenuEntryHtml(slug, name, desc, logoUrl, themeColor, `/manifest-${slug}.json`),
+      buildMenuEntryHtml(slug, name, desc, logoUrl, themeColor, `/manifest-${slug}.json`, businessType),
       'utf8'
     );
     fs.writeFileSync(
       path.join(ROOT_DIR, `${slug}-admin.html`),
-      buildAdminEntryHtml(slug, name, logoUrl, themeColor, `/admin-manifest-${slug}.json`),
+      buildAdminEntryHtml(slug, name, logoUrl, themeColor, `/admin-manifest-${slug}.json`, businessType),
       'utf8'
     );
 

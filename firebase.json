@@ -66,6 +66,26 @@
         "source": "/admin-manifest-king.json",
         "destination": "/admin-manifest.json?m=king",
         "type": 301
+      },
+      {
+        "source": "/smoke.html",
+        "destination": "/order.html?m=smoke",
+        "type": 301
+      },
+      {
+        "source": "/smoke-admin.html",
+        "destination": "/admin.html?m=smoke",
+        "type": 301
+      },
+      {
+        "source": "/manifest-smoke.json",
+        "destination": "/manifest.json?m=smoke",
+        "type": 301
+      },
+      {
+        "source": "/admin-manifest-smoke.json",
+        "destination": "/admin-manifest.json?m=smoke",
+        "type": 301
       }
     ],
     "rewrites": [

@@ -1,0 +1,32 @@
+{
+  "id": "/order/?m=smoke",
+  "name": "Smoke | المتجر الإلكتروني",
+  "short_name": "Smoke",
+  "description": "متجر Smoke والطلب الإلكتروني المباشر",
+  "start_url": "./order/?m=smoke",
+  "scope": "./order/",
+  "display": "standalone",
+  "background_color": "#070B13",
+  "theme_color": "#ea580c",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://harpymenu.com/assets/brand/harpy_order_emblem_transparent.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://harpymenu.com/assets/brand/harpy_order_emblem_transparent.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://harpymenu.com/assets/brand/harpy_order_emblem_transparent.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

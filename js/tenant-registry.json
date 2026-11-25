@@ -14,5 +14,13 @@
     "desc": "أشهى المشويات، البرجر الفاخر، والبيتزا الإيطالية على أصولها",
     "businessType": "restaurant",
     "customDomain": ""
+  },
+  "smoke": {
+    "slug": "smoke",
+    "name": "Smoke",
+    "logo": "https://harpymenu.com/assets/brand/harpy_order_emblem_transparent.png",
+    "desc": "متجر Smoke الإلكتروني والطلب المباشر",
+    "businessType": "store",
+    "customDomain": "amounsmoke.com"
   }
 }

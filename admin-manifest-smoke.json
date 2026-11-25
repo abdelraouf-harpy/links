@@ -1,0 +1,32 @@
+{
+  "id": "/admin/?m=smoke",
+  "name": "Smoke | لوحة الإدارة",
+  "short_name": "إدارة Smoke",
+  "description": "لوحة إدارة Smoke والطلبات والمبيعات",
+  "start_url": "./admin/?m=smoke",
+  "scope": "./admin/",
+  "display": "standalone",
+  "background_color": "#070B13",
+  "theme_color": "#ea580c",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://harpymenu.com/assets/brand/harpy_order_emblem_transparent.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://harpymenu.com/assets/brand/harpy_order_emblem_transparent.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://harpymenu.com/assets/brand/harpy_order_emblem_transparent.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
