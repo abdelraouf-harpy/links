@@ -1,0 +1,12 @@
+{
+  "name": "harpy-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "HarpyOrder secure Cloudflare Worker backend API",
+  "scripts": {
+    "test": "node test/verify_worker.mjs",
+    "dev": "npx wrangler dev",
+    "deploy": "npx wrangler deploy"
+  }
+}

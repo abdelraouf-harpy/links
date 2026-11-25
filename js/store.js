@@ -1739,65 +1739,29 @@ const Store = {
     if (!orderData || !slug) return;
     if (orderData.source === 'pos') return;
 
-    const ONESIGNAL_APP_ID = "c8c2ee02-8064-4c05-97bc-c2ff272b9627";
-    const ONESIGNAL_REST_KEY = (typeof atob === 'function')
-      ? atob("b3NfdjJfYXBwX3pkYm80YXVhbXJnYWxmNTR5bDdzb2s0d2U1cTdtd2RkYXF1ZWJ3bmlyNGNsbHBxaHJha25xNGlrcTVtcWxnNG5xcGhzZmN0d3J2NjJibmtucXpyZHhrdXZ5eGY2YjNwaW9ibXYya2E=")
-      : ("os_v2_app_" + "zdbo4auamrgalf54yl7sok4we5q7mwddaquebwnir4cllpqhraknq4ikq5mqlg4nqphsfctwrv62bnknqzrdxkuvyxf6b3piobmv2ka");
-
-    let storeName = "المطعم";
-    try {
-      const settings = (typeof this.getSettings === 'function') ? this.getSettings() : null;
-      if (settings && (settings.storeName || settings.name)) {
-        storeName = settings.storeName || settings.name;
-      }
-    } catch (e) {}
-
-    const orderId = orderData.orderId || 'طلب جديد';
-    const customerName = (orderData.customer && orderData.customer.name) ? orderData.customer.name : 'عميل';
-    const total = orderData.finalTotal || orderData.total || 0;
-    const currency = 'ج.م';
-    const orderTypeStr = orderData.type === 'delivery' ? 'توصيل' : (orderData.type === 'dinein' ? 'صالة' : 'استلام');
+    const apiBase = ((typeof window !== 'undefined' && window.__HARPY_API_BASE) || 'https://api.harpymenu.com').replace(/\/+$/, '');
+    const orderId = orderData.orderId || '';
+    if (!orderId) return;
 
     const origin = (typeof window !== 'undefined' && window.location && window.location.origin) ? window.location.origin : 'https://harpymenu.com';
     const isSubdir = typeof window !== 'undefined' && window.location && window.location.pathname.startsWith('/links');
     const basePath = isSubdir ? '/links/admin/' : '/admin/';
-    const adminUrl = `${origin}${basePath}?m=${encodeURIComponent(slug)}&orderId=${encodeURIComponent(orderId)}`;
-
-    const payload = {
-      app_id: ONESIGNAL_APP_ID,
-      headings: {
-        en: `طلب جديد #${orderId} - ${storeName}`,
-        ar: `طلب جديد #${orderId} - ${storeName}`
-      },
-      contents: {
-        en: `${customerName} (${orderTypeStr}) | الإجمالي: ${total} ${currency}`,
-        ar: `${customerName} (${orderTypeStr}) | الإجمالي: ${total} ${currency}`
-      },
-      url: adminUrl,
-      filters: [
-        { field: "tag", key: "restaurant", relation: "=", value: slug }
-      ],
-      chrome_web_icon: `${origin}${isSubdir ? '/links' : ''}/assets/icons/admin-icon-192.png`,
-      chrome_web_badge: `${origin}${isSubdir ? '/links' : ''}/assets/icons/admin-icon-192.png`,
-      firefox_icon: `${origin}${isSubdir ? '/links' : ''}/assets/icons/admin-icon-192.png`,
-      priority: 10,
-      ttl: 3600
-    };
 
     try {
-      const res = await fetch("https://api.onesignal.com/notifications", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-          "Authorization": `Key ${ONESIGNAL_REST_KEY}`
-        },
-        body: JSON.stringify(payload)
+      const res = await fetch(`${apiBase}/api/push/order`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json; charset=utf-8' },
+        body: JSON.stringify({ slug, orderId, origin, basePath })
       });
-      const data = await res.json();
-      console.log(`[Store] OneSignal push sent for order ${orderId} (slug: ${slug}):`, data);
+      const data = await res.json().catch(() => null);
+      if (res.ok) {
+        console.log(`[Store] OneSignal push relayed for order ${orderId} (slug: ${slug}):`, data);
+      } else {
+        console.warn(`[Store] OneSignal push relay status ${res.status}:`, data);
+      }
       return data;
     } catch (err) {
-      console.warn("[Store] OneSignal push error:", err);
+      console.warn('[Store] OneSignal push relay error:', err);
     }
   },
 

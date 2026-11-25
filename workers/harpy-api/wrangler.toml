@@ -1,0 +1,18 @@
+name = "harpy-api"
+main = "src/index.js"
+compatibility_date = "2025-11-01"
+workers_dev = true
+
+# Route under harpymenu.com once ready:
+# routes = [
+#   { pattern = "api.harpymenu.com", custom_domain = true }
+# ]
+
+[vars]
+FIREBASE_PROJECT_ID = "harpy-order"
+RTDB_BASE_URL = "https://harpy-order-default-rtdb.firebaseio.com"
+ONESIGNAL_APP_ID = "c8c2ee02-8064-4c05-97bc-c2ff272b9627"
+GITHUB_REPO_OWNER = "abdelraouf-harpy"
+GITHUB_REPO_NAME = "links"
+GITHUB_SYNC_WORKFLOW = "sync-tenants.yml"
+ALLOW_LOCALHOST_CORS = "true"

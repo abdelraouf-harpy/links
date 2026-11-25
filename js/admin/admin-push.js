@@ -8,9 +8,7 @@
   'use strict';
 
   const ONESIGNAL_APP_ID = "c8c2ee02-8064-4c05-97bc-c2ff272b9627";
-  const ONESIGNAL_REST_KEY = (typeof atob === 'function')
-    ? atob("b3NfdjJfYXBwX3pkYm80YXVhbXJnYWxmNTR5bDdzb2s0d2U1cTdtd2RkYXF1ZWJ3bmlyNGNsbHBxaHJha25xNGlrcTVtcWxnNG5xcGhzZmN0d3J2NjJibmtucXpyZHhrdXZ5eGY2YjNwaW9ibXYya2E=")
-    : ("os_v2_app_" + "zdbo4auamrgalf54yl7sok4we5q7mwddaquebwnir4cllpqhraknq4ikq5mqlg4nqphsfctwrv62bnknqzrdxkuvyxf6b3piobmv2ka");
+  const HARPY_API_BASE = (window.__HARPY_API_BASE || 'https://api.harpymenu.com').replace(/\/+$/, '');
 
   const getSlug = () => {
     return (
@@ -298,35 +296,30 @@
       showToastNotification('تم إطلاق الإشعار التجريبي ورنين الهاتف بنجاح!', 'success');
     }
 
-    // 2. Also try sending via cloud push
+    // 2. Also trigger authenticated server-side cloud test push via Cloudflare Worker
     const origin = window.location.origin || 'https://harpymenu.com';
     const isSubdir = window.location.pathname.startsWith('/links');
     const basePath = isSubdir ? '/links/admin/' : '/admin/';
     const testAdminUrl = `${origin}${basePath}?m=${encodeURIComponent(slug)}`;
 
-    const payload = {
-      app_id: ONESIGNAL_APP_ID,
-      headings: { en: testTitle, ar: testTitle },
-      contents: { en: testOptions.body, ar: testOptions.body },
-      url: testAdminUrl,
-      filters: [{ field: "tag", key: "restaurant", relation: "=", value: String(slug) }],
-      chrome_web_icon: `${origin}${isSubdir ? '/links' : ''}/assets/icons/admin-icon-192.png`,
-      chrome_web_badge: `${origin}${isSubdir ? '/links' : ''}/assets/icons/admin-icon-192.png`,
-      firefox_icon: `${origin}${isSubdir ? '/links' : ''}/assets/icons/admin-icon-192.png`,
-      priority: 10,
-      ttl: 3600
-    };
-
-    try {
-      fetch("https://api.onesignal.com/notifications", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-          "Authorization": `Key ${ONESIGNAL_REST_KEY}`
-        },
-        body: JSON.stringify(payload)
-      }).catch(() => {});
-    } catch (e) {}
+    (async () => {
+      try {
+        let idToken = '';
+        if (window.firebase && firebase.auth && firebase.auth().currentUser) {
+          idToken = await firebase.auth().currentUser.getIdToken();
+        }
+        if (idToken) {
+          await fetch(`${HARPY_API_BASE}/api/push/test`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json; charset=utf-8',
+              'Authorization': `Bearer ${idToken}`
+            },
+            body: JSON.stringify({ slug, origin, isSubdir })
+          });
+        }
+      } catch (e) {}
+    })();
 
     // 3. Parallel Instant Hardware Alarm Channel via ntfy.sh
     try {
