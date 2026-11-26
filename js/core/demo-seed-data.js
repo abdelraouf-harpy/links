@@ -44,7 +44,7 @@ const DEFAULT_SETTINGS = {
   "walletDiscountType": "percent",
   "walletDiscountValue": 10,
   "walletName": "فودافون كاش / إنستاباي",
-  "walletNumber": "01019971508",
+  "walletNumber": "01000000000",
   "facebookUrl": "https://facebook.com",
   "instagramUrl": "https://instagram.com",
   "tiktokUrl": "https://tiktok.com",
@@ -71,7 +71,7 @@ const DEFAULT_SETTINGS = {
     "takeaway": true
   },
   "orderingPausedMessage": "المطعم متوقف حالياً عن استقبال الطلبات. مواعيد العمل يومياً من 12 ظهراً حتى 2 صباحاً. نسعد بخدمتكم قريباً!",
-  "phone": "01019971508",
+  "phone": "01000000000",
   "printerPaperSize": "80mm",
   "promoCodes": [
     {
@@ -144,7 +144,7 @@ const DEFAULT_SETTINGS = {
   "tagline": "طعم ملوكي لا يُنسى وخدمة فاخرة في سوهاج",
   "themePreset": "charcoal",
   "workingHours": "يومياً من 12:00 ظهراً حتى 2:00 صباحاً",
-  "whatsappNumber": "201019971508"
+  "whatsappNumber": "201000000000"
 };
 
 const DEFAULT_CATEGORIES = [

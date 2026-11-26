@@ -1184,24 +1184,88 @@
     }
 
     /* Toggle Switch Row in Permissions Modal */
-    .module-toggle-row {
+    .module-toggle-row,
+    .module-check-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 12px;
       background: var(--bg-input);
-      padding: 10px 14px;
+      padding: 11px 14px;
       border-radius: 12px;
       border: 1px solid var(--border-light);
+      cursor: pointer;
+      transition: border-color 0.15s ease, background 0.15s ease;
     }
-    .module-toggle-title {
+    .module-toggle-row:hover,
+    .module-check-row:hover {
+      border-color: rgba(255, 106, 0, 0.35);
+    }
+    .module-check-meta {
+      flex: 1;
+      min-width: 0;
+    }
+    .module-toggle-title,
+    .module-check-title {
       font-weight: 700;
       color: var(--text-primary);
       font-size: 13px;
+      line-height: 1.35;
     }
-    .module-toggle-desc {
+    .module-toggle-desc,
+    .module-check-desc {
       font-size: 11px;
       color: var(--text-secondary);
-      margin-top: 1px;
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+    .module-switch-input {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+      pointer-events: none;
+    }
+    .module-switch-slider {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.32);
+      border: 1px solid var(--border-light);
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+    .module-switch-slider::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #FFFFFF;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .module-switch-input:checked + .module-switch-slider {
+      background: var(--primary-gradient);
+      border-color: var(--primary);
+    }
+    .module-switch-input:checked + .module-switch-slider::after {
+      transform: translateX(20px);
+    }
+    .modules-section-header {
+      margin: 12px 0 4px;
+      padding: 10px 4px 2px;
+      border-top: 1px solid var(--border-light);
+      font-size: 11.5px;
+      font-weight: 800;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
     /* ==========================================================================
@@ -2259,232 +2323,257 @@
       </label>
 
       <!-- 1. POS -->
-      <label class="module-toggle-row">
-        <div>
-          <div class="module-toggle-title">1. الكاشير ونقاط البيع (POS Terminal)</div>
-          <div class="module-toggle-desc">لوحة كاشير المطبخ وإدخال الطلبات السريع</div>
+      <label class="module-check-row">
+        <div class="module-check-meta">
+          <div class="module-check-title">1. الكاشير ونقاط البيع (POS Terminal)</div>
+          <div class="module-check-desc">لوحة كاشير المطبخ وإدخال الطلبات السريع</div>
         </div>
-        <input type="checkbox" id="mod-toggle-pos" style="width:20px; height:20px; accent-color:var(--primary);">
+        <input type="checkbox" id="mod-toggle-pos" class="module-switch-input">
+        <span class="module-switch-slider"></span>
       </label>
 
       <!-- 2. Inventory -->
-      <label class="module-toggle-row">
-        <div>
-          <div class="module-toggle-title">2. إدارة المخازن والمقادير والمواد الخام (Inventory)</div>
-          <div class="module-toggle-desc">خصم المكونات وتكاليف الوجبات والموردين والحد الأدنى</div>
+      <label class="module-check-row">
+        <div class="module-check-meta">
+          <div class="module-check-title">2. إدارة المخازن والمقادير والمواد الخام (Inventory)</div>
+          <div class="module-check-desc">خصم المكونات وتكاليف الوجبات والموردين والحد الأدنى</div>
         </div>
-        <input type="checkbox" id="mod-toggle-inventory" style="width:20px; height:20px; accent-color:var(--primary);">
+        <input type="checkbox" id="mod-toggle-inventory" class="module-switch-input">
+        <span class="module-switch-slider"></span>
       </label>
 
       <!-- 3. Stories -->
-      <label class="module-toggle-row">
-        <div>
-          <div class="module-toggle-title">3. شريط القصص والعروض التفاعلية (Stories)</div>
-          <div class="module-toggle-desc">قصص إنستجرام أعلى المنيو وإدارتها من اللوحة</div>
+      <label class="module-check-row">
+        <div class="module-check-meta">
+          <div class="module-check-title">3. شريط القصص والعروض التفاعلية (Stories)</div>
+          <div class="module-check-desc">قصص تفاعلية أعلى المتجر وإدارتها من لوحة الإدارة</div>
         </div>
-        <input type="checkbox" id="mod-toggle-stories" style="width:20px; height:20px; accent-color:var(--primary);">
+        <input type="checkbox" id="mod-toggle-stories" class="module-switch-input">
+        <span class="module-switch-slider"></span>
       </label>
 
       <!-- 4. Smart Tables -->
-      <label class="module-toggle-row">
-        <div>
-          <div class="module-toggle-title">4. إدارة طاولات الصالة وأكواد وتوليد طاولات بـ QR</div>
-          <div class="module-toggle-desc">توليد أكواد QR، ستاندات الطاولات، وطلب الصالة برقم الطاولة</div>
+      <label class="module-check-row">
+        <div class="module-check-meta">
+          <div class="module-check-title">4. إدارة طاولات الصالة وأكواد QR (للمطاعم)</div>
+          <div class="module-check-desc">توليد أكواد QR، ستاندات الطاولات، وطلب الصالة برقم الطاولة</div>
         </div>
-        <input type="checkbox" id="mod-toggle-tables" style="width:20px; height:20px; accent-color:var(--primary);">
+        <input type="checkbox" id="mod-toggle-tables" class="module-switch-input">
+        <span class="module-switch-slider"></span>
       </label>
 
       <!-- 5. Delivery -->
-      <label class="module-toggle-row">
-        <div>
-          <div class="module-toggle-title">5. تسعير خدمة التوصيل لنطاقات معينة (Home Delivery & Zones)</div>
-          <div class="module-toggle-desc">تفعيل الدليفري، تسعير النطاقات الجغرافية وكلمات الكشف الذكي</div>
+      <label class="module-check-row">
+        <div class="module-check-meta">
+          <div class="module-check-title">5. خدمة التوصيل والنطاقات الجغرافية (Delivery & Zones)</div>
+          <div class="module-check-desc">تفعيل الدليفري، تسعير المناطق الجغرافية والكشف الذكي للعنوان</div>
         </div>
-        <input type="checkbox" id="mod-toggle-delivery" style="width:20px; height:20px; accent-color:var(--primary);">
+        <input type="checkbox" id="mod-toggle-delivery" class="module-switch-input">
+        <span class="module-switch-slider"></span>
       </label>
 
       <!-- 6. Takeaway -->
-      <label class="module-toggle-row">
-        <div>
-          <div class="module-toggle-title">6. الاستلام من الفرع والتيك أواي (Takeaway / Pickup)</div>
-          <div class="module-toggle-desc">تجهيز واستلام الطلبات مباشرة من مقر المطعم</div>
+      <label class="module-check-row">
+        <div class="module-check-meta">
+          <div class="module-check-title">6. الاستلام المباشر من الفرع / المتجر (Pickup)</div>
+          <div class="module-check-desc">تجهيز واستلام الطلبات مباشرة من المقر بدون رسوم توصيل</div>
         </div>
-        <input type="checkbox" id="mod-toggle-takeaway" style="width:20px; height:20px; accent-color:var(--primary);">
+        <input type="checkbox" id="mod-toggle-takeaway" class="module-switch-input">
+        <span class="module-switch-slider"></span>
       </label>
 
       <!-- 7. Online Payment -->
-      <label class="module-toggle-row">
-        <div>
-          <div class="module-toggle-title">7. المحفظة الإلكترونية والدفع الذكي (Online Payments)</div>
-          <div class="module-toggle-desc">فودافون كاش، إنستاباي، وإدارة بطاقات الدفع والخصم الترويجي</div>
+      <label class="module-check-row">
+        <div class="module-check-meta">
+          <div class="module-check-title">7. المحفظة الإلكترونية والدفع الذكي (Online Payments)</div>
+          <div class="module-check-desc">فودافون كاش، إنستاباي، رفع الإيصال وخصم الدفع الإلكتروني</div>
         </div>
-        <input type="checkbox" id="mod-toggle-payments" style="width:20px; height:20px; accent-color:var(--primary);">
+        <input type="checkbox" id="mod-toggle-payments" class="module-switch-input">
+        <span class="module-switch-slider"></span>
       </label>
 
       <!-- 8. Archive & Reports -->
-      <label class="module-toggle-row">
-        <div>
-          <div class="module-toggle-title">8. أرشيف المبيعات والفواتير المسلمة (Sales Archive)</div>
-          <div class="module-toggle-desc">التقارير اليومية، سجل الفواتير المسلمة، وتحليلات الإيرادات</div>
+      <label class="module-check-row">
+        <div class="module-check-meta">
+          <div class="module-check-title">8. أرشيف المبيعات والفواتير المسلمة (Sales Archive)</div>
+          <div class="module-check-desc">التقارير اليومية، سجل الفواتير المسلمة، وتحليلات الإيرادات</div>
         </div>
-        <input type="checkbox" id="mod-toggle-archive" style="width:20px; height:20px; accent-color:var(--primary);">
+        <input type="checkbox" id="mod-toggle-archive" class="module-switch-input">
+        <span class="module-switch-slider"></span>
       </label>
 
       <!-- 8b. Shifts & Z-Report -->
-      <label class="module-toggle-row">
-        <div>
-          <div class="module-toggle-title">8b. نظام الورديات وتقفيل الشيفتات (Shifts Archive)</div>
-          <div class="module-toggle-desc">تفعيل سجل الورديات المقفلة وتقفيل الشيفت (تعطيله يُبقي الفواتير المسلمة فقط)</div>
+      <label class="module-check-row">
+        <div class="module-check-meta">
+          <div class="module-check-title">8b. نظام الورديات وتقفيل الشيفتات (Shifts Archive)</div>
+          <div class="module-check-desc">تفعيل سجل الورديات المقفلة وتقفيل الشيفت (تعطيله يُبقي الفواتير المسلمة فقط)</div>
         </div>
-        <input type="checkbox" id="mod-toggle-shifts" style="width:20px; height:20px; accent-color:var(--primary);">
+        <input type="checkbox" id="mod-toggle-shifts" class="module-switch-input">
+        <span class="module-switch-slider"></span>
       </label>
 
       <!-- 9. Coupons -->
-      <label class="module-toggle-row">
-        <div>
-          <div class="module-toggle-title">9. كوبون الخصم برومو كود (Promo Codes & Coupons)</div>
-          <div class="module-toggle-desc">إنشاء أكواد الخصم الترويجية وتطبيقها بالسلة</div>
+      <label class="module-check-row">
+        <div class="module-check-meta">
+          <div class="module-check-title">9. كوبون الخصم برومو كود (Promo Codes & Coupons)</div>
+          <div class="module-check-desc">إنشاء أكواد الخصم الترويجية وتطبيقها بالسلة</div>
         </div>
-        <input type="checkbox" id="mod-toggle-coupons" style="width:20px; height:20px; accent-color:var(--primary);">
+        <input type="checkbox" id="mod-toggle-coupons" class="module-switch-input">
+        <span class="module-switch-slider"></span>
       </label>
 
       <!-- 10. Cart Discount -->
-      <label class="module-toggle-row">
-        <div>
-          <div class="module-toggle-title">10. خصم إجمالي قيمة الطلب (Spend Tier Discount)</div>
-          <div class="module-toggle-desc">خصم مباشر عند الوصول لحد أدنى للطلب ومؤشر التقدم بالسلة</div>
+      <label class="module-check-row">
+        <div class="module-check-meta">
+          <div class="module-check-title">10. خصم إجمالي قيمة الطلب (Spend Tier Discount)</div>
+          <div class="module-check-desc">خصم مباشر عند الوصول لحد أدنى للطلب ومؤشر التقدم بالسلة</div>
         </div>
-        <input type="checkbox" id="mod-toggle-cart-discount" style="width:20px; height:20px; accent-color:var(--primary);">
+        <input type="checkbox" id="mod-toggle-cart-discount" class="module-switch-input">
+        <span class="module-switch-slider"></span>
       </label>
 
       <!-- 11. Announcement Bar -->
-      <label class="module-toggle-row">
-        <div>
-          <div class="module-toggle-title">11. تفعيل شريط الإعلانات الترويجي (Announcement Ticker)</div>
-          <div class="module-toggle-desc">الشريط الترويجي أعلى صفحة المنيو والإشعارات العاجلة</div>
+      <label class="module-check-row">
+        <div class="module-check-meta">
+          <div class="module-check-title">11. شريط الإعلانات الترويجي (Announcement Ticker)</div>
+          <div class="module-check-desc">الشريط الترويجي المتحرك أعلى الصفحة</div>
         </div>
-        <input type="checkbox" id="mod-toggle-announcement" style="width:20px; height:20px; accent-color:var(--primary);">
+        <input type="checkbox" id="mod-toggle-announcement" class="module-switch-input">
+        <span class="module-switch-slider"></span>
       </label>
 
       <!-- 12. Multi-Branch Network -->
-      <label class="module-toggle-row">
-        <div>
-          <div class="module-toggle-title">12. شبكة الفروع وإدارتها (Multi-Branch Network)</div>
-          <div class="module-toggle-desc">ربط وتنسيق الفروع المتعددة والتبديل السريع بينها</div>
+      <label class="module-check-row">
+        <div class="module-check-meta">
+          <div class="module-check-title">12. شبكة الفروع المتعددة (Multi-Branch Network)</div>
+          <div class="module-check-desc">ربط وتنسيق الفروع المتعددة والتبديل السريع بينها</div>
         </div>
-        <input type="checkbox" id="mod-toggle-branches" style="width:20px; height:20px; accent-color:var(--primary);">
+        <input type="checkbox" id="mod-toggle-branches" class="module-switch-input">
+        <span class="module-switch-slider"></span>
       </label>
 
       <!-- 13. Reviews -->
-      <label class="module-toggle-row">
-        <div>
-          <div class="module-toggle-title">13. تقييمات وآراء العملاء (Reviews & Ratings)</div>
-          <div class="module-toggle-desc">نظام تقييم الأصناف وجودة الخدمة وشارات التقييم بالمنيو</div>
+      <label class="module-check-row">
+        <div class="module-check-meta">
+          <div class="module-check-title">13. شارة التقييم وآراء العملاء (Reviews & Ratings)</div>
+          <div class="module-check-desc">إظهار التقييم في الواجهة والهيدر</div>
         </div>
-        <input type="checkbox" id="mod-toggle-reviews" style="width:20px; height:20px; accent-color:var(--primary);">
+        <input type="checkbox" id="mod-toggle-reviews" class="module-switch-input">
+        <span class="module-switch-slider"></span>
       </label>
 
       <!-- 14. Settings -->
-      <label class="module-toggle-row">
-        <div>
-          <div class="module-toggle-title">14. إعدادات المتجر وبيانات المكان (Store Settings)</div>
-          <div class="module-toggle-desc">تعديل بيانات المكان واللوجو وساعات العمل من لوحة الإدارة</div>
+      <label class="module-check-row">
+        <div class="module-check-meta">
+          <div class="module-check-title">14. إعدادات المتجر وبيانات المكان (Store Settings)</div>
+          <div class="module-check-desc">تعديل بيانات المكان واللوجو وساعات العمل من لوحة الإدارة</div>
         </div>
-        <input type="checkbox" id="mod-toggle-settings" style="width:20px; height:20px; accent-color:var(--primary);">
+        <input type="checkbox" id="mod-toggle-settings" class="module-switch-input">
+        <span class="module-switch-slider"></span>
       </label>
 
       <!-- 15. Backup -->
-      <label class="module-toggle-row">
-        <div>
-          <div class="module-toggle-title">15. النسخ الاحتياطي والأمان السحابي (Backup & Security)</div>
-          <div class="module-toggle-desc">تنزيل واستعادة النسخ الاحتياطية وتصدير البيانات من لوحة الإدارة</div>
+      <label class="module-check-row">
+        <div class="module-check-meta">
+          <div class="module-check-title">15. النسخ الاحتياطي والأمان السحابي (Backup & Security)</div>
+          <div class="module-check-desc">تنزيل واستعادة النسخ الاحتياطية وتصدير البيانات من لوحة الإدارة</div>
         </div>
-        <input type="checkbox" id="mod-toggle-backup" style="width:20px; height:20px; accent-color:var(--primary);">
+        <input type="checkbox" id="mod-toggle-backup" class="module-switch-input">
+        <span class="module-switch-slider"></span>
       </label>
 
-      <div style="margin:10px 0 4px; font-size:11.5px; font-weight:800; color:var(--primary); border-top:1px solid var(--border-light); padding-top:12px;">
-        مميزات التخصيص المتقدمة (حسب النشاط والأسعار)
+      <div class="modules-section-header">
+        <span>إضافات التخصيص، المتاجر والكتالوج المتقدم</span>
       </div>
 
       <!-- 16. Bulk Pricing & Timed Flash Offers -->
-      <label class="module-toggle-row">
-        <div>
-          <div class="module-toggle-title">16. تعديل الأسعار الجماعي والعروض المؤقتة بمؤقت حي</div>
-          <div class="module-toggle-desc">تغيير أسعار الكل أو أقسام معينة بنسبة % أو مبلغ ثابت، إما دائم أو عرض بمؤقت عد تنازلي</div>
+      <label class="module-check-row">
+        <div class="module-check-meta">
+          <div class="module-check-title">16. تعديل الأسعار الجماعي والعروض المؤقتة بمؤقت حي</div>
+          <div class="module-check-desc">تغيير أسعار الكل أو أقسام معينة بنسبة % أو مبلغ ثابت، إما دائم أو بمؤقت عد تنازلي</div>
         </div>
-        <input type="checkbox" id="mod-toggle-bulk-pricing" style="width:20px; height:20px; accent-color:var(--primary);">
+        <input type="checkbox" id="mod-toggle-bulk-pricing" class="module-switch-input">
+        <span class="module-switch-slider"></span>
       </label>
 
       <!-- 17. +18 Age Gate -->
-      <label class="module-toggle-row">
-        <div>
-          <div class="module-toggle-title">17. بوابة التحقق من العمر (+18 Age Gate)</div>
-          <div class="module-toggle-desc">شاشة تأكيد +18 عند الدخول (مناسبة لمتاجر السموكنج والفيب وما شابهها)</div>
+      <label class="module-check-row">
+        <div class="module-check-meta">
+          <div class="module-check-title">17. بوابة التحقق من العمر (+18 Age Gate)</div>
+          <div class="module-check-desc">شاشة تأكيد +18 عند الدخول (مناسبة لمتاجر السموكنج والفيب وما شابهها)</div>
         </div>
-        <input type="checkbox" id="mod-toggle-age-gate" style="width:20px; height:20px; accent-color:var(--primary);">
+        <input type="checkbox" id="mod-toggle-age-gate" class="module-switch-input">
+        <span class="module-switch-slider"></span>
       </label>
 
       <!-- 18. 24/7 Storefront Mode -->
-      <label class="module-toggle-row">
-        <div>
-          <div class="module-toggle-title">18. استقبال الطلبات 24 ساعة (24/7 Storefront)</div>
-          <div class="module-toggle-desc">المتجر يستقبل الطلبات طوال اليوم للشحن لاحقاً بدون قيود إغلاق المطبخ ليلاً</div>
+      <label class="module-check-row">
+        <div class="module-check-meta">
+          <div class="module-check-title">18. استقبال الطلبات 24 ساعة (24/7 Storefront)</div>
+          <div class="module-check-desc">المتجر يستقبل الطلبات طوال اليوم للشحن لاحقاً بدون قيود إغلاق المطبخ ليلاً</div>
         </div>
-        <input type="checkbox" id="mod-toggle-store-24-7" style="width:20px; height:20px; accent-color:var(--primary);">
+        <input type="checkbox" id="mod-toggle-store-24-7" class="module-switch-input">
+        <span class="module-switch-slider"></span>
       </label>
 
       <!-- 19. Piece Stock Count -->
-      <label class="module-toggle-row">
-        <div>
-          <div class="module-toggle-title">19. الجرد بالقطع وعداد الكمية المتاحة (Piece Stock)</div>
-          <div class="module-toggle-desc">تحديد عدد القطع المتوفرة لكل منتج وخصمها تلقائياً مع الطلب وعرض "نفدت الكمية"</div>
+      <label class="module-check-row">
+        <div class="module-check-meta">
+          <div class="module-check-title">19. الجرد بالقطع وعداد الكمية المتاحة (Piece Stock)</div>
+          <div class="module-check-desc">تحديد عدد القطع المتوفرة لكل منتج وخصمها تلقائياً مع الطلب وعرض "نفدت الكمية"</div>
         </div>
-        <input type="checkbox" id="mod-toggle-piece-stock" style="width:20px; height:20px; accent-color:var(--primary);">
+        <input type="checkbox" id="mod-toggle-piece-stock" class="module-switch-input">
+        <span class="module-switch-slider"></span>
       </label>
 
       <!-- 20. Multi-Image Gallery -->
-      <label class="module-toggle-row">
-        <div>
-          <div class="module-toggle-title">20. معرض الصور المتعدد للمنتج (Multi-Image Gallery)</div>
-          <div class="module-toggle-desc">عرض عدة صور لكل جهاز أو منتج داخل صفحة التفاصيل مع شريط تنقل</div>
+      <label class="module-check-row">
+        <div class="module-check-meta">
+          <div class="module-check-title">20. معرض الصور المتعدد للمنتج (Multi-Image Gallery)</div>
+          <div class="module-check-desc">عرض عدة صور لكل جهاز أو منتج داخل صفحة التفاصيل والمعاينة مع شريط تنقل</div>
         </div>
-        <input type="checkbox" id="mod-toggle-multi-image" style="width:20px; height:20px; accent-color:var(--primary);">
+        <input type="checkbox" id="mod-toggle-multi-image" class="module-switch-input">
+        <span class="module-switch-slider"></span>
       </label>
 
       <!-- 21. Advanced Catalog Search & Filters -->
-      <label class="module-toggle-row">
-        <div>
-          <div class="module-toggle-title">21. البحث والفلاتر المتقدمة للكتالوج الضخم (Catalog Filters)</div>
-          <div class="module-toggle-desc">فلاتر الترتيب بالسعر، المتاح فقط، والعروض — مثالي للمتاجر ذات 200-300+ منتج</div>
+      <label class="module-check-row">
+        <div class="module-check-meta">
+          <div class="module-check-title">21. البحث والفلاتر المتقدمة للكتالوج الضخم (Catalog Filters)</div>
+          <div class="module-check-desc">فلاتر الترتيب بالسعر، المتاح فقط، والعروض — مثالي للمتاجر ذات الكتالوج الكبير</div>
         </div>
-        <input type="checkbox" id="mod-toggle-catalog-filters" style="width:20px; height:20px; accent-color:var(--primary);">
+        <input type="checkbox" id="mod-toggle-catalog-filters" class="module-switch-input">
+        <span class="module-switch-slider"></span>
       </label>
 
       <!-- 22. Bulk CSV/Excel Import -->
-      <label class="module-toggle-row">
-        <div>
-          <div class="module-toggle-title">22. استيراد وتحديث المنتجات عبر CSV / Excel</div>
-          <div class="module-toggle-desc">رفع وتحديث مئات المنتجات مرة واحدة من ملف جدول بيانات في لوحة الإدارة</div>
+      <label class="module-check-row">
+        <div class="module-check-meta">
+          <div class="module-check-title">22. استيراد وتحديث المنتجات عبر CSV / Excel</div>
+          <div class="module-check-desc">رفع وتحديث مئات المنتجات مرة واحدة من ملف جدول بيانات في لوحة الإدارة</div>
         </div>
-        <input type="checkbox" id="mod-toggle-bulk-import" style="width:20px; height:20px; accent-color:var(--primary);">
+        <input type="checkbox" id="mod-toggle-bulk-import" class="module-switch-input">
+        <span class="module-switch-slider"></span>
       </label>
 
       <!-- 23. Return & Warranty Policy -->
-      <label class="module-toggle-row">
-        <div>
-          <div class="module-toggle-title">23. شارة وبطاقة سياسة الاستبدال والضمان (Return Policy)</div>
-          <div class="module-toggle-desc">عرض سياسة الاستبدال والضمان بوضوح للعملاء في المتجر والسلة</div>
+      <label class="module-check-row">
+        <div class="module-check-meta">
+          <div class="module-check-title">23. بطاقة وشارة سياسة الاستبدال والضمان (Return Policy)</div>
+          <div class="module-check-desc">عرض سياسة الاستبدال والضمان بوضوح للعملاء في المتجر والسلة</div>
         </div>
-        <input type="checkbox" id="mod-toggle-return-policy" style="width:20px; height:20px; accent-color:var(--primary);">
+        <input type="checkbox" id="mod-toggle-return-policy" class="module-switch-input">
+        <span class="module-switch-slider"></span>
       </label>
 
       <!-- 24. Kitchen Prep / Nutrition Info -->
-      <label class="module-toggle-row">
-        <div>
-          <div class="module-toggle-title">24. وقت التحضير ومعلومات المطبخ في البطاقات</div>
-          <div class="module-toggle-desc">إظهار وقت التحضير ومعلومات الطبخ (مناسب للمطاعم، ويُفضل إغلاقه للمتاجر)</div>
+      <label class="module-check-row">
+        <div class="module-check-meta">
+          <div class="module-check-title">24. وقت التحضير ومعلومات المطبخ في البطاقات</div>
+          <div class="module-check-desc">إظهار وقت التحضير ومعلومات الطبخ (مناسب للمطاعم، ويُفضل إغلاقه للمتاجر)</div>
         </div>
-        <input type="checkbox" id="mod-toggle-nutrition-info" style="width:20px; height:20px; accent-color:var(--primary);">
+        <input type="checkbox" id="mod-toggle-nutrition-info" class="module-switch-input">
+        <span class="module-switch-slider"></span>
       </label>
     </div>
 

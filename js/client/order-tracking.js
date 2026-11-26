@@ -39,12 +39,23 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
   }
   const cart = Store.getCart();
 
+  const profileFallback = (typeof window.getCustomerProfile === 'function') ? window.getCustomerProfile() : null;
+  const normDigits = (v) => (typeof window.normalizeCustomerDigits === 'function'
+    ? window.normalizeCustomerDigits(v)
+    : String(v || '').replace(/[٠-٩]/g, d => '0123456789'['٠١٢٣٤٥٦٧٨٩'.indexOf(d)]).replace(/[۰-۹]/g, d => '0123456789'['۰۱۲۳۴۵۶۷۸۹'.indexOf(d)]));
+
   const fType = window.currentFulfillmentType || 'delivery';
   const tableNum = (document.getElementById('cust-table-number')?.value || '').trim();
-  const name = (elements.custName?.value || '').trim();
-  const phone = (elements.custPhone?.value || '').trim();
-  const address = (elements.custAddress?.value || '').trim();
+  const nameEl = elements.custName || document.getElementById('cust-name');
+  const phoneEl = elements.custPhone || document.getElementById('cust-phone');
+  const addrEl = elements.custAddress || document.getElementById('cust-address');
+  const name = (nameEl?.value || profileFallback?.name || '').trim();
+  const phone = normDigits(phoneEl?.value || profileFallback?.phone || '').trim();
+  const address = (addrEl?.value || profileFallback?.address || '').trim();
   const notes = (elements.custNotes?.value || '').trim();
+  if (nameEl && !nameEl.value && name) nameEl.value = name;
+  if (phoneEl && !phoneEl.value && phone) phoneEl.value = phone;
+  if (addrEl && !addrEl.value && address) addrEl.value = address;
 
   // 1. Validate Table Number for Dine-In
   if (fType === 'dinein' && !tableNum) {
@@ -62,9 +73,9 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
   if (!name || name.length < 2) {
     if (typeof window.toggleCustomerProfileEdit === 'function') window.toggleCustomerProfileEdit(true);
     showToastNotification("يرجى كتابة الاسم لتسهيل التواصل ومتابعة الطلب", "warning");
-    if (elements.custName) {
-      elements.custName.focus();
-      elements.custName.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (nameEl) {
+      nameEl.focus();
+      nameEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
     return;
   }
@@ -73,9 +84,9 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
   if (!phone) {
     if (typeof window.toggleCustomerProfileEdit === 'function') window.toggleCustomerProfileEdit(true);
     showToastNotification("يرجى كتابة رقم الهاتف للتواصل بخصوص الطلب", "warning");
-    if (elements.custPhone) {
-      elements.custPhone.focus();
-      elements.custPhone.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (phoneEl) {
+      phoneEl.focus();
+      phoneEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
     return;
   }
@@ -85,10 +96,10 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
   const internationalMobile = /^(20[0-9]{10}|[0-9]{10,15})$/.test(phoneDigits);
   if (!egyptianMobile && !internationalMobile) {
     if (typeof window.toggleCustomerProfileEdit === 'function') window.toggleCustomerProfileEdit(true);
-    showToastNotification("يرجى التأكد من صحة رقم الهاتف للتواصل (مثال: 01012345678)", "warning");
-    if (elements.custPhone) {
-      elements.custPhone.focus();
-      elements.custPhone.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    showToastNotification("يرجى التأكد من صحة رقم الهاتف للتواصل", "warning");
+    if (phoneEl) {
+      phoneEl.focus();
+      phoneEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
     return;
   }
@@ -97,9 +108,9 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
   if (fType === 'delivery' && (!address || address.length < 5)) {
     if (typeof window.toggleCustomerProfileEdit === 'function') window.toggleCustomerProfileEdit(true);
     showToastNotification("يرجى كتابة عنوان التوصيل بالتفصيل لضمان سرعة الوصول", "warning");
-    if (elements.custAddress) {
-      elements.custAddress.focus();
-      elements.custAddress.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (addrEl) {
+      addrEl.focus();
+      addrEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
     return;
   }
@@ -114,6 +125,7 @@ async function handleDirectOrderSubmit(openWhatsApp = false) {
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
   if (settings.minOrder > 0 && subtotal < settings.minOrder) {
+    if (typeof window.goToCheckoutStep === 'function') window.goToCheckoutStep(1);
     showToastNotification(`الحد الأدنى للطلب هو ${settings.minOrder} ${currency}`, "error");
     return;
   }

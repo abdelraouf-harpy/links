@@ -186,7 +186,7 @@ function loadSettingsIntoForm() {
   if (adminElements.setWhatsapp) adminElements.setWhatsapp.value = s.whatsappNumber || '';
   if (adminElements.setWalletNumber) {
     adminElements.setWalletNumber.value = s.walletNumber || '';
-    const defPh = (s.phone || s.whatsappNumber || '01019971508').replace(/\D/g, '');
+    const defPh = (s.phone || s.whatsappNumber || '').replace(/\D/g, '');
     const cleanPh = (defPh.startsWith('20') && defPh.length === 12) ? ('0' + defPh.slice(2)) : defPh;
     adminElements.setWalletNumber.placeholder = cleanPh || "010xxxxxxxx";
   }
@@ -258,8 +258,10 @@ function loadSettingsIntoForm() {
   renderAdminTablesList();
   renderAdminBranchesList();
 
-  const retPolEl = document.getElementById('set-return-policy-text');
+  const retPolEl = document.getElementById('set-return-policy') || document.getElementById('set-return-policy-text');
   if (retPolEl) retPolEl.value = s.returnPolicyText || '';
+  const minOrdEl = document.getElementById('set-min-order');
+  if (minOrdEl) minOrdEl.value = (s.minOrder !== undefined && s.minOrder !== null) ? s.minOrder : 0;
   const ageTitleEl = document.getElementById('set-age-gate-title');
   if (ageTitleEl) ageTitleEl.value = s.ageGateTitle || '';
   const ageDescEl = document.getElementById('set-age-gate-desc');
@@ -444,6 +446,7 @@ async function saveSettingsFromForm() {
         customZones: (current.deliverySettings && current.deliverySettings.customZones) ? current.deliverySettings.customZones : []
       },
       deliveryFee: isNaN(parseFloat(adminElements.setDefaultDeliveryFee?.value)) ? 15 : parseFloat(adminElements.setDefaultDeliveryFee?.value),
+      minOrder: Math.max(0, parseFloat(document.getElementById('set-min-order')?.value) || 0),
 
       enableWalletDiscount: adminElements.setEnableWalletDiscount?.checked === true,
       walletDiscountType: adminElements.setWalletDiscountType?.value || 'percent',
@@ -454,7 +457,7 @@ async function saveSettingsFromForm() {
       spendTierDiscountType: adminElements.setSpendDiscountType?.value || 'percent',
       spendTierDiscountValue: parseFloat(adminElements.setSpendDiscountVal?.value) || 0,
 
-      returnPolicyText: (document.getElementById('set-return-policy-text')?.value || '').trim(),
+      returnPolicyText: (document.getElementById('set-return-policy')?.value || document.getElementById('set-return-policy-text')?.value || '').trim(),
       ageGateTitle: (document.getElementById('set-age-gate-title')?.value || '').trim(),
       ageGateDesc: (document.getElementById('set-age-gate-desc')?.value || '').trim()
     };

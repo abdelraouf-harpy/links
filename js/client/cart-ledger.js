@@ -7,6 +7,26 @@ var roundCurrency = (val) => {
   const n = Number(val || 0);
   return Math.sign(n) * (Math.round(Math.abs(n) * 100 + 1e-6) / 100);
 };
+var normalizeLedgerDigits = (val) => (typeof window.normalizeCustomerDigits === 'function'
+  ? window.normalizeCustomerDigits(val)
+  : String(val || '').replace(/[٠-٩]/g, d => '0123456789'['٠١٢٣٤٥٦٧٨٩'.indexOf(d)]).replace(/[۰-۹]/g, d => '0123456789'['۰۱۲۳۴۵۶۷۸۹'.indexOf(d)]));
+
+function getMinOrderStatus(cartArg, settingsArg) {
+  const cart = Array.isArray(cartArg) ? cartArg : Store.getCart();
+  const settings = settingsArg || Store.getSettings() || {};
+  const minOrder = Math.max(0, parseFloat(settings.minOrder) || 0);
+  const currency = (typeof window.getCurrency === 'function')
+    ? window.getCurrency(settings.currency)
+    : (typeof window.t === 'function' ? window.t('currency', settings.currency || 'ج.م') : (settings.currency || 'ج.م'));
+  const subtotal = roundCurrency(cart.reduce((sum, item) => sum + ((item.price || 0) * (item.qty || 1)), 0));
+  if (minOrder <= 0 || subtotal >= minOrder) {
+    return { ok: true, minOrder, subtotal, remaining: 0, pct: 100, currency };
+  }
+  const remaining = roundCurrency(minOrder - subtotal);
+  const pct = Math.min(100, Math.max(0, Math.round((subtotal / minOrder) * 100)));
+  return { ok: false, minOrder, subtotal, remaining, pct, currency };
+}
+window.getMinOrderStatus = getMinOrderStatus;
 
 var currentCheckoutStep = 1;
 var selectedPaymentMethod = 'cod';
@@ -512,6 +532,38 @@ function updateLedgerUI() {
     cartTotalPriceS1.innerHTML = `${step1Total.toFixed(2)} <span>${currency}</span>`;
   }
 
+  // Update Step 1 Minimum Order Guard Notice & Button state
+  const minOrderNotice = document.getElementById('cart-min-order-notice');
+  const proceedBtn = document.getElementById('btn-proceed-to-payment');
+  const minStatus = getMinOrderStatus(cart, settings);
+  if (minOrderNotice) {
+    if (cart.length > 0 && minStatus.minOrder > 0) {
+      minOrderNotice.style.display = 'flex';
+      minOrderNotice.classList.toggle('is-met', minStatus.ok);
+      if (minStatus.ok) {
+        minOrderNotice.innerHTML = `
+          <div class="min-order-row">
+            <span class="min-order-icon"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>
+            <span>تم استيفاء الحد الأدنى للطلب (${minStatus.minOrder} ${minStatus.currency})</span>
+          </div>
+        `;
+      } else {
+        minOrderNotice.innerHTML = `
+          <div class="min-order-row">
+            <span class="min-order-icon"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
+            <span>الحد الأدنى للطلب <strong class="font-num">${minStatus.minOrder} ${minStatus.currency}</strong> — متبقي <strong class="font-num">${minStatus.remaining} ${minStatus.currency}</strong></span>
+          </div>
+          <div class="min-order-bar"><div class="min-order-bar-fill" style="width:${minStatus.pct}%;"></div></div>
+        `;
+      }
+    } else {
+      minOrderNotice.style.display = 'none';
+    }
+  }
+  if (proceedBtn) {
+    proceedBtn.classList.toggle('is-min-order-blocked', cart.length > 0 && !minStatus.ok);
+  }
+
   if (elements.cartOriginalStrikethrough) {
     if (totalDiscounts > 0 && subtotal > 0) {
       elements.cartOriginalStrikethrough.style.display = 'inline-block';
@@ -696,9 +748,12 @@ window.openCartDrawer = function() {
   // Pre-fill profile if available
   const profile = (typeof window.getCustomerProfile === 'function') ? window.getCustomerProfile() : null;
   if (profile) {
-    if (elements.custName && !elements.custName.value && profile.name) elements.custName.value = profile.name;
-    if (elements.custPhone && !elements.custPhone.value && profile.phone) elements.custPhone.value = profile.phone;
-    if (elements.custAddress && !elements.custAddress.value && profile.address) elements.custAddress.value = profile.address;
+    const nameEl = elements.custName || document.getElementById('cust-name');
+    const phoneEl = elements.custPhone || document.getElementById('cust-phone');
+    const addrEl = elements.custAddress || document.getElementById('cust-address');
+    if (nameEl && !nameEl.value.trim() && profile.name) nameEl.value = profile.name;
+    if (phoneEl && !phoneEl.value.trim() && profile.phone) phoneEl.value = profile.phone;
+    if (addrEl && !addrEl.value.trim() && profile.address) addrEl.value = profile.address;
   }
   if (typeof window.updateCartSavedProfileCard === 'function') {
     window.updateCartSavedProfileCard();
@@ -765,7 +820,30 @@ window.goToCheckoutStep = function(stepNumber, pushHistory = true) {
   if (emptyView) emptyView.style.display = 'none';
 
   if (stepNumber === 2) {
-    if (checkOrderingPaused()) return;
+    if (checkOrderingPaused()) return false;
+    const minCheck = getMinOrderStatus(cart);
+    if (!minCheck.ok) {
+      currentCheckoutStep = 1;
+      if (step2View) step2View.style.display = 'none';
+      if (step1View) step1View.style.display = 'flex';
+      const minNotice = document.getElementById('cart-min-order-notice');
+      if (minNotice) {
+        minNotice.classList.remove('pulse-warn');
+        void minNotice.offsetWidth;
+        minNotice.classList.add('pulse-warn');
+      }
+      showToastNotification(`الحد الأدنى للطلب هو ${minCheck.minOrder} ${minCheck.currency} — متبقي ${minCheck.remaining} ${minCheck.currency} للمتابعة`, "warning");
+      return false;
+    }
+    const profileNow = (typeof window.getCustomerProfile === 'function') ? window.getCustomerProfile() : null;
+    if (profileNow) {
+      const nEl = elements.custName || document.getElementById('cust-name');
+      const pEl = elements.custPhone || document.getElementById('cust-phone');
+      const aEl = elements.custAddress || document.getElementById('cust-address');
+      if (nEl && !nEl.value.trim() && profileNow.name) nEl.value = profileNow.name;
+      if (pEl && !pEl.value.trim() && profileNow.phone) pEl.value = profileNow.phone;
+      if (aEl && !aEl.value.trim() && profileNow.address) aEl.value = profileNow.address;
+    }
     currentCheckoutStep = 2;
     if (step1View) step1View.style.display = 'none';
     if (step2View) {
@@ -780,6 +858,7 @@ window.goToCheckoutStep = function(stepNumber, pushHistory = true) {
       window.updateCartSavedProfileCard();
     }
     if (pushHistory) pushNavState('cart_step_2', { step: 2 });
+    return true;
   } else {
     currentCheckoutStep = 1;
     if (step2View) step2View.style.display = 'none';
@@ -868,22 +947,27 @@ function setupEventListeners() {
 
   function validateDeliveryStep() {
     const profile = (typeof window.getCustomerProfile === 'function') ? window.getCustomerProfile() : null;
-    const name = (elements.custName?.value || profile?.name || '').trim();
-    const phone = (elements.custPhone?.value || profile?.phone || '').trim();
-    const address = (elements.custAddress?.value || profile?.address || '').trim();
+    const nameEl = elements.custName || document.getElementById('cust-name');
+    const phoneEl = elements.custPhone || document.getElementById('cust-phone');
+    const addrEl = elements.custAddress || document.getElementById('cust-address');
+    const name = (nameEl?.value || profile?.name || '').trim();
+    const phone = normalizeLedgerDigits(phoneEl?.value || profile?.phone || '').trim();
+    const address = (addrEl?.value || profile?.address || '').trim();
 
-    if (elements.custName && !elements.custName.value && name) elements.custName.value = name;
-    if (elements.custPhone && !elements.custPhone.value && phone) elements.custPhone.value = phone;
-    if (elements.custAddress && !elements.custAddress.value && address) elements.custAddress.value = address;
+    if (nameEl && !nameEl.value && name) nameEl.value = name;
+    if (phoneEl && !phoneEl.value && phone) phoneEl.value = phone;
+    if (addrEl && !addrEl.value && address) addrEl.value = address;
 
     if (!name || name.length < 2) {
+      if (typeof window.toggleCustomerProfileEdit === 'function') window.toggleCustomerProfileEdit(true);
       showToastNotification("يرجى كتابة الاسم لتسهيل التواصل ومتابعة الطلب", "warning");
-      if (elements.custName) elements.custName.focus();
+      if (nameEl) nameEl.focus();
       return false;
     }
     if (!phone) {
+      if (typeof window.toggleCustomerProfileEdit === 'function') window.toggleCustomerProfileEdit(true);
       showToastNotification("يرجى كتابة رقم الهاتف للتواصل بخصوص الطلب", "warning");
-      if (elements.custPhone) elements.custPhone.focus();
+      if (phoneEl) phoneEl.focus();
       return false;
     }
     // Validate phone: Egyptian mobile (01x) or international (+20x / 20x) — digits only, 10-15 digits
@@ -891,8 +975,9 @@ function setupEventListeners() {
     const egyptianMobile = /^(01[0-9]{9})$/.test(phoneDigits);
     const internationalMobile = /^(20[0-9]{10}|[0-9]{10,15})$/.test(phoneDigits);
     if (!egyptianMobile && !internationalMobile) {
-      showToastNotification("يرجى التأكد من صحة رقم الهاتف للتواصل (مثال: 01012345678)", "warning");
-      if (elements.custPhone) elements.custPhone.focus();
+      if (typeof window.toggleCustomerProfileEdit === 'function') window.toggleCustomerProfileEdit(true);
+      showToastNotification("يرجى التأكد من صحة رقم الهاتف للتواصل", "warning");
+      if (phoneEl) phoneEl.focus();
       return false;
     }
     const fType = window.currentFulfillmentType || 'delivery';
@@ -943,6 +1028,9 @@ function setupEventListeners() {
       } else if (targetStep === 3) {
         if (cart.length === 0) {
           showToastNotification("السلة فارغة، أضف بعض الوجبات أولاً", "warning");
+          return;
+        }
+        if (currentCheckoutStep === 1 && !goToCheckoutStep(2)) {
           return;
         }
         // Strict Validation: Cannot jump to Step 3 without completing Step 2 delivery info!
@@ -1190,51 +1278,73 @@ function setupEventListeners() {
 window.updateCartSavedProfileCard = function() {
   const card = document.getElementById('cart-saved-profile-card');
   const editWrap = document.getElementById('cart-profile-edit-wrap');
+  const namePhoneGroup = document.getElementById('group-cust-name-phone');
   const titleEl = document.getElementById('saved-profile-title');
   const descEl = document.getElementById('saved-profile-desc');
   const collapseBtn = document.getElementById('btn-collapse-profile-edit');
   const fType = window.currentFulfillmentType || 'delivery';
 
   const profile = (typeof window.getCustomerProfile === 'function') ? window.getCustomerProfile() : null;
-  const name = (elements.custName?.value || profile?.name || '').trim();
-  const phone = (elements.custPhone?.value || profile?.phone || '').trim();
-  const address = (elements.custAddress?.value || profile?.address || '').trim();
+  const nameEl = elements.custName || document.getElementById('cust-name');
+  const phoneEl = elements.custPhone || document.getElementById('cust-phone');
+  const addrEl = elements.custAddress || document.getElementById('cust-address');
+  const name = (nameEl?.value || profile?.name || '').trim();
+  const phone = normalizeLedgerDigits(phoneEl?.value || profile?.phone || '').trim();
+  const address = (addrEl?.value || profile?.address || '').trim();
   const tableNum = (document.getElementById('cust-table-number')?.value || '').trim();
 
-  // Populate inputs if currently empty
-  if (elements.custName && !elements.custName.value && name) elements.custName.value = name;
-  if (elements.custPhone && !elements.custPhone.value && phone) elements.custPhone.value = phone;
-  if (elements.custAddress && !elements.custAddress.value && address) elements.custAddress.value = address;
+  // Always keep inputs synchronized when empty
+  if (nameEl && !nameEl.value.trim() && name) nameEl.value = name;
+  if (phoneEl && !phoneEl.value.trim() && phone) phoneEl.value = phone;
+  if (addrEl && !addrEl.value.trim() && address) addrEl.value = address;
+
+  const phoneDigits = phone.replace(/[\s\-+()]/g, '');
+  const hasSavedContact = (name.length >= 2 && phoneDigits.length >= 8);
 
   // Determine if all required info for current mode is present
   let isComplete = false;
   if (fType === 'delivery') {
-    isComplete = (name.length >= 2 && phone.length >= 10 && address.length >= 5);
+    isComplete = (hasSavedContact && address.length >= 5);
   } else if (fType === 'takeaway') {
-    isComplete = (name.length >= 2 && phone.length >= 10);
+    isComplete = hasSavedContact;
   } else if (fType === 'dinein') {
-    isComplete = (name.length >= 2 && phone.length >= 10 && tableNum.length >= 1);
+    isComplete = (hasSavedContact && tableNum.length >= 1);
   }
 
   const isManuallyOpened = editWrap && editWrap.dataset.manuallyOpened === 'true';
 
-  if (isComplete && !isManuallyOpened) {
+  if (hasSavedContact && !isManuallyOpened) {
     if (card) {
       if (titleEl) titleEl.textContent = `${name} (${phone})`;
       if (descEl) {
-        if (fType === 'delivery') descEl.textContent = `${address}`;
-        else if (fType === 'takeaway') descEl.textContent = (typeof window.t === 'function' ? window.t('ful_takeaway_desc', 'استلام من كاونتر المطعم (بدون دليفري)') : 'استلام من كاونتر المطعم (بدون دليفري)');
-        else if (fType === 'dinein') descEl.textContent = `${(typeof window.t === 'function' ? window.t('fulfillment_dinein', 'طلب صالة') : 'طلب صالة')} — ${(typeof window.t === 'function' ? window.t('field_table', 'طاولة') : 'طاولة')}: ${tableNum}`;
+        if (fType === 'delivery') {
+          descEl.textContent = (address.length >= 5) ? address : 'أضف عنوان التوصيل بالأسفل فقط لإتمام الطلب';
+        } else if (fType === 'takeaway') {
+          descEl.textContent = (typeof window.t === 'function' ? window.t('ful_takeaway_desc', 'استلام من كاونتر المطعم (بدون دليفري)') : 'استلام من كاونتر المطعم (بدون دليفري)');
+        } else if (fType === 'dinein') {
+          descEl.textContent = tableNum
+            ? `${(typeof window.t === 'function' ? window.t('fulfillment_dinein', 'طلب صالة') : 'طلب صالة')} — ${(typeof window.t === 'function' ? window.t('field_table', 'طاولة') : 'طاولة')}: ${tableNum}`
+            : 'أدخل رقم الطاولة بالأسفل';
+        }
       }
       card.style.display = 'flex';
     }
-    if (editWrap) editWrap.style.display = 'none';
+    if (isComplete) {
+      if (editWrap) editWrap.style.display = 'none';
+      if (namePhoneGroup) namePhoneGroup.style.display = 'grid';
+    } else {
+      // Name & phone are already remembered — only ask for the missing field (address or table)!
+      if (editWrap) editWrap.style.display = 'flex';
+      if (namePhoneGroup) namePhoneGroup.style.display = 'none';
+      if (collapseBtn) collapseBtn.style.display = 'none';
+    }
   } else {
     if (card) card.style.display = 'none';
+    if (namePhoneGroup) namePhoneGroup.style.display = 'grid';
     if (editWrap) {
       editWrap.style.display = 'flex';
       if (collapseBtn) {
-        collapseBtn.style.display = (name.length >= 2 && phone.length >= 10) ? 'inline-block' : 'none';
+        collapseBtn.style.display = hasSavedContact ? 'inline-block' : 'none';
       }
     }
   }
@@ -1243,6 +1353,7 @@ window.updateCartSavedProfileCard = function() {
 window.toggleCustomerProfileEdit = function(openEdit) {
   const card = document.getElementById('cart-saved-profile-card');
   const editWrap = document.getElementById('cart-profile-edit-wrap');
+  const namePhoneGroup = document.getElementById('group-cust-name-phone');
   const collapseBtn = document.getElementById('btn-collapse-profile-edit');
   if (!card || !editWrap) return;
 
@@ -1250,14 +1361,17 @@ window.toggleCustomerProfileEdit = function(openEdit) {
     editWrap.dataset.manuallyOpened = 'true';
     card.style.display = 'none';
     editWrap.style.display = 'flex';
+    if (namePhoneGroup) namePhoneGroup.style.display = 'grid';
     if (collapseBtn) collapseBtn.style.display = 'inline-block';
-    if (elements.custName && !elements.custName.value) elements.custName.focus();
-    else if (elements.custAddress && !elements.custAddress.value && window.currentFulfillmentType === 'delivery') elements.custAddress.focus();
+    const nEl = elements.custName || document.getElementById('cust-name');
+    const aEl = elements.custAddress || document.getElementById('cust-address');
+    if (nEl && !nEl.value) nEl.focus();
+    else if (aEl && !aEl.value && window.currentFulfillmentType === 'delivery') aEl.focus();
   } else {
     delete editWrap.dataset.manuallyOpened;
-    const name = (elements.custName?.value || '').trim();
-    const phone = (elements.custPhone?.value || '').trim();
-    const address = (elements.custAddress?.value || '').trim();
+    const name = (elements.custName?.value || document.getElementById('cust-name')?.value || '').trim();
+    const phone = normalizeLedgerDigits(elements.custPhone?.value || document.getElementById('cust-phone')?.value || '').trim();
+    const address = (elements.custAddress?.value || document.getElementById('cust-address')?.value || '').trim();
     const notes = (elements.custNotes?.value || '').trim();
     if (name || phone || address) {
       if (typeof window.saveCustomerProfile === 'function') {
