@@ -6,7 +6,7 @@ try {
   console.warn("[SW] OneSignal worker import notice:", e);
 }
 
-const CACHE_NAME = 'order-pwa-v203.2';
+const CACHE_NAME = 'order-pwa-v203.3';
 const IMAGE_CACHE_NAME = 'order-images-v6';
 const ASSETS_TO_CACHE = [
   './',
@@ -277,22 +277,17 @@ self.addEventListener('fetch', (event) => {
   }
 
   // General Network-First strategy for all other assets
-  const isDocumentReq = event.request.mode === 'navigate' ||
-    event.request.destination === 'document' ||
-    (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html'));
-  const fetchPromise = (isDocumentReq && reqUrl.origin === self.location.origin)
-    ? fetch(event.request.url, { cache: 'no-cache', credentials: 'same-origin' })
-    : fetch(event.request);
-
+  // IMPORTANT: Pass original event.request directly so top-level navigations preserve
+  // redirect:'manual' and opaqueredirect responses without triggering ERR_FAILED on 301 folder redirects.
   event.respondWith(
-    fetchPromise
+    fetch(event.request)
       .then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200) {
+        if (networkResponse && networkResponse.status === 200 && !networkResponse.redirected && networkResponse.type !== 'opaqueredirect') {
           const responseClone = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
           return networkResponse;
         }
-        // Let server 404 responses (GitHub Pages 404.html smart router / Not Found) pass through untouched when online
+        // Let redirects (opaqueredirect) and server 404 responses (GitHub Pages 404.html) pass through untouched
         return networkResponse;
       })
       .catch(() => {
