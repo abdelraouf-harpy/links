@@ -56,6 +56,12 @@ function base64UrlDecodeToBytes(str) {
   return bytes;
 }
 
+function sanitizePasswordInput(raw) {
+  return String(raw || '')
+    .replace(/[\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]/g, '')
+    .trim();
+}
+
 function timingSafeEqualStrings(a, b) {
   const aBytes = new TextEncoder().encode(String(a || ''));
   const bBytes = new TextEncoder().encode(String(b || ''));
@@ -669,27 +675,48 @@ export default {
 
       // 4. Master login (rate-limited, constant-time secret check, stateless HMAC JWT)
       if (pathname === '/api/master/login' && request.method === 'POST') {
-        const expectedSecret = (env.MASTER_ADMIN_SECRET || '').trim();
+        const expectedSecret = sanitizePasswordInput(env.MASTER_ADMIN_SECRET || '');
         if (!expectedSecret) {
           return jsonResponse({ error: 'MASTER_ADMIN_SECRET not configured on Worker' }, 500, cors);
         }
 
         const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+        const nowMs = Date.now();
+        const MAX_FAILED_ATTEMPTS = 8;
+        const LOCKOUT_MS = 10 * 60 * 1000;
         const state = loginAttemptState.get(ip) || { count: 0, lockedUntil: 0 };
-        if (state.lockedUntil > Date.now()) {
-          return jsonResponse({ error: 'تم حظر المحاولات مؤقتاً لكثرة المحاولات الخاطئة، يرجى الانتظار 15 دقيقة' }, 429, cors);
+        if (state.lockedUntil > 0 && state.lockedUntil <= nowMs) {
+          loginAttemptState.delete(ip);
+          state.count = 0;
+          state.lockedUntil = 0;
+        }
+        if (state.lockedUntil > nowMs) {
+          const waitMins = Math.max(1, Math.ceil((state.lockedUntil - nowMs) / 60000));
+          return jsonResponse({
+            error: `تم حظر المحاولات مؤقتاً لكثرة المحاولات الخاطئة، يرجى الانتظار ${waitMins} دقيقة`,
+            retryAfterMinutes: waitMins
+          }, 429, cors);
         }
 
         const body = await request.json().catch(() => null);
-        const password = String((body && body.password) || '').trim();
+        const password = sanitizePasswordInput(body && body.password);
         if (!password || !timingSafeEqualStrings(password, expectedSecret)) {
           state.count += 1;
-          if (state.count >= 5) {
-            state.lockedUntil = Date.now() + 15 * 60 * 1000;
+          if (state.count >= MAX_FAILED_ATTEMPTS) {
+            state.lockedUntil = nowMs + LOCKOUT_MS;
             state.count = 0;
+            loginAttemptState.set(ip, state);
+            return jsonResponse({
+              error: 'تم حظر المحاولات لمدة 10 دقائق لكثرة المحاولات الخاطئة',
+              retryAfterMinutes: 10
+            }, 429, cors);
           }
           loginAttemptState.set(ip, state);
-          return jsonResponse({ error: 'كلمة مرور القيادة المركزية غير صحيحة' }, 401, cors);
+          const remaining = MAX_FAILED_ATTEMPTS - state.count;
+          return jsonResponse({
+            error: `كلمة مرور القيادة المركزية غير صحيحة (متبقي ${remaining} محاولات)`,
+            remainingAttempts: remaining
+          }, 401, cors);
         }
 
         loginAttemptState.delete(ip);
