@@ -263,16 +263,18 @@ function renderCatalogItemsOnly() {
               مربوط بالمخزون
             </span>
           ` : ''}
-          ${isPieceStockEnabled && stockNum !== null ? `
-            <span class="font-num" style="position:absolute; bottom:8px; right:8px; background:${stockNum <= 0 ? 'var(--danger)' : (stockNum <= 5 ? 'var(--warning)' : 'var(--surface-raised)')}; color:${stockNum <= 5 ? 'var(--text-on-danger)' : 'var(--text-main)'}; font-size:9.5px; font-weight:800; padding:2px 6px; border-radius:4px; z-index:2; border:1px solid var(--border);">
-              ${stockNum <= 0 ? 'نفدت الكمية' : `المخزون: ${stockNum}`}
-            </span>
-          ` : ''}
         </div>
 
         <div style="padding:12px; flex:1; display:flex; flex-direction:column; justify-content:space-between;">
           <div>
-            <div style="font-size:11px; color:var(--text-muted); margin-bottom:2px;">${p.category}${p.brand ? ` • ${Store.escapeHtml(p.brand)}` : ''}</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; margin-bottom:4px; flex-wrap:wrap;">
+              <div style="font-size:11px; color:var(--text-muted);">${p.category}${p.brand ? ` • ${Store.escapeHtml(p.brand)}` : ''}</div>
+              ${isPieceStockEnabled && stockNum !== null ? `
+                <span class="prod-piece-stock-badge admin-stock-pill font-num ${stockNum <= 0 ? 'is-out' : (stockNum <= 5 ? 'is-low' : 'is-ok')}">
+                  ${stockNum <= 0 ? 'نفدت الكمية' : `المخزون: ${stockNum}`}
+                </span>
+              ` : ''}
+            </div>
             <div style="font-size:14px; font-weight:800; color:var(--text-main); line-height:1.3; margin-bottom:6px;">${p.name}</div>
             <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px; flex-wrap:wrap;">
               <input type="number" class="form-input font-num" value="${effPrice}" step="0.5" style="padding:4px 8px; font-size:13px; font-weight:800; max-width:80px;" onchange="updateProductPriceFast('${p.id}', this.value)">
@@ -847,6 +849,7 @@ function openProductModal(productId) {
     if (stockInput) stockInput.value = (p.stockQty !== undefined && p.stockQty !== null && p.stockQty !== '') ? p.stockQty : '';
     if (brandInput) brandInput.value = p.brand || '';
     if (galleryInput) galleryInput.value = Array.isArray(p.images) ? p.images.join('\n') : '';
+    if (typeof window.renderProdGalleryPreview === 'function') window.renderProdGalleryPreview();
 
     const hasFutureOffer = Number(p.offerEndsAt || 0) > Date.now();
     if (timedChk) timedChk.checked = hasFutureOffer;
@@ -900,6 +903,7 @@ function openProductModal(productId) {
     if (stockInput) stockInput.value = '';
     if (brandInput) brandInput.value = '';
     if (galleryInput) galleryInput.value = '';
+    if (typeof window.renderProdGalleryPreview === 'function') window.renderProdGalleryPreview();
     if (timedChk) timedChk.checked = false;
     if (endsAtInput) endsAtInput.value = '';
     if (offerLblInput) offerLblInput.value = '';
@@ -1637,8 +1641,6 @@ window.setBulkScope = function(scope) {
   document.querySelectorAll('.bulk-scope-btn').forEach(btn => {
     const isAct = btn.getAttribute('data-scope') === _bulkScope;
     btn.classList.toggle('active', isAct);
-    btn.style.border = isAct ? '1.5px solid var(--primary)' : '1px solid var(--border)';
-    btn.style.fontWeight = isAct ? '800' : '700';
   });
   const catWrap = document.getElementById('bulk-categories-picker');
   const prodWrap = document.getElementById('bulk-products-picker');
@@ -1657,8 +1659,6 @@ window.setBulkDurationMode = function(mode) {
   document.querySelectorAll('.bulk-mode-btn').forEach(btn => {
     const isAct = btn.getAttribute('data-mode') === _bulkMode;
     btn.classList.toggle('active', isAct);
-    btn.style.border = isAct ? '1.5px solid var(--primary)' : '1px solid var(--border)';
-    btn.style.fontWeight = isAct ? '800' : '700';
   });
   const timedWrap = document.getElementById('bulk-timed-fields');
   if (timedWrap) timedWrap.style.display = (_bulkMode === 'timed') ? 'block' : 'none';
@@ -1765,6 +1765,25 @@ window.executeBulkPriceAdjustment = async function() {
   }
 };
 
+window.renderProdGalleryPreview = function() {
+  const txt = document.getElementById('prod-gallery-urls');
+  const wrap = document.getElementById('prod-gallery-preview');
+  if (!txt || !wrap) return;
+  const urls = txt.value.split(/\r?\n/).map(s => s.trim()).filter(u => /^https?:\/\//i.test(u));
+  if (urls.length === 0) {
+    wrap.style.display = 'none';
+    wrap.innerHTML = '';
+    return;
+  }
+  wrap.style.display = 'flex';
+  wrap.innerHTML = urls.slice(0, 8).map((u, idx) => `
+    <div class="admin-gallery-thumb" title="${Store.escapeHtml(u)}">
+      <img src="${Store.escapeHtml(u)}" alt="" onerror="this.style.opacity='0.25'">
+      <span class="admin-gallery-num font-num">${idx + 1}</span>
+    </div>
+  `).join('');
+};
+
 window.undoLastBulkPriceAdjustment = async function() {
   if (!window.NicheEngine || !Store.getBulkPriceUndoSnapshot) return;
   const snap = Store.getBulkPriceUndoSnapshot();
@@ -1772,7 +1791,14 @@ window.undoLastBulkPriceAdjustment = async function() {
     showToastNotification("لا يوجد تعديل جماعي سابق للتراجع عنه", "info");
     return;
   }
-  if (!confirm(`هل تريد استرجاع الأسعار السابقة لـ ${snap.items.length} منتج قبل آخر تعديل جماعي؟`)) return;
+  const ok = await showCustomConfirm({
+    title: "التراجع عن آخر تعديل جماعي",
+    message: `هل تريد استرجاع الأسعار السابقة لـ <strong>${snap.items.length}</strong> منتج قبل آخر تعديل جماعي؟`,
+    confirmText: "استرجاع الأسعار",
+    cancelText: "إلغاء",
+    isDanger: false
+  });
+  if (!ok) return;
   try {
     const restored = NicheEngine.applyUndoSnapshot(Store.getProducts(), snap);
     await Store.saveProducts(restored);
@@ -1892,9 +1918,28 @@ window.handleBulkCSVFile = function(event) {
     const prevEl = document.getElementById('bulk-import-preview');
     const btn = document.getElementById('btn-confirm-bulk-import');
     if (prevEl) {
-      prevEl.innerHTML = _pendingCSVRows.length > 0
-        ? `<div style="color:var(--success); font-weight:800;">تمت قراءة ${_pendingCSVRows.length} منتج بنجاح وجاهز للاستيراد/التحديث (بالاسم).</div>`
-        : `<div style="color:var(--danger); font-weight:800;">لم يتم العثور على صفوف صالحة.</div>`;
+      if (_pendingCSVRows.length > 0) {
+        const previewRowsHtml = _pendingCSVRows.slice(0, 6).map(r => `
+          <tr>
+            <td>${Store.escapeHtml(r.name)}</td>
+            <td>${Store.escapeHtml(r.category)}</td>
+            <td class="font-num">${r.price}</td>
+            <td class="font-num">${r.stockQty !== null ? r.stockQty : '∞'}</td>
+          </tr>
+        `).join('');
+        prevEl.innerHTML = `
+          <div class="bulk-import-status-ok">تمت قراءة <strong class="font-num">${_pendingCSVRows.length}</strong> منتج بنجاح وجاهز للاستيراد/التحديث</div>
+          <div class="bulk-import-table-wrap">
+            <table class="bulk-import-table">
+              <thead><tr><th>المنتج</th><th>القسم</th><th>السعر</th><th>المخزون</th></tr></thead>
+              <tbody>${previewRowsHtml}</tbody>
+            </table>
+            ${_pendingCSVRows.length > 6 ? `<div class="bulk-import-more">+ ${_pendingCSVRows.length - 6} منتج إضافي سيتم استيرادها</div>` : ''}
+          </div>
+        `;
+      } else {
+        prevEl.innerHTML = `<div style="color:var(--danger); font-weight:800; padding:8px;">لم يتم العثور على صفوف صالحة في الملف.</div>`;
+      }
     }
     if (btn) btn.disabled = (_pendingCSVRows.length === 0);
   };

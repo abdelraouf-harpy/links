@@ -612,7 +612,7 @@ function renderProductCard(p, currency, index = 0) {
             <svg class="icon" viewBox="0 0 24 24" style="fill: ${isFav ? 'currentColor' : 'none'};"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
           </button>
         </div>
-        ${isSoldOut ? `<span class="stock-out-badge">نفدت الكمية</span>` : (availQty !== null && availQty <= 5 ? `<span class="stock-low-badge font-num">متبقي ${availQty} فقط</span>` : '')}
+        ${isSoldOut ? `<span class="stock-out-badge prod-piece-stock-badge">نفدت الكمية</span>` : (availQty !== null && availQty <= 5 ? `<span class="stock-low-badge prod-piece-stock-badge font-num">متبقي ${availQty} فقط</span>` : '')}
       </div>
       ${showTimedBadge ? `<div class="offer-countdown-pill card-seam-timer" data-offer-ends="${p.offerEndsAt}"><span class="offer-countdown-label">${p.offerLabel ? Store.escapeHtml(p.offerLabel) : 'ينتهي'}</span><span class="offer-timer-digits font-num"><span class="cd-seg cd-h">--</span><span class="cd-seg cd-m">--</span><span class="cd-seg cd-s">--</span></span></div>` : ''}
 
@@ -902,6 +902,48 @@ window.openQuickPreview = function(productId) {
   }
   if (elements.previewDesc) elements.previewDesc.textContent = (typeof window.getProductDesc === 'function' ? window.getProductDesc(p) : (typeof window.tr === 'function' ? window.tr(p.desc || p.description || '') : (p.desc || p.description || '')));
 
+  // Store-mode Multi-Image Gallery Strip in Quick Preview
+  const prevThumbsWrap = document.getElementById('preview-gallery-thumbs');
+  if (prevThumbsWrap) {
+    const mods = (window.ModuleEnforcer && window.ModuleEnforcer.modules) ? window.ModuleEnforcer.modules : (s.modules || {});
+    const extraImgs = Array.isArray(p.images) ? p.images.filter(Boolean) : [];
+    const allImgs = [p.image, ...extraImgs.filter(u => u && u !== p.image)].filter(Boolean);
+    if (mods.multiImageGallery !== false && allImgs.length > 1) {
+      prevThumbsWrap.style.display = 'flex';
+      prevThumbsWrap.innerHTML = allImgs.map((u, idx) => `
+        <button type="button" class="customizer-thumb-btn ${idx === 0 ? 'active' : ''}" onclick="window.selectPreviewGalleryImage('${u.replace(/'/g, "\\'")}', this)">
+          <img src="${u}" alt="" loading="lazy">
+        </button>
+      `).join('');
+    } else {
+      prevThumbsWrap.style.display = 'none';
+      prevThumbsWrap.innerHTML = '';
+    }
+  }
+
+  // Brand & Piece Stock Chips in Quick Preview
+  const brandChip = document.getElementById('preview-brand-chip');
+  if (brandChip) {
+    if (p.brand && p.brand.trim()) {
+      brandChip.textContent = p.brand.trim();
+      brandChip.style.display = 'inline-flex';
+    } else {
+      brandChip.style.display = 'none';
+    }
+  }
+  const stockChip = document.getElementById('preview-stock-badge');
+  if (stockChip) {
+    const avail = Store.getAvailableStockQty ? Store.getAvailableStockQty(p) : null;
+    if (avail !== null) {
+      stockChip.style.display = 'inline-flex';
+      stockChip.classList.toggle('is-out', avail <= 0);
+      stockChip.classList.toggle('is-low', avail > 0 && avail <= 5);
+      stockChip.textContent = avail <= 0 ? 'نفدت الكمية' : `متوفر بالمخزون: ${avail} قطعة`;
+    } else {
+      stockChip.style.display = 'none';
+    }
+  }
+
   updatePreviewModalActions(productId);
 
   if (elements.previewModal) elements.previewModal.classList.add('open');
@@ -993,8 +1035,24 @@ window.renderCategories = renderCategories;
 window.renderProducts = renderProducts;
 window.renderDiscoveryRibbon = renderDiscoveryRibbon;
 
+window.selectPreviewGalleryImage = function(url, btnEl) {
+  if (elements.previewImg && url) elements.previewImg.src = url;
+  if (btnEl && btnEl.parentElement) {
+    btnEl.parentElement.querySelectorAll('.customizer-thumb-btn').forEach(b => b.classList.remove('active'));
+    btnEl.classList.add('active');
+  }
+};
+
+function syncCatalogFilterResetBtn() {
+  const rst = document.getElementById('btn-filter-reset');
+  if (!rst) return;
+  const active = (activeCatalogSort !== 'default') || filterOffersOnly || filterInStockOnly;
+  rst.style.display = active ? 'inline-flex' : 'none';
+}
+
 window.setCatalogSortMode = function(mode) {
   activeCatalogSort = mode || 'default';
+  syncCatalogFilterResetBtn();
   renderProducts(true);
 };
 
@@ -1002,6 +1060,7 @@ window.toggleCatalogOffersFilter = function() {
   filterOffersOnly = !filterOffersOnly;
   const btn = document.getElementById('btn-filter-offers-only');
   if (btn) btn.classList.toggle('active', filterOffersOnly);
+  syncCatalogFilterResetBtn();
   renderProducts();
 };
 
@@ -1009,5 +1068,18 @@ window.toggleCatalogInStockFilter = function() {
   filterInStockOnly = !filterInStockOnly;
   const btn = document.getElementById('btn-filter-instock-only');
   if (btn) btn.classList.toggle('active', filterInStockOnly);
+  syncCatalogFilterResetBtn();
   renderProducts();
+};
+
+window.resetCatalogFilters = function() {
+  activeCatalogSort = 'default';
+  filterOffersOnly = false;
+  filterInStockOnly = false;
+  const sel = document.getElementById('catalog-sort-select');
+  if (sel) sel.value = 'default';
+  document.getElementById('btn-filter-offers-only')?.classList.remove('active');
+  document.getElementById('btn-filter-instock-only')?.classList.remove('active');
+  syncCatalogFilterResetBtn();
+  renderProducts(true);
 };

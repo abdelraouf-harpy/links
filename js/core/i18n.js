@@ -1119,11 +1119,11 @@
         "it": "Filiale:"
     },
     "search_placeholder": {
-        "ar": "ابحث عن وجبتك المفضلة",
-        "en": "Search for your favorite food...",
-        "fr": "Recherchez votre plat préféré...",
-        "ru": "Поиск любимого блюда...",
-        "it": "Cerca il tuo piatto preferito..."
+        "ar": "ابحث في المنيو...",
+        "en": "Search menu...",
+        "fr": "Rechercher...",
+        "ru": "Поиск...",
+        "it": "Cerca..."
     },
     "nav_home": {
         "ar": "الرئيسية",
@@ -1401,11 +1401,18 @@
         "it": "Nome e Cognome"
     },
     "field_name_placeholder": {
-        "ar": "اكتب اسمك الكريم",
-        "en": "Enter your full name",
-        "fr": "Entrez votre nom",
-        "ru": "Введите ваше имя",
-        "it": "Inserisci il tuo nome"
+        "ar": "",
+        "en": "",
+        "fr": "",
+        "ru": "",
+        "it": ""
+    },
+    "err_invalid_name": {
+        "ar": "يرجى كتابة الاسم بشكل صحيح",
+        "en": "Please enter a valid full name",
+        "fr": "Veuillez entrer un nom valide",
+        "ru": "Пожалуйста, введите корректное имя",
+        "it": "Inserisci un nome valido"
     },
     "field_phone": {
         "ar": "رقم الموبايل للتواصل",
@@ -1415,11 +1422,18 @@
         "it": "Numero di telefono"
     },
     "field_phone_placeholder": {
-        "ar": "01012345678",
-        "en": "e.g. 01012345678",
-        "fr": "ex. 01012345678",
-        "ru": "напр. 01012345678",
-        "it": "es. 01012345678"
+        "ar": "",
+        "en": "",
+        "fr": "",
+        "ru": "",
+        "it": ""
+    },
+    "err_invalid_phone": {
+        "ar": "يرجى كتابة رقم هاتف صحيح",
+        "en": "Please enter a valid phone number",
+        "fr": "Veuillez entrer un numéro valide",
+        "ru": "Введите корректный номер телефона",
+        "it": "Inserisci un numero di telefono valido"
     },
     "field_address": {
         "ar": "عنوان التوصيل المعتاد",
@@ -1859,8 +1873,8 @@
         "en": "The restaurant is currently closed for orders"
     },
     "search_input_ph": {
-        "ar": "ابحث في المنيو (مثال: برجر، وجبات، صوص)",
-        "en": "Search menu (e.g. burger, meal, sauce)"
+        "ar": "ابحث في المنيو...",
+        "en": "Search menu..."
     },
 
     // ── Section 2: Portfolio / About ──
@@ -2105,8 +2119,8 @@
         "en": "Name"
     },
     "field_name_short_placeholder": {
-        "ar": "اسمك",
-        "en": "Your Name"
+        "ar": "",
+        "en": ""
     },
     "field_phone_short": {
         "ar": "رقم الهاتف",

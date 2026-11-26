@@ -497,7 +497,7 @@
         cssRules.push('#prod-piece-stock-wrap, .prod-piece-stock-badge { display: none !important; }');
       }
       if (modules.multiImageGallery !== true) {
-        cssRules.push('#prod-gallery-wrap, #customizer-gallery-thumbs { display: none !important; }');
+        cssRules.push('#prod-gallery-wrap, #customizer-gallery-thumbs, #preview-gallery-thumbs { display: none !important; }');
       }
       if (modules.catalogFilters !== true) {
         cssRules.push('#client-catalog-filters-bar { display: none !important; }');

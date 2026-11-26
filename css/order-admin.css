@@ -5372,5 +5372,236 @@ html.admin-locked #tab-settings .settings-sticky-save-bar,
   color: #FF6B6B;
 }
 
+/* ── Polished Admin Subcards, Store Piece Stock, Gallery Previews & Bulk Tools ── */
+.admin-settings-subcard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs, 10px);
+  padding: 15px 16px;
+}
+.admin-settings-subcard.is-warning-card {
+  border-color: rgba(245, 158, 11, 0.35);
+}
+.admin-settings-subhead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.admin-subhead-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--primary-subtle);
+  color: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.admin-subhead-icon.is-success {
+  background: var(--success-subtle);
+  color: var(--success);
+}
+.admin-subhead-icon.is-danger {
+  background: var(--danger-subtle);
+  color: var(--danger);
+}
+.admin-subhead-title {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+.admin-subhead-desc {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+@media (max-width: 640px) {
+  .age-gate-admin-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.admin-stock-pill {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+.admin-stock-pill.is-ok {
+  background: var(--success-subtle);
+  color: var(--success);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+.admin-stock-pill.is-low {
+  background: var(--warning-subtle);
+  color: #b45309;
+  border-color: rgba(245, 158, 11, 0.4);
+}
+[data-theme="dark"] .admin-stock-pill.is-low {
+  color: #FCD34D;
+}
+.admin-stock-pill.is-out {
+  background: var(--danger-subtle);
+  color: var(--danger);
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+.admin-gallery-preview-strip {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+.admin-gallery-thumb {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  background: var(--bg);
+  flex-shrink: 0;
+}
+.admin-gallery-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.admin-gallery-num {
+  position: absolute;
+  bottom: 2px;
+  left: 2px;
+  background: rgba(0, 0, 0, 0.72);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 0 4px;
+  border-radius: 4px;
+}
+
+.bulk-scope-btn,
+.bulk-mode-btn {
+  background: var(--surface);
+  color: var(--text-muted);
+  border: 1.5px solid var(--border) !important;
+  font-weight: 700 !important;
+  border-radius: 9px !important;
+  transition: all 0.16s ease;
+}
+.bulk-scope-btn.active,
+.bulk-mode-btn.active {
+  background: var(--primary-subtle) !important;
+  color: var(--primary) !important;
+  border-color: var(--primary) !important;
+  font-weight: 900 !important;
+}
+.bulk-preset-pill {
+  font-size: 11px !important;
+  padding: 4px 10px !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 999px !important;
+  font-weight: 800 !important;
+}
+.bulk-preset-pill:hover {
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+}
+
+.bulk-import-info-box {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+.bulk-csv-schema-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+  direction: ltr;
+}
+.bulk-csv-schema-chips span {
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--primary);
+}
+.bulk-csv-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 22px 16px;
+  margin-bottom: 12px;
+  border: 2px dashed var(--border-strong);
+  border-radius: 12px;
+  background: var(--surface-raised);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.16s ease, background 0.16s ease;
+}
+.bulk-csv-dropzone:hover {
+  border-color: var(--primary);
+  background: var(--primary-subtle);
+}
+.bulk-csv-drop-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--primary-subtle);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bulk-import-status-ok {
+  color: var(--success);
+  font-weight: 800;
+  margin-bottom: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--success-subtle);
+}
+.bulk-import-table-wrap {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.bulk-import-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+}
+.bulk-import-table th {
+  background: var(--surface-raised);
+  color: var(--text-muted);
+  font-weight: 800;
+  text-align: start;
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.bulk-import-table td {
+  padding: 6px 10px;
+  color: var(--text-main);
+  border-bottom: 1px solid var(--border);
+}
+.bulk-import-more {
+  padding: 6px 10px;
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--surface-raised);
+  text-align: center;
+}
+
 
 

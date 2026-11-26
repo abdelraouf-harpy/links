@@ -1056,7 +1056,7 @@ function renderStoreInfo() {
   const activeWalletNum = formatWalletAccount(rawWallet) ||
                           formatWalletAccount(walletPhone) ||
                           formatWalletAccount(walletWa) ||
-                          "01019971508";
+                          "";
 
   const activeWalletName = (settings.walletName || '').trim() || "فودافون كاش / إنستاباي";
 
@@ -1186,6 +1186,19 @@ function updatePromoMarqueeSpeed(forceRestart = false) {
   const promoCard = document.getElementById('promo-deal-card');
   if (!promoCard || promoCard.style.display === 'none') return;
 
+  const firstGroupBefore = track.querySelector('.promo-marquee-group');
+  if (!firstGroupBefore) return;
+
+  // Never measure or clone while #view-menu or #promo-deal-card is hidden (display:none -> width 0),
+  // otherwise clamping 0px -> 60px inflates clones and locks in an ultra-fast duration upon returning to Menu!
+  const measuredVw = viewport.clientWidth || viewport.getBoundingClientRect().width || 0;
+  const measuredSingleW = firstGroupBefore.getBoundingClientRect().width || 0;
+  if (!promoCard.offsetParent || measuredVw <= 0 || measuredSingleW <= 0) {
+    track.dataset.marqueePending = '1';
+    return;
+  }
+  delete track.dataset.marqueePending;
+
   // Remove dynamically cloned extra groups first so baseline count stays 4 even pairs
   track.querySelectorAll('.promo-marquee-group.promo-clone-extra').forEach(n => n.remove());
 
@@ -1218,11 +1231,13 @@ function updatePromoMarqueeSpeed(forceRestart = false) {
   const halfDistance = Math.max(track.scrollWidth / 2, singleW * halfCount, vw);
   const durationSec = Math.max(22, +(halfDistance / SPEED_PX_PER_SEC).toFixed(2));
   const prevDur = track.dataset.marqueeDuration || '';
+  const prevTotal = track.dataset.marqueeGroups || '';
 
   track.style.setProperty('--marquee-duration', durationSec + 's');
   track.style.animationDuration = durationSec + 's';
+  track.dataset.marqueeGroups = String(neededTotal);
 
-  if (forceRestart || prevDur !== String(durationSec)) {
+  if (forceRestart || prevDur !== String(durationSec) || prevTotal !== String(neededTotal)) {
     track.dataset.marqueeDuration = String(durationSec);
     track.style.animation = 'none';
     void track.offsetWidth;
@@ -1569,11 +1584,32 @@ function getCustomerProfile() {
   return null;
 }
 
+function normalizeCustomerDigits(val) {
+  return String(val || '')
+    .replace(/[٠-٩]/g, d => '0123456789'['٠١٢٣٤٥٦٧٨٩'.indexOf(d)])
+    .replace(/[۰-۹]/g, d => '0123456789'['۰۱۲۳۴۵۶۷۸۹'.indexOf(d)]);
+}
+window.normalizeCustomerDigits = normalizeCustomerDigits;
+
+function syncProfileToCheckoutInputs(profile) {
+  if (!profile) return;
+  const nameInp = elements.custName || document.getElementById('cust-name');
+  const phoneInp = elements.custPhone || document.getElementById('cust-phone');
+  const addrInp = elements.custAddress || document.getElementById('cust-address');
+  if (nameInp && !nameInp.value.trim() && profile.name) nameInp.value = profile.name;
+  if (phoneInp && !phoneInp.value.trim() && profile.phone) phoneInp.value = profile.phone;
+  if (addrInp && !addrInp.value.trim() && profile.address) addrInp.value = profile.address;
+  if (typeof window.updateCartSavedProfileCard === 'function') {
+    window.updateCartSavedProfileCard();
+  }
+}
+window.syncProfileToCheckoutInputs = syncProfileToCheckoutInputs;
+
 function saveCustomerProfile(name, phone, address = '', notes = '', lang = '') {
   if (!name && !phone && !address) return false;
   const current = getCustomerProfile() || {};
   const cleanName = (name !== undefined && name !== null ? String(name) : (current.name || '')).trim();
-  const cleanPhone = (phone !== undefined && phone !== null ? String(phone) : (current.phone || '')).trim();
+  const cleanPhone = normalizeCustomerDigits(phone !== undefined && phone !== null ? String(phone) : (current.phone || '')).trim();
   const cleanAddress = (address !== undefined && address !== null ? String(address) : (current.address || '')).trim();
   const cleanNotes = (notes !== undefined && notes !== null ? String(notes) : (current.notes || '')).trim();
   const cleanLang = (lang !== undefined && lang !== null && lang !== '' ? String(lang) : (current.lang || (typeof I18n !== 'undefined' ? I18n.getLanguage() : 'ar'))).trim();
@@ -1595,13 +1631,16 @@ function saveCustomerProfile(name, phone, address = '', notes = '', lang = '') {
     if (cleanLang) localStorage.setItem('harpy_customer_lang', cleanLang);
   } catch(e) {}
 
-  if (elements.custName && cleanName) elements.custName.value = cleanName;
-  if (elements.custPhone && cleanPhone) elements.custPhone.value = cleanPhone;
-  if (elements.custAddress && cleanAddress) elements.custAddress.value = cleanAddress;
+  const nameInp = elements.custName || document.getElementById('cust-name');
+  const phoneInp = elements.custPhone || document.getElementById('cust-phone');
+  const addrInp = elements.custAddress || document.getElementById('cust-address');
+  if (nameInp && cleanName) nameInp.value = cleanName;
+  if (phoneInp && cleanPhone) phoneInp.value = cleanPhone;
+  if (addrInp && cleanAddress) addrInp.value = cleanAddress;
 
   updateAccountDrawerProfileUI();
   if (typeof renderCleanProfileUI === 'function') renderCleanProfileUI();
-  if (typeof window.updateCartSavedProfileBanner === 'function') window.updateCartSavedProfileBanner();
+  if (typeof window.updateCartSavedProfileCard === 'function') window.updateCartSavedProfileCard();
   return true;
 }
 
@@ -1615,9 +1654,7 @@ function checkCustomerOnboarding() {
 
   const profile = getCustomerProfile();
   if (profile) {
-    if (elements.custName && !elements.custName.value && profile.name) elements.custName.value = profile.name;
-    if (elements.custPhone && !elements.custPhone.value && profile.phone) elements.custPhone.value = profile.phone;
-    if (elements.custAddress && !elements.custAddress.value && profile.address) elements.custAddress.value = profile.address;
+    syncProfileToCheckoutInputs(profile);
     if (profile.lang && typeof I18n !== 'undefined' && I18n.getLanguage() !== profile.lang) {
       I18n.setLanguage(profile.lang, false);
     }
@@ -1715,19 +1752,20 @@ function handleCustomerOnboardSubmit(e) {
   const phoneInput = document.getElementById('onboard-phone');
   const addressInput = document.getElementById('onboard-address');
   const name = nameInput ? nameInput.value.trim() : '';
-  const phone = phoneInput ? phoneInput.value.trim() : '';
+  const phone = normalizeCustomerDigits(phoneInput ? phoneInput.value : '').trim();
   const address = addressInput ? addressInput.value.trim() : '';
   const activeBtn = document.querySelector('.onboard-lang-btn.active');
   const lang = activeBtn ? activeBtn.getAttribute('data-lang') : (typeof I18n !== 'undefined' ? I18n.getLanguage() : 'ar');
 
   if (!name || name.length < 2) {
-    const msg = (typeof t === 'function') ? t('field_name_placeholder') : "يرجى كتابة الاسم بشكل صحيح";
+    const msg = (typeof t === 'function') ? t('err_invalid_name', 'يرجى كتابة الاسم بشكل صحيح') : "يرجى كتابة الاسم بشكل صحيح";
     showToastNotification(msg, "error");
     if (nameInput) nameInput.focus();
     return;
   }
-  if (!phone || phone.length < 8) {
-    const msg = (typeof t === 'function') ? t('field_phone_placeholder') : "يرجى كتابة رقم هاتف صحيح";
+  const phoneDigitsOnly = phone.replace(/[\s\-+()]/g, '');
+  if (!phoneDigitsOnly || phoneDigitsOnly.length < 8) {
+    const msg = (typeof t === 'function') ? t('err_invalid_phone', 'يرجى كتابة رقم هاتف صحيح') : "يرجى كتابة رقم هاتف صحيح";
     showToastNotification(msg, "error");
     if (phoneInput) phoneInput.focus();
     return;
@@ -1944,14 +1982,15 @@ function handleAccountEditSubmit(e) {
   const editPhone = isDrawerForm ? (drawerPhoneInput || cleanPhoneInput) : (cleanPhoneInput || drawerPhoneInput);
   const editAddress = isDrawerForm ? (drawerAddressInput || cleanAddressInput) : (cleanAddressInput || drawerAddressInput);
   const name = editName ? editName.value.trim() : '';
-  const phone = editPhone ? editPhone.value.trim() : '';
+  const phone = normalizeCustomerDigits(editPhone ? editPhone.value : '').trim();
   const address = editAddress ? editAddress.value.trim() : '';
 
   if (!name || name.length < 2) {
     showToastNotification("يرجى إدخال اسم صحيح (حرفين على الأقل)", "error");
     return;
   }
-  if (!phone || phone.length < 8) {
+  const cleanDigits = phone.replace(/[\s\-+()]/g, '');
+  if (!cleanDigits || cleanDigits.length < 8) {
     showToastNotification("يرجى إدخال رقم هاتف صحيح", "error");
     return;
   }
@@ -1963,9 +2002,13 @@ function handleAccountEditSubmit(e) {
   updateAccountDrawerProfileUI();
 
   // Auto-fill checkout fields if available
-  if (elements.custName) elements.custName.value = name;
-  if (elements.custPhone) elements.custPhone.value = phone;
-  if (elements.custAddress && address) elements.custAddress.value = address;
+  const cName = elements.custName || document.getElementById('cust-name');
+  const cPhone = elements.custPhone || document.getElementById('cust-phone');
+  const cAddr = elements.custAddress || document.getElementById('cust-address');
+  if (cName) cName.value = name;
+  if (cPhone) cPhone.value = phone;
+  if (cAddr && address) cAddr.value = address;
+  if (typeof window.updateCartSavedProfileCard === 'function') window.updateCartSavedProfileCard();
 
   showToastNotification("تم حفظ وتحديث بياناتك بنجاح", "success");
 }
@@ -2911,6 +2954,7 @@ function handleNavTabClick(tabId) {
   } else if (tabId === 'menu') {
     setActiveNavTab('menu');
     switchAppView(viewMenu);
+    requestAnimationFrame(() => updatePromoMarqueeSpeed(false));
   } else if (tabId === 'orders') {
     setActiveNavTab('orders');
     clearOrdersTabPulse();
@@ -2946,9 +2990,18 @@ window.rerenderAllCustomerViews = function() {
   if (navOrders) navOrders.textContent = (typeof t === 'function') ? t('nav_orders', 'طلباتي') : 'طلباتي';
   if (navAccount) navAccount.textContent = (typeof t === 'function') ? t('nav_account', 'حسابي') : 'حسابي';
 
-  // 3. Translate search bar placeholder
+  // 3. Translate search bar placeholder (fit comfortably on all screens + store/restaurant adaptive)
   const searchInput = document.getElementById('search-input');
-  if (searchInput && typeof t === 'function') searchInput.placeholder = t('search_placeholder', 'ابحث عن وجبتك المفضلة');
+  if (searchInput) {
+    const isStoreSearch = !!(window.NicheEngine && typeof window.NicheEngine.isStoreMode === 'function' && window.NicheEngine.isStoreMode());
+    const fallbackPh = isStoreSearch
+      ? (lang === 'en' ? 'Search store...' : 'ابحث في المتجر...')
+      : (lang === 'en' ? 'Search menu...' : 'ابحث في المنيو...');
+    const storeTerm = (window.NicheEngine && typeof window.NicheEngine.getTerm === 'function')
+      ? window.NicheEngine.getTerm('search_input_ph', lang)
+      : null;
+    searchInput.placeholder = storeTerm || (typeof t === 'function' ? t('search_input_ph', fallbackPh) : fallbackPh);
+  }
 
   // 4. Update language indicator in #view-account and drawer
   const cleanLangSub = document.getElementById('clean-language-status-text');
@@ -3264,8 +3317,22 @@ window.checkAgeGate18 = function(settings, normMods) {
 
   const titleEl = document.getElementById('age-gate-title');
   const descEl = document.getElementById('age-gate-desc');
-  if (titleEl && s.ageGateTitle) titleEl.textContent = s.ageGateTitle;
-  if (descEl && s.ageGateDesc) descEl.textContent = s.ageGateDesc;
+  const confirmBtn = document.getElementById('btn-age-gate-confirm');
+  const declineBtn = document.getElementById('btn-age-gate-decline');
+  const statusPill = document.getElementById('age-gate-status-pill');
+  if (titleEl) titleEl.textContent = s.ageGateTitle || 'تحقق من العمر (+18 عاماً)';
+  if (descEl) descEl.textContent = s.ageGateDesc || 'يحتوي هذا المتجر على منتجات مخصصة للبالغين فوق 18 عاماً فقط. بدخولك للمتجر تقر بأن عمرك 18 سنة أو أكثر.';
+  if (confirmBtn) confirmBtn.style.display = '';
+  if (declineBtn) {
+    declineBtn.style.display = '';
+    declineBtn.textContent = 'أقل من 18 عاماً (مغادرة)';
+    declineBtn.onclick = () => window.declineAgeGate18 && window.declineAgeGate18();
+  }
+  if (statusPill) {
+    statusPill.textContent = 'تحقق مطلوب للدخول';
+    statusPill.classList.remove('declined');
+  }
+  modal.classList.remove('is-declined');
 
   modal.style.display = 'block';
   modal.classList.add('open', 'show');
@@ -3281,7 +3348,7 @@ window.confirmAgeGate18 = function() {
   const modal = document.getElementById('age-gate-modal');
   const backdrop = document.getElementById('age-gate-backdrop');
   if (modal) {
-    modal.classList.remove('open', 'show');
+    modal.classList.remove('open', 'show', 'is-declined');
     modal.style.display = 'none';
   }
   if (backdrop) {
@@ -3291,8 +3358,22 @@ window.confirmAgeGate18 = function() {
 };
 
 window.declineAgeGate18 = function() {
+  const modal = document.getElementById('age-gate-modal');
   const titleEl = document.getElementById('age-gate-title');
   const descEl = document.getElementById('age-gate-desc');
+  const confirmBtn = document.getElementById('btn-age-gate-confirm');
+  const declineBtn = document.getElementById('btn-age-gate-decline');
+  const statusPill = document.getElementById('age-gate-status-pill');
+  if (modal) modal.classList.add('is-declined');
+  if (statusPill) {
+    statusPill.textContent = 'الدخول مقيد (+18)';
+    statusPill.classList.add('declined');
+  }
   if (titleEl) titleEl.textContent = 'عذراً، هذا المتجر مخصص للبالغين فقط (+18)';
-  if (descEl) descEl.textContent = 'لا يُسمح بتصفح أو طلب منتجات هذا المتجر لمن هم دون سن 18 عاماً.';
+  if (descEl) descEl.textContent = 'لا يُسمح بتصفح أو طلب منتجات هذا المتجر لمن هم دون سن 18 عاماً. يمكنك إغلاق الصفحة أو التأكيد لاحقاً عند بلوغ السن القانوني.';
+  if (confirmBtn) confirmBtn.style.display = 'none';
+  if (declineBtn) {
+    declineBtn.textContent = 'مراجعة خيار التأكيد';
+    declineBtn.onclick = () => window.checkAgeGate18 && window.checkAgeGate18();
+  }
 };

@@ -532,8 +532,8 @@
       btn_customize: 'خيارات',
       btn_add: 'إضافة',
       add_to_cart: 'إضافة إلى السلة',
-      search_placeholder: 'ابحث عن منتج، ماركة، أو قسم...',
-      search_input_ph: 'ابحث عن منتج، ماركة، أو قسم...',
+      search_placeholder: 'ابحث في المتجر...',
+      search_input_ph: 'ابحث في المتجر...',
       prep_time_placeholder: 'مثال: شحن خلال 24 ساعة',
       customizer_title: 'تفاصيل واختيارات المنتج',
       customizer_desc: 'اختر المقاس والمواصفات المطلوبة',
@@ -618,8 +618,8 @@
       btn_customize: 'Options',
       btn_add: 'Add',
       add_to_cart: 'Add to Cart',
-      search_placeholder: 'Search products, brands, or categories...',
-      search_input_ph: 'Search products, brands, or categories...',
+      search_placeholder: 'Search store...',
+      search_input_ph: 'Search store...',
       prep_time_placeholder: 'e.g. Ships within 24h',
       customizer_title: 'Product Options',
       customizer_desc: 'Choose size and product options',
@@ -677,7 +677,9 @@
     ['بالهناء والشفاء! نتمنى لك تجربة طعام رائعة في ضيافتنا.', 'تم تسليم طلبك بنجاح! شكراً لثقتك في متجرنا.'],
     ['ابدأ بإضافة أول صنف أو وجبة في منيو مطعمك وحدد السعر والصورة والأقسام بسهولة', 'ابدأ بإضافة أول منتج في متجرك وحدد السعر والكمية والصورة والقسم بسهولة'],
     ['بحث سريع عن وجبة، صنف، أو مشروب', 'بحث سريع عن منتج، ماركة، أو قسم...'],
-    ['ابحث في المنيو (مثال: برجر، وجبات، صوص)', 'ابحث عن منتج، ماركة، أو قسم...'],
+    ['ابحث في المنيو (مثال: برجر، وجبات، صوص)', 'ابحث في المتجر...'],
+    ['ابحث في المنيو...', 'ابحث في المتجر...'],
+    ['ابحث عن وجبتك المفضلة', 'ابحث في المتجر...'],
     ['ملاحظة للمطبخ (اختياري: بدون بصل، شطة زيادة...)', 'ملاحظة على الطلب أو التغليف (اختياري)...'],
     ['ملاحظات خاصة للشيف (اختياري)...', 'ملاحظات خاصة بالطلب أو التغليف (اختياري)...'],
     ['يكمل وجبتك (إضافات ومشروبات مقترحة):', 'خيارات ومكملات مقترحة مع المنتج:'],
@@ -813,7 +815,7 @@
 
   function getBusinessType(settings) {
     const s = settings || (typeof window.Store !== 'undefined' && window.Store && typeof window.Store.getSettings === 'function' ? window.Store.getSettings() : {}) || {};
-    if (s.businessType === 'store') return 'store';
+    if (s.businessType) return s.businessType === 'store' ? 'store' : 'restaurant';
     if (typeof document !== 'undefined' && document.documentElement && document.documentElement.getAttribute('data-business-type') === 'store') return 'store';
     return 'restaurant';
   }

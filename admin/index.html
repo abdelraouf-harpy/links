@@ -115,9 +115,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Admin">
 
-  <link rel="stylesheet" href="css/order-tokens.css?v=203.0">
-  <link rel="stylesheet" href="css/order-client.css?v=203.0">
-  <link rel="stylesheet" href="css/order-admin.css?v=203.0">
+  <link rel="stylesheet" href="css/order-tokens.css?v=203.1">
+  <link rel="stylesheet" href="css/order-client.css?v=203.1">
+  <link rel="stylesheet" href="css/order-admin.css?v=203.1">
 
   <script>
     // Instant zero-delay theme toggle available immediately on page paint
@@ -1451,19 +1451,35 @@
             </div>
 
             <!-- Store Policy & Age Gate Customization -->
-            <div id="settings-return-policy-wrap" class="form-group" style="margin-bottom:16px;">
-              <label class="form-label">سياسة الاستبدال والاسترجاع والضمان (تظهر للعميل بالمتجر والسلة)</label>
-              <textarea id="set-return-policy" class="form-input" rows="2" placeholder="مثال: استبدال أو استرجاع خلال 14 يوماً بحالة الشراء الأصلية مع الفاتورة."></textarea>
-            </div>
-            <div id="settings-age-gate-wrap" style="background:var(--warning-subtle); border:1px solid var(--border); border-radius:var(--radius-xs); padding:14px; margin-bottom:16px;">
-              <div style="font-size:0.88rem; font-weight:800; color:var(--text-main); margin-bottom:8px;">بوابة التحقق من العمر (+18 Age Gate)</div>
-              <div class="form-group" style="margin-bottom:8px;">
-                <label class="form-label" style="font-size:11px;">عنوان البوابة</label>
-                <input type="text" id="set-age-gate-title" class="form-input" placeholder="تنبيه: هذا المتجر مخصص للبالغين (+18) فقط">
+            <div id="settings-return-policy-wrap" class="admin-settings-subcard" style="margin-bottom:16px;">
+              <div class="admin-settings-subhead">
+                <span class="admin-subhead-icon is-success">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+                </span>
+                <div>
+                  <div class="admin-subhead-title">سياسة الاستبدال والاسترجاع والضمان</div>
+                  <div class="admin-subhead-desc">تظهر في بطاقة واضحة داخل المتجر وسلة المشتريات لرفع ثقة العميل</div>
+                </div>
               </div>
-              <div class="form-group" style="margin-bottom:0;">
-                <label class="form-label" style="font-size:11px;">نص التأكيد</label>
-                <input type="text" id="set-age-gate-desc" class="form-input" placeholder="بدخولك وتصفحك المنتجات فإنك تقر بأن عمرك يتجاوز 18 عاماً.">
+              <textarea id="set-return-policy" class="form-input" rows="2" placeholder="مثال: استبدال أو استرجاع خلال 14 يوماً بحالة الشراء الأصلية مع الفاتورة." style="margin-top:10px;"></textarea>
+            </div>
+            <div id="settings-age-gate-wrap" class="admin-settings-subcard is-warning-card" style="margin-bottom:16px;">
+              <div class="admin-settings-subhead">
+                <span class="admin-subhead-icon is-danger font-num" style="font-weight:900; font-size:11px;">+18</span>
+                <div>
+                  <div class="admin-subhead-title">بوابة التحقق من العمر (+18 Age Gate)</div>
+                  <div class="admin-subhead-desc">تظهر عند فتح المتجر لأول مرة (مخصصة للمتاجر المقيدة بسن قانوني)</div>
+                </div>
+              </div>
+              <div class="age-gate-admin-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px;">
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label" style="font-size:11px;">عنوان البوابة</label>
+                  <input type="text" id="set-age-gate-title" class="form-input" placeholder="تنبيه: هذا المتجر مخصص للبالغين (+18) فقط">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label" style="font-size:11px;">نص التأكيد</label>
+                  <input type="text" id="set-age-gate-desc" class="form-input" placeholder="بدخولك وتصفحك المنتجات فإنك تقر بأن عمرك يتجاوز 18 عاماً.">
+                </div>
               </div>
             </div>
 
@@ -1633,14 +1649,23 @@
               حدد سعر التوصيل الموحد، وأضف نطاقات مخصصة بأسعار مختلفة تعتمد على الكلمات المفتاحية في عنوان العميل.
             </p>
 
-            <!-- Default Delivery Fee -->
+            <!-- Default Delivery Fee & Minimum Order -->
             <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xs); padding:14px; margin-bottom:14px;">
-              <label class="form-label" style="font-size:12px; font-weight:800;">
-                سعر التوصيل الموحد لكافة الأماكن (ج.م)
-              </label>
-              <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                <input type="number" id="set-default-delivery-fee" class="form-input font-num" placeholder="15" min="0" step="0.5" style="max-width:180px;">
-                <span style="font-size:12px; color:var(--text-muted);">يطبق تلقائياً إذا لم يطابق العنوان أي منطقة مخصصة أدناه</span>
+              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px;">
+                <div>
+                  <label class="form-label" style="font-size:12px; font-weight:800;">
+                    سعر التوصيل الموحد لكافة الأماكن (ج.م)
+                  </label>
+                  <input type="number" id="set-default-delivery-fee" class="form-input font-num" placeholder="15" min="0" step="0.5">
+                  <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">يطبق تلقائياً إذا لم يطابق العنوان أي منطقة مخصصة أدناه</div>
+                </div>
+                <div>
+                  <label class="form-label" style="font-size:12px; font-weight:800;">
+                    الحد الأدنى لقيمة الطلب (ج.م — اختياري)
+                  </label>
+                  <input type="number" id="set-min-order" class="form-input font-num" placeholder="0" min="0" step="5">
+                  <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">يمنع المتابعة في السلة قبل الوصول لهذا المبلغ (0 = بدون حد أدنى)</div>
+                </div>
               </div>
             </div>
 
@@ -1957,14 +1982,22 @@
       </div>
 
       <!-- Piece Stock & Brand Fields (Store Mode) -->
-      <div id="prod-piece-stock-wrap" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
-        <div class="form-group" style="margin-bottom:0;">
-          <label class="form-label" style="font-size:11px; margin-bottom:4px;">الكمية المتاحة بالمخزون (اتركه فارغاً لغير محدود)</label>
-          <input type="number" id="prod-stock-qty" class="form-input font-num" min="0" step="1" placeholder="مثال: 15 قطعة">
+      <div id="prod-piece-stock-wrap" class="prod-subcard">
+        <div class="prod-subcard-header" style="margin-bottom:8px;">
+          <span class="prod-subcard-title" style="display:flex; align-items:center; gap:6px;">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--primary)" stroke-width="2.2"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>
+            <span>المخزون بالقطع والماركة (خصم تلقائي عند الطلب)</span>
+          </span>
         </div>
-        <div class="form-group" style="margin-bottom:0;">
-          <label class="form-label" style="font-size:11px; margin-bottom:4px;">الماركة / النوع (اختياري للفلترة)</label>
-          <input type="text" id="prod-brand" class="form-input" placeholder="مثال: Vozol / Elf Bar / Vaporesso">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label" style="font-size:11px; margin-bottom:4px;">الكمية المتاحة بالمخزون</label>
+            <input type="number" id="prod-stock-qty" class="form-input font-num" min="0" step="1" placeholder="فارغ = غير محدود">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label" style="font-size:11px; margin-bottom:4px;">الماركة / البراند (اختياري)</label>
+            <input type="text" id="prod-brand" class="form-input" placeholder="مثال: Vozol / Apple / Nike">
+          </div>
         </div>
       </div>
 
@@ -2079,9 +2112,13 @@
           </div>
         </div>
         <input type="hidden" id="prod-img-url">
-        <div id="prod-gallery-wrap" style="margin-top:10px;">
-          <label class="form-label" style="font-size:11px; margin-bottom:4px;">صور إضافية لمعرض المنتج (رابط في كل سطر — اختياري)</label>
-          <textarea id="prod-gallery-urls" class="form-textarea font-num" rows="2" placeholder="https://.../img2.jpg&#10;https://.../img3.jpg" style="font-size:11px; direction:ltr; text-align:left;"></textarea>
+        <div id="prod-gallery-wrap" class="prod-subcard" style="margin-top:10px;">
+          <div class="prod-subcard-header" style="margin-bottom:6px;">
+            <span class="prod-subcard-title">معرض الصور الإضافية للمنتج (اختياري)</span>
+            <span style="font-size:10.5px; color:var(--text-muted); font-weight:700;">رابط في كل سطر</span>
+          </div>
+          <textarea id="prod-gallery-urls" class="form-textarea font-num" rows="2" placeholder="https://.../img2.jpg&#10;https://.../img3.jpg" style="font-size:11px; direction:ltr; text-align:left;" oninput="if(window.renderProdGalleryPreview) window.renderProdGalleryPreview()"></textarea>
+          <div id="prod-gallery-preview" class="admin-gallery-preview-strip" style="display:none;"></div>
         </div>
       </div>
 
@@ -2858,14 +2895,14 @@
     <div style="display:flex; flex-direction:column; gap:12px;">
       <!-- 1. Scope -->
       <div class="prod-subcard" style="padding:12px;">
-        <div style="font-size:12px; font-weight:800; color:var(--text-main); margin-bottom:8px;">1. مين الأصناف اللي هنعدّل أسعارها؟</div>
+        <div style="font-size:12px; font-weight:800; color:var(--text-main); margin-bottom:8px;">1. نطاق المنتجات المستهدفة</div>
         <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-bottom:8px;">
-          <button type="button" class="btn btn-sm bulk-scope-btn active" data-scope="all" onclick="setBulkScope('all')" style="border:1.5px solid var(--primary); font-weight:800;">كل المنتجات</button>
-          <button type="button" class="btn btn-sm bulk-scope-btn" data-scope="categories" onclick="setBulkScope('categories')" style="border:1px solid var(--border); font-weight:700;">أقسام محددة</button>
-          <button type="button" class="btn btn-sm bulk-scope-btn" data-scope="selected" onclick="setBulkScope('selected')" style="border:1px solid var(--border); font-weight:700;">منتجات مختارة (<span id="bulk-selected-count">0</span>)</button>
+          <button type="button" class="btn btn-sm bulk-scope-btn active" data-scope="all" onclick="setBulkScope('all')">كل المنتجات</button>
+          <button type="button" class="btn btn-sm bulk-scope-btn" data-scope="categories" onclick="setBulkScope('categories')">أقسام محددة</button>
+          <button type="button" class="btn btn-sm bulk-scope-btn" data-scope="selected" onclick="setBulkScope('selected')">منتجات مختارة (<span id="bulk-selected-count">0</span>)</button>
         </div>
         <div id="bulk-categories-picker" style="display:none; flex-wrap:wrap; gap:6px; margin-top:8px;"></div>
-        <div id="bulk-products-picker" style="display:none; max-height:170px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; padding:8px; margin-top:8px;"></div>
+        <div id="bulk-products-picker" style="display:none; max-height:170px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; padding:8px; margin-top:8px; background:var(--surface);"></div>
       </div>
 
       <!-- 2. Operation & Amount -->
@@ -2899,16 +2936,16 @@
       <div class="prod-subcard" style="padding:12px;">
         <div style="font-size:12px; font-weight:800; color:var(--text-main); margin-bottom:8px;">3. مدة السعر الجديد</div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
-          <button type="button" class="btn btn-sm bulk-mode-btn active" data-mode="permanent" onclick="setBulkDurationMode('permanent')" style="border:1.5px solid var(--primary); font-weight:800;">تغيير دائم (ثابت)</button>
-          <button type="button" class="btn btn-sm bulk-mode-btn" data-mode="timed" onclick="setBulkDurationMode('timed')" style="border:1px solid var(--border); font-weight:700;">عرض خاص بمؤقت زمني</button>
+          <button type="button" class="btn btn-sm bulk-mode-btn active" data-mode="permanent" onclick="setBulkDurationMode('permanent')">تغيير دائم (ثابت)</button>
+          <button type="button" class="btn btn-sm bulk-mode-btn" data-mode="timed" onclick="setBulkDurationMode('timed')">عرض خاص بمؤقت زمني</button>
         </div>
         <div id="bulk-timed-fields" style="display:none; padding-top:8px; border-top:1px dashed var(--border);">
           <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px;">
-            <button type="button" class="btn btn-ghost btn-sm font-num" onclick="setBulkOfferPresetHours(6)" style="font-size:11px; padding:3px 8px; border:1px solid var(--border);">6 ساعات</button>
-            <button type="button" class="btn btn-ghost btn-sm font-num" onclick="setBulkOfferPresetHours(12)" style="font-size:11px; padding:3px 8px; border:1px solid var(--border);">12 ساعة</button>
-            <button type="button" class="btn btn-ghost btn-sm font-num" onclick="setBulkOfferPresetHours(24)" style="font-size:11px; padding:3px 8px; border:1px solid var(--border);">24 ساعة</button>
-            <button type="button" class="btn btn-ghost btn-sm font-num" onclick="setBulkOfferPresetHours(72)" style="font-size:11px; padding:3px 8px; border:1px solid var(--border);">3 أيام</button>
-            <button type="button" class="btn btn-ghost btn-sm font-num" onclick="setBulkOfferPresetHours(168)" style="font-size:11px; padding:3px 8px; border:1px solid var(--border);">أسبوع</button>
+            <button type="button" class="btn btn-ghost btn-sm font-num bulk-preset-pill" onclick="setBulkOfferPresetHours(6)">6 ساعات</button>
+            <button type="button" class="btn btn-ghost btn-sm font-num bulk-preset-pill" onclick="setBulkOfferPresetHours(12)">12 ساعة</button>
+            <button type="button" class="btn btn-ghost btn-sm font-num bulk-preset-pill" onclick="setBulkOfferPresetHours(24)">24 ساعة</button>
+            <button type="button" class="btn btn-ghost btn-sm font-num bulk-preset-pill" onclick="setBulkOfferPresetHours(72)">3 أيام</button>
+            <button type="button" class="btn btn-ghost btn-sm font-num bulk-preset-pill" onclick="setBulkOfferPresetHours(168)">أسبوع</button>
           </div>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; align-items:start;">
             <div class="form-group" style="margin-bottom:0; display:flex; flex-direction:column;">
@@ -2941,23 +2978,34 @@
 
   <!-- Bulk CSV/Excel Import Modal -->
   <div class="modal-backdrop" id="bulk-import-modal-backdrop" onclick="closeBulkImportModal()"></div>
-  <div class="modal-box" id="bulk-import-modal" style="max-width:540px; max-height:90vh; overflow-y:auto;">
+  <div class="modal-box" id="bulk-import-modal" style="max-width:560px; max-height:90vh; overflow-y:auto;">
     <div class="modal-sticky-header">
       <h3 style="font-size:1rem; font-weight:900; color:var(--text-main); margin:0;">استيراد وتحديث المنتجات جماعياً (CSV)</h3>
       <button class="btn-close" type="button" onclick="closeBulkImportModal()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     </div>
-    <p style="font-size:12px; color:var(--text-muted); line-height:1.6; margin-bottom:12px;">
-      مخصص للمتاجر ذات الكتالوجات الكبيرة (200–300+ منتج). ارفع ملف CSV محفوظ من Excel بالترتيب التالي:<br>
-      <code style="font-size:11px; direction:ltr; display:inline-block;">name,category,price,originalPrice,stockQty,brand,desc,image</code>
-    </p>
-    <div style="display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;">
-      <button type="button" class="btn btn-ghost btn-sm" onclick="downloadSampleCSVTemplate()" style="border:1px solid var(--border-strong); font-weight:800;">تحميل قالب CSV جاهز</button>
-      <label class="btn btn-primary btn-sm" style="cursor:pointer; font-weight:800;">
-        اختيار ملف CSV / جدول بيانات
-        <input type="file" id="bulk-csv-file-input" accept=".csv,.txt" style="display:none;" onchange="handleBulkCSVFile(event)">
-      </label>
+    <div class="bulk-import-info-box">
+      <div style="font-size:12px; color:var(--text-body); line-height:1.6;">
+        ارفع ملف CSV محفوظاً من Excel لتحديث أو إضافة مئات المنتجات دفعة واحدة بالترتيب التالي للأعمدة:
+      </div>
+      <div class="bulk-csv-schema-chips font-num">
+        <span>name *</span><span>category</span><span>price *</span><span>originalPrice</span><span>stockQty</span><span>brand</span><span>desc</span><span>image</span>
+      </div>
     </div>
-    <div id="bulk-import-preview" style="font-size:12px; color:var(--text-muted); margin-bottom:12px;"></div>
+    <label class="bulk-csv-dropzone" for="bulk-csv-file-input">
+      <input type="file" id="bulk-csv-file-input" accept=".csv,.txt" style="display:none;" onchange="handleBulkCSVFile(event)">
+      <div class="bulk-csv-drop-icon">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      </div>
+      <div style="font-size:13px; font-weight:800; color:var(--text-main);">اضغط هنا لاختيار ملف CSV / جدول بيانات</div>
+      <div style="font-size:11px; color:var(--text-muted);">يدعم الملفات العربية بصيغة UTF-8 CSV</div>
+    </label>
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
+      <button type="button" class="btn btn-ghost btn-sm" onclick="downloadSampleCSVTemplate()" style="border:1px solid var(--border-strong); font-weight:800; display:inline-flex; align-items:center; gap:6px;">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span>تحميل قالب CSV نموذجي جاهز</span>
+      </button>
+    </div>
+    <div id="bulk-import-preview" style="font-size:12px; color:var(--text-muted); margin-bottom:14px;"></div>
     <div style="display:flex; gap:8px;">
       <button type="button" id="btn-confirm-bulk-import" class="btn btn-primary" onclick="executeBulkCSVImport()" disabled style="flex:1; font-weight:800;">استيراد وتحديث الآن</button>
       <button type="button" class="btn btn-ghost" onclick="closeBulkImportModal()">إغلاق</button>
@@ -2968,24 +3016,24 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="js/core/demo-seed-data.js?v=203.0"></script>
-  <script src="js/core/sound-effects.js?v=203.0"></script>
-  <script src="js/core/niche-engine.js?v=203.0"></script>
-  <script src="js/store.js?v=203.0"></script>
-  <script src="js/admin/admin-core.js?v=203.0"></script>
-  <script src="js/admin/admin-auth.js?v=203.0"></script>
-  <script src="js/admin/kitchen-orders.js?v=203.0"></script>
-  <script src="js/admin/inventory-manager.js?v=203.0"></script>
-  <script src="js/admin/catalog-manager.js?v=203.0"></script>
-  <script src="js/admin/category-manager.js?v=203.0"></script>
-  <script src="js/admin/stories-manager.js?v=203.0"></script>
-  <script src="js/admin/backup-restore.js?v=203.0"></script>
-  <script src="js/core/qrcode.min.js?v=203.0"></script>
-  <script src="js/admin/settings-manager.js?v=203.0"></script>
-  <script src="js/admin/pos-terminal.js?v=203.0"></script>
-  <script src="js/admin/admin-push.js?v=203.0"></script>
-  <script src="js/admin.js?v=203.0"></script>
-  <script src="js/core/module-enforcer.js?v=203.0"></script>
-  <script src="js/pwa.js?v=203.0"></script>
+  <script src="js/core/demo-seed-data.js?v=203.1"></script>
+  <script src="js/core/sound-effects.js?v=203.1"></script>
+  <script src="js/core/niche-engine.js?v=203.1"></script>
+  <script src="js/store.js?v=203.1"></script>
+  <script src="js/admin/admin-core.js?v=203.1"></script>
+  <script src="js/admin/admin-auth.js?v=203.1"></script>
+  <script src="js/admin/kitchen-orders.js?v=203.1"></script>
+  <script src="js/admin/inventory-manager.js?v=203.1"></script>
+  <script src="js/admin/catalog-manager.js?v=203.1"></script>
+  <script src="js/admin/category-manager.js?v=203.1"></script>
+  <script src="js/admin/stories-manager.js?v=203.1"></script>
+  <script src="js/admin/backup-restore.js?v=203.1"></script>
+  <script src="js/core/qrcode.min.js?v=203.1"></script>
+  <script src="js/admin/settings-manager.js?v=203.1"></script>
+  <script src="js/admin/pos-terminal.js?v=203.1"></script>
+  <script src="js/admin/admin-push.js?v=203.1"></script>
+  <script src="js/admin.js?v=203.1"></script>
+  <script src="js/core/module-enforcer.js?v=203.1"></script>
+  <script src="js/pwa.js?v=203.1"></script>
 </body>
 </html>
